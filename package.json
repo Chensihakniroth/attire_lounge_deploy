@@ -1,16 +1,19 @@
 {
     "private": true,
-    "scripts": {
-        "dev": "concurrently \"npm run dev:css\" \"npm run dev:js\"",
-        "dev:css": "tailwindcss -i ./resources/css/app.css -o ./public/css/app.css --watch",
-        "dev:js": "esbuild resources/js/app.jsx --bundle --outfile=public/js/app.js --watch",
-        "build": "npm run build:css && npm run build:js",
-        "build:css": "tailwindcss -i ./resources/css/app.css -o ./public/css/app.css --minify",
-        "build:js": "esbuild resources/js/app.jsx --bundle --minify --outfile=public/js/app.js",
-        "start": "npm run dev"
-    },
+      "scripts": {
+    "dev": "concurrently \"npm run dev:css\" \"npm run dev:js\"",
+    "dev:css": "tailwindcss -i ./resources/css/app.css -o ./public/css/app.css --watch",
+    "dev:js": "esbuild resources/js/app.jsx --bundle --outfile=public/js/app.js --watch --loader:.js=jsx --loader:.jsx=jsx",
+    "build": "npm run build:css && npm run build:js",
+    "build:css": "tailwindcss -i ./resources/css/app.css -o ./public/css/app.css --minify",
+    "build:js": "esbuild resources/js/app.jsx --bundle --minify --outfile=public/js/app.js --loader:.js=jsx --loader:.jsx=jsx"
+     },
+
     "dependencies": {
-        "axios": "^1.13.2"
+        "axios": "^1.13.2",
+        "react": "^18.2.0",
+        "react-dom": "^18.2.0",
+        "react-router-dom": "^6.20.1"
     },
     "devDependencies": {
         "@headlessui/react": "^1.7.17",
@@ -22,9 +25,6 @@
         "framer-motion": "^10.18.0",
         "lucide-react": "^0.309.0",
         "postcss": "^8.4.32",
-        "react": "^18.2.0",
-        "react-dom": "^18.2.0",
-        "react-router-dom": "^6.20.1",
         "tailwindcss": "^3.3.6"
     }
 }

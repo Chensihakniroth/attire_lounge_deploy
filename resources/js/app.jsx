@@ -1,48 +1,22 @@
-// resources/js/app.jsx - MAIN ENTRY POINT
 import React from 'react';
-import { createRoot } from 'react-dom/client';
+import ReactDOM from 'react-dom/client';
 import './bootstrap';
 import '../css/app.css';
 
-// Import components with correct paths
-import Navigation from './components/layouts/Navigation';
-import Hero from './components/sections/Hero';
-import ProductGrid from './components/sections/ProductGrid';
-import Footer from './components/layouts/Footer';
-import LoadingSpinner from './components/common/LoadingSpinner';
+// Import the main App component - FROM CORRECT LOCATION
+import App from './components/MainApp.jsx';
 
-function App() {
-    const [loading, setLoading] = React.useState(true);
-
-    React.useEffect(() => {
-        // Simulate loading
-        const timer = setTimeout(() => {
-            setLoading(false);
-        }, 1000);
-        return () => clearTimeout(timer);
-    }, []);
-
-    if (loading) {
-        return <LoadingSpinner />;
-    }
-
-    return (
-        <div className="min-h-screen">
-            <Navigation />
-            <main>
-                <Hero />
-                <ProductGrid />
-                {/* Add other sections here */}
-            </main>
-            <Footer />
-        </div>
-    );
-}
-
+// IMPORTANT: Use '#app' to match your app.blade.php
 const container = document.getElementById('app');
-const root = createRoot(container);
-root.render(
-    <React.StrictMode>
-        <App />
-    </React.StrictMode>
-);
+
+if (container) {
+    const root = ReactDOM.createRoot(container);
+
+    root.render(
+        <React.StrictMode>
+            <App />
+        </React.StrictMode>
+    );
+} else {
+    console.error('Root element not found. Make sure you have <div id="app"></div> in app.blade.php');
+}

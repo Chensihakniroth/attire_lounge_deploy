@@ -11,18 +11,15 @@
     <link rel="preconnect" href="https://fonts.bunny.net">
     <link href="https://fonts.bunny.net/css?family=inter:400,500,600,700|playfair-display:400,500,600,700" rel="stylesheet" />
 
-    <!-- CSS - ADD BASE URL -->
-    <link rel="stylesheet" href="{{ url('/css/app.css') }}">
+    <!-- CSS -->
+    <link rel="stylesheet" href="{{ asset('css/app.css') }}">
 
     <style>
-        /* Fallback */
         body { margin: 0; font-family: 'Inter', sans-serif; }
     </style>
 </head>
 <body>
     <div id="app"></div>
-
-    <!-- JavaScript - ADD BASE URL -->
-    <script src="{{ url('/js/app.js') }}"></script>
+    <script src="{{ asset('js/app.js') }}"></script>
 </body>
 </html>
