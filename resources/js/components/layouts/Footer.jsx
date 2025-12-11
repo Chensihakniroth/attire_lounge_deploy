@@ -1,5 +1,5 @@
+// resources/js/components/layouts/Footer.jsx - FIXED
 import React from 'react';
-import { Link } from 'react-router-dom';
 
 const Footer = () => {
     return (
@@ -18,20 +18,20 @@ const Footer = () => {
                     <div>
                         <h4 className="font-semibold mb-4">Collections</h4>
                         <ul className="space-y-2 text-gray-400">
-                            <li><Link to="/suits" className="hover:text-white">Suits</Link></li>
-                            <li><Link to="/shirts" className="hover:text-white">Shirts</Link></li>
-                            <li><Link to="/accessories" className="hover:text-white">Accessories</Link></li>
-                            <li><Link to="/new-arrivals" className="hover:text-white">New Arrivals</Link></li>
+                            <li><a href="/suits" className="hover:text-white">Suits</a></li>
+                            <li><a href="/shirts" className="hover:text-white">Shirts</a></li>
+                            <li><a href="/accessories" className="hover:text-white">Accessories</a></li>
+                            <li><a href="/new-arrivals" className="hover:text-white">New Arrivals</a></li>
                         </ul>
                     </div>
 
                     <div>
                         <h4 className="font-semibold mb-4">Information</h4>
                         <ul className="space-y-2 text-gray-400">
-                            <li><Link to="/about" className="hover:text-white">About Us</Link></li>
-                            <li><Link to="/contact" className="hover:text-white">Contact</Link></li>
-                            <li><Link to="/shipping" className="hover:text-white">Shipping Policy</Link></li>
-                            <li><Link to="/returns" className="hover:text-white">Returns</Link></li>
+                            <li><a href="/about" className="hover:text-white">About Us</a></li>
+                            <li><a href="/contact" className="hover:text-white">Contact</a></li>
+                            <li><a href="/shipping" className="hover:text-white">Shipping Policy</a></li>
+                            <li><a href="/returns" className="hover:text-white">Returns</a></li>
                         </ul>
                     </div>
 

@@ -4,7 +4,6 @@ namespace App\Http\Middleware;
 
 use Closure;
 use Illuminate\Http\Request;
-use Intervention\Image\Facades\Image;
 
 class ImageOptimizer
 {
@@ -12,10 +11,9 @@ class ImageOptimizer
     {
         $response = $next($request);
 
-        // Optimize image responses
+        // Add cache headers for images
         if ($response->headers->get('Content-Type', '')->startsWith('image/')) {
-            // You can add image optimization logic here
-            // For example, compress JPEG/PNG, convert to WebP, etc.
+            $response->header('Cache-Control', 'public, max-age=31536000');
         }
 
         return $response;

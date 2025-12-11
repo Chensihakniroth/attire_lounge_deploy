@@ -1,18 +1,19 @@
+// resources/js/App.jsx - MAIN REACT COMPONENT
 import React, { useState } from 'react';
-import { Search, Menu, X, ShoppingBag, User } from 'lucide-react';
+import { ArrowRight, Menu, X, ShoppingBag, User } from 'lucide-react';
 
 function App() {
     const [isMenuOpen, setIsMenuOpen] = useState(false);
 
     return (
-        <div className="min-h-screen bg-attire-light">
+        <div className="min-h-screen bg-gray-50">
             {/* Navigation */}
             <nav className="bg-white shadow-sm">
                 <div className="max-w-7xl mx-auto px-4">
                     <div className="flex justify-between items-center h-16">
                         {/* Logo */}
                         <div className="flex items-center space-x-2">
-                            <div className="w-8 h-8 bg-attire-dark rounded"></div>
+                            <div className="w-8 h-8 bg-gray-900 rounded"></div>
                             <span className="text-xl font-light">
                                 ATTIRE<span className="font-medium">LOUNGE</span>
                             </span>
@@ -46,27 +47,50 @@ function App() {
                 </div>
             </nav>
 
-            {/* Main Content */}
-            <main className="max-w-7xl mx-auto px-4 py-12">
-                <div className="text-center mb-12">
-                    <h1 className="text-4xl md:text-5xl font-serif text-attire-dark mb-4">
-                        Elegance Redefined
+            {/* Hero Section */}
+            <section className="relative py-20 px-4 max-w-7xl mx-auto">
+                <div className="text-center animate-fade-in">
+                    <h1 className="text-5xl md:text-6xl font-serif text-gray-900 mb-6">
+                        Timeless Elegance
                     </h1>
-                    <p className="text-xl text-gray-600">
-                        Discover curated gentlemen's attire
+                    <p className="text-xl text-gray-600 mb-8 max-w-2xl mx-auto">
+                        Discover curated gentlemen's attire with the timeless sophistication of Ralph Lauren.
                     </p>
+                    <button className="btn-primary inline-flex items-center group">
+                        Explore Collection
+                        <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
+                    </button>
+                </div>
+            </section>
+
+            {/* Featured Collections */}
+            <section className="py-20 px-4 max-w-7xl mx-auto">
+                <div className="text-center mb-12">
+                    <h2 className="text-3xl font-serif text-gray-900 mb-4">Featured Collections</h2>
+                    <p className="text-gray-600">Curated pieces for the modern gentleman</p>
                 </div>
 
-                {/* Featured Cards */}
                 <div className="grid md:grid-cols-3 gap-8">
                     {[
-                        { title: 'Premium Suits', desc: 'Tailored perfection for every occasion' },
-                        { title: 'Designer Shirts', desc: 'Crafted with precision and style' },
-                        { title: 'Accessories', desc: 'Complete your sophisticated look' }
+                        {
+                            title: 'Premium Suits',
+                            desc: 'Tailored perfection for every occasion',
+                            color: 'bg-blue-50'
+                        },
+                        {
+                            title: 'Designer Shirts',
+                            desc: 'Crafted with precision and style',
+                            color: 'bg-gray-50'
+                        },
+                        {
+                            title: 'Accessories',
+                            desc: 'Complete your sophisticated look',
+                            color: 'bg-amber-50'
+                        }
                     ].map((card, index) => (
-                        <div key={index} className="card-hover mirror-finish rounded-lg p-8 text-center">
-                            <div className="w-16 h-16 bg-attire-accent/10 rounded-full flex items-center justify-center mx-auto mb-6">
-                                <div className="w-8 h-8 bg-attire-accent rounded"></div>
+                        <div key={index} className="card-hover bg-white rounded-xl p-8 text-center shadow-md">
+                            <div className={`w-16 h-16 ${card.color} rounded-full flex items-center justify-center mx-auto mb-6`}>
+                                <div className="w-8 h-8 bg-gray-900 rounded"></div>
                             </div>
                             <h3 className="text-xl font-semibold mb-4">{card.title}</h3>
                             <p className="text-gray-600 mb-6">{card.desc}</p>
@@ -76,17 +100,10 @@ function App() {
                         </div>
                     ))}
                 </div>
-
-                {/* CTA Section */}
-                <div className="mt-16 text-center">
-                    <button className="btn-primary px-8 py-4 text-lg">
-                        Shop The Collection
-                    </button>
-                </div>
-            </main>
+            </section>
 
             {/* Footer */}
-            <footer className="bg-attire-dark text-white py-8 mt-12">
+            <footer className="bg-gray-900 text-white py-8 mt-12">
                 <div className="max-w-7xl mx-auto px-4 text-center">
                     <p className="text-gray-400">
                         © 2024 Attire Lounge. Crafted with elegance.

@@ -11,8 +11,8 @@
     <link rel="preconnect" href="https://fonts.bunny.net">
     <link href="https://fonts.bunny.net/css?family=inter:400,500,600,700|playfair-display:400,500,600,700" rel="stylesheet" />
 
-    <!-- CSS -->
-    <link rel="stylesheet" href="/css/app.css">
+    <!-- CSS - ADD BASE URL -->
+    <link rel="stylesheet" href="{{ url('/css/app.css') }}">
 
     <style>
         /* Fallback */
@@ -22,7 +22,7 @@
 <body>
     <div id="app"></div>
 
-    <!-- JavaScript -->
-    <script src="/js/app.js"></script>
+    <!-- JavaScript - ADD BASE URL -->
+    <script src="{{ url('/js/app.js') }}"></script>
 </body>
 </html>

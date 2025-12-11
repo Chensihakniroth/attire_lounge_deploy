@@ -2,11 +2,22 @@
 
 namespace App\Helpers;
 
-use Intervention\Image\Facades\Image;
 use Illuminate\Support\Facades\Storage;
+use Intervention\Image\ImageManager;
+use Intervention\Image\Drivers\Gd\Driver;
 
 class ImageHelper
 {
+    private static $imageManager;
+
+    private static function getImageManager()
+    {
+        if (!self::$imageManager) {
+            self::$imageManager = new ImageManager(new Driver());
+        }
+        return self::$imageManager;
+    }
+
     public static function uploadProductImage($file, $productSlug)
     {
         $filename = $productSlug . '_' . time() . '.' . $file->getClientOriginalExtension();
@@ -14,25 +25,25 @@ class ImageHelper
         // Store original
         $originalPath = $file->storeAs('products/original', $filename, 'public');
 
+        // Get image manager
+        $imageManager = self::getImageManager();
+
         // Create main image (800x800)
-        $mainImage = Image::make($file)
-            ->fit(800, 800)
-            ->encode('jpg', 85);
+        $mainImage = $imageManager->read($file->getPathname())
+            ->resize(800, 800)
+            ->toJpeg(85);
         Storage::disk('public')->put('products/main/' . $filename, $mainImage);
 
         // Create thumbnail (300x300)
-        $thumbnail = Image::make($file)
-            ->fit(300, 300)
-            ->encode('jpg', 85);
+        $thumbnail = $imageManager->read($file->getPathname())
+            ->resize(300, 300)
+            ->toJpeg(85);
         Storage::disk('public')->put('products/thumbnails/' . $filename, $thumbnail);
 
         // Create gallery image (1200x1200)
-        $gallery = Image::make($file)
-            ->resize(1200, 1200, function ($constraint) {
-                $constraint->aspectRatio();
-                $constraint->upsize();
-            })
-            ->encode('jpg', 90);
+        $gallery = $imageManager->read($file->getPathname())
+            ->scale(width: 1200, height: 1200)
+            ->toJpeg(90);
         Storage::disk('public')->put('products/gallery/' . $filename, $gallery);
 
         return $filename;
@@ -50,15 +61,11 @@ class ImageHelper
 
     public static function optimizeImage($path, $quality = 85)
     {
-        $image = Image::make($path);
-
-        // Convert to progressive JPEG if it's a JPEG
-        if ($image->mime() === 'image/jpeg') {
-            $image->interlace(true);
-        }
+        $imageManager = self::getImageManager();
+        $image = $imageManager->read($path);
 
         // Save optimized
-        $image->save($path, $quality);
+        $image->toJpeg($quality)->save($path);
 
         return $path;
     }
