@@ -1,5 +1,5 @@
-// resources/js/components/layouts/Navigation.jsx - FIXED
 import React, { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import {
     Search, Menu, X, User, ShoppingBag, ChevronRight,
     Home, Grid, Camera, BookOpen, Scissors, Mail,
@@ -126,24 +126,44 @@ const Navigation = () => {
 
     return (
         <>
-            {/* Premium Navigation Bar */}
+            {/* Premium Navigation Bar with Mirror/Glass Effect */}
             <motion.nav
                 initial={{ y: 0 }}
                 animate={{
                     y: isVisible ? 0 : -120,
-                    opacity: isVisible ? 1 : 0
+                    opacity: isVisible ? 1 : 0,
                 }}
                 transition={{
                     duration: 0.4,
                     ease: [0.25, 0.1, 0.25, 1]
                 }}
                 className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ${
-                    isScrolled
-                        ? 'bg-white/98 backdrop-blur-xl shadow-sm border-b border-attire-silver/20'
-                        : 'bg-white/95 backdrop-blur-lg'
+                    isMenuOpen
+                        ? 'glass-mirror-effect' // Mirror effect when sidebar opens
+                        : isScrolled
+                            ? 'bg-white/98 backdrop-blur-xl shadow-sm'
+                            : 'bg-white/95 backdrop-blur-lg'
                 }`}
             >
-                <div className="max-w-7xl mx-auto px-6">
+                {/* Mirror Reflection Overlay (only when sidebar is open) */}
+                <AnimatePresence>
+                    {isMenuOpen && (
+                        <motion.div
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            exit={{ opacity: 0 }}
+                            transition={{ duration: 0.3 }}
+                            className="absolute inset-0 mirror-overlay"
+                        >
+                            {/* Animated reflection lines */}
+                            <div className="absolute inset-0 reflection-lines"></div>
+                            {/* Subtle gradient overlay */}
+                            <div className="absolute inset-0 bg-gradient-to-b from-white/10 via-transparent to-black/5"></div>
+                        </motion.div>
+                    )}
+                </AnimatePresence>
+
+                <div className="max-w-7xl mx-auto px-6 relative z-10">
                     <div className="flex items-center justify-between h-24">
                         {/* Left: Elegant Hamburger */}
                         <motion.button
@@ -173,40 +193,51 @@ const Navigation = () => {
                         </motion.button>
 
                         {/* Center: Luxury Monogram */}
-                        <motion.div
-                            whileHover={{ scale: 1.02 }}
-                            className="flex flex-col items-center cursor-pointer group"
-                        >
-                            <div className="flex items-center justify-center w-full">
-                                <div className="text-base font-serif font-medium tracking-widest text-black uppercase">
+                        <Link to="/" className="flex flex-col items-center cursor-pointer group">
+                            <motion.div
+                                whileHover={{ scale: 1.02 }}
+                                className="flex items-center justify-center w-full"
+                            >
+                                <div className={`text-base font-serif font-medium tracking-widest uppercase transition-all duration-300 ${
+                                    isMenuOpen ? 'text-white/90' : 'text-black'
+                                }`}>
                                     Attire Lounge
                                 </div>
-                            </div>
-                        </motion.div>
+                            </motion.div>
+                        </Link>
 
                         {/* Right: Premium Actions */}
                         <div className="flex items-center space-x-2">
                             {/* Search */}
-                                <motion.button
-                                    whileHover={{ scale: 1.03 }}
-                                    className="p-3 rounded-lg transition-colors"
-                                    aria-label="Search"
-                                >
-                                    <Search className="w-5 h-5 text-black/80" />
-                                </motion.button>
+                            <motion.button
+                                whileHover={{ scale: 1.03 }}
+                                className="p-3 transition-colors"
+                                aria-label="Search"
+                            >
+                                <Search className={`w-5 h-5 transition-all duration-300 ${
+                                    isMenuOpen ? 'text-white/80' : 'text-black/80'
+                                }`} />
+                            </motion.button>
 
                             {/* Account */}
-                                <motion.button
-                                    whileHover={{ scale: 1.03 }}
-                                    className="p-3 rounded-lg hidden lg:block"
-                                    aria-label="Account"
-                                >
-                                    <User className="w-5 h-5 text-black/80" />
-                                </motion.button>
+                            <motion.button
+                                whileHover={{ scale: 1.03 }}
+                                className="p-3 hidden lg:block"
+                                aria-label="Account"
+                            >
+                                <User className={`w-5 h-5 transition-all duration-300 ${
+                                    isMenuOpen ? 'text-white/80' : 'text-black/80'
+                                }`} />
+                            </motion.button>
 
                             {/* Cart */}
-                            <motion.button className="p-3 rounded-lg" aria-label="Shopping cart">
-                                <ShoppingBag className="w-5 h-5 text-black/80" />
+                            <motion.button
+                                className="p-3"
+                                aria-label="Shopping cart"
+                            >
+                                <ShoppingBag className={`w-5 h-5 transition-all duration-300 ${
+                                    isMenuOpen ? 'text-white/80' : 'text-black/80'
+                                }`} />
                             </motion.button>
                         </div>
                     </div>
@@ -217,13 +248,13 @@ const Navigation = () => {
             <AnimatePresence>
                 {isMenuOpen && (
                     <>
-                        {/* Elegant Backdrop */}
+                        {/* Elegant Backdrop with Glass Effect */}
                         <motion.div
                             initial={{ opacity: 0 }}
                             animate={{ opacity: 1 }}
                             exit={{ opacity: 0 }}
                             onClick={() => setIsMenuOpen(false)}
-                            className="fixed inset-0 bg-gradient-to-br from-black/40 via-black/20 to-black/10 backdrop-blur-md z-40"
+                            className="fixed inset-0 bg-gradient-to-br from-black/70 via-black/50 to-black/30 backdrop-blur-2xl z-40"
                         />
 
                         {/* Premium Sidebar */}
@@ -231,31 +262,44 @@ const Navigation = () => {
                             initial={{ x: -360 }}
                             animate={{ x: 0 }}
                             exit={{ x: -360 }}
-                            transition={{ type: "spring", damping: 28, stiffness: 220 }}
-                            className="sidebar fixed top-0 left-0 bottom-0 w-[360px] bg-white z-50 border-r border-gray-200 shadow-lg overflow-hidden"
+                            transition={{
+                                type: "spring",
+                                damping: 28,
+                                stiffness: 220,
+                                mass: 0.8
+                            }}
+                            className="sidebar fixed top-0 left-0 bottom-0 w-[360px] bg-gradient-to-b from-white/95 to-attire-cream/90 z-50 border-r border-white/30 shadow-2xl overflow-hidden backdrop-blur-xl"
+                            style={{
+                                boxShadow: '0 0 80px rgba(193, 154, 107, 0.25)',
+                            }}
                         >
                             {/* Sidebar Header */}
-                            <div className="p-8 border-b border-attire-silver/10">
+                            <div className="p-8 border-b border-white/20 bg-gradient-to-b from-white/80 to-white/40">
                                 <div className="flex items-center justify-between">
                                     <div className="flex items-center space-x-4">
-                                        <div className="w-12 h-12 bg-gradient-to-br from-attire-charcoal to-attire-dark rounded-full flex items-center justify-center shadow-lg">
-                                            <span className="text-white text-base font-serif font-light tracking-[0.2em]">AL</span>
-                                        </div>
+                                        <motion.div
+                                            initial={{ scale: 0, rotate: -180 }}
+                                            animate={{ scale: 1, rotate: 0 }}
+                                            transition={{ type: "spring", stiffness: 200, damping: 15 }}
+                                        >
+                                        </motion.div>
                                         <div>
-                                            <div className="text-sm font-medium tracking-[0.3em] uppercase text-attire-charcoal">
+                                            <div className="text-sm font-medium tracking-[0.3em] uppercase text-attire-charcoal/90">
                                                 Attire Lounge
                                             </div>
-                                            <div className="text-xs text-attire-stone/50 tracking-widest mt-1">
+                                            <div className="text-xs text-attire-stone/70 tracking-widest mt-1">
                                                 Gentlemen's Collection
                                             </div>
                                         </div>
                                     </div>
-                                    <button
+                                    <motion.button
+                                        whileHover={{ scale: 1.1, rotate: 90 }}
+                                        whileTap={{ scale: 0.9 }}
                                         onClick={() => setIsMenuOpen(false)}
-                                        className="p-2 rounded-lg hover:bg-attire-cream/30 transition-colors group"
+                                        className="p-2 hover:bg-white/30 transition-colors group"
                                     >
-                                        <X className="w-5 h-5 text-attire-stone/60 group-hover:text-attire-charcoal transition-colors" />
-                                    </button>
+                                        <X className="w-5 h-5 text-attire-stone/70 group-hover:text-attire-charcoal transition-colors" />
+                                    </motion.button>
                                 </div>
                             </div>
 
@@ -264,37 +308,57 @@ const Navigation = () => {
                                 {/* Main Navigation */}
                                 <div className="mb-10">
                                     <div className="flex items-center space-x-2 mb-6">
-                                        <div className="w-8 h-px bg-gradient-to-r from-attire-gold to-transparent" />
-                                        <div className="text-xs font-medium tracking-[0.3em] uppercase text-attire-stone/60">
+                                        <motion.div
+                                            initial={{ width: 0 }}
+                                            animate={{ width: 32 }}
+                                            transition={{ duration: 0.5, delay: 0.2 }}
+                                            className="h-px bg-gradient-to-r from-attire-gold/80 to-transparent"
+                                        />
+                                        <motion.div
+                                            initial={{ opacity: 0, x: -10 }}
+                                            animate={{ opacity: 1, x: 0 }}
+                                            transition={{ duration: 0.5, delay: 0.3 }}
+                                            className="text-xs font-medium tracking-[0.3em] uppercase text-attire-stone/70"
+                                        >
                                             Navigation
-                                        </div>
+                                        </motion.div>
                                     </div>
                                     <div className="space-y-3">
-                                        {navItems.map((item) => {
+                                        {navItems.map((item, index) => {
                                             const Icon = item.icon;
                                             return (
-                                                <motion.a
+                                                <motion.div
                                                     key={item.name}
-                                                    href={item.path}
-                                                    whileHover={{ x: 6 }}
-                                                    className="flex items-center justify-between px-6 py-5 rounded-lg hover:bg-gray-100 transition duration-200"
-                                                    onClick={() => setIsMenuOpen(false)}
+                                                    initial={{ opacity: 0, x: -20 }}
+                                                    animate={{ opacity: 1, x: 0 }}
+                                                    transition={{ duration: 0.3, delay: index * 0.05 + 0.4 }}
+                                                    whileHover={{ x: 6, backgroundColor: 'rgba(255,255,255,0.3)' }}
+                                                    className="flex items-center justify-between px-6 py-5 rounded-lg hover:bg-white/50 transition-all duration-200 cursor-pointer"
                                                 >
-                                                    <div className="flex items-center space-x-4">
-                                                        <div className="p-2 rounded-lg bg-transparent">
-                                                            <Icon className="w-4 h-4 text-black/80" />
-                                                        </div>
-                                                        <div>
-                                                            <div className="text-sm font-medium text-black">
-                                                                {item.name}
+                                                    <Link
+                                                        to={item.path}
+                                                        className="flex items-center space-x-4 w-full"
+                                                        onClick={() => setIsMenuOpen(false)}
+                                                    >
+                                                        <div className="flex items-center space-x-4">
+                                                            <motion.div
+                                                                whileHover={{ scale: 1.1 }}
+                                                                className="flex items-center justify-center"
+                                                            >
+                                                                <Icon className="w-4 h-4 text-attire-charcoal/80" />
+                                                            </motion.div>
+                                                            <div>
+                                                                <div className="text-sm font-medium text-attire-charcoal/90">
+                                                                    {item.name}
+                                                                </div>
+                                                                <div className="text-xs text-attire-stone/70 mt-1">
+                                                                    {item.description}
+                                                                </div>
                                                             </div>
-                                                            <div className="text-xs text-gray-500 mt-1">
-                                                                {item.description}
-                                                            </div>
                                                         </div>
-                                                    </div>
-                                                    <ChevronRight className="w-4 h-4 text-gray-400" />
-                                                </motion.a>
+                                                    </Link>
+                                                    <ChevronRight className="w-4 h-4 text-attire-stone/50" />
+                                                </motion.div>
                                             );
                                         })}
                                     </div>
@@ -303,87 +367,113 @@ const Navigation = () => {
                                 {/* Luxury Collections */}
                                 <div>
                                     <div className="flex items-center space-x-2 mb-6">
-                                        <div className="w-8 h-px bg-gradient-to-r from-attire-gold to-transparent" />
-                                        <div className="text-xs font-medium tracking-[0.3em] uppercase text-attire-stone/60">
+                                        <motion.div
+                                            initial={{ width: 0 }}
+                                            animate={{ width: 32 }}
+                                            transition={{ duration: 0.5, delay: 0.8 }}
+                                            className="h-px bg-gradient-to-r from-attire-gold/80 to-transparent"
+                                        />
+                                        <motion.div
+                                            initial={{ opacity: 0, x: -10 }}
+                                            animate={{ opacity: 1, x: 0 }}
+                                            transition={{ duration: 0.5, delay: 0.9 }}
+                                            className="text-xs font-medium tracking-[0.3em] uppercase text-attire-stone/70"
+                                        >
                                             Collections
-                                        </div>
-                                        <Sparkles className="w-3 h-3 text-attire-gold" />
+                                        </motion.div>
+                                        <Sparkles className="w-3 h-3 text-attire-gold/80" />
                                     </div>
                                     <div className="grid grid-cols-2 gap-3">
-                                        {collections.map((collection) => {
+                                        {collections.map((collection, index) => {
                                             const Icon = collection.icon;
                                             return (
-                                                <motion.a
+                                                <motion.div
                                                     key={collection.name}
-                                                    href="#"
-                                                    whileHover={{ y: -2 }}
-                                                    className="bg-white rounded-lg p-4 border border-gray-100 hover:bg-gray-50 transition"
-                                                    onClick={() => setIsMenuOpen(false)}
+                                                    initial={{ opacity: 0, y: 10 }}
+                                                    animate={{ opacity: 1, y: 0 }}
+                                                    transition={{ duration: 0.3, delay: index * 0.05 + 1.0 }}
+                                                    whileHover={{ y: -2, scale: 1.02 }}
+                                                    className="bg-white/80 rounded-lg p-4 hover:bg-gradient-to-br hover:from-white/90 hover:to-attire-cream/40 transition-all shadow-sm hover:shadow-md cursor-pointer"
                                                 >
-                                                    <div className="flex items-center justify-between mb-3">
-                                                        <div className="p-2 rounded-lg bg-transparent">
-                                                            <Icon className="w-4 h-4 text-black/80" />
+                                                    <Link
+                                                        to="#"
+                                                        className="block"
+                                                        onClick={() => setIsMenuOpen(false)}
+                                                    >
+                                                        <div className="flex items-center justify-between mb-3">
+                                                            <div className="flex items-center justify-center">
+                                                                <Icon className="w-4 h-4 text-attire-charcoal/80" />
+                                                            </div>
+                                                            <div className="text-[10px] px-2 py-1 bg-white/80 text-attire-stone rounded-full tracking-wider">
+                                                                {collection.items} items
+                                                            </div>
                                                         </div>
-                                                        <div className="text-[10px] px-2 py-1 bg-gray-100 text-gray-700 rounded-full tracking-wider">
-                                                            {collection.items} items
+                                                        <div className="text-sm font-medium text-attire-charcoal/90 mb-1">
+                                                            {collection.name}
                                                         </div>
-                                                    </div>
-                                                    <div className="text-sm font-medium text-black mb-1">
-                                                        {collection.name}
-                                                    </div>
-                                                    <div className="text-xs text-gray-500">
-                                                        {collection.season}
-                                                    </div>
-                                                    <div className="mt-3 pt-3 border-t border-gray-100">
-                                                        <div className="text-[11px] text-black tracking-widest">
-                                                            EXPLORE →
+                                                        <div className="text-xs text-attire-stone/70">
+                                                            {collection.season}
                                                         </div>
-                                                    </div>
-                                                </motion.a>
+                                                        <div className="mt-3 pt-3 border-t border-white/30">
+                                                            <div className="text-[11px] text-attire-gold tracking-widest font-medium">
+                                                                EXPLORE →
+                                                            </div>
+                                                        </div>
+                                                    </Link>
+                                                </motion.div>
                                             );
                                         })}
                                     </div>
                                 </div>
 
                                 {/* Premium Services */}
-                                <div className="mt-10 pt-8 border-t border-attire-silver/10">
+                                <motion.div
+                                    initial={{ opacity: 0, y: 20 }}
+                                    animate={{ opacity: 1, y: 0 }}
+                                    transition={{ duration: 0.5, delay: 1.4 }}
+                                    className="mt-10 pt-8 border-t border-white/20"
+                                >
                                     <div className="flex space-x-3">
                                         <motion.button
-                                            whileHover={{ scale: 1.03 }}
-                                            className="flex-1 py-3.5 text-xs font-medium text-attire-charcoal border border-attire-silver/20 rounded-xl hover:border-attire-silver/40 transition-all duration-300 flex items-center justify-center space-x-2"
+                                            whileHover={{ scale: 1.03, y: -2 }}
+                                            className="flex-1 py-3.5 text-xs font-medium text-attire-charcoal/90 border border-white/40 rounded-xl hover:border-attire-silver/60 transition-all duration-300 flex items-center justify-center space-x-2 shadow-sm hover:shadow bg-white/60"
                                         >
                                             <MapPin className="w-3.5 h-3.5" />
                                             <span>Store Locator</span>
                                         </motion.button>
                                         <motion.button
-                                            whileHover={{ scale: 1.03 }}
-                                            className="flex-1 py-3.5 text-xs font-medium bg-gradient-to-r from-attire-charcoal to-attire-dark text-white rounded-xl hover:from-attire-dark hover:to-attire-charcoal transition-all duration-300 flex items-center justify-center space-x-2 shadow-lg"
+                                            whileHover={{ scale: 1.03, y: -2 }}
+                                            className="flex-1 py-3.5 text-xs font-medium bg-gradient-to-r from-attire-charcoal/90 to-attire-dark/90 text-white rounded-xl hover:from-attire-dark hover:to-attire-charcoal transition-all duration-300 flex items-center justify-center space-x-2 shadow-lg hover:shadow-xl"
                                         >
                                             <Calendar className="w-3.5 h-3.5" />
                                             <span>Book Appointment</span>
                                         </motion.button>
                                     </div>
-                                </div>
+                                </motion.div>
                             </div>
 
                             {/* Luxury Footer */}
-                            <div className="absolute bottom-0 left-0 right-0 p-6 border-t border-attire-silver/10 bg-gradient-to-t from-white via-white to-transparent">
+                            <motion.div
+                                initial={{ opacity: 0, y: 20 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                transition={{ duration: 0.5, delay: 1.6 }}
+                                className="absolute bottom-0 left-0 right-0 p-6 border-t border-white/20 bg-gradient-to-t from-white/80 via-white/60 to-transparent"
+                            >
                                 <div className="flex items-center justify-between">
-                                    <div className="text-[10px] text-attire-silver/60 tracking-[0.3em] uppercase">
+                                    <div className="text-[10px] text-attire-stone/60 tracking-[0.3em] uppercase">
                                         EST. 2024
                                     </div>
                                     <div className="flex items-center space-x-4">
-                                        <Gift className="w-3.5 h-3.5 text-attire-silver/50" />
-                                        <Star className="w-3.5 h-3.5 text-attire-silver/50" />
-                                        <Sparkles className="w-3.5 h-3.5 text-attire-gold" />
+                                        <Gift className="w-3.5 h-3.5 text-attire-stone/50" />
+                                        <Star className="w-3.5 h-3.5 text-attire-stone/50" />
+                                        <Sparkles className="w-3.5 h-3.5 text-attire-gold/80" />
                                     </div>
                                 </div>
-                            </div>
+                            </motion.div>
                         </motion.div>
                     </>
                 )}
             </AnimatePresence>
-
         </>
     );
 };
