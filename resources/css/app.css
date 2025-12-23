@@ -1,4 +1,4 @@
-/* resources/css/app.css - COMPLETE WORKING VERSION */
+/* resources/css/app.css - OPTIMIZED SMOOTH SCROLL VERSION */
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -7,10 +7,34 @@
     body {
         @apply antialiased;
         font-family: 'Inter', sans-serif;
+        overflow-x: hidden;
+        /* Prevent flicker on mobile */
+        -webkit-tap-highlight-color: transparent;
+        -webkit-font-smoothing: antialiased;
     }
 
     html {
-        scroll-behavior: smooth;
+        scroll-snap-type: y mandatory;
+        scroll-behavior: auto; /* Let JS handle smooth scrolling */
+        scrollbar-width: none;
+        -ms-overflow-style: none;
+        overscroll-behavior: contain;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    /* Hide main scrollbar for Chrome, Safari and Opera */
+    html::-webkit-scrollbar {
+        display: none;
+    }
+
+    /* Hide scrollbar utility class */
+    .hide-scrollbar {
+        -ms-overflow-style: none;
+        scrollbar-width: none;
+    }
+
+    .hide-scrollbar::-webkit-scrollbar {
+        display: none;
     }
 
     h1, h2, h3, h4, h5, h6 {
@@ -115,6 +139,17 @@
     .glass-panel {
         @apply bg-gradient-to-r from-attire-gold/5 to-transparent backdrop-blur-3xl;
     }
+
+    /* Glass mirror effect for navigation */
+    .glass-mirror-effect {
+        background: rgba(255, 255, 255, 0.1) !important;
+        backdrop-filter: blur(20px) saturate(180%) !important;
+        -webkit-backdrop-filter: blur(20px) saturate(180%) !important;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.15) !important;
+        box-shadow:
+            0 4px 30px rgba(0, 0, 0, 0.1),
+            inset 0 1px 0 rgba(255, 255, 255, 0.1) !important;
+    }
 }
 
 @layer utilities {
@@ -141,6 +176,50 @@
 
     .animate-shimmer {
         animation: shimmer 3s infinite;
+    }
+
+    /* Smooth easing for JS scroll */
+    .ease-smooth {
+        transition-timing-function: cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    }
+
+    /* Prevent scroll jank */
+    .no-scroll-jank {
+        will-change: transform;
+        contain: layout style paint;
+    }
+
+    /* Fix for iOS momentum scrolling */
+    .fix-ios-scroll {
+        -webkit-overflow-scrolling: touch;
+        overflow-y: scroll;
+    }
+
+    /* High performance animation */
+    .high-performance-animation {
+        transform: translateZ(0);
+        will-change: transform;
+    }
+
+    /* Optimized image rendering */
+    .optimized-image {
+        image-rendering: -webkit-optimize-contrast;
+        image-rendering: crisp-edges;
+        -webkit-transform: translateZ(0);
+        transform: translateZ(0);
+    }
+
+    /* Prevent flicker */
+    .no-flicker {
+        -webkit-transform: translate3d(0, 0, 0);
+        transform: translate3d(0, 0, 0);
+        -webkit-backface-visibility: hidden;
+        backface-visibility: hidden;
+    }
+
+    /* Smooth transitions */
+    .transition-smooth {
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     }
 }
 
@@ -201,22 +280,62 @@
     }
 }
 
-/* Custom scrollbar */
-::-webkit-scrollbar {
-    width: 10px;
+/* ============ ULTRA-SMOOTH SNAP SCROLL ============ */
+/* SINGLE DEFINITION - NO DUPLICATES */
+.snap-section {
+    scroll-snap-align: start;
+    scroll-snap-stop: always;
+    height: 100vh;
+    min-height: 100vh;
+    position: relative;
+    overflow: hidden;
+
+    /* Performance optimizations */
+    transform: translate3d(0, 0, 0);
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
+    perspective: 1000px;
+    -webkit-perspective: 1000px;
+    -webkit-transform-style: preserve-3d;
+    transform-style: preserve-3d;
+
+    /* Prevent iOS rubber banding */
+    -webkit-overflow-scrolling: touch;
 }
 
-::-webkit-scrollbar-track {
-    background: #f1f1f1;
+/* Make sure footer is visible */
+footer {
+    position: relative;
+    z-index: 10;
 }
 
-::-webkit-scrollbar-thumb {
-    background: linear-gradient(to bottom, #c19a6b, #8B7355);
-    border-radius: 5px;
+/* Image optimization for section 2 */
+.section-2-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center;
+    /* Prevent flicker */
+    image-rendering: -webkit-optimize-contrast;
+    image-rendering: crisp-edges;
 }
 
-::-webkit-scrollbar-thumb:hover {
-    background: linear-gradient(to bottom, #8B7355, #1a1a1a);
+/* Logo size optimization */
+.hero-logo {
+    width: 300px;
+    height: auto;
+}
+
+@media (min-width: 768px) {
+    .hero-logo {
+        width: 400px;
+    }
+}
+
+@media (min-width: 1024px) {
+    .hero-logo {
+        width: 450px;
+    }
 }
 
 /* Glass Morphism Effects */
@@ -243,31 +362,26 @@
     height: 1px;
 }
 
-/* Shimmer Effect */
-.shimmer {
-    position: relative;
-    overflow: hidden;
-}
-
-.shimmer::after {
-    content: '';
-    position: absolute;
-    top: -50%;
-    left: -50%;
-    width: 200%;
-    height: 200%;
-    background: linear-gradient(
-        to right,
-        transparent 0%,
-        rgba(255, 255, 255, 0.1) 50%,
-        transparent 100%
-    );
-    transform: rotate(30deg);
-    animation: shimmer 3s infinite;
-}
-
-/* Responsive typography */
+/* ============ MOBILE-SPECIFIC OPTIMIZATIONS ============ */
 @media (max-width: 768px) {
+    html {
+        /* Slightly looser snap on mobile */
+        scroll-snap-type: y proximity;
+    }
+
+    .snap-section {
+        /* Allow momentum scrolling */
+        scroll-snap-stop: normal;
+    }
+
+    /* Special handling for footer */
+    .snap-section:last-child {
+        scroll-snap-align: none;
+        height: auto;
+        min-height: 100vh;
+    }
+
+    /* Responsive typography */
     .heading-hero {
         font-size: 3.5rem;
     }
@@ -277,8 +391,35 @@
         padding: 0.75rem 1.5rem;
         font-size: 0.875rem;
     }
+
+    /* Fix for swipe carousel images */
+    .carousel-image {
+        transform: translate3d(0, 0, 0);
+        backface-visibility: hidden;
+        -webkit-backface-visibility: hidden;
+        will-change: transform;
+        -webkit-transform: translate3d(0, 0, 0);
+        transform: translate3d(0, 0, 0);
+    }
 }
 
+/* ============ PERFORMANCE OPTIMIZATIONS ============ */
+/* Optimize image rendering */
+img {
+    -webkit-user-drag: none;
+    -khtml-user-drag: none;
+    -moz-user-drag: none;
+    -o-user-drag: none;
+    user-drag: none;
+}
+
+/* Fix for AnimatePresence glitches */
+[data-animate-presence] {
+    position: relative;
+    overflow: hidden;
+}
+
+/* ============ ACCESSIBILITY & COMPATIBILITY ============ */
 /* Print styles */
 @media print {
     .no-print {
@@ -286,7 +427,7 @@
     }
 }
 
-/* Accessibility */
+/* Reduced motion */
 @media (prefers-reduced-motion: reduce) {
     *,
     *::before,
@@ -294,6 +435,7 @@
         animation-duration: 0.01ms !important;
         animation-iteration-count: 1 !important;
         transition-duration: 0.01ms !important;
+        scroll-behavior: auto !important;
     }
 }
 
@@ -303,229 +445,31 @@
     outline-offset: 2px;
 }
 
-/* Dark mode support (optional) */
-@media (prefers-color-scheme: dark) {
-    .glass-morphism {
-        background: rgba(0, 0, 0, 0.2);
-        border: 1px solid rgba(255, 255, 255, 0.05);
-    }
+/* ============ CRITICAL PERFORMANCE FIXES ============ */
+/* REMOVE conflicting gpu-accelerate class */
+/* .gpu-accelerate {
+    transform: translateZ(0);
+    backface-visibility: hidden;
+} */
+
+/* Mobile swipe gallery optimizations */
+.mobile-swipe-container {
+    -webkit-overflow-scrolling: touch;
+    overflow-x: hidden;
+    overflow-y: auto;
 }
 
-/* Mirror/Glass Effect for Navigation */
-.glass-mirror-effect {
-    background: linear-gradient(
-        135deg,
-        rgba(255, 255, 255, 0.1) 0%,
-        rgba(255, 255, 255, 0.05) 50%,
-        rgba(255, 255, 255, 0.1) 100%
-    );
-    backdrop-filter: blur(20px) saturate(180%);
-    -webkit-backdrop-filter: blur(20px) saturate(180%);
-    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-    box-shadow:
-        0 4px 30px rgba(0, 0, 0, 0.1),
-        inset 0 0 0 1px rgba(255, 255, 255, 0.1);
+/* Prevent iOS scroll bounce on certain elements */
+.prevent-bounce {
+    overscroll-behavior: none;
 }
 
-.mirror-overlay {
-    background: linear-gradient(
-        125deg,
-        transparent 0%,
-        rgba(255, 255, 255, 0.03) 25%,
-        rgba(255, 255, 255, 0.1) 50%,
-        rgba(255, 255, 255, 0.03) 75%,
-        transparent 100%
-    );
-    animation: mirror-shimmer 8s ease-in-out infinite;
-    mix-blend-mode: overlay;
+/* Smooth transitions for scroll-triggered animations */
+.scroll-triggered {
+    transition: opacity 0.3s ease-out, transform 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94);
 }
 
-.reflection-lines {
-    background: repeating-linear-gradient(
-        0deg,
-        transparent,
-        transparent 1px,
-        rgba(255, 255, 255, 0.02) 1px,
-        rgba(255, 255, 255, 0.02) 2px
-    );
-    animation: reflection-move 20s linear infinite;
-}
-
-.glass-button {
-    background: rgba(255, 255, 255, 0.15);
-    backdrop-filter: blur(10px);
-    -webkit-backdrop-filter: blur(10px);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    transition: all 0.3s ease;
-}
-
-.glass-button:hover {
-    background: rgba(255, 255, 255, 0.25);
-    border: 1px solid rgba(255, 255, 255, 0.2);
-    transform: translateY(-1px);
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
-}
-
-/* Mirror Animation */
-@keyframes mirror-shimmer {
-    0%, 100% {
-        background-position: -200% center;
-    }
-    50% {
-        background-position: 200% center;
-    }
-}
-
-@keyframes reflection-move {
-    0% {
-        transform: translateY(0);
-    }
-    100% {
-        transform: translateY(100px);
-    }
-}
-
-/* Enhanced Sidebar Glass Effect */
-.sidebar {
-    background: linear-gradient(
-        165deg,
-        rgba(255, 255, 255, 0.95) 0%,
-        rgba(248, 246, 242, 0.9) 100%
-    );
-    backdrop-filter: blur(30px);
-    -webkit-backdrop-filter: blur(30px);
-}
-
-/* Mirror text effect */
-.mirror-text {
-    position: relative;
-    color: transparent;
-    background: linear-gradient(
-        45deg,
-        rgba(255, 255, 255, 0.9) 30%,
-        rgba(255, 255, 255, 0.5) 50%,
-        rgba(255, 255, 255, 0.9) 70%
-    );
-    background-clip: text;
-    -webkit-background-clip: text;
-    background-size: 200% 100%;
-    animation: text-shimmer 3s ease-in-out infinite;
-}
-
-@keyframes text-shimmer {
-    0%, 100% {
-        background-position: -100% center;
-    }
-    50% {
-        background-position: 200% center;
-    }
-}
-
-/* Mirror Glass Footer Styles */
-.glass-footer-bg {
-    background: linear-gradient(
-        135deg,
-        rgba(26, 26, 26, 0.95) 0%,
-        rgba(30, 30, 30, 0.9) 50%,
-        rgba(20, 20, 20, 0.95) 100%
-    );
-    backdrop-filter: blur(20px);
-    -webkit-backdrop-filter: blur(20px);
-    border-top: 1px solid rgba(255, 255, 255, 0.1);
-    box-shadow:
-        0 -10px 40px rgba(0, 0, 0, 0.3),
-        inset 0 1px 0 rgba(255, 255, 255, 0.05);
-}
-
-.glass-text {
-    position: relative;
-    color: rgba(255, 255, 255, 0.9);
-    text-shadow:
-        0 1px 2px rgba(0, 0, 0, 0.3),
-        0 0 20px rgba(193, 154, 107, 0.1);
-}
-
-/* Link hover effects */
-.footer-link-hover {
-    position: relative;
-    overflow: hidden;
-}
-
-.footer-link-hover::after {
-    content: '';
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    width: 0;
-    height: 1px;
-    background: linear-gradient(90deg, transparent, #c19a6b, transparent);
-    transition: width 0.3s ease;
-}
-
-.footer-link-hover:hover::after {
-    width: 100%;
-}
-
-/* Glass card effect for links */
-.glass-link-card {
-    background: rgba(255, 255, 255, 0.03);
-    backdrop-filter: blur(10px);
-    -webkit-backdrop-filter: blur(10px);
-    border: 1px solid rgba(255, 255, 255, 0.05);
-    transition: all 0.3s ease;
-}
-
-.glass-link-card:hover {
-    background: rgba(255, 255, 255, 0.08);
-    border-color: rgba(193, 154, 107, 0.2);
-    transform: translateY(-1px);
-}
-
-/* Official Site Styling */
-.bg-official-dark {
-    background-color: #000000;
-}
-
-.bg-official-card {
-    background-color: #1a1a1a;
-    border: 1px solid rgba(255, 255, 255, 0.1);
-}
-
-.text-official-primary {
-    color: #ffffff;
-}
-
-.text-official-secondary {
-    color: rgba(255, 255, 255, 0.7);
-}
-
-/* Button styles */
-.btn-official-primary {
-    background-color: white;
-    color: black;
-    border: none;
-    padding: 1rem 2.5rem;
-    border-radius: 9999px;
-    font-weight: 500;
-    transition: all 0.3s ease;
-}
-
-.btn-official-primary:hover {
-    background-color: #f1f1f1;
-    transform: scale(1.05);
-}
-
-.btn-official-outline {
-    background-color: transparent;
-    color: white;
-    border: 1px solid white;
-    padding: 1rem 2.5rem;
-    border-radius: 9999px;
-    font-weight: 500;
-    transition: all 0.3s ease;
-}
-
-.btn-official-outline:hover {
-    background-color: white;
-    color: black;
-}
+/* Performance monitoring helpers (remove in production) */
+/* .debug-performance {
+    outline: 1px solid red !important;
+} */

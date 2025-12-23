@@ -1103,7 +1103,7 @@
             var dispatcher = resolveDispatcher();
             return dispatcher.useRef(initialValue);
           }
-          function useEffect11(create, deps) {
+          function useEffect10(create, deps) {
             var dispatcher = resolveDispatcher();
             return dispatcher.useEffect(create, deps);
           }
@@ -1115,7 +1115,7 @@
             var dispatcher = resolveDispatcher();
             return dispatcher.useLayoutEffect(create, deps);
           }
-          function useCallback5(callback, deps) {
+          function useCallback6(callback, deps) {
             var dispatcher = resolveDispatcher();
             return dispatcher.useCallback(callback, deps);
           }
@@ -1882,11 +1882,11 @@
           exports.memo = memo3;
           exports.startTransition = startTransition;
           exports.unstable_act = act;
-          exports.useCallback = useCallback5;
+          exports.useCallback = useCallback6;
           exports.useContext = useContext10;
           exports.useDebugValue = useDebugValue;
           exports.useDeferredValue = useDeferredValue;
-          exports.useEffect = useEffect11;
+          exports.useEffect = useEffect10;
           exports.useId = useId4;
           exports.useImperativeHandle = useImperativeHandle;
           exports.useInsertionEffect = useInsertionEffect3;
@@ -13333,7 +13333,7 @@
             /*  */
             2
           );
-          var Layout = (
+          var Layout2 = (
             /*    */
             4
           );
@@ -14045,10 +14045,10 @@
             if ((currentlyRenderingFiber$1.mode & StrictEffectsMode) !== NoMode) {
               fiberFlags |= MountLayoutDev;
             }
-            return mountEffectImpl(fiberFlags, Layout, create, deps);
+            return mountEffectImpl(fiberFlags, Layout2, create, deps);
           }
           function updateLayoutEffect(create, deps) {
-            return updateEffectImpl(Update, Layout, create, deps);
+            return updateEffectImpl(Update, Layout2, create, deps);
           }
           function imperativeHandleEffect(create, ref) {
             if (typeof ref === "function") {
@@ -14086,7 +14086,7 @@
             if ((currentlyRenderingFiber$1.mode & StrictEffectsMode) !== NoMode) {
               fiberFlags |= MountLayoutDev;
             }
-            return mountEffectImpl(fiberFlags, Layout, imperativeHandleEffect.bind(null, create, ref), effectDeps);
+            return mountEffectImpl(fiberFlags, Layout2, imperativeHandleEffect.bind(null, create, ref), effectDeps);
           }
           function updateImperativeHandle(ref, create, deps) {
             {
@@ -14095,7 +14095,7 @@
               }
             }
             var effectDeps = deps !== null && deps !== void 0 ? deps.concat([ref]) : null;
-            return updateEffectImpl(Update, Layout, imperativeHandleEffect.bind(null, create, ref), effectDeps);
+            return updateEffectImpl(Update, Layout2, imperativeHandleEffect.bind(null, create, ref), effectDeps);
           }
           function mountDebugValue(value, formatterFn) {
           }
@@ -18622,7 +18622,7 @@
           };
           function safelyCallCommitHookLayoutEffectListMount(current2, nearestMountedAncestor) {
             try {
-              commitHookEffectListMount(Layout, current2);
+              commitHookEffectListMount(Layout2, current2);
             } catch (error2) {
               captureCommitPhaseError(current2, nearestMountedAncestor, error2);
             }
@@ -18797,7 +18797,7 @@
                     {
                       if ((flags & Passive$1) !== NoFlags$1) {
                         markComponentPassiveEffectUnmountStarted(finishedWork);
-                      } else if ((flags & Layout) !== NoFlags$1) {
+                      } else if ((flags & Layout2) !== NoFlags$1) {
                         markComponentLayoutEffectUnmountStarted(finishedWork);
                       }
                     }
@@ -18815,7 +18815,7 @@
                     {
                       if ((flags & Passive$1) !== NoFlags$1) {
                         markComponentPassiveEffectUnmountStopped();
-                      } else if ((flags & Layout) !== NoFlags$1) {
+                      } else if ((flags & Layout2) !== NoFlags$1) {
                         markComponentLayoutEffectUnmountStopped();
                       }
                     }
@@ -18836,7 +18836,7 @@
                   {
                     if ((flags & Passive$1) !== NoFlags$1) {
                       markComponentPassiveEffectMountStarted(finishedWork);
-                    } else if ((flags & Layout) !== NoFlags$1) {
+                    } else if ((flags & Layout2) !== NoFlags$1) {
                       markComponentLayoutEffectMountStarted(finishedWork);
                     }
                   }
@@ -18855,7 +18855,7 @@
                   {
                     if ((flags & Passive$1) !== NoFlags$1) {
                       markComponentPassiveEffectMountStopped();
-                    } else if ((flags & Layout) !== NoFlags$1) {
+                    } else if ((flags & Layout2) !== NoFlags$1) {
                       markComponentLayoutEffectMountStopped();
                     }
                   }
@@ -18863,7 +18863,7 @@
                     var destroy = effect.destroy;
                     if (destroy !== void 0 && typeof destroy !== "function") {
                       var hookName = void 0;
-                      if ((effect.tag & Layout) !== NoFlags) {
+                      if ((effect.tag & Layout2) !== NoFlags) {
                         hookName = "useLayoutEffect";
                       } else if ((effect.tag & Insertion) !== NoFlags) {
                         hookName = "useInsertionEffect";
@@ -18934,12 +18934,12 @@
                     if (finishedWork.mode & ProfileMode) {
                       try {
                         startLayoutEffectTimer();
-                        commitHookEffectListMount(Layout | HasEffect, finishedWork);
+                        commitHookEffectListMount(Layout2 | HasEffect, finishedWork);
                       } finally {
                         recordLayoutEffectDuration(finishedWork);
                       }
                     } else {
-                      commitHookEffectListMount(Layout | HasEffect, finishedWork);
+                      commitHookEffectListMount(Layout2 | HasEffect, finishedWork);
                     }
                   }
                   break;
@@ -19494,7 +19494,7 @@
                         if (destroy !== void 0) {
                           if ((tag & Insertion) !== NoFlags$1) {
                             safelyCallDestroy(deletedFiber, nearestMountedAncestor, destroy);
-                          } else if ((tag & Layout) !== NoFlags$1) {
+                          } else if ((tag & Layout2) !== NoFlags$1) {
                             {
                               markComponentLayoutEffectUnmountStarted(deletedFiber);
                             }
@@ -19649,14 +19649,14 @@
                   if (finishedWork.mode & ProfileMode) {
                     try {
                       startLayoutEffectTimer();
-                      commitHookEffectListUnmount(Layout | HasEffect, finishedWork, finishedWork.return);
+                      commitHookEffectListUnmount(Layout2 | HasEffect, finishedWork, finishedWork.return);
                     } catch (error2) {
                       captureCommitPhaseError(finishedWork, finishedWork.return, error2);
                     }
                     recordLayoutEffectDuration(finishedWork);
                   } else {
                     try {
-                      commitHookEffectListUnmount(Layout | HasEffect, finishedWork, finishedWork.return);
+                      commitHookEffectListUnmount(Layout2 | HasEffect, finishedWork, finishedWork.return);
                     } catch (error2) {
                       captureCommitPhaseError(finishedWork, finishedWork.return, error2);
                     }
@@ -19949,12 +19949,12 @@
                   if (fiber.mode & ProfileMode) {
                     try {
                       startLayoutEffectTimer();
-                      commitHookEffectListUnmount(Layout, fiber, fiber.return);
+                      commitHookEffectListUnmount(Layout2, fiber, fiber.return);
                     } finally {
                       recordLayoutEffectDuration(fiber);
                     }
                   } else {
-                    commitHookEffectListUnmount(Layout, fiber, fiber.return);
+                    commitHookEffectListUnmount(Layout2, fiber, fiber.return);
                   }
                   break;
                 }
@@ -20237,7 +20237,7 @@
                 case ForwardRef:
                 case SimpleMemoComponent: {
                   try {
-                    commitHookEffectListMount(Layout | HasEffect, fiber);
+                    commitHookEffectListMount(Layout2 | HasEffect, fiber);
                   } catch (error2) {
                     captureCommitPhaseError(fiber, fiber.return, error2);
                   }
@@ -20278,7 +20278,7 @@
                 case ForwardRef:
                 case SimpleMemoComponent: {
                   try {
-                    commitHookEffectListUnmount(Layout | HasEffect, fiber, fiber.return);
+                    commitHookEffectListUnmount(Layout2 | HasEffect, fiber, fiber.return);
                   } catch (error2) {
                     captureCommitPhaseError(fiber, fiber.return, error2);
                   }
@@ -25647,32 +25647,6 @@
     }
   });
 
-  // node_modules/lucide-react/dist/esm/icons/briefcase.js
-  var Briefcase;
-  var init_briefcase = __esm({
-    "node_modules/lucide-react/dist/esm/icons/briefcase.js"() {
-      init_createLucideIcon();
-      Briefcase = createLucideIcon("Briefcase", [
-        ["rect", { width: "20", height: "14", x: "2", y: "7", rx: "2", ry: "2", key: "eto64e" }],
-        ["path", { d: "M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16", key: "zwj3tp" }]
-      ]);
-    }
-  });
-
-  // node_modules/lucide-react/dist/esm/icons/calendar.js
-  var Calendar;
-  var init_calendar = __esm({
-    "node_modules/lucide-react/dist/esm/icons/calendar.js"() {
-      init_createLucideIcon();
-      Calendar = createLucideIcon("Calendar", [
-        ["rect", { width: "18", height: "18", x: "3", y: "4", rx: "2", ry: "2", key: "eu3xkr" }],
-        ["line", { x1: "16", x2: "16", y1: "2", y2: "6", key: "m3sa8f" }],
-        ["line", { x1: "8", x2: "8", y1: "2", y2: "6", key: "18kwsl" }],
-        ["line", { x1: "3", x2: "21", y1: "10", y2: "10", key: "xt86sb" }]
-      ]);
-    }
-  });
-
   // node_modules/lucide-react/dist/esm/icons/camera.js
   var Camera;
   var init_camera = __esm({
@@ -25732,26 +25706,6 @@
         [
           "path",
           { d: "M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z", key: "1jg4f8" }
-        ]
-      ]);
-    }
-  });
-
-  // node_modules/lucide-react/dist/esm/icons/gift.js
-  var Gift;
-  var init_gift = __esm({
-    "node_modules/lucide-react/dist/esm/icons/gift.js"() {
-      init_createLucideIcon();
-      Gift = createLucideIcon("Gift", [
-        ["rect", { x: "3", y: "8", width: "18", height: "4", rx: "1", key: "bkv52" }],
-        ["path", { d: "M12 8v13", key: "1c76mn" }],
-        ["path", { d: "M19 12v7a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2v-7", key: "6wjy6b" }],
-        [
-          "path",
-          {
-            d: "M7.5 8a2.5 2.5 0 0 1 0-5A4.8 8 0 0 1 12 8a4.8 8 0 0 1 4.5-5 2.5 2.5 0 0 1 0 5",
-            key: "1ihvrl"
-          }
         ]
       ]);
     }
@@ -25832,17 +25786,6 @@
     }
   });
 
-  // node_modules/lucide-react/dist/esm/icons/moon.js
-  var Moon;
-  var init_moon = __esm({
-    "node_modules/lucide-react/dist/esm/icons/moon.js"() {
-      init_createLucideIcon();
-      Moon = createLucideIcon("Moon", [
-        ["path", { d: "M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z", key: "a7tn18" }]
-      ]);
-    }
-  });
-
   // node_modules/lucide-react/dist/esm/icons/phone.js
   var Phone;
   var init_phone = __esm({
@@ -25899,23 +25842,6 @@
     }
   });
 
-  // node_modules/lucide-react/dist/esm/icons/shirt.js
-  var Shirt;
-  var init_shirt = __esm({
-    "node_modules/lucide-react/dist/esm/icons/shirt.js"() {
-      init_createLucideIcon();
-      Shirt = createLucideIcon("Shirt", [
-        [
-          "path",
-          {
-            d: "M20.38 3.46 16 2a4 4 0 0 1-8 0L3.62 3.46a2 2 0 0 0-1.34 2.23l.58 3.47a1 1 0 0 0 .99.84H6v10c0 1.1.9 2 2 2h8a2 2 0 0 0 2-2V10h2.15a1 1 0 0 0 .99-.84l.58-3.47a2 2 0 0 0-1.34-2.23z",
-            key: "1wgbhj"
-          }
-        ]
-      ]);
-    }
-  });
-
   // node_modules/lucide-react/dist/esm/icons/shopping-bag.js
   var ShoppingBag;
   var init_shopping_bag = __esm({
@@ -25929,63 +25855,6 @@
     }
   });
 
-  // node_modules/lucide-react/dist/esm/icons/sparkles.js
-  var Sparkles;
-  var init_sparkles = __esm({
-    "node_modules/lucide-react/dist/esm/icons/sparkles.js"() {
-      init_createLucideIcon();
-      Sparkles = createLucideIcon("Sparkles", [
-        [
-          "path",
-          {
-            d: "m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z",
-            key: "17u4zn"
-          }
-        ],
-        ["path", { d: "M5 3v4", key: "bklmnn" }],
-        ["path", { d: "M19 17v4", key: "iiml17" }],
-        ["path", { d: "M3 5h4", key: "nem4j1" }],
-        ["path", { d: "M17 19h4", key: "lbex7p" }]
-      ]);
-    }
-  });
-
-  // node_modules/lucide-react/dist/esm/icons/star.js
-  var Star;
-  var init_star = __esm({
-    "node_modules/lucide-react/dist/esm/icons/star.js"() {
-      init_createLucideIcon();
-      Star = createLucideIcon("Star", [
-        [
-          "polygon",
-          {
-            points: "12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2",
-            key: "8f66p6"
-          }
-        ]
-      ]);
-    }
-  });
-
-  // node_modules/lucide-react/dist/esm/icons/sun.js
-  var Sun;
-  var init_sun = __esm({
-    "node_modules/lucide-react/dist/esm/icons/sun.js"() {
-      init_createLucideIcon();
-      Sun = createLucideIcon("Sun", [
-        ["circle", { cx: "12", cy: "12", r: "4", key: "4exip2" }],
-        ["path", { d: "M12 2v2", key: "tus03m" }],
-        ["path", { d: "M12 20v2", key: "1lh1kg" }],
-        ["path", { d: "m4.93 4.93 1.41 1.41", key: "149t6j" }],
-        ["path", { d: "m17.66 17.66 1.41 1.41", key: "ptbguv" }],
-        ["path", { d: "M2 12h2", key: "1t8f8n" }],
-        ["path", { d: "M20 12h2", key: "1q8mjw" }],
-        ["path", { d: "m6.34 17.66-1.41 1.41", key: "1m8zz5" }],
-        ["path", { d: "m19.07 4.93-1.41 1.41", key: "1shlcs" }]
-      ]);
-    }
-  });
-
   // node_modules/lucide-react/dist/esm/icons/user.js
   var User;
   var init_user = __esm({
@@ -25994,23 +25863,6 @@
       User = createLucideIcon("User", [
         ["path", { d: "M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2", key: "975kel" }],
         ["circle", { cx: "12", cy: "7", r: "4", key: "17ys0d" }]
-      ]);
-    }
-  });
-
-  // node_modules/lucide-react/dist/esm/icons/watch.js
-  var Watch;
-  var init_watch = __esm({
-    "node_modules/lucide-react/dist/esm/icons/watch.js"() {
-      init_createLucideIcon();
-      Watch = createLucideIcon("Watch", [
-        ["circle", { cx: "12", cy: "12", r: "6", key: "1vlfrh" }],
-        ["polyline", { points: "12 10 12 12 13 13", key: "19dquz" }],
-        [
-          "path",
-          { d: "m16.13 7.66-.81-4.05a2 2 0 0 0-2-1.61h-2.68a2 2 0 0 0-2 1.61l-.78 4.05", key: "18k57s" }
-        ],
-        ["path", { d: "m7.88 16.36.8 4a2 2 0 0 0 2 1.61h2.72a2 2 0 0 0 2-1.61l.81-4.05", key: "16ny36" }]
       ]);
     }
   });
@@ -26032,33 +25884,24 @@
     "node_modules/lucide-react/dist/esm/lucide-react.js"() {
       init_arrow_right();
       init_book_open();
-      init_briefcase();
-      init_calendar();
       init_camera();
       init_check();
       init_chevron_right();
       init_clock();
       init_facebook();
-      init_gift();
       init_home();
       init_instagram();
       init_mail();
       init_map_pin();
       init_message_square();
-      init_moon();
       init_phone();
       init_scissors();
       init_search();
       init_send();
-      init_shirt();
       init_shopping_bag();
-      init_star();
-      init_sun();
       init_user();
-      init_watch();
       init_x();
       init_grid_3x3();
-      init_sparkles();
     }
   });
 
@@ -30412,27 +30255,6 @@
       setMotionValue(visualElement, key, value);
     }
   }
-  function setVariants(visualElement, variantLabels) {
-    const reversedLabels = [...variantLabels].reverse();
-    reversedLabels.forEach((key) => {
-      const variant = visualElement.getVariant(key);
-      variant && setTarget(visualElement, variant);
-      if (visualElement.variantChildren) {
-        visualElement.variantChildren.forEach((child) => {
-          setVariants(child, variantLabels);
-        });
-      }
-    });
-  }
-  function setValues(visualElement, definition) {
-    if (Array.isArray(definition)) {
-      return setVariants(visualElement, definition);
-    } else if (typeof definition === "string") {
-      return setVariants(visualElement, [definition]);
-    } else {
-      setTarget(visualElement, definition);
-    }
-  }
   function checkTargetForNewValues(visualElement, target, origin2) {
     var _a, _b;
     const newValueKeys = Object.keys(target).filter((key) => !visualElement.hasValue(key));
@@ -34738,174 +34560,146 @@
     }
   });
 
-  // node_modules/framer-motion/dist/es/render/dom/utils/resolve-element.mjs
-  function resolveElements(elements, scope, selectorCache) {
-    var _a;
-    if (typeof elements === "string") {
-      let root = document;
-      if (scope) {
-        invariant2(Boolean(scope.current), "Scope provided, but no element detected.");
-        root = scope.current;
-      }
-      if (selectorCache) {
-        (_a = selectorCache[elements]) !== null && _a !== void 0 ? _a : selectorCache[elements] = root.querySelectorAll(elements);
-        elements = selectorCache[elements];
-      } else {
-        elements = root.querySelectorAll(elements);
-      }
-    } else if (elements instanceof Element) {
-      elements = [elements];
-    }
-    return Array.from(elements || []);
-  }
-  var init_resolve_element = __esm({
-    "node_modules/framer-motion/dist/es/render/dom/utils/resolve-element.mjs"() {
-      init_errors();
-    }
-  });
-
-  // node_modules/framer-motion/dist/es/animation/hooks/animation-controls.mjs
-  function stopAnimation(visualElement) {
-    visualElement.values.forEach((value) => value.stop());
-  }
-  function animationControls() {
-    let hasMounted = false;
-    const subscribers = /* @__PURE__ */ new Set();
-    const controls = {
-      subscribe(visualElement) {
-        subscribers.add(visualElement);
-        return () => void subscribers.delete(visualElement);
-      },
-      start(definition, transitionOverride) {
-        invariant2(hasMounted, "controls.start() should only be called after a component has mounted. Consider calling within a useEffect hook.");
-        const animations2 = [];
-        subscribers.forEach((visualElement) => {
-          animations2.push(animateVisualElement(visualElement, definition, {
-            transitionOverride
-          }));
-        });
-        return Promise.all(animations2);
-      },
-      set(definition) {
-        invariant2(hasMounted, "controls.set() should only be called after a component has mounted. Consider calling within a useEffect hook.");
-        return subscribers.forEach((visualElement) => {
-          setValues(visualElement, definition);
-        });
-      },
-      stop() {
-        subscribers.forEach((visualElement) => {
-          stopAnimation(visualElement);
-        });
-      },
-      mount() {
-        hasMounted = true;
-        return () => {
-          hasMounted = false;
-          controls.stop();
-        };
-      }
-    };
-    return controls;
-  }
-  var init_animation_controls = __esm({
-    "node_modules/framer-motion/dist/es/animation/hooks/animation-controls.mjs"() {
-      init_errors();
-      init_setters();
-      init_visual_element();
-    }
-  });
-
-  // node_modules/framer-motion/dist/es/animation/hooks/use-animation.mjs
-  function useAnimationControls() {
-    const controls = useConstant(animationControls);
-    useIsomorphicLayoutEffect2(controls.mount, []);
-    return controls;
-  }
-  var useAnimation;
-  var init_use_animation = __esm({
-    "node_modules/framer-motion/dist/es/animation/hooks/use-animation.mjs"() {
-      init_animation_controls();
-      init_use_constant();
-      init_use_isomorphic_effect();
-      useAnimation = useAnimationControls;
-    }
-  });
-
-  // node_modules/framer-motion/dist/es/render/dom/viewport/index.mjs
-  function inView(elementOrSelector, onStart, { root, margin: rootMargin, amount = "some" } = {}) {
-    const elements = resolveElements(elementOrSelector);
-    const activeIntersections = /* @__PURE__ */ new WeakMap();
-    const onIntersectionChange = (entries) => {
-      entries.forEach((entry) => {
-        const onEnd = activeIntersections.get(entry.target);
-        if (entry.isIntersecting === Boolean(onEnd))
-          return;
-        if (entry.isIntersecting) {
-          const newOnEnd = onStart(entry);
-          if (typeof newOnEnd === "function") {
-            activeIntersections.set(entry.target, newOnEnd);
-          } else {
-            observer.unobserve(entry.target);
-          }
-        } else if (onEnd) {
-          onEnd(entry);
-          activeIntersections.delete(entry.target);
-        }
-      });
-    };
-    const observer = new IntersectionObserver(onIntersectionChange, {
-      root,
-      rootMargin,
-      threshold: typeof amount === "number" ? amount : thresholds[amount]
-    });
-    elements.forEach((element) => observer.observe(element));
-    return () => observer.disconnect();
-  }
-  var thresholds;
-  var init_viewport2 = __esm({
-    "node_modules/framer-motion/dist/es/render/dom/viewport/index.mjs"() {
-      init_resolve_element();
-      thresholds = {
-        some: 0,
-        all: 1
-      };
-    }
-  });
-
-  // node_modules/framer-motion/dist/es/utils/use-in-view.mjs
-  function useInView(ref, { root, margin, amount, once = false } = {}) {
-    const [isInView, setInView] = (0, import_react26.useState)(false);
-    (0, import_react26.useEffect)(() => {
-      if (!ref.current || once && isInView)
-        return;
-      const onEnter = () => {
-        setInView(true);
-        return once ? void 0 : () => setInView(false);
-      };
-      const options = {
-        root: root && root.current || void 0,
-        margin,
-        amount
-      };
-      return inView(ref.current, onEnter, options);
-    }, [root, ref, margin, once, amount]);
-    return isInView;
-  }
-  var import_react26;
-  var init_use_in_view = __esm({
-    "node_modules/framer-motion/dist/es/utils/use-in-view.mjs"() {
-      import_react26 = __toESM(require_react(), 1);
-      init_viewport2();
-    }
-  });
-
   // node_modules/framer-motion/dist/es/index.mjs
   var init_es = __esm({
     "node_modules/framer-motion/dist/es/index.mjs"() {
       init_motion2();
       init_AnimatePresence();
-      init_use_animation();
-      init_use_in_view();
+    }
+  });
+
+  // resources/js/components/layouts/Footer.jsx
+  var import_react28, Footer, Footer_default;
+  var init_Footer = __esm({
+    "resources/js/components/layouts/Footer.jsx"() {
+      import_react28 = __toESM(require_react());
+      init_dist2();
+      init_lucide_react();
+      init_es();
+      Footer = () => {
+        const [email, setEmail] = (0, import_react28.useState)("");
+        const [subscribed, setSubscribed] = (0, import_react28.useState)(false);
+        const handleSubscribe = (e) => {
+          e.preventDefault();
+          if (email) {
+            console.log("Subscribed:", email);
+            setSubscribed(true);
+            setTimeout(() => {
+              setSubscribed(false);
+              setEmail("");
+            }, 3e3);
+          }
+        };
+        const currentYear = (/* @__PURE__ */ new Date()).getFullYear();
+        return /* @__PURE__ */ import_react28.default.createElement("footer", { className: "bg-black text-white border-t border-white/10" }, /* @__PURE__ */ import_react28.default.createElement("div", { className: "max-w-7xl mx-auto px-6 py-12 md:py-16" }, /* @__PURE__ */ import_react28.default.createElement("div", { className: "grid grid-cols-1 md:grid-cols-4 gap-8 md:gap-12" }, /* @__PURE__ */ import_react28.default.createElement("div", { className: "space-y-6" }, /* @__PURE__ */ import_react28.default.createElement("div", null, /* @__PURE__ */ import_react28.default.createElement("h2", { className: "text-2xl font-serif font-light tracking-widest mb-3" }, "ATTIRE", /* @__PURE__ */ import_react28.default.createElement("span", { className: "font-medium" }, "LOUNGE")), /* @__PURE__ */ import_react28.default.createElement("p", { className: "text-white/70 text-sm leading-relaxed" }, "First Gentlemen's Styling House in Cambodia. Premium sartorial collections and personal styling services.")), /* @__PURE__ */ import_react28.default.createElement("div", { className: "space-y-4" }, /* @__PURE__ */ import_react28.default.createElement("div", { className: "flex items-start gap-3" }, /* @__PURE__ */ import_react28.default.createElement(MapPin, { className: "w-4 h-4 mt-1 text-white/60 flex-shrink-0" }), /* @__PURE__ */ import_react28.default.createElement("p", { className: "text-sm text-white/80" }, "10 E0, Street 03, Sangkat Chey Chumneah,", /* @__PURE__ */ import_react28.default.createElement("br", null), "Khan Daun Penh, Phnom Penh")), /* @__PURE__ */ import_react28.default.createElement("div", { className: "flex items-center gap-3" }, /* @__PURE__ */ import_react28.default.createElement(Phone, { className: "w-4 h-4 text-white/60 flex-shrink-0" }), /* @__PURE__ */ import_react28.default.createElement(
+          "a",
+          {
+            href: "tel:+85569256369",
+            className: "text-sm text-white/80 hover:text-white transition-colors"
+          },
+          "(+855) 69-25-63-69"
+        )), /* @__PURE__ */ import_react28.default.createElement("div", { className: "flex items-center gap-3" }, /* @__PURE__ */ import_react28.default.createElement(Mail, { className: "w-4 h-4 text-white/60 flex-shrink-0" }), /* @__PURE__ */ import_react28.default.createElement(
+          "a",
+          {
+            href: "mailto:attireloungekh@gmail.com",
+            className: "text-sm text-white/80 hover:text-white transition-colors"
+          },
+          "attireloungekh@gmail.com"
+        )), /* @__PURE__ */ import_react28.default.createElement("div", { className: "flex items-center gap-3" }, /* @__PURE__ */ import_react28.default.createElement(Clock, { className: "w-4 h-4 text-white/60 flex-shrink-0" }), /* @__PURE__ */ import_react28.default.createElement("p", { className: "text-sm text-white/80" }, "10:00 AM - 7:00 PM, Daily")))), /* @__PURE__ */ import_react28.default.createElement("div", { className: "md:col-span-2 grid grid-cols-2 gap-8" }, /* @__PURE__ */ import_react28.default.createElement("div", null, /* @__PURE__ */ import_react28.default.createElement("h3", { className: "text-sm font-medium uppercase tracking-widest mb-6 text-white/90" }, "Collections"), /* @__PURE__ */ import_react28.default.createElement("ul", { className: "space-y-4" }, [
+          { name: "Sartorial", path: "/collections/sartorial" },
+          { name: "Groom", path: "/collections/groom" },
+          { name: "Office", path: "/collections/office" },
+          { name: "Accessories", path: "/collections/accessories" },
+          { name: "New Arrivals", path: "/collections/new-arrivals" }
+        ].map((item) => /* @__PURE__ */ import_react28.default.createElement("li", { key: item.name }, /* @__PURE__ */ import_react28.default.createElement(
+          Link,
+          {
+            to: item.path,
+            className: "group flex items-center text-white/70 hover:text-white transition-colors text-sm"
+          },
+          /* @__PURE__ */ import_react28.default.createElement(ArrowRight, { className: "w-3 h-3 mr-2 opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all" }),
+          item.name
+        ))))), /* @__PURE__ */ import_react28.default.createElement("div", null, /* @__PURE__ */ import_react28.default.createElement("h3", { className: "text-sm font-medium uppercase tracking-widest mb-6 text-white/90" }, "Information"), /* @__PURE__ */ import_react28.default.createElement("ul", { className: "space-y-4" }, [
+          { name: "About Us", path: "/about" },
+          { name: "Appointments", path: "/appointment" },
+          { name: "Attire Club", path: "/membership" },
+          { name: "Lookbook", path: "/lookbook" },
+          { name: "Contact", path: "/contact" }
+        ].map((item) => /* @__PURE__ */ import_react28.default.createElement("li", { key: item.name }, /* @__PURE__ */ import_react28.default.createElement(
+          Link,
+          {
+            to: item.path,
+            className: "group flex items-center text-white/70 hover:text-white transition-colors text-sm"
+          },
+          /* @__PURE__ */ import_react28.default.createElement(ArrowRight, { className: "w-3 h-3 mr-2 opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all" }),
+          item.name
+        )))))), /* @__PURE__ */ import_react28.default.createElement("div", { className: "space-y-8" }, /* @__PURE__ */ import_react28.default.createElement("div", null, /* @__PURE__ */ import_react28.default.createElement("h3", { className: "text-sm font-medium uppercase tracking-widest mb-6 text-white/90" }, "Stay Updated"), /* @__PURE__ */ import_react28.default.createElement("p", { className: "text-white/70 text-sm mb-6" }, "Subscribe for exclusive collections, styling tips, and members-only offers."), /* @__PURE__ */ import_react28.default.createElement("form", { onSubmit: handleSubscribe, className: "space-y-4" }, /* @__PURE__ */ import_react28.default.createElement("div", { className: "relative" }, /* @__PURE__ */ import_react28.default.createElement(
+          "input",
+          {
+            type: "email",
+            value: email,
+            onChange: (e) => setEmail(e.target.value),
+            placeholder: "Your email address",
+            className: "w-full bg-white/5 border border-white/10 rounded-lg px-4 py-3 text-sm placeholder:text-white/40 focus:outline-none focus:border-white/30 transition-colors",
+            required: true
+          }
+        )), /* @__PURE__ */ import_react28.default.createElement(
+          motion.button,
+          {
+            whileHover: { scale: 1.02 },
+            whileTap: { scale: 0.98 },
+            type: "submit",
+            className: "w-full bg-white text-black py-3 rounded-lg font-medium text-sm hover:bg-gray-100 transition-all duration-300 flex items-center justify-center gap-2"
+          },
+          subscribed ? /* @__PURE__ */ import_react28.default.createElement(import_react28.default.Fragment, null, /* @__PURE__ */ import_react28.default.createElement(Check, { className: "w-4 h-4" }), "Subscribed!") : /* @__PURE__ */ import_react28.default.createElement(import_react28.default.Fragment, null, "Subscribe", /* @__PURE__ */ import_react28.default.createElement(Send, { className: "w-4 h-4" }))
+        ))), /* @__PURE__ */ import_react28.default.createElement("div", null, /* @__PURE__ */ import_react28.default.createElement("h3", { className: "text-sm font-medium uppercase tracking-widest mb-6 text-white/90" }, "Connect With Us"), /* @__PURE__ */ import_react28.default.createElement("div", { className: "flex items-center gap-4" }, [
+          {
+            icon: Instagram,
+            label: "Instagram",
+            url: "https://instagram.com/attireloungeofficial",
+            color: "hover:bg-pink-500/20 hover:border-pink-500/30"
+          },
+          {
+            icon: Facebook,
+            label: "Facebook",
+            url: "https://facebook.com/attireloungeofficial",
+            color: "hover:bg-blue-500/20 hover:border-blue-500/30"
+          },
+          {
+            icon: MessageSquare,
+            label: "Telegram",
+            url: "https://t.me/attirelounge",
+            color: "hover:bg-blue-400/20 hover:border-blue-400/30"
+          }
+        ].map((social) => /* @__PURE__ */ import_react28.default.createElement(
+          motion.a,
+          {
+            key: social.label,
+            href: social.url,
+            target: "_blank",
+            rel: "noopener noreferrer",
+            whileHover: { y: -2 },
+            className: `p-3 border border-white/10 rounded-lg hover:bg-white/5 transition-all ${social.color}`,
+            "aria-label": social.label
+          },
+          /* @__PURE__ */ import_react28.default.createElement(social.icon, { className: "w-5 h-5 text-white/80" })
+        )))))), /* @__PURE__ */ import_react28.default.createElement("div", { className: "mt-12 pt-8 border-t border-white/10" }, /* @__PURE__ */ import_react28.default.createElement("div", { className: "flex flex-col md:flex-row items-center justify-between gap-6" }, /* @__PURE__ */ import_react28.default.createElement("div", { className: "text-center md:text-left" }, /* @__PURE__ */ import_react28.default.createElement("p", { className: "text-white/60 text-sm" }, "\xA9 ", currentYear, " Attire Lounge Official. All rights reserved."), /* @__PURE__ */ import_react28.default.createElement("p", { className: "text-white/40 text-xs mt-1" }, "First Gentlemen's Styling House in Cambodia")), /* @__PURE__ */ import_react28.default.createElement("div", { className: "flex flex-wrap items-center justify-center gap-6 text-sm" }, [
+          { name: "Privacy Policy", path: "/privacy" },
+          { name: "Terms of Service", path: "/terms" },
+          { name: "Shipping Policy", path: "/shipping" },
+          { name: "Return Policy", path: "/returns" },
+          { name: "FAQs", path: "/faq" }
+        ].map((link) => /* @__PURE__ */ import_react28.default.createElement(
+          Link,
+          {
+            key: link.name,
+            to: link.path,
+            className: "text-white/60 hover:text-white transition-colors text-xs uppercase tracking-wider"
+          },
+          link.name
+        )))), /* @__PURE__ */ import_react28.default.createElement("div", { className: "mt-6 pt-6 border-t border-white/5 text-center" }, /* @__PURE__ */ import_react28.default.createElement("p", { className: "text-white/40 text-xs" }, "Attire Club Membership available with minimum purchase of US$500.", /* @__PURE__ */ import_react28.default.createElement(Link, { to: "/membership", className: "ml-1 text-white/60 hover:text-white transition-colors" }, "Learn more \u2192"))))));
+      };
+      Footer_default = Footer;
     }
   });
 
@@ -34914,230 +34708,372 @@
   __export(HomePage_exports, {
     default: () => HomePage_default
   });
-  var import_react30, HomePage, HomePage_default;
+  var import_react29, HomePage, HomePage_default;
   var init_HomePage = __esm({
     "resources/js/components/pages/HomePage.jsx"() {
-      import_react30 = __toESM(require_react());
-      init_dist2();
-      init_lucide_react();
+      import_react29 = __toESM(require_react());
       init_es();
+      init_Footer();
       HomePage = () => {
-        const controls = useAnimation();
-        const ref = (0, import_react30.useRef)(null);
-        const isInView = useInView(ref, { once: true, amount: 0.3 });
-        const videoRef = (0, import_react30.useRef)(null);
-        const [isVideoLoaded, setIsVideoLoaded] = import_react30.default.useState(false);
-        (0, import_react30.useEffect)(() => {
-          const video = videoRef.current;
-          if (video) {
-            const handleEnded = () => {
-              video.currentTime = 0;
-              video.play().catch((e) => console.log("Autoplay prevented:", e));
-            };
-            video.addEventListener("ended", handleEnded);
-            return () => {
-              video.removeEventListener("ended", handleEnded);
-            };
-          }
+        const [isMobile, setIsMobile] = (0, import_react29.useState)(false);
+        const [activeSection, setActiveSection] = (0, import_react29.useState)(0);
+        const [isMenuOpen, setIsMenuOpen] = (0, import_react29.useState)(false);
+        const [currentImageIndex, setCurrentImageIndex] = (0, import_react29.useState)(0);
+        const sectionsRef = (0, import_react29.useRef)([]);
+        const touchStartX = (0, import_react29.useRef)(0);
+        const isAnimatingRef = (0, import_react29.useRef)(false);
+        const wheelTimeoutRef = (0, import_react29.useRef)(null);
+        const scrollCooldownRef = (0, import_react29.useRef)(false);
+        const lastScrollDirection = (0, import_react29.useRef)("down");
+        const scrollAccumulator = (0, import_react29.useRef)(0);
+        const lastScrollTime = (0, import_react29.useRef)(0);
+        const canScrollRef = (0, import_react29.useRef)(true);
+        const heroImages = [
+          { src: "/uploads/collections/Model/1.jpg", title: "Modern Elegance", subtitle: "Spring/Summer Collection" },
+          { src: "/uploads/collections/Model/2.jpg", title: "Urban Sophistication", subtitle: "Evening Wear Collection" },
+          { src: "/uploads/collections/Model/3.jpg", title: "Timeless Luxury", subtitle: "Limited Edition" }
+        ];
+        (0, import_react29.useEffect)(() => {
+          const checkMobile = () => setIsMobile(window.innerWidth < 768);
+          checkMobile();
+          window.addEventListener("resize", checkMobile);
+          return () => window.removeEventListener("resize", checkMobile);
         }, []);
-        (0, import_react30.useEffect)(() => {
-          if (isInView) {
-            controls.start("visible");
+        (0, import_react29.useEffect)(() => {
+          if (!isMobile) {
+            document.documentElement.style.scrollSnapType = "none";
+            document.documentElement.style.scrollBehavior = "auto";
+          } else {
+            document.documentElement.style.scrollSnapType = "y mandatory";
           }
-        }, [controls, isInView]);
-        const containerVariants = {
-          hidden: { opacity: 0 },
-          visible: {
-            opacity: 1,
-            transition: {
-              staggerChildren: 0.1,
-              delayChildren: 0.2
+          return () => {
+            document.documentElement.style.scrollSnapType = "";
+            document.documentElement.style.scrollBehavior = "";
+          };
+        }, [isMobile]);
+        const scrollToSection = (0, import_react29.useCallback)((index) => {
+          if (isAnimatingRef.current || !sectionsRef.current[index] || isMenuOpen || !canScrollRef.current)
+            return;
+          isAnimatingRef.current = true;
+          canScrollRef.current = false;
+          const section = sectionsRef.current[index];
+          const startY = window.scrollY;
+          const targetY = section.offsetTop;
+          const distance2 = targetY - startY;
+          const duration = Math.max(600, Math.min(1e3, Math.abs(distance2) * 0.5));
+          const startTime = performance.now();
+          const easeInOutExpo = (t) => {
+            return t === 0 ? 0 : t === 1 ? 1 : t < 0.5 ? Math.pow(2, 20 * t - 10) / 2 : (2 - Math.pow(2, -20 * t + 10)) / 2;
+          };
+          const animate = (currentTime) => {
+            const elapsed = currentTime - startTime;
+            const progress2 = Math.min(elapsed / duration, 1);
+            const easedProgress = easeInOutExpo(progress2);
+            window.scrollTo({ top: startY + distance2 * easedProgress, behavior: "auto" });
+            if (progress2 < 1) {
+              requestAnimationFrame(animate);
+            } else {
+              window.scrollTo({ top: targetY, behavior: "auto" });
+              setActiveSection(index);
+              isAnimatingRef.current = false;
+              setTimeout(() => {
+                canScrollRef.current = true;
+              }, 150);
+            }
+          };
+          requestAnimationFrame(animate);
+        }, [isMenuOpen]);
+        (0, import_react29.useEffect)(() => {
+          if (isMobile)
+            return;
+          const SCROLL_THRESHOLD = 60;
+          const SCROLL_COOLDOWN = 300;
+          const MIN_TIME_BETWEEN_SCROLLS = 100;
+          const handleWheel = (e) => {
+            e.preventDefault();
+            const now = Date.now();
+            const deltaY = e.deltaY || e.detail || e.wheelDelta * -1;
+            const direction = deltaY > 0 ? "down" : "up";
+            if (!canScrollRef.current || isAnimatingRef.current || scrollCooldownRef.current)
+              return;
+            if (now - lastScrollTime.current < MIN_TIME_BETWEEN_SCROLLS)
+              return;
+            scrollAccumulator.current += Math.abs(deltaY);
+            lastScrollDirection.current = direction;
+            lastScrollTime.current = now;
+            if (scrollAccumulator.current > SCROLL_THRESHOLD) {
+              let newIndex = activeSection;
+              if (direction === "down") {
+                newIndex = Math.min(activeSection + 1, sectionsRef.current.length - 1);
+              } else {
+                newIndex = Math.max(activeSection - 1, 0);
+              }
+              if (newIndex !== activeSection) {
+                scrollCooldownRef.current = true;
+                scrollToSection(newIndex);
+                setTimeout(() => {
+                  scrollCooldownRef.current = false;
+                }, SCROLL_COOLDOWN);
+              }
+              scrollAccumulator.current = 0;
+            }
+            if (wheelTimeoutRef.current)
+              clearTimeout(wheelTimeoutRef.current);
+            wheelTimeoutRef.current = setTimeout(() => {
+              scrollAccumulator.current = 0;
+            }, 250);
+          };
+          window.addEventListener("wheel", handleWheel, { passive: false });
+          return () => {
+            window.removeEventListener("wheel", handleWheel);
+            if (wheelTimeoutRef.current)
+              clearTimeout(wheelTimeoutRef.current);
+          };
+        }, [isMobile, activeSection, scrollToSection]);
+        (0, import_react29.useEffect)(() => {
+          let keyCooldown = false;
+          const handleKeyDown = (e) => {
+            if (isAnimatingRef.current || isMenuOpen || keyCooldown)
+              return;
+            let newIndex = activeSection;
+            switch (e.key) {
+              case "ArrowDown":
+              case "PageDown":
+                e.preventDefault();
+                newIndex = Math.min(activeSection + 1, sectionsRef.current.length - 1);
+                break;
+              case "ArrowUp":
+              case "PageUp":
+                e.preventDefault();
+                newIndex = Math.max(activeSection - 1, 0);
+                break;
+              case "Home":
+                e.preventDefault();
+                newIndex = 0;
+                break;
+              case "End":
+                e.preventDefault();
+                newIndex = sectionsRef.current.length - 1;
+                break;
+              default:
+                return;
+            }
+            if (newIndex !== activeSection) {
+              keyCooldown = true;
+              scrollToSection(newIndex);
+              setTimeout(() => {
+                keyCooldown = false;
+              }, 300);
+            }
+          };
+          window.addEventListener("keydown", handleKeyDown);
+          return () => window.removeEventListener("keydown", handleKeyDown);
+        }, [activeSection, scrollToSection, isMenuOpen]);
+        const handleTouchStart = (0, import_react29.useCallback)((e) => {
+          if (!isMobile)
+            return;
+          touchStartX.current = e.touches[0].clientX;
+        }, [isMobile]);
+        const handleTouchEnd = (0, import_react29.useCallback)((e) => {
+          if (!isMobile || !touchStartX.current)
+            return;
+          const touchEndX = e.changedTouches[0].clientX;
+          const deltaX = touchEndX - touchStartX.current;
+          const threshold = 50;
+          if (Math.abs(deltaX) > threshold) {
+            if (deltaX > 0) {
+              setCurrentImageIndex((prev) => prev === 0 ? heroImages.length - 1 : prev - 1);
+            } else {
+              setCurrentImageIndex((prev) => prev === heroImages.length - 1 ? 0 : prev + 1);
             }
           }
-        };
-        const itemVariants = {
-          hidden: { x: 20, opacity: 0 },
-          visible: {
-            x: 0,
-            opacity: 1,
-            transition: {
-              type: "spring",
-              damping: 25,
-              stiffness: 100,
-              mass: 0.5
+          touchStartX.current = 0;
+        }, [isMobile, heroImages.length]);
+        (0, import_react29.useEffect)(() => {
+          const updateSections = () => {
+            const sections = document.querySelectorAll(".snap-section");
+            sectionsRef.current = Array.from(sections);
+          };
+          setTimeout(updateSections, 100);
+          const handleMenuStateChange = (e) => {
+            if (e.detail && e.detail.isMenuOpen !== void 0) {
+              setIsMenuOpen(e.detail.isMenuOpen);
             }
-          }
-        };
-        return /* @__PURE__ */ import_react30.default.createElement("div", { className: "min-h-screen" }, /* @__PURE__ */ import_react30.default.createElement("section", { className: "relative min-h-screen overflow-hidden" }, /* @__PURE__ */ import_react30.default.createElement("div", { className: "absolute inset-0 w-full h-full overflow-hidden" }, /* @__PURE__ */ import_react30.default.createElement("div", { className: "relative w-full h-full" }, /* @__PURE__ */ import_react30.default.createElement(
-          "video",
+          };
+          window.addEventListener("menuStateChange", handleMenuStateChange);
+          return () => window.removeEventListener("menuStateChange", handleMenuStateChange);
+        }, []);
+        const goToImage = (0, import_react29.useCallback)((index) => {
+          if (!isMobile || index === currentImageIndex)
+            return;
+          setCurrentImageIndex(index);
+        }, [isMobile, currentImageIndex]);
+        return /* @__PURE__ */ import_react29.default.createElement("div", { className: "snap-scroll-container" }, /* @__PURE__ */ import_react29.default.createElement(
+          "section",
           {
-            ref: videoRef,
-            autoPlay: true,
-            muted: true,
-            loop: true,
-            playsInline: true,
-            preload: "metadata",
-            poster: "/videos/gentlemen-styling-poster.jpg",
-            onLoadedData: () => setIsVideoLoaded(true),
-            className: `absolute w-full h-auto min-h-full object-cover transition-opacity duration-1000 ${isVideoLoaded ? "opacity-100" : "opacity-0"}`
+            className: "relative snap-section overflow-hidden min-h-screen h-screen",
+            ref: (el) => {
+              if (el && !sectionsRef.current[0])
+                sectionsRef.current[0] = el;
+            }
           },
-          /* @__PURE__ */ import_react30.default.createElement(
-            "source",
+          /* @__PURE__ */ import_react29.default.createElement("div", { className: "absolute inset-0 w-full h-full overflow-hidden" }, /* @__PURE__ */ import_react29.default.createElement(
+            "video",
             {
-              src: "/videos/hero-background.mp4",
-              type: "video/mp4"
-            }
-          ),
-          /* @__PURE__ */ import_react30.default.createElement(
-            "source",
-            {
-              src: "/videos/gentlemen-styling-bg.webm",
-              type: "video/webm"
-            }
-          ),
-          /* @__PURE__ */ import_react30.default.createElement("div", { className: "absolute inset-0 bg-gradient-to-r from-attire-charcoal/95 via-attire-navy/90 to-attire-dark/95" })
-        )), /* @__PURE__ */ import_react30.default.createElement("div", { className: "absolute inset-0 bg-gradient-to-t from-black/60 via-black/30 to-transparent" })), /* @__PURE__ */ import_react30.default.createElement("div", { className: "relative z-10 h-full min-h-screen flex items-center" }, /* @__PURE__ */ import_react30.default.createElement("div", { className: "max-w-7xl mx-auto w-full px-6" }, /* @__PURE__ */ import_react30.default.createElement("div", { className: "flex flex-col md:flex-row items-center justify-between h-full" }, /* @__PURE__ */ import_react30.default.createElement("div", { className: "w-full h-full flex items-center justify-center py-12 md:py-0" }, /* @__PURE__ */ import_react30.default.createElement("div", { className: "max-w-2xl text-center" })))), /* @__PURE__ */ import_react30.default.createElement(
-          motion.div,
-          {
-            animate: { y: [0, 8, 0] },
-            transition: { repeat: Infinity, duration: 2, ease: "easeInOut" },
-            className: "absolute bottom-8 left-1/2 transform -translate-x-1/2"
-          },
-          /* @__PURE__ */ import_react30.default.createElement("div", { className: "text-white/50 text-xs tracking-widest uppercase" }, "Scroll")
-        ))), /* @__PURE__ */ import_react30.default.createElement("section", { className: "relative py-24 px-6 bg-gradient-to-b from-white to-attire-cream overflow-hidden" }, /* @__PURE__ */ import_react30.default.createElement("div", { className: "absolute inset-0 bg-gradient-to-br from-white/80 via-attire-cream/60 to-white/80 backdrop-blur-sm" }), /* @__PURE__ */ import_react30.default.createElement("div", { className: "relative z-10 max-w-6xl mx-auto" }, /* @__PURE__ */ import_react30.default.createElement(
-          motion.div,
-          {
-            initial: { opacity: 0, y: 30 },
-            whileInView: { opacity: 1, y: 0 },
-            transition: { duration: 0.8 },
-            viewport: { once: true },
-            className: "text-center mb-16"
-          },
-          /* @__PURE__ */ import_react30.default.createElement("h2", { className: "text-3xl md:text-4xl font-serif text-attire-charcoal mb-6" }, "Cambodia's Premier Gentlemen's House"),
-          /* @__PURE__ */ import_react30.default.createElement("div", { className: "w-20 h-1 bg-gradient-to-r from-attire-gold to-attire-accent mx-auto mb-8" }),
-          /* @__PURE__ */ import_react30.default.createElement("p", { className: "text-lg text-attire-stone max-w-3xl mx-auto leading-relaxed" }, "Established as the first dedicated gentlemen's styling house in Cambodia, we bring international standards of tailoring and personal styling to Phnom Penh.")
-        ), /* @__PURE__ */ import_react30.default.createElement("div", { className: "grid md:grid-cols-3 gap-8" }, [
-          {
-            title: "Heritage Tailoring",
-            description: "Traditional craftsmanship meets modern techniques for perfect fits",
-            icon: "\u2702\uFE0F"
-          },
-          {
-            title: "Personal Styling",
-            description: "One-on-one consultations to develop your signature style",
-            icon: "\u{1F454}"
-          },
-          {
-            title: "Premium Collections",
-            description: "Curated selections from international and local designers",
-            icon: "\u2B50"
-          }
-        ].map((item, index) => /* @__PURE__ */ import_react30.default.createElement(
-          motion.div,
-          {
-            key: item.title,
-            initial: { opacity: 0, y: 20 },
-            whileInView: { opacity: 1, y: 0 },
-            transition: { duration: 0.6, delay: index * 0.2 },
-            viewport: { once: true },
-            whileHover: { y: -5 },
-            className: "bg-white/80 backdrop-blur-sm rounded-xl p-8 text-center shadow-lg hover:shadow-xl transition-all duration-300 border border-attire-silver/20"
-          },
-          /* @__PURE__ */ import_react30.default.createElement("div", { className: "text-4xl mb-6" }, item.icon),
-          /* @__PURE__ */ import_react30.default.createElement("h3", { className: "text-xl font-serif font-medium text-attire-charcoal mb-4" }, item.title),
-          /* @__PURE__ */ import_react30.default.createElement("p", { className: "text-attire-stone leading-relaxed" }, item.description)
-        ))))), /* @__PURE__ */ import_react30.default.createElement("section", { className: "relative py-24 px-6 bg-attire-dark text-white overflow-hidden" }, /* @__PURE__ */ import_react30.default.createElement("div", { className: "absolute inset-0 opacity-5" }, /* @__PURE__ */ import_react30.default.createElement("div", { className: "absolute inset-0", style: {
-          backgroundImage: `url("data:image/svg+xml,%3Csvg width='80' height='80' viewBox='0 0 80 80' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M0 0h40v40H0V0zm40 40h40v40H40V40zm0-40h2l-2 2V0zm0 4l6-6h2l-8 8v-2zm0 4l10-10h2L40 10v-2zm0 4l14-14h2L40 14v-2zm0 4l18-18h2L40 18v-2zm0 4l22-22h2L40 22v-2zm0 4l26-26h2L40 26v-2zm0 4l30-30h2L40 30v-2zm0 4l34-34h2L40 34v-2zm0 4l38-38h2L40 38v-2z' fill='%23ffffff' fill-opacity='0.1' fill-rule='evenodd'/%3E%3C/svg%3E")`
-        } })), /* @__PURE__ */ import_react30.default.createElement("div", { className: "relative z-10 max-w-7xl mx-auto" }, /* @__PURE__ */ import_react30.default.createElement(
-          motion.div,
-          {
-            initial: { opacity: 0 },
-            whileInView: { opacity: 1 },
-            transition: { duration: 0.8 },
-            viewport: { once: true },
-            className: "text-center mb-16"
-          },
-          /* @__PURE__ */ import_react30.default.createElement("h2", { className: "text-3xl md:text-4xl font-serif mb-6" }, "Curated Collections"),
-          /* @__PURE__ */ import_react30.default.createElement("p", { className: "text-gray-300 max-w-2xl mx-auto" }, "Discover our exclusive selections crafted for the modern Cambodian gentleman")
-        ), /* @__PURE__ */ import_react30.default.createElement("div", { className: "grid md:grid-cols-3 gap-8" }, [
-          {
-            title: "Signature Suits",
-            description: "Custom-tailored suits for business and special occasions",
-            imageColor: "from-attire-navy/20 to-attire-dark/20",
-            items: "24 Pieces"
-          },
-          {
-            title: "Luxury Shirts",
-            description: "Premium cotton and linen shirts for everyday elegance",
-            imageColor: "from-attire-charcoal/20 to-attire-stone/20",
-            items: "36 Pieces"
-          },
-          {
-            title: "Accessories",
-            description: "Leather goods, ties, and pocket squares to complete your look",
-            imageColor: "from-attire-gold/20 to-attire-accent/20",
-            items: "18 Pieces"
-          }
-        ].map((collection, index) => /* @__PURE__ */ import_react30.default.createElement(
-          motion.div,
-          {
-            key: collection.title,
-            initial: { opacity: 0, y: 30 },
-            whileInView: { opacity: 1, y: 0 },
-            transition: { duration: 0.6, delay: index * 0.2 },
-            viewport: { once: true },
-            whileHover: { scale: 1.02 },
-            className: "group relative overflow-hidden rounded-xl"
-          },
-          /* @__PURE__ */ import_react30.default.createElement("div", { className: `bg-gradient-to-br ${collection.imageColor} backdrop-blur-sm border border-white/10 rounded-xl p-8 h-full` }, /* @__PURE__ */ import_react30.default.createElement("div", { className: "mb-6" }, /* @__PURE__ */ import_react30.default.createElement("div", { className: "text-3xl mb-4" }, "\u{1F451}"), /* @__PURE__ */ import_react30.default.createElement("h3", { className: "text-xl font-serif font-medium mb-3" }, collection.title), /* @__PURE__ */ import_react30.default.createElement("p", { className: "text-gray-300 mb-6" }, collection.description)), /* @__PURE__ */ import_react30.default.createElement("div", { className: "flex items-center justify-between" }, /* @__PURE__ */ import_react30.default.createElement("span", { className: "text-sm text-attire-gold" }, collection.items), /* @__PURE__ */ import_react30.default.createElement("button", { className: "text-sm font-medium hover:text-attire-gold transition-colors group-hover:translate-x-2 duration-300" }, "View Collection \u2192")))
-        ))), /* @__PURE__ */ import_react30.default.createElement(
-          motion.div,
-          {
-            initial: { opacity: 0, y: 20 },
-            whileInView: { opacity: 1, y: 0 },
-            transition: { duration: 0.6, delay: 0.6 },
-            viewport: { once: true },
-            className: "text-center mt-16 pt-12 border-t border-white/10"
-          },
-          /* @__PURE__ */ import_react30.default.createElement(Link, { to: "/collections" }, /* @__PURE__ */ import_react30.default.createElement(
-            motion.button,
-            {
-              whileHover: { scale: 1.05 },
-              whileTap: { scale: 0.95 },
-              className: "bg-gradient-to-r from-attire-gold to-attire-accent text-white px-10 py-4 rounded-full font-medium hover:shadow-lg hover:shadow-attire-gold/20 transition-all duration-300"
+              autoPlay: true,
+              muted: true,
+              loop: true,
+              playsInline: true,
+              preload: "auto",
+              className: "absolute w-full h-full object-cover",
+              style: { objectPosition: "center 10%" }
             },
-            "View All Collections",
-            /* @__PURE__ */ import_react30.default.createElement(ArrowRight, { className: "w-5 h-5 inline ml-3" })
+            /* @__PURE__ */ import_react29.default.createElement("source", { src: "/videos/hero-background1.mp4", type: "video/mp4" })
+          ), /* @__PURE__ */ import_react29.default.createElement("div", { className: "absolute inset-0 bg-black/30" })),
+          /* @__PURE__ */ import_react29.default.createElement(
+            motion.div,
+            {
+              initial: { opacity: 0, scale: 0.95 },
+              animate: { opacity: 1, scale: 1 },
+              transition: { duration: 0.6, ease: "easeOut" },
+              className: "relative z-10 h-full flex items-center justify-center"
+            },
+            /* @__PURE__ */ import_react29.default.createElement("div", { className: "text-center px-4" }, /* @__PURE__ */ import_react29.default.createElement(
+              "img",
+              {
+                src: "/uploads/asset/AL_logo.png",
+                alt: "Attire Lounge",
+                className: "hero-logo h-auto mx-auto filter brightness-0 invert drop-shadow-[0_0_30px_rgba(0,0,0,0.8)] opacity-90 max-w-[280px] md:max-w-none",
+                loading: "eager"
+              }
+            ))
+          ),
+          /* @__PURE__ */ import_react29.default.createElement(
+            motion.div,
+            {
+              animate: { y: [0, 10, 0] },
+              transition: { repeat: Infinity, duration: 1.5, ease: "easeInOut" },
+              className: "absolute bottom-8 left-1/2 transform -translate-x-1/2 cursor-pointer",
+              onClick: () => scrollToSection(1)
+            },
+            /* @__PURE__ */ import_react29.default.createElement("div", { className: "text-white/70 text-sm mb-2" }, "Scroll"),
+            /* @__PURE__ */ import_react29.default.createElement("div", { className: "w-6 h-10 border-2 border-white/50 rounded-full flex justify-center" }, /* @__PURE__ */ import_react29.default.createElement("div", { className: "w-1 h-3 bg-white/70 rounded-full mt-2 animate-bounce" }))
+          )
+        ), /* @__PURE__ */ import_react29.default.createElement(
+          "section",
+          {
+            className: "relative snap-section bg-black min-h-screen h-screen",
+            ref: (el) => {
+              if (el && !sectionsRef.current[1])
+                sectionsRef.current[1] = el;
+            }
+          },
+          /* @__PURE__ */ import_react29.default.createElement("div", { className: "hidden md:flex h-full w-full bg-white" }, /* @__PURE__ */ import_react29.default.createElement("div", { className: "w-2/3 h-full flex flex-col" }, /* @__PURE__ */ import_react29.default.createElement("div", { className: "relative h-1/2 w-full overflow-hidden group" }, /* @__PURE__ */ import_react29.default.createElement(
+            "img",
+            {
+              src: "/uploads/collections/Model/1.jpg",
+              alt: "Modern Elegance",
+              className: "absolute inset-0 w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-500",
+              loading: "lazy"
+            }
+          ), /* @__PURE__ */ import_react29.default.createElement("div", { className: "absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent" }), /* @__PURE__ */ import_react29.default.createElement("div", { className: "absolute bottom-8 left-8 text-white z-10" }, /* @__PURE__ */ import_react29.default.createElement("h3", { className: "font-playfair text-3xl md:text-4xl font-light mb-2" }, "Modern Elegance"), /* @__PURE__ */ import_react29.default.createElement("p", { className: "text-sm opacity-90 tracking-wider" }, "Spring/Summer Collection"))), /* @__PURE__ */ import_react29.default.createElement("div", { className: "relative h-1/2 w-full overflow-hidden group" }, /* @__PURE__ */ import_react29.default.createElement(
+            "img",
+            {
+              src: "/uploads/collections/Model/2.jpg",
+              alt: "Urban Sophistication",
+              className: "absolute inset-0 w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-500",
+              loading: "lazy"
+            }
+          ), /* @__PURE__ */ import_react29.default.createElement("div", { className: "absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent" }), /* @__PURE__ */ import_react29.default.createElement("div", { className: "absolute bottom-8 left-8 text-white z-10" }, /* @__PURE__ */ import_react29.default.createElement("h3", { className: "font-playfair text-3xl md:text-4xl font-light mb-2" }, "Urban Sophistication"), /* @__PURE__ */ import_react29.default.createElement("p", { className: "text-sm opacity-90 tracking-wider" }, "Evening Wear Collection")))), /* @__PURE__ */ import_react29.default.createElement("div", { className: "w-1/3 h-full relative overflow-hidden group" }, /* @__PURE__ */ import_react29.default.createElement(
+            "img",
+            {
+              src: "/uploads/collections/Model/3.jpg",
+              alt: "Timeless Luxury",
+              className: "absolute inset-0 w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-500",
+              loading: "lazy"
+            }
+          ), /* @__PURE__ */ import_react29.default.createElement("div", { className: "absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent" }), /* @__PURE__ */ import_react29.default.createElement("div", { className: "absolute bottom-8 left-8 text-white z-10" }, /* @__PURE__ */ import_react29.default.createElement("h3", { className: "font-playfair text-3xl md:text-4xl font-light mb-2" }, "Timeless Luxury"), /* @__PURE__ */ import_react29.default.createElement("p", { className: "text-sm opacity-90 tracking-wider" }, "Limited Edition")))),
+          /* @__PURE__ */ import_react29.default.createElement(
+            "div",
+            {
+              className: "md:hidden h-full w-full relative overflow-hidden bg-black",
+              onTouchStart: handleTouchStart,
+              onTouchEnd: handleTouchEnd
+            },
+            /* @__PURE__ */ import_react29.default.createElement("div", { className: "absolute inset-0 w-full h-full" }, /* @__PURE__ */ import_react29.default.createElement(
+              motion.img,
+              {
+                key: currentImageIndex,
+                src: heroImages[currentImageIndex].src,
+                alt: heroImages[currentImageIndex].title,
+                className: "w-full h-full object-cover",
+                initial: { opacity: 0 },
+                animate: { opacity: 1 },
+                transition: { duration: 0.3 }
+              }
+            ), /* @__PURE__ */ import_react29.default.createElement("div", { className: "absolute inset-0 bg-gradient-to-t from-black/70 via-black/30 to-transparent" }), /* @__PURE__ */ import_react29.default.createElement("div", { className: "absolute bottom-24 left-0 right-0 text-center text-white px-4" }, /* @__PURE__ */ import_react29.default.createElement("h3", { className: "font-playfair text-3xl font-light mb-2" }, heroImages[currentImageIndex].title), /* @__PURE__ */ import_react29.default.createElement("p", { className: "text-sm opacity-90 tracking-wider" }, heroImages[currentImageIndex].subtitle))),
+            /* @__PURE__ */ import_react29.default.createElement("div", { className: "absolute bottom-16 left-1/2 transform -translate-x-1/2 flex space-x-3 z-30" }, heroImages.map((_, index) => /* @__PURE__ */ import_react29.default.createElement(
+              "button",
+              {
+                key: index,
+                onClick: () => goToImage(index),
+                className: `transition-all duration-300 ${index === currentImageIndex ? "w-8 h-2 bg-white rounded-full" : "w-2 h-2 bg-white/50 rounded-full hover:bg-white/80"}`,
+                "aria-label": `Go to image ${index + 1}`
+              }
+            )))
+          )
+        ), /* @__PURE__ */ import_react29.default.createElement(
+          "section",
+          {
+            className: "relative snap-section bg-gradient-to-br from-attire-cream to-attire-cream/50 min-h-screen h-screen",
+            ref: (el) => {
+              if (el && !sectionsRef.current[2])
+                sectionsRef.current[2] = el;
+            }
+          },
+          /* @__PURE__ */ import_react29.default.createElement("div", { className: "h-full flex flex-col items-center justify-center px-4" }, /* @__PURE__ */ import_react29.default.createElement(
+            motion.div,
+            {
+              initial: { opacity: 0, y: 20 },
+              whileInView: { opacity: 1, y: 0 },
+              viewport: { once: true },
+              transition: { duration: 0.5, ease: "easeOut" },
+              className: "text-center max-w-2xl"
+            },
+            /* @__PURE__ */ import_react29.default.createElement("h2", { className: "font-playfair text-3xl md:text-5xl lg:text-6xl text-attire-charcoal mb-6" }, "Experience Luxury"),
+            /* @__PURE__ */ import_react29.default.createElement("p", { className: "text-base md:text-lg lg:text-xl text-attire-stone mb-8" }, "Discover premium styling and bespoke services tailored for the modern gentleman."),
+            /* @__PURE__ */ import_react29.default.createElement("div", { className: "flex flex-col sm:flex-row gap-4 justify-center" }, /* @__PURE__ */ import_react29.default.createElement(
+              "button",
+              {
+                onClick: () => scrollToSection(0),
+                className: "px-8 py-3 bg-attire-charcoal text-white rounded-full font-medium hover:bg-attire-dark transition-all duration-300 hover:scale-105 active:scale-95"
+              },
+              "Back to Top"
+            ), /* @__PURE__ */ import_react29.default.createElement(
+              "button",
+              {
+                onClick: () => scrollToSection(3),
+                className: "px-8 py-3 border-2 border-attire-charcoal text-attire-charcoal rounded-full font-medium hover:bg-attire-charcoal hover:text-white transition-all duration-300 hover:scale-105 active:scale-95"
+              },
+              "Continue to Footer"
+            ))
           ))
-        ))), /* @__PURE__ */ import_react30.default.createElement("section", { className: "py-24 px-4 bg-white" }, /* @__PURE__ */ import_react30.default.createElement("div", { className: "max-w-6xl mx-auto" }, /* @__PURE__ */ import_react30.default.createElement("div", { className: "text-right mb-16" }, /* @__PURE__ */ import_react30.default.createElement("h2", { className: "text-2xl font-serif text-attire-dark mb-4 font-light" }, "Collections"), /* @__PURE__ */ import_react30.default.createElement("p", { className: "text-sm text-gray-600 max-w-md ml-auto" }, "Minimalist essentials for everyday sophistication")), /* @__PURE__ */ import_react30.default.createElement("div", { className: "grid md:grid-cols-3 gap-8" }, [
+        ), /* @__PURE__ */ import_react29.default.createElement(
+          "section",
           {
-            title: "Suits",
-            desc: "Tailored precision",
-            color: "from-attire-charcoal/5 to-attire-dark/5"
+            className: "relative snap-section bg-black",
+            ref: (el) => {
+              if (el && !sectionsRef.current[3])
+                sectionsRef.current[3] = el;
+            },
+            style: {
+              minHeight: "100vh",
+              height: "auto",
+              overflowY: "visible"
+            }
           },
-          {
-            title: "Shirts",
-            desc: "Essential craftsmanship",
-            color: "from-attire-stone/5 to-attire-silver/5"
-          },
-          {
-            title: "Accessories",
-            desc: "Finishing details",
-            color: "from-attire-gold/5 to-attire-accent/5"
-          }
-        ].map((item, index) => /* @__PURE__ */ import_react30.default.createElement(
-          motion.div,
-          {
-            key: item.title,
-            initial: { opacity: 0, y: 20 },
-            whileInView: { opacity: 1, y: 0 },
-            transition: { duration: 0.6, delay: index * 0.1 },
-            viewport: { once: true },
-            whileHover: { y: -4 },
-            className: "group text-right"
-          },
-          /* @__PURE__ */ import_react30.default.createElement("div", { className: `bg-gradient-to-br ${item.color} rounded-lg p-8 text-right transition-all duration-300` }, /* @__PURE__ */ import_react30.default.createElement("h3", { className: "text-xl font-light text-attire-charcoal mb-3" }, item.title), /* @__PURE__ */ import_react30.default.createElement("p", { className: "text-sm text-gray-600 mb-6" }, item.desc), /* @__PURE__ */ import_react30.default.createElement("button", { className: "text-xs tracking-widest text-attire-stone hover:text-attire-charcoal transition-colors duration-300 group-hover:tracking-wider inline-flex items-center gap-1" }, "VIEW ", /* @__PURE__ */ import_react30.default.createElement(ChevronRight, { className: "w-3 h-3" })))
-        ))))));
+          /* @__PURE__ */ import_react29.default.createElement("div", { className: "h-full w-full" }, /* @__PURE__ */ import_react29.default.createElement(Footer_default, null))
+        ));
       };
       HomePage_default = HomePage;
     }
@@ -35148,12 +35084,12 @@
   __export(CollectionsPage_exports, {
     default: () => CollectionsPage_default
   });
-  var import_react31, CollectionsPage, CollectionsPage_default;
+  var import_react30, CollectionsPage, CollectionsPage_default;
   var init_CollectionsPage = __esm({
     "resources/js/components/pages/CollectionsPage.jsx"() {
-      import_react31 = __toESM(require_react());
+      import_react30 = __toESM(require_react());
       CollectionsPage = () => {
-        return /* @__PURE__ */ import_react31.default.createElement("div", { className: "min-h-screen pt-24 pb-20" }, /* @__PURE__ */ import_react31.default.createElement("div", { className: "max-w-7xl mx-auto px-6" }, /* @__PURE__ */ import_react31.default.createElement("h1", { className: "text-4xl md:text-5xl font-serif mb-6" }, "Collections"), /* @__PURE__ */ import_react31.default.createElement("p", { className: "text-lg text-gray-600 mb-12" }, "Premium collections for the modern gentleman."), /* @__PURE__ */ import_react31.default.createElement("div", { className: "grid md:grid-cols-2 lg:grid-cols-3 gap-8" }, ["Spring/Summer 2024", "Signature Suits", "Evening Attire", "Linen & Cotton", "Leather Goods", "Italian Footwear"].map((collection, idx) => /* @__PURE__ */ import_react31.default.createElement("div", { key: idx, className: "bg-white rounded-xl shadow-md p-8 hover:shadow-xl transition-shadow" }, /* @__PURE__ */ import_react31.default.createElement("h3", { className: "text-xl font-semibold mb-2" }, collection), /* @__PURE__ */ import_react31.default.createElement("p", { className: "text-gray-600 mb-4" }, "Curated selection of premium pieces"), /* @__PURE__ */ import_react31.default.createElement("button", { className: "text-attire-charcoal font-medium hover:text-attire-accent transition" }, "View Collection \u2192"))))));
+        return /* @__PURE__ */ import_react30.default.createElement("div", { className: "min-h-screen pt-24 pb-20" }, /* @__PURE__ */ import_react30.default.createElement("div", { className: "max-w-7xl mx-auto px-6" }, /* @__PURE__ */ import_react30.default.createElement("h1", { className: "text-4xl md:text-5xl font-serif mb-6" }, "Collections"), /* @__PURE__ */ import_react30.default.createElement("p", { className: "text-lg text-gray-600 mb-12" }, "Premium collections for the modern gentleman."), /* @__PURE__ */ import_react30.default.createElement("div", { className: "grid md:grid-cols-2 lg:grid-cols-3 gap-8" }, ["Spring/Summer 2024", "Signature Suits", "Evening Attire", "Linen & Cotton", "Leather Goods", "Italian Footwear"].map((collection, idx) => /* @__PURE__ */ import_react30.default.createElement("div", { key: idx, className: "bg-white rounded-xl shadow-md p-8 hover:shadow-xl transition-shadow" }, /* @__PURE__ */ import_react30.default.createElement("h3", { className: "text-xl font-semibold mb-2" }, collection), /* @__PURE__ */ import_react30.default.createElement("p", { className: "text-gray-600 mb-4" }, "Curated selection of premium pieces"), /* @__PURE__ */ import_react30.default.createElement("button", { className: "text-attire-charcoal font-medium hover:text-attire-accent transition" }, "View Collection \u2192"))))));
       };
       CollectionsPage_default = CollectionsPage;
     }
@@ -35164,30 +35100,30 @@
   __export(LookbookPage_exports, {
     default: () => LookbookPage_default
   });
-  var import_react32, LookbookPage, LookbookPage_default;
+  var import_react31, LookbookPage, LookbookPage_default;
   var init_LookbookPage = __esm({
     "resources/js/components/pages/LookbookPage.jsx"() {
-      import_react32 = __toESM(require_react());
+      import_react31 = __toESM(require_react());
       LookbookPage = () => {
-        return /* @__PURE__ */ import_react32.default.createElement("div", { className: "min-h-screen pt-24 pb-20" }, /* @__PURE__ */ import_react32.default.createElement("div", { className: "max-w-7xl mx-auto px-6" }, /* @__PURE__ */ import_react32.default.createElement("h1", { className: "text-4xl md:text-5xl font-serif mb-6" }, "Lookbook"), /* @__PURE__ */ import_react32.default.createElement("p", { className: "text-lg text-gray-600 mb-12" }, "Style inspiration coming soon.")));
+        return /* @__PURE__ */ import_react31.default.createElement("div", { className: "min-h-screen pt-24 pb-20" }, /* @__PURE__ */ import_react31.default.createElement("div", { className: "max-w-7xl mx-auto px-6" }, /* @__PURE__ */ import_react31.default.createElement("h1", { className: "text-4xl md:text-5xl font-serif mb-6" }, "Lookbook"), /* @__PURE__ */ import_react31.default.createElement("p", { className: "text-lg text-gray-600 mb-12" }, "Style inspiration coming soon.")));
       };
       LookbookPage_default = LookbookPage;
     }
   });
 
-  // resources/js/components/pages/BespokePage.jsx
-  var BespokePage_exports = {};
-  __export(BespokePage_exports, {
-    default: () => BespokePage_default
+  // resources/js/components/pages/StylingPage.jsx
+  var StylingPage_exports = {};
+  __export(StylingPage_exports, {
+    default: () => StylingPage_default
   });
-  var import_react33, BespokePage, BespokePage_default;
-  var init_BespokePage = __esm({
-    "resources/js/components/pages/BespokePage.jsx"() {
-      import_react33 = __toESM(require_react());
-      BespokePage = () => {
-        return /* @__PURE__ */ import_react33.default.createElement("div", { className: "min-h-screen pt-24 pb-20" }, /* @__PURE__ */ import_react33.default.createElement("div", { className: "max-w-4xl mx-auto px-6" }, /* @__PURE__ */ import_react33.default.createElement("h1", { className: "text-4xl md:text-5xl font-serif mb-6" }, "Bespoke Tailoring"), /* @__PURE__ */ import_react33.default.createElement("p", { className: "text-lg text-gray-600 mb-8" }, "Custom-made garments crafted to your exact measurements."), /* @__PURE__ */ import_react33.default.createElement("div", { className: "bg-white rounded-xl shadow-lg p-8" }, /* @__PURE__ */ import_react33.default.createElement("h2", { className: "text-2xl font-semibold mb-6" }, "Book a Consultation"), /* @__PURE__ */ import_react33.default.createElement("div", { className: "space-y-6" }, /* @__PURE__ */ import_react33.default.createElement("button", { className: "bg-attire-charcoal text-white px-8 py-3 rounded-lg hover:bg-attire-dark transition" }, "Schedule Appointment")))));
+  var import_react32, StylingPage, StylingPage_default;
+  var init_StylingPage = __esm({
+    "resources/js/components/pages/StylingPage.jsx"() {
+      import_react32 = __toESM(require_react());
+      StylingPage = () => {
+        return /* @__PURE__ */ import_react32.default.createElement("div", { className: "min-h-screen pt-24 pb-20" }, /* @__PURE__ */ import_react32.default.createElement("div", { className: "max-w-4xl mx-auto px-6" }, /* @__PURE__ */ import_react32.default.createElement("h1", { className: "text-4xl md:text-5xl font-serif mb-6" }, "Styling Consultation"), /* @__PURE__ */ import_react32.default.createElement("p", { className: "text-lg text-gray-600 mb-8" }, "Personal styling services for the modern gentleman."), /* @__PURE__ */ import_react32.default.createElement("div", { className: "bg-white rounded-xl shadow-lg p-8" }, /* @__PURE__ */ import_react32.default.createElement("h2", { className: "text-2xl font-semibold mb-6" }, "Book a Styling Consultation"), /* @__PURE__ */ import_react32.default.createElement("div", { className: "space-y-6" }, /* @__PURE__ */ import_react32.default.createElement("button", { className: "bg-attire-charcoal text-white px-8 py-3 rounded-lg hover:bg-attire-dark transition" }, "Schedule Appointment")))));
       };
-      BespokePage_default = BespokePage;
+      StylingPage_default = StylingPage;
     }
   });
 
@@ -35196,19 +35132,19 @@
   __export(ContactPage_exports, {
     default: () => ContactPage_default
   });
-  var import_react34, ContactPage, ContactPage_default;
+  var import_react33, ContactPage, ContactPage_default;
   var init_ContactPage = __esm({
     "resources/js/components/pages/ContactPage.jsx"() {
-      import_react34 = __toESM(require_react());
+      import_react33 = __toESM(require_react());
       ContactPage = () => {
-        return /* @__PURE__ */ import_react34.default.createElement("div", { className: "min-h-screen pt-24 pb-20" }, /* @__PURE__ */ import_react34.default.createElement("div", { className: "max-w-4xl mx-auto px-6" }, /* @__PURE__ */ import_react34.default.createElement("h1", { className: "text-4xl md:text-5xl font-serif mb-6" }, "Contact Us"), /* @__PURE__ */ import_react34.default.createElement("p", { className: "text-lg text-gray-600 mb-12" }, "Get in touch for personalized service."), /* @__PURE__ */ import_react34.default.createElement("div", { className: "bg-white rounded-xl shadow-lg p-8" }, /* @__PURE__ */ import_react34.default.createElement("h2", { className: "text-xl font-semibold mb-6" }, "Send a Message"), /* @__PURE__ */ import_react34.default.createElement("div", { className: "space-y-4" }, /* @__PURE__ */ import_react34.default.createElement("button", { className: "bg-attire-charcoal text-white px-8 py-3 rounded-lg hover:bg-attire-dark transition" }, "Contact Form Coming Soon")))));
+        return /* @__PURE__ */ import_react33.default.createElement("div", { className: "min-h-screen pt-24 pb-20" }, /* @__PURE__ */ import_react33.default.createElement("div", { className: "max-w-4xl mx-auto px-6" }, /* @__PURE__ */ import_react33.default.createElement("h1", { className: "text-4xl md:text-5xl font-serif mb-6" }, "Contact Us"), /* @__PURE__ */ import_react33.default.createElement("p", { className: "text-lg text-gray-600 mb-12" }, "Get in touch for personalized service."), /* @__PURE__ */ import_react33.default.createElement("div", { className: "bg-white rounded-xl shadow-lg p-8" }, /* @__PURE__ */ import_react33.default.createElement("h2", { className: "text-xl font-semibold mb-6" }, "Send a Message"), /* @__PURE__ */ import_react33.default.createElement("div", { className: "space-y-4" }, /* @__PURE__ */ import_react33.default.createElement("button", { className: "bg-attire-charcoal text-white px-8 py-3 rounded-lg hover:bg-attire-dark transition" }, "Contact Form Coming Soon")))));
       };
       ContactPage_default = ContactPage;
     }
   });
 
   // resources/js/app.jsx
-  var import_react36 = __toESM(require_react());
+  var import_react35 = __toESM(require_react());
   var import_client = __toESM(require_client());
 
   // node_modules/axios/lib/helpers/bind.js
@@ -37838,19 +37774,34 @@
   console.log("Attire Lounge React App Initialized - MainApp.jsx structure");
 
   // resources/js/components/MainApp.jsx
-  var import_react35 = __toESM(require_react());
+  var import_react34 = __toESM(require_react());
   init_dist2();
 
   // resources/js/components/layouts/Navigation.jsx
-  var import_react27 = __toESM(require_react());
+  var import_react26 = __toESM(require_react());
   init_dist2();
   init_lucide_react();
   init_es();
   var Navigation = () => {
-    const [isMenuOpen, setIsMenuOpen] = (0, import_react27.useState)(false);
-    const [isScrolled, setIsScrolled] = (0, import_react27.useState)(false);
-    const [lastScrollY, setLastScrollY] = (0, import_react27.useState)(0);
-    const [isVisible, setIsVisible] = (0, import_react27.useState)(true);
+    const [isMenuOpen, setIsMenuOpen] = (0, import_react26.useState)(false);
+    const [isScrolled, setIsScrolled] = (0, import_react26.useState)(false);
+    const [lastScrollY, setLastScrollY] = (0, import_react26.useState)(0);
+    const [isVisible, setIsVisible] = (0, import_react26.useState)(true);
+    const [isHovered, setIsHovered] = (0, import_react26.useState)(false);
+    const [isMobile, setIsMobile] = (0, import_react26.useState)(false);
+    (0, import_react26.useEffect)(() => {
+      const checkMobile = () => {
+        setIsMobile(window.innerWidth < 768);
+      };
+      checkMobile();
+      window.addEventListener("resize", checkMobile);
+      return () => window.removeEventListener("resize", checkMobile);
+    }, []);
+    (0, import_react26.useEffect)(() => {
+      window.dispatchEvent(new CustomEvent("menuStateChange", {
+        detail: { isMenuOpen }
+      }));
+    }, [isMenuOpen]);
     const navItems = [
       {
         name: "Home",
@@ -37877,10 +37828,10 @@
         description: "Style insights"
       },
       {
-        name: "Bespoke",
-        path: "/bespoke",
+        name: "Styling",
+        path: "/styling",
         icon: Scissors,
-        description: "Made-to-measure",
+        description: "Personal styling consultation",
         badge: "Exclusive"
       },
       {
@@ -37890,45 +37841,7 @@
         description: "Personal consultation"
       }
     ];
-    const collections = [
-      {
-        name: "Spring/Summer 2024",
-        season: "New Season",
-        icon: Sun,
-        items: 24
-      },
-      {
-        name: "Signature Suits",
-        season: "Tailored",
-        icon: Briefcase,
-        items: 18
-      },
-      {
-        name: "Evening Attire",
-        season: "Formal",
-        icon: Moon,
-        items: 12
-      },
-      {
-        name: "Linen & Cotton",
-        season: "Essential",
-        icon: Shirt,
-        items: 36
-      },
-      {
-        name: "Leather Goods",
-        season: "Accessories",
-        icon: Watch,
-        items: 22
-      },
-      {
-        name: "Italian Footwear",
-        season: "Handcrafted",
-        icon: Star,
-        items: 16
-      }
-    ];
-    (0, import_react27.useEffect)(() => {
+    (0, import_react26.useEffect)(() => {
       const handleScroll = () => {
         const currentScrollY = window.scrollY;
         setIsScrolled(currentScrollY > 20);
@@ -37942,418 +37855,171 @@
       window.addEventListener("scroll", handleScroll, { passive: true });
       return () => window.removeEventListener("scroll", handleScroll);
     }, [lastScrollY]);
-    (0, import_react27.useEffect)(() => {
+    (0, import_react26.useEffect)(() => {
       const handleEscape = (e) => {
-        if (e.key === "Escape")
+        if (e.key === "Escape") {
           setIsMenuOpen(false);
+          window.dispatchEvent(new CustomEvent("menuStateChange", {
+            detail: { isMenuOpen: false }
+          }));
+        }
       };
       document.addEventListener("keydown", handleEscape);
       return () => document.removeEventListener("keydown", handleEscape);
     }, []);
-    return /* @__PURE__ */ import_react27.default.createElement(import_react27.default.Fragment, null, /* @__PURE__ */ import_react27.default.createElement(
+    const getNavBackgroundClass = () => {
+      if (isMenuOpen) {
+        return "glass-mirror-effect";
+      } else if (isMobile) {
+        return "bg-white/95 backdrop-blur-lg";
+      } else if (isHovered) {
+        return "bg-white/95 backdrop-blur-lg shadow-sm";
+      } else if (isScrolled) {
+        return "bg-transparent backdrop-blur-0";
+      } else {
+        return "bg-transparent backdrop-blur-0";
+      }
+    };
+    const getTextColorClass = () => {
+      if (isMenuOpen) {
+        return "text-white/90";
+      } else if (isMobile || isHovered) {
+        return "text-black";
+      } else {
+        return "text-white";
+      }
+    };
+    const getIconColorClass = () => {
+      if (isMenuOpen) {
+        return "text-white/80";
+      } else if (isMobile || isHovered) {
+        return "text-black/80";
+      } else {
+        return "text-white/90";
+      }
+    };
+    const handleMenuOpen = () => {
+      setIsMenuOpen(true);
+      setTimeout(() => {
+        window.dispatchEvent(new CustomEvent("menuStateChange", {
+          detail: { isMenuOpen: true }
+        }));
+      }, 10);
+    };
+    const handleMenuClose = () => {
+      setIsMenuOpen(false);
+      setTimeout(() => {
+        window.dispatchEvent(new CustomEvent("menuStateChange", {
+          detail: { isMenuOpen: false }
+        }));
+      }, 10);
+    };
+    return /* @__PURE__ */ import_react26.default.createElement(import_react26.default.Fragment, null, /* @__PURE__ */ import_react26.default.createElement(
       motion.nav,
       {
         initial: { y: 0 },
         animate: {
-          y: isVisible ? 0 : -120,
-          opacity: isVisible ? 1 : 0
+          y: isVisible ? 0 : -120
         },
         transition: {
-          duration: 0.4,
-          ease: [0.25, 0.1, 0.25, 1]
+          duration: 0.3,
+          ease: "easeInOut"
         },
-        className: `fixed top-0 left-0 right-0 z-50 transition-all duration-500 ${isMenuOpen ? "glass-mirror-effect" : isScrolled ? "bg-white/98 backdrop-blur-xl shadow-sm" : "bg-white/95 backdrop-blur-lg"}`
+        className: `fixed top-0 left-0 right-0 z-50 transition-colors duration-300 ${getNavBackgroundClass()}`,
+        onMouseEnter: () => !isMobile && setIsHovered(true),
+        onMouseLeave: () => !isMobile && setIsHovered(false)
       },
-      /* @__PURE__ */ import_react27.default.createElement(AnimatePresence, null, isMenuOpen && /* @__PURE__ */ import_react27.default.createElement(
-        motion.div,
+      !isMobile && /* @__PURE__ */ import_react26.default.createElement(
+        "div",
         {
-          initial: { opacity: 0 },
-          animate: { opacity: 1 },
-          exit: { opacity: 0 },
-          transition: { duration: 0.3 },
-          className: "absolute inset-0 mirror-overlay"
-        },
-        /* @__PURE__ */ import_react27.default.createElement("div", { className: "absolute inset-0 reflection-lines" }),
-        /* @__PURE__ */ import_react27.default.createElement("div", { className: "absolute inset-0 bg-gradient-to-b from-white/10 via-transparent to-black/5" })
-      )),
-      /* @__PURE__ */ import_react27.default.createElement("div", { className: "max-w-7xl mx-auto px-6 relative z-10" }, /* @__PURE__ */ import_react27.default.createElement("div", { className: "flex items-center justify-between h-24" }, /* @__PURE__ */ import_react27.default.createElement(
-        motion.button,
+          className: `absolute inset-0 bg-gradient-to-b from-white via-white to-white/95 transition-opacity duration-300 ${isHovered && !isMenuOpen ? "opacity-100" : "opacity-0"}`
+        }
+      ),
+      /* @__PURE__ */ import_react26.default.createElement("div", { className: "max-w-7xl mx-auto px-6 relative z-10" }, /* @__PURE__ */ import_react26.default.createElement("div", { className: "flex items-center justify-between h-24" }, /* @__PURE__ */ import_react26.default.createElement(
+        "button",
         {
-          onClick: () => setIsMenuOpen(true),
-          whileHover: { scale: 1.02 },
-          whileTap: { scale: 0.98 },
+          onClick: handleMenuOpen,
           className: "p-3 rounded-lg transition-colors duration-200 group",
-          "aria-label": "Open menu"
+          "aria-label": "Open menu",
+          "aria-expanded": isMenuOpen
         },
-        /* @__PURE__ */ import_react27.default.createElement("div", { className: "flex flex-col items-center space-y-1" }, /* @__PURE__ */ import_react27.default.createElement(
-          motion.div,
-          {
-            animate: isMenuOpen ? { rotate: 45, y: 6 } : { rotate: 0, y: 0 },
-            className: "w-6 h-px bg-black/90"
-          }
-        ), /* @__PURE__ */ import_react27.default.createElement(
-          motion.div,
-          {
-            animate: isMenuOpen ? { opacity: 0 } : { opacity: 1 },
-            className: "w-6 h-px bg-black/60"
-          }
-        ), /* @__PURE__ */ import_react27.default.createElement(
-          motion.div,
-          {
-            animate: isMenuOpen ? { rotate: -45, y: -6 } : { rotate: 0, y: 0 },
-            className: "w-6 h-px bg-black/90"
-          }
-        )),
-        /* @__PURE__ */ import_react27.default.createElement("span", { className: "mt-2 text-[10px] tracking-widest text-black/80" }, "MENU")
-      ), /* @__PURE__ */ import_react27.default.createElement(Link, { to: "/", className: "flex flex-col items-center cursor-pointer group" }, /* @__PURE__ */ import_react27.default.createElement(
-        motion.div,
-        {
-          whileHover: { scale: 1.02 },
-          className: "flex items-center justify-center w-full"
-        },
-        /* @__PURE__ */ import_react27.default.createElement("div", { className: `text-base font-serif font-medium tracking-widest uppercase transition-all duration-300 ${isMenuOpen ? "text-white/90" : "text-black"}` }, "Attire Lounge")
-      )), /* @__PURE__ */ import_react27.default.createElement("div", { className: "flex items-center space-x-2" }, /* @__PURE__ */ import_react27.default.createElement(
-        motion.button,
-        {
-          whileHover: { scale: 1.03 },
-          className: "p-3 transition-colors",
-          "aria-label": "Search"
-        },
-        /* @__PURE__ */ import_react27.default.createElement(Search, { className: `w-5 h-5 transition-all duration-300 ${isMenuOpen ? "text-white/80" : "text-black/80"}` })
-      ), /* @__PURE__ */ import_react27.default.createElement(
-        motion.button,
-        {
-          whileHover: { scale: 1.03 },
-          className: "p-3 hidden lg:block",
-          "aria-label": "Account"
-        },
-        /* @__PURE__ */ import_react27.default.createElement(User, { className: `w-5 h-5 transition-all duration-300 ${isMenuOpen ? "text-white/80" : "text-black/80"}` })
-      ), /* @__PURE__ */ import_react27.default.createElement(
-        motion.button,
-        {
-          className: "p-3",
-          "aria-label": "Shopping cart"
-        },
-        /* @__PURE__ */ import_react27.default.createElement(ShoppingBag, { className: `w-5 h-5 transition-all duration-300 ${isMenuOpen ? "text-white/80" : "text-black/80"}` })
-      ))))
-    ), /* @__PURE__ */ import_react27.default.createElement(AnimatePresence, null, isMenuOpen && /* @__PURE__ */ import_react27.default.createElement(import_react27.default.Fragment, null, /* @__PURE__ */ import_react27.default.createElement(
-      motion.div,
+        /* @__PURE__ */ import_react26.default.createElement("div", { className: "flex flex-col items-center space-y-1" }, /* @__PURE__ */ import_react26.default.createElement("div", { className: `w-6 h-px transition-all duration-300 ${isMenuOpen ? "rotate-45 translate-y-[6px] bg-black/90" : isMobile || isHovered || isMenuOpen ? "bg-black/90" : "bg-white/90"}` }), /* @__PURE__ */ import_react26.default.createElement("div", { className: `w-6 h-px transition-opacity duration-300 ${isMenuOpen ? "opacity-0" : "opacity-100"} ${isMobile || isHovered || isMenuOpen ? "bg-black/60" : "bg-white/60"}` }), /* @__PURE__ */ import_react26.default.createElement("div", { className: `w-6 h-px transition-all duration-300 ${isMenuOpen ? "-rotate-45 -translate-y-[6px] bg-black/90" : isMobile || isHovered || isMenuOpen ? "bg-black/90" : "bg-white/90"}` })),
+        /* @__PURE__ */ import_react26.default.createElement("span", { className: `mt-2 block text-[10px] tracking-widest transition-colors duration-300 ${isMobile || isHovered || isMenuOpen ? "text-black/80" : "text-white/80"}` }, "MENU")
+      ), /* @__PURE__ */ import_react26.default.createElement(Link, { to: "/", className: "flex flex-col items-center cursor-pointer group" }, /* @__PURE__ */ import_react26.default.createElement("div", { className: "flex items-center justify-center w-full h-8" }, /* @__PURE__ */ import_react26.default.createElement("div", { className: `text-base font-serif font-medium tracking-widest uppercase transition-all duration-300 ${isMenuOpen ? "text-white/90" : getTextColorClass()} ${isMobile || isHovered || isMenuOpen ? "opacity-100" : "opacity-0"}` }, "Attire Lounge"))), /* @__PURE__ */ import_react26.default.createElement("div", { className: "flex items-center space-x-2" }, /* @__PURE__ */ import_react26.default.createElement("button", { className: "p-3 transition-colors hover:scale-105", "aria-label": "Search" }, /* @__PURE__ */ import_react26.default.createElement(Search, { className: `w-5 h-5 transition-colors duration-300 ${getIconColorClass()}` })), /* @__PURE__ */ import_react26.default.createElement("button", { className: "p-3 hidden lg:block transition-colors hover:scale-105", "aria-label": "Account" }, /* @__PURE__ */ import_react26.default.createElement(User, { className: `w-5 h-5 transition-colors duration-300 ${getIconColorClass()}` })), /* @__PURE__ */ import_react26.default.createElement("button", { className: "p-3 transition-colors hover:scale-105", "aria-label": "Shopping cart" }, /* @__PURE__ */ import_react26.default.createElement(ShoppingBag, { className: `w-5 h-5 transition-colors duration-300 ${getIconColorClass()}` })))))
+    ), /* @__PURE__ */ import_react26.default.createElement(AnimatePresence, null, isMenuOpen && /* @__PURE__ */ import_react26.default.createElement(import_react26.default.Fragment, null, /* @__PURE__ */ import_react26.default.createElement(
+      "div",
       {
-        initial: { opacity: 0 },
-        animate: { opacity: 1 },
-        exit: { opacity: 0 },
-        onClick: () => setIsMenuOpen(false),
-        className: "fixed inset-0 bg-gradient-to-br from-black/70 via-black/50 to-black/30 backdrop-blur-2xl z-40"
+        className: "fixed inset-0 bg-black/50 backdrop-blur-sm z-40 transition-opacity duration-300",
+        onClick: handleMenuClose
       }
-    ), /* @__PURE__ */ import_react27.default.createElement(
+    ), /* @__PURE__ */ import_react26.default.createElement(
       motion.div,
       {
-        initial: { x: -360 },
+        initial: { x: -380 },
         animate: { x: 0 },
-        exit: { x: -360 },
+        exit: { x: -380 },
         transition: {
-          type: "spring",
-          damping: 28,
-          stiffness: 220,
-          mass: 0.8
+          duration: 0.35,
+          ease: "easeOut"
         },
-        className: "sidebar fixed top-0 left-0 bottom-0 w-[360px] bg-gradient-to-b from-white/95 to-attire-cream/90 z-50 border-r border-white/30 shadow-2xl overflow-hidden backdrop-blur-xl",
-        style: {
-          boxShadow: "0 0 80px rgba(193, 154, 107, 0.25)"
-        }
+        className: "sidebar fixed top-0 left-0 bottom-0 w-[360px] bg-gradient-to-b from-white/95 to-attire-cream/90 z-50 border-r border-white/30 shadow-2xl overflow-hidden backdrop-blur-xl"
       },
-      /* @__PURE__ */ import_react27.default.createElement("div", { className: "p-8 border-b border-white/20 bg-gradient-to-b from-white/80 to-white/40" }, /* @__PURE__ */ import_react27.default.createElement("div", { className: "flex items-center justify-between" }, /* @__PURE__ */ import_react27.default.createElement("div", { className: "flex items-center space-x-4" }, /* @__PURE__ */ import_react27.default.createElement(
-        motion.div,
+      /* @__PURE__ */ import_react26.default.createElement("div", { className: "p-8 border-b border-white/20 bg-gradient-to-b from-white/80 to-white/40" }, /* @__PURE__ */ import_react26.default.createElement("div", { className: "flex items-center justify-between" }, /* @__PURE__ */ import_react26.default.createElement("div", null, /* @__PURE__ */ import_react26.default.createElement("div", { className: "text-sm font-medium tracking-[0.3em] uppercase text-attire-charcoal/90" }, "Attire Lounge"), /* @__PURE__ */ import_react26.default.createElement("div", { className: "text-xs text-attire-stone/70 tracking-widest mt-1" }, "Gentlemen's Collection")), /* @__PURE__ */ import_react26.default.createElement(
+        "button",
         {
-          initial: { scale: 0, rotate: -180 },
-          animate: { scale: 1, rotate: 0 },
-          transition: { type: "spring", stiffness: 200, damping: 15 }
-        }
-      ), /* @__PURE__ */ import_react27.default.createElement("div", null, /* @__PURE__ */ import_react27.default.createElement("div", { className: "text-sm font-medium tracking-[0.3em] uppercase text-attire-charcoal/90" }, "Attire Lounge"), /* @__PURE__ */ import_react27.default.createElement("div", { className: "text-xs text-attire-stone/70 tracking-widest mt-1" }, "Gentlemen's Collection"))), /* @__PURE__ */ import_react27.default.createElement(
-        motion.button,
-        {
-          whileHover: { scale: 1.1, rotate: 90 },
-          whileTap: { scale: 0.9 },
-          onClick: () => setIsMenuOpen(false),
-          className: "p-2 hover:bg-white/30 transition-colors group"
+          onClick: handleMenuClose,
+          className: "p-2 hover:bg-white/30 transition-colors duration-200 group"
         },
-        /* @__PURE__ */ import_react27.default.createElement(X, { className: "w-5 h-5 text-attire-stone/70 group-hover:text-attire-charcoal transition-colors" })
+        /* @__PURE__ */ import_react26.default.createElement(X, { className: "w-5 h-5 text-attire-stone/70 group-hover:text-attire-charcoal transition-colors duration-200" })
       ))),
-      /* @__PURE__ */ import_react27.default.createElement("div", { className: "p-6 overflow-y-auto max-h-[calc(100vh-220px)]" }, /* @__PURE__ */ import_react27.default.createElement("div", { className: "mb-10" }, /* @__PURE__ */ import_react27.default.createElement("div", { className: "flex items-center space-x-2 mb-6" }, /* @__PURE__ */ import_react27.default.createElement(
-        motion.div,
-        {
-          initial: { width: 0 },
-          animate: { width: 32 },
-          transition: { duration: 0.5, delay: 0.2 },
-          className: "h-px bg-gradient-to-r from-attire-gold/80 to-transparent"
-        }
-      ), /* @__PURE__ */ import_react27.default.createElement(
-        motion.div,
-        {
-          initial: { opacity: 0, x: -10 },
-          animate: { opacity: 1, x: 0 },
-          transition: { duration: 0.5, delay: 0.3 },
-          className: "text-xs font-medium tracking-[0.3em] uppercase text-attire-stone/70"
-        },
-        "Navigation"
-      )), /* @__PURE__ */ import_react27.default.createElement("div", { className: "space-y-3" }, navItems.map((item, index) => {
+      /* @__PURE__ */ import_react26.default.createElement("div", { className: "p-6 overflow-y-auto max-h-[calc(100vh-120px)] hide-scrollbar" }, /* @__PURE__ */ import_react26.default.createElement("div", { className: "mb-6" }, /* @__PURE__ */ import_react26.default.createElement("div", { className: "flex items-center space-x-2 mb-6" }, /* @__PURE__ */ import_react26.default.createElement("div", { className: "h-px w-8 bg-gradient-to-r from-attire-gold/80 to-transparent" }), /* @__PURE__ */ import_react26.default.createElement("div", { className: "text-xs font-medium tracking-[0.3em] uppercase text-attire-stone/70" }, "Navigation")), /* @__PURE__ */ import_react26.default.createElement("div", { className: "space-y-2" }, navItems.map((item, index) => {
         const Icon = item.icon;
-        return /* @__PURE__ */ import_react27.default.createElement(
-          motion.div,
+        return /* @__PURE__ */ import_react26.default.createElement(
+          "div",
           {
             key: item.name,
-            initial: { opacity: 0, x: -20 },
-            animate: { opacity: 1, x: 0 },
-            transition: { duration: 0.3, delay: index * 0.05 + 0.4 },
-            whileHover: { x: 6, backgroundColor: "rgba(255,255,255,0.3)" },
-            className: "flex items-center justify-between px-6 py-5 rounded-lg hover:bg-white/50 transition-all duration-200 cursor-pointer"
+            className: "group flex items-center justify-between px-4 py-4 rounded-lg hover:bg-white/50 transition-all duration-200 cursor-pointer",
+            style: {
+              animationDelay: `${index * 50}ms`,
+              animationFillMode: "both"
+            }
           },
-          /* @__PURE__ */ import_react27.default.createElement(
+          /* @__PURE__ */ import_react26.default.createElement(
             Link,
             {
               to: item.path,
               className: "flex items-center space-x-4 w-full",
-              onClick: () => setIsMenuOpen(false)
+              onClick: handleMenuClose
             },
-            /* @__PURE__ */ import_react27.default.createElement("div", { className: "flex items-center space-x-4" }, /* @__PURE__ */ import_react27.default.createElement(
-              motion.div,
-              {
-                whileHover: { scale: 1.1 },
-                className: "flex items-center justify-center"
-              },
-              /* @__PURE__ */ import_react27.default.createElement(Icon, { className: "w-4 h-4 text-attire-charcoal/80" })
-            ), /* @__PURE__ */ import_react27.default.createElement("div", null, /* @__PURE__ */ import_react27.default.createElement("div", { className: "text-sm font-medium text-attire-charcoal/90" }, item.name), /* @__PURE__ */ import_react27.default.createElement("div", { className: "text-xs text-attire-stone/70 mt-1" }, item.description)))
+            /* @__PURE__ */ import_react26.default.createElement("div", { className: "flex items-center space-x-4" }, /* @__PURE__ */ import_react26.default.createElement("div", { className: "flex items-center justify-center group-hover:scale-110 transition-transform duration-200" }, /* @__PURE__ */ import_react26.default.createElement(Icon, { className: "w-4 h-4 text-attire-charcoal/80" })), /* @__PURE__ */ import_react26.default.createElement("div", null, /* @__PURE__ */ import_react26.default.createElement("div", { className: "text-sm font-medium text-attire-charcoal/90" }, item.name), /* @__PURE__ */ import_react26.default.createElement("div", { className: "text-xs text-attire-stone/70 mt-1" }, item.description)))
           ),
-          /* @__PURE__ */ import_react27.default.createElement(ChevronRight, { className: "w-4 h-4 text-attire-stone/50" })
+          /* @__PURE__ */ import_react26.default.createElement(ChevronRight, { className: "w-4 h-4 text-attire-stone/50 group-hover:translate-x-1 transition-transform duration-200" })
         );
-      }))), /* @__PURE__ */ import_react27.default.createElement("div", null, /* @__PURE__ */ import_react27.default.createElement("div", { className: "flex items-center space-x-2 mb-6" }, /* @__PURE__ */ import_react27.default.createElement(
-        motion.div,
-        {
-          initial: { width: 0 },
-          animate: { width: 32 },
-          transition: { duration: 0.5, delay: 0.8 },
-          className: "h-px bg-gradient-to-r from-attire-gold/80 to-transparent"
-        }
-      ), /* @__PURE__ */ import_react27.default.createElement(
-        motion.div,
-        {
-          initial: { opacity: 0, x: -10 },
-          animate: { opacity: 1, x: 0 },
-          transition: { duration: 0.5, delay: 0.9 },
-          className: "text-xs font-medium tracking-[0.3em] uppercase text-attire-stone/70"
-        },
-        "Collections"
-      ), /* @__PURE__ */ import_react27.default.createElement(Sparkles, { className: "w-3 h-3 text-attire-gold/80" })), /* @__PURE__ */ import_react27.default.createElement("div", { className: "grid grid-cols-2 gap-3" }, collections.map((collection, index) => {
-        const Icon = collection.icon;
-        return /* @__PURE__ */ import_react27.default.createElement(
-          motion.div,
-          {
-            key: collection.name,
-            initial: { opacity: 0, y: 10 },
-            animate: { opacity: 1, y: 0 },
-            transition: { duration: 0.3, delay: index * 0.05 + 1 },
-            whileHover: { y: -2, scale: 1.02 },
-            className: "bg-white/80 rounded-lg p-4 hover:bg-gradient-to-br hover:from-white/90 hover:to-attire-cream/40 transition-all shadow-sm hover:shadow-md cursor-pointer"
-          },
-          /* @__PURE__ */ import_react27.default.createElement(
-            Link,
-            {
-              to: "#",
-              className: "block",
-              onClick: () => setIsMenuOpen(false)
-            },
-            /* @__PURE__ */ import_react27.default.createElement("div", { className: "flex items-center justify-between mb-3" }, /* @__PURE__ */ import_react27.default.createElement("div", { className: "flex items-center justify-center" }, /* @__PURE__ */ import_react27.default.createElement(Icon, { className: "w-4 h-4 text-attire-charcoal/80" })), /* @__PURE__ */ import_react27.default.createElement("div", { className: "text-[10px] px-2 py-1 bg-white/80 text-attire-stone rounded-full tracking-wider" }, collection.items, " items")),
-            /* @__PURE__ */ import_react27.default.createElement("div", { className: "text-sm font-medium text-attire-charcoal/90 mb-1" }, collection.name),
-            /* @__PURE__ */ import_react27.default.createElement("div", { className: "text-xs text-attire-stone/70" }, collection.season),
-            /* @__PURE__ */ import_react27.default.createElement("div", { className: "mt-3 pt-3 border-t border-white/30" }, /* @__PURE__ */ import_react27.default.createElement("div", { className: "text-[11px] text-attire-gold tracking-widest font-medium" }, "EXPLORE \u2192"))
-          )
-        );
-      }))), /* @__PURE__ */ import_react27.default.createElement(
-        motion.div,
-        {
-          initial: { opacity: 0, y: 20 },
-          animate: { opacity: 1, y: 0 },
-          transition: { duration: 0.5, delay: 1.4 },
-          className: "mt-10 pt-8 border-t border-white/20"
-        },
-        /* @__PURE__ */ import_react27.default.createElement("div", { className: "flex space-x-3" }, /* @__PURE__ */ import_react27.default.createElement(
-          motion.button,
-          {
-            whileHover: { scale: 1.03, y: -2 },
-            className: "flex-1 py-3.5 text-xs font-medium text-attire-charcoal/90 border border-white/40 rounded-xl hover:border-attire-silver/60 transition-all duration-300 flex items-center justify-center space-x-2 shadow-sm hover:shadow bg-white/60"
-          },
-          /* @__PURE__ */ import_react27.default.createElement(MapPin, { className: "w-3.5 h-3.5" }),
-          /* @__PURE__ */ import_react27.default.createElement("span", null, "Store Locator")
-        ), /* @__PURE__ */ import_react27.default.createElement(
-          motion.button,
-          {
-            whileHover: { scale: 1.03, y: -2 },
-            className: "flex-1 py-3.5 text-xs font-medium bg-gradient-to-r from-attire-charcoal/90 to-attire-dark/90 text-white rounded-xl hover:from-attire-dark hover:to-attire-charcoal transition-all duration-300 flex items-center justify-center space-x-2 shadow-lg hover:shadow-xl"
-          },
-          /* @__PURE__ */ import_react27.default.createElement(Calendar, { className: "w-3.5 h-3.5" }),
-          /* @__PURE__ */ import_react27.default.createElement("span", null, "Book Appointment")
-        ))
-      )),
-      /* @__PURE__ */ import_react27.default.createElement(
-        motion.div,
-        {
-          initial: { opacity: 0, y: 20 },
-          animate: { opacity: 1, y: 0 },
-          transition: { duration: 0.5, delay: 1.6 },
-          className: "absolute bottom-0 left-0 right-0 p-6 border-t border-white/20 bg-gradient-to-t from-white/80 via-white/60 to-transparent"
-        },
-        /* @__PURE__ */ import_react27.default.createElement("div", { className: "flex items-center justify-between" }, /* @__PURE__ */ import_react27.default.createElement("div", { className: "text-[10px] text-attire-stone/60 tracking-[0.3em] uppercase" }, "EST. 2024"), /* @__PURE__ */ import_react27.default.createElement("div", { className: "flex items-center space-x-4" }, /* @__PURE__ */ import_react27.default.createElement(Gift, { className: "w-3.5 h-3.5 text-attire-stone/50" }), /* @__PURE__ */ import_react27.default.createElement(Star, { className: "w-3.5 h-3.5 text-attire-stone/50" }), /* @__PURE__ */ import_react27.default.createElement(Sparkles, { className: "w-3.5 h-3.5 text-attire-gold/80" })))
-      )
+      }))))
     ))));
   };
   var Navigation_default = Navigation;
 
-  // resources/js/components/layouts/Footer.jsx
-  var import_react28 = __toESM(require_react());
-  init_dist2();
-  init_lucide_react();
-  init_es();
-  var Footer = () => {
-    const [email, setEmail] = (0, import_react28.useState)("");
-    const [subscribed, setSubscribed] = (0, import_react28.useState)(false);
-    const handleSubscribe = (e) => {
-      e.preventDefault();
-      if (email) {
-        console.log("Subscribed:", email);
-        setSubscribed(true);
-        setTimeout(() => {
-          setSubscribed(false);
-          setEmail("");
-        }, 3e3);
-      }
-    };
-    const currentYear = (/* @__PURE__ */ new Date()).getFullYear();
-    return /* @__PURE__ */ import_react28.default.createElement("footer", { className: "bg-black text-white border-t border-white/10" }, /* @__PURE__ */ import_react28.default.createElement("div", { className: "max-w-7xl mx-auto px-6 py-12 md:py-16" }, /* @__PURE__ */ import_react28.default.createElement("div", { className: "grid grid-cols-1 md:grid-cols-4 gap-8 md:gap-12" }, /* @__PURE__ */ import_react28.default.createElement("div", { className: "space-y-6" }, /* @__PURE__ */ import_react28.default.createElement("div", null, /* @__PURE__ */ import_react28.default.createElement("h2", { className: "text-2xl font-serif font-light tracking-widest mb-3" }, "ATTIRE", /* @__PURE__ */ import_react28.default.createElement("span", { className: "font-medium" }, "LOUNGE")), /* @__PURE__ */ import_react28.default.createElement("p", { className: "text-white/70 text-sm leading-relaxed" }, "First Gentlemen's Styling House in Cambodia. Premium sartorial collections and personal styling services.")), /* @__PURE__ */ import_react28.default.createElement("div", { className: "space-y-4" }, /* @__PURE__ */ import_react28.default.createElement("div", { className: "flex items-start gap-3" }, /* @__PURE__ */ import_react28.default.createElement(MapPin, { className: "w-4 h-4 mt-1 text-white/60 flex-shrink-0" }), /* @__PURE__ */ import_react28.default.createElement("p", { className: "text-sm text-white/80" }, "10 E0, Street 03, Sangkat Chey Chumneah,", /* @__PURE__ */ import_react28.default.createElement("br", null), "Khan Daun Penh, Phnom Penh")), /* @__PURE__ */ import_react28.default.createElement("div", { className: "flex items-center gap-3" }, /* @__PURE__ */ import_react28.default.createElement(Phone, { className: "w-4 h-4 text-white/60 flex-shrink-0" }), /* @__PURE__ */ import_react28.default.createElement(
-      "a",
-      {
-        href: "tel:+85569256369",
-        className: "text-sm text-white/80 hover:text-white transition-colors"
-      },
-      "(+855) 69-25-63-69"
-    )), /* @__PURE__ */ import_react28.default.createElement("div", { className: "flex items-center gap-3" }, /* @__PURE__ */ import_react28.default.createElement(Mail, { className: "w-4 h-4 text-white/60 flex-shrink-0" }), /* @__PURE__ */ import_react28.default.createElement(
-      "a",
-      {
-        href: "mailto:attireloungekh@gmail.com",
-        className: "text-sm text-white/80 hover:text-white transition-colors"
-      },
-      "attireloungekh@gmail.com"
-    )), /* @__PURE__ */ import_react28.default.createElement("div", { className: "flex items-center gap-3" }, /* @__PURE__ */ import_react28.default.createElement(Clock, { className: "w-4 h-4 text-white/60 flex-shrink-0" }), /* @__PURE__ */ import_react28.default.createElement("p", { className: "text-sm text-white/80" }, "10:00 AM - 7:00 PM, Daily")))), /* @__PURE__ */ import_react28.default.createElement("div", { className: "md:col-span-2 grid grid-cols-2 gap-8" }, /* @__PURE__ */ import_react28.default.createElement("div", null, /* @__PURE__ */ import_react28.default.createElement("h3", { className: "text-sm font-medium uppercase tracking-widest mb-6 text-white/90" }, "Collections"), /* @__PURE__ */ import_react28.default.createElement("ul", { className: "space-y-4" }, [
-      { name: "Sartorial", path: "/collections/sartorial" },
-      { name: "Groom", path: "/collections/groom" },
-      { name: "Office", path: "/collections/office" },
-      { name: "Accessories", path: "/collections/accessories" },
-      { name: "New Arrivals", path: "/collections/new-arrivals" }
-    ].map((item) => /* @__PURE__ */ import_react28.default.createElement("li", { key: item.name }, /* @__PURE__ */ import_react28.default.createElement(
-      Link,
-      {
-        to: item.path,
-        className: "group flex items-center text-white/70 hover:text-white transition-colors text-sm"
-      },
-      /* @__PURE__ */ import_react28.default.createElement(ArrowRight, { className: "w-3 h-3 mr-2 opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all" }),
-      item.name
-    ))))), /* @__PURE__ */ import_react28.default.createElement("div", null, /* @__PURE__ */ import_react28.default.createElement("h3", { className: "text-sm font-medium uppercase tracking-widest mb-6 text-white/90" }, "Information"), /* @__PURE__ */ import_react28.default.createElement("ul", { className: "space-y-4" }, [
-      { name: "About Us", path: "/about" },
-      { name: "Appointments", path: "/appointment" },
-      { name: "Attire Club", path: "/membership" },
-      { name: "Lookbook", path: "/lookbook" },
-      { name: "Contact", path: "/contact" }
-    ].map((item) => /* @__PURE__ */ import_react28.default.createElement("li", { key: item.name }, /* @__PURE__ */ import_react28.default.createElement(
-      Link,
-      {
-        to: item.path,
-        className: "group flex items-center text-white/70 hover:text-white transition-colors text-sm"
-      },
-      /* @__PURE__ */ import_react28.default.createElement(ArrowRight, { className: "w-3 h-3 mr-2 opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all" }),
-      item.name
-    )))))), /* @__PURE__ */ import_react28.default.createElement("div", { className: "space-y-8" }, /* @__PURE__ */ import_react28.default.createElement("div", null, /* @__PURE__ */ import_react28.default.createElement("h3", { className: "text-sm font-medium uppercase tracking-widest mb-6 text-white/90" }, "Stay Updated"), /* @__PURE__ */ import_react28.default.createElement("p", { className: "text-white/70 text-sm mb-6" }, "Subscribe for exclusive collections, styling tips, and members-only offers."), /* @__PURE__ */ import_react28.default.createElement("form", { onSubmit: handleSubscribe, className: "space-y-4" }, /* @__PURE__ */ import_react28.default.createElement("div", { className: "relative" }, /* @__PURE__ */ import_react28.default.createElement(
-      "input",
-      {
-        type: "email",
-        value: email,
-        onChange: (e) => setEmail(e.target.value),
-        placeholder: "Your email address",
-        className: "w-full bg-white/5 border border-white/10 rounded-lg px-4 py-3 text-sm placeholder:text-white/40 focus:outline-none focus:border-white/30 transition-colors",
-        required: true
-      }
-    )), /* @__PURE__ */ import_react28.default.createElement(
-      motion.button,
-      {
-        whileHover: { scale: 1.02 },
-        whileTap: { scale: 0.98 },
-        type: "submit",
-        className: "w-full bg-white text-black py-3 rounded-lg font-medium text-sm hover:bg-gray-100 transition-all duration-300 flex items-center justify-center gap-2"
-      },
-      subscribed ? /* @__PURE__ */ import_react28.default.createElement(import_react28.default.Fragment, null, /* @__PURE__ */ import_react28.default.createElement(Check, { className: "w-4 h-4" }), "Subscribed!") : /* @__PURE__ */ import_react28.default.createElement(import_react28.default.Fragment, null, "Subscribe", /* @__PURE__ */ import_react28.default.createElement(Send, { className: "w-4 h-4" }))
-    ))), /* @__PURE__ */ import_react28.default.createElement("div", null, /* @__PURE__ */ import_react28.default.createElement("h3", { className: "text-sm font-medium uppercase tracking-widest mb-6 text-white/90" }, "Connect With Us"), /* @__PURE__ */ import_react28.default.createElement("div", { className: "flex items-center gap-4" }, [
-      {
-        icon: Instagram,
-        label: "Instagram",
-        url: "https://instagram.com/attireloungeofficial",
-        color: "hover:bg-pink-500/20 hover:border-pink-500/30"
-      },
-      {
-        icon: Facebook,
-        label: "Facebook",
-        url: "https://facebook.com/attireloungeofficial",
-        color: "hover:bg-blue-500/20 hover:border-blue-500/30"
-      },
-      {
-        icon: MessageSquare,
-        label: "Telegram",
-        url: "https://t.me/attirelounge",
-        color: "hover:bg-blue-400/20 hover:border-blue-400/30"
-      }
-    ].map((social) => /* @__PURE__ */ import_react28.default.createElement(
-      motion.a,
-      {
-        key: social.label,
-        href: social.url,
-        target: "_blank",
-        rel: "noopener noreferrer",
-        whileHover: { y: -2 },
-        className: `p-3 border border-white/10 rounded-lg hover:bg-white/5 transition-all ${social.color}`,
-        "aria-label": social.label
-      },
-      /* @__PURE__ */ import_react28.default.createElement(social.icon, { className: "w-5 h-5 text-white/80" })
-    )))))), /* @__PURE__ */ import_react28.default.createElement("div", { className: "mt-12 pt-8 border-t border-white/10" }, /* @__PURE__ */ import_react28.default.createElement("div", { className: "flex flex-col md:flex-row items-center justify-between gap-6" }, /* @__PURE__ */ import_react28.default.createElement("div", { className: "text-center md:text-left" }, /* @__PURE__ */ import_react28.default.createElement("p", { className: "text-white/60 text-sm" }, "\xA9 ", currentYear, " Attire Lounge Official. All rights reserved."), /* @__PURE__ */ import_react28.default.createElement("p", { className: "text-white/40 text-xs mt-1" }, "First Gentlemen's Styling House in Cambodia")), /* @__PURE__ */ import_react28.default.createElement("div", { className: "flex flex-wrap items-center justify-center gap-6 text-sm" }, [
-      { name: "Privacy Policy", path: "/privacy" },
-      { name: "Terms of Service", path: "/terms" },
-      { name: "Shipping Policy", path: "/shipping" },
-      { name: "Return Policy", path: "/returns" },
-      { name: "FAQs", path: "/faq" }
-    ].map((link) => /* @__PURE__ */ import_react28.default.createElement(
-      Link,
-      {
-        key: link.name,
-        to: link.path,
-        className: "text-white/60 hover:text-white transition-colors text-xs uppercase tracking-wider"
-      },
-      link.name
-    )))), /* @__PURE__ */ import_react28.default.createElement("div", { className: "mt-6 pt-6 border-t border-white/5 text-center" }, /* @__PURE__ */ import_react28.default.createElement("p", { className: "text-white/40 text-xs" }, "Attire Club Membership available with minimum purchase of US$500.", /* @__PURE__ */ import_react28.default.createElement(Link, { to: "/membership", className: "ml-1 text-white/60 hover:text-white transition-colors" }, "Learn more \u2192"))))));
-  };
-  var Footer_default = Footer;
-
   // resources/js/components/common/LoadingSpinner.jsx
-  var import_react29 = __toESM(require_react());
+  var import_react27 = __toESM(require_react());
   var LoadingSpinner = () => {
-    return /* @__PURE__ */ import_react29.default.createElement("div", { className: "flex items-center justify-center min-h-[400px]" }, /* @__PURE__ */ import_react29.default.createElement("div", { className: "relative" }, /* @__PURE__ */ import_react29.default.createElement("div", { className: "w-16 h-16 border-4 border-attire-light border-t-attire-accent rounded-full animate-spin" })));
+    return /* @__PURE__ */ import_react27.default.createElement("div", { className: "flex items-center justify-center min-h-[400px]" }, /* @__PURE__ */ import_react27.default.createElement("div", { className: "relative" }, /* @__PURE__ */ import_react27.default.createElement("div", { className: "w-16 h-16 border-4 border-attire-light border-t-attire-accent rounded-full animate-spin" })));
   };
   var LoadingSpinner_default = LoadingSpinner;
 
   // resources/js/components/MainApp.jsx
-  var HomePage2 = (0, import_react35.lazy)(() => Promise.resolve().then(() => (init_HomePage(), HomePage_exports)));
-  var CollectionsPage2 = (0, import_react35.lazy)(() => Promise.resolve().then(() => (init_CollectionsPage(), CollectionsPage_exports)));
-  var LookbookPage2 = (0, import_react35.lazy)(() => Promise.resolve().then(() => (init_LookbookPage(), LookbookPage_exports)));
-  var BespokePage2 = (0, import_react35.lazy)(() => Promise.resolve().then(() => (init_BespokePage(), BespokePage_exports)));
-  var ContactPage2 = (0, import_react35.lazy)(() => Promise.resolve().then(() => (init_ContactPage(), ContactPage_exports)));
-  var Placeholder = ({ title }) => /* @__PURE__ */ import_react35.default.createElement("div", { className: "min-h-screen pt-24 px-6" }, /* @__PURE__ */ import_react35.default.createElement("div", { className: "max-w-4xl mx-auto" }, /* @__PURE__ */ import_react35.default.createElement("h1", { className: "text-2xl font-serif mb-4" }, title), /* @__PURE__ */ import_react35.default.createElement("p", { className: "text-gray-600" }, "Coming soon")));
+  init_Footer();
+  var HomePage2 = (0, import_react34.lazy)(() => Promise.resolve().then(() => (init_HomePage(), HomePage_exports)));
+  var CollectionsPage2 = (0, import_react34.lazy)(() => Promise.resolve().then(() => (init_CollectionsPage(), CollectionsPage_exports)));
+  var LookbookPage2 = (0, import_react34.lazy)(() => Promise.resolve().then(() => (init_LookbookPage(), LookbookPage_exports)));
+  var StylingPage2 = (0, import_react34.lazy)(() => Promise.resolve().then(() => (init_StylingPage(), StylingPage_exports)));
+  var ContactPage2 = (0, import_react34.lazy)(() => Promise.resolve().then(() => (init_ContactPage(), ContactPage_exports)));
+  var Placeholder = ({ title }) => /* @__PURE__ */ import_react34.default.createElement("div", { className: "min-h-screen pt-24 px-6" }, /* @__PURE__ */ import_react34.default.createElement("div", { className: "max-w-4xl mx-auto" }, /* @__PURE__ */ import_react34.default.createElement("h1", { className: "text-2xl font-serif mb-4" }, title), /* @__PURE__ */ import_react34.default.createElement("p", { className: "text-gray-600" }, "Coming soon")));
+  var Layout = ({ children, includeFooter = true }) => {
+    return /* @__PURE__ */ import_react34.default.createElement("div", { className: "min-h-screen flex flex-col" }, /* @__PURE__ */ import_react34.default.createElement(Navigation_default, null), /* @__PURE__ */ import_react34.default.createElement("main", { className: "flex-grow" }, children), includeFooter && /* @__PURE__ */ import_react34.default.createElement(Footer_default, null));
+  };
   function MainApp() {
-    return /* @__PURE__ */ import_react35.default.createElement(BrowserRouter, null, /* @__PURE__ */ import_react35.default.createElement("div", { className: "min-h-screen flex flex-col" }, /* @__PURE__ */ import_react35.default.createElement(Navigation_default, null), /* @__PURE__ */ import_react35.default.createElement("main", { className: "flex-grow" }, /* @__PURE__ */ import_react35.default.createElement(import_react35.Suspense, { fallback: /* @__PURE__ */ import_react35.default.createElement(LoadingSpinner_default, null) }, /* @__PURE__ */ import_react35.default.createElement(Routes, null, /* @__PURE__ */ import_react35.default.createElement(Route, { path: "/", element: /* @__PURE__ */ import_react35.default.createElement(HomePage2, null) }), /* @__PURE__ */ import_react35.default.createElement(Route, { path: "/collections", element: /* @__PURE__ */ import_react35.default.createElement(CollectionsPage2, null) }), /* @__PURE__ */ import_react35.default.createElement(Route, { path: "/lookbook", element: /* @__PURE__ */ import_react35.default.createElement(LookbookPage2, null) }), /* @__PURE__ */ import_react35.default.createElement(Route, { path: "/bespoke", element: /* @__PURE__ */ import_react35.default.createElement(BespokePage2, null) }), /* @__PURE__ */ import_react35.default.createElement(Route, { path: "/contact", element: /* @__PURE__ */ import_react35.default.createElement(ContactPage2, null) }), /* @__PURE__ */ import_react35.default.createElement(Route, { path: "/journal", element: /* @__PURE__ */ import_react35.default.createElement(Placeholder, { title: "Journal" }) }), /* @__PURE__ */ import_react35.default.createElement(Route, { path: "/about", element: /* @__PURE__ */ import_react35.default.createElement(Placeholder, { title: "About" }) }), /* @__PURE__ */ import_react35.default.createElement(Route, { path: "/shipping", element: /* @__PURE__ */ import_react35.default.createElement(Placeholder, { title: "Shipping" }) }), /* @__PURE__ */ import_react35.default.createElement(Route, { path: "/returns", element: /* @__PURE__ */ import_react35.default.createElement(Placeholder, { title: "Returns" }) }), /* @__PURE__ */ import_react35.default.createElement(Route, { path: "/privacy", element: /* @__PURE__ */ import_react35.default.createElement(Placeholder, { title: "Privacy" }) }), /* @__PURE__ */ import_react35.default.createElement(Route, { path: "/terms", element: /* @__PURE__ */ import_react35.default.createElement(Placeholder, { title: "Terms" }) }), /* @__PURE__ */ import_react35.default.createElement(Route, { path: "*", element: /* @__PURE__ */ import_react35.default.createElement(Placeholder, { title: "Page Not Found" }) })))), /* @__PURE__ */ import_react35.default.createElement(Footer_default, null)));
+    return /* @__PURE__ */ import_react34.default.createElement(BrowserRouter, null, /* @__PURE__ */ import_react34.default.createElement(import_react34.Suspense, { fallback: /* @__PURE__ */ import_react34.default.createElement(LoadingSpinner_default, null) }, /* @__PURE__ */ import_react34.default.createElement(Routes, null, /* @__PURE__ */ import_react34.default.createElement(Route, { path: "/", element: /* @__PURE__ */ import_react34.default.createElement("div", { className: "min-h-screen flex flex-col" }, /* @__PURE__ */ import_react34.default.createElement(Navigation_default, null), /* @__PURE__ */ import_react34.default.createElement("main", { className: "flex-grow" }, /* @__PURE__ */ import_react34.default.createElement(HomePage2, null))) }), /* @__PURE__ */ import_react34.default.createElement(Route, { path: "/collections", element: /* @__PURE__ */ import_react34.default.createElement(Layout, null, /* @__PURE__ */ import_react34.default.createElement(CollectionsPage2, null)) }), /* @__PURE__ */ import_react34.default.createElement(Route, { path: "/lookbook", element: /* @__PURE__ */ import_react34.default.createElement(Layout, null, /* @__PURE__ */ import_react34.default.createElement(LookbookPage2, null)) }), /* @__PURE__ */ import_react34.default.createElement(Route, { path: "/styling", element: /* @__PURE__ */ import_react34.default.createElement(Layout, null, /* @__PURE__ */ import_react34.default.createElement(StylingPage2, null)) }), /* @__PURE__ */ import_react34.default.createElement(Route, { path: "/contact", element: /* @__PURE__ */ import_react34.default.createElement(Layout, null, /* @__PURE__ */ import_react34.default.createElement(ContactPage2, null)) }), /* @__PURE__ */ import_react34.default.createElement(Route, { path: "/journal", element: /* @__PURE__ */ import_react34.default.createElement(Layout, null, /* @__PURE__ */ import_react34.default.createElement(Placeholder, { title: "Journal" })) }), /* @__PURE__ */ import_react34.default.createElement(Route, { path: "/about", element: /* @__PURE__ */ import_react34.default.createElement(Layout, null, /* @__PURE__ */ import_react34.default.createElement(Placeholder, { title: "About" })) }), /* @__PURE__ */ import_react34.default.createElement(Route, { path: "/shipping", element: /* @__PURE__ */ import_react34.default.createElement(Layout, null, /* @__PURE__ */ import_react34.default.createElement(Placeholder, { title: "Shipping" })) }), /* @__PURE__ */ import_react34.default.createElement(Route, { path: "/returns", element: /* @__PURE__ */ import_react34.default.createElement(Layout, null, /* @__PURE__ */ import_react34.default.createElement(Placeholder, { title: "Returns" })) }), /* @__PURE__ */ import_react34.default.createElement(Route, { path: "/privacy", element: /* @__PURE__ */ import_react34.default.createElement(Layout, null, /* @__PURE__ */ import_react34.default.createElement(Placeholder, { title: "Privacy" })) }), /* @__PURE__ */ import_react34.default.createElement(Route, { path: "/terms", element: /* @__PURE__ */ import_react34.default.createElement(Layout, null, /* @__PURE__ */ import_react34.default.createElement(Placeholder, { title: "Terms" })) }), /* @__PURE__ */ import_react34.default.createElement(Route, { path: "/appointment", element: /* @__PURE__ */ import_react34.default.createElement(Layout, null, /* @__PURE__ */ import_react34.default.createElement(Placeholder, { title: "Appointment" })) }), /* @__PURE__ */ import_react34.default.createElement(Route, { path: "/membership", element: /* @__PURE__ */ import_react34.default.createElement(Layout, null, /* @__PURE__ */ import_react34.default.createElement(Placeholder, { title: "Membership" })) }), /* @__PURE__ */ import_react34.default.createElement(Route, { path: "/faq", element: /* @__PURE__ */ import_react34.default.createElement(Layout, null, /* @__PURE__ */ import_react34.default.createElement(Placeholder, { title: "FAQ" })) }), /* @__PURE__ */ import_react34.default.createElement(Route, { path: "/collections/sartorial", element: /* @__PURE__ */ import_react34.default.createElement(Layout, null, /* @__PURE__ */ import_react34.default.createElement(Placeholder, { title: "Sartorial Collection" })) }), /* @__PURE__ */ import_react34.default.createElement(Route, { path: "/collections/groom", element: /* @__PURE__ */ import_react34.default.createElement(Layout, null, /* @__PURE__ */ import_react34.default.createElement(Placeholder, { title: "Groom Collection" })) }), /* @__PURE__ */ import_react34.default.createElement(Route, { path: "/collections/office", element: /* @__PURE__ */ import_react34.default.createElement(Layout, null, /* @__PURE__ */ import_react34.default.createElement(Placeholder, { title: "Office Collection" })) }), /* @__PURE__ */ import_react34.default.createElement(Route, { path: "/collections/accessories", element: /* @__PURE__ */ import_react34.default.createElement(Layout, null, /* @__PURE__ */ import_react34.default.createElement(Placeholder, { title: "Accessories" })) }), /* @__PURE__ */ import_react34.default.createElement(Route, { path: "/collections/new-arrivals", element: /* @__PURE__ */ import_react34.default.createElement(Layout, null, /* @__PURE__ */ import_react34.default.createElement(Placeholder, { title: "New Arrivals" })) }), /* @__PURE__ */ import_react34.default.createElement(Route, { path: "*", element: /* @__PURE__ */ import_react34.default.createElement(Layout, null, /* @__PURE__ */ import_react34.default.createElement(Placeholder, { title: "Page Not Found" })) }))));
   }
   var MainApp_default = MainApp;
 
@@ -38362,7 +38028,7 @@
   if (container) {
     const root = import_client.default.createRoot(container);
     root.render(
-      /* @__PURE__ */ import_react36.default.createElement(import_react36.default.StrictMode, null, /* @__PURE__ */ import_react36.default.createElement(MainApp_default, null))
+      /* @__PURE__ */ import_react35.default.createElement(import_react35.default.StrictMode, null, /* @__PURE__ */ import_react35.default.createElement(MainApp_default, null))
     );
   } else {
     console.error("Root element not found");
@@ -38484,22 +38150,6 @@ lucide-react/dist/esm/icons/book-open.js:
    * See the LICENSE file in the root directory of this source tree.
    *)
 
-lucide-react/dist/esm/icons/briefcase.js:
-  (**
-   * @license lucide-react v0.309.0 - ISC
-   *
-   * This source code is licensed under the ISC license.
-   * See the LICENSE file in the root directory of this source tree.
-   *)
-
-lucide-react/dist/esm/icons/calendar.js:
-  (**
-   * @license lucide-react v0.309.0 - ISC
-   *
-   * This source code is licensed under the ISC license.
-   * See the LICENSE file in the root directory of this source tree.
-   *)
-
 lucide-react/dist/esm/icons/camera.js:
   (**
    * @license lucide-react v0.309.0 - ISC
@@ -38533,14 +38183,6 @@ lucide-react/dist/esm/icons/clock.js:
    *)
 
 lucide-react/dist/esm/icons/facebook.js:
-  (**
-   * @license lucide-react v0.309.0 - ISC
-   *
-   * This source code is licensed under the ISC license.
-   * See the LICENSE file in the root directory of this source tree.
-   *)
-
-lucide-react/dist/esm/icons/gift.js:
   (**
    * @license lucide-react v0.309.0 - ISC
    *
@@ -38596,14 +38238,6 @@ lucide-react/dist/esm/icons/message-square.js:
    * See the LICENSE file in the root directory of this source tree.
    *)
 
-lucide-react/dist/esm/icons/moon.js:
-  (**
-   * @license lucide-react v0.309.0 - ISC
-   *
-   * This source code is licensed under the ISC license.
-   * See the LICENSE file in the root directory of this source tree.
-   *)
-
 lucide-react/dist/esm/icons/phone.js:
   (**
    * @license lucide-react v0.309.0 - ISC
@@ -38636,14 +38270,6 @@ lucide-react/dist/esm/icons/send.js:
    * See the LICENSE file in the root directory of this source tree.
    *)
 
-lucide-react/dist/esm/icons/shirt.js:
-  (**
-   * @license lucide-react v0.309.0 - ISC
-   *
-   * This source code is licensed under the ISC license.
-   * See the LICENSE file in the root directory of this source tree.
-   *)
-
 lucide-react/dist/esm/icons/shopping-bag.js:
   (**
    * @license lucide-react v0.309.0 - ISC
@@ -38652,39 +38278,7 @@ lucide-react/dist/esm/icons/shopping-bag.js:
    * See the LICENSE file in the root directory of this source tree.
    *)
 
-lucide-react/dist/esm/icons/sparkles.js:
-  (**
-   * @license lucide-react v0.309.0 - ISC
-   *
-   * This source code is licensed under the ISC license.
-   * See the LICENSE file in the root directory of this source tree.
-   *)
-
-lucide-react/dist/esm/icons/star.js:
-  (**
-   * @license lucide-react v0.309.0 - ISC
-   *
-   * This source code is licensed under the ISC license.
-   * See the LICENSE file in the root directory of this source tree.
-   *)
-
-lucide-react/dist/esm/icons/sun.js:
-  (**
-   * @license lucide-react v0.309.0 - ISC
-   *
-   * This source code is licensed under the ISC license.
-   * See the LICENSE file in the root directory of this source tree.
-   *)
-
 lucide-react/dist/esm/icons/user.js:
-  (**
-   * @license lucide-react v0.309.0 - ISC
-   *
-   * This source code is licensed under the ISC license.
-   * See the LICENSE file in the root directory of this source tree.
-   *)
-
-lucide-react/dist/esm/icons/watch.js:
   (**
    * @license lucide-react v0.309.0 - ISC
    *

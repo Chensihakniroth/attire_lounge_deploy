@@ -1,16 +1,17 @@
+// resources/jsx/components/MainApp.jsx - UPDATED VERSION
 import React, { Suspense, lazy } from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 
 // Components
 import Navigation from './layouts/Navigation.jsx';
-import Footer from './layouts/Footer.jsx';
 import LoadingSpinner from './common/LoadingSpinner.jsx';
+import Footer from './layouts/Footer.jsx';
 
-// ONLY pages that you have created
+// Pages that you have created
 const HomePage = lazy(() => import('./pages/HomePage.jsx'));
 const CollectionsPage = lazy(() => import('./pages/CollectionsPage.jsx'));
 const LookbookPage = lazy(() => import('./pages/LookbookPage.jsx'));
-const BespokePage = lazy(() => import('./pages/BespokePage.jsx'));
+const StylingPage = lazy(() => import('./pages/StylingPage.jsx'));
 const ContactPage = lazy(() => import('./pages/ContactPage.jsx'));
 
 // Simple placeholder for non-existent pages
@@ -23,35 +24,139 @@ const Placeholder = ({ title }) => (
     </div>
 );
 
+// Layout wrapper component - ALWAYS includes Footer (except for HomePage)
+const Layout = ({ children, includeFooter = true }) => {
+    return (
+        <div className="min-h-screen flex flex-col">
+            <Navigation />
+            <main className="flex-grow">
+                {children}
+            </main>
+            {includeFooter && <Footer />}
+        </div>
+    );
+};
+
 function MainApp() {
     return (
         <Router>
-            <div className="min-h-screen flex flex-col">
-                <Navigation />
-                <main className="flex-grow">
-                    <Suspense fallback={<LoadingSpinner />}>
-                        <Routes>
-                            <Route path="/" element={<HomePage />} />
-                            <Route path="/collections" element={<CollectionsPage />} />
-                            <Route path="/lookbook" element={<LookbookPage />} />
-                            <Route path="/bespoke" element={<BespokePage />} />
-                            <Route path="/contact" element={<ContactPage />} />
+            <Suspense fallback={<LoadingSpinner />}>
+                <Routes>
+                    {/* HomePage route - Footer is integrated INSIDE HomePage as section 4 */}
+                    <Route path="/" element={
+                        <div className="min-h-screen flex flex-col">
+                            <Navigation />
+                            <main className="flex-grow">
+                                <HomePage />
+                            </main>
+                            {/* Footer is now INSIDE HomePage as section 4 */}
+                        </div>
+                    } />
 
-                            {/* Simple placeholders */}
-                            <Route path="/journal" element={<Placeholder title="Journal" />} />
-                            <Route path="/about" element={<Placeholder title="About" />} />
-                            <Route path="/shipping" element={<Placeholder title="Shipping" />} />
-                            <Route path="/returns" element={<Placeholder title="Returns" />} />
-                            <Route path="/privacy" element={<Placeholder title="Privacy" />} />
-                            <Route path="/terms" element={<Placeholder title="Terms" />} />
+                    {/* All other routes use Layout with Footer */}
+                    <Route path="/collections" element={
+                        <Layout>
+                            <CollectionsPage />
+                        </Layout>
+                    } />
+                    <Route path="/lookbook" element={
+                        <Layout>
+                            <LookbookPage />
+                        </Layout>
+                    } />
+                    <Route path="/styling" element={
+                        <Layout>
+                            <StylingPage />
+                        </Layout>
+                    } />
+                    <Route path="/contact" element={
+                        <Layout>
+                            <ContactPage />
+                        </Layout>
+                    } />
 
-                            {/* 404 */}
-                            <Route path="*" element={<Placeholder title="Page Not Found" />} />
-                        </Routes>
-                    </Suspense>
-                </main>
-                <Footer />
-            </div>
+                    {/* Simple placeholders - all with Footer */}
+                    <Route path="/journal" element={
+                        <Layout>
+                            <Placeholder title="Journal" />
+                        </Layout>
+                    } />
+                    <Route path="/about" element={
+                        <Layout>
+                            <Placeholder title="About" />
+                        </Layout>
+                    } />
+                    <Route path="/shipping" element={
+                        <Layout>
+                            <Placeholder title="Shipping" />
+                        </Layout>
+                    } />
+                    <Route path="/returns" element={
+                        <Layout>
+                            <Placeholder title="Returns" />
+                        </Layout>
+                    } />
+                    <Route path="/privacy" element={
+                        <Layout>
+                            <Placeholder title="Privacy" />
+                        </Layout>
+                    } />
+                    <Route path="/terms" element={
+                        <Layout>
+                            <Placeholder title="Terms" />
+                        </Layout>
+                    } />
+                    <Route path="/appointment" element={
+                        <Layout>
+                            <Placeholder title="Appointment" />
+                        </Layout>
+                    } />
+                    <Route path="/membership" element={
+                        <Layout>
+                            <Placeholder title="Membership" />
+                        </Layout>
+                    } />
+                    <Route path="/faq" element={
+                        <Layout>
+                            <Placeholder title="FAQ" />
+                        </Layout>
+                    } />
+
+                    {/* Collection sub-routes */}
+                    <Route path="/collections/sartorial" element={
+                        <Layout>
+                            <Placeholder title="Sartorial Collection" />
+                        </Layout>
+                    } />
+                    <Route path="/collections/groom" element={
+                        <Layout>
+                            <Placeholder title="Groom Collection" />
+                        </Layout>
+                    } />
+                    <Route path="/collections/office" element={
+                        <Layout>
+                            <Placeholder title="Office Collection" />
+                        </Layout>
+                    } />
+                    <Route path="/collections/accessories" element={
+                        <Layout>
+                            <Placeholder title="Accessories" />
+                        </Layout>
+                    } />
+                    <Route path="/collections/new-arrivals" element={
+                        <Layout>
+                            <Placeholder title="New Arrivals" />
+                        </Layout>
+                    } />
+
+                    {/* 404 */}
+                    <Route path="*" element={
+                        <Layout>
+                            <Placeholder title="Page Not Found" />
+                        </Layout>
+                    } />
+                </Routes>
+            </Suspense>
         </Router>
     );
 }

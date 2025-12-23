@@ -2,9 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import {
     Search, Menu, X, User, ShoppingBag, ChevronRight,
-    Home, Grid, Camera, BookOpen, Scissors, Mail,
-    Sun, Briefcase, Moon, Shirt, Watch, Sparkles,
-    MapPin, Calendar, Gift, Star
+    Home, Grid, Camera, BookOpen, Scissors, Mail
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
@@ -13,6 +11,26 @@ const Navigation = () => {
     const [isScrolled, setIsScrolled] = useState(false);
     const [lastScrollY, setLastScrollY] = useState(0);
     const [isVisible, setIsVisible] = useState(true);
+    const [isHovered, setIsHovered] = useState(false);
+    const [isMobile, setIsMobile] = useState(false);
+
+    // Check if mobile on mount and resize
+    useEffect(() => {
+        const checkMobile = () => {
+            setIsMobile(window.innerWidth < 768);
+        };
+
+        checkMobile();
+        window.addEventListener('resize', checkMobile);
+        return () => window.removeEventListener('resize', checkMobile);
+    }, []);
+
+    // Emit menu state changes to HomePage
+    useEffect(() => {
+        window.dispatchEvent(new CustomEvent('menuStateChange', {
+            detail: { isMenuOpen }
+        }));
+    }, [isMenuOpen]);
 
     // Premium navigation items
     const navItems = [
@@ -41,10 +59,10 @@ const Navigation = () => {
             description: 'Style insights'
         },
         {
-            name: 'Bespoke',
-            path: '/bespoke',
+            name: 'Styling',
+            path: '/styling',
             icon: Scissors,
-            description: 'Made-to-measure',
+            description: 'Personal styling consultation',
             badge: 'Exclusive'
         },
         {
@@ -52,46 +70,6 @@ const Navigation = () => {
             path: '/contact',
             icon: Mail,
             description: 'Personal consultation'
-        },
-    ];
-
-    // Luxury collections
-    const collections = [
-        {
-            name: 'Spring/Summer 2024',
-            season: 'New Season',
-            icon: Sun,
-            items: 24
-        },
-        {
-            name: 'Signature Suits',
-            season: 'Tailored',
-            icon: Briefcase,
-            items: 18
-        },
-        {
-            name: 'Evening Attire',
-            season: 'Formal',
-            icon: Moon,
-            items: 12
-        },
-        {
-            name: 'Linen & Cotton',
-            season: 'Essential',
-            icon: Shirt,
-            items: 36
-        },
-        {
-            name: 'Leather Goods',
-            season: 'Accessories',
-            icon: Watch,
-            items: 22
-        },
-        {
-            name: 'Italian Footwear',
-            season: 'Handcrafted',
-            icon: Star,
-            items: 16
         },
     ];
 
@@ -118,235 +96,233 @@ const Navigation = () => {
     // Close sidebar on escape key
     useEffect(() => {
         const handleEscape = (e) => {
-            if (e.key === 'Escape') setIsMenuOpen(false);
+            if (e.key === 'Escape') {
+                setIsMenuOpen(false);
+                // Emit event immediately
+                window.dispatchEvent(new CustomEvent('menuStateChange', {
+                    detail: { isMenuOpen: false }
+                }));
+            }
         };
         document.addEventListener('keydown', handleEscape);
         return () => document.removeEventListener('keydown', handleEscape);
     }, []);
 
+    // Determine background class based on conditions
+    const getNavBackgroundClass = () => {
+        if (isMenuOpen) {
+            return 'glass-mirror-effect';
+        } else if (isMobile) {
+            return 'bg-white/95 backdrop-blur-lg';
+        } else if (isHovered) {
+            return 'bg-white/95 backdrop-blur-lg shadow-sm';
+        } else if (isScrolled) {
+            return 'bg-transparent backdrop-blur-0';
+        } else {
+            return 'bg-transparent backdrop-blur-0';
+        }
+    };
+
+    // Determine text color based on conditions
+    const getTextColorClass = () => {
+        if (isMenuOpen) {
+            return 'text-white/90';
+        } else if (isMobile || isHovered) {
+            return 'text-black';
+        } else {
+            return 'text-white';
+        }
+    };
+
+    // Determine icon color based on conditions
+    const getIconColorClass = () => {
+        if (isMenuOpen) {
+            return 'text-white/80';
+        } else if (isMobile || isHovered) {
+            return 'text-black/80';
+        } else {
+            return 'text-white/90';
+        }
+    };
+
+    // Handle menu open with event emission
+    const handleMenuOpen = () => {
+        setIsMenuOpen(true);
+        // Emit event immediately
+        setTimeout(() => {
+            window.dispatchEvent(new CustomEvent('menuStateChange', {
+                detail: { isMenuOpen: true }
+            }));
+        }, 10);
+    };
+
+    // Handle menu close with event emission
+    const handleMenuClose = () => {
+        setIsMenuOpen(false);
+        // Emit event immediately
+        setTimeout(() => {
+            window.dispatchEvent(new CustomEvent('menuStateChange', {
+                detail: { isMenuOpen: false }
+            }));
+        }, 10);
+    };
+
     return (
         <>
-            {/* Premium Navigation Bar with Mirror/Glass Effect */}
+            {/* Premium Navigation Bar */}
             <motion.nav
                 initial={{ y: 0 }}
                 animate={{
                     y: isVisible ? 0 : -120,
-                    opacity: isVisible ? 1 : 0,
                 }}
                 transition={{
-                    duration: 0.4,
-                    ease: [0.25, 0.1, 0.25, 1]
+                    duration: 0.3,
+                    ease: "easeInOut"
                 }}
-                className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ${
-                    isMenuOpen
-                        ? 'glass-mirror-effect' // Mirror effect when sidebar opens
-                        : isScrolled
-                            ? 'bg-white/98 backdrop-blur-xl shadow-sm'
-                            : 'bg-white/95 backdrop-blur-lg'
-                }`}
+                className={`fixed top-0 left-0 right-0 z-50 transition-colors duration-300 ${getNavBackgroundClass()}`}
+                onMouseEnter={() => !isMobile && setIsHovered(true)}
+                onMouseLeave={() => !isMobile && setIsHovered(false)}
             >
-                {/* Mirror Reflection Overlay (only when sidebar is open) */}
-                <AnimatePresence>
-                    {isMenuOpen && (
-                        <motion.div
-                            initial={{ opacity: 0 }}
-                            animate={{ opacity: 1 }}
-                            exit={{ opacity: 0 }}
-                            transition={{ duration: 0.3 }}
-                            className="absolute inset-0 mirror-overlay"
-                        >
-                            {/* Animated reflection lines */}
-                            <div className="absolute inset-0 reflection-lines"></div>
-                            {/* Subtle gradient overlay */}
-                            <div className="absolute inset-0 bg-gradient-to-b from-white/10 via-transparent to-black/5"></div>
-                        </motion.div>
-                    )}
-                </AnimatePresence>
+                {/* Hover gradient transition effect */}
+                {!isMobile && (
+                    <div
+                        className={`absolute inset-0 bg-gradient-to-b from-white via-white to-white/95 transition-opacity duration-300 ${
+                            isHovered && !isMenuOpen ? 'opacity-100' : 'opacity-0'
+                        }`}
+                    />
+                )}
 
                 <div className="max-w-7xl mx-auto px-6 relative z-10">
                     <div className="flex items-center justify-between h-24">
-                        {/* Left: Elegant Hamburger */}
-                        <motion.button
-                            onClick={() => setIsMenuOpen(true)}
-                            whileHover={{ scale: 1.02 }}
-                            whileTap={{ scale: 0.98 }}
+                        {/* Left: Hamburger */}
+                        <button
+                            onClick={handleMenuOpen}
                             className="p-3 rounded-lg transition-colors duration-200 group"
                             aria-label="Open menu"
+                            aria-expanded={isMenuOpen}
                         >
                             <div className="flex flex-col items-center space-y-1">
-                                <motion.div
-                                    animate={isMenuOpen ? { rotate: 45, y: 6 } : { rotate: 0, y: 0 }}
-                                    className="w-6 h-px bg-black/90"
-                                />
-                                <motion.div
-                                    animate={isMenuOpen ? { opacity: 0 } : { opacity: 1 }}
-                                    className="w-6 h-px bg-black/60"
-                                />
-                                <motion.div
-                                    animate={isMenuOpen ? { rotate: -45, y: -6 } : { rotate: 0, y: 0 }}
-                                    className="w-6 h-px bg-black/90"
-                                />
+                                <div className={`w-6 h-px transition-all duration-300 ${
+                                    isMenuOpen ? 'rotate-45 translate-y-[6px] bg-black/90' :
+                                    (isMobile || isHovered || isMenuOpen ? 'bg-black/90' : 'bg-white/90')
+                                }`} />
+                                <div className={`w-6 h-px transition-opacity duration-300 ${
+                                    isMenuOpen ? 'opacity-0' : 'opacity-100'
+                                } ${isMobile || isHovered || isMenuOpen ? 'bg-black/60' : 'bg-white/60'}`} />
+                                <div className={`w-6 h-px transition-all duration-300 ${
+                                    isMenuOpen ? '-rotate-45 -translate-y-[6px] bg-black/90' :
+                                    (isMobile || isHovered || isMenuOpen ? 'bg-black/90' : 'bg-white/90')
+                                }`} />
                             </div>
-                            <span className="mt-2 text-[10px] tracking-widest text-black/80">
+                            <span className={`mt-2 block text-[10px] tracking-widest transition-colors duration-300 ${
+                                isMobile || isHovered || isMenuOpen ? 'text-black/80' : 'text-white/80'
+                            }`}>
                                 MENU
                             </span>
-                        </motion.button>
+                        </button>
 
-                        {/* Center: Luxury Monogram */}
+                        {/* Center: Brand Name */}
                         <Link to="/" className="flex flex-col items-center cursor-pointer group">
-                            <motion.div
-                                whileHover={{ scale: 1.02 }}
-                                className="flex items-center justify-center w-full"
-                            >
+                            <div className="flex items-center justify-center w-full h-8">
                                 <div className={`text-base font-serif font-medium tracking-widest uppercase transition-all duration-300 ${
-                                    isMenuOpen ? 'text-white/90' : 'text-black'
+                                    isMenuOpen ? 'text-white/90' : getTextColorClass()
+                                } ${
+                                    (isMobile || isHovered || isMenuOpen) ? 'opacity-100' : 'opacity-0'
                                 }`}>
                                     Attire Lounge
                                 </div>
-                            </motion.div>
+                            </div>
                         </Link>
 
-                        {/* Right: Premium Actions */}
+                        {/* Right: Actions */}
                         <div className="flex items-center space-x-2">
-                            {/* Search */}
-                            <motion.button
-                                whileHover={{ scale: 1.03 }}
-                                className="p-3 transition-colors"
-                                aria-label="Search"
-                            >
-                                <Search className={`w-5 h-5 transition-all duration-300 ${
-                                    isMenuOpen ? 'text-white/80' : 'text-black/80'
-                                }`} />
-                            </motion.button>
-
-                            {/* Account */}
-                            <motion.button
-                                whileHover={{ scale: 1.03 }}
-                                className="p-3 hidden lg:block"
-                                aria-label="Account"
-                            >
-                                <User className={`w-5 h-5 transition-all duration-300 ${
-                                    isMenuOpen ? 'text-white/80' : 'text-black/80'
-                                }`} />
-                            </motion.button>
-
-                            {/* Cart */}
-                            <motion.button
-                                className="p-3"
-                                aria-label="Shopping cart"
-                            >
-                                <ShoppingBag className={`w-5 h-5 transition-all duration-300 ${
-                                    isMenuOpen ? 'text-white/80' : 'text-black/80'
-                                }`} />
-                            </motion.button>
+                            <button className="p-3 transition-colors hover:scale-105" aria-label="Search">
+                                <Search className={`w-5 h-5 transition-colors duration-300 ${getIconColorClass()}`} />
+                            </button>
+                            <button className="p-3 hidden lg:block transition-colors hover:scale-105" aria-label="Account">
+                                <User className={`w-5 h-5 transition-colors duration-300 ${getIconColorClass()}`} />
+                            </button>
+                            <button className="p-3 transition-colors hover:scale-105" aria-label="Shopping cart">
+                                <ShoppingBag className={`w-5 h-5 transition-colors duration-300 ${getIconColorClass()}`} />
+                            </button>
                         </div>
                     </div>
                 </div>
             </motion.nav>
 
-            {/* Luxury Sidebar */}
+            {/* Sidebar */}
             <AnimatePresence>
                 {isMenuOpen && (
                     <>
-                        {/* Elegant Backdrop with Glass Effect */}
-                        <motion.div
-                            initial={{ opacity: 0 }}
-                            animate={{ opacity: 1 }}
-                            exit={{ opacity: 0 }}
-                            onClick={() => setIsMenuOpen(false)}
-                            className="fixed inset-0 bg-gradient-to-br from-black/70 via-black/50 to-black/30 backdrop-blur-2xl z-40"
+                        {/* Backdrop */}
+                        <div
+                            className="fixed inset-0 bg-black/50 backdrop-blur-sm z-40 transition-opacity duration-300"
+                            onClick={handleMenuClose}
                         />
 
-                        {/* Premium Sidebar */}
+                        {/* Sidebar Panel - Optimized animations */}
                         <motion.div
-                            initial={{ x: -360 }}
+                            initial={{ x: -380 }}
                             animate={{ x: 0 }}
-                            exit={{ x: -360 }}
+                            exit={{ x: -380 }}
                             transition={{
-                                type: "spring",
-                                damping: 28,
-                                stiffness: 220,
-                                mass: 0.8
+                                duration: 0.35,
+                                ease: "easeOut"
                             }}
                             className="sidebar fixed top-0 left-0 bottom-0 w-[360px] bg-gradient-to-b from-white/95 to-attire-cream/90 z-50 border-r border-white/30 shadow-2xl overflow-hidden backdrop-blur-xl"
-                            style={{
-                                boxShadow: '0 0 80px rgba(193, 154, 107, 0.25)',
-                            }}
                         >
                             {/* Sidebar Header */}
                             <div className="p-8 border-b border-white/20 bg-gradient-to-b from-white/80 to-white/40">
                                 <div className="flex items-center justify-between">
-                                    <div className="flex items-center space-x-4">
-                                        <motion.div
-                                            initial={{ scale: 0, rotate: -180 }}
-                                            animate={{ scale: 1, rotate: 0 }}
-                                            transition={{ type: "spring", stiffness: 200, damping: 15 }}
-                                        >
-                                        </motion.div>
-                                        <div>
-                                            <div className="text-sm font-medium tracking-[0.3em] uppercase text-attire-charcoal/90">
-                                                Attire Lounge
-                                            </div>
-                                            <div className="text-xs text-attire-stone/70 tracking-widest mt-1">
-                                                Gentlemen's Collection
-                                            </div>
+                                    <div>
+                                        <div className="text-sm font-medium tracking-[0.3em] uppercase text-attire-charcoal/90">
+                                            Attire Lounge
+                                        </div>
+                                        <div className="text-xs text-attire-stone/70 tracking-widest mt-1">
+                                            Gentlemen's Collection
                                         </div>
                                     </div>
-                                    <motion.button
-                                        whileHover={{ scale: 1.1, rotate: 90 }}
-                                        whileTap={{ scale: 0.9 }}
-                                        onClick={() => setIsMenuOpen(false)}
-                                        className="p-2 hover:bg-white/30 transition-colors group"
+                                    <button
+                                        onClick={handleMenuClose}
+                                        className="p-2 hover:bg-white/30 transition-colors duration-200 group"
                                     >
-                                        <X className="w-5 h-5 text-attire-stone/70 group-hover:text-attire-charcoal transition-colors" />
-                                    </motion.button>
+                                        <X className="w-5 h-5 text-attire-stone/70 group-hover:text-attire-charcoal transition-colors duration-200" />
+                                    </button>
                                 </div>
                             </div>
 
-                            {/* Premium Navigation */}
-                            <div className="p-6 overflow-y-auto max-h-[calc(100vh-220px)]">
-                                {/* Main Navigation */}
-                                <div className="mb-10">
+                            {/* Navigation Items - Optimized */}
+                            <div className="p-6 overflow-y-auto max-h-[calc(100vh-120px)] hide-scrollbar">
+                                <div className="mb-6">
                                     <div className="flex items-center space-x-2 mb-6">
-                                        <motion.div
-                                            initial={{ width: 0 }}
-                                            animate={{ width: 32 }}
-                                            transition={{ duration: 0.5, delay: 0.2 }}
-                                            className="h-px bg-gradient-to-r from-attire-gold/80 to-transparent"
-                                        />
-                                        <motion.div
-                                            initial={{ opacity: 0, x: -10 }}
-                                            animate={{ opacity: 1, x: 0 }}
-                                            transition={{ duration: 0.5, delay: 0.3 }}
-                                            className="text-xs font-medium tracking-[0.3em] uppercase text-attire-stone/70"
-                                        >
+                                        <div className="h-px w-8 bg-gradient-to-r from-attire-gold/80 to-transparent" />
+                                        <div className="text-xs font-medium tracking-[0.3em] uppercase text-attire-stone/70">
                                             Navigation
-                                        </motion.div>
+                                        </div>
                                     </div>
-                                    <div className="space-y-3">
+
+                                    {/* Navigation items with CSS-only animations */}
+                                    <div className="space-y-2">
                                         {navItems.map((item, index) => {
                                             const Icon = item.icon;
                                             return (
-                                                <motion.div
+                                                <div
                                                     key={item.name}
-                                                    initial={{ opacity: 0, x: -20 }}
-                                                    animate={{ opacity: 1, x: 0 }}
-                                                    transition={{ duration: 0.3, delay: index * 0.05 + 0.4 }}
-                                                    whileHover={{ x: 6, backgroundColor: 'rgba(255,255,255,0.3)' }}
-                                                    className="flex items-center justify-between px-6 py-5 rounded-lg hover:bg-white/50 transition-all duration-200 cursor-pointer"
+                                                    className="group flex items-center justify-between px-4 py-4 rounded-lg hover:bg-white/50 transition-all duration-200 cursor-pointer"
+                                                    style={{
+                                                        animationDelay: `${index * 50}ms`,
+                                                        animationFillMode: 'both'
+                                                    }}
                                                 >
                                                     <Link
                                                         to={item.path}
                                                         className="flex items-center space-x-4 w-full"
-                                                        onClick={() => setIsMenuOpen(false)}
+                                                        onClick={handleMenuClose}
                                                     >
                                                         <div className="flex items-center space-x-4">
-                                                            <motion.div
-                                                                whileHover={{ scale: 1.1 }}
-                                                                className="flex items-center justify-center"
-                                                            >
+                                                            <div className="flex items-center justify-center group-hover:scale-110 transition-transform duration-200">
                                                                 <Icon className="w-4 h-4 text-attire-charcoal/80" />
-                                                            </motion.div>
+                                                            </div>
                                                             <div>
                                                                 <div className="text-sm font-medium text-attire-charcoal/90">
                                                                     {item.name}
@@ -357,119 +333,13 @@ const Navigation = () => {
                                                             </div>
                                                         </div>
                                                     </Link>
-                                                    <ChevronRight className="w-4 h-4 text-attire-stone/50" />
-                                                </motion.div>
+                                                    <ChevronRight className="w-4 h-4 text-attire-stone/50 group-hover:translate-x-1 transition-transform duration-200" />
+                                                </div>
                                             );
                                         })}
                                     </div>
                                 </div>
-
-                                {/* Luxury Collections */}
-                                <div>
-                                    <div className="flex items-center space-x-2 mb-6">
-                                        <motion.div
-                                            initial={{ width: 0 }}
-                                            animate={{ width: 32 }}
-                                            transition={{ duration: 0.5, delay: 0.8 }}
-                                            className="h-px bg-gradient-to-r from-attire-gold/80 to-transparent"
-                                        />
-                                        <motion.div
-                                            initial={{ opacity: 0, x: -10 }}
-                                            animate={{ opacity: 1, x: 0 }}
-                                            transition={{ duration: 0.5, delay: 0.9 }}
-                                            className="text-xs font-medium tracking-[0.3em] uppercase text-attire-stone/70"
-                                        >
-                                            Collections
-                                        </motion.div>
-                                        <Sparkles className="w-3 h-3 text-attire-gold/80" />
-                                    </div>
-                                    <div className="grid grid-cols-2 gap-3">
-                                        {collections.map((collection, index) => {
-                                            const Icon = collection.icon;
-                                            return (
-                                                <motion.div
-                                                    key={collection.name}
-                                                    initial={{ opacity: 0, y: 10 }}
-                                                    animate={{ opacity: 1, y: 0 }}
-                                                    transition={{ duration: 0.3, delay: index * 0.05 + 1.0 }}
-                                                    whileHover={{ y: -2, scale: 1.02 }}
-                                                    className="bg-white/80 rounded-lg p-4 hover:bg-gradient-to-br hover:from-white/90 hover:to-attire-cream/40 transition-all shadow-sm hover:shadow-md cursor-pointer"
-                                                >
-                                                    <Link
-                                                        to="#"
-                                                        className="block"
-                                                        onClick={() => setIsMenuOpen(false)}
-                                                    >
-                                                        <div className="flex items-center justify-between mb-3">
-                                                            <div className="flex items-center justify-center">
-                                                                <Icon className="w-4 h-4 text-attire-charcoal/80" />
-                                                            </div>
-                                                            <div className="text-[10px] px-2 py-1 bg-white/80 text-attire-stone rounded-full tracking-wider">
-                                                                {collection.items} items
-                                                            </div>
-                                                        </div>
-                                                        <div className="text-sm font-medium text-attire-charcoal/90 mb-1">
-                                                            {collection.name}
-                                                        </div>
-                                                        <div className="text-xs text-attire-stone/70">
-                                                            {collection.season}
-                                                        </div>
-                                                        <div className="mt-3 pt-3 border-t border-white/30">
-                                                            <div className="text-[11px] text-attire-gold tracking-widest font-medium">
-                                                                EXPLORE →
-                                                            </div>
-                                                        </div>
-                                                    </Link>
-                                                </motion.div>
-                                            );
-                                        })}
-                                    </div>
-                                </div>
-
-                                {/* Premium Services */}
-                                <motion.div
-                                    initial={{ opacity: 0, y: 20 }}
-                                    animate={{ opacity: 1, y: 0 }}
-                                    transition={{ duration: 0.5, delay: 1.4 }}
-                                    className="mt-10 pt-8 border-t border-white/20"
-                                >
-                                    <div className="flex space-x-3">
-                                        <motion.button
-                                            whileHover={{ scale: 1.03, y: -2 }}
-                                            className="flex-1 py-3.5 text-xs font-medium text-attire-charcoal/90 border border-white/40 rounded-xl hover:border-attire-silver/60 transition-all duration-300 flex items-center justify-center space-x-2 shadow-sm hover:shadow bg-white/60"
-                                        >
-                                            <MapPin className="w-3.5 h-3.5" />
-                                            <span>Store Locator</span>
-                                        </motion.button>
-                                        <motion.button
-                                            whileHover={{ scale: 1.03, y: -2 }}
-                                            className="flex-1 py-3.5 text-xs font-medium bg-gradient-to-r from-attire-charcoal/90 to-attire-dark/90 text-white rounded-xl hover:from-attire-dark hover:to-attire-charcoal transition-all duration-300 flex items-center justify-center space-x-2 shadow-lg hover:shadow-xl"
-                                        >
-                                            <Calendar className="w-3.5 h-3.5" />
-                                            <span>Book Appointment</span>
-                                        </motion.button>
-                                    </div>
-                                </motion.div>
                             </div>
-
-                            {/* Luxury Footer */}
-                            <motion.div
-                                initial={{ opacity: 0, y: 20 }}
-                                animate={{ opacity: 1, y: 0 }}
-                                transition={{ duration: 0.5, delay: 1.6 }}
-                                className="absolute bottom-0 left-0 right-0 p-6 border-t border-white/20 bg-gradient-to-t from-white/80 via-white/60 to-transparent"
-                            >
-                                <div className="flex items-center justify-between">
-                                    <div className="text-[10px] text-attire-stone/60 tracking-[0.3em] uppercase">
-                                        EST. 2024
-                                    </div>
-                                    <div className="flex items-center space-x-4">
-                                        <Gift className="w-3.5 h-3.5 text-attire-stone/50" />
-                                        <Star className="w-3.5 h-3.5 text-attire-stone/50" />
-                                        <Sparkles className="w-3.5 h-3.5 text-attire-gold/80" />
-                                    </div>
-                                </div>
-                            </motion.div>
                         </motion.div>
                     </>
                 )}
