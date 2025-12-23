@@ -1,4 +1,4 @@
-// resources/js/components/pages/HomePage.jsx - SMOOTH DELAYED SCROLL
+// resources/js/components/pages/HomePage.jsx - SIMPLE SNAP SCROLL
 import React, { useEffect, useRef, useState, useCallback } from 'react';
 import { motion } from 'framer-motion';
 import Footer from '../layouts/Footer';
@@ -12,13 +12,8 @@ const HomePage = () => {
   // Refs
   const sectionsRef = useRef([]);
   const touchStartX = useRef(0);
-  const isAnimatingRef = useRef(false);
-  const wheelTimeoutRef = useRef(null);
-  const scrollCooldownRef = useRef(false);
-  const lastScrollDirection = useRef('down');
-  const scrollAccumulator = useRef(0);
-  const lastScrollTime = useRef(0);
-  const canScrollRef = useRef(true);
+  const isScrollingRef = useRef(false);
+  const scrollTimeoutRef = useRef(null);
 
   // Hero images
   const heroImages = [
@@ -35,150 +30,87 @@ const HomePage = () => {
     return () => window.removeEventListener('resize', checkMobile);
   }, []);
 
-  // ========== DISABLE NATIVE SNAP ON DESKTOP ==========
+  // ========== INITIALIZE SECTIONS ==========
   useEffect(() => {
-    if (!isMobile) {
-      document.documentElement.style.scrollSnapType = 'none';
-      document.documentElement.style.scrollBehavior = 'auto';
-    } else {
-      document.documentElement.style.scrollSnapType = 'y mandatory';
-    }
-
-    return () => {
-      document.documentElement.style.scrollSnapType = '';
-      document.documentElement.style.scrollBehavior = '';
-    };
-  }, [isMobile]);
-
-  // ========== SMOOTH SCROLL TO SECTION ==========
-  const scrollToSection = useCallback((index) => {
-    if (isAnimatingRef.current || !sectionsRef.current[index] || isMenuOpen || !canScrollRef.current) return;
-
-    isAnimatingRef.current = true;
-    canScrollRef.current = false; // Prevent new scrolls during animation
-
-    const section = sectionsRef.current[index];
-    const startY = window.scrollY;
-    const targetY = section.offsetTop;
-    const distance = targetY - startY;
-
-    // Slightly longer duration for smoother feel
-    const duration = Math.max(600, Math.min(1000, Math.abs(distance) * 0.5));
-
-    const startTime = performance.now();
-
-    // Smooth easing with slight anticipation
-    const easeInOutExpo = (t) => {
-      return t === 0
-        ? 0
-        : t === 1
-        ? 1
-        : t < 0.5
-        ? Math.pow(2, 20 * t - 10) / 2
-        : (2 - Math.pow(2, -20 * t + 10)) / 2;
+    const updateSections = () => {
+      const sections = document.querySelectorAll('.snap-section');
+      sectionsRef.current = Array.from(sections);
     };
 
-    const animate = (currentTime) => {
-      const elapsed = currentTime - startTime;
-      const progress = Math.min(elapsed / duration, 1);
-      const easedProgress = easeInOutExpo(progress);
+    updateSections();
 
-      window.scrollTo({ top: startY + distance * easedProgress, behavior: 'auto' });
-
-      if (progress < 1) {
-        requestAnimationFrame(animate);
-      } else {
-        // Final exact position
-        window.scrollTo({ top: targetY, behavior: 'auto' });
-        setActiveSection(index);
-        isAnimatingRef.current = false;
-
-        // Add cooldown period before allowing next scroll
-        setTimeout(() => {
-          canScrollRef.current = true;
-        }, 150); // 150ms cooldown after animation ends
+    // Listen for menu state
+    const handleMenuStateChange = (e) => {
+      if (e.detail && e.detail.isMenuOpen !== undefined) {
+        setIsMenuOpen(e.detail.isMenuOpen);
       }
     };
 
-    requestAnimationFrame(animate);
+    window.addEventListener('menuStateChange', handleMenuStateChange);
+    return () => window.removeEventListener('menuStateChange', handleMenuStateChange);
+  }, []);
+
+  // ========== SIMPLE SMOOTH SCROLL TO SECTION ==========
+  const scrollToSection = useCallback((index) => {
+    if (isScrollingRef.current || !sectionsRef.current[index] || isMenuOpen) return;
+
+    isScrollingRef.current = true;
+    const section = sectionsRef.current[index];
+    const targetY = section.offsetTop;
+
+    window.scrollTo({
+      top: targetY,
+      behavior: 'smooth'
+    });
+
+    setActiveSection(index);
+
+    // Reset after scroll completes
+    setTimeout(() => {
+      isScrollingRef.current = false;
+    }, 500);
   }, [isMenuOpen]);
 
-  // ========== OPTIMIZED MOUSE WHEEL WITH SMOOTH DELAY ==========
+  // ========== SIMPLE WHEEL HANDLER ==========
   useEffect(() => {
-    if (isMobile) return;
-
-    const SCROLL_THRESHOLD = 60; // Higher threshold for more deliberate scrolling
-    const SCROLL_COOLDOWN = 300; // 300ms cooldown between scroll triggers
-    const MIN_TIME_BETWEEN_SCROLLS = 100; // Minimum 100ms between scroll detections
+    if (isMobile || isMenuOpen) return;
 
     const handleWheel = (e) => {
       e.preventDefault();
 
-      const now = Date.now();
-      const deltaY = e.deltaY || e.detail || e.wheelDelta * -1;
-      const direction = deltaY > 0 ? 'down' : 'up';
+      if (isScrollingRef.current) return;
 
-      // Ignore if we're in cooldown or already animating
-      if (!canScrollRef.current || isAnimatingRef.current || scrollCooldownRef.current) return;
+      // Check scroll direction
+      const deltaY = e.deltaY;
 
-      // Ignore if too soon since last scroll detection
-      if (now - lastScrollTime.current < MIN_TIME_BETWEEN_SCROLLS) return;
-
-      // Update accumulator and timing
-      scrollAccumulator.current += Math.abs(deltaY);
-      lastScrollDirection.current = direction;
-      lastScrollTime.current = now;
-
-      // Only trigger if enough wheel movement accumulated
-      if (scrollAccumulator.current > SCROLL_THRESHOLD) {
+      if (Math.abs(deltaY) > 10) { // Ignore small movements
         let newIndex = activeSection;
 
-        if (direction === 'down') {
+        if (deltaY > 0) {
+          // Scrolling down - go to next section
           newIndex = Math.min(activeSection + 1, sectionsRef.current.length - 1);
         } else {
+          // Scrolling up - go to previous section
           newIndex = Math.max(activeSection - 1, 0);
         }
 
         if (newIndex !== activeSection) {
-          // Set cooldown
-          scrollCooldownRef.current = true;
-
-          // Trigger scroll
           scrollToSection(newIndex);
-
-          // Reset cooldown after delay
-          setTimeout(() => {
-            scrollCooldownRef.current = false;
-          }, SCROLL_COOLDOWN);
         }
-
-        // Reset accumulator
-        scrollAccumulator.current = 0;
       }
-
-      // Clear any existing timeout
-      if (wheelTimeoutRef.current) clearTimeout(wheelTimeoutRef.current);
-
-      // Gradually reset accumulator if user stops scrolling
-      wheelTimeoutRef.current = setTimeout(() => {
-        scrollAccumulator.current = 0;
-      }, 250);
     };
 
     window.addEventListener('wheel', handleWheel, { passive: false });
 
     return () => {
       window.removeEventListener('wheel', handleWheel);
-      if (wheelTimeoutRef.current) clearTimeout(wheelTimeoutRef.current);
     };
-  }, [isMobile, activeSection, scrollToSection]);
+  }, [isMobile, isMenuOpen, activeSection, scrollToSection]);
 
-  // ========== KEYBOARD NAVIGATION WITH DELAY ==========
+  // ========== KEYBOARD NAVIGATION ==========
   useEffect(() => {
-    let keyCooldown = false;
-
     const handleKeyDown = (e) => {
-      if (isAnimatingRef.current || isMenuOpen || keyCooldown) return;
+      if (isScrollingRef.current || isMenuOpen) return;
 
       let newIndex = activeSection;
 
@@ -206,14 +138,7 @@ const HomePage = () => {
       }
 
       if (newIndex !== activeSection) {
-        // Set cooldown for keys too
-        keyCooldown = true;
         scrollToSection(newIndex);
-
-        // Reset cooldown after delay
-        setTimeout(() => {
-          keyCooldown = false;
-        }, 300);
       }
     };
 
@@ -245,33 +170,13 @@ const HomePage = () => {
     touchStartX.current = 0;
   }, [isMobile, heroImages.length]);
 
-  // ========== INITIALIZE SECTIONS ==========
-  useEffect(() => {
-    const updateSections = () => {
-      const sections = document.querySelectorAll('.snap-section');
-      sectionsRef.current = Array.from(sections);
-    };
-
-    // Delay initialization slightly to ensure DOM is ready
-    setTimeout(updateSections, 100);
-
-    // Listen for menu state
-    const handleMenuStateChange = (e) => {
-      if (e.detail && e.detail.isMenuOpen !== undefined) {
-        setIsMenuOpen(e.detail.isMenuOpen);
-      }
-    };
-
-    window.addEventListener('menuStateChange', handleMenuStateChange);
-    return () => window.removeEventListener('menuStateChange', handleMenuStateChange);
-  }, []);
-
   // Calculate image indices
   const goToImage = useCallback((index) => {
     if (!isMobile || index === currentImageIndex) return;
     setCurrentImageIndex(index);
   }, [isMobile, currentImageIndex]);
 
+  // Your original render function remains exactly the same
   return (
     <div className="snap-scroll-container">
       {/* Section 1 - Hero */}

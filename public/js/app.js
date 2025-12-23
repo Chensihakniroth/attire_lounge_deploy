@@ -34721,13 +34721,8 @@
         const [currentImageIndex, setCurrentImageIndex] = (0, import_react29.useState)(0);
         const sectionsRef = (0, import_react29.useRef)([]);
         const touchStartX = (0, import_react29.useRef)(0);
-        const isAnimatingRef = (0, import_react29.useRef)(false);
-        const wheelTimeoutRef = (0, import_react29.useRef)(null);
-        const scrollCooldownRef = (0, import_react29.useRef)(false);
-        const lastScrollDirection = (0, import_react29.useRef)("down");
-        const scrollAccumulator = (0, import_react29.useRef)(0);
-        const lastScrollTime = (0, import_react29.useRef)(0);
-        const canScrollRef = (0, import_react29.useRef)(true);
+        const isScrollingRef = (0, import_react29.useRef)(false);
+        const scrollTimeoutRef = (0, import_react29.useRef)(null);
         const heroImages = [
           { src: "/uploads/collections/Model/1.jpg", title: "Modern Elegance", subtitle: "Spring/Summer Collection" },
           { src: "/uploads/collections/Model/2.jpg", title: "Urban Sophistication", subtitle: "Evening Wear Collection" },
@@ -34740,100 +34735,62 @@
           return () => window.removeEventListener("resize", checkMobile);
         }, []);
         (0, import_react29.useEffect)(() => {
-          if (!isMobile) {
-            document.documentElement.style.scrollSnapType = "none";
-            document.documentElement.style.scrollBehavior = "auto";
-          } else {
-            document.documentElement.style.scrollSnapType = "y mandatory";
-          }
-          return () => {
-            document.documentElement.style.scrollSnapType = "";
-            document.documentElement.style.scrollBehavior = "";
+          const updateSections = () => {
+            const sections = document.querySelectorAll(".snap-section");
+            sectionsRef.current = Array.from(sections);
           };
-        }, [isMobile]);
-        const scrollToSection = (0, import_react29.useCallback)((index) => {
-          if (isAnimatingRef.current || !sectionsRef.current[index] || isMenuOpen || !canScrollRef.current)
-            return;
-          isAnimatingRef.current = true;
-          canScrollRef.current = false;
-          const section = sectionsRef.current[index];
-          const startY = window.scrollY;
-          const targetY = section.offsetTop;
-          const distance2 = targetY - startY;
-          const duration = Math.max(600, Math.min(1e3, Math.abs(distance2) * 0.5));
-          const startTime = performance.now();
-          const easeInOutExpo = (t) => {
-            return t === 0 ? 0 : t === 1 ? 1 : t < 0.5 ? Math.pow(2, 20 * t - 10) / 2 : (2 - Math.pow(2, -20 * t + 10)) / 2;
-          };
-          const animate = (currentTime) => {
-            const elapsed = currentTime - startTime;
-            const progress2 = Math.min(elapsed / duration, 1);
-            const easedProgress = easeInOutExpo(progress2);
-            window.scrollTo({ top: startY + distance2 * easedProgress, behavior: "auto" });
-            if (progress2 < 1) {
-              requestAnimationFrame(animate);
-            } else {
-              window.scrollTo({ top: targetY, behavior: "auto" });
-              setActiveSection(index);
-              isAnimatingRef.current = false;
-              setTimeout(() => {
-                canScrollRef.current = true;
-              }, 150);
+          updateSections();
+          const handleMenuStateChange = (e) => {
+            if (e.detail && e.detail.isMenuOpen !== void 0) {
+              setIsMenuOpen(e.detail.isMenuOpen);
             }
           };
-          requestAnimationFrame(animate);
+          window.addEventListener("menuStateChange", handleMenuStateChange);
+          return () => window.removeEventListener("menuStateChange", handleMenuStateChange);
+        }, []);
+        const scrollToSection = (0, import_react29.useCallback)((index) => {
+          if (isScrollingRef.current || !sectionsRef.current[index] || isMenuOpen)
+            return;
+          isScrollingRef.current = true;
+          const section = sectionsRef.current[index];
+          const targetY = section.offsetTop;
+          window.scrollTo({
+            top: targetY,
+            behavior: "smooth"
+          });
+          setActiveSection(index);
+          setTimeout(() => {
+            isScrollingRef.current = false;
+          }, 500);
         }, [isMenuOpen]);
         (0, import_react29.useEffect)(() => {
-          if (isMobile)
+          if (isMobile || isMenuOpen)
             return;
-          const SCROLL_THRESHOLD = 60;
-          const SCROLL_COOLDOWN = 300;
-          const MIN_TIME_BETWEEN_SCROLLS = 100;
           const handleWheel = (e) => {
             e.preventDefault();
-            const now = Date.now();
-            const deltaY = e.deltaY || e.detail || e.wheelDelta * -1;
-            const direction = deltaY > 0 ? "down" : "up";
-            if (!canScrollRef.current || isAnimatingRef.current || scrollCooldownRef.current)
+            if (isScrollingRef.current)
               return;
-            if (now - lastScrollTime.current < MIN_TIME_BETWEEN_SCROLLS)
-              return;
-            scrollAccumulator.current += Math.abs(deltaY);
-            lastScrollDirection.current = direction;
-            lastScrollTime.current = now;
-            if (scrollAccumulator.current > SCROLL_THRESHOLD) {
+            const deltaY = e.deltaY;
+            if (Math.abs(deltaY) > 10) {
               let newIndex = activeSection;
-              if (direction === "down") {
+              if (deltaY > 0) {
                 newIndex = Math.min(activeSection + 1, sectionsRef.current.length - 1);
               } else {
                 newIndex = Math.max(activeSection - 1, 0);
               }
               if (newIndex !== activeSection) {
-                scrollCooldownRef.current = true;
                 scrollToSection(newIndex);
-                setTimeout(() => {
-                  scrollCooldownRef.current = false;
-                }, SCROLL_COOLDOWN);
               }
-              scrollAccumulator.current = 0;
             }
-            if (wheelTimeoutRef.current)
-              clearTimeout(wheelTimeoutRef.current);
-            wheelTimeoutRef.current = setTimeout(() => {
-              scrollAccumulator.current = 0;
-            }, 250);
           };
           window.addEventListener("wheel", handleWheel, { passive: false });
           return () => {
             window.removeEventListener("wheel", handleWheel);
-            if (wheelTimeoutRef.current)
-              clearTimeout(wheelTimeoutRef.current);
           };
-        }, [isMobile, activeSection, scrollToSection]);
+        }, [isMobile, isMenuOpen, activeSection, scrollToSection]);
         (0, import_react29.useEffect)(() => {
-          let keyCooldown = false;
           const handleKeyDown = (e) => {
-            if (isAnimatingRef.current || isMenuOpen || keyCooldown)
+            if (isScrollingRef.current || isMenuOpen)
               return;
             let newIndex = activeSection;
             switch (e.key) {
@@ -34859,11 +34816,7 @@
                 return;
             }
             if (newIndex !== activeSection) {
-              keyCooldown = true;
               scrollToSection(newIndex);
-              setTimeout(() => {
-                keyCooldown = false;
-              }, 300);
             }
           };
           window.addEventListener("keydown", handleKeyDown);
@@ -34889,20 +34842,6 @@
           }
           touchStartX.current = 0;
         }, [isMobile, heroImages.length]);
-        (0, import_react29.useEffect)(() => {
-          const updateSections = () => {
-            const sections = document.querySelectorAll(".snap-section");
-            sectionsRef.current = Array.from(sections);
-          };
-          setTimeout(updateSections, 100);
-          const handleMenuStateChange = (e) => {
-            if (e.detail && e.detail.isMenuOpen !== void 0) {
-              setIsMenuOpen(e.detail.isMenuOpen);
-            }
-          };
-          window.addEventListener("menuStateChange", handleMenuStateChange);
-          return () => window.removeEventListener("menuStateChange", handleMenuStateChange);
-        }, []);
         const goToImage = (0, import_react29.useCallback)((index) => {
           if (!isMobile || index === currentImageIndex)
             return;
