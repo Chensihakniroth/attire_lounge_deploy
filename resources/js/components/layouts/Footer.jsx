@@ -203,7 +203,7 @@ const Footer = () => {
                   {
                     icon: MessageSquare,
                     label: 'Telegram',
-                    url: 'https://t.me/attirelounge',
+                    url: 'https://t.me/attireloungeofficial',
                     color: 'hover:bg-blue-400/20 hover:border-blue-400/30'
                   },
                 ].map((social) => (
