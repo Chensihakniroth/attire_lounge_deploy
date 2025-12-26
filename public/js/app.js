@@ -1091,7 +1091,7 @@
             }
             return dispatcher.useContext(Context);
           }
-          function useState7(initialState) {
+          function useState9(initialState) {
             var dispatcher = resolveDispatcher();
             return dispatcher.useState(initialState);
           }
@@ -1103,7 +1103,7 @@
             var dispatcher = resolveDispatcher();
             return dispatcher.useRef(initialValue);
           }
-          function useEffect10(create, deps) {
+          function useEffect11(create, deps) {
             var dispatcher = resolveDispatcher();
             return dispatcher.useEffect(create, deps);
           }
@@ -1115,7 +1115,7 @@
             var dispatcher = resolveDispatcher();
             return dispatcher.useLayoutEffect(create, deps);
           }
-          function useCallback6(callback, deps) {
+          function useCallback7(callback, deps) {
             var dispatcher = resolveDispatcher();
             return dispatcher.useCallback(callback, deps);
           }
@@ -1882,11 +1882,11 @@
           exports.memo = memo3;
           exports.startTransition = startTransition;
           exports.unstable_act = act;
-          exports.useCallback = useCallback6;
+          exports.useCallback = useCallback7;
           exports.useContext = useContext10;
           exports.useDebugValue = useDebugValue;
           exports.useDeferredValue = useDeferredValue;
-          exports.useEffect = useEffect10;
+          exports.useEffect = useEffect11;
           exports.useId = useId4;
           exports.useImperativeHandle = useImperativeHandle;
           exports.useInsertionEffect = useInsertionEffect3;
@@ -1894,7 +1894,7 @@
           exports.useMemo = useMemo8;
           exports.useReducer = useReducer;
           exports.useRef = useRef9;
-          exports.useState = useState7;
+          exports.useState = useState9;
           exports.useSyncExternalStore = useSyncExternalStore;
           exports.useTransition = useTransition;
           exports.version = ReactVersion;
@@ -2390,9 +2390,9 @@
           if (typeof __REACT_DEVTOOLS_GLOBAL_HOOK__ !== "undefined" && typeof __REACT_DEVTOOLS_GLOBAL_HOOK__.registerInternalModuleStart === "function") {
             __REACT_DEVTOOLS_GLOBAL_HOOK__.registerInternalModuleStart(new Error());
           }
-          var React17 = require_react();
+          var React16 = require_react();
           var Scheduler = require_scheduler();
-          var ReactSharedInternals = React17.__SECRET_INTERNALS_DO_NOT_USE_OR_YOU_WILL_BE_FIRED;
+          var ReactSharedInternals = React16.__SECRET_INTERNALS_DO_NOT_USE_OR_YOU_WILL_BE_FIRED;
           var suppressWarning = false;
           function setSuppressWarning(newSuppressWarning) {
             {
@@ -3997,7 +3997,7 @@
             {
               if (props.value == null) {
                 if (typeof props.children === "object" && props.children !== null) {
-                  React17.Children.forEach(props.children, function(child) {
+                  React16.Children.forEach(props.children, function(child) {
                     if (child == null) {
                       return;
                     }
@@ -25635,18 +25635,6 @@
     }
   });
 
-  // node_modules/lucide-react/dist/esm/icons/book-open.js
-  var BookOpen;
-  var init_book_open = __esm({
-    "node_modules/lucide-react/dist/esm/icons/book-open.js"() {
-      init_createLucideIcon();
-      BookOpen = createLucideIcon("BookOpen", [
-        ["path", { d: "M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z", key: "vv98re" }],
-        ["path", { d: "M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z", key: "1cyq3y" }]
-      ]);
-    }
-  });
-
   // node_modules/lucide-react/dist/esm/icons/camera.js
   var Camera;
   var init_camera = __esm({
@@ -25665,12 +25653,35 @@
     }
   });
 
+  // node_modules/lucide-react/dist/esm/icons/check-circle.js
+  var CheckCircle;
+  var init_check_circle = __esm({
+    "node_modules/lucide-react/dist/esm/icons/check-circle.js"() {
+      init_createLucideIcon();
+      CheckCircle = createLucideIcon("CheckCircle", [
+        ["path", { d: "M22 11.08V12a10 10 0 1 1-5.93-9.14", key: "g774vq" }],
+        ["path", { d: "m9 11 3 3L22 4", key: "1pflzl" }]
+      ]);
+    }
+  });
+
   // node_modules/lucide-react/dist/esm/icons/check.js
   var Check;
   var init_check = __esm({
     "node_modules/lucide-react/dist/esm/icons/check.js"() {
       init_createLucideIcon();
       Check = createLucideIcon("Check", [["path", { d: "M20 6 9 17l-5-5", key: "1gmf2c" }]]);
+    }
+  });
+
+  // node_modules/lucide-react/dist/esm/icons/chevron-left.js
+  var ChevronLeft;
+  var init_chevron_left = __esm({
+    "node_modules/lucide-react/dist/esm/icons/chevron-left.js"() {
+      init_createLucideIcon();
+      ChevronLeft = createLucideIcon("ChevronLeft", [
+        ["path", { d: "m15 18-6-6 6-6", key: "1wnfg3" }]
+      ]);
     }
   });
 
@@ -25726,6 +25737,23 @@
     }
   });
 
+  // node_modules/lucide-react/dist/esm/icons/heart.js
+  var Heart;
+  var init_heart = __esm({
+    "node_modules/lucide-react/dist/esm/icons/heart.js"() {
+      init_createLucideIcon();
+      Heart = createLucideIcon("Heart", [
+        [
+          "path",
+          {
+            d: "M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z",
+            key: "c3ymky"
+          }
+        ]
+      ]);
+    }
+  });
+
   // node_modules/lucide-react/dist/esm/icons/home.js
   var Home;
   var init_home = __esm({
@@ -25775,6 +25803,20 @@
     }
   });
 
+  // node_modules/lucide-react/dist/esm/icons/maximize-2.js
+  var Maximize2;
+  var init_maximize_2 = __esm({
+    "node_modules/lucide-react/dist/esm/icons/maximize-2.js"() {
+      init_createLucideIcon();
+      Maximize2 = createLucideIcon("Maximize2", [
+        ["polyline", { points: "15 3 21 3 21 9", key: "mznyad" }],
+        ["polyline", { points: "9 21 3 21 3 15", key: "1avn1i" }],
+        ["line", { x1: "21", x2: "14", y1: "3", y2: "10", key: "ota7mn" }],
+        ["line", { x1: "3", x2: "10", y1: "21", y2: "14", key: "1atl0r" }]
+      ]);
+    }
+  });
+
   // node_modules/lucide-react/dist/esm/icons/message-square.js
   var MessageSquare;
   var init_message_square = __esm({
@@ -25803,21 +25845,6 @@
     }
   });
 
-  // node_modules/lucide-react/dist/esm/icons/scissors.js
-  var Scissors;
-  var init_scissors = __esm({
-    "node_modules/lucide-react/dist/esm/icons/scissors.js"() {
-      init_createLucideIcon();
-      Scissors = createLucideIcon("Scissors", [
-        ["circle", { cx: "6", cy: "6", r: "3", key: "1lh9wr" }],
-        ["path", { d: "M8.12 8.12 12 12", key: "1alkpv" }],
-        ["path", { d: "M20 4 8.12 15.88", key: "xgtan2" }],
-        ["circle", { cx: "6", cy: "18", r: "3", key: "fqmcym" }],
-        ["path", { d: "M14.8 14.8 20 20", key: "ptml3r" }]
-      ]);
-    }
-  });
-
   // node_modules/lucide-react/dist/esm/icons/search.js
   var Search;
   var init_search = __esm({
@@ -25838,6 +25865,21 @@
       Send = createLucideIcon("Send", [
         ["path", { d: "m22 2-7 20-4-9-9-4Z", key: "1q3vgg" }],
         ["path", { d: "M22 2 11 13", key: "nzbqef" }]
+      ]);
+    }
+  });
+
+  // node_modules/lucide-react/dist/esm/icons/share-2.js
+  var Share2;
+  var init_share_2 = __esm({
+    "node_modules/lucide-react/dist/esm/icons/share-2.js"() {
+      init_createLucideIcon();
+      Share2 = createLucideIcon("Share2", [
+        ["circle", { cx: "18", cy: "5", r: "3", key: "gq8acd" }],
+        ["circle", { cx: "6", cy: "12", r: "3", key: "w7nqdw" }],
+        ["circle", { cx: "18", cy: "19", r: "3", key: "1xt0gg" }],
+        ["line", { x1: "8.59", x2: "15.42", y1: "13.51", y2: "17.49", key: "47mynk" }],
+        ["line", { x1: "15.41", x2: "8.59", y1: "6.51", y2: "10.49", key: "1n3mei" }]
       ]);
     }
   });
@@ -25883,21 +25925,24 @@
   var init_lucide_react = __esm({
     "node_modules/lucide-react/dist/esm/lucide-react.js"() {
       init_arrow_right();
-      init_book_open();
       init_camera();
+      init_check_circle();
       init_check();
+      init_chevron_left();
       init_chevron_right();
       init_clock();
       init_facebook();
+      init_heart();
       init_home();
       init_instagram();
       init_mail();
       init_map_pin();
+      init_maximize_2();
       init_message_square();
       init_phone();
-      init_scissors();
       init_search();
       init_send();
+      init_share_2();
       init_shopping_bag();
       init_user();
       init_x();
@@ -34668,7 +34713,7 @@
           {
             icon: MessageSquare,
             label: "Telegram",
-            url: "https://t.me/attirelounge",
+            url: "https://t.me/attireloungeofficial",
             color: "hover:bg-blue-400/20 hover:border-blue-400/30"
           }
         ].map((social) => /* @__PURE__ */ import_react28.default.createElement(
@@ -35043,26 +35088,306 @@
   var init_LookbookPage = __esm({
     "resources/js/components/pages/LookbookPage.jsx"() {
       import_react31 = __toESM(require_react());
+      init_es();
+      init_lucide_react();
       LookbookPage = () => {
-        return /* @__PURE__ */ import_react31.default.createElement("div", { className: "min-h-screen pt-24 pb-20" }, /* @__PURE__ */ import_react31.default.createElement("div", { className: "max-w-7xl mx-auto px-6" }, /* @__PURE__ */ import_react31.default.createElement("h1", { className: "text-4xl md:text-5xl font-serif mb-6" }, "Lookbook"), /* @__PURE__ */ import_react31.default.createElement("p", { className: "text-lg text-gray-600 mb-12" }, "Style inspiration coming soon.")));
+        const [images, setImages] = (0, import_react31.useState)([
+          { id: 1, src: "/uploads/lookbook/lookbook-1.jpg", title: "Modern Sartorial", collection: "Havana Collection", category: "sartorial" },
+          { id: 2, src: "/uploads/lookbook/lookbook-2.jpg", title: "Urban Elegance", collection: "Mocha Mousse 25", category: "office" },
+          { id: 3, src: "/uploads/lookbook/lookbook-3.jpg", title: "Evening Sophistication", collection: "Groom Collection", category: "groom" },
+          { id: 4, src: "/uploads/lookbook/lookbook-4.jpg", title: "Business Refined", collection: "Office Collection", category: "office" },
+          { id: 5, src: "/uploads/lookbook/lookbook-5.jpg", title: "Linen Summer", collection: "Havana Collection", category: "sartorial" },
+          { id: 6, src: "/uploads/lookbook/lookbook-6.jpg", title: "Accessory Details", collection: "The Little Details", category: "accessories" },
+          { id: 7, src: "/uploads/lookbook/lookbook-7.jpg", title: "Casual Luxury", collection: "Mocha Mousse 25", category: "sartorial" },
+          { id: 8, src: "/uploads/lookbook/lookbook-8.jpg", title: "Groom Style", collection: "Groom Collection", category: "groom" },
+          { id: 9, src: "/uploads/lookbook/lookbook-9.jpg", title: "Office Attire", collection: "Office Collection", category: "office" },
+          { id: 10, src: "/uploads/lookbook/lookbook-10.jpg", title: "Summer Linen", collection: "Havana Collection", category: "sartorial" },
+          { id: 11, src: "/uploads/lookbook/lookbook-11.jpg", title: "Cufflink Details", collection: "The Little Details", category: "accessories" },
+          { id: 12, src: "/uploads/lookbook/lookbook-12.jpg", title: "Evening Wear", collection: "Groom Collection", category: "groom" }
+        ]);
+        const [selectedImage, setSelectedImage] = (0, import_react31.useState)(null);
+        const [currentIndex, setCurrentIndex] = (0, import_react31.useState)(0);
+        const [filter3, setFilter] = (0, import_react31.useState)("all");
+        const [favorites, setFavorites] = (0, import_react31.useState)([]);
+        const [isLoading, setIsLoading] = (0, import_react31.useState)(true);
+        const [isFullscreen, setIsFullscreen] = (0, import_react31.useState)(false);
+        const categories = [
+          { id: "all", name: "All Collections" },
+          { id: "sartorial", name: "Sartorial" },
+          { id: "groom", name: "Groom" },
+          { id: "office", name: "Office" },
+          { id: "accessories", name: "Accessories" }
+        ];
+        const filteredImages = filter3 === "all" ? images : images.filter((img) => img.category === filter3);
+        (0, import_react31.useEffect)(() => {
+          const savedFavorites = localStorage.getItem("lookbook_favorites");
+          if (savedFavorites) {
+            setFavorites(JSON.parse(savedFavorites));
+          }
+          setTimeout(() => setIsLoading(false), 800);
+        }, []);
+        (0, import_react31.useEffect)(() => {
+          localStorage.setItem("lookbook_favorites", JSON.stringify(favorites));
+        }, [favorites]);
+        const openLightbox = (index) => {
+          setSelectedImage(filteredImages[index]);
+          setCurrentIndex(index);
+          document.body.style.overflow = "hidden";
+        };
+        const closeLightbox = () => {
+          setSelectedImage(null);
+          document.body.style.overflow = "auto";
+          setIsFullscreen(false);
+        };
+        const nextImage = (0, import_react31.useCallback)(() => {
+          if (filteredImages.length === 0)
+            return;
+          const nextIndex = (currentIndex + 1) % filteredImages.length;
+          setSelectedImage(filteredImages[nextIndex]);
+          setCurrentIndex(nextIndex);
+        }, [currentIndex, filteredImages]);
+        const prevImage = (0, import_react31.useCallback)(() => {
+          if (filteredImages.length === 0)
+            return;
+          const prevIndex = (currentIndex - 1 + filteredImages.length) % filteredImages.length;
+          setSelectedImage(filteredImages[prevIndex]);
+          setCurrentIndex(prevIndex);
+        }, [currentIndex, filteredImages]);
+        const toggleFavorite = (id3, e) => {
+          e.stopPropagation();
+          setFavorites(
+            (prev) => prev.includes(id3) ? prev.filter((favId) => favId !== id3) : [...prev, id3]
+          );
+        };
+        const toggleFullscreen = () => {
+          setIsFullscreen(!isFullscreen);
+        };
+        (0, import_react31.useEffect)(() => {
+          const handleKeyDown = (e) => {
+            if (!selectedImage)
+              return;
+            switch (e.key) {
+              case "ArrowRight":
+                nextImage();
+                break;
+              case "ArrowLeft":
+                prevImage();
+                break;
+              case "Escape":
+                closeLightbox();
+                break;
+              case "f":
+                toggleFullscreen();
+                break;
+              default:
+                break;
+            }
+          };
+          window.addEventListener("keydown", handleKeyDown);
+          return () => window.removeEventListener("keydown", handleKeyDown);
+        }, [selectedImage, nextImage, prevImage]);
+        const containerVariants = {
+          hidden: { opacity: 0 },
+          visible: {
+            opacity: 1,
+            transition: {
+              staggerChildren: 0.05,
+              delayChildren: 0.1
+            }
+          }
+        };
+        const itemVariants = {
+          hidden: { opacity: 0, scale: 0.9 },
+          visible: {
+            opacity: 1,
+            scale: 1,
+            transition: {
+              type: "spring",
+              stiffness: 100,
+              damping: 15
+            }
+          }
+        };
+        const imageVariants = {
+          rest: { scale: 1 },
+          hover: {
+            scale: 1.02,
+            transition: {
+              type: "spring",
+              stiffness: 400,
+              damping: 25
+            }
+          }
+        };
+        if (isLoading) {
+          return /* @__PURE__ */ import_react31.default.createElement("div", { className: "min-h-screen pt-24 pb-20 flex items-center justify-center" }, /* @__PURE__ */ import_react31.default.createElement("div", { className: "text-center" }, /* @__PURE__ */ import_react31.default.createElement("div", { className: "w-12 h-12 border-2 border-attire-gold/30 border-t-attire-gold rounded-full animate-spin mx-auto mb-4" }), /* @__PURE__ */ import_react31.default.createElement("p", { className: "text-attire-stone" }, "Loading Lookbook...")));
+        }
+        return /* @__PURE__ */ import_react31.default.createElement("div", { className: "min-h-screen pt-24 pb-20 bg-attire-cream/30" }, /* @__PURE__ */ import_react31.default.createElement("div", { className: "max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-12" }, /* @__PURE__ */ import_react31.default.createElement(
+          motion.div,
+          {
+            initial: { opacity: 0, y: 20 },
+            animate: { opacity: 1, y: 0 },
+            transition: { duration: 0.6 },
+            className: "text-center"
+          },
+          /* @__PURE__ */ import_react31.default.createElement("h1", { className: "text-4xl md:text-6xl font-serif font-light text-attire-charcoal mb-4" }, "Lookbook"),
+          /* @__PURE__ */ import_react31.default.createElement("p", { className: "text-lg md:text-xl text-attire-stone max-w-3xl mx-auto mb-8" }, "Discover style inspiration from our curated collections. Cambodia's first sartorial gentlemen's styling house."),
+          /* @__PURE__ */ import_react31.default.createElement("div", { className: "flex flex-wrap justify-center gap-6 mb-8" }, /* @__PURE__ */ import_react31.default.createElement("div", { className: "text-center" }, /* @__PURE__ */ import_react31.default.createElement("div", { className: "text-2xl font-serif text-attire-gold" }, images.length), /* @__PURE__ */ import_react31.default.createElement("div", { className: "text-sm text-attire-stone" }, "Total Looks")), /* @__PURE__ */ import_react31.default.createElement("div", { className: "text-center" }, /* @__PURE__ */ import_react31.default.createElement("div", { className: "text-2xl font-serif text-attire-gold" }, favorites.length), /* @__PURE__ */ import_react31.default.createElement("div", { className: "text-sm text-attire-stone" }, "Favorites")), /* @__PURE__ */ import_react31.default.createElement("div", { className: "text-center" }, /* @__PURE__ */ import_react31.default.createElement("div", { className: "text-2xl font-serif text-attire-gold" }, categories.length - 1), /* @__PURE__ */ import_react31.default.createElement("div", { className: "text-sm text-attire-stone" }, "Collections")))
+        ), /* @__PURE__ */ import_react31.default.createElement(
+          motion.div,
+          {
+            className: "flex flex-wrap justify-center gap-2 mb-12",
+            initial: { opacity: 0 },
+            animate: { opacity: 1 },
+            transition: { delay: 0.2 }
+          },
+          categories.map((category) => /* @__PURE__ */ import_react31.default.createElement(
+            "button",
+            {
+              key: category.id,
+              onClick: () => setFilter(category.id),
+              className: `px-4 py-2 rounded-full text-sm font-medium transition-all duration-300 ${filter3 === category.id ? "bg-attire-charcoal text-white" : "bg-white text-attire-stone hover:bg-attire-cream hover:text-attire-charcoal border border-attire-silver/30"}`
+            },
+            category.name
+          ))
+        )), /* @__PURE__ */ import_react31.default.createElement("div", { className: "max-w-7xl mx-auto px-4 sm:px-6 lg:px-8" }, filteredImages.length === 0 ? /* @__PURE__ */ import_react31.default.createElement("div", { className: "text-center py-20" }, /* @__PURE__ */ import_react31.default.createElement("p", { className: "text-attire-stone" }, "No images found in this collection.")) : /* @__PURE__ */ import_react31.default.createElement(
+          motion.div,
+          {
+            variants: containerVariants,
+            initial: "hidden",
+            animate: "visible",
+            className: "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"
+          },
+          filteredImages.map((image, index) => /* @__PURE__ */ import_react31.default.createElement(
+            motion.div,
+            {
+              key: image.id,
+              variants: itemVariants,
+              className: "relative group cursor-pointer",
+              onClick: () => openLightbox(index)
+            },
+            /* @__PURE__ */ import_react31.default.createElement(
+              motion.div,
+              {
+                variants: imageVariants,
+                initial: "rest",
+                whileHover: "hover",
+                className: "aspect-square overflow-hidden rounded-xl bg-white shadow-lg border border-attire-silver/20"
+              },
+              /* @__PURE__ */ import_react31.default.createElement("div", { className: "w-full h-full bg-gradient-to-br from-attire-cream to-attire-light flex items-center justify-center" }, /* @__PURE__ */ import_react31.default.createElement("div", { className: "text-center p-8" }, /* @__PURE__ */ import_react31.default.createElement("div", { className: "text-attire-gold text-3xl mb-2" }, image.title.charAt(0)), /* @__PURE__ */ import_react31.default.createElement("p", { className: "text-attire-charcoal font-medium" }, image.title), /* @__PURE__ */ import_react31.default.createElement("p", { className: "text-attire-stone text-sm mt-1" }, image.collection))),
+              /* @__PURE__ */ import_react31.default.createElement("div", { className: "absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-all duration-300 rounded-xl" }),
+              /* @__PURE__ */ import_react31.default.createElement(
+                "button",
+                {
+                  onClick: (e) => toggleFavorite(image.id, e),
+                  className: "absolute top-3 right-3 p-2 bg-white/90 backdrop-blur-sm rounded-full opacity-0 group-hover:opacity-100 transition-all duration-300 hover:scale-110"
+                },
+                /* @__PURE__ */ import_react31.default.createElement(
+                  Heart,
+                  {
+                    className: `w-4 h-4 ${favorites.includes(image.id) ? "fill-red-500 text-red-500" : "text-attire-stone"}`
+                  }
+                )
+              ),
+              /* @__PURE__ */ import_react31.default.createElement("div", { className: "absolute bottom-3 left-3 bg-black/70 backdrop-blur-sm text-white text-xs px-3 py-1 rounded-full" }, image.collection)
+            ),
+            /* @__PURE__ */ import_react31.default.createElement("div", { className: "mt-3" }, /* @__PURE__ */ import_react31.default.createElement("h3", { className: "font-medium text-attire-charcoal" }, image.title), /* @__PURE__ */ import_react31.default.createElement("p", { className: "text-sm text-attire-stone mt-1" }, image.collection))
+          ))
+        )), /* @__PURE__ */ import_react31.default.createElement(AnimatePresence, null, selectedImage && /* @__PURE__ */ import_react31.default.createElement(import_react31.default.Fragment, null, /* @__PURE__ */ import_react31.default.createElement(
+          motion.div,
+          {
+            initial: { opacity: 0 },
+            animate: { opacity: 1 },
+            exit: { opacity: 0 },
+            className: "fixed inset-0 bg-black/95 z-50 backdrop-blur-md",
+            onClick: closeLightbox
+          }
+        ), /* @__PURE__ */ import_react31.default.createElement(
+          motion.div,
+          {
+            initial: { opacity: 0, scale: 0.9 },
+            animate: { opacity: 1, scale: 1 },
+            exit: { opacity: 0, scale: 0.9 },
+            transition: { type: "spring", damping: 25 },
+            className: `fixed inset-0 z-50 flex items-center justify-center p-4 ${isFullscreen ? "cursor-zoom-out" : "cursor-default"}`,
+            onClick: closeLightbox
+          },
+          /* @__PURE__ */ import_react31.default.createElement(
+            "div",
+            {
+              className: `relative ${isFullscreen ? "w-full h-full" : "max-w-5xl max-h-[90vh]"}`,
+              onClick: (e) => e.stopPropagation()
+            },
+            /* @__PURE__ */ import_react31.default.createElement(
+              motion.div,
+              {
+                layoutId: `image-${selectedImage.id}`,
+                className: `relative rounded-xl overflow-hidden ${isFullscreen ? "w-full h-full" : "max-h-[80vh]"}`
+              },
+              /* @__PURE__ */ import_react31.default.createElement("div", { className: `w-full ${isFullscreen ? "h-full" : "aspect-square"} bg-gradient-to-br from-attire-cream/20 to-attire-light/20 flex items-center justify-center` }, /* @__PURE__ */ import_react31.default.createElement("div", { className: "text-center p-12" }, /* @__PURE__ */ import_react31.default.createElement("div", { className: "text-attire-gold text-6xl mb-6" }, selectedImage.title.charAt(0)), /* @__PURE__ */ import_react31.default.createElement("h2", { className: "text-3xl font-serif text-attire-charcoal mb-2" }, selectedImage.title), /* @__PURE__ */ import_react31.default.createElement("p", { className: "text-attire-stone" }, selectedImage.collection), /* @__PURE__ */ import_react31.default.createElement("p", { className: "text-sm text-attire-silver mt-4" }, "Image ID: ", selectedImage.id))),
+              /* @__PURE__ */ import_react31.default.createElement("div", { className: "absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/90 via-black/50 to-transparent p-6" }, /* @__PURE__ */ import_react31.default.createElement("div", { className: "flex justify-between items-end" }, /* @__PURE__ */ import_react31.default.createElement("div", null, /* @__PURE__ */ import_react31.default.createElement("h2", { className: "text-2xl font-serif text-white" }, selectedImage.title), /* @__PURE__ */ import_react31.default.createElement("p", { className: "text-attire-gold/90" }, selectedImage.collection), /* @__PURE__ */ import_react31.default.createElement("p", { className: "text-sm text-white/70 mt-2" }, currentIndex + 1, " of ", filteredImages.length)), /* @__PURE__ */ import_react31.default.createElement("div", { className: "flex items-center gap-2" }, /* @__PURE__ */ import_react31.default.createElement(
+                "button",
+                {
+                  onClick: (e) => toggleFavorite(selectedImage.id, e),
+                  className: "p-3 bg-white/10 backdrop-blur-sm rounded-full hover:bg-white/20 transition-colors"
+                },
+                /* @__PURE__ */ import_react31.default.createElement(
+                  Heart,
+                  {
+                    className: `w-5 h-5 ${favorites.includes(selectedImage.id) ? "fill-red-500 text-red-500" : "text-white"}`
+                  }
+                )
+              ), /* @__PURE__ */ import_react31.default.createElement(
+                "button",
+                {
+                  onClick: toggleFullscreen,
+                  className: "p-3 bg-white/10 backdrop-blur-sm rounded-full hover:bg-white/20 transition-colors"
+                },
+                /* @__PURE__ */ import_react31.default.createElement(Maximize2, { className: "w-5 h-5 text-white" })
+              ), /* @__PURE__ */ import_react31.default.createElement("button", { className: "p-3 bg-white/10 backdrop-blur-sm rounded-full hover:bg-white/20 transition-colors" }, /* @__PURE__ */ import_react31.default.createElement(Share2, { className: "w-5 h-5 text-white" })), /* @__PURE__ */ import_react31.default.createElement(
+                "button",
+                {
+                  onClick: closeLightbox,
+                  className: "p-3 bg-white/10 backdrop-blur-sm rounded-full hover:bg-white/20 transition-colors"
+                },
+                /* @__PURE__ */ import_react31.default.createElement(X, { className: "w-5 h-5 text-white" })
+              ))))
+            ),
+            /* @__PURE__ */ import_react31.default.createElement(
+              "button",
+              {
+                onClick: prevImage,
+                className: "absolute left-4 top-1/2 -translate-y-1/2 p-4 bg-white/10 backdrop-blur-sm rounded-full hover:bg-white/20 transition-all duration-300 hover:scale-110"
+              },
+              /* @__PURE__ */ import_react31.default.createElement(ChevronLeft, { className: "w-6 h-6 text-white" })
+            ),
+            /* @__PURE__ */ import_react31.default.createElement(
+              "button",
+              {
+                onClick: nextImage,
+                className: "absolute right-4 top-1/2 -translate-y-1/2 p-4 bg-white/10 backdrop-blur-sm rounded-full hover:bg-white/20 transition-all duration-300 hover:scale-110"
+              },
+              /* @__PURE__ */ import_react31.default.createElement(ChevronRight, { className: "w-6 h-6 text-white" })
+            ),
+            /* @__PURE__ */ import_react31.default.createElement("div", { className: "absolute bottom-20 left-1/2 -translate-x-1/2 flex gap-2" }, filteredImages.slice(Math.max(0, currentIndex - 3), Math.min(filteredImages.length, currentIndex + 4)).map((img, idx) => /* @__PURE__ */ import_react31.default.createElement(
+              "button",
+              {
+                key: img.id,
+                onClick: (e) => {
+                  e.stopPropagation();
+                  const actualIndex = filteredImages.findIndex((i) => i.id === img.id);
+                  setSelectedImage(img);
+                  setCurrentIndex(actualIndex);
+                },
+                className: `w-12 h-12 rounded-lg overflow-hidden transition-all duration-300 ${selectedImage.id === img.id ? "ring-2 ring-attire-gold scale-110" : "opacity-60 hover:opacity-100"}`
+              },
+              /* @__PURE__ */ import_react31.default.createElement("div", { className: "w-full h-full bg-attire-gold/20 flex items-center justify-center" }, /* @__PURE__ */ import_react31.default.createElement("span", { className: "text-xs font-medium" }, img.id))
+            ))),
+            /* @__PURE__ */ import_react31.default.createElement("div", { className: "absolute top-4 left-1/2 -translate-x-1/2 text-sm text-white/50" }, "Use \u2190 \u2192 arrows to navigate \u2022 ESC to close \u2022 F for fullscreen")
+          )
+        ))), /* @__PURE__ */ import_react31.default.createElement("div", { className: "max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-16 pt-8 border-t border-attire-silver/20" }, /* @__PURE__ */ import_react31.default.createElement("div", { className: "text-center text-sm text-attire-stone/70" }, /* @__PURE__ */ import_react31.default.createElement("p", null, "\xA9 ", (/* @__PURE__ */ new Date()).getFullYear(), " Attire Lounge Lookbook. Cambodia's first sartorial gentlemen's styling house."), /* @__PURE__ */ import_react31.default.createElement("p", { className: "mt-1" }, images.length, " curated looks across ", categories.length - 1, " collections."))));
       };
       LookbookPage_default = LookbookPage;
-    }
-  });
-
-  // resources/js/components/pages/StylingPage.jsx
-  var StylingPage_exports = {};
-  __export(StylingPage_exports, {
-    default: () => StylingPage_default
-  });
-  var import_react32, StylingPage, StylingPage_default;
-  var init_StylingPage = __esm({
-    "resources/js/components/pages/StylingPage.jsx"() {
-      import_react32 = __toESM(require_react());
-      StylingPage = () => {
-        return /* @__PURE__ */ import_react32.default.createElement("div", { className: "min-h-screen pt-24 pb-20" }, /* @__PURE__ */ import_react32.default.createElement("div", { className: "max-w-4xl mx-auto px-6" }, /* @__PURE__ */ import_react32.default.createElement("h1", { className: "text-4xl md:text-5xl font-serif mb-6" }, "Styling Consultation"), /* @__PURE__ */ import_react32.default.createElement("p", { className: "text-lg text-gray-600 mb-8" }, "Personal styling services for the modern gentleman."), /* @__PURE__ */ import_react32.default.createElement("div", { className: "bg-white rounded-xl shadow-lg p-8" }, /* @__PURE__ */ import_react32.default.createElement("h2", { className: "text-2xl font-semibold mb-6" }, "Book a Styling Consultation"), /* @__PURE__ */ import_react32.default.createElement("div", { className: "space-y-6" }, /* @__PURE__ */ import_react32.default.createElement("button", { className: "bg-attire-charcoal text-white px-8 py-3 rounded-lg hover:bg-attire-dark transition" }, "Schedule Appointment")))));
-      };
-      StylingPage_default = StylingPage;
     }
   });
 
@@ -35071,19 +35396,244 @@
   __export(ContactPage_exports, {
     default: () => ContactPage_default
   });
-  var import_react33, ContactPage, ContactPage_default;
+  var import_react32, ContactPage, ContactPage_default;
   var init_ContactPage = __esm({
     "resources/js/components/pages/ContactPage.jsx"() {
-      import_react33 = __toESM(require_react());
+      import_react32 = __toESM(require_react());
+      init_lucide_react();
       ContactPage = () => {
-        return /* @__PURE__ */ import_react33.default.createElement("div", { className: "min-h-screen pt-24 pb-20" }, /* @__PURE__ */ import_react33.default.createElement("div", { className: "max-w-4xl mx-auto px-6" }, /* @__PURE__ */ import_react33.default.createElement("h1", { className: "text-4xl md:text-5xl font-serif mb-6" }, "Contact Us"), /* @__PURE__ */ import_react33.default.createElement("p", { className: "text-lg text-gray-600 mb-12" }, "Get in touch for personalized service."), /* @__PURE__ */ import_react33.default.createElement("div", { className: "bg-white rounded-xl shadow-lg p-8" }, /* @__PURE__ */ import_react33.default.createElement("h2", { className: "text-xl font-semibold mb-6" }, "Send a Message"), /* @__PURE__ */ import_react33.default.createElement("div", { className: "space-y-4" }, /* @__PURE__ */ import_react33.default.createElement("button", { className: "bg-attire-charcoal text-white px-8 py-3 rounded-lg hover:bg-attire-dark transition" }, "Contact Form Coming Soon")))));
+        const [formData, setFormData] = (0, import_react32.useState)({
+          name: "",
+          email: "",
+          phone: "",
+          appointmentType: "styling",
+          message: "",
+          preferredContact: "telegram"
+        });
+        const [isSubmitting, setIsSubmitting] = (0, import_react32.useState)(false);
+        const [isSubmitted, setIsSubmitted] = (0, import_react32.useState)(false);
+        const [errors, setErrors] = (0, import_react32.useState)({});
+        const officialContactInfo = [
+          {
+            icon: /* @__PURE__ */ import_react32.default.createElement(Phone, { className: "w-5 h-5 text-attire-charcoal" }),
+            title: "Phone & Telegram",
+            details: ["(+855) 69-25-63-69"],
+            subtitle: "For appointments & inquiries",
+            action: "tel:+85569256369"
+          },
+          {
+            icon: /* @__PURE__ */ import_react32.default.createElement(Mail, { className: "w-5 h-5 text-attire-charcoal" }),
+            title: "Email",
+            details: ["attireloungekh@gmail.com"],
+            subtitle: "General inquiries",
+            action: "mailto:attireloungekh@gmail.com"
+          },
+          {
+            icon: /* @__PURE__ */ import_react32.default.createElement(MapPin, { className: "w-5 h-5 text-attire-charcoal" }),
+            title: "Store Location",
+            details: ["10 E0, Street 03", "Sangkat Chey Chumneah", "Khan Daun Penh, Phnom Penh"],
+            subtitle: "Cambodia's first sartorial styling house",
+            action: "https://maps.google.com"
+          },
+          {
+            icon: /* @__PURE__ */ import_react32.default.createElement(Clock, { className: "w-5 h-5 text-attire-charcoal" }),
+            title: "Opening Hours",
+            details: ["Monday to Sunday", "10:00 AM - 7:00 PM"],
+            subtitle: "By appointment recommended",
+            action: null
+          }
+        ];
+        const appointmentTypes = [
+          { value: "sartorial", label: "Sartorial Consultation" },
+          { value: "groom", label: "Groom & Groomsmen Styling" },
+          { value: "office", label: "Office Wear Consultation" },
+          { value: "accessories", label: "Accessories Styling" },
+          { value: "membership", label: "Attire Club Membership" },
+          { value: "general", label: "General Inquiry" }
+        ];
+        const validateForm = () => {
+          const newErrors = {};
+          if (!formData.name.trim())
+            newErrors.name = "Please enter your name";
+          if (!formData.email.trim()) {
+            newErrors.email = "Email is required";
+          } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
+            newErrors.email = "Please enter a valid email";
+          }
+          if (!formData.message.trim())
+            newErrors.message = "Please include your message";
+          setErrors(newErrors);
+          return Object.keys(newErrors).length === 0;
+        };
+        const handleSubmit = async (e) => {
+          e.preventDefault();
+          if (!validateForm())
+            return;
+          setIsSubmitting(true);
+          await new Promise((resolve) => setTimeout(resolve, 1500));
+          setIsSubmitting(false);
+          setIsSubmitted(true);
+          setTimeout(() => {
+            setIsSubmitted(false);
+            setFormData({
+              name: "",
+              email: "",
+              phone: "",
+              appointmentType: "styling",
+              message: "",
+              preferredContact: "telegram"
+            });
+          }, 3e3);
+        };
+        const handleChange = (e) => {
+          const { name, value } = e.target;
+          setFormData((prev) => ({
+            ...prev,
+            [name]: value
+          }));
+          if (errors[name]) {
+            setErrors((prev) => ({ ...prev, [name]: "" }));
+          }
+        };
+        return /* @__PURE__ */ import_react32.default.createElement("div", { className: "min-h-screen bg-gradient-to-b from-attire-cream/30 to-white pt-24 pb-20" }, /* @__PURE__ */ import_react32.default.createElement("div", { className: "max-w-7xl mx-auto px-4 sm:px-6 lg:px-8" }, /* @__PURE__ */ import_react32.default.createElement("div", { className: "text-center mb-16" }, /* @__PURE__ */ import_react32.default.createElement("h1", { className: "text-4xl md:text-6xl font-serif font-light text-attire-charcoal mb-4" }, "Contact Attire Lounge"), /* @__PURE__ */ import_react32.default.createElement("p", { className: "text-lg md:text-xl text-attire-stone max-w-3xl mx-auto mb-6" }, "Cambodia's first sartorial gentlemen's styling house. Experience premium styling with our Milan-certified team."), /* @__PURE__ */ import_react32.default.createElement("div", { className: "inline-flex items-center gap-2 text-attire-gold bg-attire-gold/10 px-4 py-2 rounded-full" }, /* @__PURE__ */ import_react32.default.createElement("span", { className: "text-sm font-medium" }, "Opening Hours: 10AM - 7PM"), /* @__PURE__ */ import_react32.default.createElement("span", { className: "text-attire-silver" }, "\u2022"), /* @__PURE__ */ import_react32.default.createElement("span", { className: "text-sm" }, "Mon - Sun"))), /* @__PURE__ */ import_react32.default.createElement("div", { className: "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-16" }, officialContactInfo.map((info, index) => /* @__PURE__ */ import_react32.default.createElement(
+          "a",
+          {
+            key: index,
+            href: info.action || "#",
+            className: `bg-white rounded-2xl p-6 shadow-lg hover:shadow-xl transition-all duration-300 border border-attire-silver/20 hover:border-attire-gold/30 block ${!info.action && "cursor-default"}`,
+            target: info.action ? "_blank" : "_self",
+            rel: info.action ? "noopener noreferrer" : ""
+          },
+          /* @__PURE__ */ import_react32.default.createElement("div", { className: "mb-4" }, info.icon),
+          /* @__PURE__ */ import_react32.default.createElement("h3", { className: "text-lg font-semibold text-attire-charcoal mb-2" }, info.title),
+          /* @__PURE__ */ import_react32.default.createElement("div", { className: "space-y-1 mb-3" }, info.details.map((detail, idx) => /* @__PURE__ */ import_react32.default.createElement("p", { key: idx, className: "text-attire-stone" }, detail))),
+          /* @__PURE__ */ import_react32.default.createElement("p", { className: "text-sm text-attire-silver" }, info.subtitle)
+        ))), /* @__PURE__ */ import_react32.default.createElement("div", { className: "grid grid-cols-1 lg:grid-cols-3 gap-12" }, /* @__PURE__ */ import_react32.default.createElement("div", { className: "lg:col-span-2" }, /* @__PURE__ */ import_react32.default.createElement("div", { className: "bg-white rounded-2xl shadow-xl p-8 md:p-10 border border-attire-silver/20" }, /* @__PURE__ */ import_react32.default.createElement("div", { className: "flex items-center justify-between mb-8" }, /* @__PURE__ */ import_react32.default.createElement("div", null, /* @__PURE__ */ import_react32.default.createElement("h2", { className: "text-2xl md:text-3xl font-serif text-attire-charcoal mb-2" }, "Book Your Appointment"), /* @__PURE__ */ import_react32.default.createElement("p", { className: "text-attire-stone" }, "Receive free styling consultation upon appointment with our Milan-certified team.")), isSubmitted && /* @__PURE__ */ import_react32.default.createElement("div", { className: "flex items-center gap-2 text-green-600 bg-green-50 px-4 py-2 rounded-full" }, /* @__PURE__ */ import_react32.default.createElement(CheckCircle, { className: "w-5 h-5" }), /* @__PURE__ */ import_react32.default.createElement("span", { className: "font-medium" }, "Message Sent!"))), /* @__PURE__ */ import_react32.default.createElement("form", { onSubmit: handleSubmit, className: "space-y-6" }, /* @__PURE__ */ import_react32.default.createElement("div", { className: "grid grid-cols-1 md:grid-cols-2 gap-6" }, /* @__PURE__ */ import_react32.default.createElement("div", null, /* @__PURE__ */ import_react32.default.createElement("label", { className: "block text-sm font-medium text-attire-charcoal mb-2" }, "Full Name *"), /* @__PURE__ */ import_react32.default.createElement(
+          "input",
+          {
+            type: "text",
+            name: "name",
+            value: formData.name,
+            onChange: handleChange,
+            className: `w-full px-4 py-3 rounded-lg border ${errors.name ? "border-red-300" : "border-attire-silver"} focus:border-attire-gold focus:ring-2 focus:ring-attire-gold/20 transition-colors`,
+            placeholder: "Your name"
+          }
+        ), errors.name && /* @__PURE__ */ import_react32.default.createElement("p", { className: "mt-1 text-sm text-red-600" }, errors.name)), /* @__PURE__ */ import_react32.default.createElement("div", null, /* @__PURE__ */ import_react32.default.createElement("label", { className: "block text-sm font-medium text-attire-charcoal mb-2" }, "Email Address *"), /* @__PURE__ */ import_react32.default.createElement(
+          "input",
+          {
+            type: "email",
+            name: "email",
+            value: formData.email,
+            onChange: handleChange,
+            className: `w-full px-4 py-3 rounded-lg border ${errors.email ? "border-red-300" : "border-attire-silver"} focus:border-attire-gold focus:ring-2 focus:ring-attire-gold/20 transition-colors`,
+            placeholder: "your.email@example.com"
+          }
+        ), errors.email && /* @__PURE__ */ import_react32.default.createElement("p", { className: "mt-1 text-sm text-red-600" }, errors.email))), /* @__PURE__ */ import_react32.default.createElement("div", { className: "grid grid-cols-1 md:grid-cols-2 gap-6" }, /* @__PURE__ */ import_react32.default.createElement("div", null, /* @__PURE__ */ import_react32.default.createElement("label", { className: "block text-sm font-medium text-attire-charcoal mb-2" }, "Phone Number"), /* @__PURE__ */ import_react32.default.createElement(
+          "input",
+          {
+            type: "tel",
+            name: "phone",
+            value: formData.phone,
+            onChange: handleChange,
+            className: "w-full px-4 py-3 rounded-lg border border-attire-silver focus:border-attire-gold focus:ring-2 focus:ring-attire-gold/20 transition-colors",
+            placeholder: "(+855) XX-XX-XX-XX"
+          }
+        )), /* @__PURE__ */ import_react32.default.createElement("div", null, /* @__PURE__ */ import_react32.default.createElement("label", { className: "block text-sm font-medium text-attire-charcoal mb-2" }, "Appointment Type"), /* @__PURE__ */ import_react32.default.createElement(
+          "select",
+          {
+            name: "appointmentType",
+            value: formData.appointmentType,
+            onChange: handleChange,
+            className: "w-full px-4 py-3 rounded-lg border border-attire-silver focus:border-attire-gold focus:ring-2 focus:ring-attire-gold/20 transition-colors appearance-none bg-white"
+          },
+          appointmentTypes.map((type) => /* @__PURE__ */ import_react32.default.createElement("option", { key: type.value, value: type.value }, type.label))
+        ))), /* @__PURE__ */ import_react32.default.createElement("div", null, /* @__PURE__ */ import_react32.default.createElement("label", { className: "block text-sm font-medium text-attire-charcoal mb-2" }, "Your Message *"), /* @__PURE__ */ import_react32.default.createElement(
+          "textarea",
+          {
+            name: "message",
+            value: formData.message,
+            onChange: handleChange,
+            rows: 6,
+            className: `w-full px-4 py-3 rounded-lg border ${errors.message ? "border-red-300" : "border-attire-silver"} focus:border-attire-gold focus:ring-2 focus:ring-attire-gold/20 transition-colors resize-none`,
+            placeholder: "Tell us about your styling needs, preferred styles, or any specific requirements..."
+          }
+        ), errors.message && /* @__PURE__ */ import_react32.default.createElement("p", { className: "mt-1 text-sm text-red-600" }, errors.message)), /* @__PURE__ */ import_react32.default.createElement("div", { className: "space-y-4" }, /* @__PURE__ */ import_react32.default.createElement("div", null, /* @__PURE__ */ import_react32.default.createElement("label", { className: "block text-sm font-medium text-attire-charcoal mb-3" }, "Preferred Contact Method"), /* @__PURE__ */ import_react32.default.createElement("div", { className: "flex flex-wrap gap-4" }, [
+          { value: "telegram", label: "Telegram" },
+          { value: "phone", label: "Phone Call" },
+          { value: "email", label: "Email" }
+        ].map((method) => /* @__PURE__ */ import_react32.default.createElement("label", { key: method.value, className: "flex items-center cursor-pointer" }, /* @__PURE__ */ import_react32.default.createElement(
+          "input",
+          {
+            type: "radio",
+            name: "preferredContact",
+            value: method.value,
+            checked: formData.preferredContact === method.value,
+            onChange: handleChange,
+            className: "w-4 h-4 text-attire-gold focus:ring-attire-gold border-attire-silver"
+          }
+        ), /* @__PURE__ */ import_react32.default.createElement("span", { className: "ml-2 text-attire-stone" }, method.label))))), /* @__PURE__ */ import_react32.default.createElement("div", { className: "flex items-start" }, /* @__PURE__ */ import_react32.default.createElement(
+          "input",
+          {
+            type: "checkbox",
+            id: "newsletter",
+            className: "w-4 h-4 mt-1 text-attire-gold focus:ring-attire-gold border-attire-silver rounded",
+            defaultChecked: true
+          }
+        ), /* @__PURE__ */ import_react32.default.createElement("label", { htmlFor: "newsletter", className: "ml-2 text-sm text-attire-stone" }, "Subscribe for updates on new collections, events, and exclusive offers"))), /* @__PURE__ */ import_react32.default.createElement(
+          "button",
+          {
+            type: "submit",
+            disabled: isSubmitting,
+            className: `w-full md:w-auto px-8 py-4 rounded-full font-medium transition-all duration-300 flex items-center justify-center gap-3 ${isSubmitting ? "bg-attire-silver cursor-not-allowed" : "bg-attire-charcoal hover:bg-attire-dark hover:scale-105 active:scale-95"} text-white`
+          },
+          /* @__PURE__ */ import_react32.default.createElement(Send, { className: "w-5 h-5" }),
+          isSubmitting ? "Sending..." : "Send Appointment Request"
+        ), /* @__PURE__ */ import_react32.default.createElement("p", { className: "text-sm text-attire-silver text-center mt-4" }, "Or contact us directly via Telegram: (+855) 69-25-63-69")))), /* @__PURE__ */ import_react32.default.createElement("div", { className: "space-y-8" }, /* @__PURE__ */ import_react32.default.createElement("div", { className: "bg-white rounded-2xl shadow-lg p-6 border border-attire-silver/20" }, /* @__PURE__ */ import_react32.default.createElement("h3", { className: "text-xl font-serif text-attire-charcoal mb-4" }, "Connect With Us"), /* @__PURE__ */ import_react32.default.createElement("div", { className: "space-y-3" }, /* @__PURE__ */ import_react32.default.createElement(
+          "a",
+          {
+            href: "https://instagram.com/attireloungeofficial",
+            target: "_blank",
+            rel: "noopener noreferrer",
+            className: "flex items-center justify-center gap-2 bg-[#E1306C]/10 text-[#E1306C] hover:bg-[#E1306C]/20 px-4 py-3 rounded-lg transition-colors"
+          },
+          /* @__PURE__ */ import_react32.default.createElement(Instagram, { className: "w-5 h-5" }),
+          /* @__PURE__ */ import_react32.default.createElement("span", { className: "font-medium" }, "@attireloungeofficial")
+        ), /* @__PURE__ */ import_react32.default.createElement(
+          "a",
+          {
+            href: "https://facebook.com/attireloungeofficial",
+            target: "_blank",
+            rel: "noopener noreferrer",
+            className: "flex items-center justify-center gap-2 bg-[#1877F2]/10 text-[#1877F2] hover:bg-[#1877F2]/20 px-4 py-3 rounded-lg transition-colors"
+          },
+          /* @__PURE__ */ import_react32.default.createElement(Facebook, { className: "w-5 h-5" }),
+          /* @__PURE__ */ import_react32.default.createElement("span", { className: "font-medium" }, "/attireloungeofficial")
+        ))), /* @__PURE__ */ import_react32.default.createElement("div", { className: "bg-gradient-to-r from-attire-gold/5 via-attire-cream/10 to-attire-navy/5 rounded-2xl p-6 border border-attire-silver/20" }, /* @__PURE__ */ import_react32.default.createElement("h3", { className: "text-xl font-serif text-attire-charcoal mb-3" }, "Prefer Direct Contact?"), /* @__PURE__ */ import_react32.default.createElement("p", { className: "text-attire-stone mb-6 text-sm" }, "For immediate assistance or to schedule a same-day appointment, contact us directly."), /* @__PURE__ */ import_react32.default.createElement("div", { className: "space-y-3" }, /* @__PURE__ */ import_react32.default.createElement(
+          "a",
+          {
+            href: "tel:+85569256369",
+            className: "flex items-center justify-center gap-3 bg-attire-charcoal text-white px-4 py-3 rounded-lg font-medium hover:bg-attire-dark transition-all duration-300"
+          },
+          /* @__PURE__ */ import_react32.default.createElement(Phone, { className: "w-5 h-5" }),
+          "Call Now: (+855) 69-25-63-69"
+        ), /* @__PURE__ */ import_react32.default.createElement(
+          "a",
+          {
+            href: "https://t.me/attirelounge",
+            target: "_blank",
+            rel: "noopener noreferrer",
+            className: "flex items-center justify-center gap-3 border border-attire-charcoal text-attire-charcoal px-4 py-3 rounded-lg font-medium hover:bg-attire-charcoal hover:text-white transition-all duration-300"
+          },
+          /* @__PURE__ */ import_react32.default.createElement("span", { className: "font-semibold" }, "\u{1F4F1}"),
+          "Message on Telegram"
+        )), /* @__PURE__ */ import_react32.default.createElement("p", { className: "mt-4 text-xs text-attire-silver text-center" }, "10 E0, Street 03, Sangkat Chey Chumneah, Khan Daun Penh, Phnom Penh, Cambodia"))))));
       };
       ContactPage_default = ContactPage;
     }
   });
 
   // resources/js/app.jsx
-  var import_react35 = __toESM(require_react());
+  var import_react34 = __toESM(require_react());
   var import_client = __toESM(require_client());
 
   // node_modules/axios/lib/helpers/bind.js
@@ -37713,7 +38263,7 @@
   console.log("Attire Lounge React App Initialized - MainApp.jsx structure");
 
   // resources/js/components/MainApp.jsx
-  var import_react34 = __toESM(require_react());
+  var import_react33 = __toESM(require_react());
   init_dist2();
 
   // resources/js/components/layouts/Navigation.jsx
@@ -37759,19 +38309,6 @@
         path: "/lookbook",
         icon: Camera,
         description: "Style inspiration"
-      },
-      {
-        name: "Journal",
-        path: "/journal",
-        icon: BookOpen,
-        description: "Style insights"
-      },
-      {
-        name: "Styling",
-        path: "/styling",
-        icon: Scissors,
-        description: "Personal styling consultation",
-        badge: "Exclusive"
       },
       {
         name: "Contact",
@@ -37948,17 +38485,16 @@
 
   // resources/js/components/MainApp.jsx
   init_Footer();
-  var HomePage2 = (0, import_react34.lazy)(() => Promise.resolve().then(() => (init_HomePage(), HomePage_exports)));
-  var CollectionsPage2 = (0, import_react34.lazy)(() => Promise.resolve().then(() => (init_CollectionsPage(), CollectionsPage_exports)));
-  var LookbookPage2 = (0, import_react34.lazy)(() => Promise.resolve().then(() => (init_LookbookPage(), LookbookPage_exports)));
-  var StylingPage2 = (0, import_react34.lazy)(() => Promise.resolve().then(() => (init_StylingPage(), StylingPage_exports)));
-  var ContactPage2 = (0, import_react34.lazy)(() => Promise.resolve().then(() => (init_ContactPage(), ContactPage_exports)));
-  var Placeholder = ({ title }) => /* @__PURE__ */ import_react34.default.createElement("div", { className: "min-h-screen pt-24 px-6" }, /* @__PURE__ */ import_react34.default.createElement("div", { className: "max-w-4xl mx-auto" }, /* @__PURE__ */ import_react34.default.createElement("h1", { className: "text-2xl font-serif mb-4" }, title), /* @__PURE__ */ import_react34.default.createElement("p", { className: "text-gray-600" }, "Coming soon")));
+  var HomePage2 = (0, import_react33.lazy)(() => Promise.resolve().then(() => (init_HomePage(), HomePage_exports)));
+  var CollectionsPage2 = (0, import_react33.lazy)(() => Promise.resolve().then(() => (init_CollectionsPage(), CollectionsPage_exports)));
+  var LookbookPage2 = (0, import_react33.lazy)(() => Promise.resolve().then(() => (init_LookbookPage(), LookbookPage_exports)));
+  var ContactPage2 = (0, import_react33.lazy)(() => Promise.resolve().then(() => (init_ContactPage(), ContactPage_exports)));
+  var Placeholder = ({ title }) => /* @__PURE__ */ import_react33.default.createElement("div", { className: "min-h-screen pt-24 px-6" }, /* @__PURE__ */ import_react33.default.createElement("div", { className: "max-w-4xl mx-auto" }, /* @__PURE__ */ import_react33.default.createElement("h1", { className: "text-2xl font-serif mb-4" }, title), /* @__PURE__ */ import_react33.default.createElement("p", { className: "text-gray-600" }, "Coming soon")));
   var Layout = ({ children, includeFooter = true }) => {
-    return /* @__PURE__ */ import_react34.default.createElement("div", { className: "min-h-screen flex flex-col" }, /* @__PURE__ */ import_react34.default.createElement(Navigation_default, null), /* @__PURE__ */ import_react34.default.createElement("main", { className: "flex-grow" }, children), includeFooter && /* @__PURE__ */ import_react34.default.createElement(Footer_default, null));
+    return /* @__PURE__ */ import_react33.default.createElement("div", { className: "min-h-screen flex flex-col" }, /* @__PURE__ */ import_react33.default.createElement(Navigation_default, null), /* @__PURE__ */ import_react33.default.createElement("main", { className: "flex-grow" }, children), includeFooter && /* @__PURE__ */ import_react33.default.createElement(Footer_default, null));
   };
   function MainApp() {
-    return /* @__PURE__ */ import_react34.default.createElement(BrowserRouter, null, /* @__PURE__ */ import_react34.default.createElement(import_react34.Suspense, { fallback: /* @__PURE__ */ import_react34.default.createElement(LoadingSpinner_default, null) }, /* @__PURE__ */ import_react34.default.createElement(Routes, null, /* @__PURE__ */ import_react34.default.createElement(Route, { path: "/", element: /* @__PURE__ */ import_react34.default.createElement("div", { className: "min-h-screen flex flex-col" }, /* @__PURE__ */ import_react34.default.createElement(Navigation_default, null), /* @__PURE__ */ import_react34.default.createElement("main", { className: "flex-grow" }, /* @__PURE__ */ import_react34.default.createElement(HomePage2, null))) }), /* @__PURE__ */ import_react34.default.createElement(Route, { path: "/collections", element: /* @__PURE__ */ import_react34.default.createElement(Layout, null, /* @__PURE__ */ import_react34.default.createElement(CollectionsPage2, null)) }), /* @__PURE__ */ import_react34.default.createElement(Route, { path: "/lookbook", element: /* @__PURE__ */ import_react34.default.createElement(Layout, null, /* @__PURE__ */ import_react34.default.createElement(LookbookPage2, null)) }), /* @__PURE__ */ import_react34.default.createElement(Route, { path: "/styling", element: /* @__PURE__ */ import_react34.default.createElement(Layout, null, /* @__PURE__ */ import_react34.default.createElement(StylingPage2, null)) }), /* @__PURE__ */ import_react34.default.createElement(Route, { path: "/contact", element: /* @__PURE__ */ import_react34.default.createElement(Layout, null, /* @__PURE__ */ import_react34.default.createElement(ContactPage2, null)) }), /* @__PURE__ */ import_react34.default.createElement(Route, { path: "/journal", element: /* @__PURE__ */ import_react34.default.createElement(Layout, null, /* @__PURE__ */ import_react34.default.createElement(Placeholder, { title: "Journal" })) }), /* @__PURE__ */ import_react34.default.createElement(Route, { path: "/about", element: /* @__PURE__ */ import_react34.default.createElement(Layout, null, /* @__PURE__ */ import_react34.default.createElement(Placeholder, { title: "About" })) }), /* @__PURE__ */ import_react34.default.createElement(Route, { path: "/shipping", element: /* @__PURE__ */ import_react34.default.createElement(Layout, null, /* @__PURE__ */ import_react34.default.createElement(Placeholder, { title: "Shipping" })) }), /* @__PURE__ */ import_react34.default.createElement(Route, { path: "/returns", element: /* @__PURE__ */ import_react34.default.createElement(Layout, null, /* @__PURE__ */ import_react34.default.createElement(Placeholder, { title: "Returns" })) }), /* @__PURE__ */ import_react34.default.createElement(Route, { path: "/privacy", element: /* @__PURE__ */ import_react34.default.createElement(Layout, null, /* @__PURE__ */ import_react34.default.createElement(Placeholder, { title: "Privacy" })) }), /* @__PURE__ */ import_react34.default.createElement(Route, { path: "/terms", element: /* @__PURE__ */ import_react34.default.createElement(Layout, null, /* @__PURE__ */ import_react34.default.createElement(Placeholder, { title: "Terms" })) }), /* @__PURE__ */ import_react34.default.createElement(Route, { path: "/appointment", element: /* @__PURE__ */ import_react34.default.createElement(Layout, null, /* @__PURE__ */ import_react34.default.createElement(Placeholder, { title: "Appointment" })) }), /* @__PURE__ */ import_react34.default.createElement(Route, { path: "/membership", element: /* @__PURE__ */ import_react34.default.createElement(Layout, null, /* @__PURE__ */ import_react34.default.createElement(Placeholder, { title: "Membership" })) }), /* @__PURE__ */ import_react34.default.createElement(Route, { path: "/faq", element: /* @__PURE__ */ import_react34.default.createElement(Layout, null, /* @__PURE__ */ import_react34.default.createElement(Placeholder, { title: "FAQ" })) }), /* @__PURE__ */ import_react34.default.createElement(Route, { path: "/collections/sartorial", element: /* @__PURE__ */ import_react34.default.createElement(Layout, null, /* @__PURE__ */ import_react34.default.createElement(Placeholder, { title: "Sartorial Collection" })) }), /* @__PURE__ */ import_react34.default.createElement(Route, { path: "/collections/groom", element: /* @__PURE__ */ import_react34.default.createElement(Layout, null, /* @__PURE__ */ import_react34.default.createElement(Placeholder, { title: "Groom Collection" })) }), /* @__PURE__ */ import_react34.default.createElement(Route, { path: "/collections/office", element: /* @__PURE__ */ import_react34.default.createElement(Layout, null, /* @__PURE__ */ import_react34.default.createElement(Placeholder, { title: "Office Collection" })) }), /* @__PURE__ */ import_react34.default.createElement(Route, { path: "/collections/accessories", element: /* @__PURE__ */ import_react34.default.createElement(Layout, null, /* @__PURE__ */ import_react34.default.createElement(Placeholder, { title: "Accessories" })) }), /* @__PURE__ */ import_react34.default.createElement(Route, { path: "/collections/new-arrivals", element: /* @__PURE__ */ import_react34.default.createElement(Layout, null, /* @__PURE__ */ import_react34.default.createElement(Placeholder, { title: "New Arrivals" })) }), /* @__PURE__ */ import_react34.default.createElement(Route, { path: "*", element: /* @__PURE__ */ import_react34.default.createElement(Layout, null, /* @__PURE__ */ import_react34.default.createElement(Placeholder, { title: "Page Not Found" })) }))));
+    return /* @__PURE__ */ import_react33.default.createElement(BrowserRouter, null, /* @__PURE__ */ import_react33.default.createElement(import_react33.Suspense, { fallback: /* @__PURE__ */ import_react33.default.createElement(LoadingSpinner_default, null) }, /* @__PURE__ */ import_react33.default.createElement(Routes, null, /* @__PURE__ */ import_react33.default.createElement(Route, { path: "/", element: /* @__PURE__ */ import_react33.default.createElement("div", { className: "min-h-screen flex flex-col" }, /* @__PURE__ */ import_react33.default.createElement(Navigation_default, null), /* @__PURE__ */ import_react33.default.createElement("main", { className: "flex-grow" }, /* @__PURE__ */ import_react33.default.createElement(HomePage2, null))) }), /* @__PURE__ */ import_react33.default.createElement(Route, { path: "/collections", element: /* @__PURE__ */ import_react33.default.createElement(Layout, null, /* @__PURE__ */ import_react33.default.createElement(CollectionsPage2, null)) }), /* @__PURE__ */ import_react33.default.createElement(Route, { path: "/lookbook", element: /* @__PURE__ */ import_react33.default.createElement(Layout, null, /* @__PURE__ */ import_react33.default.createElement(LookbookPage2, null)) }), /* @__PURE__ */ import_react33.default.createElement(Route, { path: "/contact", element: /* @__PURE__ */ import_react33.default.createElement(Layout, null, /* @__PURE__ */ import_react33.default.createElement(ContactPage2, null)) }), /* @__PURE__ */ import_react33.default.createElement(Route, { path: "/styling", element: /* @__PURE__ */ import_react33.default.createElement(Layout, null, /* @__PURE__ */ import_react33.default.createElement(Placeholder, { title: "Styling" })) }), /* @__PURE__ */ import_react33.default.createElement(Route, { path: "/journal", element: /* @__PURE__ */ import_react33.default.createElement(Layout, null, /* @__PURE__ */ import_react33.default.createElement(Placeholder, { title: "Journal" })) }), /* @__PURE__ */ import_react33.default.createElement(Route, { path: "/about", element: /* @__PURE__ */ import_react33.default.createElement(Layout, null, /* @__PURE__ */ import_react33.default.createElement(Placeholder, { title: "About" })) }), /* @__PURE__ */ import_react33.default.createElement(Route, { path: "/shipping", element: /* @__PURE__ */ import_react33.default.createElement(Layout, null, /* @__PURE__ */ import_react33.default.createElement(Placeholder, { title: "Shipping" })) }), /* @__PURE__ */ import_react33.default.createElement(Route, { path: "/returns", element: /* @__PURE__ */ import_react33.default.createElement(Layout, null, /* @__PURE__ */ import_react33.default.createElement(Placeholder, { title: "Returns" })) }), /* @__PURE__ */ import_react33.default.createElement(Route, { path: "/privacy", element: /* @__PURE__ */ import_react33.default.createElement(Layout, null, /* @__PURE__ */ import_react33.default.createElement(Placeholder, { title: "Privacy" })) }), /* @__PURE__ */ import_react33.default.createElement(Route, { path: "/terms", element: /* @__PURE__ */ import_react33.default.createElement(Layout, null, /* @__PURE__ */ import_react33.default.createElement(Placeholder, { title: "Terms" })) }), /* @__PURE__ */ import_react33.default.createElement(Route, { path: "/appointment", element: /* @__PURE__ */ import_react33.default.createElement(Layout, null, /* @__PURE__ */ import_react33.default.createElement(Placeholder, { title: "Appointment" })) }), /* @__PURE__ */ import_react33.default.createElement(Route, { path: "/membership", element: /* @__PURE__ */ import_react33.default.createElement(Layout, null, /* @__PURE__ */ import_react33.default.createElement(Placeholder, { title: "Membership" })) }), /* @__PURE__ */ import_react33.default.createElement(Route, { path: "/faq", element: /* @__PURE__ */ import_react33.default.createElement(Layout, null, /* @__PURE__ */ import_react33.default.createElement(Placeholder, { title: "FAQ" })) }), /* @__PURE__ */ import_react33.default.createElement(Route, { path: "/collections/sartorial", element: /* @__PURE__ */ import_react33.default.createElement(Layout, null, /* @__PURE__ */ import_react33.default.createElement(Placeholder, { title: "Sartorial Collection" })) }), /* @__PURE__ */ import_react33.default.createElement(Route, { path: "/collections/groom", element: /* @__PURE__ */ import_react33.default.createElement(Layout, null, /* @__PURE__ */ import_react33.default.createElement(Placeholder, { title: "Groom Collection" })) }), /* @__PURE__ */ import_react33.default.createElement(Route, { path: "/collections/office", element: /* @__PURE__ */ import_react33.default.createElement(Layout, null, /* @__PURE__ */ import_react33.default.createElement(Placeholder, { title: "Office Collection" })) }), /* @__PURE__ */ import_react33.default.createElement(Route, { path: "/collections/accessories", element: /* @__PURE__ */ import_react33.default.createElement(Layout, null, /* @__PURE__ */ import_react33.default.createElement(Placeholder, { title: "Accessories" })) }), /* @__PURE__ */ import_react33.default.createElement(Route, { path: "/collections/new-arrivals", element: /* @__PURE__ */ import_react33.default.createElement(Layout, null, /* @__PURE__ */ import_react33.default.createElement(Placeholder, { title: "New Arrivals" })) }), /* @__PURE__ */ import_react33.default.createElement(Route, { path: "*", element: /* @__PURE__ */ import_react33.default.createElement(Layout, null, /* @__PURE__ */ import_react33.default.createElement(Placeholder, { title: "Page Not Found" })) }))));
   }
   var MainApp_default = MainApp;
 
@@ -37967,7 +38503,7 @@
   if (container) {
     const root = import_client.default.createRoot(container);
     root.render(
-      /* @__PURE__ */ import_react35.default.createElement(import_react35.default.StrictMode, null, /* @__PURE__ */ import_react35.default.createElement(MainApp_default, null))
+      /* @__PURE__ */ import_react34.default.createElement(import_react34.default.StrictMode, null, /* @__PURE__ */ import_react34.default.createElement(MainApp_default, null))
     );
   } else {
     console.error("Root element not found");
@@ -38081,14 +38617,6 @@ lucide-react/dist/esm/icons/arrow-right.js:
    * See the LICENSE file in the root directory of this source tree.
    *)
 
-lucide-react/dist/esm/icons/book-open.js:
-  (**
-   * @license lucide-react v0.309.0 - ISC
-   *
-   * This source code is licensed under the ISC license.
-   * See the LICENSE file in the root directory of this source tree.
-   *)
-
 lucide-react/dist/esm/icons/camera.js:
   (**
    * @license lucide-react v0.309.0 - ISC
@@ -38097,7 +38625,23 @@ lucide-react/dist/esm/icons/camera.js:
    * See the LICENSE file in the root directory of this source tree.
    *)
 
+lucide-react/dist/esm/icons/check-circle.js:
+  (**
+   * @license lucide-react v0.309.0 - ISC
+   *
+   * This source code is licensed under the ISC license.
+   * See the LICENSE file in the root directory of this source tree.
+   *)
+
 lucide-react/dist/esm/icons/check.js:
+  (**
+   * @license lucide-react v0.309.0 - ISC
+   *
+   * This source code is licensed under the ISC license.
+   * See the LICENSE file in the root directory of this source tree.
+   *)
+
+lucide-react/dist/esm/icons/chevron-left.js:
   (**
    * @license lucide-react v0.309.0 - ISC
    *
@@ -38137,6 +38681,14 @@ lucide-react/dist/esm/icons/grid-3x3.js:
    * See the LICENSE file in the root directory of this source tree.
    *)
 
+lucide-react/dist/esm/icons/heart.js:
+  (**
+   * @license lucide-react v0.309.0 - ISC
+   *
+   * This source code is licensed under the ISC license.
+   * See the LICENSE file in the root directory of this source tree.
+   *)
+
 lucide-react/dist/esm/icons/home.js:
   (**
    * @license lucide-react v0.309.0 - ISC
@@ -38169,6 +38721,14 @@ lucide-react/dist/esm/icons/map-pin.js:
    * See the LICENSE file in the root directory of this source tree.
    *)
 
+lucide-react/dist/esm/icons/maximize-2.js:
+  (**
+   * @license lucide-react v0.309.0 - ISC
+   *
+   * This source code is licensed under the ISC license.
+   * See the LICENSE file in the root directory of this source tree.
+   *)
+
 lucide-react/dist/esm/icons/message-square.js:
   (**
    * @license lucide-react v0.309.0 - ISC
@@ -38185,14 +38745,6 @@ lucide-react/dist/esm/icons/phone.js:
    * See the LICENSE file in the root directory of this source tree.
    *)
 
-lucide-react/dist/esm/icons/scissors.js:
-  (**
-   * @license lucide-react v0.309.0 - ISC
-   *
-   * This source code is licensed under the ISC license.
-   * See the LICENSE file in the root directory of this source tree.
-   *)
-
 lucide-react/dist/esm/icons/search.js:
   (**
    * @license lucide-react v0.309.0 - ISC
@@ -38202,6 +38754,14 @@ lucide-react/dist/esm/icons/search.js:
    *)
 
 lucide-react/dist/esm/icons/send.js:
+  (**
+   * @license lucide-react v0.309.0 - ISC
+   *
+   * This source code is licensed under the ISC license.
+   * See the LICENSE file in the root directory of this source tree.
+   *)
+
+lucide-react/dist/esm/icons/share-2.js:
   (**
    * @license lucide-react v0.309.0 - ISC
    *

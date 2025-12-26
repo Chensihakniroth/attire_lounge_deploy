@@ -32,7 +32,7 @@ const Navigation = () => {
         }));
     }, [isMenuOpen]);
 
-    // Premium navigation items
+    // Premium navigation items (REMOVED Styling and Journal)
     const navItems = [
         {
             name: 'Home',
@@ -51,19 +51,6 @@ const Navigation = () => {
             path: '/lookbook',
             icon: Camera,
             description: 'Style inspiration'
-        },
-        {
-            name: 'Journal',
-            path: '/journal',
-            icon: BookOpen,
-            description: 'Style insights'
-        },
-        {
-            name: 'Styling',
-            path: '/styling',
-            icon: Scissors,
-            description: 'Personal styling consultation',
-            badge: 'Exclusive'
         },
         {
             name: 'Contact',

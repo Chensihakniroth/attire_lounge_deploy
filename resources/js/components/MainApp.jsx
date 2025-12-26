@@ -11,7 +11,7 @@ import Footer from './layouts/Footer.jsx';
 const HomePage = lazy(() => import('./pages/HomePage.jsx'));
 const CollectionsPage = lazy(() => import('./pages/CollectionsPage.jsx'));
 const LookbookPage = lazy(() => import('./pages/LookbookPage.jsx'));
-const StylingPage = lazy(() => import('./pages/StylingPage.jsx'));
+// Removed: const StylingPage = lazy(() => import('./pages/StylingPage.jsx'));
 const ContactPage = lazy(() => import('./pages/ContactPage.jsx'));
 
 // Simple placeholder for non-existent pages
@@ -64,11 +64,6 @@ function MainApp() {
                             <LookbookPage />
                         </Layout>
                     } />
-                    <Route path="/styling" element={
-                        <Layout>
-                            <StylingPage />
-                        </Layout>
-                    } />
                     <Route path="/contact" element={
                         <Layout>
                             <ContactPage />
@@ -76,6 +71,11 @@ function MainApp() {
                     } />
 
                     {/* Simple placeholders - all with Footer */}
+                    <Route path="/styling" element={
+                        <Layout>
+                            <Placeholder title="Styling" />
+                        </Layout>
+                    } />
                     <Route path="/journal" element={
                         <Layout>
                             <Placeholder title="Journal" />

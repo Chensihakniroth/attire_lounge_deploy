@@ -19,35 +19,31 @@ const ContactPage = () => {
     // OFFICIAL CONTACT INFORMATION FROM WEBSITE
     const officialContactInfo = [
         {
-            icon: <Phone className="w-5 h-5" />,
+            icon: <Phone className="w-5 h-5 text-attire-charcoal" />,
             title: "Phone & Telegram",
             details: ["(+855) 69-25-63-69"],
             subtitle: "For appointments & inquiries",
-            color: "bg-attire-gold/10 text-attire-gold",
             action: "tel:+85569256369"
         },
         {
-            icon: <Mail className="w-5 h-5" />,
+            icon: <Mail className="w-5 h-5 text-attire-charcoal" />,
             title: "Email",
             details: ["attireloungekh@gmail.com"],
             subtitle: "General inquiries",
-            color: "bg-attire-navy/10 text-attire-navy",
             action: "mailto:attireloungekh@gmail.com"
         },
         {
-            icon: <MapPin className="w-5 h-5" />,
+            icon: <MapPin className="w-5 h-5 text-attire-charcoal" />,
             title: "Store Location",
             details: ["10 E0, Street 03", "Sangkat Chey Chumneah", "Khan Daun Penh, Phnom Penh"],
             subtitle: "Cambodia's first sartorial styling house",
-            color: "bg-attire-burgundy/10 text-attire-burgundy",
             action: "https://maps.google.com"
         },
         {
-            icon: <Clock className="w-5 h-5" />,
+            icon: <Clock className="w-5 h-5 text-attire-charcoal" />,
             title: "Opening Hours",
             details: ["Monday to Sunday", "10:00 AM - 7:00 PM"],
             subtitle: "By appointment recommended",
-            color: "bg-attire-accent/10 text-attire-accent",
             action: null
         }
     ];
@@ -146,7 +142,7 @@ const ContactPage = () => {
                             target={info.action ? "_blank" : "_self"}
                             rel={info.action ? "noopener noreferrer" : ""}
                         >
-                            <div className={`inline-flex p-3 rounded-xl ${info.color} mb-4`}>
+                            <div className="mb-4">
                                 {info.icon}
                             </div>
                             <h3 className="text-lg font-semibold text-attire-charcoal mb-2">
@@ -344,7 +340,7 @@ const ContactPage = () => {
 
                     {/* Sidebar Information */}
                     <div className="space-y-8">
-                        {/* Connect With Us Box (modified) */}
+                        {/* Connect With Us Box */}
                         <div className="bg-white rounded-2xl shadow-lg p-6 border border-attire-silver/20">
                             <h3 className="text-xl font-serif text-attire-charcoal mb-4">Connect With Us</h3>
                             <div className="space-y-3">
@@ -364,43 +360,41 @@ const ContactPage = () => {
                                     className="flex items-center justify-center gap-2 bg-[#1877F2]/10 text-[#1877F2] hover:bg-[#1877F2]/20 px-4 py-3 rounded-lg transition-colors"
                                 >
                                     <Facebook className="w-5 h-5" />
-                                    <span className="font-medium">attireloungeofficial</span>
+                                    <span className="font-medium">/attireloungeofficial</span>
                                 </a>
                             </div>
                         </div>
-                    </div>
-                </div>
 
-                {/* Direct Contact CTA */}
-                <div className="mt-16 text-center">
-                    <div className="bg-gradient-to-r from-attire-gold/5 via-attire-cream/10 to-attire-navy/5 rounded-2xl p-8 md:p-12 border border-attire-silver/20">
-                        <h3 className="text-2xl md:text-3xl font-serif text-attire-charcoal mb-4">
-                            Prefer Direct Contact?
-                        </h3>
-                        <p className="text-attire-stone mb-8 max-w-2xl mx-auto">
-                            For immediate assistance or to schedule a same-day appointment, contact us directly.
-                        </p>
-                        <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                            <a
-                                href="tel:+85569256369"
-                                className="inline-flex items-center justify-center gap-3 bg-attire-charcoal text-white px-8 py-4 rounded-full font-medium hover:bg-attire-dark transition-all duration-300 hover:scale-105"
-                            >
-                                <Phone className="w-5 h-5" />
-                                Call Now: (+855) 69-25-63-69
-                            </a>
-                            <a
-                                href="https://t.me/attireloungeofficial"
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="inline-flex items-center justify-center gap-3 border-2 border-attire-charcoal text-attire-charcoal px-8 py-4 rounded-full font-medium hover:bg-attire-charcoal hover:text-white transition-all duration-300 hover:scale-105"
-                            >
-                                <span className="font-semibold">📱</span>
-                                Message on Telegram
-                            </a>
+                        {/* Prefer Direct Contact Box - Moved to sidebar */}
+                        <div className="bg-gradient-to-r from-attire-gold/5 via-attire-cream/10 to-attire-navy/5 rounded-2xl p-6 border border-attire-silver/20">
+                            <h3 className="text-xl font-serif text-attire-charcoal mb-3">
+                                Prefer Direct Contact?
+                            </h3>
+                            <p className="text-attire-stone mb-6 text-sm">
+                                For immediate assistance or to schedule a same-day appointment, contact us directly.
+                            </p>
+                            <div className="space-y-3">
+                                <a
+                                    href="tel:+85569256369"
+                                    className="flex items-center justify-center gap-3 bg-attire-charcoal text-white px-4 py-3 rounded-lg font-medium hover:bg-attire-dark transition-all duration-300"
+                                >
+                                    <Phone className="w-5 h-5" />
+                                    Call Now: (+855) 69-25-63-69
+                                </a>
+                                <a
+                                    href="https://t.me/attirelounge"
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="flex items-center justify-center gap-3 border border-attire-charcoal text-attire-charcoal px-4 py-3 rounded-lg font-medium hover:bg-attire-charcoal hover:text-white transition-all duration-300"
+                                >
+                                    <span className="font-semibold">📱</span>
+                                    Message on Telegram
+                                </a>
+                            </div>
+                            <p className="mt-4 text-xs text-attire-silver text-center">
+                                10 E0, Street 03, Sangkat Chey Chumneah, Khan Daun Penh, Phnom Penh, Cambodia
+                            </p>
                         </div>
-                        <p className="mt-6 text-sm text-attire-silver">
-                            10 E0, Street 03, Sangkat Chey Chumneah, Khan Daun Penh, Phnom Penh, Cambodia
-                        </p>
                     </div>
                 </div>
             </div>
