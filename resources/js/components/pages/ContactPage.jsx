@@ -1,6 +1,134 @@
 // resources/js/components/pages/ContactPage.jsx - OFFICIAL ATTIRING LOUNGE CONTACT PAGE (UPDATED for Consolidated UI)
-import React, { useState } from 'react';
-import { Mail, Phone, MapPin, Clock, Send, CheckCircle, Instagram, Facebook, ChevronDown } from 'lucide-react';
+import React, { useState, Fragment } from 'react';
+import { Listbox, Transition } from '@headlessui/react';
+import { Mail, Phone, MapPin, Clock, Send, CheckCircle, Instagram, Facebook, ChevronDown, Check } from 'lucide-react';
+
+// --- Reusable Components (Moved Outside) ---
+
+// Glassy Card Component for consistency
+const GlassCard = ({ children, className = '' }) => (
+    <div className={`bg-white/40 backdrop-blur-lg rounded-2xl border border-white/20 shadow-lg ${className}`}>
+        {children}
+    </div>
+);
+
+// Reusable component for sidebar info items
+const InfoItem = ({ icon, title, details, action }) => (
+    <div className="flex items-start gap-4">
+        <div className="mt-1 flex-shrink-0">{icon}</div>
+        <div>
+            <h4 className="font-semibold text-gray-800">{title}</h4>
+            {action ? (
+                <a href={action} target="_blank" rel="noopener noreferrer" className="text-gray-600 hover:text-black transition-colors">
+                    {details.map((line, i) => <p key={i}>{line}</p>)}
+                </a>
+            ) : (
+                 details.map((line, i) => <p key={i} className="text-gray-600">{line}</p>)
+            )}
+        </div>
+    </div>
+);
+
+// Reusable form field components for a cleaner structure
+const InputField = ({ name, label, error, ...props }) => (
+    <div>
+        <label className="block text-sm font-medium text-gray-800 mb-2">{label}</label>
+        <input
+            name={name}
+            {...props}
+            className={`w-full px-4 py-3 rounded-lg border bg-white/50 text-gray-900 placeholder-gray-500 transition-colors
+                ${error ? 'border-red-500' : 'border-gray-300/70'}
+                focus:border-black focus:ring-1 focus:ring-black`}
+        />
+        {error && <p className="mt-1 text-sm text-red-600">{error}</p>}
+    </div>
+);
+
+const SelectField = ({ name, label, options, value, onChange }) => {
+    // Find the full option object based on the current value
+    const selectedOption = options.find(o => o.value === value);
+
+    return (
+        <div>
+            <Listbox
+                value={value}
+                onChange={(newValue) => {
+                    // Adapt to the existing handleChange which expects an event-like object
+                    onChange({ target: { name, value: newValue } });
+                }}
+            >
+                <Listbox.Label className="block text-sm font-medium text-gray-800 mb-2">{label}</Listbox.Label>
+                <div className="relative">
+                    <Listbox.Button className="relative w-full cursor-default rounded-lg border bg-white/50 py-3 pl-4 pr-10 text-left text-gray-900 transition-colors border-gray-300/70 focus:outline-none focus-visible:border-black focus-visible:ring-1 focus-visible:ring-black">
+                        <span className="block truncate">{selectedOption?.label}</span>
+                        <span className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2">
+                            <ChevronDown className="h-5 w-5 text-gray-700" aria-hidden="true" />
+                        </span>
+                    </Listbox.Button>
+                    <Transition
+                        as={Fragment}
+                        leave="transition ease-in duration-100"
+                        leaveFrom="opacity-100"
+                        leaveTo="opacity-0"
+                    >
+                        <Listbox.Options className="absolute z-10 mt-1 max-h-60 w-full overflow-auto rounded-xl bg-white/80 backdrop-blur-lg py-1 text-base shadow-lg ring-1 ring-black/5 focus:outline-none sm:text-sm">
+                            {options.map((option, optionIdx) => (
+                                <Listbox.Option
+                                    key={optionIdx}
+                                    className={({ active }) =>
+                                        `relative cursor-default select-none py-2 pl-10 pr-4 ${
+                                            active ? 'bg-black/10 text-gray-900' : 'text-gray-800'
+                                        }`
+                                    }
+                                    value={option.value}
+                                >
+                                    {({ selected }) => (
+                                        <>
+                                            <span className={`block truncate ${selected ? 'font-medium' : 'font-normal'}`}>
+                                                {option.label}
+                                            </span>
+                                            {selected ? (
+                                                <span className="absolute inset-y-0 left-0 flex items-center pl-3 text-black">
+                                                    <Check className="h-5 w-5" aria-hidden="true" />
+                                                </span>
+                                            ) : null}
+                                        </>
+                                    )}
+                                </Listbox.Option>
+                            ))}
+                        </Listbox.Options>
+                    </Transition>
+                </div>
+            </Listbox>
+        </div>
+    );
+};
+
+const TextareaField = ({ name, label, error, ...props }) => (
+    <div>
+        <label className="block text-sm font-medium text-gray-800 mb-2">{label}</label>
+        <textarea
+            name={name}
+            rows={5}
+            {...props}
+            className={`w-full px-4 py-3 rounded-lg border bg-white/50 text-gray-900 placeholder-gray-500 transition-colors resize-none
+                ${error ? 'border-red-500' : 'border-gray-300/70'}
+                focus:border-black focus:ring-1 focus:ring-black`}
+        />
+        {error && <p className="mt-1 text-sm text-red-600">{error}</p>}
+    </div>
+);
+
+const SocialLink = ({ href, icon }) => (
+    <a
+        href={href}
+        target="_blank"
+        rel="noopener noreferrer"
+        className="text-gray-600 hover:text-black hover:scale-110 transition-all"
+    >
+        {icon}
+    </a>
+);
 
 const ContactPage = () => {
     const [formData, setFormData] = useState({
@@ -35,7 +163,7 @@ const ContactPage = () => {
             icon: <MapPin className={iconStyle} />,
             title: "Store Location",
             details: ["10 E0, Street 03", "Sangkat Chey Chumneah", "Khan Daun Penh, Phnom Penh"],
-            action: "https://maps.google.com" // Update with actual maps link
+            action: "https://maps.app.goo.gl/vZbPnCNMmmiKcR9g7" // Update with actual maps link
         },
         {
             icon: <Clock className={iconStyle} />,
@@ -84,13 +212,6 @@ const ContactPage = () => {
         if (errors[name]) setErrors(prev => ({ ...prev, [name]: null }));
     };
     
-    // Glassy Card Component for consistency
-    const GlassCard = ({ children, className = '' }) => (
-        <div className={`bg-white/40 backdrop-blur-lg rounded-2xl border border-white/20 shadow-lg ${className}`}>
-            {children}
-        </div>
-    );
-
     return (
         <div className="min-h-screen bg-gray-100 py-24 sm:py-32">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -174,82 +295,5 @@ const ContactPage = () => {
         </div>
     );
 };
-
-// Reusable component for sidebar info items
-const InfoItem = ({ icon, title, details, action }) => (
-    <div className="flex items-start gap-4">
-        <div className="mt-1 flex-shrink-0">{icon}</div>
-        <div>
-            <h4 className="font-semibold text-gray-800">{title}</h4>
-            {action ? (
-                <a href={action} target="_blank" rel="noopener noreferrer" className="text-gray-600 hover:text-black transition-colors">
-                    {details.map((line, i) => <p key={i}>{line}</p>)}
-                </a>
-            ) : (
-                 details.map((line, i) => <p key={i} className="text-gray-600">{line}</p>)
-            )}
-        </div>
-    </div>
-);
-
-
-// Reusable form field components for a cleaner structure
-const InputField = ({ name, label, error, ...props }) => (
-    <div>
-        <label className="block text-sm font-medium text-gray-800 mb-2">{label}</label>
-        <input
-            name={name}
-            {...props}
-            className={`w-full px-4 py-3 rounded-lg border bg-white/50 text-gray-900 placeholder-gray-500 transition-colors
-                ${error ? 'border-red-500' : 'border-gray-300/70'}
-                focus:border-black focus:ring-1 focus:ring-black`}
-        />
-        {error && <p className="mt-1 text-sm text-red-600">{error}</p>}
-    </div>
-);
-
-const SelectField = ({ name, label, options, ...props }) => (
-    <div>
-        <label className="block text-sm font-medium text-gray-800 mb-2">{label}</label>
-        <div className="relative">
-            <select
-                name={name}
-                {...props}
-                className="w-full px-4 py-3 rounded-lg border bg-white/50 text-gray-900 transition-colors border-gray-300/70 focus:border-black focus:ring-1 focus:ring-black appearance-none pr-10"
-            >
-                {options.map(type => (
-                    <option key={type.value} value={type.value}>{type.label}</option>
-                ))}
-            </select>
-            <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-700 pointer-events-none" />
-        </div>
-    </div>
-);
-
-const TextareaField = ({ name, label, error, ...props }) => (
-    <div>
-        <label className="block text-sm font-medium text-gray-800 mb-2">{label}</label>
-        <textarea
-            name={name}
-            rows={5}
-            {...props}
-            className={`w-full px-4 py-3 rounded-lg border bg-white/50 text-gray-900 placeholder-gray-500 transition-colors resize-none
-                ${error ? 'border-red-500' : 'border-gray-300/70'}
-                focus:border-black focus:ring-1 focus:ring-black`}
-        />
-        {error && <p className="mt-1 text-sm text-red-600">{error}</p>}
-    </div>
-);
-
-const SocialLink = ({ href, icon }) => (
-    <a
-        href={href}
-        target="_blank"
-        rel="noopener noreferrer"
-        className="text-gray-600 hover:text-black hover:scale-110 transition-all"
-    >
-        {icon}
-    </a>
-);
 
 export default ContactPage;

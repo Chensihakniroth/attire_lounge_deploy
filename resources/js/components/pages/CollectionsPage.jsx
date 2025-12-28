@@ -41,7 +41,7 @@ const CollectionsPage = () => {
 
     return (
         <div className="min-h-screen py-24 px-4 sm:px-6 lg:px-8 bg-attire-cream/50">
-            <motion.div 
+            <motion.div
                 className="max-w-7xl mx-auto"
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
@@ -94,7 +94,7 @@ const CollectionsPage = () => {
 
                  {/* Empty State */}
                  {filteredCollections.length === 0 && (
-                    <motion.div 
+                    <motion.div
                         initial={{ opacity: 0, y: 10 }}
                         animate={{ opacity: 1, y: 0 }}
                         className="text-center py-20"
