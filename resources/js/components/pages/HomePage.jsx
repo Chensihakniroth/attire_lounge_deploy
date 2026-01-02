@@ -170,7 +170,7 @@ const HomePage = () => {
 
   const sectionsRef = useRef([]);
   const isScrollingRef = useRef(false);
-  
+
   useEffect(() => {
     const checkMobile = () => setIsMobile(window.innerWidth < 768);
     checkMobile();
