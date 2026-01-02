@@ -84,7 +84,7 @@ const LookbookPage = () => {
     };
 
     return (
-        <div className="min-h-screen py-24 px-4 sm:px-6 lg:px-8 bg-attire-cream/50">
+        <div className="min-h-screen py-24 px-4 sm:px-6 lg:px-8 bg-attire-navy">
             <motion.div 
                 className="max-w-7xl mx-auto"
                 initial={{ opacity: 0, y: 20 }}
@@ -92,26 +92,26 @@ const LookbookPage = () => {
                 transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
             >
                 <div className="text-center mb-16">
-                    <h1 className="text-5xl md:text-7xl font-serif font-light text-attire-charcoal mb-3">Lookbook</h1>
-                    <p className="text-lg text-attire-stone max-w-2xl mx-auto">
+                    <h1 className="text-5xl md:text-7xl font-serif font-light text-white mb-3">Lookbook</h1>
+                    <p className="text-lg text-attire-silver max-w-2xl mx-auto">
                         Discover style inspiration from our curated collections.
                     </p>
                 </div>
 
                 <div className="flex justify-center mb-16">
-                    <div className="flex flex-wrap justify-center items-center gap-2 p-1.5 bg-black/5 backdrop-blur-sm rounded-full">
+                    <div className="flex flex-wrap justify-center items-center gap-2 p-1.5 bg-white/5 backdrop-blur-sm rounded-full">
                         {categories.map((category) => (
                             <button
                                 key={category.id}
                                 onClick={() => setFilter(category.id)}
                                 className={`px-5 py-2.5 rounded-full text-sm font-medium transition-colors relative ${
-                                    filter === category.id ? 'text-attire-charcoal' : 'text-attire-stone/70 hover:text-attire-charcoal'
+                                    filter === category.id ? 'text-white' : 'text-attire-silver/70 hover:text-white'
                                 }`}
                             >
                                 {filter === category.id && (
                                     <motion.div
                                         layoutId="filter-active"
-                                        className="absolute inset-0 bg-white shadow-md rounded-full"
+                                        className="absolute inset-0 bg-attire-dark shadow-md rounded-full"
                                         transition={{ type: 'spring', stiffness: 200, damping: 20 }}
                                     />
                                 )}

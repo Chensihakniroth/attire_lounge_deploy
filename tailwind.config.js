@@ -1,4 +1,4 @@
-// tailwind.config.js - UPDATED WITH ALL COLORS
+// tailwind.config.js - UPDATED WITH NEW VISUALLY-MATCHED COLORS
 /** @type {import('tailwindcss').Config} */
 module.exports = {
   content: [
@@ -9,18 +9,17 @@ module.exports = {
   theme: {
     extend: {
       colors: {
-        // Your custom Attire Lounge palette - COMPLETE
+        // New Attire Lounge Palette
         'attire': {
-          'charcoal': '#1a1a1a',
-          'stone': '#666666',
-          'silver': '#cccccc',
-          'cream': '#f8f6f2',
+          'charcoal': '#333333',
+          'stone': '#A0785A',    // Replaced with Havana/Tobacco Brown
+          'silver': '#E5E7EB',
+          'cream': '#FAF8F3',
           'light': '#f9f9f9',
-          'gold': '#c19a6b',
-          'burgundy': '#800020',
-          'navy': '#1e3a5f',
-          'accent': '#8B7355',
-          'dark': '#0a0a0a',
+          'gold': '#8B6B4D',      // Replaced with Mocha/Camel Brown
+          'navy': '#0d3542',      // Replaced with new main color from Canva
+          'accent': '#f5a81c',    // Replaced with new accent
+          'dark': '#111111',
         }
       },
       fontFamily: {

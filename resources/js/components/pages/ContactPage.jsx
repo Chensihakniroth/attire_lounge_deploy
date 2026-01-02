@@ -7,7 +7,7 @@ import { Mail, Phone, MapPin, Clock, Send, CheckCircle, Instagram, Facebook, Che
 
 // Glassy Card Component for consistency
 const GlassCard = ({ children, className = '' }) => (
-    <div className={`bg-white/40 backdrop-blur-lg rounded-2xl border border-white/20 shadow-lg ${className}`}>
+    <div className={`bg-attire-dark/40 backdrop-blur-lg rounded-2xl border border-white/10 shadow-lg ${className}`}>
         {children}
     </div>
 );
@@ -17,13 +17,13 @@ const InfoItem = ({ icon, title, details, action }) => (
     <div className="flex items-start gap-4">
         <div className="mt-1 flex-shrink-0">{icon}</div>
         <div>
-            <h4 className="font-semibold text-gray-800">{title}</h4>
+            <h4 className="font-semibold text-attire-cream">{title}</h4>
             {action ? (
-                <a href={action} target="_blank" rel="noopener noreferrer" className="text-gray-600 hover:text-black transition-colors">
+                <a href={action} target="_blank" rel="noopener noreferrer" className="text-attire-silver hover:text-white transition-colors">
                     {details.map((line, i) => <p key={i}>{line}</p>)}
                 </a>
             ) : (
-                 details.map((line, i) => <p key={i} className="text-gray-600">{line}</p>)
+                 details.map((line, i) => <p key={i} className="text-attire-silver">{line}</p>)
             )}
         </div>
     </div>
@@ -32,13 +32,13 @@ const InfoItem = ({ icon, title, details, action }) => (
 // Reusable form field components for a cleaner structure
 const InputField = ({ name, label, error, ...props }) => (
     <div>
-        <label className="block text-sm font-medium text-gray-800 mb-2">{label}</label>
+        <label className="block text-sm font-medium text-attire-cream mb-2">{label}</label>
         <input
             name={name}
             {...props}
-            className={`w-full px-4 py-3 rounded-lg border bg-white/50 text-gray-900 placeholder-gray-500 transition-colors
-                ${error ? 'border-red-500' : 'border-gray-300/70'}
-                focus:border-black focus:ring-1 focus:ring-black`}
+            className={`w-full px-4 py-3 rounded-lg border bg-attire-dark/50 text-attire-cream placeholder-attire-silver/70 transition-colors
+                ${error ? 'border-red-500' : 'border-white/10'}
+                focus:border-white focus:ring-1 focus:ring-white`}
         />
         {error && <p className="mt-1 text-sm text-red-600">{error}</p>}
     </div>
@@ -57,12 +57,12 @@ const SelectField = ({ name, label, options, value, onChange }) => {
                     onChange({ target: { name, value: newValue } });
                 }}
             >
-                <Listbox.Label className="block text-sm font-medium text-gray-800 mb-2">{label}</Listbox.Label>
+                <Listbox.Label className="block text-sm font-medium text-attire-cream mb-2">{label}</Listbox.Label>
                 <div className="relative">
-                    <Listbox.Button className="relative w-full cursor-default rounded-lg border bg-white/50 py-3 pl-4 pr-10 text-left text-gray-900 transition-colors border-gray-300/70 focus:outline-none focus-visible:border-black focus-visible:ring-1 focus-visible:ring-black">
+                    <Listbox.Button className="relative w-full cursor-default rounded-lg border bg-attire-dark/50 py-3 pl-4 pr-10 text-left text-attire-cream transition-colors border-white/10 focus:outline-none focus-visible:border-white focus-visible:ring-1 focus-visible:ring-white">
                         <span className="block truncate">{selectedOption?.label}</span>
                         <span className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2">
-                            <ChevronDown className="h-5 w-5 text-gray-700" aria-hidden="true" />
+                            <ChevronDown className="h-5 w-5 text-attire-silver" aria-hidden="true" />
                         </span>
                     </Listbox.Button>
                     <Transition
@@ -71,13 +71,13 @@ const SelectField = ({ name, label, options, value, onChange }) => {
                         leaveFrom="opacity-100"
                         leaveTo="opacity-0"
                     >
-                        <Listbox.Options className="absolute z-10 mt-1 max-h-60 w-full overflow-auto rounded-xl bg-white/80 backdrop-blur-lg py-1 text-base shadow-lg ring-1 ring-black/5 focus:outline-none sm:text-sm">
+                        <Listbox.Options className="absolute z-10 mt-1 max-h-60 w-full overflow-auto rounded-xl bg-attire-dark/80 backdrop-blur-lg py-1 text-base shadow-lg ring-1 ring-black/5 focus:outline-none sm:text-sm">
                             {options.map((option, optionIdx) => (
                                 <Listbox.Option
                                     key={optionIdx}
                                     className={({ active }) =>
                                         `relative cursor-default select-none py-2 pl-10 pr-4 ${
-                                            active ? 'bg-black/10 text-gray-900' : 'text-gray-800'
+                                            active ? 'bg-white/10 text-white' : 'text-attire-cream'
                                         }`
                                     }
                                     value={option.value}
@@ -88,7 +88,7 @@ const SelectField = ({ name, label, options, value, onChange }) => {
                                                 {option.label}
                                             </span>
                                             {selected ? (
-                                                <span className="absolute inset-y-0 left-0 flex items-center pl-3 text-black">
+                                                <span className="absolute inset-y-0 left-0 flex items-center pl-3 text-white">
                                                     <Check className="h-5 w-5" aria-hidden="true" />
                                                 </span>
                                             ) : null}
@@ -106,14 +106,14 @@ const SelectField = ({ name, label, options, value, onChange }) => {
 
 const TextareaField = ({ name, label, error, ...props }) => (
     <div>
-        <label className="block text-sm font-medium text-gray-800 mb-2">{label}</label>
+        <label className="block text-sm font-medium text-attire-cream mb-2">{label}</label>
         <textarea
             name={name}
             rows={5}
             {...props}
-            className={`w-full px-4 py-3 rounded-lg border bg-white/50 text-gray-900 placeholder-gray-500 transition-colors resize-none
-                ${error ? 'border-red-500' : 'border-gray-300/70'}
-                focus:border-black focus:ring-1 focus:ring-black`}
+            className={`w-full px-4 py-3 rounded-lg border bg-attire-dark/50 text-attire-cream placeholder-attire-silver/70 transition-colors resize-none
+                ${error ? 'border-red-500' : 'border-white/10'}
+                focus:border-white focus:ring-1 focus:ring-white`}
         />
         {error && <p className="mt-1 text-sm text-red-600">{error}</p>}
     </div>
@@ -124,7 +124,7 @@ const SocialLink = ({ href, icon }) => (
         href={href}
         target="_blank"
         rel="noopener noreferrer"
-        className="text-gray-600 hover:text-black hover:scale-110 transition-all"
+        className="text-attire-silver hover:text-white hover:scale-110 transition-all"
     >
         {icon}
     </a>
@@ -144,7 +144,7 @@ const ContactPage = () => {
     const [errors, setErrors] = useState({});
 
     // Define icon style once
-    const iconStyle = "w-6 h-6 text-gray-800";
+    const iconStyle = "w-6 h-6 text-attire-cream";
 
     const officialContactInfo = [
         {
@@ -213,14 +213,14 @@ const ContactPage = () => {
     };
     
     return (
-        <div className="min-h-screen bg-gray-100 py-24 sm:py-32">
+        <div className="min-h-screen bg-attire-navy py-24 sm:py-32">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 {/* Simplified Header */}
                 <div className="text-center mb-16">
-                    <h1 className="text-4xl md:text-5xl font-serif text-gray-900 mb-4">
+                    <h1 className="text-4xl md:text-5xl font-serif text-white mb-4">
                         Get in Touch
                     </h1>
-                    <p className="text-lg text-gray-600 max-w-2xl mx-auto">
+                    <p className="text-lg text-attire-silver max-w-2xl mx-auto">
                         We're here to help you define your style. Reach out for appointments or inquiries.
                     </p>
                 </div>
@@ -232,15 +232,15 @@ const ContactPage = () => {
                         <div className="lg:col-span-2">
                              <div className="flex items-center justify-between mb-8">
                                 <div>
-                                    <h2 className="text-3xl font-serif text-gray-900 mb-1">
+                                    <h2 className="text-3xl font-serif text-white mb-1">
                                         Book an Appointment
                                     </h2>
-                                    <p className="text-gray-600">
+                                    <p className="text-attire-silver">
                                         Free consultation with our Milan-certified team.
                                     </p>
                                 </div>
                                 {isSubmitted && (
-                                    <div className="flex items-center gap-2 text-green-700">
+                                    <div className="flex items-center gap-2 text-green-400">
                                         <CheckCircle className="w-5 h-5" />
                                         <span>Sent!</span>
                                     </div>
@@ -274,7 +274,7 @@ const ContactPage = () => {
                         {/* Consolidated Sidebar Information */}
                         <div className="space-y-10">
                             <div>
-                                <h3 className="text-2xl font-serif text-gray-900 mb-6">Contact Information</h3>
+                                <h3 className="text-2xl font-serif text-white mb-6">Contact Information</h3>
                                 <div className="space-y-6">
                                     {officialContactInfo.map(info => (
                                         <InfoItem key={info.title} icon={info.icon} title={info.title} details={info.details} action={info.action} />
@@ -282,7 +282,7 @@ const ContactPage = () => {
                                 </div>
                             </div>
                             <div>
-                                <h3 className="text-2xl font-serif text-gray-900 mb-6">Connect With Us</h3>
+                                <h3 className="text-2xl font-serif text-white mb-6">Connect With Us</h3>
                                 <div className="flex items-center gap-4">
                                     <SocialLink href="https://instagram.com/attireloungeofficial" icon={<Instagram className="w-6 h-6" />} />
                                     <SocialLink href="https://facebook.com/attireloungeofficial" icon={<Facebook className="w-6 h-6" />} />

@@ -49,11 +49,6 @@ const Lightbox = ({
         alert('Sharing feature to be implemented');
     };
 
-    const handleDownload = (e) => {
-        e.stopPropagation();
-        alert('Download feature to be implemented');
-    };
-
     return (
         <motion.div
             variants={lightboxVariants}
@@ -124,9 +119,6 @@ const Lightbox = ({
                                 </button>
                                 <button onClick={handleShare} className="p-3 bg-white/10 backdrop-blur-md rounded-full hover:bg-white/20 transition-colors">
                                     <Share2 className="w-5 h-5 text-white" />
-                                </button>
-                                <button onClick={handleDownload} className="p-3 bg-white/10 backdrop-blur-md rounded-full hover:bg-white/20 transition-colors">
-                                    <Download className="w-5 h-5 text-white" />
                                 </button>
                             </div>
                         </div>

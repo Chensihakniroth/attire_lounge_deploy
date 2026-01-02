@@ -1,28 +1,176 @@
-// resources/js/components/pages/HomePage.jsx - SIMPLE SNAP SCROLL
-import React, { useEffect, useRef, useState, useCallback } from 'react';
+// resources/js/components/pages/HomePage.jsx - V6 (Final Polish with Glass Effects)
+import React, { useEffect, useRef, useState, useCallback, forwardRef, memo } from 'react';
 import { motion } from 'framer-motion';
+import { Users, Scissors, Coffee, ArrowRight, Gem, Feather, Palette } from 'lucide-react';
 import Footer from '../layouts/Footer';
+import { Link } from 'react-router-dom';
+
+// --- Data Store for Homepage Sections ---
+const homePageData = {
+  collections: [
+    { name: "Sartorial", description: "Classic ready-to-wear style from top-to-toe.", image: "/uploads/collections/Model/1.jpg", link: "/collections" },
+    { name: "Groom & Groomsmen", description: "Elevate your style on your special day.", image: "/uploads/collections/Model/2.jpg", link: "/collections" },
+    { name: "Office Wear", description: "Feel your best at work with modern, diverse styles.", image: "/uploads/collections/Model/3.jpg", link: "/collections" },
+    { name: "Accessories", description: "The little details that make a big difference.", image: "/uploads/collections/Model/4.jpg", link: "/collections" }
+  ],
+  services: [
+    { name: "Milan-Certified Styling", description: "Receive a free, expert styling consultation from our Milan-certified team to discover the perfect look for you.", icon: <Users size={32} className="text-attire-accent" /> },
+    { name: "The Perfect Fit", description: "We offer diverse sizes and provide complimentary in-house alterations to ensure your garments fit impeccably.", icon: <Scissors size={32} className="text-attire-accent" /> },
+    { name: "A Premium Experience", description: "Enjoy a relaxing atmosphere and complimentary drinks during your visit, making your styling session a true pleasure.", icon: <Coffee size={32} className="text-attire-accent" /> }
+  ],
+  craftsmanship: [
+    { name: "Finest Materials", description: "We source exquisite fabrics from renowned mills across the globe, ensuring unparalleled quality and comfort in every piece.", icon: <Gem size={28} className="text-attire-silver" /> },
+    { name: "Bespoke Tailoring", description: "Our master tailors blend traditional techniques with modern precision to craft garments that are uniquely yours.", icon: <Feather size={28} className="text-attire-silver" /> },
+    { name: "Timeless Design", description: "We create contemporary yet timeless designs that form the foundation of a distinguished wardrobe.", icon: <Palette size={28} className="text-attire-silver" /> }
+  ]
+};
+
+// --- Animation Variants ---
+const containerVariants = {
+  hidden: {},
+  visible: { transition: { staggerChildren: 0.2, delayChildren: 0.2 } }
+};
+const itemVariants = {
+  hidden: { opacity: 0, y: 30 },
+  visible: { opacity: 1, y: 0, transition: { duration: 0.6, ease: 'easeOut' } }
+};
+
+// --- Section Components (Memoized for performance) ---
+
+const HeroSection = memo(forwardRef(({ scrollToSection }, ref) => (
+  <section className="relative snap-section overflow-hidden min-h-screen h-screen" ref={ref}>
+    <div className="absolute inset-0 w-full h-full overflow-hidden">
+      <video autoPlay muted loop playsInline preload="auto" className="absolute w-full h-full object-cover" style={{ objectPosition: 'center 10%' }}><source src="/videos/hero-background1.mp4" type="video/mp4" /></video>
+      <div className="absolute inset-0 bg-attire-dark/40" />
+    </div>
+    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.8 }} className="relative z-10 h-full flex items-center justify-center">
+      <img src="/uploads/asset/AL_logo.png" alt="Attire Lounge" className="h-auto mx-auto filter brightness-0 invert drop-shadow-[0_0_30px_rgba(0,0,0,0.8)] opacity-90 max-w-[280px] md:max-w-sm" loading="eager" />
+    </motion.div>
+  </section>
+)));
+
+const PhilosophySection = memo(forwardRef((props, ref) => (
+  <section className="relative snap-section bg-attire-navy min-h-screen h-screen flex items-center justify-center p-8" ref={ref}>
+    <div className="bg-attire-cream/20 backdrop-blur-lg border border-attire-cream/30 rounded-2xl shadow-lg p-8 md:p-12 max-w-3xl mx-auto">
+      <div className="text-center">
+        <motion.h2 variants={itemVariants} initial="hidden" whileInView="visible" viewport={{ once: true, amount: 0.5 }} className="font-serif text-sm md:text-base tracking-[0.2em] text-attire-accent uppercase mb-4">Our Philosophy</motion.h2>
+        <motion.p variants={itemVariants} initial="hidden" whileInView="visible" viewport={{ once: true, amount: 0.5 }} transition={{ delay: 0.2 }} className="font-serif text-2xl md:text-4xl text-attire-cream leading-relaxed">
+          Attire Lounge is Cambodia's first sartorial gentlemen's styling house, offering a variety of ready-to-wear collections and premium styling with our Milan-certified team.
+        </motion.p>
+      </div>
+    </div>
+  </section>
+)));
+
+const CollectionsSection = memo(forwardRef(({ collections }, ref) => (
+  <section className="relative snap-section bg-attire-dark min-h-screen h-screen flex flex-col justify-center" ref={ref}>
+    <div className="w-full text-center pt-12 md:pt-24 px-4">
+      <h2 className="font-serif text-3xl md:text-5xl text-white mb-2">Our Collections</h2>
+      <p className="text-attire-silver mb-10">Curated styles for the modern gentleman.</p>
+    </div>
+    <div className="w-full flex-grow grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-px">
+      {collections.map((collection) => (
+        <motion.div key={collection.name} className="relative overflow-hidden group" variants={itemVariants} initial="hidden" whileInView="visible" viewport={{ once: true }}>
+          <Link to={collection.link} className="block w-full h-full">
+            <img src={collection.image} alt={collection.name} className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" loading="lazy" decoding="async" />
+            <div className="absolute inset-0 bg-gradient-to-t from-attire-dark/70 via-attire-dark/30 to-transparent" />
+            <div className="relative h-full flex flex-col justify-end p-8 text-attire-cream">
+              <h3 className="font-serif text-3xl mb-2">{collection.name}</h3>
+              <p className="text-attire-silver mb-4">{collection.description}</p>
+              <div className="flex items-center gap-2 text-attire-accent group-hover:gap-3 transition-all"><span>Explore</span><ArrowRight size={16} /></div>
+            </div>
+          </Link>
+        </motion.div>
+      ))}
+    </div>
+  </section>
+)));
+
+const ExperienceSection = memo(forwardRef(({ services }, ref) => (
+  <section className="relative snap-section bg-attire-navy min-h-screen h-screen flex flex-col justify-center p-8" ref={ref}>
+    <div className="bg-attire-cream/20 backdrop-blur-lg border border-attire-cream/30 rounded-2xl shadow-lg w-full max-w-6xl mx-auto py-12 px-8">
+      <motion.div variants={containerVariants} initial="hidden" whileInView="visible" viewport={{ once: true }} className="text-center">
+        <h2 className="font-serif text-3xl md:text-5xl text-white mb-4">The Attire Lounge Experience</h2>
+        <p className="text-attire-silver md:text-lg mb-16">What sets us apart is our commitment to a premium, personalized service.</p>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-12">
+          {services.map((service) => (
+            <motion.div key={service.name} variants={itemVariants} className="text-left">
+              <div className="flex items-center gap-4 mb-4">{service.icon}<h3 className="font-serif text-2xl text-attire-cream">{service.name}</h3></div>
+              <p className="text-attire-silver leading-relaxed">{service.description}</p>
+            </motion.div>
+          ))}
+        </div>
+      </motion.div>
+    </div>
+  </section>
+)));
+
+const CraftsmanshipSection = memo(forwardRef(({ craftsmanship }, ref) => (
+  <section className="relative snap-section bg-attire-dark min-h-screen h-screen flex flex-col justify-center text-attire-cream p-8" ref={ref}>
+     <div className="w-full max-w-6xl mx-auto text-center">
+        <h2 className="font-serif text-3xl md:text-5xl text-white mb-4">The Art of Sartorial Excellence</h2>
+        <p className="text-attire-silver md:text-lg mb-16">Every detail matters in our pursuit of uncompromising quality.</p>
+        <motion.div variants={containerVariants} initial="hidden" whileInView="visible" viewport={{ once: true }} className="grid grid-cols-1 md:grid-cols-3 gap-8">
+          {craftsmanship.map((item) => (
+            <motion.div key={item.name} variants={itemVariants} className="text-center p-8 border border-attire-cream/10 rounded-2xl bg-attire-dark/20 backdrop-blur-md">
+              <div className="inline-block p-4 bg-black/20 rounded-full mb-6">{item.icon}</div>
+              <h3 className="font-serif text-2xl text-white mb-4">{item.name}</h3>
+              <p className="text-attire-silver leading-relaxed">{item.description}</p>
+            </motion.div>
+          ))}
+        </motion.div>
+    </div>
+  </section>
+)));
+
+const LookbookSection = memo(forwardRef((props, ref) => (
+  <section className="relative snap-section bg-attire-dark min-h-screen h-screen" ref={ref}>
+    <img src="/uploads/collections/Model/5.jpg" alt="Lookbook" className="absolute inset-0 w-full h-full object-cover object-center" loading="lazy" decoding="async" />
+    <div className="absolute inset-0 bg-attire-dark/50" />
+    <div className="relative h-full flex flex-col items-center justify-center text-center text-attire-cream p-8">
+      <div className="bg-attire-dark/20 backdrop-blur-md border border-attire-cream/10 rounded-2xl shadow-lg p-8 md:p-12">
+        <motion.h2 variants={itemVariants} initial="hidden" whileInView="visible" viewport={{once: true}} className="font-serif text-4xl md:text-6xl mb-6">The Art of Style</motion.h2>
+        <motion.p variants={itemVariants} initial="hidden" whileInView="visible" viewport={{once: true}} transition={{delay: 0.2}} className="max-w-xl text-attire-silver md:text-lg mb-8">Explore our curated lookbook for inspiration and discover the timeless elegance that defines Attire Lounge.</motion.p>
+        <motion.div variants={itemVariants} initial="hidden" whileInView="visible" viewport={{once: true}} transition={{delay: 0.4}}>
+          <Link to="/lookbook" className="inline-block bg-attire-accent text-white font-semibold px-10 py-4 rounded-lg hover:bg-attire-accent/90 transition-colors">View Lookbook</Link>
+        </motion.div>
+      </div>
+    </div>
+  </section>
+)));
+
+const CTASection = memo(forwardRef((props, ref) => (
+  <section className="relative snap-section bg-attire-navy min-h-screen h-screen flex items-center justify-center p-8" ref={ref}>
+    <div className="bg-attire-cream/20 backdrop-blur-lg border border-attire-cream/30 rounded-2xl shadow-lg p-8 md:p-12 max-w-3xl mx-auto">
+      <div className="text-center">
+        <motion.h2 variants={itemVariants} initial="hidden" whileInView="visible" viewport={{once: true}} className="font-serif text-3xl md:text-5xl text-white mb-6">Begin Your Sartorial Journey</motion.h2>
+        <motion.p variants={itemVariants} initial="hidden" whileInView="visible" viewport={{once: true}} transition={{delay: 0.2}} className="text-attire-silver md:text-lg mb-10">Experience the difference of personalized styling. Book a private consultation with our experts today.</motion.p>
+        <motion.div variants={itemVariants} initial="hidden" whileInView="visible" viewport={{once: true}} transition={{delay: 0.4}}>
+          <Link to="/contact" className="inline-block bg-attire-accent text-white font-semibold px-12 py-4 rounded-lg hover:bg-attire-accent/90 transition-colors">Book a Consultation</Link>
+        </motion.div>
+      </div>
+    </div>
+  </section>
+)));
+
+const FooterSection = memo(forwardRef((props, ref) => (
+  <section className="relative snap-section bg-attire-dark min-h-screen h-screen flex flex-col justify-center" ref={ref}>
+    <div className="w-full">
+      <Footer />
+    </div>
+  </section>
+)));
+
+// --- Main Homepage Component ---
 
 const HomePage = () => {
   const [isMobile, setIsMobile] = useState(false);
   const [activeSection, setActiveSection] = useState(0);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [currentImageIndex, setCurrentImageIndex] = useState(0);
 
-  // Refs
   const sectionsRef = useRef([]);
-  const touchStartX = useRef(0);
   const isScrollingRef = useRef(false);
-  const scrollTimeoutRef = useRef(null);
-
-  // Hero images
-  const heroImages = [
-    { src: '/uploads/collections/Model/1.jpg', title: 'Modern Elegance', subtitle: 'Spring/Summer Collection' },
-    { src: '/uploads/collections/Model/2.jpg', title: 'Urban Sophistication', subtitle: 'Evening Wear Collection' },
-    { src: '/uploads/collections/Model/3.jpg', title: 'Timeless Luxury', subtitle: 'Limited Edition' }
-  ];
-
-  // ========== MOBILE DETECTION ==========
+  
   useEffect(() => {
     const checkMobile = () => setIsMobile(window.innerWidth < 768);
     checkMobile();
@@ -30,359 +178,85 @@ const HomePage = () => {
     return () => window.removeEventListener('resize', checkMobile);
   }, []);
 
-  // ========== INITIALIZE SECTIONS ==========
   useEffect(() => {
-    const updateSections = () => {
-      const sections = document.querySelectorAll('.snap-section');
-      sectionsRef.current = Array.from(sections);
-    };
-
-    updateSections();
-
-    // Listen for menu state
+    sectionsRef.current = sectionsRef.current.slice(0, 8); // 8 sections total
     const handleMenuStateChange = (e) => {
-      if (e.detail && e.detail.isMenuOpen !== undefined) {
-        setIsMenuOpen(e.detail.isMenuOpen);
-      }
+      if (e.detail && e.detail.isMenuOpen !== undefined) setIsMenuOpen(e.detail.isMenuOpen);
     };
-
     window.addEventListener('menuStateChange', handleMenuStateChange);
     return () => window.removeEventListener('menuStateChange', handleMenuStateChange);
   }, []);
 
-  // ========== SIMPLE SMOOTH SCROLL TO SECTION ==========
   const scrollToSection = useCallback((index) => {
     if (isScrollingRef.current || !sectionsRef.current[index] || isMenuOpen) return;
-
     isScrollingRef.current = true;
-    const section = sectionsRef.current[index];
-    const targetY = section.offsetTop;
-
-    window.scrollTo({
-      top: targetY,
-      behavior: 'smooth'
-    });
-
-    setActiveSection(index);
-
-    // Reset after scroll completes
-    setTimeout(() => {
-      isScrollingRef.current = false;
-    }, 500);
+    const targetY = sectionsRef.current[index].offsetTop;
+    const startY = window.scrollY;
+    const distance = targetY - startY;
+    const duration = 400;
+    let startTime = null;
+    const easing = (t) => t === 0 ? 0 : t === 1 ? 1 : t < 0.5 ? Math.pow(2, 20 * t - 10) / 2 : (2 - Math.pow(2, -20 * t + 10)) / 2;
+    const animation = (currentTime) => {
+      if (startTime === null) startTime = currentTime;
+      const timeElapsed = currentTime - startTime;
+      const progress = Math.min(timeElapsed / duration, 1);
+      window.scrollTo(0, startY + distance * easing(progress));
+      if (timeElapsed < duration) {
+        requestAnimationFrame(animation);
+      } else {
+        setActiveSection(index);
+        isScrollingRef.current = false;
+      }
+    };
+    requestAnimationFrame(animation);
   }, [isMenuOpen]);
 
-  // ========== SIMPLE WHEEL HANDLER ==========
   useEffect(() => {
     if (isMobile || isMenuOpen) return;
-
     const handleWheel = (e) => {
       e.preventDefault();
-
       if (isScrollingRef.current) return;
-
-      // Check scroll direction
       const deltaY = e.deltaY;
-
-      if (Math.abs(deltaY) > 10) { // Ignore small movements
-        let newIndex = activeSection;
-
-        if (deltaY > 0) {
-          // Scrolling down - go to next section
-          newIndex = Math.min(activeSection + 1, sectionsRef.current.length - 1);
-        } else {
-          // Scrolling up - go to previous section
-          newIndex = Math.max(activeSection - 1, 0);
-        }
-
-        if (newIndex !== activeSection) {
-          scrollToSection(newIndex);
-        }
+      let newIndex = activeSection;
+      if (Math.abs(deltaY) > 5) {
+        if (deltaY > 0) newIndex = Math.min(activeSection + 1, sectionsRef.current.length - 1);
+        else newIndex = Math.max(activeSection - 1, 0);
+        if (newIndex !== activeSection) scrollToSection(newIndex);
       }
     };
-
     window.addEventListener('wheel', handleWheel, { passive: false });
-
-    return () => {
-      window.removeEventListener('wheel', handleWheel);
-    };
+    return () => window.removeEventListener('wheel', handleWheel);
   }, [isMobile, isMenuOpen, activeSection, scrollToSection]);
 
-  // ========== KEYBOARD NAVIGATION ==========
   useEffect(() => {
     const handleKeyDown = (e) => {
-      if (isScrollingRef.current || isMenuOpen) return;
-
+      if (isMobile || isMenuOpen || isScrollingRef.current) return;
       let newIndex = activeSection;
-
       switch (e.key) {
-        case 'ArrowDown':
-        case 'PageDown':
-          e.preventDefault();
-          newIndex = Math.min(activeSection + 1, sectionsRef.current.length - 1);
-          break;
-        case 'ArrowUp':
-        case 'PageUp':
-          e.preventDefault();
-          newIndex = Math.max(activeSection - 1, 0);
-          break;
-        case 'Home':
-          e.preventDefault();
-          newIndex = 0;
-          break;
-        case 'End':
-          e.preventDefault();
-          newIndex = sectionsRef.current.length - 1;
-          break;
-        default:
-          return;
+        case 'ArrowDown': case 'PageDown': e.preventDefault(); newIndex = Math.min(activeSection + 1, sectionsRef.current.length - 1); break;
+        case 'ArrowUp': case 'PageUp': e.preventDefault(); newIndex = Math.max(activeSection - 1, 0); break;
+        case 'Home': e.preventDefault(); newIndex = 0; break;
+        case 'End': e.preventDefault(); newIndex = sectionsRef.current.length - 1; break;
+        default: return;
       }
-
-      if (newIndex !== activeSection) {
-        scrollToSection(newIndex);
-      }
+      if (newIndex !== activeSection) scrollToSection(newIndex);
     };
-
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [activeSection, scrollToSection, isMenuOpen]);
+  }, [isMobile, isMenuOpen, activeSection, scrollToSection]);
 
-  // ========== MOBILE GALLERY SWIPE ==========
-  const handleTouchStart = useCallback((e) => {
-    if (!isMobile) return;
-    touchStartX.current = e.touches[0].clientX;
-  }, [isMobile]);
+  const { collections, services, craftsmanship } = homePageData;
 
-  const handleTouchEnd = useCallback((e) => {
-    if (!isMobile || !touchStartX.current) return;
-
-    const touchEndX = e.changedTouches[0].clientX;
-    const deltaX = touchEndX - touchStartX.current;
-    const threshold = 50;
-
-    if (Math.abs(deltaX) > threshold) {
-      if (deltaX > 0) {
-        setCurrentImageIndex(prev => prev === 0 ? heroImages.length - 1 : prev - 1);
-      } else {
-        setCurrentImageIndex(prev => prev === heroImages.length - 1 ? 0 : prev + 1);
-      }
-    }
-
-    touchStartX.current = 0;
-  }, [isMobile, heroImages.length]);
-
-  // Calculate image indices
-  const goToImage = useCallback((index) => {
-    if (!isMobile || index === currentImageIndex) return;
-    setCurrentImageIndex(index);
-  }, [isMobile, currentImageIndex]);
-
-  // Your original render function remains exactly the same
   return (
-    <div className="snap-scroll-container">
-      {/* Section 1 - Hero */}
-      <section
-        className="relative snap-section overflow-hidden min-h-screen h-screen"
-        ref={el => {
-          if (el && !sectionsRef.current[0]) sectionsRef.current[0] = el;
-        }}
-      >
-        <div className="absolute inset-0 w-full h-full overflow-hidden">
-          <video
-            autoPlay
-            muted
-            loop
-            playsInline
-            preload="auto"
-            className="absolute w-full h-full object-cover"
-            style={{ objectPosition: 'center 10%' }}
-          >
-            <source src="/videos/hero-background1.mp4" type="video/mp4" />
-          </video>
-          <div className="absolute inset-0 bg-black/30" />
-        </div>
-
-        <motion.div
-          initial={{ opacity: 0, scale: 0.95 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 0.6, ease: "easeOut" }}
-          className="relative z-10 h-full flex items-center justify-center"
-        >
-          <div className="text-center px-4">
-            <img
-              src="/uploads/asset/AL_logo.png"
-              alt="Attire Lounge"
-              className="hero-logo h-auto mx-auto filter brightness-0 invert drop-shadow-[0_0_30px_rgba(0,0,0,0.8)] opacity-90 max-w-[280px] md:max-w-none"
-              loading="eager"
-            />
-          </div>
-        </motion.div>
-
-        <motion.div
-          animate={{ y: [0, 10, 0] }}
-          transition={{ repeat: Infinity, duration: 1.5, ease: "easeInOut" }}
-          className="absolute bottom-8 left-1/2 transform -translate-x-1/2 cursor-pointer"
-          onClick={() => scrollToSection(1)}
-        >
-          <div className="text-white/70 text-sm mb-2">Scroll</div>
-          <div className="w-6 h-10 border-2 border-white/50 rounded-full flex justify-center">
-            <div className="w-1 h-3 bg-white/70 rounded-full mt-2 animate-bounce" />
-          </div>
-        </motion.div>
-      </section>
-
-      {/* Section 2 - Gallery */}
-      <section
-        className="relative snap-section bg-black min-h-screen h-screen"
-        ref={el => {
-          if (el && !sectionsRef.current[1]) sectionsRef.current[1] = el;
-        }}
-      >
-        {/* Desktop layout */}
-        <div className="hidden md:flex h-full w-full bg-white">
-          <div className="w-2/3 h-full flex flex-col">
-            <div className="relative h-1/2 w-full overflow-hidden group">
-              <img
-                src="/uploads/collections/Model/1.jpg"
-                alt="Modern Elegance"
-                className="absolute inset-0 w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-500"
-                loading="lazy"
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent" />
-              <div className="absolute bottom-8 left-8 text-white z-10">
-                <h3 className="font-playfair text-3xl md:text-4xl font-light mb-2">Modern Elegance</h3>
-                <p className="text-sm opacity-90 tracking-wider">Spring/Summer Collection</p>
-              </div>
-            </div>
-
-            <div className="relative h-1/2 w-full overflow-hidden group">
-              <img
-                src="/uploads/collections/Model/2.jpg"
-                alt="Urban Sophistication"
-                className="absolute inset-0 w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-500"
-                loading="lazy"
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent" />
-              <div className="absolute bottom-8 left-8 text-white z-10">
-                <h3 className="font-playfair text-3xl md:text-4xl font-light mb-2">Urban Sophistication</h3>
-                <p className="text-sm opacity-90 tracking-wider">Evening Wear Collection</p>
-              </div>
-            </div>
-          </div>
-
-          <div className="w-1/3 h-full relative overflow-hidden group">
-            <img
-              src="/uploads/collections/Model/3.jpg"
-              alt="Timeless Luxury"
-              className="absolute inset-0 w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-500"
-              loading="lazy"
-            />
-            <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent" />
-            <div className="absolute bottom-8 left-8 text-white z-10">
-              <h3 className="font-playfair text-3xl md:text-4xl font-light mb-2">Timeless Luxury</h3>
-              <p className="text-sm opacity-90 tracking-wider">Limited Edition</p>
-            </div>
-          </div>
-        </div>
-
-        {/* Mobile swipe gallery */}
-        <div
-          className="md:hidden h-full w-full relative overflow-hidden bg-black"
-          onTouchStart={handleTouchStart}
-          onTouchEnd={handleTouchEnd}
-        >
-          <div className="absolute inset-0 w-full h-full">
-            <motion.img
-              key={currentImageIndex}
-              src={heroImages[currentImageIndex].src}
-              alt={heroImages[currentImageIndex].title}
-              className="w-full h-full object-cover"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ duration: 0.3 }}
-            />
-            <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/30 to-transparent" />
-            <div className="absolute bottom-24 left-0 right-0 text-center text-white px-4">
-              <h3 className="font-playfair text-3xl font-light mb-2">
-                {heroImages[currentImageIndex].title}
-              </h3>
-              <p className="text-sm opacity-90 tracking-wider">
-                {heroImages[currentImageIndex].subtitle}
-              </p>
-            </div>
-          </div>
-
-          <div className="absolute bottom-16 left-1/2 transform -translate-x-1/2 flex space-x-3 z-30">
-            {heroImages.map((_, index) => (
-              <button
-                key={index}
-                onClick={() => goToImage(index)}
-                className={`transition-all duration-300 ${
-                  index === currentImageIndex
-                    ? 'w-8 h-2 bg-white rounded-full'
-                    : 'w-2 h-2 bg-white/50 rounded-full hover:bg-white/80'
-                }`}
-                aria-label={`Go to image ${index + 1}`}
-              />
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* Section 3 - Content */}
-      <section
-        className="relative snap-section bg-gradient-to-br from-attire-cream to-attire-cream/50 min-h-screen h-screen"
-        ref={el => {
-          if (el && !sectionsRef.current[2]) sectionsRef.current[2] = el;
-        }}
-      >
-        <div className="h-full flex flex-col items-center justify-center px-4">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.5, ease: "easeOut" }}
-            className="text-center max-w-2xl"
-          >
-            <h2 className="font-playfair text-3xl md:text-5xl lg:text-6xl text-attire-charcoal mb-6">
-              Experience Luxury
-            </h2>
-            <p className="text-base md:text-lg lg:text-xl text-attire-stone mb-8">
-              Discover premium styling and bespoke services tailored for the modern gentleman.
-            </p>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <button
-                onClick={() => scrollToSection(0)}
-                className="px-8 py-3 bg-attire-charcoal text-white rounded-full font-medium hover:bg-attire-dark transition-all duration-300 hover:scale-105 active:scale-95"
-              >
-                Back to Top
-              </button>
-              <button
-                onClick={() => scrollToSection(3)}
-                className="px-8 py-3 border-2 border-attire-charcoal text-attire-charcoal rounded-full font-medium hover:bg-attire-charcoal hover:text-white transition-all duration-300 hover:scale-105 active:scale-95"
-              >
-                Continue to Footer
-              </button>
-            </div>
-          </motion.div>
-        </div>
-      </section>
-
-      {/* Section 4 - Footer */}
-      <section
-        className="relative snap-section bg-black"
-        ref={el => {
-          if (el && !sectionsRef.current[3]) sectionsRef.current[3] = el;
-        }}
-        style={{
-          minHeight: '100vh',
-          height: 'auto',
-          overflowY: 'visible'
-        }}
-      >
-        <div className="h-full w-full">
-          <Footer />
-        </div>
-      </section>
+    <div className="snap-scroll-container bg-black">
+      <HeroSection ref={el => sectionsRef.current[0] = el} scrollToSection={scrollToSection} />
+      <PhilosophySection ref={el => sectionsRef.current[1] = el} />
+      <CollectionsSection ref={el => sectionsRef.current[2] = el} collections={collections} />
+      <ExperienceSection ref={el => sectionsRef.current[3] = el} services={services} />
+      <CraftsmanshipSection ref={el => sectionsRef.current[4] = el} craftsmanship={craftsmanship} />
+      <LookbookSection ref={el => sectionsRef.current[5] = el} />
+      <CTASection ref={el => sectionsRef.current[6] = el} />
+      <FooterSection ref={el => sectionsRef.current[7] = el} />
     </div>
   );
 };

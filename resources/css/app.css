@@ -5,7 +5,7 @@
 
 @layer base {
     body {
-        @apply antialiased;
+        @apply antialiased bg-attire-navy text-attire-cream;
         font-family: 'Inter', sans-serif;
         overflow-x: hidden;
         /* Prevent flicker on mobile */
@@ -14,7 +14,6 @@
     }
 
     html {
-        scroll-snap-type: y mandatory;
         scroll-behavior: auto; /* Let JS handle smooth scrolling */
         scrollbar-width: none;
         -ms-overflow-style: none;
@@ -283,8 +282,6 @@
 /* ============ ULTRA-SMOOTH SNAP SCROLL ============ */
 /* SINGLE DEFINITION - NO DUPLICATES */
 .snap-section {
-    scroll-snap-align: start;
-    scroll-snap-stop: always;
     height: 100vh;
     min-height: 100vh;
     position: relative;
@@ -353,12 +350,12 @@ footer {
 
 /* Edge Glow Effects */
 .edge-glow-top {
-    background: linear-gradient(to right, transparent, rgba(193, 154, 107, 0.3), transparent);
+    background: linear-gradient(to right, transparent, rgba(139, 107, 77, 0.3), transparent);
     height: 1px;
 }
 
 .edge-glow-bottom {
-    background: linear-gradient(to right, transparent, rgba(139, 115, 85, 0.3), transparent);
+    background: linear-gradient(to right, transparent, rgba(245, 168, 28, 0.3), transparent);
     height: 1px;
 }
 
@@ -441,7 +438,7 @@ img {
 
 /* Focus styles for accessibility */
 .focus-visible:focus {
-    outline: 2px solid #c19a6b;
+    outline: 2px solid #8B6B4D;
     outline-offset: 2px;
 }
 

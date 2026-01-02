@@ -40,7 +40,7 @@ const CollectionsPage = () => {
     };
 
     return (
-        <div className="min-h-screen py-24 px-4 sm:px-6 lg:px-8 bg-attire-cream/50">
+        <div className="min-h-screen py-24 px-4 sm:px-6 lg:px-8 bg-attire-navy">
             <motion.div
                 className="max-w-7xl mx-auto"
                 initial={{ opacity: 0, y: 20 }}
@@ -49,27 +49,27 @@ const CollectionsPage = () => {
             >
                 {/* Header */}
                 <div className="text-center mb-16">
-                    <h1 className="text-5xl md:text-7xl font-serif font-light text-attire-charcoal mb-3">Our Collections</h1>
-                    <p className="text-lg text-attire-stone max-w-2xl mx-auto">
+                    <h1 className="text-5xl md:text-7xl font-serif font-light text-white mb-3">Our Collections</h1>
+                    <p className="text-lg text-attire-silver max-w-2xl mx-auto">
                         Timeless elegance, curated for the modern gentleman.
                     </p>
                 </div>
 
                 {/* Animated Filter Tabs */}
                 <div className="flex justify-center mb-16">
-                    <div className="flex flex-wrap justify-center items-center gap-2 p-1.5 bg-black/5 backdrop-blur-sm rounded-full">
+                    <div className="flex flex-wrap justify-center items-center gap-2 p-1.5 bg-white/5 backdrop-blur-sm rounded-full">
                         {filters.map((filterItem) => (
                             <button
                                 key={filterItem.id}
                                 onClick={() => setFilter(filterItem.id)}
                                 className={`px-5 py-2.5 rounded-full text-sm font-medium transition-colors relative ${
-                                    filter === filterItem.id ? 'text-attire-charcoal' : 'text-attire-stone/70 hover:text-attire-charcoal'
+                                    filter === filterItem.id ? 'text-white' : 'text-attire-silver/70 hover:text-white'
                                 }`}
                             >
                                 {filter === filterItem.id && (
                                     <motion.div
                                         layoutId="collection-filter-active"
-                                        className="absolute inset-0 bg-white shadow-md rounded-full"
+                                        className="absolute inset-0 bg-attire-dark shadow-md rounded-full"
                                         transition={{ type: 'spring', stiffness: 200, damping: 20 }}
                                     />
                                 )}
@@ -99,7 +99,7 @@ const CollectionsPage = () => {
                         animate={{ opacity: 1, y: 0 }}
                         className="text-center py-20"
                     >
-                        <p className="text-attire-stone text-lg">No collections match this filter.</p>
+                        <p className="text-attire-silver text-lg">No collections match this filter.</p>
                     </motion.div>
                  )}
             </motion.div>
