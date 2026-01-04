@@ -50,14 +50,22 @@ const HeroSection = memo(forwardRef(({ scrollToSection }, ref) => (
 )));
 
 const PhilosophySection = memo(forwardRef((props, ref) => (
-  <section className="relative snap-section bg-attire-navy min-h-screen h-screen flex items-center justify-center p-8" ref={ref}>
-    <div className="bg-attire-cream/20 backdrop-blur-lg border border-attire-cream/30 rounded-2xl shadow-lg p-8 md:p-12 max-w-3xl mx-auto">
-      <div className="text-center">
-        <motion.h2 variants={itemVariants} initial="hidden" whileInView="visible" viewport={{ once: true, amount: 0.5 }} className="font-serif text-sm md:text-base tracking-[0.2em] text-attire-accent uppercase mb-4">Our Philosophy</motion.h2>
-        <motion.p variants={itemVariants} initial="hidden" whileInView="visible" viewport={{ once: true, amount: 0.5 }} transition={{ delay: 0.2 }} className="font-serif text-2xl md:text-4xl text-attire-cream leading-relaxed">
-          Attire Lounge is Cambodia's first sartorial gentlemen's styling house, offering a variety of ready-to-wear collections and premium styling with our Milan-certified team.
-        </motion.p>
-      </div>
+  <section className="relative snap-section min-h-screen h-screen flex items-center justify-center p-8 overflow-hidden" ref={ref}>
+    {/* Background Image */}
+    <div className="absolute inset-0 w-full h-full bg-cover bg-center"
+         style={{ backgroundImage: `url('https://attireloungeofficial.com/_assets/media/dfed654ca81763082b9b85078b2d6d38.jpg')` }}
+    />
+    {/* Overlay */}
+    <div className="absolute inset-0 bg-attire-dark/60" />
+
+    {/* Text Content - Same structure as ExperienceSection */}
+    <div className="absolute inset-0 flex items-center justify-center">
+        <div className="w-full max-w-6xl mx-auto text-attire-cream text-center p-4">
+            <motion.h2 variants={itemVariants} initial="hidden" whileInView="visible" viewport={{ once: true, amount: 0.5 }} className="font-serif text-sm md:text-base tracking-[0.2em] text-attire-accent uppercase mb-4">Our Philosophy</motion.h2>
+            <motion.p variants={itemVariants} initial="hidden" whileInView="visible" viewport={{ once: true, amount: 0.5 }} transition={{ delay: 0.2 }} className="font-serif text-2xl md:text-4xl text-attire-cream leading-relaxed">
+              Attire Lounge is Cambodia's first sartorial gentlemen's styling house, offering a variety of ready-to-wear collections and premium styling with our Milan-certified team.
+            </motion.p>
+        </div>
     </div>
   </section>
 )));
@@ -86,38 +94,41 @@ const CollectionsSection = memo(forwardRef(({ collections }, ref) => (
   </section>
 )));
 
-const ExperienceSection = memo(forwardRef(({ services }, ref) => (
-  <section className="relative snap-section bg-attire-navy min-h-screen h-screen flex flex-col justify-center p-8" ref={ref}>
-    <div className="bg-attire-cream/20 backdrop-blur-lg border border-attire-cream/30 rounded-2xl shadow-lg w-full max-w-6xl mx-auto py-12 px-8">
-      <motion.div variants={containerVariants} initial="hidden" whileInView="visible" viewport={{ once: true }} className="text-center">
-        <h2 className="font-serif text-3xl md:text-5xl text-white mb-4">The Attire Lounge Experience</h2>
-        <p className="text-attire-silver md:text-lg mb-16">What sets us apart is our commitment to a premium, personalized service.</p>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-12">
-          {services.map((service) => (
-            <motion.div key={service.name} variants={itemVariants} className="text-left">
-              <div className="flex items-center gap-4 mb-4">{service.icon}<h3 className="font-serif text-2xl text-attire-cream">{service.name}</h3></div>
-              <p className="text-attire-silver leading-relaxed">{service.description}</p>
-            </motion.div>
-          ))}
+const ExperienceSection = memo(forwardRef((props, ref) => (
+  <section className="relative snap-section min-h-screen h-screen flex flex-col justify-center overflow-hidden" ref={ref}>
+    <div className="absolute inset-0 w-full h-full bg-cover bg-center transition-opacity duration-1000 ease-in-out"
+         style={{ backgroundImage: `url('https://attireloungeofficial.com/_assets/media/d8f23c70ec13bacd04774f4fccba7e84.jpg')` }}
+    />
+    <div className="absolute inset-0 bg-attire-dark/60" />
+    <div className="absolute inset-0 flex items-center justify-center"> {/* This is the flex container */}
+        <div className="w-full max-w-6xl mx-auto text-attire-cream text-center p-4"> {/* New div to group and center content */}
+            <h2 className="font-serif text-5xl md:text-7xl text-white mb-6 leading-tight">Sartorial</h2>
+            <p className="max-w-3xl mx-auto text-attire-silver md:text-xl leading-relaxed">
+                Classic ready-to-wear sartorial style from top-to-toe including blazers, suits, shirts, high-rise pants, and gentlemen accessories.
+            </p>
         </div>
-      </motion.div>
     </div>
   </section>
 )));
 
-const CraftsmanshipSection = memo(forwardRef(({ craftsmanship }, ref) => (
-  <section className="relative snap-section bg-attire-dark min-h-screen h-screen flex flex-col justify-center text-attire-cream p-8" ref={ref}>
-     <div className="w-full max-w-6xl mx-auto text-center">
-        <h2 className="font-serif text-3xl md:text-5xl text-white mb-4">The Art of Sartorial Excellence</h2>
-        <p className="text-attire-silver md:text-lg mb-16">Every detail matters in our pursuit of uncompromising quality.</p>
-        <motion.div variants={containerVariants} initial="hidden" whileInView="visible" viewport={{ once: true }} className="grid grid-cols-1 md:grid-cols-3 gap-8">
-          {craftsmanship.map((item) => (
-            <motion.div key={item.name} variants={itemVariants} className="text-center p-8 border border-attire-cream/10 rounded-2xl bg-attire-dark/20 backdrop-blur-md">
-              <div className="inline-block p-4 bg-black/20 rounded-full mb-6">{item.icon}</div>
-              <h3 className="font-serif text-2xl text-white mb-4">{item.name}</h3>
-              <p className="text-attire-silver leading-relaxed">{item.description}</p>
-            </motion.div>
-          ))}
+const CraftsmanshipSection = memo(forwardRef((props, ref) => (
+  <section className="relative snap-section min-h-screen h-screen flex flex-col bg-black" ref={ref}>
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 h-full w-full">
+        {/* Image 1 */}
+        <motion.div variants={itemVariants} initial="hidden" whileInView="visible" viewport={{ once: true }} className="relative group overflow-hidden h-full">
+            <img src="/uploads/collections/Model/1.jpg" alt="Sartorial Fit 1" className="w-full h-full object-cover transform transition-transform duration-500 group-hover:scale-105" />
+        </motion.div>
+        {/* Image 2 */}
+        <motion.div variants={itemVariants} initial="hidden" whileInView="visible" viewport={{ once: true }} className="relative group overflow-hidden h-full">
+            <img src="/uploads/collections/Model/2.jpg" alt="Sartorial Fit 2" className="w-full h-full object-cover transform transition-transform duration-500 group-hover:scale-105" />
+        </motion.div>
+        {/* Image 3 */}
+        <motion.div variants={itemVariants} initial="hidden" whileInView="visible" viewport={{ once: true }} className="relative group overflow-hidden h-full">
+            <img src="/uploads/collections/Model/3.jpg" alt="Sartorial Fit 3" className="w-full h-full object-cover transform transition-transform duration-500 group-hover:scale-105" />
+        </motion.div>
+        {/* Image 4 */}
+        <motion.div variants={itemVariants} initial="hidden" whileInView="visible" viewport={{ once: true }} className="relative group overflow-hidden h-full">
+            <img src="/uploads/collections/Model/4.jpg" alt="Sartorial Fit 4" className="w-full h-full object-cover transform transition-transform duration-500 group-hover:scale-105" />
         </motion.div>
     </div>
   </section>
@@ -160,6 +171,8 @@ const FooterSection = memo(forwardRef((props, ref) => (
     </div>
   </section>
 )));
+
+
 
 // --- Main Homepage Component ---
 
