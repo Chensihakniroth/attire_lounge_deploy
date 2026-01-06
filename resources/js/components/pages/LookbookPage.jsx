@@ -139,8 +139,12 @@ const LookbookPage = () => {
             <motion.div
                 className="flex-grow overflow-y-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]"
                 onPanEnd={isMobile ? (event, info) => {
-                    if (info.offset.x < -30) {
+                    const threshold = 50;
+                    const velocityThreshold = 300;
+                    if (info.offset.x < -threshold && info.velocity.x < -velocityThreshold) {
                         setIsFilterOpen(true);
+                    } else if (info.offset.x > threshold && info.velocity.x > velocityThreshold) {
+                        setIsFilterOpen(false);
                     }
                 } : undefined}
             >
@@ -184,7 +188,9 @@ const LookbookPage = () => {
                         exit={{ x: "100%" }}
                         transition={{ type: 'spring', stiffness: 300, damping: 30 }}
                         onPanEnd={(event, info) => {
-                            if (info.offset.x > 60) {
+                            const threshold = 50;
+                            const velocityThreshold = 300;
+                            if (info.offset.x > threshold && info.velocity.x > velocityThreshold) {
                                 setIsFilterOpen(false);
                             }
                         }}
