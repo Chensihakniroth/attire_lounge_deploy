@@ -126,7 +126,27 @@ const LookbookPage = () => {
     };
 
     return (
-        <div className="h-full w-full flex bg-attire-navy overflow-hidden relative">
+        <motion.div
+        className="h-full w-full flex bg-attire-navy overflow-hidden relative"
+        onPanEnd={isMobile ? (event, info) => {
+            const threshold = 50;
+            const velocityThreshold = 200;
+
+            if (Math.abs(info.velocity.y) > Math.abs(info.velocity.x)) {
+                return;
+            }
+
+            if (isFilterOpen) {
+                if (info.offset.x > threshold && info.velocity.x > velocityThreshold) {
+                    setIsFilterOpen(false);
+                }
+            } else {
+                if (info.offset.x < -threshold && info.velocity.x < -velocityThreshold) {
+                    setIsFilterOpen(true);
+                }
+            }
+        } : undefined}
+    >
             {isMobile && !isFilterOpen && (
                 <button
                     className="fixed top-6 right-6 z-30 p-3 bg-attire-dark/50 backdrop-blur-sm rounded-full text-white shadow-lg"
@@ -137,16 +157,7 @@ const LookbookPage = () => {
             )}
             {/* Main Content - Grid */}
             <motion.div
-                className="flex-grow overflow-y-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]"
-                onPanEnd={isMobile ? (event, info) => {
-                    const threshold = 50;
-                    const velocityThreshold = 300;
-                    if (info.offset.x < -threshold && info.velocity.x < -velocityThreshold) {
-                        setIsFilterOpen(true);
-                    } else if (info.offset.x > threshold && info.velocity.x > velocityThreshold) {
-                        setIsFilterOpen(false);
-                    }
-                } : undefined}
+                className="flex-grow overflow-y-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none] touch-pan-y"
             >
                 <motion.div
                     key={filter}
@@ -187,13 +198,6 @@ const LookbookPage = () => {
                         animate={{ x: 0 }}
                         exit={{ x: "100%" }}
                         transition={{ type: 'spring', stiffness: 300, damping: 30 }}
-                        onPanEnd={(event, info) => {
-                            const threshold = 50;
-                            const velocityThreshold = 300;
-                            if (info.offset.x > threshold && info.velocity.x > velocityThreshold) {
-                                setIsFilterOpen(false);
-                            }
-                        }}
                     >
                         <div className="flex justify-between items-center mb-8">
                             <h2 className="text-2xl font-serif text-white">Filter by</h2>
@@ -219,7 +223,7 @@ const LookbookPage = () => {
                     />
                 )}
             </AnimatePresence>
-        </div>
+        </motion.div>
     );
 };
 
