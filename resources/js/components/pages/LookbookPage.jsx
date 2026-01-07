@@ -45,7 +45,7 @@ const FilterContent = ({ isMobile, setFilter, setIsFilterOpen, currentFilter }) 
     );
 };
 
-const minioBaseUrl = 'http://127.0.0.1:9000/product-assets';
+const minioBaseUrl = `${process.env.MINIO_PUBLIC_ENDPOINT}/product-assets`;
 
 const LookbookPage = () => {
     const [images] = useState([

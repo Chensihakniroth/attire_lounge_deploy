@@ -2,7 +2,7 @@ import React, { useRef, useEffect, useState } from 'react';
 import { ChevronRight, Sparkles } from 'lucide-react';
 import { motion } from 'framer-motion';
 
-const minioBaseUrl = 'http://127.0.0.1:9000/product-assets';
+const minioBaseUrl = `${process.env.MINIO_PUBLIC_ENDPOINT}/product-assets`;
 
 const Hero = () => {
     const videoRef = useRef(null);
