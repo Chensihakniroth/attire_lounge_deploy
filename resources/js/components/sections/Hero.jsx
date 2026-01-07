@@ -1,3 +1,4 @@
+const minioBaseUrl = 'http://127.0.0.1:9000/product-assets';
 import React, { useRef, useEffect, useState } from 'react';
 import { ChevronRight, Sparkles } from 'lucide-react';
 import { motion } from 'framer-motion';
@@ -35,7 +36,7 @@ const Hero = () => {
                     loop
                     playsInline
                     preload="metadata"
-                    poster="/videos/hero-poster.jpg" // You should create this from a video frame
+                    poster={`${minioBaseUrl}/videos/hero-poster.jpg`} // You should create this from a video frame
                     onLoadedData={() => setIsVideoLoaded(true)}
                     className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-1000 ${
                         isVideoLoaded ? 'opacity-100' : 'opacity-0'
@@ -43,12 +44,12 @@ const Hero = () => {
                 >
                     {/* Primary MP4 source - HIGHLY COMPRESSED */}
                     <source
-                        src="/videos/hero-background.mp4"
+                        src={`${minioBaseUrl}/videos/hero-background.mp4`}
                         type="video/mp4"
                     />
                     {/* Optional WebM for better compression in supporting browsers */}
                     <source
-                        src="/videos/hero-background.webm"
+                        src={`${minioBaseUrl}/videos/hero-background.webm`}
                         type="video/webm"
                     />
                     {/* Fallback for browsers that don't support video */}

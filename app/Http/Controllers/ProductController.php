@@ -60,7 +60,7 @@ class ProductController extends Controller
                         'category' => $product->category,
                         'featured' => $product->featured,
                         'in_stock' => $product->in_stock,
-                        'images' => $product->images ? json_decode($product->images) : [],
+                        'images' => $product->images,
                         'discount_percent' => $product->compare_price
                             ? round((($product->compare_price - $product->price) / $product->compare_price) * 100)
                             : 0,
@@ -95,7 +95,7 @@ class ProductController extends Controller
                         'price' => number_format($product->price, 2),
                         'compare_price' => $product->compare_price ? number_format($product->compare_price, 2) : null,
                         'category' => $product->category,
-                        'images' => $product->images ? json_decode($product->images) : [],
+                        'images' => $product->images,
                         'in_stock' => $product->in_stock,
                         'discount_percent' => $product->compare_price
                             ? round((($product->compare_price - $product->price) / $product->compare_price) * 100)
@@ -140,9 +140,9 @@ class ProductController extends Controller
                     'featured' => $product->featured,
                     'in_stock' => $product->in_stock,
                     'stock_quantity' => $product->stock_quantity,
-                    'images' => $product->images ? json_decode($product->images) : [],
-                    'sizes' => $product->sizes ? json_decode($product->sizes) : [],
-                    'colors' => $product->colors ? json_decode($product->colors) : [],
+                    'images' => $product->images,
+                    'sizes' => $product->sizes,
+                    'colors' => $product->colors,
                     'fabric' => $product->fabric,
                     'fit' => $product->fit,
                     'discount_percent' => $product->compare_price

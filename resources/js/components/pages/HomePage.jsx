@@ -1,17 +1,12 @@
-// resources/js/components/pages/HomePage.jsx - V6 (Final Polish with Glass Effects)
-import React, { useEffect, useRef, useState, useCallback, forwardRef, memo } from 'react';
-import { motion } from 'framer-motion';
-import { Users, Scissors, Coffee, ArrowRight, Gem, Feather, Palette } from 'lucide-react';
-import Footer from '../layouts/Footer';
-import { Link } from 'react-router-dom';
+const minioBaseUrl = 'http://127.0.0.1:9000/product-assets';
 
 // --- Data Store for Homepage Sections ---
 const homePageData = {
   collections: [
-    { name: "Sartorial", description: "Classic ready-to-wear style from top-to-toe.", image: "/uploads/collections/Model/1.jpg", link: "/collections" },
-    { name: "Groom & Groomsmen", description: "Elevate your style on your special day.", image: "/uploads/collections/Model/2.jpg", link: "/collections" },
-    { name: "Office Wear", description: "Feel your best at work with modern, diverse styles.", image: "/uploads/collections/Model/3.jpg", link: "/collections" },
-    { name: "Accessories", description: "The little details that make a big difference.", image: "/uploads/collections/Model/4.jpg", link: "/collections" }
+    { name: "Sartorial", description: "Classic ready-to-wear style from top-to-toe.", image: `${minioBaseUrl}/uploads/collections/Model/1.jpg`, link: "/collections" },
+    { name: "Groom & Groomsmen", description: "Elevate your style on your special day.", image: `${minioBaseUrl}/uploads/collections/Model/2.jpg`, link: "/collections" },
+    { name: "Office Wear", description: "Feel your best at work with modern, diverse styles.", image: `${minioBaseUrl}/uploads/collections/Model/3.jpg`, link: "/collections" },
+    { name: "Accessories", description: "The little details that make a big difference.", image: `${minioBaseUrl}/uploads/collections/Model/4.jpg`, link: "/collections" }
   ],
   services: [
     { name: "Milan-Certified Styling", description: "Receive a free, expert styling consultation from our Milan-certified team to discover the perfect look for you.", icon: <Users size={32} className="text-attire-accent" /> },
@@ -40,11 +35,11 @@ const itemVariants = {
 const HeroSection = memo(forwardRef(({ scrollToSection }, ref) => (
   <section className="relative snap-section overflow-hidden min-h-screen h-screen" ref={ref}>
     <div className="absolute inset-0 w-full h-full overflow-hidden">
-      <video autoPlay muted loop playsInline preload="auto" className="absolute w-full h-full object-cover" style={{ objectPosition: 'center 10%' }}><source src="/videos/hero-background1.mp4" type="video/mp4" /></video>
+      <video autoPlay muted loop playsInline preload="auto" className="absolute w-full h-full object-cover" style={{ objectPosition: 'center 10%' }}><source src={`${minioBaseUrl}/videos/hero-background1.mp4`} type="video/mp4" /></video>
       <div className="absolute inset-0 bg-attire-dark/40" />
     </div>
     <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.8 }} className="relative z-10 h-full flex items-center justify-center">
-      <img src="/uploads/asset/AL_logo.png" alt="Attire Lounge" className="h-auto mx-auto filter brightness-0 invert drop-shadow-[0_0_30px_rgba(0,0,0,0.8)] opacity-90 max-w-[280px] md:max-w-sm" loading="eager" />
+      <img src={`${minioBaseUrl}/uploads/asset/AL_logo.png`} alt="Attire Lounge" className="h-auto mx-auto filter brightness-0 invert drop-shadow-[0_0_30px_rgba(0,0,0,0.8)] opacity-90 max-w-[280px] md:max-w-sm" loading="eager" />
     </motion.div>
   </section>
 )));
@@ -53,7 +48,7 @@ const PhilosophySection = memo(forwardRef((props, ref) => (
   <section className="relative snap-section min-h-screen h-screen flex items-center justify-center p-8 overflow-hidden" ref={ref}>
     {/* Background Image */}
     <div className="absolute inset-0 w-full h-full bg-cover bg-center"
-         style={{ backgroundImage: `url('https://attireloungeofficial.com/_assets/media/dfed654ca81763082b9b85078b2d6d38.jpg')` }}
+         style={{ backgroundImage: `url('${minioBaseUrl}/_assets/media/dfed654ca81763082b9b85078b2d6d38.jpg')` }}
     />
     {/* Overlay */}
     <div className="absolute inset-0 bg-attire-dark/60" />
@@ -97,7 +92,7 @@ const CollectionsSection = memo(forwardRef(({ collections }, ref) => (
 const ExperienceSection = memo(forwardRef((props, ref) => (
   <section className="relative snap-section min-h-screen h-screen flex flex-col justify-center overflow-hidden" ref={ref}>
     <div className="absolute inset-0 w-full h-full bg-cover bg-center transition-opacity duration-1000 ease-in-out"
-         style={{ backgroundImage: `url('https://attireloungeofficial.com/_assets/media/d8f23c70ec13bacd04774f4fccba7e84.jpg')` }}
+         style={{ backgroundImage: `url('${minioBaseUrl}/_assets/media/d8f23c70ec13bacd04774f4fccba7e84.jpg')` }}
     />
     <div className="absolute inset-0 bg-attire-dark/60" />
     <div className="absolute inset-0 flex items-center justify-center"> {/* This is the flex container */}
@@ -116,19 +111,19 @@ const CraftsmanshipSection = memo(forwardRef((props, ref) => (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 h-full w-full">
         {/* Image 1 */}
         <motion.div variants={itemVariants} initial="hidden" whileInView="visible" viewport={{ once: true }} className="relative group overflow-hidden h-full">
-            <img src="/uploads/collections/Model/1.jpg" alt="Sartorial Fit 1" className="w-full h-full object-cover transform transition-transform duration-500 group-hover:scale-105" />
+            <img src={`${minioBaseUrl}/uploads/collections/Model/1.jpg`} alt="Sartorial Fit 1" className="w-full h-full object-cover transform transition-transform duration-500 group-hover:scale-105" />
         </motion.div>
         {/* Image 2 */}
         <motion.div variants={itemVariants} initial="hidden" whileInView="visible" viewport={{ once: true }} className="relative group overflow-hidden h-full">
-            <img src="/uploads/collections/Model/2.jpg" alt="Sartorial Fit 2" className="w-full h-full object-cover transform transition-transform duration-500 group-hover:scale-105" />
+            <img src={`${minioBaseUrl}/uploads/collections/Model/2.jpg`} alt="Sartorial Fit 2" className="w-full h-full object-cover transform transition-transform duration-500 group-hover:scale-105" />
         </motion.div>
         {/* Image 3 */}
         <motion.div variants={itemVariants} initial="hidden" whileInView="visible" viewport={{ once: true }} className="relative group overflow-hidden h-full">
-            <img src="/uploads/collections/Model/3.jpg" alt="Sartorial Fit 3" className="w-full h-full object-cover transform transition-transform duration-500 group-hover:scale-105" />
+            <img src={`${minioBaseUrl}/uploads/collections/Model/3.jpg`} alt="Sartorial Fit 3" className="w-full h-full object-cover transform transition-transform duration-500 group-hover:scale-105" />
         </motion.div>
         {/* Image 4 */}
         <motion.div variants={itemVariants} initial="hidden" whileInView="visible" viewport={{ once: true }} className="relative group overflow-hidden h-full">
-            <img src="/uploads/collections/Model/4.jpg" alt="Sartorial Fit 4" className="w-full h-full object-cover transform transition-transform duration-500 group-hover:scale-105" />
+            <img src={`${minioBaseUrl}/uploads/collections/Model/4.jpg`} alt="Sartorial Fit 4" className="w-full h-full object-cover transform transition-transform duration-500 group-hover:scale-105" />
         </motion.div>
     </div>
   </section>
@@ -136,7 +131,7 @@ const CraftsmanshipSection = memo(forwardRef((props, ref) => (
 
 const LookbookSection = memo(forwardRef((props, ref) => (
   <section className="relative snap-section bg-attire-dark min-h-screen h-screen" ref={ref}>
-    <img src="/uploads/collections/Model/5.jpg" alt="Lookbook" className="absolute inset-0 w-full h-full object-cover object-center" loading="lazy" decoding="async" />
+    <img src={`${minioBaseUrl}/uploads/collections/Model/5.jpg`} alt="Lookbook" className="absolute inset-0 w-full h-full object-cover object-center" loading="lazy" decoding="async" />
     <div className="absolute inset-0 bg-attire-dark/50" />
     <div className="relative h-full flex flex-col items-center justify-center text-center text-attire-cream p-8">
       <div className="bg-attire-dark/20 backdrop-blur-md border border-attire-cream/10 rounded-2xl shadow-lg p-8 md:p-12">
@@ -149,129 +144,3 @@ const LookbookSection = memo(forwardRef((props, ref) => (
     </div>
   </section>
 )));
-
-const CTASection = memo(forwardRef((props, ref) => (
-  <section className="relative snap-section bg-attire-navy min-h-screen h-screen flex items-center justify-center p-8" ref={ref}>
-    <div className="bg-attire-cream/20 backdrop-blur-lg border border-attire-cream/30 rounded-2xl shadow-lg p-8 md:p-12 max-w-3xl mx-auto">
-      <div className="text-center">
-        <motion.h2 variants={itemVariants} initial="hidden" whileInView="visible" viewport={{once: true}} className="font-serif text-3xl md:text-5xl text-white mb-6">Begin Your Sartorial Journey</motion.h2>
-        <motion.p variants={itemVariants} initial="hidden" whileInView="visible" viewport={{once: true}} transition={{delay: 0.2}} className="text-attire-silver md:text-lg mb-10">Experience the difference of personalized styling. Book a private consultation with our experts today.</motion.p>
-        <motion.div variants={itemVariants} initial="hidden" whileInView="visible" viewport={{once: true}} transition={{delay: 0.4}}>
-          <Link to="/contact" className="inline-block bg-attire-accent text-white font-semibold px-12 py-4 rounded-lg hover:bg-attire-accent/90 transition-colors">Book a Consultation</Link>
-        </motion.div>
-      </div>
-    </div>
-  </section>
-)));
-
-const FooterSection = memo(forwardRef((props, ref) => (
-  <section className="relative snap-section bg-attire-dark min-h-screen h-screen flex flex-col justify-center" ref={ref}>
-    <div className="w-full">
-      <Footer />
-    </div>
-  </section>
-)));
-
-
-
-// --- Main Homepage Component ---
-
-const HomePage = () => {
-  const [isMobile, setIsMobile] = useState(false);
-  const [activeSection, setActiveSection] = useState(0);
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
-
-  const sectionsRef = useRef([]);
-  const isScrollingRef = useRef(false);
-
-  useEffect(() => {
-    const checkMobile = () => setIsMobile(window.innerWidth < 768);
-    checkMobile();
-    window.addEventListener('resize', checkMobile);
-    return () => window.removeEventListener('resize', checkMobile);
-  }, []);
-
-  useEffect(() => {
-    sectionsRef.current = sectionsRef.current.slice(0, 8); // 8 sections total
-    const handleMenuStateChange = (e) => {
-      if (e.detail && e.detail.isMenuOpen !== undefined) setIsMenuOpen(e.detail.isMenuOpen);
-    };
-    window.addEventListener('menuStateChange', handleMenuStateChange);
-    return () => window.removeEventListener('menuStateChange', handleMenuStateChange);
-  }, []);
-
-  const scrollToSection = useCallback((index) => {
-    if (isScrollingRef.current || !sectionsRef.current[index] || isMenuOpen) return;
-    isScrollingRef.current = true;
-    const targetY = sectionsRef.current[index].offsetTop;
-    const startY = window.scrollY;
-    const distance = targetY - startY;
-    const duration = 400;
-    let startTime = null;
-    const easing = (t) => t === 0 ? 0 : t === 1 ? 1 : t < 0.5 ? Math.pow(2, 20 * t - 10) / 2 : (2 - Math.pow(2, -20 * t + 10)) / 2;
-    const animation = (currentTime) => {
-      if (startTime === null) startTime = currentTime;
-      const timeElapsed = currentTime - startTime;
-      const progress = Math.min(timeElapsed / duration, 1);
-      window.scrollTo(0, startY + distance * easing(progress));
-      if (timeElapsed < duration) {
-        requestAnimationFrame(animation);
-      } else {
-        setActiveSection(index);
-        isScrollingRef.current = false;
-      }
-    };
-    requestAnimationFrame(animation);
-  }, [isMenuOpen]);
-
-  useEffect(() => {
-    if (isMobile || isMenuOpen) return;
-    const handleWheel = (e) => {
-      e.preventDefault();
-      if (isScrollingRef.current) return;
-      const deltaY = e.deltaY;
-      let newIndex = activeSection;
-      if (Math.abs(deltaY) > 5) {
-        if (deltaY > 0) newIndex = Math.min(activeSection + 1, sectionsRef.current.length - 1);
-        else newIndex = Math.max(activeSection - 1, 0);
-        if (newIndex !== activeSection) scrollToSection(newIndex);
-      }
-    };
-    window.addEventListener('wheel', handleWheel, { passive: false });
-    return () => window.removeEventListener('wheel', handleWheel);
-  }, [isMobile, isMenuOpen, activeSection, scrollToSection]);
-
-  useEffect(() => {
-    const handleKeyDown = (e) => {
-      if (isMobile || isMenuOpen || isScrollingRef.current) return;
-      let newIndex = activeSection;
-      switch (e.key) {
-        case 'ArrowDown': case 'PageDown': e.preventDefault(); newIndex = Math.min(activeSection + 1, sectionsRef.current.length - 1); break;
-        case 'ArrowUp': case 'PageUp': e.preventDefault(); newIndex = Math.max(activeSection - 1, 0); break;
-        case 'Home': e.preventDefault(); newIndex = 0; break;
-        case 'End': e.preventDefault(); newIndex = sectionsRef.current.length - 1; break;
-        default: return;
-      }
-      if (newIndex !== activeSection) scrollToSection(newIndex);
-    };
-    window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [isMobile, isMenuOpen, activeSection, scrollToSection]);
-
-  const { collections, services, craftsmanship } = homePageData;
-
-  return (
-    <div className="snap-scroll-container bg-black">
-      <HeroSection ref={el => sectionsRef.current[0] = el} scrollToSection={scrollToSection} />
-      <PhilosophySection ref={el => sectionsRef.current[1] = el} />
-      <CollectionsSection ref={el => sectionsRef.current[2] = el} collections={collections} />
-      <ExperienceSection ref={el => sectionsRef.current[3] = el} services={services} />
-      <CraftsmanshipSection ref={el => sectionsRef.current[4] = el} craftsmanship={craftsmanship} />
-      <LookbookSection ref={el => sectionsRef.current[5] = el} />
-      <CTASection ref={el => sectionsRef.current[6] = el} />
-      <FooterSection ref={el => sectionsRef.current[7] = el} />
-    </div>
-  );
-};
-
-export default HomePage;

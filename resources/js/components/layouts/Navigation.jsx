@@ -12,6 +12,13 @@ const Navigation = () => {
     const [isScrolled, setIsScrolled] = useState(false);
     const [isHovered, setIsHovered] = useState(false);
     const [isMobile, setIsMobile] = useState(false);
+    const [isLookbookFilterOpen, setIsLookbookFilterOpen] = useState(false);
+
+    useEffect(() => {
+        const handler = ({ detail }) => setIsLookbookFilterOpen(detail.isFilterOpen);
+        window.addEventListener('lookbookFilterStateChange', handler);
+        return () => window.removeEventListener('lookbookFilterStateChange', handler);
+    }, []);
     
     const location = useLocation();
     const isHomePage = location.pathname === '/';
@@ -83,6 +90,10 @@ const Navigation = () => {
         open: { y: 0, opacity: 1, transition: { y: { stiffness: 1000, velocity: -100 } } },
         closed: { y: 50, opacity: 0, transition: { y: { stiffness: 1000 } } }
     };
+
+    if (isLookbookFilterOpen && isMobile) {
+        return null;
+    }
 
     return (
         <>

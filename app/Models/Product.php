@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 
@@ -38,6 +39,23 @@ class Product extends Model
         'price' => 'decimal:2',
         'compare_price' => 'decimal:2'
     ];
+
+    /**
+     * Get the images attribute.
+     *
+     * @param  string  $value
+     * @return array
+     */
+    public function getImagesAttribute($value)
+    {
+        $imagePaths = json_decode($value, true) ?? [];
+
+        if (empty($imagePaths)) {
+            return [];
+        }
+        
+        return array_map(fn($path) => Storage::url($path), $imagePaths);
+    }
 
     public function scopeFeatured($query)
     {

@@ -107,6 +107,11 @@ const LookbookPage = () => {
     };
 
     useEffect(() => {
+        const filterState = isMobile ? isFilterOpen : false;
+        window.dispatchEvent(new CustomEvent('lookbookFilterStateChange', { detail: { isFilterOpen: filterState } }));
+    }, [isFilterOpen, isMobile]);
+
+    useEffect(() => {
         const handleKeyDown = (e) => {
             if (page === null) return;
             if (e.key === 'ArrowRight') paginate(1);
