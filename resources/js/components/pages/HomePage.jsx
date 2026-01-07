@@ -1,3 +1,10 @@
+// resources/js/components/pages/HomePage.jsx - V6 (Final Polish with Glass Effects)
+import React, { useEffect, useRef, useState, useCallback, forwardRef, memo } from 'react';
+import { motion } from 'framer-motion';
+import { Users, Scissors, Coffee, ArrowRight, Gem, Feather, Palette } from 'lucide-react';
+import Footer from '../layouts/Footer';
+import { Link } from 'react-router-dom';
+
 const minioBaseUrl = 'http://127.0.0.1:9000/product-assets';
 
 // --- Data Store for Homepage Sections ---
