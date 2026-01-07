@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import CollectionCard from './collections/CollectionCard';
 
-const minioBaseUrl = `${process.env.MINIO_PUBLIC_ENDPOINT}/product-assets`;
+import minioBaseUrl from '../../config.js';
 
 // Mock collection data
 const collections = [

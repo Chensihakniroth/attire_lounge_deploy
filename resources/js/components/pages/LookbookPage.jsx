@@ -45,7 +45,7 @@ const FilterContent = ({ isMobile, setFilter, setIsFilterOpen, currentFilter }) 
     );
 };
 
-const minioBaseUrl = `${process.env.MINIO_PUBLIC_ENDPOINT}/product-assets`;
+import minioBaseUrl from '../../config.js';
 
 const LookbookPage = () => {
     const [images] = useState([

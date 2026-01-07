@@ -5,7 +5,7 @@ import { Users, Scissors, Coffee, ArrowRight, Gem, Feather, Palette } from 'luci
 import Footer from '../layouts/Footer';
 import { Link } from 'react-router-dom';
 
-const minioBaseUrl = `${process.env.MINIO_PUBLIC_ENDPOINT}/product-assets`;
+import minioBaseUrl from '../../config.js';
 
 // --- Data Store for Homepage Sections ---
 const homePageData = {
