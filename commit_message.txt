@@ -1,0 +1,22 @@
+feat: Integrate MinIO for asset management and fix build errors
+
+This commit integrates MinIO for serving static assets (images and videos)
+across the application. It replaces hardcoded local paths with dynamic
+MinIO URLs, configured via the MINIO_PUBLIC_ENDPOINT environment variable.
+
+Key changes include:
+- Modified `package.json` to configure esbuild for injecting the
+  MINIO_PUBLIC_ENDPOINT environment variable during the build process.
+- Updated `HomePage.jsx`, `Hero.jsx`, `CollectionsPage.jsx`, and
+  `LookbookPage.jsx` to use the dynamically configured MinIO base URL for
+  all image and video assets.
+- Fixed multiple build-related issues that arose during the integration,
+  including:
+    - Resolving `ReferenceError: React is not defined` by re-adding missing
+      React imports to `HomePage.jsx` and `Hero.jsx`.
+    - Correcting a missing `export default HomePage;` statement in
+      `HomePage.jsx`.
+    - Fixing a typo in a ref assignment within `HomePage.jsx`.
+    - Debugged and resolved "Minified React error #306" by ensuring all
+      lazy-loaded components were correctly configured and their asset
+      paths were valid.
