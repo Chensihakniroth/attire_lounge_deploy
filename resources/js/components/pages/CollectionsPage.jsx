@@ -2,16 +2,18 @@ import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import CollectionCard from './collections/CollectionCard';
 
+const minioBaseUrl = 'http://127.0.0.1:9000/product-assets';
+
 // Mock collection data
 const collections = [
-    { id: 1, title: 'Havana Collection', description: 'Lightweight fabrics and breezy silhouettes.', itemsCount: 42, image: '/uploads/collections/model/1.jpg', featured: true, category: 'seasonal' },
-    { id: 2, title: 'Signature Suits', description: 'Tailored perfection for the modern man.', itemsCount: 28, image: '/uploads/collections/model/2.jpg', featured: true, category: 'formal' },
-    { id: 3, title: 'Groom Collection', description: 'Elegant tuxedos and formal wear for special occasions.', itemsCount: 19, image: '/uploads/collections/model/3.jpg', category: 'formal' },
-    { id: 4, title: 'The Little Details', description: 'Premium leather accessories and outerwear.', itemsCount: 24, image: '/uploads/lookbook/lookbook-11.jpg', category: 'accessories' },
-    { id: 5, title: "Mocha Mousse '25'", description: 'Breathable natural fabrics for sophisticated comfort.', itemsCount: 35, image: '/uploads/collections/model/5.jpg', category: 'seasonal' },
-    { id: 6, title: 'Office Collection', description: 'Smart office attire that balances comfort and professionalism.', itemsCount: 38, image: '/uploads/collections/model/4.jpg', featured: true, category: 'formal' },
-    { id: 7, title: 'Italian Footwear', description: 'Handcrafted shoes with unparalleled craftsmanship.', itemsCount: 31, image: '/uploads/lookbook/lookbook-6.jpg', category: 'accessories' },
-    { id: 8, title: 'Winter Essentials', description: 'Cozy woolens and cold-weather sophistication.', itemsCount: 26, image: '/uploads/lookbook/lookbook-8.jpg', category: 'seasonal' },
+    { id: 1, title: 'Havana Collection', description: 'Lightweight fabrics and breezy silhouettes.', itemsCount: 42, image: `${minioBaseUrl}/uploads/collections/model/1.jpg`, featured: true, category: 'seasonal' },
+    { id: 2, title: 'Signature Suits', description: 'Tailored perfection for the modern man.', itemsCount: 28, image: `${minioBaseUrl}/uploads/collections/model/2.jpg`, featured: true, category: 'formal' },
+    { id: 3, title: 'Groom Collection', description: 'Elegant tuxedos and formal wear for special occasions.', itemsCount: 19, image: `${minioBaseUrl}/uploads/collections/model/3.jpg`, category: 'formal' },
+    { id: 4, title: 'The Little Details', description: 'Premium leather accessories and outerwear.', itemsCount: 24, image: `${minioBaseUrl}/uploads/lookbook/lookbook-11.jpg`, category: 'accessories' },
+    { id: 5, title: "Mocha Mousse '25'", description: 'Breathable natural fabrics for sophisticated comfort.', itemsCount: 35, image: `${minioBaseUrl}/uploads/collections/model/5.jpg`, category: 'seasonal' },
+    { id: 6, title: 'Office Collection', description: 'Smart office attire that balances comfort and professionalism.', itemsCount: 38, image: `${minioBaseUrl}/uploads/collections/model/4.jpg`, featured: true, category: 'formal' },
+    { id: 7, title: 'Italian Footwear', description: 'Handcrafted shoes with unparalleled craftsmanship.', itemsCount: 31, image: `${minioBaseUrl}/uploads/lookbook/lookbook-6.jpg`, category: 'accessories' },
+    { id: 8, title: 'Winter Essentials', description: 'Cozy woolens and cold-weather sophistication.', itemsCount: 26, image: `${minioBaseUrl}/uploads/lookbook/lookbook-8.jpg`, category: 'seasonal' },
 ];
 
 const CollectionsPage = () => {

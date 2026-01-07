@@ -45,20 +45,22 @@ const FilterContent = ({ isMobile, setFilter, setIsFilterOpen, currentFilter }) 
     );
 };
 
+const minioBaseUrl = 'http://127.0.0.1:9000/product-assets';
+
 const LookbookPage = () => {
     const [images] = useState([
-        { id: 1, src: '/uploads/collections/model/1.jpg', title: 'Modern Sartorial', collection: 'Havana Collection', category: 'sartorial', span: 'col-span-2 row-span-2' },
-        { id: 2, src: '/uploads/collections/model/2.jpg', title: 'Urban Elegance', collection: 'Mocha Mousse 25', category: 'office', span: 'col-span-1 row-span-2' },
-        { id: 3, src: '/uploads/collections/model/3.jpg', title: 'Evening Sophistication', collection: 'Groom Collection', category: 'groom', span: 'col-span-1 row-span-2' },
-        { id: 4, src: '/uploads/collections/model/4.jpg', title: 'Business Refined', collection: 'Office Collection', category: 'office', span: 'col-span-1 row-span-2' },
-        { id: 5, src: '/uploads/collections/model/5.jpg', title: 'Linen Summer', collection: 'Havana Collection', category: 'sartorial', span: 'col-span-1 row-span-2' },
-        { id: 6, src: '/uploads/collections/model/6.jpg', title: 'Accessory Details', collection: 'The Little Details', category: 'accessories', span: 'col-span-2 row-span-2' },
-        { id: 7, src: '/uploads/lookbook/lookbook-7.jpg', title: 'Casual Luxury', collection: 'Mocha Mousse 25', category: 'sartorial', span: 'col-span-1 row-span-1' },
-        { id: 8, src: '/uploads/lookbook/lookbook-8.jpg', title: 'Groom Style', collection: 'Groom Collection', category: 'groom', span: 'col-span-1 row-span-1' },
-        { id: 9, src: '/uploads/lookbook/lookbook-9.jpg', title: 'Office Attire', collection: 'Office Collection', category: 'office', span: 'col-span-1 row-span-1' },
-        { id: 10, src: '/uploads/lookbook/lookbook-10.jpg', title: 'Summer Linen', collection: 'Havana Collection', category: 'sartorial', span: 'col-span-1 row-span-1' },
-        { id: 11, src: '/uploads/lookbook/lookbook-11.jpg', title: 'Cufflink Details', collection: 'The Little Details', category: 'accessories', span: 'col-span-1 row-span-1' },
-        { id: 12, src: '/uploads/lookbook/lookbook-12.jpg', title: 'Evening Wear', collection: 'Groom Collection', category: 'groom', span: 'col-span-1 row-span-1' },
+        { id: 1, src: `${minioBaseUrl}/uploads/collections/model/1.jpg`, title: 'Modern Sartorial', collection: 'Havana Collection', category: 'sartorial', span: 'col-span-2 row-span-2' },
+        { id: 2, src: `${minioBaseUrl}/uploads/collections/model/2.jpg`, title: 'Urban Elegance', collection: 'Mocha Mousse 25', category: 'office', span: 'col-span-1 row-span-2' },
+        { id: 3, src: `${minioBaseUrl}/uploads/collections/model/3.jpg`, title: 'Evening Sophistication', collection: 'Groom Collection', category: 'groom', span: 'col-span-1 row-span-2' },
+        { id: 4, src: `${minioBaseUrl}/uploads/collections/model/4.jpg`, title: 'Business Refined', collection: 'Office Collection', category: 'office', span: 'col-span-1 row-span-2' },
+        { id: 5, src: `${minioBaseUrl}/uploads/collections/model/5.jpg`, title: 'Linen Summer', collection: 'Havana Collection', category: 'sartorial', span: 'col-span-1 row-span-2' },
+        { id: 6, src: `${minioBaseUrl}/uploads/collections/model/6.jpg`, title: 'Accessory Details', collection: 'The Little Details', category: 'accessories', span: 'col-span-2 row-span-2' },
+        { id: 7, src: `${minioBaseUrl}/uploads/lookbook/lookbook-7.jpg`, title: 'Casual Luxury', collection: 'Mocha Mousse 25', category: 'sartorial', span: 'col-span-1 row-span-1' },
+        { id: 8, src: `${minioBaseUrl}/uploads/lookbook/lookbook-8.jpg`, title: 'Groom Style', collection: 'Groom Collection', category: 'groom', span: 'col-span-1 row-span-1' },
+        { id: 9, src: `${minioBaseUrl}/uploads/lookbook/lookbook-9.jpg`, title: 'Office Attire', collection: 'Office Collection', category: 'office', span: 'col-span-1 row-span-1' },
+        { id: 10, src: `${minioBaseUrl}/uploads/lookbook/lookbook-10.jpg`, title: 'Summer Linen', collection: 'Havana Collection', category: 'sartorial', span: 'col-span-1 row-span-1' },
+        { id: 11, src: `${minioBaseUrl}/uploads/lookbook/lookbook-11.jpg`, title: 'Cufflink Details', collection: 'The Little Details', category: 'accessories', span: 'col-span-1 row-span-1' },
+        { id: 12, src: `${minioBaseUrl}/uploads/lookbook/lookbook-12.jpg`, title: 'Evening Wear', collection: 'Groom Collection', category: 'groom', span: 'col-span-1 row-span-1' },
     ]);
 
     const [[page, direction], setPage] = useState([null, 0]);
