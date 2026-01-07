@@ -151,3 +151,129 @@ const LookbookSection = memo(forwardRef((props, ref) => (
     </div>
   </section>
 )));
+
+const CTASection = memo(forwardRef((props, ref) => (
+  <section className="relative snap-section bg-attire-navy min-h-screen h-screen flex items-center justify-center p-8" ref={ref}>
+    <div className="bg-attire-cream/20 backdrop-blur-lg border border-attire-cream/30 rounded-2xl shadow-lg p-8 md:p-12 max-w-3xl mx-auto">
+      <div className="text-center">
+        <motion.h2 variants={itemVariants} initial="hidden" whileInView="visible" viewport={{once: true}} className="font-serif text-3xl md:text-5xl text-white mb-6">Begin Your Sartorial Journey</motion.h2>
+        <motion.p variants={itemVariants} initial="hidden" whileInView="visible" viewport={{once: true}} transition={{delay: 0.2}} className="text-attire-silver md:text-lg mb-10">Experience the difference of personalized styling. Book a private consultation with our experts today.</motion.p>
+        <motion.div variants={itemVariants} initial="hidden" whileInView="visible" viewport={{once: true}} transition={{delay: 0.4}}>
+          <Link to="/contact" className="inline-block bg-attire-accent text-white font-semibold px-12 py-4 rounded-lg hover:bg-attire-accent/90 transition-colors">Book a Consultation</Link>
+        </motion.div>
+      </div>
+    </div>
+  </section>
+)));
+
+const FooterSection = memo(forwardRef((props, ref) => (
+  <section className="relative snap-section bg-attire-dark min-h-screen h-screen flex flex-col justify-center" ref={ref}>
+    <div className="w-full">
+      <Footer />
+    </div>
+  </section>
+)));
+
+
+
+// --- Main Homepage Component ---
+
+const HomePage = () => {
+  const [isMobile, setIsMobile] = useState(false);
+  const [activeSection, setActiveSection] = useState(0);
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+
+  const sectionsRef = useRef([]);
+  const isScrollingRef = useRef(false);
+
+  useEffect(() => {
+    const checkMobile = () => setIsMobile(window.innerWidth < 768);
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
+
+  useEffect(() => {
+    sectionsRef.current = sectionsRef.current.slice(0, 8); // 8 sections total
+    const handleMenuStateChange = (e) => {
+      if (e.detail && e.detail.isMenuOpen !== undefined) setIsMenuOpen(e.detail.isMenuOpen);
+    };
+    window.addEventListener('menuStateChange', handleMenuStateChange);
+    return () => window.removeEventListener('menuStateChange', handleMenuStateChange);
+  }, []);
+
+  const scrollToSection = useCallback((index) => {
+    if (isScrollingRef.current || !sectionsRef.current[index] || isMenuOpen) return;
+    isScrollingRef.current = true;
+    const targetY = sectionsRef.current[index].offsetTop;
+    const startY = window.scrollY;
+    const distance = targetY - startY;
+    const duration = 400;
+    let startTime = null;
+    const easing = (t) => t === 0 ? 0 : t === 1 ? 1 : t < 0.5 ? Math.pow(2, 20 * t - 10) / 2 : (2 - Math.pow(2, -20 * t + 10)) / 2;
+    const animation = (currentTime) => {
+      if (startTime === null) startTime = currentTime;
+      const timeElapsed = currentTime - startTime;
+      const progress = Math.min(timeElapsed / duration, 1);
+      window.scrollTo(0, startY + distance * easing(progress));
+      if (timeElapsed < duration) {
+        requestAnimationFrame(animation);
+      } else {
+        setActiveSection(index);
+        isScrollingRef.current = false;
+      }
+    };
+    requestAnimationFrame(animation);
+  }, [isMenuOpen]);
+
+  useEffect(() => {
+    if (isMobile || isMenuOpen) return;
+    const handleWheel = (e) => {
+      e.preventDefault();
+      if (isScrollingRef.current) return;
+      const deltaY = e.deltaY;
+      let newIndex = activeSection;
+      if (Math.abs(deltaY) > 5) {
+        if (deltaY > 0) newIndex = Math.min(activeSection + 1, sectionsRef.current.length - 1);
+        else newIndex = Math.max(activeSection - 1, 0);
+        if (newIndex !== activeSection) scrollToSection(newIndex);
+      }
+    };
+    window.addEventListener('wheel', handleWheel, { passive: false });
+    return () => window.removeEventListener('wheel', handleWheel);
+  }, [isMobile, isMenuOpen, activeSection, scrollToSection]);
+
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if (isMobile || isMenuOpen || isScrollingRef.current) return;
+      let newIndex = activeSection;
+      switch (e.key) {
+        case 'ArrowDown': case 'PageDown': e.preventDefault(); newIndex = Math.min(activeSection + 1, sectionsRef.current.length - 1); break;
+        case 'ArrowUp': case 'PageUp': e.preventDefault(); newIndex = Math.max(activeSection - 1, 0); break;
+        case 'Home': e.preventDefault(); newIndex = 0; break;
+        case 'End': e.preventDefault(); newIndex = sectionsRef.current.length - 1; break;
+        default: return;
+      }
+      if (newIndex !== activeSection) scrollToSection(newIndex);
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [isMobile, isMenuOpen, activeSection, scrollToSection]);
+
+  const { collections, services, craftsmanship } = homePageData;
+
+  return (
+    <div className="snap-scroll-container bg-black">
+      <HeroSection ref={el => sectionsRef.current[0] = el} scrollToSection={scrollToSection} />
+      <PhilosophySection ref={el => sectionsRef.current[1] = el} />
+      <CollectionsSection ref={el => sectionsRef.current[2] = el} collections={collections} />
+      <ExperienceSection ref={el => sectionsRef.current[3] = el} services={services} />
+      <CraftsmanshipSection ref={el => sectionsRef.current[4] = el} craftsmanship={craftsmanship} />
+      <LookbookSection ref={el => sectionsRef.current[5] = el} />
+      <CTASection ref={el => sectionsRef.current[6] = el} />
+      <FooterSection ref={el => sectionsRef.current[7] = el} />
+    </div>
+  );
+};
+
+export default HomePage;
