@@ -42,7 +42,7 @@ const itemVariants = {
 const HeroSection = memo(forwardRef(({ scrollToSection }, ref) => (
   <section className="relative snap-section overflow-hidden min-h-screen h-screen" ref={ref}>
     <div className="absolute inset-0 w-full h-full overflow-hidden">
-      <video autoPlay muted loop playsInline preload="auto" className="absolute w-full h-full object-cover" style={{ objectPosition: 'center 10%' }}><source src={`${minioBaseUrl}/videos/hero-background1.mp4`} type="video/mp4" /></video>
+      <video autoPlay muted loop playsInline preload="auto" className="absolute w-full h-full object-cover" style={{ objectPosition: 'center 10%' }}><source src={`${minioBaseUrl}/uploads/asset/hero-background1.mp4`} type="video/mp4" /></video>
       <div className="absolute inset-0 bg-attire-dark/40" />
     </div>
     <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.8 }} className="relative z-10 h-full flex items-center justify-center">
