@@ -23,7 +23,7 @@ class ImageHelper
         $filename = $productSlug . '_' . time() . '.' . $file->getClientOriginalExtension();
 
         // Store original
-        $originalPath = $file->storeAs('products/original', $filename, 'public');
+        $originalPath = $file->storeAs('products/original', $filename, 'minio');
 
         // Get image manager
         $imageManager = self::getImageManager();
@@ -32,26 +32,26 @@ class ImageHelper
         $mainImage = $imageManager->read($file->getPathname())
             ->resize(800, 800)
             ->toJpeg(85);
-        Storage::disk('public')->put('products/main/' . $filename, $mainImage);
+        Storage::disk('minio')->put('products/main/' . $filename, $mainImage);
 
         // Create thumbnail (300x300)
         $thumbnail = $imageManager->read($file->getPathname())
             ->resize(300, 300)
             ->toJpeg(85);
-        Storage::disk('public')->put('products/thumbnails/' . $filename, $thumbnail);
+        Storage::disk('minio')->put('products/thumbnails/' . $filename, $thumbnail);
 
         // Create gallery image (1200x1200)
         $gallery = $imageManager->read($file->getPathname())
             ->scale(width: 1200, height: 1200)
             ->toJpeg(90);
-        Storage::disk('public')->put('products/gallery/' . $filename, $gallery);
+        Storage::disk('minio')->put('products/gallery/' . $filename, $gallery);
 
         return $filename;
     }
 
     public static function deleteProductImage($filename)
     {
-        Storage::disk('public')->delete([
+        Storage::disk('minio')->delete([
             'products/original/' . $filename,
             'products/main/' . $filename,
             'products/thumbnails/' . $filename,
