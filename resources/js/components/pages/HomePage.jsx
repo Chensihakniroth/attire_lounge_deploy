@@ -55,7 +55,7 @@ const PhilosophySection = memo(forwardRef((props, ref) => (
   <section className="relative snap-section min-h-screen h-screen flex items-center justify-center p-8 overflow-hidden" ref={ref}>
     {/* Background Image */}
     <div className="absolute inset-0 w-full h-full bg-cover bg-center"
-         style={{ backgroundImage: `url('${minioBaseUrl}/_assets/media/dfed654ca81763082b9b85078b2d6d38.jpg')` }}
+         style={{ backgroundImage: `url('${minioBaseUrl}product-assets/uploads/collections/default/phera.jpg')` }}
     />
     {/* Overlay */}
     <div className="absolute inset-0 bg-attire-dark/60" />
