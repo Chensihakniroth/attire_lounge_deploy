@@ -55,7 +55,7 @@ const PhilosophySection = memo(forwardRef((props, ref) => (
   <section className="relative snap-section min-h-screen h-screen flex items-center justify-center p-8 overflow-hidden" ref={ref}>
     {/* Background Image */}
     <div className="absolute inset-0 w-full h-full bg-cover bg-center"
-         style={{ backgroundImage: `url('${minioBaseUrl}product-assets/uploads/collections/default/phera.jpg')` }}
+         style={{ backgroundImage: `url('${minioBaseUrl}/uploads/collections/default/phera.jpg')` }}
     />
     {/* Overlay */}
     <div className="absolute inset-0 bg-attire-dark/60" />
@@ -99,7 +99,7 @@ const CollectionsSection = memo(forwardRef(({ collections }, ref) => (
 const ExperienceSection = memo(forwardRef((props, ref) => (
   <section className="relative snap-section min-h-screen h-screen flex flex-col justify-center overflow-hidden" ref={ref}>
     <div className="absolute inset-0 w-full h-full bg-cover bg-center transition-opacity duration-1000 ease-in-out"
-         style={{ backgroundImage: `url('${minioBaseUrl}/_assets/media/d8f23c70ec13bacd04774f4fccba7e84.jpg')` }}
+         style={{ backgroundImage: `url('${minioBaseUrl}/uploads/collections/default/ping.jpg')` }}
     />
     <div className="absolute inset-0 bg-attire-dark/60" />
     <div className="absolute inset-0 flex items-center justify-center"> {/* This is the flex container */}
@@ -114,26 +114,36 @@ const ExperienceSection = memo(forwardRef((props, ref) => (
 )));
 
 const CraftsmanshipSection = memo(forwardRef((props, ref) => (
-  <section className="relative snap-section min-h-screen h-screen flex flex-col bg-black" ref={ref}>
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 h-full w-full">
-        {/* Image 1 */}
-        <motion.div variants={itemVariants} initial="hidden" whileInView="visible" viewport={{ once: true }} className="relative group overflow-hidden h-full">
-            <img src={`${minioBaseUrl}/uploads/collections/Model/1.jpg`} alt="Sartorial Fit 1" className="w-full h-full object-cover transform transition-transform duration-500 group-hover:scale-105" />
-        </motion.div>
-        {/* Image 2 */}
-        <motion.div variants={itemVariants} initial="hidden" whileInView="visible" viewport={{ once: true }} className="relative group overflow-hidden h-full">
-            <img src={`${minioBaseUrl}/uploads/collections/Model/2.jpg`} alt="Sartorial Fit 2" className="w-full h-full object-cover transform transition-transform duration-500 group-hover:scale-105" />
-        </motion.div>
-        {/* Image 3 */}
-        <motion.div variants={itemVariants} initial="hidden" whileInView="visible" viewport={{ once: true }} className="relative group overflow-hidden h-full">
-            <img src={`${minioBaseUrl}/uploads/collections/Model/3.jpg`} alt="Sartorial Fit 3" className="w-full h-full object-cover transform transition-transform duration-500 group-hover:scale-105" />
-        </motion.div>
-        {/* Image 4 */}
-        <motion.div variants={itemVariants} initial="hidden" whileInView="visible" viewport={{ once: true }} className="relative group overflow-hidden h-full">
-            <img src={`${minioBaseUrl}/uploads/collections/Model/4.jpg`} alt="Sartorial Fit 4" className="w-full h-full object-cover transform transition-transform duration-500 group-hover:scale-105" />
-        </motion.div>
-    </div>
-  </section>
+    <section className="relative snap-section min-h-screen h-screen flex items-center justify-center p-8 overflow-hidden" ref={ref}>
+        {/* Background Image */}
+        <div className="absolute inset-0 w-full h-full bg-cover bg-center"
+             style={{ backgroundImage: `url('${minioBaseUrl}/uploads/collections/Model/1.jpg')` }}
+        />
+        {/* Overlay */}
+        <div className="absolute inset-0 bg-black/50" />
+
+        {/* Foreground Images */}
+        <div className="relative z-10 grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-8 w-full max-w-7xl mx-auto px-4">
+            {/* Image 2 */}
+            <motion.div variants={itemVariants} initial="hidden" whileInView="visible" viewport={{ once: true }}
+                        className="relative group overflow-hidden aspect-w-3 aspect-h-4 shadow-lg rounded-lg">
+                <img src={`${minioBaseUrl}/uploads/collections/Model/2.jpg`} alt="Sartorial Fit 2"
+                     className="w-full h-full object-cover transform transition-transform duration-500 group-hover:scale-105"/>
+            </motion.div>
+            {/* Image 3 */}
+            <motion.div variants={itemVariants} initial="hidden" whileInView="visible" viewport={{ once: true, delay: 0.2 }}
+                        className="relative group overflow-hidden aspect-w-3 aspect-h-4 shadow-lg rounded-lg">
+                <img src={`${minioBaseUrl}/uploads/collections/Model/3.jpg`} alt="Sartorial Fit 3"
+                     className="w-full h-full object-cover transform transition-transform duration-500 group-hover:scale-105"/>
+            </motion.div>
+            {/* Image 4 */}
+            <motion.div variants={itemVariants} initial="hidden" whileInView="visible" viewport={{ once: true, delay: 0.4 }}
+                        className="relative group overflow-hidden aspect-w-3 aspect-h-4 shadow-lg rounded-lg">
+                <img src={`${minioBaseUrl}/uploads/collections/Model/4.jpg`} alt="Sartorial Fit 4"
+                     className="w-full h-full object-cover transform transition-transform duration-500 group-hover:scale-105"/>
+            </motion.div>
+        </div>
+    </section>
 )));
 
 const LookbookSection = memo(forwardRef((props, ref) => (
