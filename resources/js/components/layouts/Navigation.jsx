@@ -162,7 +162,7 @@ const Navigation = () => {
                                         >
                                             <div className="flex items-center gap-4">
                                                 <item.icon className="w-5 h-5 text-attire-cream group-hover:text-white transition-colors" />
-                                                <span className="font-serif text-xl text-attire-cream">{item.name}</span>
+                                                <span className="font-serif text-xl text-attire-cream tracking-widest">{item.name}</span>
                                             </div>
                                             <ChevronRight className="w-5 h-5 text-attire-silver/50 group-hover:translate-x-1 transition-transform" />
                                         </Link>
