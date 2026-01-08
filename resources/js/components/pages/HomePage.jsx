@@ -116,7 +116,7 @@ const ExperienceSection = memo(forwardRef((props, ref) => (
 const CraftsmanshipSection = memo(forwardRef((props, ref) => (
     <section className="relative snap-section min-h-screen h-screen flex items-center justify-center p-8 overflow-hidden" ref={ref}>
         {/* Background Image */}
-        <div className="absolute inset-0 w-full h-full bg-cover bg-center"
+        <div className="absolute inset-0 w-full h-full bg-cover bg-center filter blur-sm"
              style={{ backgroundImage: `url('${minioBaseUrl}/uploads/collections/Model/1.jpg')` }}
         />
         {/* Overlay */}
