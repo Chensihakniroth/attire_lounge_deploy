@@ -147,7 +147,7 @@ const Navigation = () => {
                             className="fixed top-0 left-0 bottom-0 w-full max-w-md bg-attire-navy z-50 shadow-2xl"
                         >
                             <div className="p-6 flex items-center justify-between border-b border-white/10">
-                                <span className="font-serif text-lg text-attire-cream">Attire Lounge</span>
+                                <span className="font-serif text-lg text-attire-cream tracking-widest">Menu</span>
                                 <button onClick={() => setIsMenuOpen(false)} className="p-2" aria-label="Close menu">
                                     <X className="w-6 h-6 text-attire-cream" />
                                 </button>
