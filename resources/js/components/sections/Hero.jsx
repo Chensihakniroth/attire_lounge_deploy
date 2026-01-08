@@ -45,7 +45,7 @@ const Hero = () => {
                 >
                     {/* Primary MP4 source - HIGHLY COMPRESSED */}
                     <source
-                        src={`${minioBaseUrl}/hero-background.mp4`}
+                        src={`${minioBaseUrl}/videos/hero-background.mp4`}
                         type="video/mp4"
                     />
                     {/* Optional WebM for better compression in supporting browsers */}
