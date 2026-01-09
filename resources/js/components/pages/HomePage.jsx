@@ -97,29 +97,42 @@ const PhilosophySection = memo(forwardRef((props, ref) => (
 )));
 
 const CollectionsSection = memo(forwardRef(({ collections }, ref) => (
-  <section className="relative snap-section bg-attire-dark min-h-screen h-screen flex items-center justify-center" ref={ref}>
-    <div className="relative z-10 flex flex-col w-full max-w-screen-xl mx-auto px-6 py-12 md:py-24 lg:py-32">
-      {/* Text Content - Aligned Center */}
-      <div className="w-full text-center mb-16">
-        <h2 className="font-serif text-4xl md:text-6xl text-attire-cream mb-4">Our Collections</h2>
-        <p className="max-w-2xl mx-auto text-attire-silver text-lg md:text-xl">Curated styles for the modern gentleman.</p>
-      </div>
+  <section className="py-10 lg:py-12 lg:px-10 xl:px-20 px-4" ref={ref}>
+    <div className="mb-12 text-center">
+      <h2 className="font-serif text-3xl md:text-4xl text-attire-dark mt-6">Our Collections</h2>
+    </div>
+    <div>
       
-      {/* Collection Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8 md:gap-12">
+      <div className="grid grid-cols-2 gap-4 lg:grid-cols-4 lg:gap-6">
         {collections.map((collection) => (
-          <motion.div key={collection.name} className="relative group overflow-hidden rounded-lg shadow-xl" variants={itemVariants} initial="hidden" whileInView="visible" viewport={{ once: true }}>
-            <Link to={collection.link} className="block w-full h-full aspect-[3/4] md:aspect-[4/5] lg:aspect-[3/4] relative">
-              <img src={collection.image} alt={collection.name} className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" loading="lazy" decoding="async" />
-              <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-6 text-attire-cream backdrop-blur-sm">
-                <h3 className="font-serif text-2xl md:text-3xl mb-2">{collection.name}</h3>
-                <p className="text-attire-silver text-base mb-4">{collection.description}</p>
-                <div className="flex items-center space-x-2 text-attire-accent opacity-80 group-hover:opacity-100 group-hover:translate-x-1 transition-all duration-300">
-                    <span>Explore</span>
-                    <ArrowRight size={16} />
+          <motion.div key={collection.name} className="relative bg-white" variants={itemVariants} initial="hidden" whileInView="visible" viewport={{ once: true }}>
+            <Link to={collection.link}>
+              <figure className="aspect-[3/4]">
+                <div className="group pointer-events-none relative md:pointer-events-auto">
+                  <img
+                    alt={`${collection.name} 1`}
+                    loading="lazy"
+                    decoding="async"
+                    className="absolute inset-0 w-full h-full object-cover transform transition-opacity duration-300 ease-in-out"
+                    src={collection.image}
+                  />
+                  {/* Simulate second image for hover effect by duplicating and adding opacity transition */}
+                  <img
+                    alt={`${collection.name} 2`}
+                    loading="lazy"
+                    decoding="async"
+                    className="absolute inset-0 w-full h-full object-cover transform transition-opacity duration-300 ease-in-out opacity-0 group-hover:opacity-100"
+                    src={collection.image} // Using the same image for simulation
+                  />
                 </div>
-              </div>
+              </figure>
             </Link>
+            <div className="flex flex-col gap-2 pt-4 lg:flex-row lg:justify-between lg:gap-0">
+              <Link to={collection.link}>
+                <h3 className="text-sm font-semibold">{collection.name}</h3>
+                <div className="text-xs text-gray-500">{collection.description}</div>
+              </Link>
+            </div>
           </motion.div>
         ))}
       </div>
