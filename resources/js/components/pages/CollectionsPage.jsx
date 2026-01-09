@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import CollectionCard from './collections/CollectionCard';
-
 import minioBaseUrl from '../../config.js';
 
 // Mock collection data
@@ -18,6 +17,7 @@ const collections = [
 
 const CollectionsPage = () => {
     const [filter, setFilter] = useState('all');
+    const [isFilterOpen, setIsFilterOpen] = useState(false);
 
     const filters = [
         { id: 'all', label: 'All' },
@@ -37,74 +37,85 @@ const CollectionsPage = () => {
         hidden: { opacity: 0 },
         visible: {
             opacity: 1,
-            transition: { staggerChildren: 0.08, delayChildren: 0.2 }
+            transition: { staggerChildren: 0.08 }
         }
     };
+    
+    const filterDropdownVariants = {
+        hidden: { opacity: 0, y: -10 },
+        visible: { opacity: 1, y: 0 }
+    }
 
     return (
-        <div className="min-h-screen py-24 px-4 sm:px-6 lg:px-8 bg-attire-navy">
-            <motion.div
-                className="max-w-7xl mx-auto"
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
-            >
-                {/* Header */}
-                <div className="text-center mb-16">
-                    <h1 className="text-5xl md:text-7xl font-serif font-light text-white mb-3">Our Collections</h1>
-                    <p className="text-lg text-attire-silver max-w-2xl mx-auto">
-                        Timeless elegance, curated for the modern gentleman.
-                    </p>
-                </div>
-
-                {/* Animated Filter Tabs */}
-                <div className="flex justify-center mb-16">
-                    <div className="flex flex-wrap justify-center items-center gap-2 p-1.5 bg-white/5 backdrop-blur-sm rounded-full">
-                        {filters.map((filterItem) => (
-                            <button
-                                key={filterItem.id}
-                                onClick={() => setFilter(filterItem.id)}
-                                className={`px-5 py-2.5 rounded-full text-sm font-medium transition-colors relative ${
-                                    filter === filterItem.id ? 'text-white' : 'text-attire-silver/70 hover:text-white'
-                                }`}
+        <div className="min-h-screen bg-white text-black">
+            <div className="sticky top-[70px] z-30">
+                <div className="text-fluid-base flex items-center justify-between border-y border-solid border-black bg-white py-4 px-4 font-normal text-black lg:px-12">
+                    <div className="relative">
+                        <button 
+                            className="z-20 flex h-full items-center justify-center gap-1" 
+                            type="button"
+                            onClick={() => setIsFilterOpen(!isFilterOpen)}
+                        >
+                            <span className="text-bodyLarge">Filter</span> +
+                        </button>
+                        <AnimatePresence>
+                        {isFilterOpen && (
+                            <motion.div 
+                                className="absolute top-full left-0 mt-2 bg-white border border-solid border-black rounded-md shadow-lg py-2 w-48"
+                                variants={filterDropdownVariants}
+                                initial="hidden"
+                                animate="visible"
+                                exit="hidden"
                             >
-                                {filter === filterItem.id && (
-                                    <motion.div
-                                        layoutId="collection-filter-active"
-                                        className="absolute inset-0 bg-attire-dark shadow-md rounded-full"
-                                        transition={{ type: 'spring', stiffness: 200, damping: 20 }}
-                                    />
-                                )}
-                                <span className="relative z-10">{filterItem.label}</span>
-                            </button>
-                        ))}
+                                {filters.map(f => (
+                                    <button
+                                        key={f.id}
+                                        onClick={() => { setFilter(f.id); setIsFilterOpen(false); }}
+                                        className={`block w-full text-left px-4 py-2 text-sm ${filter === f.id ? 'font-bold' : 'hover:bg-gray-100'}`}
+                                    >
+                                        {f.label}
+                                    </button>
+                                ))}
+                            </motion.div>
+                        )}
+                        </AnimatePresence>
                     </div>
+                    <div className="opacity-60 hidden md:block">{filteredCollections.length} Items</div>
                 </div>
+            </div>
 
-                {/* Collections Grid */}
+            <main className="max-w-screen-xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
                 <motion.div
-                    key={filter} // Re-trigger animation when filter changes
+                    key={filter}
                     variants={containerVariants}
                     initial="hidden"
                     animate="visible"
-                    className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-x-6 gap-y-10"
+                    className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 auto-rows-fr"
                 >
-                    {filteredCollections.map((collection) => (
-                        <CollectionCard key={collection.id} collection={collection} />
+                    {filteredCollections.map((collection, index) => (
+                        <motion.div
+                            key={collection.id}
+                            layout
+                            className={`
+                                ${index === 0 ? 'lg:col-span-2 lg:row-span-2' : ''}
+                                ${collection.featured && index !== 0 ? 'lg:col-span-2' : ''}
+                            `}
+                        >
+                            <CollectionCard collection={collection} />
+                        </motion.div>
                     ))}
                 </motion.div>
 
-                 {/* Empty State */}
                  {filteredCollections.length === 0 && (
                     <motion.div
                         initial={{ opacity: 0, y: 10 }}
                         animate={{ opacity: 1, y: 0 }}
                         className="text-center py-20"
                     >
-                        <p className="text-attire-silver text-lg">No collections match this filter.</p>
+                        <p className="text-gray-500 text-lg">No collections match this filter.</p>
                     </motion.div>
                  )}
-            </motion.div>
+            </main>
         </div>
     );
 };
