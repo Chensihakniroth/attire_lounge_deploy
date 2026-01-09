@@ -129,7 +129,7 @@ const CollectionsSection = memo(forwardRef(({ collections }, ref) => (
             </Link>
             <div className="pt-4 text-left">
               <h3 className="font-serif font-semibold text-lg text-attire-cream">{collection.name}</h3>
-              <p className="text-sm text-attire-silver mt-1">{collection.description}</p>
+              <p className="text-xs text-attire-silver mt-1">{collection.description}</p>
             </div>
           </motion.div>
         ))}
