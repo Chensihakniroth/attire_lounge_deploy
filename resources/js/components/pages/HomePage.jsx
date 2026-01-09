@@ -161,19 +161,19 @@ const CraftsmanshipSection = memo(forwardRef((props, ref) => (
             {/* Image 2 */}
             <motion.div variants={itemVariants} initial="hidden" whileInView="visible" viewport={{ once: true }}
                         className="relative group overflow-hidden aspect-[3/4] shadow-lg rounded-lg">
-                <img src={`${minioBaseUrl}/uploads/collections/default/g4.jpg`} alt="Sartorial Fit"
+                <img src={`${minioBaseUrl}/uploads/collections/default/mm1.jpg`} alt="Mocha Mousse Collection"
                      className="w-full h-full object-cover transform transition-transform duration-500 group-hover:scale-105"/>
             </motion.div>
             {/* Image 3 */}
             <motion.div variants={itemVariants} initial="hidden" whileInView="visible" viewport={{ once: true, delay: 0.2 }}
                         className="relative group overflow-hidden aspect-[3/4] shadow-lg rounded-lg">
-                <img src={`${minioBaseUrl}/uploads/collections/default/g4.jpg`} alt="Sartorial Fit"
+                <img src={`${minioBaseUrl}/uploads/collections/default/hvn3.jpg`} alt="Havana Collection"
                      className="w-full h-full object-cover transform transition-transform duration-500 group-hover:scale-105"/>
             </motion.div>
             {/* Image 4 */}
             <motion.div variants={itemVariants} initial="hidden" whileInView="visible" viewport={{ once: true, delay: 0.4 }}
                         className="relative group overflow-hidden aspect-[3/4] shadow-lg rounded-lg">
-                <img src={`${minioBaseUrl}/uploads/collections/default/g4.jpg`} alt="Sartorial Fit"
+                <img src={`${minioBaseUrl}/uploads/collections/default/t9.jpg`} alt="Timeless Elegance"
                      className="w-full h-full object-cover transform transition-transform duration-500 group-hover:scale-105"/>
             </motion.div>
         </div>
@@ -185,7 +185,7 @@ const GroomSection = memo(forwardRef((props, ref) => (
         {/* Left side - Image */}
         <div className="relative w-full h-full overflow-hidden hidden md:block">
             <img
-                src={`${minioBaseUrl}/uploads/collections/Model/5.jpg`}
+                src={`${minioBaseUrl}/uploads/collections/default/g4.jpg`}
                 alt="Groom Collection"
                 className="absolute inset-0 w-full h-full object-cover"
                 loading="lazy"
