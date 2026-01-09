@@ -53,7 +53,7 @@ const HeroSection = memo(forwardRef(({ scrollToSection }, ref) => (
       animate={{ y: ["-10%", "10%", "-10%"] }}
       transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
     >
-      <span className="mb-2 text-xs tracking-wide">SWIPE DOWN</span>
+      <span className="mb-2 text-xs tracking-wide">Scroll Down</span>
       <ChevronDown size={18} />
       <ChevronDown size={18} className="-mt-2" />
       <ChevronDown size={18} className="-mt-2" />
