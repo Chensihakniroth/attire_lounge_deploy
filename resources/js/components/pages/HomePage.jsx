@@ -105,7 +105,7 @@ const CollectionsSection = memo(forwardRef(({ collections }, ref) => (
     {/* Black Overlay */}
     <div className="absolute inset-0 bg-black/50" />
 
-    <div className="relative z-10 flex flex-col justify-center h-full max-w-7xl mx-auto px-4 py-12 md:py-24">
+    <div className="relative z-10 flex flex-col justify-center h-full max-w-7xl mx-auto px-6 py-12 md:py-24">
       {/* Text Content - Aligned Left */}
       <div className="w-full text-left mb-8">
         <h2 className="font-serif text-3xl md:text-5xl text-white mb-2">Our Collections</h2>
@@ -113,7 +113,7 @@ const CollectionsSection = memo(forwardRef(({ collections }, ref) => (
       </div>
       
       {/* Collection Cards */}
-      <div className="w-full grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-x-6 gap-y-10">
+      <div className="w-full grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-x-4 gap-y-8 md:gap-x-6 md:gap-y-10">
         {collections.map((collection) => (
           <motion.div key={collection.name} variants={itemVariants} initial="hidden" whileInView="visible" viewport={{ once: true }}>
             <Link to={collection.link}>
@@ -156,7 +156,7 @@ const ExperienceSection = memo(forwardRef((props, ref) => (
 )));
 
 const CraftsmanshipSection = memo(forwardRef((props, ref) => (
-    <section className="relative snap-section min-h-screen h-screen flex items-center justify-center p-8 overflow-hidden" ref={ref}>
+    <section className="relative snap-section min-h-screen h-screen flex items-center justify-center p-4 md:p-8 overflow-hidden" ref={ref}>
         {/* Background Image */}
         <div className="absolute inset-0 w-full h-full bg-cover bg-center filter blur-sm"
              style={{ backgroundImage: `url('${minioBaseUrl}/uploads/collections/Model/1.jpg')` }}
@@ -168,19 +168,19 @@ const CraftsmanshipSection = memo(forwardRef((props, ref) => (
         <div className="relative z-10 grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-8 w-full max-w-7xl mx-auto px-4">
             {/* Image 2 */}
             <motion.div variants={itemVariants} initial="hidden" whileInView="visible" viewport={{ once: true }}
-                        className="relative group overflow-hidden aspect-w-3 aspect-h-4 shadow-lg rounded-lg">
+                        className="relative group overflow-hidden aspect-[3/4] shadow-lg rounded-lg">
                 <img src={`${minioBaseUrl}/uploads/collections/Model/2.jpg`} alt="Sartorial Fit 2"
                      className="w-full h-full object-cover transform transition-transform duration-500 group-hover:scale-105"/>
             </motion.div>
             {/* Image 3 */}
             <motion.div variants={itemVariants} initial="hidden" whileInView="visible" viewport={{ once: true, delay: 0.2 }}
-                        className="relative group overflow-hidden aspect-w-3 aspect-h-4 shadow-lg rounded-lg">
+                        className="relative group overflow-hidden aspect-[3/4] shadow-lg rounded-lg">
                 <img src={`${minioBaseUrl}/uploads/collections/Model/3.jpg`} alt="Sartorial Fit 3"
                      className="w-full h-full object-cover transform transition-transform duration-500 group-hover:scale-105"/>
             </motion.div>
             {/* Image 4 */}
             <motion.div variants={itemVariants} initial="hidden" whileInView="visible" viewport={{ once: true, delay: 0.4 }}
-                        className="relative group overflow-hidden aspect-w-3 aspect-h-4 shadow-lg rounded-lg">
+                        className="relative group overflow-hidden aspect-[3/4] shadow-lg rounded-lg">
                 <img src={`${minioBaseUrl}/uploads/collections/Model/4.jpg`} alt="Sartorial Fit 4"
                      className="w-full h-full object-cover transform transition-transform duration-500 group-hover:scale-105"/>
             </motion.div>

@@ -89,7 +89,7 @@ const Lightbox = ({
                             opacity: { duration: 0.2 },
                             layout: { duration: 0.4, ease: [0.22, 1, 0.36, 1] }
                         }}
-                        className={`absolute rounded-xl overflow-hidden shadow-2xl bg-attire-cream ${isFullscreen ? 'w-full h-full rounded-none' : 'w-[30rem] max-w-[90vw] aspect-[3/4]'}`}
+                        className={`absolute rounded-xl overflow-hidden shadow-2xl bg-black ${isFullscreen ? 'w-full h-full rounded-none' : 'w-[30rem] max-w-[90vw] aspect-[3/4]'}`}
                         drag="x"
                         dragConstraints={{ left: 0, right: 0 }}
                         dragElastic={0.1}
@@ -107,8 +107,8 @@ const Lightbox = ({
                         />
                         <div className="absolute inset-0 p-6 flex flex-col justify-between bg-gradient-to-t from-black/70 to-transparent">
                             <div>
-                                <h2 className="text-3xl font-serif text-white">{selectedImage.title}</h2>
-                                <p className="text-attire-gold">{selectedImage.collection}</p>
+                                <h2 className="text-xl md:text-2xl font-serif text-white">{selectedImage.title}</h2>
+                                <p className="text-sm text-attire-gold">{selectedImage.collection}</p>
                             </div>
                             <div className="flex items-center self-end gap-3">
                                 <button onClick={(e) => { e.stopPropagation(); toggleFavorite(selectedImage.id); }} className="p-3 bg-white/10 backdrop-blur-md rounded-full hover:bg-white/20 transition-colors">
@@ -116,9 +116,6 @@ const Lightbox = ({
                                 </button>
                                 <button onClick={handleToggleFullscreen} className="p-3 bg-white/10 backdrop-blur-md rounded-full hover:bg-white/20 transition-colors">
                                     {isFullscreen ? <Minimize className="w-5 h-5 text-white" /> : <Maximize2 className="w-5 h-5 text-white" />}
-                                </button>
-                                <button onClick={handleShare} className="p-3 bg-white/10 backdrop-blur-md rounded-full hover:bg-white/20 transition-colors">
-                                    <Share2 className="w-5 h-5 text-white" />
                                 </button>
                             </div>
                         </div>
