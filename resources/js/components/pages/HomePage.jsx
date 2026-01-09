@@ -161,19 +161,19 @@ const CraftsmanshipSection = memo(forwardRef((props, ref) => (
             {/* Image 2 */}
             <motion.div variants={itemVariants} initial="hidden" whileInView="visible" viewport={{ once: true }}
                         className="relative group overflow-hidden aspect-[3/4] shadow-lg rounded-lg">
-                <img src={`${minioBaseUrl}/uploads/collections/Model/2.jpg`} alt="Sartorial Fit 2"
+                <img src={`${minioBaseUrl}/uploads/collections/default/g4.jpg`} alt="Sartorial Fit"
                      className="w-full h-full object-cover transform transition-transform duration-500 group-hover:scale-105"/>
             </motion.div>
             {/* Image 3 */}
             <motion.div variants={itemVariants} initial="hidden" whileInView="visible" viewport={{ once: true, delay: 0.2 }}
                         className="relative group overflow-hidden aspect-[3/4] shadow-lg rounded-lg">
-                <img src={`${minioBaseUrl}/uploads/collections/Model/3.jpg`} alt="Sartorial Fit 3"
+                <img src={`${minioBaseUrl}/uploads/collections/default/g4.jpg`} alt="Sartorial Fit"
                      className="w-full h-full object-cover transform transition-transform duration-500 group-hover:scale-105"/>
             </motion.div>
             {/* Image 4 */}
             <motion.div variants={itemVariants} initial="hidden" whileInView="visible" viewport={{ once: true, delay: 0.4 }}
                         className="relative group overflow-hidden aspect-[3/4] shadow-lg rounded-lg">
-                <img src={`${minioBaseUrl}/uploads/collections/Model/4.jpg`} alt="Sartorial Fit 4"
+                <img src={`${minioBaseUrl}/uploads/collections/default/g4.jpg`} alt="Sartorial Fit"
                      className="w-full h-full object-cover transform transition-transform duration-500 group-hover:scale-105"/>
             </motion.div>
         </div>
