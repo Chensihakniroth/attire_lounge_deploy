@@ -1,7 +1,7 @@
 // resources/js/components/pages/HomePage.jsx - V6 (Final Polish with Glass Effects)
 import React, { useEffect, useRef, useState, useCallback, forwardRef, memo } from 'react';
 import { motion } from 'framer-motion';
-import { Users, Scissors, Coffee, ArrowRight, Gem, Feather, Palette } from 'lucide-react';
+import { Users, Scissors, Coffee, ArrowRight, Gem, Feather, Palette, ChevronDown } from 'lucide-react';
 import Footer from '../layouts/Footer';
 import { Link } from 'react-router-dom';
 
@@ -47,33 +47,53 @@ const HeroSection = memo(forwardRef(({ scrollToSection }, ref) => (
     </div>
     <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.8 }} className="relative z-10 h-full flex flex-col items-center justify-center">
       <img src={`${minioBaseUrl}/uploads/asset/AL_logo.png`} alt="Attire Lounge" className="h-auto mx-auto filter brightness-0 invert drop-shadow-[0_0_30px_rgba(0,0,0,0.8)] opacity-90 max-w-[280px] md:max-w-sm" loading="eager" />
-      <div className="mt-8 flex justify-center space-x-8">
-        <Link to="/contact" className="text-attire-cream text-lg md:text-xl font-semibold hover:text-attire-accent transition-colors duration-300">Appointment</Link>
-        <Link to="/collections" className="text-attire-cream text-lg md:text-xl font-semibold hover:text-attire-accent transition-colors duration-300">Browse Collection</Link>
-      </div>
+    </motion.div>
+    <motion.div
+      className="absolute bottom-10 left-1/2 -translate-x-1/2 flex flex-col items-center text-attire-cream opacity-70"
+      animate={{ y: ["-10%", "10%", "-10%"] }}
+      transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
+    >
+      <span className="mb-2 text-sm tracking-widest">SWIPE DOWN</span>
+      <ChevronDown size={24} />
+      <ChevronDown size={24} className="-mt-3" />
+      <ChevronDown size={24} className="-mt-3" />
     </motion.div>
   </section>
 )));
 
 const PhilosophySection = memo(forwardRef((props, ref) => (
-  <section className="relative snap-section min-h-screen h-screen flex items-center justify-center p-8 overflow-hidden" ref={ref}>
-    {/* Background Image */}
-    <div className="absolute inset-0 w-full h-full bg-cover bg-center"
-         style={{ backgroundImage: `url('${minioBaseUrl}/uploads/collections/default/phera.jpg')` }}
-    />
-    {/* Overlay */}
-    <div className="absolute inset-0 bg-attire-dark/60" />
+    <section className="relative snap-section min-h-screen h-screen grid grid-cols-1 md:grid-cols-2 items-center bg-attire-dark" ref={ref}>
+      {/* Left side - Text Content */}
+      <div className="flex flex-col justify-center text-attire-cream p-8 md:p-16 h-full">
+        <motion.div
+            variants={containerVariants}
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, amount: 0.6 }}
+        >
+          <motion.h2 variants={itemVariants} className="font-serif text-sm md:text-base tracking-[0.2em] text-attire-accent uppercase mb-4">Our Philosophy</motion.h2>
+          <motion.p variants={itemVariants} transition={{ delay: 0.2 }} className="font-serif text-2xl md:text-4xl leading-relaxed mb-8">
+            Attire Lounge is Cambodia's first sartorial gentlemen's styling house, offering a variety of ready-to-wear collections and premium styling with our Milan-certified team.
+          </motion.p>
+          <motion.div variants={itemVariants} transition={{ delay: 0.4 }}>
+            <Link to="/contact" className="inline-block bg-attire-accent text-white font-semibold px-10 py-4 rounded-lg hover:bg-attire-accent/90 transition-colors">
+              Make Appointment
+            </Link>
+          </motion.div>
+        </motion.div>
+      </div>
 
-    {/* Text Content - Same structure as ExperienceSection */}
-    <div className="absolute inset-0 flex items-center justify-center">
-        <div className="w-full max-w-6xl mx-auto text-attire-cream text-center p-4">
-            <motion.h2 variants={itemVariants} initial="hidden" whileInView="visible" viewport={{ once: true, amount: 0.5 }} className="font-serif text-sm md:text-base tracking-[0.2em] text-attire-accent uppercase mb-4">Our Philosophy</motion.h2>
-            <motion.p variants={itemVariants} initial="hidden" whileInView="visible" viewport={{ once: true, amount: 0.5 }} transition={{ delay: 0.2 }} className="font-serif text-2xl md:text-4xl text-attire-cream leading-relaxed">
-              Attire Lounge is Cambodia's first sartorial gentlemen's styling house, offering a variety of ready-to-wear collections and premium styling with our Milan-certified team.
-            </motion.p>
-        </div>
-    </div>
-  </section>
+      {/* Right side - Image */}
+      <div className="relative w-full h-full overflow-hidden hidden md:block">
+        <img
+          src={`${minioBaseUrl}/uploads/collections/default/as5.jpg`}
+          alt="Attire Lounge Interior"
+          className="absolute inset-0 w-full h-full object-cover"
+          loading="lazy"
+        />
+        <div className="absolute inset-0 bg-gradient-to-r from-attire-dark via-transparent to-transparent" />
+      </div>
+    </section>
 )));
 
 const CollectionsSection = memo(forwardRef(({ collections }, ref) => (
