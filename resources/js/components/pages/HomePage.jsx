@@ -97,42 +97,34 @@ const PhilosophySection = memo(forwardRef((props, ref) => (
 )));
 
 const CollectionsSection = memo(forwardRef(({ collections }, ref) => (
-  <section className="py-10 lg:py-12 lg:px-10 xl:px-20 px-4" ref={ref}>
-    <div className="mb-12 text-center">
-      <h2 className="font-serif text-3xl md:text-4xl text-attire-dark mt-6">Our Collections</h2>
-    </div>
-    <div>
+  <section className="relative snap-section min-h-screen h-screen" ref={ref}>
+    {/* Background Image */}
+    <div className="absolute inset-0 w-full h-full bg-cover bg-center"
+         style={{ backgroundImage: `url('${minioBaseUrl}/uploads/collections/Model/1.jpg')` }}
+    />
+    {/* Black Overlay */}
+    <div className="absolute inset-0 bg-black/50" />
+
+    <div className="relative z-10 flex flex-col justify-center h-full max-w-7xl mx-auto px-4 py-12 md:py-24">
+      {/* Text Content - Aligned Left */}
+      <div className="w-full text-left mb-8">
+        <h2 className="font-serif text-3xl md:text-5xl text-white mb-2">Our Collections</h2>
+        <p className="text-attire-silver">Curated styles for the modern gentleman.</p>
+      </div>
       
-      <div className="grid grid-cols-2 gap-4 lg:grid-cols-4 lg:gap-6">
+      {/* Collection Cards */}
+      <div className="w-full grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4"> {/* Increased gap */}
         {collections.map((collection) => (
-          <motion.div key={collection.name} className="relative bg-white" variants={itemVariants} initial="hidden" whileInView="visible" viewport={{ once: true }}>
-            <Link to={collection.link}>
-              <figure className="aspect-[3/4]">
-                <div className="group pointer-events-none relative md:pointer-events-auto">
-                  <img
-                    alt={`${collection.name} 1`}
-                    loading="lazy"
-                    decoding="async"
-                    className="absolute inset-0 w-full h-full object-cover transform transition-opacity duration-300 ease-in-out"
-                    src={collection.image}
-                  />
-                  {/* Simulate second image for hover effect by duplicating and adding opacity transition */}
-                  <img
-                    alt={`${collection.name} 2`}
-                    loading="lazy"
-                    decoding="async"
-                    className="absolute inset-0 w-full h-full object-cover transform transition-opacity duration-300 ease-in-out opacity-0 group-hover:opacity-100"
-                    src={collection.image} // Using the same image for simulation
-                  />
-                </div>
-              </figure>
+          <motion.div key={collection.name} className="relative overflow-hidden group aspect-square" variants={itemVariants} initial="hidden" whileInView="visible" viewport={{ once: true }}>
+            <Link to={collection.link} className="block w-full h-full">
+              <img src={collection.image} alt={collection.name} className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" loading="lazy" decoding="async" />
+              <div className="absolute inset-0 bg-gradient-to-t from-attire-dark/70 via-attire-dark/30 to-transparent" />
+              <div className="relative h-full flex flex-col justify-end p-6 text-attire-cream"> {/* Adjusted padding */}
+                <h3 className="font-serif text-2xl mb-1">{collection.name}</h3> {/* Smaller H3 */}
+                <p className="text-attire-silver text-sm mb-3">{collection.description}</p> {/* Smaller P */}
+                <div className="flex items-center gap-2 text-attire-accent group-hover:gap-3 transition-all"><span>Explore</span><ArrowRight size={16} /></div>
+              </div>
             </Link>
-            <div className="flex flex-col gap-2 pt-4 lg:flex-row lg:justify-between lg:gap-0">
-              <Link to={collection.link}>
-                <h3 className="text-sm font-semibold">{collection.name}</h3>
-                <div className="text-xs text-gray-500">{collection.description}</div>
-              </Link>
-            </div>
           </motion.div>
         ))}
       </div>
