@@ -178,29 +178,28 @@ const LookbookPage = () => {
             <motion.div
                 className="flex-grow overflow-y-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none] touch-pan-y"
             >
-                <motion.div
-                    key={filter}
-                    variants={containerVariants}
-                    initial="hidden"
-                    animate="visible"
-                    className="grid grid-cols-2 sm:grid-cols-4 auto-rows-[200px] sm:auto-rows-[25vh] gap-1"
-                >
-                    {filteredImages.map((image, index) => (
-                        <div
-                            key={image.id}
-                            className={`group relative overflow-hidden bg-neutral-900 cursor-pointer ${image.span}`}
-                            onClick={() => openLightbox(index)}
-                        >
-                            {/* Image */}
-                            <img
-                                src={image.src}
-                                alt={image.title}
-                                className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105 group-hover:rotate-1"
-                            />
-                        </div>
-                    ))}
-                </motion.div>
-            </motion.div>
+                                    <motion.div
+                                        key={filter}
+                                        variants={containerVariants}
+                                        initial="hidden"
+                                        animate="visible"
+                                        className="grid grid-cols-2 sm:grid-cols-4 auto-rows-[200px] sm:auto-rows-[25vh] gap-4 lg:gap-6 px-4 lg:px-8"
+                                    >
+                                        {filteredImages.map((image, index) => (
+                                            <div
+                                                key={image.id}
+                                                className={`group relative overflow-hidden bg-neutral-900 cursor-pointer ${image.span}`}
+                                                onClick={() => openLightbox(index)}
+                                            >
+                                                {/* Image */}
+                                                <img
+                                                    src={image.src}
+                                                    alt={image.title}
+                                                    className="h-full w-full object-cover transition-transform duration-700"
+                                                />
+                                            </div>
+                                        ))}
+                                    </motion.div>            </motion.div>
 
             {/* Desktop Sidebar */}
             <div className="hidden lg:block w-64 flex-shrink-0 p-8 border-l border-white/10 overflow-y-auto">
