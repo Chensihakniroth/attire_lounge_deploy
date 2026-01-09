@@ -2,6 +2,7 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ProductController;
+use App\Http\Controllers\AppointmentController; // Import the new controller
 
 Route::prefix('v1')->group(function () {
     // Products
@@ -13,4 +14,8 @@ Route::prefix('v1')->group(function () {
 
     // Search
     Route::get('/search', [ProductController::class, 'search']);
+
+    // Appointments
+    Route::post('/appointments', [AppointmentController::class, 'store']);
 });
+

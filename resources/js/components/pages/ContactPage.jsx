@@ -149,7 +149,7 @@ const ContactPage = () => {
     const officialContactInfo = [
         {
             icon: <Phone className={iconStyle} />,
-            title: "Phone & Telegram",
+            title: "Phone",
             details: ["(+855) 69-25-63-69"],
             action: "tel:+85569256369"
         },
@@ -197,13 +197,33 @@ const ContactPage = () => {
         e.preventDefault();
         if (!validateForm()) return;
         setIsSubmitting(true);
-        await new Promise(resolve => setTimeout(resolve, 1500));
-        setIsSubmitting(false);
-        setIsSubmitted(true);
-        setTimeout(() => {
-            setIsSubmitted(false);
+        try {
+            const response = await fetch(`${import.meta.env.VITE_APP_URL}/api/v1/appointments`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json',
+                },
+                body: JSON.stringify(formData),
+            });
+
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.message || 'Failed to submit appointment');
+            }
+
+            // const result = await response.json();
+            setIsSubmitted(true);
             setFormData({ name: '', email: '', phone: '', appointmentType: 'sartorial', message: '' });
-        }, 3000);
+            setTimeout(() => setIsSubmitted(false), 3000); // Hide success message after 3 seconds
+
+        } catch (error) {
+            console.error("Error submitting appointment:", error);
+            // Optionally, set an error state to display to the user
+            alert('Failed to book appointment. Please try again.');
+        } finally {
+            setIsSubmitting(false);
+        }
     };
 
     const handleChange = (e) => {
@@ -286,6 +306,7 @@ const ContactPage = () => {
                                 <div className="flex items-center gap-4">
                                     <SocialLink href="https://instagram.com/attireloungeofficial" icon={<Instagram className="w-6 h-6" />} />
                                     <SocialLink href="https://facebook.com/attireloungeofficial" icon={<Facebook className="w-6 h-6" />} />
+                                    <SocialLink href="https://t.me/attireloungeofficial" icon={<Send className="w-6 h-6" />} />
                                 </div>
                             </div>
                         </div>
