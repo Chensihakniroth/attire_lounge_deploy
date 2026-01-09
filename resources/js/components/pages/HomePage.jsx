@@ -156,16 +156,8 @@ const ExperienceSection = memo(forwardRef((props, ref) => (
 )));
 
 const CraftsmanshipSection = memo(forwardRef((props, ref) => (
-    <section className="relative snap-section min-h-screen h-screen flex items-center justify-center p-4 md:p-8 overflow-hidden" ref={ref}>
-        {/* Background Image */}
-        <div className="absolute inset-0 w-full h-full bg-cover bg-center filter blur-sm"
-             style={{ backgroundImage: `url('${minioBaseUrl}/uploads/collections/Model/1.jpg')` }}
-        />
-        {/* Overlay */}
-        <div className="absolute inset-0 bg-black/50" />
-
-        {/* Foreground Images */}
-        <div className="relative z-10 grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-8 w-full max-w-7xl mx-auto px-4">
+    <section className="relative snap-section min-h-screen h-screen flex items-center justify-center p-4 md:p-8 overflow-hidden bg-attire-dark" ref={ref}>
+        <div className="relative z-10 grid grid-cols-2 md:grid-cols-3 gap-4 md:gap-8 w-full max-w-7xl mx-auto px-4">
             {/* Image 2 */}
             <motion.div variants={itemVariants} initial="hidden" whileInView="visible" viewport={{ once: true }}
                         className="relative group overflow-hidden aspect-[3/4] shadow-lg rounded-lg">
@@ -183,6 +175,41 @@ const CraftsmanshipSection = memo(forwardRef((props, ref) => (
                         className="relative group overflow-hidden aspect-[3/4] shadow-lg rounded-lg">
                 <img src={`${minioBaseUrl}/uploads/collections/Model/4.jpg`} alt="Sartorial Fit 4"
                      className="w-full h-full object-cover transform transition-transform duration-500 group-hover:scale-105"/>
+            </motion.div>
+        </div>
+    </section>
+)));
+
+const GroomSection = memo(forwardRef((props, ref) => (
+    <section className="relative snap-section min-h-screen h-screen grid grid-cols-1 md:grid-cols-2 items-center bg-attire-dark" ref={ref}>
+        {/* Left side - Image */}
+        <div className="relative w-full h-full overflow-hidden hidden md:block">
+            <img
+                src={`${minioBaseUrl}/uploads/collections/Model/5.jpg`}
+                alt="Groom Collection"
+                className="absolute inset-0 w-full h-full object-cover"
+                loading="lazy"
+            />
+            <div className="absolute inset-0 bg-gradient-to-l from-attire-dark via-transparent to-transparent" />
+        </div>
+
+        {/* Right side - Text Content */}
+        <div className="flex flex-col justify-center text-attire-cream p-8 md:p-16 h-full">
+            <motion.div
+                variants={containerVariants}
+                initial="hidden"
+                whileInView="visible"
+                viewport={{ once: true, amount: 0.6 }}
+            >
+                <motion.h2 variants={itemVariants} className="font-serif text-3xl md:text-5xl text-white mb-4">Groom</motion.h2>
+                <motion.p variants={itemVariants} transition={{ delay: 0.2 }} className="font-serif text-lg md:text-xl leading-relaxed mb-8">
+                    Ready-to-wear groom and groomsmen collections with classic accessories to elevate your style on your special day.
+                </motion.p>
+                <motion.div variants={itemVariants} transition={{ delay: 0.4 }}>
+                    <Link to="#" className="inline-block bg-attire-accent text-white font-semibold px-10 py-4 rounded-lg hover:bg-attire-accent/90 transition-colors">
+                        Browse
+                    </Link>
+                </motion.div>
             </motion.div>
         </div>
     </section>
@@ -246,7 +273,7 @@ const HomePage = () => {
   }, []);
 
   useEffect(() => {
-    sectionsRef.current = sectionsRef.current.slice(0, 8); // 8 sections total
+    sectionsRef.current = sectionsRef.current.slice(0, 9); // 9 sections total
     const handleMenuStateChange = (e) => {
       if (e.detail && e.detail.isMenuOpen !== undefined) setIsMenuOpen(e.detail.isMenuOpen);
     };
@@ -321,9 +348,10 @@ const HomePage = () => {
       <CollectionsSection ref={el => sectionsRef.current[2] = el} collections={collections} />
       <ExperienceSection ref={el => sectionsRef.current[3] = el} services={services} />
       <CraftsmanshipSection ref={el => sectionsRef.current[4] = el} craftsmanship={craftsmanship} />
-      <LookbookSection ref={el => sectionsRef.current[5] = el} />
-      <CTASection ref={el => sectionsRef.current[6] = el} />
-      <FooterSection ref={el => sectionsRef.current[7] = el} />
+      <GroomSection ref={el => sectionsRef.current[5] = el} />
+      <LookbookSection ref={el => sectionsRef.current[6] = el} />
+      <CTASection ref={el => sectionsRef.current[7] = el} />
+      <FooterSection ref={el => sectionsRef.current[8] = el} />
     </div>
   );
 };
