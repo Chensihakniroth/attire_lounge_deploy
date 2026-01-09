@@ -183,7 +183,7 @@ const LookbookPage = () => {
                     variants={containerVariants}
                     initial="hidden"
                     animate="visible"
-                    className="grid grid-cols-2 sm:grid-cols-4 auto-rows-[200px] sm:auto-rows-[25vh] gap-0"
+                    className="grid grid-cols-2 sm:grid-cols-4 auto-rows-[200px] sm:auto-rows-[25vh] gap-1"
                 >
                     {filteredImages.map((image, index) => (
                         <div
@@ -195,7 +195,7 @@ const LookbookPage = () => {
                             <img
                                 src={image.src}
                                 alt={image.title}
-                                className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-110 group-hover:rotate-2"
+                                className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105 group-hover:rotate-1"
                             />
                         </div>
                     ))}
