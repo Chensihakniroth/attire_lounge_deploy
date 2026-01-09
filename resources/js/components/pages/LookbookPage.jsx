@@ -9,9 +9,7 @@ const FilterContent = ({ isMobile, setFilter, setIsFilterOpen, currentFilter }) 
     const categories = [
         { id: 'all', name: 'All' },
         { id: 'sartorial', name: 'Sartorial' },
-        { id: 'groom', name: 'Groom' },
         { id: 'office', name: 'Office' },
-        { id: 'accessories', name: 'Accessories' },
     ];
 
     const handleFilterClick = (filterId) => {
@@ -49,18 +47,32 @@ import minioBaseUrl from '../../config.js';
 
 const LookbookPage = () => {
     const [images] = useState([
-        { id: 1, src: `${minioBaseUrl}/uploads/collections/model/1.jpg`, title: 'Modern Sartorial', collection: 'Havana Collection', category: 'sartorial', span: 'col-span-2 row-span-2' },
-        { id: 2, src: `${minioBaseUrl}/uploads/collections/model/2.jpg`, title: 'Urban Elegance', collection: 'Mocha Mousse 25', category: 'office', span: 'col-span-1 row-span-2' },
-        { id: 3, src: `${minioBaseUrl}/uploads/collections/model/3.jpg`, title: 'Evening Sophistication', collection: 'Groom Collection', category: 'groom', span: 'col-span-1 row-span-2' },
-        { id: 4, src: `${minioBaseUrl}/uploads/collections/model/4.jpg`, title: 'Business Refined', collection: 'Office Collection', category: 'office', span: 'col-span-1 row-span-2' },
-        { id: 5, src: `${minioBaseUrl}/uploads/collections/model/5.jpg`, title: 'Linen Summer', collection: 'Havana Collection', category: 'sartorial', span: 'col-span-1 row-span-2' },
-        { id: 6, src: `${minioBaseUrl}/uploads/collections/model/6.jpg`, title: 'Accessory Details', collection: 'The Little Details', category: 'accessories', span: 'col-span-2 row-span-2' },
-        { id: 7, src: `${minioBaseUrl}/uploads/lookbook/lookbook-7.jpg`, title: 'Casual Luxury', collection: 'Mocha Mousse 25', category: 'sartorial', span: 'col-span-1 row-span-1' },
-        { id: 8, src: `${minioBaseUrl}/uploads/lookbook/lookbook-8.jpg`, title: 'Groom Style', collection: 'Groom Collection', category: 'groom', span: 'col-span-1 row-span-1' },
-        { id: 9, src: `${minioBaseUrl}/uploads/lookbook/lookbook-9.jpg`, title: 'Office Attire', collection: 'Office Collection', category: 'office', span: 'col-span-1 row-span-1' },
-        { id: 10, src: `${minioBaseUrl}/uploads/lookbook/lookbook-10.jpg`, title: 'Summer Linen', collection: 'Havana Collection', category: 'sartorial', span: 'col-span-1 row-span-1' },
-        { id: 11, src: `${minioBaseUrl}/uploads/lookbook/lookbook-11.jpg`, title: 'Cufflink Details', collection: 'The Little Details', category: 'accessories', span: 'col-span-1 row-span-1' },
-        { id: 12, src: `${minioBaseUrl}/uploads/lookbook/lookbook-12.jpg`, title: 'Evening Wear', collection: 'Groom Collection', category: 'groom', span: 'col-span-1 row-span-1' },
+        // Havana Collection
+        { id: 1, src: `${minioBaseUrl}/uploads/collections/default/hvn0.jpg`, title: 'Havana Breezy', collection: 'Havana Collection', category: 'sartorial', span: 'col-span-2 row-span-2' },
+        { id: 2, src: `${minioBaseUrl}/uploads/collections/default/hvn1.jpg`, title: 'Sunset Casual', collection: 'Havana Collection', category: 'sartorial', span: 'col-span-1 row-span-1' },
+        { id: 3, src: `${minioBaseUrl}/uploads/collections/default/hvn2.jpg`, title: 'Cuban Nights', collection: 'Havana Collection', category: 'sartorial', span: 'col-span-1 row-span-2' },
+        { id: 4, src: `${minioBaseUrl}/uploads/collections/default/hvn3.jpg`, title: 'Linen Classic', collection: 'Havana Collection', category: 'sartorial', span: 'col-span-1 row-span-1' },
+        { id: 5, src: `${minioBaseUrl}/uploads/collections/default/hvn4.jpg`, title: 'Tropical Sophistication', collection: 'Havana Collection', category: 'sartorial', span: 'col-span-1 row-span-2' },
+        { id: 6, src: `${minioBaseUrl}/uploads/collections/default/hvn5.jpg`, title: 'Coastal Charm', collection: 'Havana Collection', category: 'sartorial', span: 'col-span-1 row-span-1' },
+        { id: 7, src: `${minioBaseUrl}/uploads/collections/default/hvn6.jpg`, title: 'Island Elegance', collection: 'Havana Collection', category: 'sartorial', span: 'col-span-1 row-span-1' },
+        { id: 8, src: `${minioBaseUrl}/uploads/collections/default/hvn7.jpg`, title: 'Seaside Style', collection: 'Havana Collection', category: 'sartorial', span: 'col-span-2 row-span-1' },
+        { id: 9, src: `${minioBaseUrl}/uploads/collections/default/hvn8.jpg`, title: 'Caribbean Cool', collection: 'Havana Collection', category: 'sartorial', span: 'col-span-1 row-span-1' },
+        
+        // Mocha Mousse Collection
+        { id: 10, src: `${minioBaseUrl}/uploads/collections/default/mm1.jpg`, title: 'Espresso Edge', collection: 'Mocha Mousse 25', category: 'sartorial', span: 'col-span-1 row-span-2' },
+        { id: 11, src: `${minioBaseUrl}/uploads/collections/default/mm2.jpg`, title: 'Urban Comfort', collection: 'Mocha Mousse 25', category: 'sartorial', span: 'col-span-1 row-span-1' },
+        { id: 12, src: `${minioBaseUrl}/uploads/collections/default/mm3.jpg`, title: 'Downtown Vibe', collection: 'Mocha Mousse 25', category: 'sartorial', span: 'col-span-1 row-span-1' },
+        { id: 13, src: `${minioBaseUrl}/uploads/collections/default/mm4.jpg`, title: 'City Classic', collection: 'Mocha Mousse 25', category: 'sartorial', span: 'col-span-1 row-span-2' },
+        { id: 14, src: `${minioBaseUrl}/uploads/collections/default/mm5.jpg`, title: 'Metro Style', collection: 'Mocha Mousse 25', category: 'sartorial', span: 'col-span-2 row-span-2' },
+        { id: 15, src: `${minioBaseUrl}/uploads/collections/default/mm6.jpg`, title: 'Modern Mocha', collection: 'Mocha Mousse 25', category: 'sartorial', span: 'col-span-1 row-span-1' },
+        { id: 16, src: `${minioBaseUrl}/uploads/collections/default/mm7.jpg`, title: 'Refined Casual', collection: 'Mocha Mousse 25', category: 'sartorial', span: 'col-span-1 row-span-1' },
+
+        // Office Collection
+        { id: 17, src: `${minioBaseUrl}/uploads/collections/default/of1.jpg`, title: 'Boardroom Ready', collection: 'Office Collection', category: 'office', span: 'col-span-1 row-span-1' },
+        { id: 18, src: `${minioBaseUrl}/uploads/collections/default/of2.jpg`, title: 'Executive Presence', collection: 'Office Collection', category: 'office', span: 'col-span-1 row-span-2' },
+        { id: 19, src: `${minioBaseUrl}/uploads/collections/default/of3.jpg`, title: 'Corporate Style', collection: 'Office Collection', category: 'office', span: 'col-span-1 row-span-1' },
+        { id: 20, src: `${minioBaseUrl}/uploads/collections/default/of4.jpg`, title: 'Business Formal', collection: 'Office Collection', category: 'office', span: 'col-span-2 row-span-1' },
+        { id: 21, src: `${minioBaseUrl}/uploads/collections/default/of5.jpg`, title: 'Professional Polish', collection: 'Office Collection', category: 'office', span: 'col-span-1 row-span-1' },
     ]);
 
     const [[page, direction], setPage] = useState([null, 0]);
