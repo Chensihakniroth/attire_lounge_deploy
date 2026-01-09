@@ -113,18 +113,24 @@ const CollectionsSection = memo(forwardRef(({ collections }, ref) => (
       </div>
       
       {/* Collection Cards */}
-      <div className="w-full grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4"> {/* Increased gap */}
+      <div className="w-full grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-x-6 gap-y-10">
         {collections.map((collection) => (
-          <motion.div key={collection.name} className="relative overflow-hidden group aspect-square" variants={itemVariants} initial="hidden" whileInView="visible" viewport={{ once: true }}>
-            <Link to={collection.link} className="block w-full h-full">
-              <img src={collection.image} alt={collection.name} className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" loading="lazy" decoding="async" />
-              <div className="absolute inset-0 bg-gradient-to-t from-attire-dark/70 via-attire-dark/30 to-transparent" />
-              <div className="relative h-full flex flex-col justify-end p-6 text-attire-cream"> {/* Adjusted padding */}
-                <h3 className="font-serif text-2xl mb-1">{collection.name}</h3> {/* Smaller H3 */}
-                <p className="text-attire-silver text-sm mb-3">{collection.description}</p> {/* Smaller P */}
-                <div className="flex items-center gap-2 text-attire-accent group-hover:gap-3 transition-all"><span>Explore</span><ArrowRight size={16} /></div>
-              </div>
+          <motion.div key={collection.name} variants={itemVariants} initial="hidden" whileInView="visible" viewport={{ once: true }}>
+            <Link to={collection.link}>
+              <figure className="relative aspect-[3/4] overflow-hidden group rounded-lg">
+                <img 
+                  src={collection.image} 
+                  alt={collection.name} 
+                  className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105" 
+                  loading="lazy" 
+                  decoding="async" 
+                />
+              </figure>
             </Link>
+            <div className="pt-4 text-left">
+              <h3 className="font-serif font-semibold text-lg text-attire-cream">{collection.name}</h3>
+              <p className="text-sm text-attire-silver mt-1">{collection.description}</p>
+            </div>
           </motion.div>
         ))}
       </div>
