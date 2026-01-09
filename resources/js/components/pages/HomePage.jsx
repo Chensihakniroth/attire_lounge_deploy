@@ -45,8 +45,12 @@ const HeroSection = memo(forwardRef(({ scrollToSection }, ref) => (
       <video autoPlay muted loop playsInline preload="auto" className="absolute w-full h-full object-cover" style={{ objectPosition: 'center 10%' }}><source src={`${minioBaseUrl}/uploads/asset/hero-background1.mp4`} type="video/mp4" /></video>
       <div className="absolute inset-0 bg-attire-dark/40" />
     </div>
-    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.8 }} className="relative z-10 h-full flex items-center justify-center">
+    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.8 }} className="relative z-10 h-full flex flex-col items-center justify-center">
       <img src={`${minioBaseUrl}/uploads/asset/AL_logo.png`} alt="Attire Lounge" className="h-auto mx-auto filter brightness-0 invert drop-shadow-[0_0_30px_rgba(0,0,0,0.8)] opacity-90 max-w-[280px] md:max-w-sm" loading="eager" />
+      <div className="mt-8 flex justify-center space-x-8">
+        <Link to="/contact" className="text-attire-cream text-lg md:text-xl font-semibold hover:text-attire-accent transition-colors duration-300">Appointment</Link>
+        <Link to="/collections" className="text-attire-cream text-lg md:text-xl font-semibold hover:text-attire-accent transition-colors duration-300">Browse Collection</Link>
+      </div>
     </motion.div>
   </section>
 )));
