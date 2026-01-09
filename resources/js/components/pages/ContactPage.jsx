@@ -198,11 +198,12 @@ const ContactPage = () => {
         if (!validateForm()) return;
         setIsSubmitting(true);
         try {
-            const response = await fetch(`${import.meta.env.VITE_APP_URL}/api/v1/appointments`, {
+            const response = await fetch(`/api/v1/appointments`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                     'Accept': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content') // Include CSRF token
                 },
                 body: JSON.stringify(formData),
             });
