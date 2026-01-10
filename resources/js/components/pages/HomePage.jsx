@@ -19,11 +19,6 @@ const homePageData = {
     { name: "Milan-Certified Styling", description: "Receive a free, expert styling consultation from our Milan-certified team to discover the perfect look for you.", icon: <Users size={32} className="text-attire-accent" /> },
     { name: "The Perfect Fit", description: "We offer diverse sizes and provide complimentary in-house alterations to ensure your garments fit impeccably.", icon: <Scissors size={32} className="text-attire-accent" /> },
     { name: "A Premium Experience", description: "Enjoy a relaxing atmosphere and complimentary drinks during your visit, making your styling session a true pleasure.", icon: <Coffee size={32} className="text-attire-accent" /> }
-  ],
-  craftsmanship: [
-    { name: "Finest Materials", description: "We source exquisite fabrics from renowned mills across the globe, ensuring unparalleled quality and comfort in every piece.", icon: <Gem size={28} className="text-attire-silver" /> },
-    { name: "Bespoke Tailoring", description: "Our master tailors blend traditional techniques with modern precision to craft garments that are uniquely yours.", icon: <Feather size={28} className="text-attire-silver" /> },
-    { name: "Timeless Design", description: "We create contemporary yet timeless designs that form the foundation of a distinguished wardrobe.", icon: <Palette size={28} className="text-attire-silver" /> }
   ]
 };
 
@@ -155,30 +150,7 @@ const ExperienceSection = memo(forwardRef((props, ref) => (
   </section>
 )));
 
-const CraftsmanshipSection = memo(forwardRef((props, ref) => (
-    <section className="relative snap-section min-h-screen h-screen flex items-center justify-center p-4 md:p-8 overflow-hidden bg-attire-dark" ref={ref}>
-        <div className="relative z-10 grid grid-cols-2 md:grid-cols-3 gap-4 md:gap-8 w-full max-w-7xl mx-auto px-4">
-            {/* Image 2 */}
-            <motion.div variants={itemVariants} initial="hidden" whileInView="visible" viewport={{ once: true }}
-                        className="relative group overflow-hidden aspect-[3/4] shadow-lg rounded-lg">
-                <img src={`${minioBaseUrl}/uploads/collections/default/mm1.jpg`} alt="Mocha Mousse Collection"
-                     className="w-full h-full object-cover transform transition-transform duration-500 group-hover:scale-105"/>
-            </motion.div>
-            {/* Image 3 */}
-            <motion.div variants={itemVariants} initial="hidden" whileInView="visible" viewport={{ once: true, delay: 0.2 }}
-                        className="relative group overflow-hidden aspect-[3/4] shadow-lg rounded-lg">
-                <img src={`${minioBaseUrl}/uploads/collections/default/hvn3.jpg`} alt="Havana Collection"
-                     className="w-full h-full object-cover transform transition-transform duration-500 group-hover:scale-105"/>
-            </motion.div>
-            {/* Image 4 */}
-            <motion.div variants={itemVariants} initial="hidden" whileInView="visible" viewport={{ once: true, delay: 0.4 }}
-                        className="relative group overflow-hidden aspect-[3/4] shadow-lg rounded-lg">
-                <img src={`${minioBaseUrl}/uploads/collections/default/t9.jpg`} alt="Timeless Elegance"
-                     className="w-full h-full object-cover transform transition-transform duration-500 group-hover:scale-105"/>
-            </motion.div>
-        </div>
-    </section>
-)));
+
 
 const GroomSection = memo(forwardRef((props, ref) => (
     <section className="relative snap-section min-h-screen h-screen grid grid-cols-1 md:grid-cols-2 items-center bg-attire-dark" ref={ref}>
@@ -273,7 +245,7 @@ const HomePage = () => {
   }, []);
 
   useEffect(() => {
-    sectionsRef.current = sectionsRef.current.slice(0, 9); // 9 sections total
+    sectionsRef.current = sectionsRef.current.slice(0, 8); // 8 sections total
     const handleMenuStateChange = (e) => {
       if (e.detail && e.detail.isMenuOpen !== undefined) setIsMenuOpen(e.detail.isMenuOpen);
     };
@@ -339,7 +311,7 @@ const HomePage = () => {
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [isMobile, isMenuOpen, activeSection, scrollToSection]);
 
-  const { collections, services, craftsmanship } = homePageData;
+  const { collections, services } = homePageData;
 
   return (
     <div className="snap-scroll-container bg-black">
@@ -347,11 +319,10 @@ const HomePage = () => {
       <PhilosophySection ref={el => sectionsRef.current[1] = el} />
       <CollectionsSection ref={el => sectionsRef.current[2] = el} collections={collections} />
       <ExperienceSection ref={el => sectionsRef.current[3] = el} services={services} />
-      <CraftsmanshipSection ref={el => sectionsRef.current[4] = el} craftsmanship={craftsmanship} />
-      <GroomSection ref={el => sectionsRef.current[5] = el} />
-      <LookbookSection ref={el => sectionsRef.current[6] = el} />
-      <CTASection ref={el => sectionsRef.current[7] = el} />
-      <FooterSection ref={el => sectionsRef.current[8] = el} />
+      <GroomSection ref={el => sectionsRef.current[4] = el} />
+      <LookbookSection ref={el => sectionsRef.current[5] = el} />
+      <CTASection ref={el => sectionsRef.current[6] = el} />
+      <FooterSection ref={el => sectionsRef.current[7] = el} />
     </div>
   );
 };

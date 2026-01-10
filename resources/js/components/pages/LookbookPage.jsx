@@ -187,20 +187,14 @@ const LookbookPage = () => {
                                                         >                                        {filteredImages.map((image, index) => (
                                             <div
                                                 key={image.id}
-                                                className={`group relative bg-attire-dark cursor-pointer`}
+                                                className="group relative cursor-pointer overflow-hidden h-[28rem]"
                                                 onClick={() => openLightbox(index)}
                                             >
-                                                <div className="relative overflow-hidden h-[28rem]">
-                                                    {/* Image */}
-                                                    <img
-                                                        src={image.src}
-                                                        alt={image.title}
-                                                        className="w-full h-full object-cover transition-transform duration-700"
-                                                    />
-                                                </div>
-                                                <div className="pt-4 pb-2 text-center">
-                                                    <h3 className="text-base text-white">{image.title}</h3>
-                                                </div>
+                                                <img
+                                                    src={image.src}
+                                                    alt={image.title}
+                                                    className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                                                />
                                             </div>
                                         ))}
                                     </motion.div>            </motion.div>
