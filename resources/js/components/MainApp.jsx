@@ -10,8 +10,8 @@ import Footer from './layouts/Footer.jsx';
 // Pages that you have created
 const HomePage = lazy(() => import('./pages/HomePage.jsx'));
 const CollectionsPage = lazy(() => import('./pages/CollectionsPage.jsx'));
+const CollectionDetailPage = lazy(() => import('./pages/CollectionDetailPage.jsx'));
 const LookbookPage = lazy(() => import('./pages/LookbookPage.jsx'));
-// Removed: const StylingPage = lazy(() => import('./pages/StylingPage.jsx'));
 const ContactPage = lazy(() => import('./pages/ContactPage.jsx'));
 
 // Simple placeholder for non-existent pages
@@ -57,6 +57,11 @@ function MainApp() {
                     <Route path="/collections" element={
                         <Layout>
                             <CollectionsPage />
+                        </Layout>
+                    } />
+                     <Route path="/collections/:collectionSlug" element={
+                        <Layout>
+                            <CollectionDetailPage />
                         </Layout>
                     } />
                     <Route path="/lookbook" element={
@@ -122,33 +127,6 @@ function MainApp() {
                         </Layout>
                     } />
 
-                    {/* Collection sub-routes */}
-                    <Route path="/collections/sartorial" element={
-                        <Layout>
-                            <Placeholder title="Sartorial Collection" />
-                        </Layout>
-                    } />
-                    <Route path="/collections/groom" element={
-                        <Layout>
-                            <Placeholder title="Groom Collection" />
-                        </Layout>
-                    } />
-                    <Route path="/collections/office" element={
-                        <Layout>
-                            <Placeholder title="Office Collection" />
-                        </Layout>
-                    } />
-                    <Route path="/collections/accessories" element={
-                        <Layout>
-                            <Placeholder title="Accessories" />
-                        </Layout>
-                    } />
-                    <Route path="/collections/new-arrivals" element={
-                        <Layout>
-                            <Placeholder title="New Arrivals" />
-                        </Layout>
-                    } />
-
                     {/* 404 */}
                     <Route path="*" element={
                         <Layout>
@@ -162,3 +140,4 @@ function MainApp() {
 }
 
 export default MainApp;
+

@@ -1,12 +1,13 @@
 import React from 'react';
 import { motion } from 'framer-motion';
+import { Link } from 'react-router-dom';
 import CollectionCard from './collections/CollectionCard';
 import minioBaseUrl from '../../config.js';
 
 const collections = [
-    { id: 1, title: 'Havana Collection', description: 'Lightweight fabrics and breezy silhouettes.', itemsCount: 42, image: `${minioBaseUrl}/uploads/collections/default/hvn1.jpg` },
-    { id: 5, title: "Mocha Mousse '25'", description: 'Breathable natural fabrics for sophisticated comfort.', itemsCount: 35, image: `${minioBaseUrl}/uploads/collections/default/mm1.jpg` },
-    { id: 3, title: 'Groom Collection', description: 'Elegant tuxedos and formal wear for special occasions.', itemsCount: 19, image: `${minioBaseUrl}/uploads/collections/default/g10.jpg` },
+    { id: 1, title: 'Havana Collection', slug: 'havana-collection', description: 'Lightweight fabrics and breezy silhouettes.', itemsCount: 42, image: `${minioBaseUrl}/uploads/collections/default/hvn1.jpg` },
+    { id: 5, title: "Mocha Mousse '25'", slug: 'mocha-mousse-25', description: 'Breathable natural fabrics for sophisticated comfort.', itemsCount: 35, image: `${minioBaseUrl}/uploads/collections/default/mm1.jpg` },
+    { id: 3, title: 'Groom Collection', slug: 'groom-collection', description: 'Elegant tuxedos and formal wear for special occasions.', itemsCount: 19, image: `${minioBaseUrl}/uploads/collections/default/g10.jpg` },
 ];
 
 const PageHeader = () => (
@@ -41,15 +42,16 @@ const CollectionsPage = () => {
                     className="grid grid-cols-1 md:grid-cols-3 gap-8 md:gap-12"
                 >
                     {collections.map((collection) => (
-                        <motion.div
-                            key={collection.id}
-                            layout
-                            initial={{ opacity: 0, y: 20 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            transition={{ duration: 0.6, ease: 'easeOut' }}
-                        >
-                            <CollectionCard collection={collection} />
-                        </motion.div>
+                        <Link to={`/collections/${collection.slug}`} key={collection.id}>
+                            <motion.div
+                                layout
+                                initial={{ opacity: 0, y: 20 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                transition={{ duration: 0.6, ease: 'easeOut' }}
+                            >
+                                <CollectionCard collection={collection} />
+                            </motion.div>
+                        </Link>
                     ))}
                 </motion.div>
             </main>
