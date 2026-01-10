@@ -1,7 +1,7 @@
 // resources/js/components/pages/HomePage.jsx - V6 (Final Polish with Glass Effects)
 import React, { useEffect, useRef, useState, useCallback, forwardRef, memo } from 'react';
 import { motion } from 'framer-motion';
-import { Users, Scissors, Coffee, ArrowRight, Gem, Feather, Palette, ChevronDown } from 'lucide-react';
+import { Users, Scissors, Coffee, ArrowRight, Gem, Feather, Palette, ChevronDown, CheckCircle } from 'lucide-react';
 import Footer from '../layouts/Footer';
 import { Link } from 'react-router-dom';
 
@@ -134,18 +134,48 @@ const CollectionsSection = memo(forwardRef(({ collections }, ref) => (
 )));
 
 const ExperienceSection = memo(forwardRef((props, ref) => (
-  <section className="relative snap-section min-h-screen h-screen flex flex-col justify-center overflow-hidden" ref={ref}>
-    <div className="absolute inset-0 w-full h-full bg-cover bg-center transition-opacity duration-1000 ease-in-out"
-         style={{ backgroundImage: `url('${minioBaseUrl}/uploads/collections/default/ping.jpg')` }}
-    />
-    <div className="absolute inset-0 bg-attire-dark/60" />
-    <div className="absolute inset-0 flex items-center justify-center"> {/* This is the flex container */}
-        <div className="w-full max-w-6xl mx-auto text-attire-cream text-center p-4"> {/* New div to group and center content */}
-            <h2 className="font-serif text-5xl md:text-7xl text-white mb-6 leading-tight">Sartorial</h2>
-            <p className="max-w-3xl mx-auto text-attire-silver md:text-xl leading-relaxed">
-                Classic ready-to-wear sartorial style from top-to-toe including blazers, suits, shirts, high-rise pants, and gentlemen accessories.
-            </p>
-        </div>
+  <section className="relative snap-section min-h-screen h-screen grid grid-cols-1 md:grid-cols-2 items-center bg-attire-dark" ref={ref}>
+    {/* Left side - Image */}
+    <div className="relative w-full h-full overflow-hidden hidden md:block">
+        <img
+            src={`${minioBaseUrl}/uploads/collections/default/vc.jpg`}
+            alt="What sets us apart"
+            className="absolute inset-0 w-full h-full object-cover"
+            loading="lazy"
+        />
+        <div className="absolute inset-0 bg-gradient-to-l from-attire-dark via-transparent to-transparent" />
+    </div>
+
+    {/* Right side - Text Content */}
+    <div className="flex flex-col justify-center text-attire-cream p-8 md:p-16 h-full">
+        <motion.div
+            variants={containerVariants}
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, amount: 0.6 }}
+        >
+            <motion.h2 variants={itemVariants} className="font-serif text-3xl md:text-5xl text-white mb-8">What sets us apart?</motion.h2>
+            <motion.div variants={itemVariants} transition={{ delay: 0.2 }}>
+                <ul className="space-y-5 text-base md:text-lg leading-relaxed">
+                    <li className="flex items-start gap-4">
+                        <CheckCircle className="w-7 h-7 text-attire-accent mt-1 flex-shrink-0" />
+                        <span>Receive free styling consultation upon your appointment</span>
+                    </li>
+                    <li className="flex items-start gap-4">
+                        <CheckCircle className="w-7 h-7 text-attire-accent mt-1 flex-shrink-0" />
+                        <span>Styling team certified from Milan, Italy</span>
+                    </li>
+                    <li className="flex items-start gap-4">
+                        <CheckCircle className="w-7 h-7 text-attire-accent mt-1 flex-shrink-0" />
+                        <span>Free complimentary drinks</span>
+                    </li>
+                    <li className="flex items-start gap-4">
+                        <CheckCircle className="w-7 h-7 text-attire-accent mt-1 flex-shrink-0" />
+                        <span>Diverse sizes suitable for all body types</span>
+                    </li>
+                </ul>
+            </motion.div>
+        </motion.div>
     </div>
   </section>
 )));
