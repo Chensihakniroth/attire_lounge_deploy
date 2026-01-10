@@ -98,7 +98,7 @@ const CollectionsSection = memo(forwardRef(({ collections }, ref) => (
          style={{ backgroundImage: `url('${minioBaseUrl}/uploads/collections/Model/1.jpg')` }}
     />
     {/* Black Overlay */}
-    <div className="absolute inset-0 bg-black/50" />
+    <div className="absolute inset-0 bg-attire-dark/50" />
 
     <div className="relative z-10 flex flex-col justify-center h-full max-w-7xl mx-auto px-6 py-12 md:py-24">
       {/* Text Content - Aligned Left */}
@@ -344,7 +344,7 @@ const HomePage = () => {
   const { collections, services } = homePageData;
 
   return (
-    <div className="snap-scroll-container bg-black">
+    <div className="snap-scroll-container bg-attire-dark">
       <HeroSection ref={el => sectionsRef.current[0] = el} scrollToSection={scrollToSection} />
       <PhilosophySection ref={el => sectionsRef.current[1] = el} />
       <CollectionsSection ref={el => sectionsRef.current[2] = el} collections={collections} />
