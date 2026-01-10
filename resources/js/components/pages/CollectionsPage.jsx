@@ -6,12 +6,12 @@ import minioBaseUrl from '../../config.js';
 const collections = [
     { id: 1, title: 'Havana Collection', description: 'Lightweight fabrics and breezy silhouettes.', itemsCount: 42, image: `${minioBaseUrl}/uploads/collections/default/hvn1.jpg` },
     { id: 5, title: "Mocha Mousse '25'", description: 'Breathable natural fabrics for sophisticated comfort.', itemsCount: 35, image: `${minioBaseUrl}/uploads/collections/default/mm1.jpg` },
-    { id: 3, title: 'Groom Collection', description: 'Elegant tuxedos and formal wear for special occasions.', itemsCount: 19, image: `${minioBaseUrl}/uploads/collections/default/g1.jpg` },
+    { id: 3, title: 'Groom Collection', description: 'Elegant tuxedos and formal wear for special occasions.', itemsCount: 19, image: `${minioBaseUrl}/uploads/collections/default/g9.jpg` },
 ];
 
 const PageHeader = () => (
     <div className="text-center py-16 sm:py-24" style={{ backgroundColor: '#0d3542' }}>
-        <motion.h1 
+        <motion.h1
             className="text-4xl sm:text-5xl md:text-6xl font-serif font-light text-white mb-4"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -19,7 +19,7 @@ const PageHeader = () => (
         >
             Our Collections
         </motion.h1>
-        <motion.p 
+        <motion.p
             className="text-base sm:text-lg text-gray-300 max-w-2xl mx-auto px-4"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -34,7 +34,7 @@ const CollectionsPage = () => {
     return (
         <div className="min-h-screen bg-white text-gray-800">
             <PageHeader />
-            
+
             <main className="max-w-screen-xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
                 <motion.div
                     layout
