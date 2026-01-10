@@ -26,4 +26,4 @@ Route::get('/test-redis', function() {
 // ===== SINGLE ROUTE FOR REACT SPA =====
 Route::get('/{any}', function () {
     return view('app');
-})->where('any', '.*');
+})->where('any', '^(?!api).*$');
