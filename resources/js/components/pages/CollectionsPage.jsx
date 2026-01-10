@@ -6,7 +6,7 @@ import minioBaseUrl from '../../config.js';
 const collections = [
     { id: 1, title: 'Havana Collection', description: 'Lightweight fabrics and breezy silhouettes.', itemsCount: 42, image: `${minioBaseUrl}/uploads/collections/default/hvn1.jpg` },
     { id: 5, title: "Mocha Mousse '25'", description: 'Breathable natural fabrics for sophisticated comfort.', itemsCount: 35, image: `${minioBaseUrl}/uploads/collections/default/mm1.jpg` },
-    { id: 3, title: 'Groom Collection', description: 'Elegant tuxedos and formal wear for special occasions.', itemsCount: 19, image: `${minioBaseUrl}/uploads/collections/default/g9.jpg` },
+    { id: 3, title: 'Groom Collection', description: 'Elegant tuxedos and formal wear for special occasions.', itemsCount: 19, image: `${minioBaseUrl}/uploads/collections/default/g10.jpg` },
 ];
 
 const PageHeader = () => (
