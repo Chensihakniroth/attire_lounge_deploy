@@ -183,19 +183,24 @@ const LookbookPage = () => {
                                                             variants={containerVariants}
                                                             initial="hidden"
                                                             animate="visible"
-                                                            className="grid grid-cols-2 md:grid-cols-3 auto-rows-[200px] sm:auto-rows-[25vh] gap-4 px-4 lg:px-8"
+                                                            className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-x-6 gap-y-12 px-4 lg:px-8"
                                                         >                                        {filteredImages.map((image, index) => (
                                             <div
                                                 key={image.id}
-                                                className={`group relative overflow-hidden bg-neutral-900 cursor-pointer ${image.span}`}
+                                                className={`group relative bg-attire-dark cursor-pointer`}
                                                 onClick={() => openLightbox(index)}
                                             >
-                                                {/* Image */}
-                                                <img
-                                                    src={image.src}
-                                                    alt={image.title}
-                                                    className="h-full w-full object-cover transition-transform duration-700"
-                                                />
+                                                <div className="relative overflow-hidden h-[28rem]">
+                                                    {/* Image */}
+                                                    <img
+                                                        src={image.src}
+                                                        alt={image.title}
+                                                        className="w-full h-full object-cover transition-transform duration-700"
+                                                    />
+                                                </div>
+                                                <div className="pt-4 pb-2 text-center">
+                                                    <h3 className="text-base text-white">{image.title}</h3>
+                                                </div>
                                             </div>
                                         ))}
                                     </motion.div>            </motion.div>
