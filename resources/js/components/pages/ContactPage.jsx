@@ -135,7 +135,9 @@ const ContactPage = () => {
         name: '',
         email: '',
         phone: '',
-        appointmentType: 'sartorial',
+        service: 'sartorial', // Changed from appointmentType to service
+        date: '', // New field for appointment date
+        time: '', // New field for appointment time
         message: '',
     });
 
@@ -188,6 +190,9 @@ const ContactPage = () => {
         if (!formData.email.trim() || !/\S+@\S+\.\S+/.test(formData.email)) {
             newErrors.email = 'Please enter a valid email';
         }
+        if (!formData.phone.trim()) newErrors.phone = 'Please enter your phone number'; // Phone is now required
+        if (!formData.date) newErrors.date = 'Please select an appointment date'; // Validate date
+        if (!formData.time) newErrors.time = 'Please select an appointment time'; // Validate time
         if (!formData.message.trim()) newErrors.message = 'Please include your message';
         setErrors(newErrors);
         return Object.keys(newErrors).length === 0;
@@ -275,8 +280,13 @@ const ContactPage = () => {
                                 </div>
 
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                    <InputField name="phone" type="tel" label="Phone Number" value={formData.phone} onChange={handleChange} placeholder="(+855) XX-XX-XX-XX" />
-                                    <SelectField name="appointmentType" label="Appointment Type" value={formData.appointmentType} onChange={handleChange} options={appointmentTypes} />
+                                    <InputField name="phone" type="tel" label="Phone Number *" value={formData.phone} onChange={handleChange} error={errors.phone} placeholder="(+855) XX-XX-XX-XX" />
+                                    <SelectField name="service" label="Appointment Type" value={formData.service} onChange={handleChange} options={appointmentTypes} />
+                                </div>
+
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                    <InputField name="date" type="date" label="Appointment Date *" value={formData.date} onChange={handleChange} error={errors.date} />
+                                    <InputField name="time" type="time" label="Appointment Time *" value={formData.time} onChange={handleChange} error={errors.time} />
                                 </div>
 
                                 <TextareaField name="message" label="Your Message *" value={formData.message} onChange={handleChange} error={errors.message} placeholder="Tell us about your styling needs..." />
