@@ -29,7 +29,7 @@ const Layout = ({ children, includeFooter = true }) => {
     return (
         <div className="min-h-screen flex flex-col">
             <Navigation />
-            <main className="flex-grow pb-24">
+            <main className="flex-grow">
                 {children}
             </main>
             {includeFooter && <Footer />}
