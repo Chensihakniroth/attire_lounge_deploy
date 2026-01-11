@@ -61,3 +61,4 @@ const CollectionsPage = () => {
 
 export default CollectionsPage;
 
+1

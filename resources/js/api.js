@@ -22,37 +22,37 @@ const API = {
     // Fetch products with optional filters
     async getProducts(filters = {}) {
         const params = new URLSearchParams(filters).toString();
-        const response = await fetch(`/v1/products?${params}`);
+        const response = await fetch(`/api/v1/products?${params}`);
         return await handleResponse(response);
     },
 
     // Fetch featured products
     async getFeaturedProducts() {
-        const response = await fetch('/v1/products/featured');
+        const response = await fetch('/api/v1/products/featured');
         return await handleResponse(response);
     },
 
     // Fetch categories
     async getCategories() {
-        const response = await fetch('/v1/products/categories');
+        const response = await fetch('/api/v1/products/categories');
         return await handleResponse(response);
     },
 
     // Fetch collections
     async getCollections() {
-        const response = await fetch('/v1/products/collections');
+        const response = await fetch('/api/v1/products/collections');
         return await handleResponse(response);
     },
 
     // Fetch single product by slug
     async getProduct(slug) {
-        const response = await fetch(`/v1/products/${slug}`);
+        const response = await fetch(`/api/v1/products/${slug}`);
         return await handleResponse(response);
     },
 
     // Search products
     async searchProducts(query) {
-        const response = await fetch(`/v1/search?search=${encodeURIComponent(query)}`);
+        const response = await fetch(`/api/v1/search?search=${encodeURIComponent(query)}`);
         return await handleResponse(response);
     }
 };

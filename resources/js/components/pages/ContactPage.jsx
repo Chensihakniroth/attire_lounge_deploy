@@ -198,7 +198,7 @@ const ContactPage = () => {
         if (!validateForm()) return;
         setIsSubmitting(true);
         try {
-            const response = await fetch(`/v1/appointments`, {
+            const response = await fetch(`/api/v1/appointments`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
