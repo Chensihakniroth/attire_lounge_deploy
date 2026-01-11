@@ -10,9 +10,14 @@ class Appointment extends Model
         'name',
         'email',
         'phone',
+        'service',
         'date',
         'time',
-        'service',
+        'appointment_type',
         'message',
+    ];
+
+    protected $casts = [
+        'date' => 'date',
     ];
 }

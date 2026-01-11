@@ -15,12 +15,15 @@ class AppointmentController extends Controller
      */
     public function store(Request $request)
     {
-        // Log the raw request
         Log::info('=== APPOINTMENT REQUEST START ===');
-        Log::info('Request Headers:', $request->headers->all());
-        Log::info('Request Data:', $request->all());
-        Log::info('Request Method:', ['method' => $request->method()]);
-        Log::info('Request Content-Type:', ['type' => $request->header('Content-Type')]);
+        Log::info('Full Request:', [
+            'method' => $request->method(),
+            'headers' => $request->headers->all(),
+            'content_type' => $request->header('Content-Type'),
+            'data' => $request->all(),
+            'ip' => $request->ip(),
+            'url' => $request->fullUrl()
+        ]);
 
         try {
             // Validate the incoming request data
@@ -34,13 +37,13 @@ class AppointmentController extends Controller
                 'message' => 'required|string',
             ]);
 
-            Log::info('Validation passed', $validatedData);
+            Log::info('Validation passed:', $validatedData);
 
-            // Get all table columns
+            // Check table columns
             $columns = Schema::getColumnListing('appointments');
-            Log::info('Table columns:', $columns);
+            Log::info('Table columns found:', $columns);
 
-            // Prepare data with only existing columns
+            // Prepare data for insertion
             $appointmentData = [];
             foreach ($validatedData as $key => $value) {
                 if (in_array($key, $columns)) {
@@ -48,19 +51,20 @@ class AppointmentController extends Controller
                 }
             }
 
-            // Ensure required fields are present
+            // Handle appointment_type if service column doesn't exist
             if (!in_array('service', $columns) && in_array('appointment_type', $columns)) {
                 $appointmentData['appointment_type'] = $validatedData['service'];
+                Log::info('Mapped service to appointment_type');
             }
 
             Log::info('Final data to insert:', $appointmentData);
 
-            // Try to create appointment
+            // Create appointment
             $appointment = Appointment::create($appointmentData);
 
-            Log::info('Appointment created successfully', [
+            Log::info('Appointment created successfully:', [
                 'id' => $appointment->id,
-                'data' => $appointment->toArray()
+                'created_at' => $appointment->created_at
             ]);
 
             return response()->json([
@@ -74,6 +78,7 @@ class AppointmentController extends Controller
                 'errors' => $e->errors(),
                 'request' => $request->all()
             ]);
+
             return response()->json([
                 'success' => false,
                 'message' => 'Validation Failed',
@@ -81,7 +86,7 @@ class AppointmentController extends Controller
             ], 422);
 
         } catch (\Exception $e) {
-            Log::error('CREATE APPOINTMENT ERROR:', [
+            Log::error('Appointment Creation Error:', [
                 'message' => $e->getMessage(),
                 'file' => $e->getFile(),
                 'line' => $e->getLine(),
@@ -91,10 +96,11 @@ class AppointmentController extends Controller
 
             // Try raw SQL as fallback
             try {
+                Log::info('Attempting fallback SQL insertion');
+
                 $columns = Schema::getColumnListing('appointments');
                 $data = $request->all();
 
-                // Filter and prepare data
                 $insertData = [];
                 foreach ($data as $key => $value) {
                     if (in_array($key, $columns)) {
@@ -102,6 +108,7 @@ class AppointmentController extends Controller
                     }
                 }
 
+                // Handle service/appointment_type mapping
                 if (!isset($insertData['service']) && isset($data['service']) && in_array('appointment_type', $columns)) {
                     $insertData['appointment_type'] = $data['service'];
                 }
@@ -120,20 +127,28 @@ class AppointmentController extends Controller
                 ], 201);
 
             } catch (\Exception $sqlError) {
-                Log::error('FALLBACK SQL ERROR:', [
+                Log::error('Fallback SQL Error:', [
                     'message' => $sqlError->getMessage(),
-                    'sql_error' => $sqlError->getMessage()
+                    'trace' => $sqlError->getTraceAsString()
                 ]);
 
                 return response()->json([
                     'success' => false,
                     'message' => 'Failed to create appointment',
-                    'error' => $e->getMessage(),
-                    'sql_error' => $sqlError->getMessage()
+                    'error' => $sqlError->getMessage(),
+                    'debug' => 'Check Laravel logs for details'
                 ], 500);
             }
         } finally {
             Log::info('=== APPOINTMENT REQUEST END ===');
         }
+    }
+
+    /**
+     * Handle OPTIONS request for CORS preflight
+     */
+    public function handleOptions()
+    {
+        return response()->json([], 200);
     }
 }
