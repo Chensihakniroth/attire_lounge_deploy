@@ -3,6 +3,16 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ProductController;
 
+// ===== API ROUTES ONLY =====
+Route::prefix('api')->group(function () {
+    Route::get('/products', [ProductController::class, 'index']);
+    Route::get('/products/featured', [ProductController::class, 'featured']);
+    Route::get('/products/categories', [ProductController::class, 'categories']);
+    Route::get('/products/collections', [ProductController::class, 'collections']);
+    Route::get('/products/{slug}', [ProductController::class, 'show']);
+    Route::get('/search', [ProductController::class, 'search']);
+});
+
 // Test route
 Route::get('/test-redis', function() {
     try {
