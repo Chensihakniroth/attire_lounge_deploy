@@ -17,3 +17,12 @@ Route::get('/test-redis', function() {
 Route::get('/{any}', function () {
     return view('app');
 })->where('any', '^(?!api).*$');
+
+Route::get('/health', function() {
+    return response()->json([
+        'status' => 'ok',
+        'timestamp' => now(),
+        'php_version' => PHP_VERSION,
+        'laravel_version' => app()->version()
+    ]);
+});
