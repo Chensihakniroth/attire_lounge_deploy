@@ -201,16 +201,16 @@ const ContactPage = () => {
     const handleSubmit = async (e) => {
         e.preventDefault();
         if (!validateForm()) return;
-        setIsSubmitting(true);
-        try {
-            const response = await fetch(`/api/v1/appointments`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Accept': 'application/json',
-                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content') // Include CSRF token
-                },
-                body: JSON.stringify(formData),
+                    setIsSubmitting(true);
+                    console.log('Sending formData:', formData); // Added console log
+                    try {
+                        const response = await fetch(`/api/v1/appointments`, {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'Accept': 'application/json',
+                                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content') // Include CSRF token
+                            },                body: JSON.stringify(formData),
             });
 
             if (!response.ok) {
