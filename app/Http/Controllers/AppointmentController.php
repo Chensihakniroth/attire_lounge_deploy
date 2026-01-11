@@ -52,7 +52,7 @@ class AppointmentController extends Controller
             }
 
             // Handle appointment_type if service column doesn't exist
-            if (!in_array('service', $columns) && in_array('appointment_type', $columns)) {
+            if (in_array('appointment_type', $columns)) {
                 $appointmentData['appointment_type'] = $validatedData['service'];
                 Log::info('Mapped service to appointment_type');
             }
