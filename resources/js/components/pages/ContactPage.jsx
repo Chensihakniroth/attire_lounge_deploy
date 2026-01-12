@@ -142,7 +142,6 @@ const ContactPage = () => {
     });
 
     const [isSubmitting, setIsSubmitting] = useState(false);
-    const [isSubmitted, setIsSubmitted] = useState(false);
     const [errors, setErrors] = useState({});
 
     // Define icon style once
@@ -201,32 +200,37 @@ const ContactPage = () => {
     const handleSubmit = async (e) => {
         e.preventDefault();
         if (!validateForm()) return;
-                    setIsSubmitting(true);
-                    console.log('Sending formData:', formData); // Added console log
-                    try {
-                        const response = await fetch(`/api/v1/appointments`, {
-                            method: 'POST',
-                            headers: {
-                                'Content-Type': 'application/json',
-                                'Accept': 'application/json',
-                                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content') // Include CSRF token
-                            },                body: JSON.stringify(formData),
+
+        setIsSubmitting(true);
+        try {
+            const telegramMessage = `
+*New Appointment Request*%0A%0A
+*Name:* ${formData.name}%0A
+*Email:* ${formData.email}%0A
+*Phone:* ${formData.phone}%0A
+*Service:* ${appointmentTypes.find(type => type.value === formData.service)?.label || formData.service}%0A
+*Date:* ${formData.date}%0A
+*Time:* ${formData.time}%0A
+*Message:* ${formData.message}
+            `.trim();
+
+            const telegramUrl = `https://t.me/attireloungeofficial?text=${encodeURIComponent(telegramMessage)}`;
+            window.open(telegramUrl, '_blank');
+
+            // Reset form after redirection
+            setFormData({
+                name: '',
+                email: '',
+                phone: '',
+                service: 'sartorial',
+                date: '',
+                time: '',
+                message: '',
             });
 
-            if (!response.ok) {
-                const errorData = await response.json();
-                throw new Error(errorData.message || 'Failed to submit appointment');
-            }
-
-            // const result = await response.json();
-            setIsSubmitted(true);
-            setFormData({ name: '', email: '', phone: '', appointmentType: 'sartorial', message: '' });
-            setTimeout(() => setIsSubmitted(false), 3000); // Hide success message after 3 seconds
-
         } catch (error) {
-            console.error("Error submitting appointment:", error);
-            // Optionally, set an error state to display to the user
-            alert('Failed to book appointment. Please try again.');
+            console.error("Error creating Telegram link:", error);
+            alert('Failed to open Telegram. Please ensure you have Telegram installed and try again.');
         } finally {
             setIsSubmitting(false);
         }
@@ -256,23 +260,6 @@ const ContactPage = () => {
                     <div className="grid grid-cols-1 lg:grid-cols-3 gap-x-12 gap-y-16">
                         {/* Contact Form */}
                         <div className="lg:col-span-2">
-                             <div className="flex items-center justify-between mb-8">
-                                <div>
-                                    <h2 className="text-3xl font-serif text-white mb-1">
-                                        Book an Appointment
-                                    </h2>
-                                    <p className="text-attire-silver">
-                                        Free consultation with our Milan-certified team.
-                                    </p>
-                                </div>
-                                {isSubmitted && (
-                                    <div className="flex items-center gap-2 text-green-400">
-                                        <CheckCircle className="w-5 h-5" />
-                                        <span>Sent!</span>
-                                    </div>
-                                )}
-                            </div>
-
                             <form onSubmit={handleSubmit} className="space-y-6">
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                     <InputField name="name" label="Full Name *" value={formData.name} onChange={handleChange} error={errors.name} placeholder="Your Name" />
