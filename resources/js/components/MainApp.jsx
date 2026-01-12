@@ -29,7 +29,7 @@ const Layout = ({ children, includeFooter = true }) => {
     return (
         <div className="min-h-screen flex flex-col">
             <Navigation />
-            <main className="flex-grow">
+            <main className="flex-grow pt-24 md:pt-0">
                 {children}
             </main>
             {includeFooter && <Footer />}
@@ -46,7 +46,7 @@ function MainApp() {
                     <Route path="/" element={
                         <div className="min-h-screen flex flex-col">
                             <Navigation />
-                            <main className="flex-grow">
+                            <main className="flex-grow pt-24 md:pt-0">
                                 <HomePage />
                             </main>
                             {/* Footer is now INSIDE HomePage as section 4 */}
