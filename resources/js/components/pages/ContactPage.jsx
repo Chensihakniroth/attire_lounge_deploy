@@ -143,6 +143,7 @@ const ContactPage = () => {
 
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [errors, setErrors] = useState({});
+    const [generatedMessage, setGeneratedMessage] = useState('');
 
     // Define icon style once
     const iconStyle = "w-6 h-6 text-attire-cream";
@@ -204,29 +205,21 @@ const ContactPage = () => {
         setIsSubmitting(true);
         try {
             const telegramMessage = `
-*New Appointment Request*%0A%0A
-*Name:* ${formData.name}%0A
-*Email:* ${formData.email}%0A
-*Phone:* ${formData.phone}%0A
-*Service:* ${appointmentTypes.find(type => type.value === formData.service)?.label || formData.service}%0A
-*Date:* ${formData.date}%0A
-*Time:* ${formData.time}%0A
-*Message:* ${formData.message}
+New Appointment Request:
+
+Name: ${formData.name}
+Email: ${formData.email}
+Phone: ${formData.phone}
+Service: ${appointmentTypes.find(type => type.value === formData.service)?.label || formData.service}
+Date: ${formData.date}
+Time: ${formData.time}
+Message: ${formData.message}
             `.trim();
 
             const telegramUrl = `https://t.me/attireloungeofficial?text=${encodeURIComponent(telegramMessage)}`;
             window.open(telegramUrl, '_blank');
-
-            // Reset form after redirection
-            setFormData({
-                name: '',
-                email: '',
-                phone: '',
-                service: 'sartorial',
-                date: '',
-                time: '',
-                message: '',
-            });
+            
+            setGeneratedMessage(telegramMessage);
 
         } catch (error) {
             console.error("Error creating Telegram link:", error);
@@ -260,33 +253,54 @@ const ContactPage = () => {
                     <div className="grid grid-cols-1 lg:grid-cols-3 gap-x-12 gap-y-16">
                         {/* Contact Form */}
                         <div className="lg:col-span-2">
-                            <form onSubmit={handleSubmit} className="space-y-6">
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                    <InputField name="name" label="Full Name *" value={formData.name} onChange={handleChange} error={errors.name} placeholder="Your Name" />
-                                    <InputField name="email" type="email" label="Email Address *" value={formData.email} onChange={handleChange} error={errors.email} placeholder="your.email@example.com" />
+                            {generatedMessage ? (
+                                <div>
+                                    <h2 className="text-3xl font-serif text-white mb-4">Appointment Details</h2>
+                                    <p className="text-attire-silver mb-6">
+                                        Your appointment request has been generated. If you were not redirected, please copy the text below and send it to us on Telegram.
+                                    </p>
+                                    <div className="bg-attire-dark/50 p-4 rounded-lg border border-white/10">
+                                        <pre className="text-attire-cream whitespace-pre-wrap text-sm">{generatedMessage}</pre>
+                                    </div>
+                                    <button
+                                        onClick={() => {
+                                            setGeneratedMessage('');
+                                            setFormData({ name: '', email: '', phone: '', service: 'sartorial', date: '', time: '', message: '' });
+                                        }}
+                                        className="mt-6 w-full md:w-auto px-8 py-3 rounded-lg font-semibold transition-all duration-300 flex items-center justify-center gap-2 bg-black text-white hover:bg-gray-800"
+                                    >
+                                        Create New Appointment
+                                    </button>
                                 </div>
+                            ) : (
+                                <form onSubmit={handleSubmit} className="space-y-6">
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                        <InputField name="name" label="Full Name *" value={formData.name} onChange={handleChange} error={errors.name} placeholder="Your Name" />
+                                        <InputField name="email" type="email" label="Email Address *" value={formData.email} onChange={handleChange} error={errors.email} placeholder="your.email@example.com" />
+                                    </div>
 
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                    <InputField name="phone" type="tel" label="Phone Number *" value={formData.phone} onChange={handleChange} error={errors.phone} placeholder="(+855) XX-XX-XX-XX" />
-                                    <SelectField name="service" label="Appointment Type" value={formData.service} onChange={handleChange} options={appointmentTypes} />
-                                </div>
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                        <InputField name="phone" type="tel" label="Phone Number *" value={formData.phone} onChange={handleChange} error={errors.phone} placeholder="(+855) XX-XX-XX-XX" />
+                                        <SelectField name="service" label="Appointment Type" value={formData.service} onChange={handleChange} options={appointmentTypes} />
+                                    </div>
 
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                    <InputField name="date" type="date" label="Appointment Date *" value={formData.date} onChange={handleChange} error={errors.date} />
-                                    <InputField name="time" type="time" label="Appointment Time *" value={formData.time} onChange={handleChange} error={errors.time} />
-                                </div>
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                        <InputField name="date" type="date" label="Appointment Date *" value={formData.date} onChange={handleChange} error={errors.date} />
+                                        <InputField name="time" type="time" label="Appointment Time *" value={formData.time} onChange={handleChange} error={errors.time} />
+                                    </div>
 
-                                <TextareaField name="message" label="Your Message *" value={formData.message} onChange={handleChange} error={errors.message} placeholder="Tell us about your styling needs..." />
+                                    <TextareaField name="message" label="Your Message *" value={formData.message} onChange={handleChange} error={errors.message} placeholder="Tell us about your styling needs..." />
 
-                                <button
-                                    type="submit"
-                                    disabled={isSubmitting}
-                                    className="w-full md:w-auto px-8 py-3 rounded-lg font-semibold transition-all duration-300 flex items-center justify-center gap-2 bg-black text-white hover:bg-gray-800 disabled:bg-gray-400 disabled:cursor-not-allowed"
-                                >
-                                    <Send className="w-5 h-5" />
-                                    {isSubmitting ? 'Sending...' : 'Request Appointment'}
-                                </button>
-                            </form>
+                                    <button
+                                        type="submit"
+                                        disabled={isSubmitting}
+                                        className="w-full md:w-auto px-8 py-3 rounded-lg font-semibold transition-all duration-300 flex items-center justify-center gap-2 bg-black text-white hover:bg-gray-800 disabled:bg-gray-400 disabled:cursor-not-allowed"
+                                    >
+                                        <Send className="w-5 h-5" />
+                                        {isSubmitting ? 'Sending...' : 'Request Appointment'}
+                                    </button>
+                                </form>
+                            )}
                         </div>
 
                         {/* Consolidated Sidebar Information */}
