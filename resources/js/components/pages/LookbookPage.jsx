@@ -176,7 +176,7 @@ const LookbookPage = () => {
             )}
             {/* Main Content - Grid */}
             <motion.div
-                className="flex-grow overflow-y-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none] touch-pan-y"
+                className="flex-grow overflow-y-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none] touch-pan-y pb-16"
             >
                                                         <motion.div
                                                             key={filter}
