@@ -5,7 +5,7 @@
         "dev:css": "tailwindcss -i ./resources/css/app.css -o ./public/css/app.css --watch",
         "dev:js": "esbuild resources/js/app.jsx --bundle --outfile=public/js/app.js --watch --loader:.js=jsx --loader:.jsx=jsx",
         "prebuild": "node prepare-config.js",
-        "build": "npm run prebuild && npm run build:css && npm run build:js",
+                "build": "npm run build:css && npm run build:js",,
         "build:css": "tailwindcss -i ./resources/css/app.css -o ./public/css/app.css --minify",
         "build:js": "esbuild resources/js/app.jsx --bundle --minify --outfile=public/js/app.js --loader:.js=jsx --loader:.jsx=jsx"
     },
