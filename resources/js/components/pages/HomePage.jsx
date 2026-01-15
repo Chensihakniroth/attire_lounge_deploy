@@ -243,7 +243,7 @@ const LookbookSection = memo(forwardRef((props, ref) => (
 )));
 
 const CTASection = memo(forwardRef((props, ref) => (
-  <section className="relative snap-section bg-attire-navy min-h-screen h-screen flex items-center justify-center p-8" ref={ref}>
+  <section className="relative snap-section bg-attire-dark min-h-screen h-screen flex items-center justify-center p-8" ref={ref}>
     <div className="bg-attire-cream/20 backdrop-blur-lg border border-attire-cream/30 rounded-2xl shadow-lg p-8 md:p-12 max-w-3xl mx-auto">
       <div className="text-center">
         <motion.h2 variants={itemVariants} initial="hidden" whileInView="visible" viewport={{once: true}} className="font-serif text-3xl md:text-5xl text-white mb-6">Begin Your Sartorial Journey</motion.h2>

@@ -73,6 +73,16 @@ const LookbookPage = () => {
         { id: 19, src: `${minioBaseUrl}/uploads/collections/default/of3.jpg`, title: 'Corporate Style', collection: 'Office Collection', category: 'office', span: 'col-span-1 row-span-1' },
         { id: 20, src: `${minioBaseUrl}/uploads/collections/default/of4.jpg`, title: 'Business Formal', collection: 'Office Collection', category: 'office', span: 'col-span-2 row-span-1' },
         { id: 21, src: `${minioBaseUrl}/uploads/collections/default/of5.jpg`, title: 'Professional Polish', collection: 'Office Collection', category: 'office', span: 'col-span-1 row-span-1' },
+
+        // Groom Collection
+        { id: 22, src: `${minioBaseUrl}/uploads/collections/default/g1.jpg`, title: 'Classic Tuxedo', collection: 'Groom Collection', category: 'groom', span: 'col-span-1 row-span-1' },
+        { id: 23, src: `${minioBaseUrl}/uploads/collections/default/g2.jpg`, title: 'Wedding Day', collection: 'Groom Collection', category: 'groom', span: 'col-span-1 row-span-2' },
+        { id: 24, src: `${minioBaseUrl}/uploads/collections/default/g3.jpg`, title: 'Groomsmen Style', collection: 'Groom Collection', category: 'groom', span: 'col-span-1 row-span-1' },
+        { id: 25, src: `${minioBaseUrl}/uploads/collections/default/g4.jpg`, title: 'Elegant Ceremony', collection: 'Groom Collection', category: 'groom', span: 'col-span-2 row-span-1' },
+        { id: 26, src: `${minioBaseUrl}/uploads/collections/default/g5.jpg`, title: 'Reception Look', collection: 'Groom Collection', category: 'groom', span: 'col-span-1 row-span-1' },
+        { id: 27, src: `${minioBaseUrl}/uploads/collections/default/g6.jpg`, title: 'Tailored Perfection', collection: 'Groom Collection', category: 'groom', span: 'col-span-1 row-span-2' },
+        { id: 28, src: `${minioBaseUrl}/uploads/collections/default/g7.jpg`, title: 'Celebration Suit', collection: 'Groom Collection', category: 'groom', span: 'col-span-1 row-span-1' },
+        { id: 29, src: `${minioBaseUrl}/uploads/collections/default/g8.jpg`, title: 'Formal Event', collection: 'Groom Collection', category: 'groom', span: 'col-span-2 row-span-2' },
     ]);
 
     const [[page, direction], setPage] = useState([null, 0]);
