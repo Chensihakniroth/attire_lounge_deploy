@@ -9,12 +9,6 @@ import minioBaseUrl from '../../config.js';
 
 // --- Data Store for Homepage Sections ---
 const homePageData = {
-  collections: [
-    { name: "Sartorial", description: "Classic ready-to-wear style from top-to-toe.", image: `${minioBaseUrl}/uploads/collections/Model/1.jpg`, link: "/collections" },
-    { name: "Groom & Groomsmen", description: "Elevate your style on your special day.", image: `${minioBaseUrl}/uploads/collections/Model/2.jpg`, link: "/collections" },
-    { name: "Office Wear", description: "Feel your best at work with modern, diverse styles.", image: `${minioBaseUrl}/uploads/collections/Model/3.jpg`, link: "/collections" },
-    { name: "Accessories", description: "The little details that make a big difference.", image: `${minioBaseUrl}/uploads/collections/Model/4.jpg`, link: "/collections" }
-  ],
   services: [
     { name: "Milan-Certified Styling", description: "Receive a free, expert styling consultation from our Milan-certified team to discover the perfect look for you.", icon: <Users size={32} className="text-attire-accent" /> },
     { name: "The Perfect Fit", description: "We offer diverse sizes and provide complimentary in-house alterations to ensure your garments fit impeccably.", icon: <Scissors size={32} className="text-attire-accent" /> },
@@ -91,46 +85,37 @@ const PhilosophySection = memo(forwardRef((props, ref) => (
     </section>
 )));
 
-const CollectionsSection = memo(forwardRef(({ collections }, ref) => (
-  <section className="relative snap-section min-h-screen h-screen" ref={ref}>
-    {/* Background Image */}
-    <div className="absolute inset-0 w-full h-full bg-cover bg-center"
-         style={{ backgroundImage: `url('${minioBaseUrl}/uploads/collections/Model/1.jpg')` }}
-    />
-    {/* Black Overlay */}
-    <div className="absolute inset-0 bg-attire-dark/50" />
+const CollectionsSection = memo(forwardRef((props, ref) => (
+    <section className="relative snap-section min-h-screen h-screen" ref={ref}>
+        {/* Background Image */}
+        <div className="absolute inset-0 w-full h-full bg-cover bg-center"
+             style={{ backgroundImage: `url('${minioBaseUrl}/uploads/collections/Model/1.jpg')` }}
+        />
+        {/* Black Overlay */}
+        <div className="absolute inset-0 bg-attire-dark/50" />
 
-    <div className="relative z-10 flex flex-col justify-center h-full max-w-7xl mx-auto px-6 py-12 md:py-24">
-      {/* Text Content - Aligned Left */}
-      <div className="w-full text-left mb-8">
-        <h2 className="font-serif text-3xl md:text-5xl text-white mb-2">Our Collections</h2>
-        <p className="text-attire-silver">Curated styles for the modern gentleman.</p>
-      </div>
-      
-      {/* Collection Cards */}
-      <div className="w-full grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-x-4 gap-y-8 md:gap-x-6 md:gap-y-10">
-        {collections.map((collection) => (
-          <motion.div key={collection.name} variants={itemVariants} initial="hidden" whileInView="visible" viewport={{ once: true }}>
-            <Link to={collection.link}>
-              <figure className="relative aspect-[3/4] overflow-hidden group rounded-lg">
-                <img 
-                  src={collection.image} 
-                  alt={collection.name} 
-                  className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105" 
-                  loading="lazy" 
-                  decoding="async" 
-                />
-              </figure>
-            </Link>
-            <div className="pt-4 text-left">
-              <h3 className="font-serif font-semibold text-lg text-attire-cream">{collection.name}</h3>
-              <p className="text-xs text-attire-silver mt-1">{collection.description}</p>
-            </div>
-          </motion.div>
-        ))}
-      </div>
-    </div>
-  </section>
+        <div className="relative z-10 flex flex-col justify-center items-center text-center h-full max-w-4xl mx-auto px-6">
+            <motion.div
+                variants={containerVariants}
+                initial="hidden"
+                whileInView="visible"
+                viewport={{ once: true, amount: 0.6 }}
+                className="w-full"
+            >
+                <motion.h2 variants={itemVariants} className="font-serif text-3xl md:text-5xl text-white mb-4">
+                    Our Collections
+                </motion.h2>
+                <motion.p variants={itemVariants} transition={{ delay: 0.2 }} className="text-attire-silver text-lg md:text-xl leading-relaxed max-w-2xl mx-auto mb-8">
+                    From timeless classics to modern statements, our collections are curated to suit every gentleman's style. We offer a diverse range of ready-to-wear pieces, each crafted with precision and an eye for detail.
+                </motion.p>
+                <motion.div variants={itemVariants} transition={{ delay: 0.4 }}>
+                    <Link to="/collections" className="inline-block bg-attire-accent text-white font-semibold px-10 py-4 rounded-lg hover:bg-attire-accent/90 transition-colors">
+                        Browse Collections
+                    </Link>
+                </motion.div>
+            </motion.div>
+        </div>
+    </section>
 )));
 
 const ExperienceSection = memo(forwardRef((props, ref) => (
@@ -187,7 +172,7 @@ const GroomSection = memo(forwardRef((props, ref) => (
         {/* Left side - Image */}
         <div className="relative w-full h-full overflow-hidden hidden md:block">
             <img
-                src={`${minioBaseUrl}/uploads/collections/default/g4.jpg`}
+                src={`${minioBaseUrl}/uploads/collections/default/both.jpg`}
                 alt="Groom Collection"
                 className="absolute inset-0 w-full h-full object-cover"
                 loading="lazy"
@@ -341,13 +326,13 @@ const HomePage = () => {
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [isMobile, isMenuOpen, activeSection, scrollToSection]);
 
-  const { collections, services } = homePageData;
+  const { services } = homePageData;
 
   return (
     <div className="snap-scroll-container bg-attire-dark">
       <HeroSection ref={el => sectionsRef.current[0] = el} scrollToSection={scrollToSection} />
       <PhilosophySection ref={el => sectionsRef.current[1] = el} />
-      <CollectionsSection ref={el => sectionsRef.current[2] = el} collections={collections} />
+      <CollectionsSection ref={el => sectionsRef.current[2] = el} />
       <ExperienceSection ref={el => sectionsRef.current[3] = el} services={services} />
       <GroomSection ref={el => sectionsRef.current[4] = el} />
       <LookbookSection ref={el => sectionsRef.current[5] = el} />
