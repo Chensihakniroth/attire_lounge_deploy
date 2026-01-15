@@ -32,7 +32,7 @@ const HeroSection = memo(forwardRef(({ scrollToSection }, ref) => (
   <section className="relative snap-section overflow-hidden min-h-screen h-screen" ref={ref}>
     <div className="absolute inset-0 w-full h-full overflow-hidden">
       <video autoPlay muted loop playsInline preload="auto" className="absolute w-full h-full object-cover" style={{ objectPosition: 'center 10%' }}><source src={`${minioBaseUrl}/uploads/asset/hero-background1.mp4`} type="video/mp4" /></video>
-      <div className="absolute inset-0 bg-attire-dark/40" />
+      <div className="absolute inset-0 bg-attire-navy/40" />
     </div>
     <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.8 }} className="relative z-10 h-full flex flex-col items-center justify-center">
       <img src={`${minioBaseUrl}/uploads/asset/AL_logo.png`} alt="Attire Lounge" className="h-auto mx-auto filter brightness-0 invert drop-shadow-[0_0_30px_rgba(0,0,0,0.8)] opacity-90 max-w-[280px] md:max-w-sm" loading="eager" />
@@ -91,8 +91,7 @@ const CollectionsSection = memo(forwardRef((props, ref) => (
         <div className="absolute inset-0 w-full h-full bg-cover bg-center"
              style={{ backgroundImage: `url('${minioBaseUrl}/uploads/collections/Model/1.jpg')` }}
         />
-        {/* Black Overlay */}
-        <div className="absolute inset-0 bg-attire-dark/50" />
+<div className="absolute inset-0 bg-attire-navy/50" />
 
         <div className="relative z-10 flex flex-col justify-center items-center text-center h-full max-w-4xl mx-auto px-6">
             <motion.div
@@ -169,18 +168,7 @@ const ExperienceSection = memo(forwardRef((props, ref) => (
 
 const MembershipSection = memo(forwardRef((props, ref) => (
     <section className="relative snap-section min-h-screen h-screen grid grid-cols-1 md:grid-cols-2 items-center bg-attire-dark" ref={ref}>
-        {/* Left side - Image */}
-        <div className="relative w-full h-full overflow-hidden hidden md:block">
-            <img
-                src={`${minioBaseUrl}/uploads/collections/default/g1.jpg`}
-                alt="Attire Club Membership"
-                className="absolute inset-0 w-full h-full object-cover"
-                loading="lazy"
-            />
-            <div className="absolute inset-0 bg-gradient-to-l from-attire-dark via-transparent to-transparent" />
-        </div>
-
-        {/* Right side - Text Content */}
+        {/* Left side - Text Content */}
         <div className="flex flex-col justify-center text-attire-cream p-8 md:p-12 h-full overflow-y-auto">
             <motion.div
                 variants={containerVariants}
@@ -192,12 +180,12 @@ const MembershipSection = memo(forwardRef((props, ref) => (
                 <motion.h2 variants={itemVariants} className="font-serif text-3xl md:text-4xl text-white mb-2">ATTIRE CLUB</motion.h2>
                 <motion.h3 variants={itemVariants} transition={{ delay: 0.1 }} className="text-attire-accent tracking-[0.2em] uppercase text-sm mb-6">Membership Card</motion.h3>
                 
-                <motion.div variants={itemVariants} transition={{ delay: 0.2 }} className="text-xs md:text-sm text-attire-silver space-y-3 leading-relaxed">
+                <motion.div variants={itemVariants} transition={{ delay: 0.2 }} className="text-sm md:text-base text-attire-silver space-y-3 leading-relaxed">
                     <p>Entitlement upon a minimum purchase of US$500 per receipt. Requires full name, DOB (month & date), and contact number.</p>
 
                     <div>
                         <h4 className="font-semibold text-attire-cream mb-1 mt-3">Benefits</h4>
-                        <ul className="list-disc list-outside space-y-1 pl-5 text-xs">
+                        <ul className="list-disc list-outside space-y-1 pl-5 text-sm">
                             <li>Up to 15% on regular purchases:
                                 <ul className="list-['–'] list-outside pl-5 space-y-px mt-1">
                                     <li>8% off on purchases from US$500 to US$1,000</li>
@@ -217,12 +205,23 @@ const MembershipSection = memo(forwardRef((props, ref) => (
 
                     <div>
                         <h4 className="font-semibold text-attire-cream mb-1 mt-3">Terms & Conditions</h4>
-                        <p className="text-[11px] text-gray-400">
+                        <p className="text-xs text-gray-400">
                             Not responsible for lost, stolen, or damaged cards (reissue fee: US$10). Cannot be used with other offers. Not redeemable for cash. Non-transferable; cardholder must be present. Membership may be terminated for non-compliance. Subject to renewal and may be discontinued at our discretion. Terms are subject to change.
                         </p>
                     </div>
                 </motion.div>
             </motion.div>
+        </div>
+
+        {/* Right side - Image */}
+        <div className="relative w-full h-full overflow-hidden hidden md:block">
+            <img
+                src={`${minioBaseUrl}/uploads/collections/default/vc.jpg`}
+                alt="Attire Club Membership"
+                className="absolute inset-0 w-full h-full object-cover"
+                loading="lazy"
+            />
+            <div className="absolute inset-0 bg-gradient-to-r from-attire-navy via-transparent to-transparent" />
         </div>
     </section>
 )));
@@ -230,7 +229,7 @@ const MembershipSection = memo(forwardRef((props, ref) => (
 const LookbookSection = memo(forwardRef((props, ref) => (
   <section className="relative snap-section bg-attire-dark min-h-screen h-screen" ref={ref}>
     <img src={`${minioBaseUrl}/uploads/collections/Model/5.jpg`} alt="Lookbook" className="absolute inset-0 w-full h-full object-cover object-center" loading="lazy" decoding="async" />
-    <div className="absolute inset-0 bg-attire-dark/50" />
+    <div className="absolute inset-0 bg-attire-navy/50" />
     <div className="relative h-full flex flex-col items-center justify-center text-center text-attire-cream p-8">
       <div className="bg-attire-dark/20 backdrop-blur-md border border-attire-cream/10 rounded-2xl shadow-lg p-8 md:p-12">
         <motion.h2 variants={itemVariants} initial="hidden" whileInView="visible" viewport={{once: true}} className="font-serif text-4xl md:text-6xl mb-6">The Art of Style</motion.h2>
