@@ -32,7 +32,7 @@ const HeroSection = memo(forwardRef(({ scrollToSection }, ref) => (
   <section className="relative snap-section overflow-hidden min-h-screen h-screen" ref={ref}>
     <div className="absolute inset-0 w-full h-full overflow-hidden">
       <video autoPlay muted loop playsInline preload="auto" className="absolute w-full h-full object-cover" style={{ objectPosition: 'center 10%' }}><source src={`${minioBaseUrl}/uploads/asset/hero-background1.mp4`} type="video/mp4" /></video>
-      <div className="absolute inset-0 bg-attire-navy/40" />
+      <div className="absolute inset-0 bg-attire-dark/40" />
     </div>
     <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.8 }} className="relative z-10 h-full flex flex-col items-center justify-center">
       <img src={`${minioBaseUrl}/uploads/asset/AL_logo.png`} alt="Attire Lounge" className="h-auto mx-auto filter brightness-0 invert drop-shadow-[0_0_30px_rgba(0,0,0,0.8)] opacity-90 max-w-[280px] md:max-w-sm" loading="eager" />
@@ -51,7 +51,7 @@ const HeroSection = memo(forwardRef(({ scrollToSection }, ref) => (
 )));
 
 const PhilosophySection = memo(forwardRef((props, ref) => (
-    <section className="relative snap-section min-h-screen h-screen grid grid-cols-1 md:grid-cols-2 items-center bg-attire-dark" ref={ref}>
+    <section className="relative snap-section min-h-screen h-screen grid grid-cols-1 md:grid-cols-2 items-center bg-attire-navy" ref={ref}>
       {/* Left side - Text Content */}
       <div className="flex flex-col justify-center text-attire-cream p-8 md:p-16 h-full">
         <motion.div
@@ -80,7 +80,7 @@ const PhilosophySection = memo(forwardRef((props, ref) => (
           className="absolute inset-0 w-full h-full object-cover"
           loading="lazy"
         />
-        <div className="absolute inset-0 bg-gradient-to-r from-attire-dark via-transparent to-transparent" />
+        <div className="absolute inset-0 bg-gradient-to-r from-attire-navy via-transparent to-transparent" />
       </div>
     </section>
 )));
@@ -118,7 +118,7 @@ const CollectionsSection = memo(forwardRef((props, ref) => (
 )));
 
 const ExperienceSection = memo(forwardRef((props, ref) => (
-  <section className="relative snap-section min-h-screen h-screen grid grid-cols-1 md:grid-cols-2 items-center bg-attire-dark" ref={ref}>
+  <section className="relative snap-section min-h-screen h-screen grid grid-cols-1 md:grid-cols-2 items-center bg-attire-navy" ref={ref}>
     {/* Left side - Image */}
     <div className="relative w-full h-full overflow-hidden hidden md:block">
         <img
@@ -127,7 +127,7 @@ const ExperienceSection = memo(forwardRef((props, ref) => (
             className="absolute inset-0 w-full h-full object-cover"
             loading="lazy"
         />
-        <div className="absolute inset-0 bg-gradient-to-l from-attire-dark via-transparent to-transparent" />
+        <div className="absolute inset-0 bg-gradient-to-l from-attire-navy via-transparent to-transparent" />
     </div>
 
     {/* Right side - Text Content */}
@@ -167,7 +167,7 @@ const ExperienceSection = memo(forwardRef((props, ref) => (
 
 
 const MembershipSection = memo(forwardRef((props, ref) => (
-    <section className="relative snap-section min-h-screen h-screen grid grid-cols-1 md:grid-cols-2 items-center bg-attire-dark" ref={ref}>
+    <section className="relative snap-section min-h-screen h-screen grid grid-cols-1 md:grid-cols-2 items-center bg-attire-navy" ref={ref}>
         {/* Left side - Text Content */}
         <div className="flex flex-col justify-center text-attire-cream p-8 md:p-12 h-full overflow-y-auto">
             <motion.div
@@ -229,7 +229,7 @@ const MembershipSection = memo(forwardRef((props, ref) => (
 const LookbookSection = memo(forwardRef((props, ref) => (
   <section className="relative snap-section bg-attire-dark min-h-screen h-screen" ref={ref}>
     <img src={`${minioBaseUrl}/uploads/collections/Model/5.jpg`} alt="Lookbook" className="absolute inset-0 w-full h-full object-cover object-center" loading="lazy" decoding="async" />
-    <div className="absolute inset-0 bg-attire-navy/50" />
+    <div className="absolute inset-0 bg-attire-dark/50" />
     <div className="relative h-full flex flex-col items-center justify-center text-center text-attire-cream p-8">
       <div className="bg-attire-dark/20 backdrop-blur-md border border-attire-cream/10 rounded-2xl shadow-lg p-8 md:p-12">
         <motion.h2 variants={itemVariants} initial="hidden" whileInView="visible" viewport={{once: true}} className="font-serif text-4xl md:text-6xl mb-6">The Art of Style</motion.h2>
