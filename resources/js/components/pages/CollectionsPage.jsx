@@ -43,7 +43,7 @@ const AllProductsView = ({ products, categories, onFilterChange, searchTerm, sel
                     <div className="relative md:col-span-1">
                         <input
                             type="text"
-                            placeholder="Search by name, color..."
+                            placeholder="Search by name..."
                             value={searchTerm}
                             onChange={(e) => onFilterChange({ searchTerm: e.target.value })}
                             className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:ring-attire-accent focus:border-attire-accent"
@@ -58,7 +58,7 @@ const AllProductsView = ({ products, categories, onFilterChange, searchTerm, sel
                         >
                             <option value="">All Categories</option>
                             {categories.map(cat => (
-                                <option key={cat.id} value={cat.id}>{cat.name}</option>
+                                <option key={cat} value={cat}>{cat}</option>
                             ))}
                         </select>
                     </div>
@@ -106,24 +106,32 @@ const CollectionsPage = () => {
 
     useEffect(() => {
         if (showAllProducts) {
-            const fetchData = async () => {
-                setLoading(true);
-                try {
-                    const [productsData, categoriesData] = await Promise.all([
-                        API.getProducts(),
-                        API.getCategories()
-                    ]);
-                    setProducts(productsData);
-                    setCategories(categoriesData);
-                } catch (error) {
-                    console.error("Failed to fetch data:", error);
-                } finally {
-                    setLoading(false);
-                }
-            };
-            fetchData();
+            setLoading(true);
+            API.getCategories()
+                .then(categoriesData => {
+                    setCategories(categoriesData.data);
+                })
+                .catch(error => console.error("Failed to fetch categories:", error))
+                .finally(() => setLoading(false));
         }
     }, [showAllProducts]);
+
+    useEffect(() => {
+        if (showAllProducts) {
+            setLoading(true);
+            const apiFilters = {
+                search: filters.searchTerm,
+                category: filters.selectedCategory,
+                per_page: 1000 // Get all
+            };
+            API.getProducts(apiFilters)
+                .then(productsData => {
+                    setProducts(productsData.data);
+                })
+                .catch(error => console.error("Failed to fetch products:", error))
+                .finally(() => setLoading(false));
+        }
+    }, [showAllProducts, filters]);
     
     const handleFilterChange = (newFilters) => {
         setFilters(prev => ({ ...prev, ...newFilters }));
@@ -132,15 +140,6 @@ const CollectionsPage = () => {
     const handleClearFilters = () => {
         setFilters({ searchTerm: '', selectedCategory: '' });
     };
-
-    const filteredProducts = products.filter(product => {
-        const matchesCategory = filters.selectedCategory ? product.category_id == filters.selectedCategory : true;
-        const matchesSearch = filters.searchTerm ?
-            (product.name.toLowerCase().includes(filters.searchTerm.toLowerCase()) ||
-            product.color.toLowerCase().includes(filters.searchTerm.toLowerCase()))
-            : true;
-        return matchesCategory && matchesSearch;
-    });
 
     return (
         <div className="min-h-screen bg-white text-gray-800">
@@ -176,11 +175,11 @@ const CollectionsPage = () => {
                         </div>
                     </>
                 ) : (
-                    loading ? (
+                    loading && products.length === 0 ? (
                         <div className="text-center">Loading products...</div>
                     ) : (
                        <AllProductsView 
-                            products={filteredProducts}
+                            products={products}
                             categories={categories}
                             onFilterChange={handleFilterChange}
                             searchTerm={filters.searchTerm}

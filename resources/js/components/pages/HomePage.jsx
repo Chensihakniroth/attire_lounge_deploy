@@ -123,8 +123,8 @@ const ExperienceSection = memo(forwardRef((props, ref) => (
     {/* Left side - Image */}
     <div className="relative w-full h-full overflow-hidden hidden md:block">
         <img
-            src={`${minioBaseUrl}/uploads/collections/default/vc.jpg`}
-            alt="What sets us apart"
+            src={`${minioBaseUrl}/uploads/collections/default/both.jpg`}
+            alt="Attire Lounge Style"
             className="absolute inset-0 w-full h-full object-cover"
             loading="lazy"
         />
@@ -167,13 +167,13 @@ const ExperienceSection = memo(forwardRef((props, ref) => (
 
 
 
-const GroomSection = memo(forwardRef((props, ref) => (
+const MembershipSection = memo(forwardRef((props, ref) => (
     <section className="relative snap-section min-h-screen h-screen grid grid-cols-1 md:grid-cols-2 items-center bg-attire-dark" ref={ref}>
         {/* Left side - Image */}
         <div className="relative w-full h-full overflow-hidden hidden md:block">
             <img
-                src={`${minioBaseUrl}/uploads/collections/default/both.jpg`}
-                alt="Groom Collection"
+                src={`${minioBaseUrl}/uploads/collections/default/g1.jpg`}
+                alt="Attire Club Membership"
                 className="absolute inset-0 w-full h-full object-cover"
                 loading="lazy"
             />
@@ -181,21 +181,46 @@ const GroomSection = memo(forwardRef((props, ref) => (
         </div>
 
         {/* Right side - Text Content */}
-        <div className="flex flex-col justify-center text-attire-cream p-8 md:p-16 h-full">
+        <div className="flex flex-col justify-center text-attire-cream p-8 md:p-12 h-full overflow-y-auto">
             <motion.div
                 variants={containerVariants}
                 initial="hidden"
                 whileInView="visible"
-                viewport={{ once: true, amount: 0.6 }}
+                viewport={{ once: true, amount: 0.1 }}
+                className="w-full max-w-xl"
             >
-                <motion.h2 variants={itemVariants} className="font-serif text-3xl md:text-5xl text-white mb-4">Groom</motion.h2>
-                <motion.p variants={itemVariants} transition={{ delay: 0.2 }} className="font-serif text-lg md:text-xl leading-relaxed mb-8">
-                    Ready-to-wear groom and groomsmen collections with classic accessories to elevate your style on your special day.
-                </motion.p>
-                <motion.div variants={itemVariants} transition={{ delay: 0.4 }}>
-                    <Link to="#" className="inline-block bg-attire-accent text-white font-semibold px-10 py-4 rounded-lg hover:bg-attire-accent/90 transition-colors">
-                        Browse
-                    </Link>
+                <motion.h2 variants={itemVariants} className="font-serif text-3xl md:text-4xl text-white mb-2">ATTIRE CLUB</motion.h2>
+                <motion.h3 variants={itemVariants} transition={{ delay: 0.1 }} className="text-attire-accent tracking-[0.2em] uppercase text-sm mb-6">Membership Card</motion.h3>
+                
+                <motion.div variants={itemVariants} transition={{ delay: 0.2 }} className="text-xs md:text-sm text-attire-silver space-y-3 leading-relaxed">
+                    <p>Entitlement upon a minimum purchase of US$500 per receipt. Requires full name, DOB (month & date), and contact number.</p>
+
+                    <div>
+                        <h4 className="font-semibold text-attire-cream mb-1 mt-3">Benefits</h4>
+                        <ul className="list-disc list-outside space-y-1 pl-5 text-xs">
+                            <li>Up to 15% on regular purchases:
+                                <ul className="list-['–'] list-outside pl-5 space-y-px mt-1">
+                                    <li>8% off on purchases from US$500 to US$1,000</li>
+                                    <li>10% off on purchases from US$1,001 to US$1,500</li>
+                                    <li>15% off on all purchases of US$1,501 and above</li>
+                                </ul>
+                            </li>
+                            <li>Extra seasonal benefits including birthday gifts and access to exclusive gentleman's club events.</li>
+                            <li>Special offers from our partners:
+                                <ul className="list-['–'] list-outside pl-5 space-y-px mt-1">
+                                    <li>10% off at CUFFEINE: plant-based coffee</li>
+                                    <li>8% off cocktails at Kravat Speakeasy Bar</li>
+                                </ul>
+                            </li>
+                        </ul>
+                    </div>
+
+                    <div>
+                        <h4 className="font-semibold text-attire-cream mb-1 mt-3">Terms & Conditions</h4>
+                        <p className="text-[11px] text-gray-400">
+                            Not responsible for lost, stolen, or damaged cards (reissue fee: US$10). Cannot be used with other offers. Not redeemable for cash. Non-transferable; cardholder must be present. Membership may be terminated for non-compliance. Subject to renewal and may be discontinued at our discretion. Terms are subject to change.
+                        </p>
+                    </div>
                 </motion.div>
             </motion.div>
         </div>
@@ -334,7 +359,7 @@ const HomePage = () => {
       <PhilosophySection ref={el => sectionsRef.current[1] = el} />
       <CollectionsSection ref={el => sectionsRef.current[2] = el} />
       <ExperienceSection ref={el => sectionsRef.current[3] = el} services={services} />
-      <GroomSection ref={el => sectionsRef.current[4] = el} />
+      <MembershipSection ref={el => sectionsRef.current[4] = el} />
       <LookbookSection ref={el => sectionsRef.current[5] = el} />
       <CTASection ref={el => sectionsRef.current[6] = el} />
       <FooterSection ref={el => sectionsRef.current[7] = el} />
