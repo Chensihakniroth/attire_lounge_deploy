@@ -83,80 +83,91 @@ const ProductListPage = () => {
         setSelectedCollections([]);
     };
 
-    const FilterSidebar = ({ isOpen, onClose }) => (
-        <AnimatePresence>
-            {isOpen && (
-                <>
-                    {/* Overlay */}
-                    <motion.div
-                        className="fixed inset-0 bg-black/50 z-40 lg:hidden"
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        exit={{ opacity: 0 }}
-                        onClick={onClose}
-                    />
-                    <motion.div
-                        className="fixed top-0 right-0 w-80 h-full bg-white shadow-lg z-50 p-6"
-                        initial={{ x: '100%' }}
-                        animate={{ x: 0 }}
-                        exit={{ x: '100%' }}
-                        transition={{ type: 'spring', stiffness: 300, damping: 30 }}
-                    >
-                        <div className="flex justify-between items-center mb-6">
-                            <h3 className="text-xl font-semibold">Filters</h3>
-                            <button onClick={onClose} className="text-gray-500 hover:text-black">
-                                <X size={24} />
-                            </button>
-                        </div>
-                        
-                        {/* Price Range */}
-                        <div className="mb-6">
-                            <h4 className="font-medium mb-2">Price</h4>
-                            <input
-                                type="range"
-                                min="0"
-                                max="1000"
-                                value={priceRange[1]}
-                                onChange={(e) => setPriceRange([0, Number(e.target.value)])}
-                                className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer"
-                            />
-                            <div className="flex justify-between text-sm text-gray-600 mt-2">
-                                <span>$0</span>
-                                <span>${priceRange[1]}</span>
-                            </div>
-                        </div>
+    const FilterSidebar = ({ isOpen, onClose, initialPrice, setParentPriceRange }) => {
+        const [internalPrice, setInternalPrice] = useState(initialPrice[1]);
+        const debouncedPrice = useDebounce(internalPrice, 500);
 
-                        {/* Collections Filter */}
-                        {!collectionSlug && (
-                            <div className="mb-6">
-                                <h4 className="font-medium mb-2">Collections</h4>
-                                <div className="space-y-2">
-                                    {allCollections.map(collection => (
-                                        <label key={collection.id} className="flex items-center">
-                                            <input
-                                                type="checkbox"
-                                                checked={selectedCollections.includes(collection.slug)}
-                                                onChange={() => handleCollectionToggle(collection.slug)}
-                                                className="h-4 w-4 rounded border-gray-300 text-black focus:ring-black"
-                                            />
-                                            <span className="ml-2 text-sm text-gray-700">{collection.title}</span>
-                                        </label>
-                                    ))}
-                                </div>
-                            </div>
-                        )}
+        useEffect(() => {
+            setParentPriceRange([0, debouncedPrice]);
+        }, [debouncedPrice, setParentPriceRange]);
 
-                        <button
-                            onClick={clearFilters}
-                            className="w-full mt-4 py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-black hover:bg-gray-800"
+        return (
+            <AnimatePresence>
+                {isOpen && (
+                    <>
+                        {/* Overlay */}
+                        <motion.div
+                            className="fixed inset-0 bg-black/50 z-40 lg:hidden"
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            exit={{ opacity: 0 }}
+                            onClick={onClose}
+                        />
+                        <motion.div
+                            className="fixed top-0 right-0 w-80 h-full bg-white shadow-lg z-50 p-6 flex flex-col"
+                            initial={{ x: '100%' }}
+                            animate={{ x: 0 }}
+                            exit={{ x: '100%' }}
+                            transition={{ type: 'spring', stiffness: 300, damping: 30 }}
                         >
-                            Clear All Filters
-                        </button>
-                    </motion.div>
-                </>
-            )}
-        </AnimatePresence>
-    );
+                            <div className="flex justify-between items-center mb-6">
+                                <h3 className="text-xl font-semibold">Filters</h3>
+                                <button onClick={onClose} className="text-gray-500 hover:text-black">
+                                    <X size={24} />
+                                </button>
+                            </div>
+                            
+                            <div className="flex-grow overflow-y-auto">
+                                {/* Price Range */}
+                                <div className="mb-6">
+                                    <h4 className="font-medium mb-2">Price</h4>
+                                    <input
+                                        type="range"
+                                        min="0"
+                                        max="1000"
+                                        value={internalPrice}
+                                        onChange={(e) => setInternalPrice(Number(e.target.value))}
+                                        className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer"
+                                    />
+                                    <div className="flex justify-between text-sm text-gray-600 mt-2">
+                                        <span>$0</span>
+                                        <span>${internalPrice}</span>
+                                    </div>
+                                </div>
+
+                                {/* Collections Filter */}
+                                {!collectionSlug && (
+                                    <div className="mb-6">
+                                        <h4 className="font-medium mb-2">Collections</h4>
+                                        <div className="space-y-2">
+                                            {allCollections.map(collection => (
+                                                <label key={collection.id} className="flex items-center">
+                                                    <input
+                                                        type="checkbox"
+                                                        checked={selectedCollections.includes(collection.slug)}
+                                                        onChange={() => handleCollectionToggle(collection.slug)}
+                                                        className="h-4 w-4 rounded border-gray-300 text-black focus:ring-black"
+                                                    />
+                                                    <span className="ml-2 text-sm text-gray-700">{collection.title}</span>
+                                                </label>
+                                            ))}
+                                        </div>
+                                    </div>
+                                )}
+                            </div>
+
+                            <button
+                                onClick={clearFilters}
+                                className="w-full mt-4 py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-black hover:bg-gray-800"
+                            >
+                                Clear All Filters
+                            </button>
+                        </motion.div>
+                    </>
+                )}
+            </AnimatePresence>
+        );
+    };
 
     return (
         <div className="min-h-screen bg-white">
@@ -177,38 +188,26 @@ const ProductListPage = () => {
 
             <main className="max-w-screen-xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
                 {/* Search and Sort Controls */}
-                <div className="flex flex-col md:flex-row justify-between items-center mb-12 gap-4">
-                    <div className="relative w-full md:max-w-xs">
-                        <input
-                            type="text"
-                            placeholder="Search products..."
-                            value={searchTerm}
-                            onChange={(e) => setSearchTerm(e.target.value)}
-                            className="w-full pl-10 pr-10 py-2 border border-gray-300 rounded-full focus:ring-2 focus:ring-black focus:border-transparent transition"
-                        />
-                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={20} />
-                        {searchTerm && (
-                            <button
-                                onClick={() => setSearchTerm('')}
-                                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-black"
-                            >
-                                <X size={20} />
-                            </button>
-                        )}
-                    </div>
-                    <div className="flex items-center gap-4">
-                        <div className="relative">
-                            <select
-                                value={sortOrder}
-                                onChange={(e) => setSortOrder(e.target.value)}
-                                className="appearance-none w-full md:w-auto bg-white border border-gray-300 rounded-full pl-4 pr-10 py-2 focus:ring-2 focus:ring-black focus:border-transparent transition"
-                            >
-                                <option value="name-asc">Sort by Name (A-Z)</option>
-                                <option value="name-desc">Sort by Name (Z-A)</option>
-                                <option value="price-asc">Sort by Price (Low-High)</option>
-                                <option value="price-desc">Sort by Price (High-Low)</option>
-                            </select>
-                            <ChevronsUpDown className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" size={20} />
+                <div className="flex flex-col lg:flex-row lg:items-center justify-between mb-12 gap-6">
+                    {/* Left: Search + Mobile Filter */}
+                    <div className="flex items-center gap-4 w-full lg:w-1/3">
+                        <div className="relative flex-grow">
+                            <input
+                                type="text"
+                                placeholder="Search products..."
+                                value={searchTerm}
+                                onChange={(e) => setSearchTerm(e.target.value)}
+                                className="w-full pl-10 pr-10 py-2 border border-gray-300 rounded-full text-black placeholder-gray-500 focus:ring-2 focus:ring-black focus:border-transparent transition"
+                            />
+                            <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={20} />
+                            {searchTerm && (
+                                <button
+                                    onClick={() => setSearchTerm('')}
+                                    className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-black"
+                                >
+                                    <X size={20} />
+                                </button>
+                            )}
                         </div>
                         <button
                             onClick={() => setIsFilterOpen(true)}
@@ -217,63 +216,45 @@ const ProductListPage = () => {
                             <Filter size={20} />
                         </button>
                     </div>
+
+                    {/* Middle: Desktop Price Slider */}
+                    <div className="hidden lg:flex items-center gap-4 w-full lg:w-1/3">
+                        <span className="text-sm font-medium text-gray-700">Price</span>
+                        <input
+                            type="range"
+                            min="0"
+                            max="1000"
+                            value={priceRange[1]}
+                            onChange={(e) => setPriceRange([0, Number(e.target.value)])}
+                            className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer"
+                        />
+                        <span className="text-sm font-medium text-gray-700 w-20 text-right">${priceRange[1]}</span>
+                    </div>
+
+                    {/* Right: Sort Dropdown */}
+                    <div className="relative w-full lg:w-auto">
+                        <div className="relative border border-gray-300 rounded-full">
+                            <select
+                                value={sortOrder}
+                                onChange={(e) => setSortOrder(e.target.value)}
+                                className="appearance-none w-full lg:w-auto bg-transparent rounded-full pl-5 pr-10 py-2 text-black focus:outline-none focus:ring-2 focus:ring-black"
+                            >
+                                <option value="name-asc">Sort by Name (A-Z)</option>
+                                <option value="name-desc">Sort by Name (Z-A)</option>
+                                <option value="price-asc">Sort by Price (Low-High)</option>
+                                <option value="price-desc">Sort by Price (High-Low)</option>
+                            </select>
+                            <ChevronsUpDown className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" size={20} />
+                        </div>
+                    </div>
                 </div>
 
+                {/* Main Content */}
                 <div className="flex">
-                    {/* Desktop Sidebar */}
-                    <aside className="hidden lg:block w-64 pr-8">
-                         <div className="sticky top-24">
-                            <h3 className="text-xl font-semibold mb-6">Filters</h3>
-                             {/* Price Range */}
-                            <div className="mb-6">
-                                <h4 className="font-medium mb-3">Price</h4>
-                                <input
-                                    type="range"
-                                    min="0"
-                                    max="1000"
-                                    value={priceRange[1]}
-                                    onChange={(e) => setPriceRange([0, Number(e.target.value)])}
-                                    className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer"
-                                />
-                                <div className="flex justify-between text-sm text-gray-600 mt-2">
-                                    <span>$0</span>
-                                    <span>${priceRange[1]}</span>
-                                </div>
-                            </div>
-
-                            {/* Collections Filter */}
-                            {!collectionSlug && (
-                                <div className="mb-6">
-                                    <h4 className="font-medium mb-3">Collections</h4>
-                                    <div className="space-y-2">
-                                        {allCollections.map(collection => (
-                                            <label key={collection.id} className="flex items-center">
-                                                <input
-                                                    type="checkbox"
-                                                    checked={selectedCollections.includes(collection.slug)}
-                                                    onChange={() => handleCollectionToggle(collection.slug)}
-                                                    className="h-4 w-4 rounded border-gray-300 text-black focus:ring-black"
-                                                />
-                                                <span className="ml-3 text-sm text-gray-700">{collection.title}</span>
-                                            </label>
-                                        ))}
-                                    </div>
-                                </div>
-                            )}
-
-                            <button
-                                onClick={clearFilters}
-                                className="w-full mt-4 py-2 px-4 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50"
-                            >
-                                Clear All Filters
-                            </button>
-                         </div>
-                    </aside>
-
                     {/* Products Grid */}
                     <div className="flex-1">
                         <motion.div
-                            className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-3 gap-x-6 gap-y-12"
+                            className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-x-6 gap-y-12"
                             variants={containerVariants}
                             initial="hidden"
                             animate="visible"
@@ -291,7 +272,12 @@ const ProductListPage = () => {
                     </div>
                 </div>
             </main>
-            <FilterSidebar isOpen={isFilterOpen} onClose={() => setIsFilterOpen(false)} />
+            <FilterSidebar 
+                isOpen={isFilterOpen} 
+                onClose={() => setIsFilterOpen(false)}
+                initialPrice={priceRange}
+                setParentPriceRange={setPriceRange}
+            />
         </div>
     );
 };
