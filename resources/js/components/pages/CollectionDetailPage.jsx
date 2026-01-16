@@ -88,7 +88,7 @@ const CollectionDetailPage = () => {
                     animate="visible"
                 >
                     {collection.items.map(item => (
-                        <ItemCard key={item.id} item={item} />
+                        <ItemCard key={item.id} product={{ ...item, images: [item.image] }} />
                     ))}
                 </motion.div>
             </main>
