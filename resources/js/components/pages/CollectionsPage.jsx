@@ -126,6 +126,7 @@ const CollectionsPage = () => {
             };
             API.getProducts(apiFilters)
                 .then(productsData => {
+                    console.log('Fetched products (CollectionsPage):', productsData); // Debugging line
                     setProducts(productsData.data);
                 })
                 .catch(error => console.error("Failed to fetch products:", error))
