@@ -3,7 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import {
     Search, Menu, X, User, ShoppingBag, ChevronRight,
-    Home, Grid, Camera, Mail
+    Home, Grid, Camera, Mail, Gift
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
