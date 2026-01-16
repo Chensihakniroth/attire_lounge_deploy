@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Collection;
 use App\Models\Product;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
@@ -118,6 +119,20 @@ class ProductController extends Controller
             return response()->json([
                 'success' => true,
                 'data' => $categories
+            ]);
+        });
+    }
+    
+    public function collections()
+    {
+        return Cache::remember('product_collections', 7200, function () {
+            $collections = Collection::where('is_active', true)
+                ->orderBy('sort_order')
+                ->get();
+
+            return response()->json([
+                'success' => true,
+                'data' => $collections
             ]);
         });
     }
