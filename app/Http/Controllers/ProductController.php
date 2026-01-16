@@ -58,6 +58,7 @@ class ProductController extends Controller
                         'price' => number_format($product->price, 2),
                         'compare_price' => $product->compare_price ? number_format($product->compare_price, 2) : null,
                         'category' => $product->category,
+                        'collection' => $product->collection,
                         'featured' => $product->featured,
                         'in_stock' => $product->in_stock,
                         'images' => $product->images,
