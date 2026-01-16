@@ -16,6 +16,8 @@ export const products = [
     ...createProductItems('Mocha Mousse \'25', 'mm', 'Mocha Mousse', 7, [180, 500]),
     ...createProductItems('Groom Collection', 'g', 'Groom', 10, [250, 800]),
     ...createProductItems('Office Collection', 'of', 'Office', 5, [200, 550]),
+    ...createProductItems('Accessories', 'acc', 'Tie', 5, [45, 90]),
+    ...createProductItems('Accessories', 'acc', 'Pocket Square', 5, [25, 60]),
 ];
 
 export const collections = [
@@ -39,5 +41,12 @@ export const collections = [
       "title": "Groom Collection",
       "description": "Exquisite tailoring for the most memorable occasions.",
       "image": `${minioBaseUrl}/uploads/collections/default/g1.jpg`
+    },
+    {
+      "id": 4,
+      "slug": "accessories",
+      "title": "Accessories",
+      "description": "The finishing touches that define your style.",
+      "image": `${minioBaseUrl}/uploads/collections/default/acc1.jpg`
     }
 ];

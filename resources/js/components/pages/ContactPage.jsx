@@ -289,7 +289,7 @@ Message: ${formData.message}
                                         <InputField name="time" type="time" label="Appointment Time *" value={formData.time} onChange={handleChange} error={errors.time} />
                                     </div>
 
-                                    <TextareaField name="message" label="Your Message *" value={formData.message} onChange={handleChange} error={errors.message} placeholder="Tell us about your styling needs..." />
+                                    <TextareaField name="message" label="Your Message *" value={formData.message} onChange={handleChange} error={errors.message} placeholder="Tell us about your styling need (color, fitting, size, event, etc)" />
 
                                     <button
                                         type="submit"

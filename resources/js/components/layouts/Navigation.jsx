@@ -39,8 +39,9 @@ const Navigation = () => {
 
     const navItems = [
         { name: 'Home', path: '/', icon: Home },
-        { name: 'Collections', path: '/collections', icon: Grid },
+        { name: 'Latest Collection', path: '/collections', icon: Grid },
         { name: 'Lookbook', path: '/lookbook', icon: Camera },
+        { name: 'Customize Gift for Men', path: '/customize-gift', icon: Gift }, // New nav item
         { name: 'Contact', path: '/contact', icon: Mail },
     ];
 

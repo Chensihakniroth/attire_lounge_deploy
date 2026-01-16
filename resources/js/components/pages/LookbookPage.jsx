@@ -9,8 +9,9 @@ const FilterContent = ({ isMobile, setFilter, setIsFilterOpen, currentFilter }) 
     const categories = [
         { id: 'all', name: 'All' },
         { id: 'sartorial', name: 'Sartorial' },
-        { id: 'office', name: 'Office' },
-        { id: 'groom', name: 'Groom' },
+        { id: 'grooms', name: 'Grooms', description: 'Grooms only' },
+        { id: 'formal', name: 'Formal', description: 'Black tie, wedding, gala' },
+        { id: 'business', name: 'Business' },
     ];
 
     const handleFilterClick = (filterId) => {
@@ -38,6 +39,7 @@ const FilterContent = ({ isMobile, setFilter, setIsFilterOpen, currentFilter }) 
                         />
                     )}
                     <span className="relative z-10">{category.name}</span>
+                    {category.description && <span className="relative z-10 text-xs text-attire-silver/50 block mt-1">{category.description}</span>}
                 </button>
             ))}
         </div>
@@ -48,42 +50,42 @@ import minioBaseUrl from '../../config.js';
 
 const LookbookPage = () => {
     const [images] = useState([
-        // Havana Collection
-        { id: 1, src: `${minioBaseUrl}/uploads/collections/default/hvn0.jpg`, title: 'Havana Breezy', collection: 'Havana Collection', category: 'sartorial', span: 'col-span-2 row-span-2' },
-        { id: 2, src: `${minioBaseUrl}/uploads/collections/default/hvn1.jpg`, title: 'Sunset Casual', collection: 'Havana Collection', category: 'sartorial', span: 'col-span-1 row-span-1' },
-        { id: 3, src: `${minioBaseUrl}/uploads/collections/default/hvn2.jpg`, title: 'Cuban Nights', collection: 'Havana Collection', category: 'sartorial', span: 'col-span-1 row-span-2' },
-        { id: 4, src: `${minioBaseUrl}/uploads/collections/default/hvn3.jpg`, title: 'Linen Classic', collection: 'Havana Collection', category: 'sartorial', span: 'col-span-1 row-span-1' },
-        { id: 5, src: `${minioBaseUrl}/uploads/collections/default/hvn4.jpg`, title: 'Tropical Sophistication', collection: 'Havana Collection', category: 'sartorial', span: 'col-span-1 row-span-2' },
-        { id: 6, src: `${minioBaseUrl}/uploads/collections/default/hvn5.jpg`, title: 'Coastal Charm', collection: 'Havana Collection', category: 'sartorial', span: 'col-span-1 row-span-1' },
-        { id: 7, src: `${minioBaseUrl}/uploads/collections/default/hvn6.jpg`, title: 'Island Elegance', collection: 'Havana Collection', category: 'sartorial', span: 'col-span-1 row-span-1' },
-        { id: 8, src: `${minioBaseUrl}/uploads/collections/default/hvn7.jpg`, title: 'Seaside Style', collection: 'Havana Collection', category: 'sartorial', span: 'col-span-2 row-span-1' },
-        { id: 9, src: `${minioBaseUrl}/uploads/collections/default/hvn8.jpg`, title: 'Caribbean Cool', collection: 'Havana Collection', category: 'sartorial', span: 'col-span-1 row-span-1' },
+        // Havana Collection - Sartorial
+        { id: 1, src: `${minioBaseUrl}/uploads/collections/default/hvn0.jpg`, title: 'Havana Breezy', collection: 'Havana Collection', category: ['sartorial'], span: 'col-span-2 row-span-2' },
+        { id: 2, src: `${minioBaseUrl}/uploads/collections/default/hvn1.jpg`, title: 'Sunset Casual', collection: 'Havana Collection', category: ['sartorial'], span: 'col-span-1 row-span-1' },
+        { id: 3, src: `${minioBaseUrl}/uploads/collections/default/hvn2.jpg`, title: 'Cuban Nights', collection: 'Havana Collection', category: ['sartorial'], span: 'col-span-1 row-span-2' },
+        { id: 4, src: `${minioBaseUrl}/uploads/collections/default/hvn3.jpg`, title: 'Linen Classic', collection: 'Havana Collection', category: ['sartorial'], span: 'col-span-1 row-span-1' },
+        { id: 5, src: `${minioBaseUrl}/uploads/collections/default/hvn4.jpg`, title: 'Tropical Sophistication', collection: 'Havana Collection', category: ['sartorial'], span: 'col-span-1 row-span-2' },
+        { id: 6, src: `${minioBaseUrl}/uploads/collections/default/hvn5.jpg`, title: 'Coastal Charm', collection: 'Havana Collection', category: ['sartorial'], span: 'col-span-1 row-span-1' },
+        { id: 7, src: `${minioBaseUrl}/uploads/collections/default/hvn6.jpg`, title: 'Island Elegance', collection: 'Havana Collection', category: ['sartorial'], span: 'col-span-1 row-span-1' },
+        { id: 8, src: `${minioBaseUrl}/uploads/collections/default/hvn7.jpg`, title: 'Seaside Style', collection: 'Havana Collection', category: ['sartorial'], span: 'col-span-2 row-span-1' },
+        { id: 9, src: `${minioBaseUrl}/uploads/collections/default/hvn8.jpg`, title: 'Caribbean Cool', collection: 'Havana Collection', category: ['sartorial'], span: 'col-span-1 row-span-1' },
         
-        // Mocha Mousse Collection
-        { id: 10, src: `${minioBaseUrl}/uploads/collections/default/mm1.jpg`, title: 'Espresso Edge', collection: 'Mocha Mousse 25', category: 'sartorial', span: 'col-span-1 row-span-2' },
-        { id: 11, src: `${minioBaseUrl}/uploads/collections/default/mm2.jpg`, title: 'Urban Comfort', collection: 'Mocha Mousse 25', category: 'sartorial', span: 'col-span-1 row-span-1' },
-        { id: 12, src: `${minioBaseUrl}/uploads/collections/default/mm3.jpg`, title: 'Downtown Vibe', collection: 'Mocha Mousse 25', category: 'sartorial', span: 'col-span-1 row-span-1' },
-        { id: 13, src: `${minioBaseUrl}/uploads/collections/default/mm4.jpg`, title: 'City Classic', collection: 'Mocha Mousse 25', category: 'sartorial', span: 'col-span-1 row-span-2' },
-        { id: 14, src: `${minioBaseUrl}/uploads/collections/default/mm5.jpg`, title: 'Metro Style', collection: 'Mocha Mousse 25', category: 'sartorial', span: 'col-span-2 row-span-2' },
-        { id: 15, src: `${minioBaseUrl}/uploads/collections/default/mm6.jpg`, title: 'Modern Mocha', collection: 'Mocha Mousse 25', category: 'sartorial', span: 'col-span-1 row-span-1' },
-        { id: 16, src: `${minioBaseUrl}/uploads/collections/default/mm7.jpg`, title: 'Refined Casual', collection: 'Mocha Mousse 25', category: 'sartorial', span: 'col-span-1 row-span-1' },
+        // Mocha Mousse Collection - Sartorial
+        { id: 10, src: `${minioBaseUrl}/uploads/collections/default/mm1.jpg`, title: 'Espresso Edge', collection: 'Mocha Mousse 25', category: ['sartorial'], span: 'col-span-1 row-span-2' },
+        { id: 11, src: `${minioBaseUrl}/uploads/collections/default/mm2.jpg`, title: 'Urban Comfort', collection: 'Mocha Mousse 25', category: ['sartorial'], span: 'col-span-1 row-span-1' },
+        { id: 12, src: `${minioBaseUrl}/uploads/collections/default/mm3.jpg`, title: 'Downtown Vibe', collection: 'Mocha Mousse 25', category: ['sartorial'], span: 'col-span-1 row-span-1' },
+        { id: 13, src: `${minioBaseUrl}/uploads/collections/default/mm4.jpg`, title: 'City Classic', collection: 'Mocha Mousse 25', category: ['sartorial'], span: 'col-span-1 row-span-2' },
+        { id: 14, src: `${minioBaseUrl}/uploads/collections/default/mm5.jpg`, title: 'Metro Style', collection: 'Mocha Mousse 25', category: ['sartorial'], span: 'col-span-2 row-span-2' },
+        { id: 15, src: `${minioBaseUrl}/uploads/collections/default/mm6.jpg`, title: 'Modern Mocha', collection: 'Mocha Mousse 25', category: ['sartorial'], span: 'col-span-1 row-span-1' },
+        { id: 16, src: `${minioBaseUrl}/uploads/collections/default/mm7.jpg`, title: 'Refined Casual', collection: 'Mocha Mousse 25', category: ['sartorial'], span: 'col-span-1 row-span-1' },
 
-        // Office Collection
-        { id: 17, src: `${minioBaseUrl}/uploads/collections/default/of1.jpg`, title: 'Boardroom Ready', collection: 'Office Collection', category: 'office', span: 'col-span-1 row-span-1' },
-        { id: 18, src: `${minioBaseUrl}/uploads/collections/default/of2.jpg`, title: 'Executive Presence', collection: 'Office Collection', category: 'office', span: 'col-span-1 row-span-2' },
-        { id: 19, src: `${minioBaseUrl}/uploads/collections/default/of3.jpg`, title: 'Corporate Style', collection: 'Office Collection', category: 'office', span: 'col-span-1 row-span-1' },
-        { id: 20, src: `${minioBaseUrl}/uploads/collections/default/of4.jpg`, title: 'Business Formal', collection: 'Office Collection', category: 'office', span: 'col-span-2 row-span-1' },
-        { id: 21, src: `${minioBaseUrl}/uploads/collections/default/of5.jpg`, title: 'Professional Polish', collection: 'Office Collection', category: 'office', span: 'col-span-1 row-span-1' },
+        // Business Collection (formerly Office)
+        { id: 17, src: `${minioBaseUrl}/uploads/collections/default/of1.jpg`, title: 'Boardroom Ready', collection: 'Office Collection', category: ['business'], span: 'col-span-1 row-span-1' },
+        { id: 18, src: `${minioBaseUrl}/uploads/collections/default/of2.jpg`, title: 'Executive Presence', collection: 'Office Collection', category: ['business'], span: 'col-span-1 row-span-2' },
+        { id: 19, src: `${minioBaseUrl}/uploads/collections/default/of3.jpg`, title: 'Corporate Style', collection: 'Office Collection', category: ['business'], span: 'col-span-1 row-span-1' },
+        { id: 20, src: `${minioBaseUrl}/uploads/collections/default/of4.jpg`, title: 'Business Formal', collection: 'Office Collection', category: ['business', 'formal'], span: 'col-span-2 row-span-1' },
+        { id: 21, src: `${minioBaseUrl}/uploads/collections/default/of5.jpg`, title: 'Professional Polish', collection: 'Office Collection', category: ['business'], span: 'col-span-1 row-span-1' },
 
-        // Groom Collection
-        { id: 22, src: `${minioBaseUrl}/uploads/collections/default/g1.jpg`, title: 'Classic Tuxedo', collection: 'Groom Collection', category: 'groom', span: 'col-span-1 row-span-1' },
-        { id: 23, src: `${minioBaseUrl}/uploads/collections/default/g2.jpg`, title: 'Wedding Day', collection: 'Groom Collection', category: 'groom', span: 'col-span-1 row-span-2' },
-        { id: 24, src: `${minioBaseUrl}/uploads/collections/default/g3.jpg`, title: 'Groomsmen Style', collection: 'Groom Collection', category: 'groom', span: 'col-span-1 row-span-1' },
-        { id: 25, src: `${minioBaseUrl}/uploads/collections/default/g4.jpg`, title: 'Elegant Ceremony', collection: 'Groom Collection', category: 'groom', span: 'col-span-2 row-span-1' },
-        { id: 26, src: `${minioBaseUrl}/uploads/collections/default/g5.jpg`, title: 'Reception Look', collection: 'Groom Collection', category: 'groom', span: 'col-span-1 row-span-1' },
-        { id: 27, src: `${minioBaseUrl}/uploads/collections/default/g6.jpg`, title: 'Tailored Perfection', collection: 'Groom Collection', category: 'groom', span: 'col-span-1 row-span-2' },
-        { id: 28, src: `${minioBaseUrl}/uploads/collections/default/g7.jpg`, title: 'Celebration Suit', collection: 'Groom Collection', category: 'groom', span: 'col-span-1 row-span-1' },
-        { id: 29, src: `${minioBaseUrl}/uploads/collections/default/g8.jpg`, title: 'Formal Event', collection: 'Groom Collection', category: 'groom', span: 'col-span-2 row-span-2' },
+        // Groom & Formal Collection
+        { id: 22, src: `${minioBaseUrl}/uploads/collections/default/g1.jpg`, title: 'Classic Tuxedo', collection: 'Groom Collection', category: ['grooms', 'formal'], span: 'col-span-1 row-span-1' },
+        { id: 23, src: `${minioBaseUrl}/uploads/collections/default/g2.jpg`, title: 'Wedding Day', collection: 'Groom Collection', category: ['grooms', 'formal'], span: 'col-span-1 row-span-2' },
+        { id: 24, src: `${minioBaseUrl}/uploads/collections/default/g3.jpg`, title: 'Groomsmen Style', collection: 'Groom Collection', category: ['grooms', 'formal'], span: 'col-span-1 row-span-1' },
+        { id: 25, src: `${minioBaseUrl}/uploads/collections/default/g4.jpg`, title: 'Elegant Ceremony', collection: 'Groom Collection', category: ['grooms', 'formal'], span: 'col-span-2 row-span-1' },
+        { id: 26, src: `${minioBaseUrl}/uploads/collections/default/g5.jpg`, title: 'Reception Look', collection: 'Groom Collection', category: ['grooms', 'formal'], span: 'col-span-1 row-span-1' },
+        { id: 27, src: `${minioBaseUrl}/uploads/collections/default/g6.jpg`, title: 'Tailored Perfection', collection: 'Groom Collection', category: ['grooms', 'formal'], span: 'col-span-1 row-span-2' },
+        { id: 28, src: `${minioBaseUrl}/uploads/collections/default/g7.jpg`, title: 'Celebration Suit', collection: 'Groom Collection', category: ['grooms', 'formal'], span: 'col-span-1 row-span-1' },
+        { id: 29, src: `${minioBaseUrl}/uploads/collections/default/g8.jpg`, title: 'Formal Event', collection: 'Groom Collection', category: ['grooms', 'formal'], span: 'col-span-2 row-span-2' },
     ]);
 
     const [[page, direction], setPage] = useState([null, 0]);
@@ -99,7 +101,7 @@ const LookbookPage = () => {
         return () => window.removeEventListener('resize', checkMobile);
     }, []);
     
-    const filteredImages = images.filter(img => filter === 'all' || img.category === filter);
+    const filteredImages = images.filter(img => filter === 'all' || img.category.includes(filter));
     const imageIndex = page !== null ? wrap(0, filteredImages.length, page) : null;
     const selectedImage = page !== null ? filteredImages[imageIndex] : null;
 
