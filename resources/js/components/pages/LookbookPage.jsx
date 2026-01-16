@@ -10,6 +10,7 @@ const FilterContent = ({ isMobile, setFilter, setIsFilterOpen, currentFilter }) 
         { id: 'all', name: 'All' },
         { id: 'sartorial', name: 'Sartorial' },
         { id: 'office', name: 'Office' },
+        { id: 'groom', name: 'Groom' },
     ];
 
     const handleFilterClick = (filterId) => {
