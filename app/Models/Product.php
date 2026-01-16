@@ -54,7 +54,7 @@ class Product extends Model
             return [];
         }
         
-        return array_map(fn($path) => Storage::url($path), $imagePaths);
+        return array_map(fn($path) => Storage::disk('minio')->url($path), $imagePaths);
     }
 
     public function scopeFeatured($query)
