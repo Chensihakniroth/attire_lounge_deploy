@@ -10,7 +10,7 @@ import Footer from './layouts/Footer.jsx';
 // Pages that you have created
 const HomePage = lazy(() => import('./pages/HomePage.jsx'));
 const CollectionsPage = lazy(() => import('./pages/CollectionsPage.jsx'));
-const CollectionDetailPage = lazy(() => import('./pages/CollectionDetailPage.jsx'));
+const ProductListPage = lazy(() => import('./pages/ProductListPage.jsx'));
 const LookbookPage = lazy(() => import('./pages/LookbookPage.jsx'));
 const ContactPage = lazy(() => import('./pages/ContactPage.jsx'));
 
@@ -59,9 +59,14 @@ function MainApp() {
                             <CollectionsPage />
                         </Layout>
                     } />
-                     <Route path="/collections/:collectionSlug" element={
+                     <Route path="/products" element={
                         <Layout>
-                            <CollectionDetailPage />
+                            <ProductListPage />
+                        </Layout>
+                    } />
+                     <Route path="/products/:collectionSlug" element={
+                        <Layout>
+                            <ProductListPage />
                         </Layout>
                     } />
                     <Route path="/lookbook" element={
