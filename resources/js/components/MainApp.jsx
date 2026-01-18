@@ -7,6 +7,8 @@ import Navigation from './layouts/Navigation.jsx';
 import LoadingSpinner from './common/LoadingSpinner.jsx';
 import Footer from './layouts/Footer.jsx';
 
+import ScrollToTop from './common/ScrollToTop.jsx';
+
 // Pages that you have created
 const HomePage = lazy(() => import('./pages/HomePage.jsx'));
 const CollectionsPage = lazy(() => import('./pages/CollectionsPage.jsx'));
@@ -42,6 +44,7 @@ const Layout = ({ children, includeFooter = true }) => {
 function MainApp() {
     return (
         <Router>
+            <ScrollToTop />
             <Suspense fallback={<LoadingSpinner />}>
                 <Routes>
                     {/* HomePage route - Footer is integrated INSIDE HomePage as section 4 */}

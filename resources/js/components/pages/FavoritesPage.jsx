@@ -16,17 +16,17 @@ const FavoritesPage = () => {
     };
 
     return (
-        <div className="min-h-screen bg-gray-50">
-            <header className="text-center py-16 sm:py-24 bg-white border-b border-gray-200">
+        <div className="min-h-screen bg-attire-navy">
+            <header className="text-center py-16 sm:py-24 border-b border-attire-silver/10">
                 <motion.h1
-                    className="text-4xl sm:text-5xl md:text-6xl font-serif font-light text-gray-900 mb-4"
+                    className="text-4xl sm:text-5xl md:text-6xl font-serif font-light text-white mb-4"
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.8, ease: "easeOut" }}
                 >
                     Your Favorites
                 </motion.h1>
-                <Link to="/collections" className="flex items-center justify-center gap-2 text-sm text-gray-600 hover:text-black transition-colors">
+                <Link to="/collections" className="flex items-center justify-center gap-2 text-sm text-white hover:text-attire-accent transition-colors">
                     <ChevronLeft size={16} />
                     Back to Collections
                 </Link>
@@ -46,9 +46,9 @@ const FavoritesPage = () => {
                     </motion.div>
                 ) : (
                     <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="text-center py-20 w-full">
-                        <p className="text-2xl font-serif text-gray-600">No favorites yet.</p>
-                        <p className="text-gray-500 mt-2">Browse our collections and add some products to your favorites.</p>
-                        <Link to="/collections" className="mt-6 inline-block bg-black text-white font-semibold px-8 py-3 rounded-lg hover:bg-gray-800 transition-colors">
+                        <p className="text-2xl font-serif text-attire-cream">No favorites yet.</p>
+                        <p className="text-attire-cream mt-2">Browse our collections and add some products to your favorites.</p>
+                        <Link to="/collections" className="mt-6 inline-block bg-attire-accent text-attire-dark font-semibold px-8 py-3 rounded-lg hover:opacity-90 transition-opacity">
                             Browse Collections
                         </Link>
                     </motion.div>

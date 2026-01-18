@@ -218,7 +218,7 @@ Message: ${formData.message}
 
             const telegramUrl = `https://t.me/attireloungeofficial?text=${encodeURIComponent(telegramMessage)}`;
             window.open(telegramUrl, '_blank');
-            
+
             setGeneratedMessage(telegramMessage);
 
         } catch (error) {
@@ -234,7 +234,7 @@ Message: ${formData.message}
         setFormData(prev => ({ ...prev, [name]: value }));
         if (errors[name]) setErrors(prev => ({ ...prev, [name]: null }));
     };
-    
+
     return (
         <div className="min-h-screen bg-attire-navy py-24 sm:py-32">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -247,7 +247,7 @@ Message: ${formData.message}
                         We're here to help you define your style. Reach out for appointments or inquiries.
                     </p>
                 </div>
-                
+
                 {/* Form and Connect Section */}
                 <GlassCard className="p-8 md:p-12">
                     <div className="grid grid-cols-1 lg:grid-cols-3 gap-x-12 gap-y-16">
@@ -257,7 +257,7 @@ Message: ${formData.message}
                                 <div>
                                     <h2 className="text-3xl font-serif text-white mb-4">Appointment Details</h2>
                                     <p className="text-attire-silver mb-6">
-                                        Your appointment request has been generated. If you were not redirected, please copy the text below and send it to us on Telegram.
+                                        Your appointment request has been generated. If you were not redirected, please copy the text below and send it to us via Email or on one of our social media APP.
                                     </p>
                                     <div className="bg-attire-dark/50 p-4 rounded-lg border border-white/10">
                                         <pre className="text-attire-cream whitespace-pre-wrap text-sm">{generatedMessage}</pre>

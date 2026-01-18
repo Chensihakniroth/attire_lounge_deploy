@@ -67,7 +67,7 @@ const Lightbox = ({
                     animate={{ scale: 1, opacity: 1 }}
                     transition={{ delay: 0.3, type: 'spring' }}
                     onClick={closeLightbox}
-                    className="absolute top-6 right-6 z-[60] p-3 bg-white/10 backdrop-blur-md rounded-full hover:bg-white/20 transition-colors"
+                    className="absolute top-8 right-8 z-[60] p-3 bg-white/10 backdrop-blur-md rounded-full hover:bg-white/20 transition-colors"
                     aria-label="Close"
                 >
                     <X className="w-6 h-6 text-white" />
@@ -111,10 +111,10 @@ const Lightbox = ({
                                 <p className="text-sm text-attire-gold">{selectedImage.collection}</p>
                             </div>
                             <div className="flex items-center self-end gap-3">
-                                <button onClick={(e) => { e.stopPropagation(); toggleFavorite(selectedImage.id); }} className="p-3 bg-white/10 backdrop-blur-md rounded-full hover:bg-white/20 transition-colors">
+                                <button onClick={(e) => { e.stopPropagation(); toggleFavorite(selectedImage.id); }} className="p-3 rounded-full transition-colors">
                                     <Heart className={`w-5 h-5 transition-all ${favorites.includes(selectedImage.id) ? 'fill-red-500 text-red-500' : 'text-white'}`} />
                                 </button>
-                                <button onClick={handleToggleFullscreen} className="p-3 bg-white/10 backdrop-blur-md rounded-full hover:bg-white/20 transition-colors">
+                                <button onClick={handleToggleFullscreen} className="p-3 rounded-full transition-colors">
                                     {isFullscreen ? <Minimize className="w-5 h-5 text-white" /> : <Maximize2 className="w-5 h-5 text-white" />}
                                 </button>
                             </div>

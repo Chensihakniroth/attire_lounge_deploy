@@ -30,15 +30,15 @@ const ItemCard = ({ product }) => {
         >
             <div className="relative overflow-hidden mb-4 aspect-w-3 aspect-h-4 group">
                 <img src={imageUrl} alt={product.name} className="w-full h-full object-cover" />
-                <button 
+                <button
                     onClick={toggleFavorite}
-                    className="absolute bottom-2 right-2 w-7 h-7 flex items-center justify-center bg-white/80 rounded-full text-gray-800 hover:bg-white transition-opacity z-10"
+                    className="absolute bottom-2 right-2 w-7 h-7 flex items-center justify-center rounded-full transition-opacity z-10"
                     aria-label="Toggle Favorite"
                 >
-                    <Heart size={14} className={`${isFavorite ? 'fill-red-500 text-red-500' : 'text-gray-600'}`} />
+                    <Heart size={14} className={`${isFavorite ? 'fill-red-500 text-red-500' : 'text-white'}`} />
                 </button>
             </div>
-            <h3 className="text-base text-attire-navy">{product.name}</h3>
+            <h3 className="text-base text-attire-cream">{product.name}</h3>
         </motion.div>
     );
 };

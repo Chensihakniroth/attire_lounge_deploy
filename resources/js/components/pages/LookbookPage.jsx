@@ -16,7 +16,7 @@ const LookbookPage = () => {
         { id: 7, src: `${minioBaseUrl}/uploads/collections/default/hvn6.jpg`, title: 'Island Elegance', collection: 'Havana Collection', category: ['sartorial'], span: 'col-span-1 row-span-1' },
         { id: 8, src: `${minioBaseUrl}/uploads/collections/default/hvn7.jpg`, title: 'Seaside Style', collection: 'Havana Collection', category: ['sartorial'], span: 'col-span-2 row-span-1' },
         { id: 9, src: `${minioBaseUrl}/uploads/collections/default/hvn8.jpg`, title: 'Caribbean Cool', collection: 'Havana Collection', category: ['sartorial'], span: 'col-span-1 row-span-1' },
-        
+
         // Mocha Mousse Collection - Sartorial
         { id: 10, src: `${minioBaseUrl}/uploads/collections/default/mm1.jpg`, title: 'Espresso Edge', collection: 'Mocha Mousse 25', category: ['sartorial'], span: 'col-span-1 row-span-2' },
         { id: 11, src: `${minioBaseUrl}/uploads/collections/default/mm2.jpg`, title: 'Urban Comfort', collection: 'Mocha Mousse 25', category: ['sartorial'], span: 'col-span-1 row-span-1' },
@@ -111,7 +111,7 @@ const LookbookPage = () => {
         <motion.div
             className="h-full w-full flex flex-col bg-attire-navy overflow-hidden relative"
         >
-            <div className="w-full p-6 bg-attire-dark/20 backdrop-blur-sm z-10">
+            <div className="w-full p-6 bg-attire-dark/20 backdrop-blur-sm z-10 lg:pt-24">
                 <div className="flex items-center justify-center gap-4">
                     {categories.map((category) => (
                         <button

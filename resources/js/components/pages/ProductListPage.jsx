@@ -6,15 +6,10 @@ import { products as allProducts, collections as allCollections } from '../../da
 import ItemCard from './collections/ItemCard';
 import useDebounce from '../../hooks/useDebounce.js';
 
-const mainSortOptions = [
+const sortOptions = [
     { value: 'popularity-desc', label: 'Most Popular' },
     { value: 'createdAt-desc', label: 'Newest' },
     { value: 'createdAt-asc', label: 'Oldest' },
-];
-
-const sortOptions = [
-    { value: 'price-asc', label: 'Price: Low to High' },
-    { value: 'price-desc', label: 'Price: High to Low' },
     { value: 'name-asc', label: 'Name: A to Z' },
     { value: 'name-desc', label: 'Name: Z to A' },
 ];
@@ -42,9 +37,7 @@ const ProductListPage = () => {
 
         let products = [...baseProducts];
 
-        products = products.filter(p => p.price >= debouncedPriceRange[0] && p.price <= debouncedPriceRange[1]);
-
-        if (!collectionSlug && selectedCollections.length > 0) {
+        if (selectedCollections.length > 0) {
             products = products.filter(p => selectedCollections.includes(p.collectionSlug));
         }
 
@@ -59,13 +52,15 @@ const ProductListPage = () => {
             if (sortKey === 'popularity') {
                 return sortDirection === 'asc' ? a.popularity - b.popularity : b.popularity - a.popularity;
             }
-            if (a.name < b.name) return sortDirection === 'asc' ? -1 : 1;
-            if (a.name > b.name) return sortDirection === 'asc' ? 1 : -1;
+            if (sortKey === 'name') {
+                if (a.name < b.name) return sortDirection === 'asc' ? -1 : 1;
+                if (a.name > b.name) return sortDirection === 'asc' ? 1 : -1;
+            }
             return 0;
         });
 
         return { pageTitle, filteredProducts: products };
-    }, [baseProducts, sortOrder, debouncedPriceRange, selectedCollections, collectionSlug]);
+    }, [baseProducts, sortOrder, selectedCollections, collectionSlug]);
 
     const containerVariants = {
         hidden: { opacity: 0 },
@@ -77,7 +72,6 @@ const ProductListPage = () => {
     };
 
     const clearFilters = () => {
-        setPriceRange([0, 1000]);
         setSelectedCollections([]);
     };
 
@@ -85,11 +79,11 @@ const ProductListPage = () => {
         setSelectedCollections(prev => prev.filter(s => s !== slug));
     };
     
-    const isDefaultPrice = priceRange[0] === 0 && priceRange[1] === 1000;
+    const isDefaultPrice = true; // Price filter removed
 
     return (
-        <div className="min-h-screen bg-gray-50">
-            <header className="text-center py-16 sm:py-24 bg-attire-navy border-b border-gray-200">
+        <div className="min-h-screen bg-attire-navy">
+            <header className="text-center py-16 sm:py-24">
                 <motion.h1
                     className="text-4xl sm:text-5xl md:text-6xl font-serif font-light text-white mb-4"
                     initial={{ opacity: 0, y: 20 }}
@@ -108,21 +102,11 @@ const ProductListPage = () => {
                 <Controls
                     sortOrder={sortOrder}
                     setSortOrder={setSortOrder}
-                    priceRange={priceRange}
-                    setPriceRange={setPriceRange}
                     selectedCollections={selectedCollections}
                     handleCollectionToggle={handleCollectionToggle}
                     collectionSlug={collectionSlug}
                     clearFilters={clearFilters}
-                />
-
-                <ActiveFilters
-                    priceRange={priceRange}
-                    isDefaultPrice={isDefaultPrice}
-                    clearPrice={() => setPriceRange([0, 1000])}
-                    selectedCollections={selectedCollections}
                     removeCollectionFilter={removeCollectionFilter}
-                    clearAllFilters={clearFilters}
                 />
                 
                 <AnimatePresence mode="wait">
@@ -141,8 +125,8 @@ const ProductListPage = () => {
 
                 {filteredProducts.length === 0 && (
                     <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="text-center py-20 w-full">
-                        <p className="text-2xl font-serif text-gray-600">No products found.</p>
-                        <p className="text-gray-500 mt-2">Try adjusting your filters or search term.</p>
+                        <p className="text-2xl font-serif text-attire-cream">No products found.</p>
+                        <p className="text-attire-cream mt-2">Try adjusting your filters or search term.</p>
                     </motion.div>
                 )}
             </main>
@@ -155,74 +139,61 @@ const ProductListPage = () => {
 const Controls = ({ 
     sortOrder, 
     setSortOrder, 
-    priceRange, 
-    setPriceRange, 
     selectedCollections, 
     handleCollectionToggle, 
     collectionSlug, 
-    clearFilters 
+    clearFilters,
+    removeCollectionFilter
 }) => (
-    <div className="flex flex-col md:flex-row items-center justify-between gap-4 mb-6 p-4 bg-white rounded-lg shadow-sm border border-gray-200">
-        <div className="flex items-center gap-2">
-            {mainSortOptions.map(option => (
+    <div className="flex flex-col gap-4 mb-6 p-4 bg-black/10 rounded-lg shadow-sm border border-attire-silver/10">
+        <div className="flex flex-col md:flex-row items-center justify-between gap-4 w-full">
+            <div className="flex items-center gap-2 flex-wrap">
+                <span className="text-sm font-medium text-attire-silver">Collections:</span>
+                {allCollections.map(collection => (
+                    <button
+                        key={collection.id}
+                        onClick={() => handleCollectionToggle(collection.slug)}
+                        className={`px-3 py-1 text-sm rounded-full transition-colors ${
+                            selectedCollections.includes(collection.slug)
+                                ? 'bg-attire-accent text-attire-dark font-semibold'
+                                : 'bg-attire-charcoal text-attire-silver hover:bg-attire-navy'
+                        }`}
+                    >
+                        {collection.title}
+                    </button>
+                ))}
+            </div>
+            <div className="flex items-center gap-4">
+                <span className="text-sm font-medium text-attire-silver hidden lg:block">Sort by:</span>
+                <FilterSortDropdown 
+                    sortOrder={sortOrder} 
+                    setSortOrder={setSortOrder} 
+                    clearFilters={clearFilters}
+                />
+            </div>
+        </div>
+        
+        {selectedCollections.length > 0 && (
+            <div className="flex items-center flex-wrap gap-2 pt-4 border-t border-attire-silver/10">
+                <span className="text-sm font-medium text-attire-silver">Active Filters:</span>
+                {selectedCollections.map(slug => {
+                    const collection = allCollections.find(c => c.slug === slug);
+                    return (
+                        <FilterTag key={slug} onRemove={() => removeCollectionFilter(slug)}>
+                            {collection?.title || slug}
+                        </FilterTag>
+                    );
+                })}
                 <button
-                    key={option.value}
-                    onClick={() => setSortOrder(option.value)}
-                    className={`px-4 py-2 text-sm font-medium rounded-full ${
-                        sortOrder === option.value 
-                            ? 'bg-attire-navy text-white' 
-                            : 'bg-gray-200 text-gray-800'
-                    }`}
+                    onClick={clearFilters}
+                    className="text-sm font-semibold text-attire-accent hover:underline ml-auto"
                 >
-                    {option.label}
+                    Clear All
                 </button>
-            ))}
-        </div>
-        <div className="flex items-center gap-4">
-            <span className="text-sm font-medium text-gray-600 hidden lg:block">Sort & Filter:</span>
-            <FilterSortDropdown 
-                sortOrder={sortOrder} 
-                setSortOrder={setSortOrder} 
-                priceRange={priceRange}
-                setPriceRange={setPriceRange}
-                selectedCollections={selectedCollections}
-                handleCollectionToggle={handleCollectionToggle}
-                collectionSlug={collectionSlug}
-                clearFilters={clearFilters}
-            />
-        </div>
+            </div>
+        )}
     </div>
 );
-
-const ActiveFilters = ({ priceRange, isDefaultPrice, clearPrice, selectedCollections, removeCollectionFilter, clearAllFilters }) => {
-    const showFilters = !isDefaultPrice || selectedCollections.length > 0;
-    if (!showFilters) return null;
-
-    return (
-        <div className="flex items-center flex-wrap gap-2 mb-8">
-            <span className="text-sm font-medium">Active Filters:</span>
-            {!isDefaultPrice && (
-                <FilterTag onRemove={clearPrice}>
-                    Price: ${priceRange[0]} - ${priceRange[1]}
-                </FilterTag>
-            )}
-            {selectedCollections.map(slug => {
-                const collection = allCollections.find(c => c.slug === slug);
-                return (
-                    <FilterTag key={slug} onRemove={() => removeCollectionFilter(slug)}>
-                        {collection?.title || slug}
-                    </FilterTag>
-                );
-            })}
-            <button
-                onClick={clearAllFilters}
-                className="text-sm font-semibold text-black hover:underline"
-            >
-                Clear All
-            </button>
-        </div>
-    );
-};
 
 const FilterTag = ({ children, onRemove }) => (
     <motion.div
@@ -230,38 +201,21 @@ const FilterTag = ({ children, onRemove }) => (
         initial={{ opacity: 0, scale: 0.8 }}
         animate={{ opacity: 1, scale: 1 }}
         exit={{ opacity: 0, scale: 0.8 }}
-        className="flex items-center gap-1 bg-black text-white rounded-full pl-3 pr-2 py-1 text-sm"
+        className="flex items-center gap-2 bg-attire-accent text-attire-dark rounded-full pl-3 pr-2 py-1 text-sm font-medium"
     >
         <span>{children}</span>
-        <button onClick={onRemove} className="text-white/80 hover:text-white">
+        <button onClick={onRemove} className="text-attire-dark/80 hover:text-attire-dark">
             <X size={16} />
         </button>
     </motion.div>
 );
 
-const FilterSortDropdown = ({ 
+const FilterSortDropdown = ({
     sortOrder, 
     setSortOrder, 
-    priceRange, 
-    setPriceRange, 
-    selectedCollections, 
-    handleCollectionToggle, 
-    collectionSlug, 
     clearFilters 
 }) => {
     const [isOpen, setIsOpen] = useState(false);
-    const [internalPrice, setInternalPrice] = useState(priceRange[1]);
-    const debouncedPrice = useDebounce(internalPrice, 300);
-
-    useEffect(() => {
-        setPriceRange([0, debouncedPrice]);
-    }, [debouncedPrice, setPriceRange]);
-
-    useEffect(() => {
-        if (isOpen) {
-            setInternalPrice(priceRange[1]);
-        }
-    }, [isOpen, priceRange]);
 
     const dropdownRef = useRef(null);
     useEffect(() => {
@@ -274,14 +228,14 @@ const FilterSortDropdown = ({
         return () => document.removeEventListener("mousedown", handleClickOutside);
     }, []);
 
-    const allSortOptions = [...mainSortOptions, ...sortOptions];
+    const allSortOptions = [...sortOptions];
     const selectedLabel = allSortOptions.find(opt => opt.value === sortOrder)?.label || 'Sort & Filter';
 
     return (
-        <div ref={dropdownRef} className="relative w-64 z-10">
+        <div ref={dropdownRef} className="relative w-64 z-20">
             <button
                 onClick={() => setIsOpen(!isOpen)}
-                className="flex items-center justify-between w-full px-4 py-2 bg-white border border-gray-300 rounded-full text-sm font-medium text-attire-navy hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-black"
+                className="flex items-center justify-between w-full px-4 py-2 bg-attire-charcoal border border-attire-silver/20 rounded-full text-sm font-medium text-white hover:bg-attire-navy focus:outline-none focus:ring-2 focus:ring-attire-accent"
             >
                 <span>{selectedLabel}</span>
                 <motion.div animate={{ rotate: isOpen ? 180 : 0 }}>
@@ -294,63 +248,30 @@ const FilterSortDropdown = ({
                         initial={{ opacity: 0, y: -10 }}
                         animate={{ opacity: 1, y: 0 }}
                         exit={{ opacity: 0, y: -10 }}
-                        className="absolute right-0 mt-2 w-full bg-white border border-gray-200 rounded-md shadow-lg overflow-hidden p-4"
+                        className="absolute right-0 mt-2 w-full bg-attire-charcoal border border-attire-silver/10 rounded-md shadow-lg overflow-hidden p-4"
                     >
                         <div className="mb-4">
-                            <h4 className="font-semibold text-lg mb-2 bg-attire-navy text-white">Sort by</h4>
+                            <h4 className="font-semibold text-lg mb-2 text-white">Sort by</h4>
                             {sortOptions.map(option => (
                                 <div
                                     key={option.value}
                                     onClick={() => {
                                         setSortOrder(option.value);
+                                        setIsOpen(false);
                                     }}
-                                    className={`px-2 py-1 text-sm cursor-pointer rounded-md hover:bg-gray-100 ${sortOrder === option.value ? 'font-bold bg-gray-100' : 'font-medium'}`}
+                                    className={`px-2 py-1 text-sm cursor-pointer rounded-md hover:bg-attire-navy ${sortOrder === option.value ? 'font-bold bg-attire-navy text-white' : 'font-medium text-attire-silver'}`}
                                 >
-                                    <span className="text-white">{option.label}</span>
+                                    <span>{option.label}</span>
                                 </div>
                             ))}
                         </div>
-                        <div className="mb-4">
-                            <h4 className="font-semibold text-lg mb-2 bg-attire-navy text-white">Price</h4>
-                            <input
-                                type="range"
-                                min="0"
-                                max="1000"
-                                value={internalPrice}
-                                onChange={(e) => setInternalPrice(Number(e.target.value))}
-                                className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-black"
-                            />
-                            <div className="flex justify-between text-md text-white mt-2">
-                                <span>$0</span>
-                                <span>${internalPrice}</span>
-                            </div>
-                        </div>
-
-                        {!collectionSlug && (
-                            <div className="mb-4">
-                                <h4 className="font-semibold text-lg mb-2 bg-attire-navy text-white">Collections</h4>
-                                <div className="space-y-2">
-                                    {allCollections.map(collection => (
-                                        <label key={collection.id} className="flex items-center text-md">
-                                            <input
-                                                type="checkbox"
-                                                checked={selectedCollections.includes(collection.slug)}
-                                                onChange={() => handleCollectionToggle(collection.slug)}
-                                                className="h-5 w-5 rounded border-gray-400 text-black focus:ring-black"
-                                            />
-                                            <span className="ml-3 text-white">{collection.title}</span>
-                                        </label>
-                                    ))}
-                                </div>
-                            </div>
-                        )}
 
                         <button
                             onClick={() => {
                                 clearFilters();
                                 setIsOpen(false);
                             }}
-                            className="w-full mt-4 py-2 px-4 border border-transparent rounded-md shadow-sm text-md font-medium text-white bg-black hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-black"
+                            className="w-full mt-4 py-2 px-4 border border-transparent rounded-md shadow-sm text-md font-medium text-attire-dark bg-attire-accent hover:bg-opacity-90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-attire-accent"
                         >
                             Clear All Filters
                         </button>
@@ -360,7 +281,5 @@ const FilterSortDropdown = ({
         </div>
     );
 };
-
-
 
 export default ProductListPage;
