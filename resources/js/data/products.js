@@ -8,6 +8,8 @@ const createProductItems = (collection, prefix, name, count, priceRange) => {
         collectionSlug: collection.toLowerCase().replace(/ /g, '-').replace(/'/g, ''),
         price: Math.floor(Math.random() * (priceRange[1] - priceRange[0] + 1)) + priceRange[0],
         images: [`${minioBaseUrl}/uploads/collections/default/${prefix}${i + 1}.jpg`],
+        createdAt: new Date(Date.now() - Math.floor(Math.random() * 30) * 24 * 60 * 60 * 1000), // Randomly in the last 30 days
+        popularity: Math.random(),
     }));
 };
 

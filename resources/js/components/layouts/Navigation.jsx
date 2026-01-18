@@ -1,11 +1,11 @@
-// resources/js/components/layouts/Navigation.jsx - FINAL
 import React, { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import {
-    Search, Menu, X, User, ShoppingBag, ChevronRight,
+    Menu, X, User, Heart, ChevronRight,
     Home, Grid, Camera, Mail, Gift
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useFavorites } from '../../context/FavoritesContext.jsx';
 
 const Navigation = () => {
     const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -13,6 +13,7 @@ const Navigation = () => {
     const [isHovered, setIsHovered] = useState(false);
     const [isMobile, setIsMobile] = useState(false);
     const [isLookbookFilterOpen, setIsLookbookFilterOpen] = useState(false);
+    const { favorites } = useFavorites();
 
     useEffect(() => {
         const handler = ({ detail }) => setIsLookbookFilterOpen(detail.isFilterOpen);
@@ -123,9 +124,15 @@ const Navigation = () => {
                             </motion.span>
                         </Link>
                         <div className="flex items-center space-x-2">
-                            <button className="p-2 hidden lg:block" aria-label="Search"><Search className={`w-5 h-5 ${navIconColor}`} /></button>
                             <button className="p-2" aria-label="Account"><User className={`w-5 h-5 ${navIconColor}`} /></button>
-                            <button className="p-2" aria-label="Shopping cart"><ShoppingBag className={`w-5 h-5 ${navIconColor}`} /></button>
+                            <Link to="/favorites" className="relative p-2" aria-label="Favorites">
+                                <Heart className={`w-5 h-5 ${navIconColor}`} />
+                                {favorites.length > 0 && (
+                                    <span className="absolute top-0 right-0 block h-4 w-4 rounded-full bg-red-500 text-white text-xs flex items-center justify-center">
+                                        {favorites.length}
+                                    </span>
+                                )}
+                            </Link>
                         </div>
                     </div>
                 </div>

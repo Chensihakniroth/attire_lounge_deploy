@@ -64,7 +64,7 @@ const CollectionsPage = () => {
                 <div className="text-center mt-16">
                     <Link
                         to="/products"
-                        className="bg-attire-accent text-white font-semibold px-10 py-4 rounded-lg hover:bg-attire-accent/90 transition-colors inline-block"
+                        className="bg-attire-navy text-white font-semibold px-10 py-4 rounded-lg hover:bg-attire-navy/90 transition-colors inline-block"
                     >
                         Browse All Products
                     </Link>

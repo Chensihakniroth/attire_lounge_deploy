@@ -91,7 +91,7 @@ const CollectionsSection = memo(forwardRef((props, ref) => (
         <div className="absolute inset-0 w-full h-full bg-cover bg-center"
              style={{ backgroundImage: `url('${minioBaseUrl}/uploads/collections/Model/1.jpg')` }}
         />
-<div className="absolute inset-0 bg-attire-navy/50" />
+<div className="absolute inset-0 bg-black/50" />
 
         <div className="relative z-10 flex flex-col justify-center items-center text-center h-full max-w-4xl mx-auto px-6">
             <motion.div
@@ -119,7 +119,13 @@ const CollectionsSection = memo(forwardRef((props, ref) => (
 
 const ExperienceSection = memo(forwardRef((props, ref) => (
   <section className="relative snap-section min-h-screen h-screen grid grid-cols-1 md:grid-cols-2 items-center bg-attire-navy" ref={ref}>
-    {/* Left side - Image */}
+    {/* Mobile Background */}
+    <div className="md:hidden absolute inset-0">
+      <img src={`${minioBaseUrl}/uploads/collections/default/both.jpg`} alt="Background" className="w-full h-full object-cover"/>
+      <div className="absolute inset-0 bg-black/60"/>
+    </div>
+
+    {/* Left side - Image (Desktop) */}
     <div className="relative w-full h-full overflow-hidden hidden md:block">
         <img
             src={`${minioBaseUrl}/uploads/collections/default/both.jpg`}
@@ -131,7 +137,7 @@ const ExperienceSection = memo(forwardRef((props, ref) => (
     </div>
 
     {/* Right side - Text Content */}
-    <div className="flex flex-col justify-center text-attire-cream p-8 md:p-16 h-full">
+    <div className="relative flex flex-col justify-center text-attire-cream p-8 md:p-16 h-full">
         <motion.div
             variants={containerVariants}
             initial="hidden"
@@ -168,8 +174,14 @@ const ExperienceSection = memo(forwardRef((props, ref) => (
 
 const MembershipSection = memo(forwardRef((props, ref) => (
     <section className="relative snap-section min-h-screen h-screen grid grid-cols-1 md:grid-cols-2 items-center bg-attire-navy" ref={ref}>
+        {/* Mobile Background */}
+        <div className="md:hidden absolute inset-0">
+          <img src={`${minioBaseUrl}/uploads/collections/default/vc.jpg`} alt="Background" className="w-full h-full object-cover"/>
+          <div className="absolute inset-0 bg-black/60"/>
+        </div>
+
         {/* Left side - Text Content */}
-        <div className="flex flex-col justify-center text-attire-cream p-8 md:p-12 h-full overflow-y-auto">
+        <div className="relative flex flex-col justify-center text-attire-cream p-8 md:p-12 h-full overflow-y-auto">
             <motion.div
                 variants={containerVariants}
                 initial="hidden"
@@ -213,7 +225,7 @@ const MembershipSection = memo(forwardRef((props, ref) => (
             </motion.div>
         </div>
 
-        {/* Right side - Image */}
+        {/* Right side - Image (Desktop) */}
         <div className="relative w-full h-full overflow-hidden hidden md:block">
             <img
                 src={`${minioBaseUrl}/uploads/collections/default/vc.jpg`}
@@ -242,19 +254,7 @@ const LookbookSection = memo(forwardRef((props, ref) => (
   </section>
 )));
 
-const CTASection = memo(forwardRef((props, ref) => (
-  <section className="relative snap-section bg-attire-dark min-h-screen h-screen flex items-center justify-center p-8" ref={ref}>
-    <div className="bg-attire-cream/20 backdrop-blur-lg border border-attire-cream/30 rounded-2xl shadow-lg p-8 md:p-12 max-w-3xl mx-auto">
-      <div className="text-center">
-        <motion.h2 variants={itemVariants} initial="hidden" whileInView="visible" viewport={{once: true}} className="font-serif text-3xl md:text-5xl text-white mb-6">Begin Your Sartorial Journey</motion.h2>
-        <motion.p variants={itemVariants} initial="hidden" whileInView="visible" viewport={{once: true}} transition={{delay: 0.2}} className="text-attire-silver md:text-lg mb-10">Experience the difference of personalized styling. Book a private consultation with our experts today.</motion.p>
-        <motion.div variants={itemVariants} initial="hidden" whileInView="visible" viewport={{once: true}} transition={{delay: 0.4}}>
-          <Link to="/contact" className="inline-block bg-attire-accent text-white font-semibold px-12 py-4 rounded-lg hover:bg-attire-accent/90 transition-colors">Book a Consultation</Link>
-        </motion.div>
-      </div>
-    </div>
-  </section>
-)));
+
 
 const FooterSection = memo(forwardRef((props, ref) => (
   <section className="relative snap-section bg-attire-dark min-h-screen h-screen flex flex-col justify-center" ref={ref}>
@@ -284,7 +284,7 @@ const HomePage = () => {
   }, []);
 
   useEffect(() => {
-    sectionsRef.current = sectionsRef.current.slice(0, 8); // 8 sections total
+    sectionsRef.current = sectionsRef.current.slice(0, 7); // 7 sections total
     const handleMenuStateChange = (e) => {
       if (e.detail && e.detail.isMenuOpen !== undefined) setIsMenuOpen(e.detail.isMenuOpen);
     };
@@ -360,8 +360,7 @@ const HomePage = () => {
       <ExperienceSection ref={el => sectionsRef.current[3] = el} services={services} />
       <MembershipSection ref={el => sectionsRef.current[4] = el} />
       <LookbookSection ref={el => sectionsRef.current[5] = el} />
-      <CTASection ref={el => sectionsRef.current[6] = el} />
-      <FooterSection ref={el => sectionsRef.current[7] = el} />
+      <FooterSection ref={el => sectionsRef.current[6] = el} />
     </div>
   );
 };

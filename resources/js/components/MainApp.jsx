@@ -14,6 +14,7 @@ const ProductListPage = lazy(() => import('./pages/ProductListPage.jsx'));
 const LookbookPage = lazy(() => import('./pages/LookbookPage.jsx'));
 const ContactPage = lazy(() => import('./pages/ContactPage.jsx'));
 const CustomizeGiftPage = lazy(() => import('./pages/CustomizeGiftPage.jsx')); // New Page
+const FavoritesPage = lazy(() => import('./pages/FavoritesPage.jsx'));
 
 // Simple placeholder for non-existent pages
 const Placeholder = ({ title }) => (
@@ -83,6 +84,11 @@ function MainApp() {
                     <Route path="/customize-gift" element={
                         <Layout>
                             <CustomizeGiftPage />
+                        </Layout>
+                    } />
+                    <Route path="/favorites" element={
+                        <Layout>
+                            <FavoritesPage />
                         </Layout>
                     } />
 
