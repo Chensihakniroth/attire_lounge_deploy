@@ -6,6 +6,10 @@ const ScrollToTop = () => {
 
     useEffect(() => {
         window.scrollTo(0, 0);
+        const mainContent = document.getElementById('main-content');
+        if (mainContent) {
+            mainContent.scrollTo(0, 0);
+        }
     }, [pathname]);
 
     return null;

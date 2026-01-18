@@ -1,8 +1,9 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import Lightbox from './lookbook/Lightbox';
 import { wrap } from "popmotion";
 import minioBaseUrl from '../../config.js';
+import { ChevronLeft, ChevronRight } from 'lucide-react';
 
 const LookbookPage = () => {
     const [images] = useState([
@@ -107,34 +108,57 @@ const LookbookPage = () => {
         { id: 'business', name: 'Business' },
     ];
 
+    const scrollContainerRef = useRef(null);
+
+    const scroll = (direction) => {
+        if (scrollContainerRef.current) {
+            scrollContainerRef.current.scrollBy({ left: direction * 200, behavior: 'smooth' });
+        }
+    };
+
     return (
         <motion.div
             className="h-full w-full flex flex-col bg-attire-navy overflow-hidden relative"
         >
             <div className="w-full p-6 bg-attire-dark/20 backdrop-blur-sm z-10 lg:pt-24">
-                <div className="flex items-center justify-center gap-4">
-                    {categories.map((category) => (
-                        <button
-                            key={category.id}
-                            onClick={() => setFilter(category.id)}
-                            className={`px-5 py-2.5 rounded-full text-sm font-medium transition-colors relative ${
-                                filter === category.id ? 'text-white' : 'text-attire-silver/70 hover:text-white'
-                            }`}
-                        >
-                            {filter === category.id && (
-                                <motion.div
-                                    layoutId="lookbook-filter-active"
-                                    className="absolute inset-0 bg-attire-accent shadow-md rounded-full"
-                                    transition={{ type: 'spring', stiffness: 200, damping: 20 }}
-                                />
-                            )}
-                            <span className="relative z-10">{category.name}</span>
-                        </button>
-                    ))}
+                <div className="flex items-center">
+                    <button 
+                        onClick={() => scroll(-1)}
+                        className="p-1 text-white/50 hover:text-white md:hidden"
+                    >
+                        <ChevronLeft size={20} />
+                    </button>
+                    <div ref={scrollContainerRef} className="flex-grow flex items-center justify-start md:justify-center gap-4 overflow-x-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none] py-2">
+                        {categories.map((category) => (
+                            <button
+                                key={category.id}
+                                onClick={() => setFilter(category.id)}
+                                className={`flex-shrink-0 px-5 py-2.5 rounded-full text-sm font-medium transition-colors relative ${
+                                    filter === category.id ? 'text-white' : 'text-attire-silver/70 hover:text-white'
+                                }`}
+                            >
+                                {filter === category.id && (
+                                    <motion.div
+                                        layoutId="lookbook-filter-active"
+                                        className="absolute inset-0 bg-attire-accent shadow-md rounded-full"
+                                        transition={{ type: 'spring', stiffness: 200, damping: 20 }}
+                                    />
+                                )}
+                                <span className="relative z-10">{category.name}</span>
+                            </button>
+                        ))}
+                    </div>
+                    <button 
+                        onClick={() => scroll(1)}
+                        className="p-1 text-white/50 hover:text-white md:hidden"
+                    >
+                        <ChevronRight size={20} />
+                    </button>
                 </div>
             </div>
 
             <motion.div
+                id="main-content"
                 className="flex-grow overflow-y-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none] touch-pan-y"
             >
                 <motion.div

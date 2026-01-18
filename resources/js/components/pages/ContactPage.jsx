@@ -2,6 +2,8 @@
 import React, { useState, Fragment } from 'react';
 import { Listbox, Transition } from '@headlessui/react';
 import { Mail, Phone, MapPin, Clock, Send, CheckCircle, Instagram, Facebook, ChevronDown, Check } from 'lucide-react';
+import { useFavorites } from '../../context/FavoritesContext';
+import { products } from '../../data/products';
 
 // --- Reusable Components (Moved Outside) ---
 
@@ -76,7 +78,7 @@ const SelectField = ({ name, label, options, value, onChange }) => {
                                 <Listbox.Option
                                     key={optionIdx}
                                     className={({ active }) =>
-                                        `relative cursor-default select-none py-2 pl-10 pr-4 ${
+                                        `relative cursor-default select-none py-2 pl-10 pr-4 ${ 
                                             active ? 'bg-white/10 text-white' : 'text-attire-cream'
                                         }`
                                     }
@@ -130,7 +132,51 @@ const SocialLink = ({ href, icon }) => (
     </a>
 );
 
+const FavoritesSelector = ({ favoriteProducts, selectedFavorites, onSelectionChange }) => {
+    if (favoriteProducts.length === 0) {
+        return null;
+    }
+
+    const handleCheckboxChange = (productId) => {
+        if (selectedFavorites.includes(productId)) {
+            onSelectionChange(selectedFavorites.filter(id => id !== productId));
+        } else {
+            onSelectionChange([...selectedFavorites, productId]);
+        }
+    };
+
+    return (
+        <div>
+            <label className="block text-sm font-medium text-attire-cream mb-2">Include Favorited Items (Optional)</label>
+            <div className="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4 p-4 rounded-lg border bg-attire-dark/50 border-white/10">
+                {favoriteProducts.map(product => (
+                    <div key={product.id} className="relative group">
+                        <label htmlFor={`fav-${product.id}`} className="cursor-pointer">
+                            <img src={product.images[0]} alt={product.name} className="w-full h-auto object-cover rounded-lg aspect-square transition-all duration-300 group-hover:opacity-70"/>
+                            <div className="absolute bottom-0 left-0 right-0 bg-black/50 p-2 rounded-b-lg">
+                                <p className="text-xs text-white text-center truncate">{product.name}</p>
+                            </div>
+                        </label>
+                        <input
+                            type="checkbox"
+                            id={`fav-${product.id}`}
+                            checked={selectedFavorites.includes(product.id)}
+                            onChange={() => handleCheckboxChange(product.id)}
+                            className="absolute top-2 left-2 h-5 w-5 rounded-full border-2 border-white bg-black/20 text-attire-blue-500 focus:ring-0 focus:outline-none transition-all duration-300 checked:bg-attire-blue-500 checked:border-attire-gold"
+                        />
+                    </div>
+                ))}
+            </div>
+        </div>
+    );
+};
+
+
 const ContactPage = () => {
+    const { favorites } = useFavorites();
+    const favoriteProducts = products.filter(p => favorites.includes(p.id));
+    const [selectedFavorites, setSelectedFavorites] = useState([]);
+
     const [formData, setFormData] = useState({
         name: '',
         email: '',
@@ -204,6 +250,14 @@ const ContactPage = () => {
 
         setIsSubmitting(true);
         try {
+            let messageWithFavorites = formData.message;
+            if (selectedFavorites.length > 0) {
+                const selectedItems = products
+                    .filter(p => selectedFavorites.includes(p.id))
+                    .map(p => p.name);
+                messageWithFavorites += `\n\nInterested in these items:\n- ${selectedItems.join('\n- ')}`;
+            }
+
             const telegramMessage = `
 New Appointment Request:
 
@@ -213,7 +267,7 @@ Phone: ${formData.phone}
 Service: ${appointmentTypes.find(type => type.value === formData.service)?.label || formData.service}
 Date: ${formData.date}
 Time: ${formData.time}
-Message: ${formData.message}
+Message: ${messageWithFavorites}
             `.trim();
 
             const telegramUrl = `https://t.me/attireloungeofficial?text=${encodeURIComponent(telegramMessage)}`;
@@ -266,6 +320,7 @@ Message: ${formData.message}
                                         onClick={() => {
                                             setGeneratedMessage('');
                                             setFormData({ name: '', email: '', phone: '', service: 'sartorial', date: '', time: '', message: '' });
+                                            setSelectedFavorites([]);
                                         }}
                                         className="mt-6 w-full md:w-auto px-8 py-3 rounded-lg font-semibold transition-all duration-300 flex items-center justify-center gap-2 bg-black text-white hover:bg-gray-800"
                                     >
@@ -288,6 +343,12 @@ Message: ${formData.message}
                                         <InputField name="date" type="date" label="Appointment Date *" value={formData.date} onChange={handleChange} error={errors.date} />
                                         <InputField name="time" type="time" label="Appointment Time *" value={formData.time} onChange={handleChange} error={errors.time} />
                                     </div>
+
+                                    <FavoritesSelector
+                                        favoriteProducts={favoriteProducts}
+                                        selectedFavorites={selectedFavorites}
+                                        onSelectionChange={setSelectedFavorites}
+                                    />
 
                                     <TextareaField name="message" label="Your Message *" value={formData.message} onChange={handleChange} error={errors.message} placeholder="Tell us about your styling need (color, fitting, size, event, etc)" />
 

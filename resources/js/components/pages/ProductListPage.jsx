@@ -1,7 +1,7 @@
 import React, { useState, useMemo, useEffect, useRef } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ChevronLeft, Search, ChevronsUpDown, X, Filter, ChevronDown } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Search, ChevronsUpDown, X, Filter, ChevronDown } from 'lucide-react';
 import { products as allProducts, collections as allCollections } from '../../data/products.js';
 import ItemCard from './collections/ItemCard';
 import useDebounce from '../../hooks/useDebounce.js';
@@ -144,56 +144,71 @@ const Controls = ({
     collectionSlug, 
     clearFilters,
     removeCollectionFilter
-}) => (
-    <div className="flex flex-col gap-4 mb-6 p-4 bg-black/10 rounded-lg shadow-sm border border-attire-silver/10">
-        <div className="flex flex-col md:flex-row items-center justify-between gap-4 w-full">
-            <div className="flex items-center gap-2 flex-wrap">
-                <span className="text-sm font-medium text-attire-silver">Collections:</span>
-                {allCollections.map(collection => (
+}) => {
+    const scrollContainerRef = useRef(null);
+
+    const scroll = (direction) => {
+        if (scrollContainerRef.current) {
+            scrollContainerRef.current.scrollBy({ left: direction * 150, behavior: 'smooth' });
+        }
+    };
+
+    return (
+        <div className="flex flex-col gap-4 mb-6 p-4 bg-black/10 rounded-lg shadow-sm border border-attire-silver/10">
+            <div className="flex flex-col md:flex-row items-center justify-between gap-4 w-full">
+                <div className="flex items-center w-full">
+                    <button onClick={() => scroll(-1)} className="p-1 text-attire-silver/70 hover:text-white md:hidden"><ChevronLeft size={20} /></button>
+                    <div ref={scrollContainerRef} className="flex items-center gap-2 overflow-x-auto flex-nowrap [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
+                        <span className="text-sm font-medium text-attire-silver flex-shrink-0">Collections:</span>
+                        {allCollections.map(collection => (
+                            <button
+                                key={collection.id}
+                                onClick={() => handleCollectionToggle(collection.slug)}
+                                className={`px-3 py-1 text-sm rounded-full transition-colors flex-shrink-0 ${
+                                    selectedCollections.includes(collection.slug)
+                                        ? 'bg-attire-accent text-attire-dark font-semibold'
+                                        : 'bg-attire-charcoal text-attire-silver hover:bg-attire-navy'
+                                }`}
+                            >
+                                {collection.title}
+                            </button>
+                        ))}
+                    </div>
+                    <button onClick={() => scroll(1)} className="p-1 text-attire-silver/70 hover:text-white md:hidden"><ChevronRight size={20} /></button>
+                </div>
+
+                <div className="flex items-center gap-4 flex-shrink-0">
+                    <span className="text-sm font-medium text-attire-silver hidden lg:block">Sort by:</span>
+                    <FilterSortDropdown 
+                        sortOrder={sortOrder} 
+                        setSortOrder={setSortOrder} 
+                        clearFilters={clearFilters}
+                    />
+                </div>
+            </div>
+            
+            {selectedCollections.length > 0 && (
+                <div className="flex items-center flex-wrap gap-2 pt-4 border-t border-attire-silver/10">
+                    <span className="text-sm font-medium text-attire-silver">Active Filters:</span>
+                    {selectedCollections.map(slug => {
+                        const collection = allCollections.find(c => c.slug === slug);
+                        return (
+                            <FilterTag key={slug} onRemove={() => removeCollectionFilter(slug)}>
+                                {collection?.title || slug}
+                            </FilterTag>
+                        );
+                    })}
                     <button
-                        key={collection.id}
-                        onClick={() => handleCollectionToggle(collection.slug)}
-                        className={`px-3 py-1 text-sm rounded-full transition-colors ${
-                            selectedCollections.includes(collection.slug)
-                                ? 'bg-attire-accent text-attire-dark font-semibold'
-                                : 'bg-attire-charcoal text-attire-silver hover:bg-attire-navy'
-                        }`}
+                        onClick={clearFilters}
+                        className="text-sm font-semibold text-attire-accent hover:underline ml-auto"
                     >
-                        {collection.title}
+                        Clear All
                     </button>
-                ))}
-            </div>
-            <div className="flex items-center gap-4">
-                <span className="text-sm font-medium text-attire-silver hidden lg:block">Sort by:</span>
-                <FilterSortDropdown 
-                    sortOrder={sortOrder} 
-                    setSortOrder={setSortOrder} 
-                    clearFilters={clearFilters}
-                />
-            </div>
+                </div>
+            )}
         </div>
-        
-        {selectedCollections.length > 0 && (
-            <div className="flex items-center flex-wrap gap-2 pt-4 border-t border-attire-silver/10">
-                <span className="text-sm font-medium text-attire-silver">Active Filters:</span>
-                {selectedCollections.map(slug => {
-                    const collection = allCollections.find(c => c.slug === slug);
-                    return (
-                        <FilterTag key={slug} onRemove={() => removeCollectionFilter(slug)}>
-                            {collection?.title || slug}
-                        </FilterTag>
-                    );
-                })}
-                <button
-                    onClick={clearFilters}
-                    className="text-sm font-semibold text-attire-accent hover:underline ml-auto"
-                >
-                    Clear All
-                </button>
-            </div>
-        )}
-    </div>
-);
+    );
+};
 
 const FilterTag = ({ children, onRemove }) => (
     <motion.div
