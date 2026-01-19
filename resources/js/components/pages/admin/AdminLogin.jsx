@@ -40,8 +40,18 @@ const AdminLogin = () => {
     };
 
     return (
-        <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-900 to-gray-700 font-sans">
-            <div className="bg-white/10 backdrop-blur-lg p-8 md:p-10 rounded-2xl shadow-2xl w-full max-w-sm text-white border border-white/20">
+        <div className="relative min-h-screen flex items-center justify-center font-sans overflow-hidden">
+            <video 
+                autoPlay 
+                loop 
+                muted 
+                className="absolute top-0 left-0 w-full h-full object-cover z-0"
+            >
+                <source src="https://bucket-production-df32.up.railway.app/product-assets/uploads/asset/hero-background1.mp4" type="video/mp4" />
+                Your browser does not support the video tag.
+            </video>
+            <div className="absolute top-0 left-0 w-full h-full bg-black opacity-50 z-10"></div>
+            <div className="relative z-20 bg-white/10 backdrop-blur-lg p-8 md:p-10 rounded-2xl shadow-2xl w-full max-w-sm text-white border border-white/20">
                 <div className="text-center mb-8">
                     <h1 className="text-4xl font-extrabold tracking-tight mb-2">Admin Panel</h1>
                     <p className="text-white/70 text-sm">Sign in to manage your store.</p>

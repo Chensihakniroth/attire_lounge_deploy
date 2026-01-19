@@ -48,7 +48,7 @@ const CollectionsPage = () => {
                         className="grid grid-cols-1 md:grid-cols-3 gap-8 md:gap-12"
                     >
                         {mockCollections.map((collection) => ( // Use mockCollections directly
-                            <Link to={`/products/${collection.slug}`} key={collection.id}>
+                            <Link to={`/products?collection=${collection.slug}`} key={collection.id}>
                                 <motion.div
                                     layout
                                     initial={{ opacity: 0, y: 20 }}

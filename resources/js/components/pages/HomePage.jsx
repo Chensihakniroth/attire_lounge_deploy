@@ -1,7 +1,7 @@
 // resources/js/components/pages/HomePage.jsx - V6 (Final Polish with Glass Effects)
 import React, { useEffect, useRef, useState, useCallback, forwardRef, memo } from 'react';
 import { motion } from 'framer-motion';
-import { Users, Scissors, Coffee, ArrowRight, Gem, Feather, Palette, ChevronDown, CheckCircle } from 'lucide-react';
+import { Users, Scissors, Coffee, ArrowRight, Gem, Feather, Palette, ChevronDown, CheckCircle, BookOpen, Camera, Sparkles } from 'lucide-react';
 import Footer from '../layouts/Footer.jsx';
 import { Link } from 'react-router-dom';
 
@@ -13,6 +13,23 @@ const homePageData = {
     { name: "Milan-Certified Styling", description: "Receive a free, expert styling consultation from our Milan-certified team to discover the perfect look for you.", icon: <Users size={32} className="text-attire-accent" /> },
     { name: "The Perfect Fit", description: "We offer diverse sizes and provide complimentary in-house alterations to ensure your garments fit impeccably.", icon: <Scissors size={32} className="text-attire-accent" /> },
     { name: "A Premium Experience", description: "Enjoy a relaxing atmosphere and complimentary drinks during your visit, making your styling session a true pleasure.", icon: <Coffee size={32} className="text-attire-accent" /> }
+  ],
+  lookbookFeatures: [
+    {
+      title: "Seasonal Collections",
+      description: "Explore our latest seasonal curations, from summer linens to winter wools, all shot in stunning, high-resolution detail.",
+      icon: <BookOpen size={40} className="text-attire-accent" />
+    },
+    {
+      title: "Behind The Seams",
+      description: "Get an exclusive look at our design process, the craftsmanship involved, and the stories that inspire each collection.",
+      icon: <Camera size={40} className="text-attire-accent" />
+    },
+    {
+      title: "Style Guides",
+      description: "Not just what to wear, but how to wear it. Our guides help you master the art of dressing for any occasion.",
+      icon: <Sparkles size={40} className="text-attire-accent" />
+    }
   ]
 };
 
@@ -238,18 +255,49 @@ const MembershipSection = memo(forwardRef((props, ref) => (
     </section>
 )));
 
-const LookbookSection = memo(forwardRef((props, ref) => (
+const LookbookSection = memo(forwardRef(({ lookbookFeatures }, ref) => (
   <section className="relative snap-section bg-attire-dark min-h-screen h-screen" ref={ref}>
-    <img src={`${minioBaseUrl}/uploads/collections/Model/5.jpg`} alt="Lookbook" className="absolute inset-0 w-full h-full object-cover object-center" loading="lazy" decoding="async" />
-    <div className="absolute inset-0 bg-attire-dark/50" />
-    <div className="relative h-full flex flex-col items-center justify-center text-center text-attire-cream p-8">
-      <div className="bg-attire-dark/20 backdrop-blur-md border border-attire-cream/10 rounded-2xl shadow-lg p-8 md:p-12">
-        <motion.h2 variants={itemVariants} initial="hidden" whileInView="visible" viewport={{once: true}} className="font-serif text-4xl md:text-6xl mb-6">The Art of Style</motion.h2>
-        <motion.p variants={itemVariants} initial="hidden" whileInView="visible" viewport={{once: true}} transition={{delay: 0.2}} className="max-w-xl text-attire-silver md:text-lg mb-8">Explore our curated lookbook for inspiration and discover the timeless elegance that defines Attire Lounge.</motion.p>
-        <motion.div variants={itemVariants} initial="hidden" whileInView="visible" viewport={{once: true}} transition={{delay: 0.4}}>
+    <img src={`${minioBaseUrl}/uploads/collections/Model/5.jpg`} alt="Lookbook Background" className="absolute inset-0 w-full h-full object-cover object-center" loading="lazy" decoding="async" />
+    <div className="absolute inset-0 bg-gradient-to-b from-attire-dark/80 to-attire-dark/40" />
+    
+    <div className="relative h-full flex flex-col items-center justify-center text-center text-attire-cream p-4 md:p-8">
+      <motion.div 
+        variants={containerVariants} 
+        initial="hidden" 
+        whileInView="visible" 
+        viewport={{ once: true, amount: 0.2 }}
+        className="w-full max-w-6xl mx-auto"
+      >
+        <motion.h2 variants={itemVariants} className="font-serif text-4xl md:text-6xl mb-4">The Art of Style</motion.h2>
+        <motion.p variants={itemVariants} transition={{ delay: 0.2 }} className="max-w-2xl mx-auto text-attire-silver md:text-lg mb-12">
+          Explore our curated lookbook for inspiration and discover the timeless elegance that defines Attire Lounge.
+        </motion.p>
+
+        <div className="grid md:grid-cols-3 gap-8 md:gap-12 mb-12">
+          {lookbookFeatures.map((feature, index) => (
+            <motion.div 
+              key={index}
+              variants={itemVariants}
+              transition={{ delay: 0.4 + index * 0.2 }}
+              className="bg-attire-dark/30 backdrop-blur-md border border-attire-cream/10 rounded-2xl shadow-lg p-6 flex flex-col items-center"
+            >
+              <motion.div 
+                whileHover={{ scale: 1.1, rotate: 5 }} 
+                transition={{ type: "spring", stiffness: 300 }}
+                className="mb-4"
+              >
+                {feature.icon}
+              </motion.div>
+              <h3 className="font-serif text-xl md:text-2xl text-white mb-2">{feature.title}</h3>
+              <p className="text-attire-silver text-sm">{feature.description}</p>
+            </motion.div>
+          ))}
+        </div>
+
+        <motion.div variants={itemVariants} transition={{ delay: 1 }}>
           <Link to="/lookbook" className="inline-block bg-attire-accent text-white font-semibold px-10 py-4 rounded-lg hover:bg-attire-accent/90 transition-colors">View Lookbook</Link>
         </motion.div>
-      </div>
+      </motion.div>
     </div>
   </section>
 )));
@@ -350,7 +398,7 @@ const HomePage = () => {
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [isMobile, isMenuOpen, activeSection, scrollToSection]);
 
-  const { services } = homePageData;
+  const { services, lookbookFeatures } = homePageData;
 
   return (
     <div className="snap-scroll-container bg-attire-dark">
@@ -359,7 +407,7 @@ const HomePage = () => {
       <CollectionsSection ref={el => sectionsRef.current[2] = el} />
       <ExperienceSection ref={el => sectionsRef.current[3] = el} services={services} />
       <MembershipSection ref={el => sectionsRef.current[4] = el} />
-      <LookbookSection ref={el => sectionsRef.current[5] = el} />
+      <LookbookSection ref={el => sectionsRef.current[5] = el} lookbookFeatures={lookbookFeatures} />
       <FooterSection ref={el => sectionsRef.current[6] = el} />
     </div>
   );

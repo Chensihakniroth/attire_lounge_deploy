@@ -1,5 +1,5 @@
 import React, { useState, useMemo, useEffect, useRef } from 'react';
-import { useParams, Link } from 'react-router-dom';
+import { useLocation, Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ChevronLeft, ChevronRight, Search, ChevronsUpDown, X, Filter, ChevronDown } from 'lucide-react';
 import { products as allProducts, collections as allCollections } from '../../data/products.js';
@@ -14,32 +14,45 @@ const sortOptions = [
     { value: 'name-desc', label: 'Name: Z to A' },
 ];
 
-const ProductListPage = () => {
-    const { collectionSlug } = useParams();
+const useQuery = () => {
+    return new URLSearchParams(useLocation().search);
+};
 
-    const baseProducts = useMemo(() => {
-        if (collectionSlug) {
-            const currentCollection = allCollections.find(c => c.slug === collectionSlug);
-            return currentCollection ? allProducts.filter(p => p.collectionSlug === collectionSlug) : [];
-        }
-        return allProducts;
-    }, [collectionSlug]);
+const ProductListPage = () => {
+    const query = useQuery();
+    const location = useLocation();
+    const collectionQuery = query.get('collection');
 
     const [sortOrder, setSortOrder] = useState('popularity-desc');
     const [priceRange, setPriceRange] = useState([0, 1000]);
-    const [selectedCollections, setSelectedCollections] = useState([]);
+    
+    const [selectedCollections, setSelectedCollections] = useState(() => {
+        return collectionQuery ? [collectionQuery] : [];
+    });
+
+    useEffect(() => {
+        const newCollectionQuery = new URLSearchParams(location.search).get('collection');
+        if (newCollectionQuery && !selectedCollections.includes(newCollectionQuery)) {
+            setSelectedCollections([newCollectionQuery]);
+        } else if (!newCollectionQuery && selectedCollections.length > 0 && collectionQuery) {
+            // This might be needed if you expect to clear filters via URL changes
+            // setSelectedCollections([]);
+        }
+    }, [location.search]);
 
     const debouncedPriceRange = useDebounce(priceRange, 500);
 
     const { pageTitle, filteredProducts } = useMemo(() => {
-        const currentCollectionDetails = allCollections.find(c => c.slug === collectionSlug);
-        const pageTitle = currentCollectionDetails ? currentCollectionDetails.title : "All Products";
-
-        let products = [...baseProducts];
+        let products = [...allProducts];
 
         if (selectedCollections.length > 0) {
             products = products.filter(p => selectedCollections.includes(p.collectionSlug));
         }
+
+        const currentCollectionDetails = allCollections.find(c => c.slug === selectedCollections[0]);
+        const pageTitle = selectedCollections.length === 1 && currentCollectionDetails
+            ? currentCollectionDetails.title
+            : "All Products";
 
         const [sortKey, sortDirection] = sortOrder.split('-');
         products.sort((a, b) => {
@@ -60,7 +73,7 @@ const ProductListPage = () => {
         });
 
         return { pageTitle, filteredProducts: products };
-    }, [baseProducts, sortOrder, selectedCollections, collectionSlug]);
+    }, [sortOrder, selectedCollections]);
 
     const containerVariants = {
         hidden: { opacity: 0 },
@@ -104,7 +117,6 @@ const ProductListPage = () => {
                     setSortOrder={setSortOrder}
                     selectedCollections={selectedCollections}
                     handleCollectionToggle={handleCollectionToggle}
-                    collectionSlug={collectionSlug}
                     clearFilters={clearFilters}
                     removeCollectionFilter={removeCollectionFilter}
                 />
@@ -141,7 +153,6 @@ const Controls = ({
     setSortOrder, 
     selectedCollections, 
     handleCollectionToggle, 
-    collectionSlug, 
     clearFilters,
     removeCollectionFilter
 }) => {

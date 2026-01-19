@@ -97,7 +97,26 @@ const AppointmentManager = () => {
         try {
             setLoading(true);
             const response = await axios.get('/api/v1/admin/appointments');
-            const sortedAppointments = [...response.data].sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+            const appointmentsWithParsedImages = response.data.map(app => {
+                let imageUrls = [];
+                try {
+                    // Check if it's a string and not null/undefined
+                    if (typeof app.favorite_item_image_url === 'string') {
+                        // Attempt to parse the JSON string
+                        const parsed = JSON.parse(app.favorite_item_image_url);
+                        // Ensure the parsed result is an array
+                        imageUrls = Array.isArray(parsed) ? parsed : [];
+                    } else if (Array.isArray(app.favorite_item_image_url)) {
+                        // If it's already an array, use it directly
+                        imageUrls = app.favorite_item_image_url;
+                    }
+                } catch (e) {
+                    // If parsing fails, log the error and default to an empty array
+                    console.error('Failed to parse favorite_item_image_url:', e);
+                }
+                return { ...app, favorite_item_image_url: imageUrls };
+            });
+            const sortedAppointments = [...appointmentsWithParsedImages].sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
             setAppointments(sortedAppointments);
         } catch (err) {
             console.error('Error fetching appointments:', err);
@@ -114,8 +133,24 @@ const AppointmentManager = () => {
     const handleUpdateStatus = async (id, status) => {
         try {
             const response = await axios.patch(`/api/v1/admin/appointments/${id}/status`, { status });
+            const updatedAppointment = response.data.appointment;
+            
+            let imageUrls = [];
+            try {
+                if (typeof updatedAppointment.favorite_item_image_url === 'string') {
+                    const parsed = JSON.parse(updatedAppointment.favorite_item_image_url);
+                    imageUrls = Array.isArray(parsed) ? parsed : [];
+                } else if (Array.isArray(updatedAppointment.favorite_item_image_url)) {
+                    imageUrls = updatedAppointment.favorite_item_image_url;
+                }
+            } catch (e) {
+                console.error('Failed to parse favorite_item_image_url on update:', e);
+            }
+            
+            const finalUpdatedAppointment = { ...updatedAppointment, favorite_item_image_url: imageUrls };
+    
             setAppointments(prev => 
-                prev.map(app => app.id === id ? response.data.appointment : app)
+                prev.map(app => app.id === id ? finalUpdatedAppointment : app)
             );
         } catch (err) {
             console.error(`Error updating appointment ${id} to status ${status}:`, err);
