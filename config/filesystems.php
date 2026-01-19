@@ -62,13 +62,13 @@ return [
 
         'minio' => [
             'driver' => 's3',
-            'key' => env('MINIO_ACCESS_KEY_ID'),
-            'secret' => env('MINIO_SECRET_ACCESS_KEY'),
-            'region' => env('MINIO_DEFAULT_REGION', 'us-east-1'),
-            'bucket' => env('MINIO_BUCKET', 'product-assets'),
-            'endpoint' => env('MINIO_ENDPOINT', 'https://bucket-production-df32.up.railway.app'),
-            'url' => env('MINIO_URL', 'https://bucket-production-df32.up.railway.app/product-assets'),
-            'use_path_style_endpoint' => env('MINIO_USE_PATH_STYLE_ENDPOINT', true),
+            'key' => env('AWS_ACCESS_KEY_ID'),
+            'secret' => env('AWS_SECRET_ACCESS_KEY'),
+            'region' => env('AWS_DEFAULT_REGION'),
+            'bucket' => 'collections',
+            'endpoint' => env('AWS_ENDPOINT_URL'),
+            'url' => '',
+            'use_path_style_endpoint' => true,
             'throw' => false,
         ],
 

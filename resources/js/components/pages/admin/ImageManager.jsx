@@ -1,11 +1,35 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { Upload, CheckCircle, AlertCircle, ServerCrash, PlusCircle } from 'lucide-react';
+import { Upload, CheckCircle, AlertCircle, ServerCrash, PlusCircle, Trash2 } from 'lucide-react';
 
 const ImageManager = () => {
     const [selectedFile, setSelectedFile] = useState(null);
     const [preview, setPreview] = useState(null);
     const [uploadStatus, setUploadStatus] = useState({ type: '', message: '' });
+    const [images, setImages] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
+
+    const fetchImages = async () => {
+        try {
+            const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+            const response = await axios.get('/api/v1/admin/images', {
+                headers: {
+                    'X-CSRF-TOKEN': csrfToken,
+                },
+            });
+            setImages(response.data);
+        } catch (err) {
+            setError('Failed to load images.');
+            console.error('Error fetching images:', err);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    useEffect(() => {
+        fetchImages();
+    }, []);
 
     const handleFileChange = (e) => {
         const file = e.target.files[0];
@@ -29,18 +53,38 @@ const ImageManager = () => {
 
         try {
             const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
-            await axios.post('/api/v1/upload-image', formData, {
+            await axios.post('/api/v1/admin/upload-image', formData, {
                 headers: {
                     'Content-Type': 'multipart/form-data',
                     'X-CSRF-TOKEN': csrfToken,
                 },
             });
-            setUploadStatus({ type: 'success', message: 'Upload successful! Refreshing the page might be needed to see the new image in other sections.' });
+            setUploadStatus({ type: 'success', message: 'Upload successful!' });
             setSelectedFile(null);
             setPreview(null);
+            fetchImages(); // Refresh the image list
         } catch (error) {
-            setUploadStatus({ type: 'error', message: 'Upload failed. Please try again.' });
-            console.error('Error uploading image:', error);
+            setUploadStatus({ type: 'error', message: 'Upload failed. Please check the console for details.' });
+            console.error('Error uploading image:', error.response ? error.response.data : error);
+        }
+    };
+
+    const handleDelete = async (imageUrl) => {
+        if (!confirm('Are you sure you want to delete this image?')) {
+            return;
+        }
+
+        try {
+            const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+            await axios.post('/api/v1/admin/delete-image', { image: imageUrl }, {
+                headers: {
+                    'X-CSRF-TOKEN': csrfToken,
+                },
+            });
+            fetchImages(); // Refresh the image list
+        } catch (error) {
+            console.error('Error deleting image:', error.response ? error.response.data : error);
+            alert('Failed to delete image. Please try again.');
         }
     };
 
@@ -76,7 +120,7 @@ const ImageManager = () => {
                                 <div className="text-center p-4">
                                     <Upload className="mx-auto h-8 w-8 text-gray-400" />
                                     <p className="mt-2 text-sm text-gray-600">Select Image</p>
-                                    <p className="text-xs text-gray-500">JPG, PNG, GIF (Max 2MB)</p>
+                                    <p className="text-xs text-gray-500">JPG, PNG, GIF (Max 10MB)</p>
                                 </div>
                             )}
                             <input id="file-upload" name="file-upload" type="file" className="sr-only" onChange={handleFileChange} />
@@ -95,24 +139,27 @@ const ImageManager = () => {
 
             <div>
                 <h2 className="text-lg font-semibold mb-4 text-gray-900">Existing Images</h2>
-                <div className="bg-yellow-50 border-l-4 border-yellow-400 p-6 rounded-r-lg shadow-sm">
-                    <div className="flex">
-                        <div className="flex-shrink-0">
-                            <ServerCrash className="h-6 w-6 text-yellow-700" />
-                        </div>
-                        <div className="ml-3">
-                            <h3 className="text-lg font-medium text-yellow-800">Image Listing Unavailable</h3>
-                            <div className="mt-2 text-sm text-yellow-700">
-                                <p>
-                                    Displaying the list of all images is currently unavailable due to a server configuration issue.
-                                </p>
-                                <p className="mt-2 font-semibold">
-                                    To enable image listing and management, please ensure the storage credentials used by the application have the <strong>s3:ListBucket</strong> permission.
-                                </p>
+                {loading && <p>Loading images...</p>}
+                {error && <p className="text-red-500">{error}</p>}
+                {!loading && !error && (
+                    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
+                        {images.map((url, index) => (
+                            <div key={index} className="relative group">
+                                <img src={url} alt={`Image ${index}`} className="w-full h-40 object-cover rounded-lg shadow-md" />
+                                <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-50 transition-opacity flex items-center justify-center">
+                                    <button
+                                        onClick={() => handleDelete(url)}
+                                        className="p-2 bg-red-600 text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
+                                        title="Delete Image"
+                                    >
+                                        <Trash2 size={20} />
+                                    </button>
+                                </div>
                             </div>
-                        </div>
+                        ))}
+                         {images.length === 0 && <p className="text-gray-500">No images found in this collection.</p>}
                     </div>
-                </div>
+                )}
             </div>
         </div>
     );

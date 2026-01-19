@@ -16,11 +16,15 @@ class AdminLoginController extends Controller
             'password' => 'required',
         ]);
 
-        // Attempt to authenticate
-        if (!Auth::attempt($request->only('email', 'password'))) {
-            throw ValidationException::withMessages([
-                'email' => ['The provided credentials do not match our records.'],
-            ]);
+        try {
+            // Attempt to authenticate
+            if (!Auth::attempt($request->only('email', 'password'))) {
+                throw ValidationException::withMessages([
+                    'email' => ['The provided credentials do not match our records.'],
+                ]);
+            }
+        } catch (\Exception $e) {
+            return response()->json(['message' => 'Login failed.', 'error' => $e->getMessage()], 500);
         }
 
         $user = Auth::user();

@@ -10,18 +10,18 @@ class ImageUploadController extends Controller
     public function upload(Request $request)
     {
         $request->validate([
-            'image' => 'required|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
+            'image' => 'required|image|mimes:jpeg,png,jpg,gif,svg|max:10240',
         ]);
 
         $image = $request->file('image');
-        $path = $image->store('product-assets/uploads/collections/default', 'minio');
+        $path = $image->store('', 'minio');
 
         return response()->json(['url' => Storage::disk('minio')->url($path)], 201);
     }
 
     public function listImages()
     {
-        $files = Storage::disk('minio')->files('product-assets/uploads/collections/default');
+        $files = Storage::disk('minio')->files('');
         $urls = array_map(function ($file) {
             return Storage::disk('minio')->url($file);
         }, $files);
