@@ -258,6 +258,30 @@ const ContactPage = () => {
                 messageWithFavorites += `\n\nInterested in these items:\n- ${selectedItems.join('\n- ')}`;
             }
 
+            // Step 1: Try to save to the database
+            try {
+                let imageUrls = [];
+                if (selectedFavorites.length > 0) {
+                    imageUrls = selectedFavorites.map(favId => {
+                        const product = products.find(p => p.id === favId);
+                        return product && product.images.length > 0 ? product.images[0] : null;
+                    }).filter(url => url !== null); // Filter out any nulls if a product or image wasn't found
+                }
+
+                const submissionData = {
+                    ...formData,
+                    message: messageWithFavorites,
+                    preferred_date: formData.date,
+                    preferred_time: formData.time,
+                    favorite_item_image_url: imageUrls,
+                };
+                await axios.post('/api/v1/appointments', submissionData);
+            } catch (dbError) {
+                console.error("Could not save appointment to database:", dbError);
+                // We don't alert the user here, as the Telegram link is the primary action.
+            }
+
+            // Step 2: Always proceed with the Telegram functionality
             const telegramMessage = `
 New Appointment Request:
 
@@ -273,7 +297,8 @@ Message: ${messageWithFavorites}
             const telegramUrl = `https://t.me/attireloungeofficial?text=${encodeURIComponent(telegramMessage)}`;
             window.open(telegramUrl, '_blank');
 
-            setGeneratedMessage(telegramMessage);
+            // Update the confirmation message
+            setGeneratedMessage(`Your appointment request has been submitted and a pre-filled Telegram message has been opened. Please press 'Send' in Telegram to finalize your request.\n\nFor your reference, here is the message content:\n\n${telegramMessage}`);
 
         } catch (error) {
             console.error("Error creating Telegram link:", error);

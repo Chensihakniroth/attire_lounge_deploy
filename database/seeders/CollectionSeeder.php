@@ -13,27 +13,24 @@ class CollectionSeeder extends Seeder
      */
     public function run(): void
     {
-        Collection::create([
+        Collection::firstOrCreate(['slug' => 'havana-collection'], [
             'name' => 'Havana Collection',
-            'slug' => 'havana-collection',
             'description' => 'Lightweight fabrics and breezy silhouettes.',
             'year' => 2024,
             'is_active' => true,
             'sort_order' => 1,
         ]);
 
-        Collection::create([
+        Collection::firstOrCreate(['slug' => 'mocha-mousse-25'], [
             'name' => 'Mocha Mousse \'25',
-            'slug' => 'mocha-mousse-25',
             'description' => 'Breathable natural fabrics for sophisticated comfort.',
             'year' => 2025,
             'is_active' => true,
             'sort_order' => 2,
         ]);
 
-        Collection::create([
+        Collection::firstOrCreate(['slug' => 'groom-collection'], [
             'name' => 'Groom Collection',
-            'slug' => 'groom-collection',
             'description' => 'Elegant tuxedos and formal wear for special occasions.',
             'year' => 2025,
             'is_active' => true,

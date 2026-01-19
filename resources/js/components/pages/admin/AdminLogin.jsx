@@ -1,0 +1,60 @@
+import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { Lock } from 'lucide-react';
+
+const AdminLogin = () => {
+    const [password, setPassword] = useState('');
+    const [error, setError] = useState('');
+    const navigate = useNavigate();
+
+    const handleLogin = (e) => {
+        e.preventDefault();
+        // Hardcoded password for now - In a real app, this would be an API call
+        if (password === 'password') {
+            sessionStorage.setItem('isAdmin', 'true');
+            navigate('/admin');
+        } else {
+            setError('Incorrect password');
+            setPassword('');
+        }
+    };
+
+    return (
+        <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-900 to-gray-700 font-sans">
+            <div className="bg-white/10 backdrop-blur-lg p-8 md:p-10 rounded-2xl shadow-2xl w-full max-w-sm text-white border border-white/20">
+                <div className="text-center mb-8">
+                    <h1 className="text-4xl font-extrabold tracking-tight mb-2">Admin Panel</h1>
+                    <p className="text-white/70 text-sm">Sign in to manage your store.</p>
+                </div>
+                <form onSubmit={handleLogin} className="space-y-6">
+                    <div className="relative">
+                        <label className="block text-white/80 text-sm font-medium mb-2" htmlFor="password">
+                            Admin Password
+                        </label>
+                        <div className="relative">
+                            <Lock className="absolute left-3 top-1/2 -translate-y-1/2 text-white/40" size={20} />
+                            <input
+                                type="password"
+                                id="password"
+                                value={password}
+                                onChange={(e) => setPassword(e.target.value)}
+                                className="pl-10 pr-4 py-3 bg-white/15 border border-white/20 rounded-lg w-full text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors"
+                                placeholder="Enter your password"
+                            />
+                        </div>
+                    </div>
+                    {error && <p className="text-red-400 text-xs italic text-center">{error}</p>}
+                    <button
+                        type="submit"
+                        className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-4 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 transition-colors"
+                    >
+                        Secure Login
+                    </button>
+                </form>
+            </div>
+        </div>
+    );
+};
+
+export default AdminLogin;
+

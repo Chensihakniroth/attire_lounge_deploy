@@ -1,7 +1,7 @@
 // resources/jsx/components/layouts/layout.jsx
 import React from 'react';
-import Navigation from '../Navigation'; // Your header component
-import Footer from '../Footer';
+import Navigation from './Navigation.jsx'; // Your header component
+import Footer from './Footer.jsx';
 
 const Layout = ({ children }) => {
   return (

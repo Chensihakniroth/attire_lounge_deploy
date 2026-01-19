@@ -17,6 +17,13 @@ const LookbookPage = lazy(() => import('./pages/LookbookPage.jsx'));
 const ContactPage = lazy(() => import('./pages/ContactPage.jsx'));
 const CustomizeGiftPage = lazy(() => import('./pages/CustomizeGiftPage.jsx')); // New Page
 const FavoritesPage = lazy(() => import('./pages/FavoritesPage.jsx'));
+const AdminDashboard = lazy(() => import('./pages/admin/AdminDashboard.jsx'));
+const AdminLogin = lazy(() => import('./pages/admin/AdminLogin.jsx'));
+const PrivateRoute = lazy(() => import('./pages/admin/PrivateRoute.jsx'));
+const AdminLayout = lazy(() => import('./pages/admin/AdminLayout.jsx'));
+const ImageManager = lazy(() => import('./pages/admin/ImageManager.jsx'));
+const AppointmentManager = lazy(() => import('./pages/admin/AppointmentManager.jsx'));
+const CustomizeGiftManager = lazy(() => import('./pages/admin/CustomizeGiftManager.jsx'));
 
 // Simple placeholder for non-existent pages
 const Placeholder = ({ title }) => (
@@ -92,6 +99,21 @@ function MainApp() {
                     <Route path="/favorites" element={
                         <Layout>
                             <FavoritesPage />
+                        </Layout>
+                    } />
+
+                    <Route element={<PrivateRoute />}>
+                        <Route element={<AdminLayout />}>
+                            <Route path="/admin" element={<AdminDashboard />} />
+                            <Route path="/admin/image-manager" element={<ImageManager />} />
+                            <Route path="/admin/appointments" element={<AppointmentManager />} />
+                            <Route path="/admin/customize-gift" element={<CustomizeGiftManager />} />
+                        </Route>
+                    </Route>
+
+                    <Route path="/admin/login" element={
+                        <Layout>
+                            <AdminLogin />
                         </Layout>
                     } />
 

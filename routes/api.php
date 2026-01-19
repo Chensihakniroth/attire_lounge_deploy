@@ -3,10 +3,13 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\AppointmentController;
+use App\Http\Controllers\ImageUploadController;
 
 Route::prefix('v1')->group(function () {
     // Handle OPTIONS preflight requests
     Route::match(['options'], '/appointments', [AppointmentController::class, 'handleOptions']);
+    Route::match(['options'], '/appointments/{id}/status', [AppointmentController::class, 'handleOptionsStatus']);
+    Route::match(['options'], '/appointments/clear-completed', [AppointmentController::class, 'handleOptionsClearCompleted']);
 
     // Products
     Route::get('/products', [ProductController::class, 'index']);
@@ -20,6 +23,14 @@ Route::prefix('v1')->group(function () {
 
     // Appointments
     Route::post('/appointments', [AppointmentController::class, 'store']);
+    Route::get('/appointments', [AppointmentController::class, 'index']);
+    Route::patch('/appointments/{appointment}/status', [AppointmentController::class, 'updateStatus']);
+    Route::post('/appointments/clear-completed', [AppointmentController::class, 'clearCompleted']);
+
+    // Image Upload
+    Route::post('/upload-image', [ImageUploadController::class, 'upload']);
+    Route::get('/images', [ImageUploadController::class, 'listImages']);
+    Route::post('/delete-image', [ImageUploadController::class, 'deleteImage']);
 
     // Debug endpoints
     Route::get('/debug/appointments-table', function() {
