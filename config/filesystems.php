@@ -62,12 +62,12 @@ return [
 
         'minio' => [
             'driver' => 's3',
-            'key' => env('AWS_ACCESS_KEY_ID'),
-            'secret' => env('AWS_SECRET_ACCESS_KEY'),
-            'region' => env('AWS_DEFAULT_REGION'),
-            'bucket' => 'collections',
-            'endpoint' => env('AWS_ENDPOINT_URL'),
-            'url' => '',
+            'key' => env('CDN_BUCKET_ACCESS_KEY_ID_example_us'),
+            'secret' => env('CDN_BUCKET_SECRET_ACCESS_KEY_example_us'),
+            'region' => env('CDN_BUCKET_REGION_example_us'),
+            'bucket' => env('CDN_BUCKET_NAME_example_us'),
+            'endpoint' => env('CDN_BUCKET_ENDPOINT_example_us'),
+            'url' => 'webserver-production-66ba.up.railway.app',
             'use_path_style_endpoint' => true,
             'throw' => false,
         ],
