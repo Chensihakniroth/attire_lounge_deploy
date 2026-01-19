@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import {
-    Menu, X, User, Heart, ChevronRight,
+    Menu, X, Heart, ChevronRight,
     Home, Grid, Camera, Mail, Gift
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -14,8 +14,6 @@ const Navigation = () => {
     const [isMobile, setIsMobile] = useState(false);
     const [isLookbookFilterOpen, setIsLookbookFilterOpen] = useState(false);
     const { favorites } = useFavorites();
-    const [adminClickCount, setAdminClickCount] = useState(0);
-    const navigate = useNavigate();
 
     useEffect(() => {
         const handler = ({ detail }) => setIsLookbookFilterOpen(detail.isFilterOpen);
@@ -34,21 +32,6 @@ const Navigation = () => {
     }, []);
 
     useEffect(() => {
-        if (adminClickCount > 0) {
-            const timer = setTimeout(() => setAdminClickCount(0), 1000); // Reset after 1 second
-            return () => clearTimeout(timer);
-        }
-    }, [adminClickCount]);
-
-    const handleAdminClick = () => {
-        const newClickCount = adminClickCount + 1;
-        setAdminClickCount(newClickCount);
-        if (newClickCount >= 5) {
-            navigate('/admin/login');
-            setAdminClickCount(0);
-        }
-    };
-    useEffect(() => {
         const timer = setTimeout(() => {
             window.dispatchEvent(new CustomEvent('menuStateChange', { detail: { isMenuOpen } }));
         }, 50);
@@ -59,7 +42,7 @@ const Navigation = () => {
         { name: 'Home', path: '/', icon: Home },
         { name: 'Latest Collection', path: '/collections', icon: Grid },
         { name: 'Lookbook', path: '/lookbook', icon: Camera },
-        { name: 'Customize Gift for Men', path: '/customize-gift', icon: Gift }, // New nav item
+        { name: 'Customize Gift for Men', path: '/customize-gift', icon: Gift },
         { name: 'Contact', path: '/contact', icon: Mail },
     ];
 
@@ -141,9 +124,6 @@ const Navigation = () => {
                             </motion.span>
                         </Link>
                         <div className="flex items-center space-x-2">
-                            <div onClick={handleAdminClick} className="p-2 cursor-pointer" aria-label="Account">
-                                <User className={`w-5 h-5 ${navIconColor}`} />
-                            </div>
                             <Link to="/favorites" className="relative p-2" aria-label="Favorites">
                                 <Heart className={`w-5 h-5 ${navIconColor}`} />
                                 {favorites.length > 0 && (

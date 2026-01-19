@@ -24,6 +24,10 @@ const AdminLayout = lazy(() => import('./pages/admin/AdminLayout.jsx'));
 const ImageManager = lazy(() => import('./pages/admin/ImageManager.jsx'));
 const AppointmentManager = lazy(() => import('./pages/admin/AppointmentManager.jsx'));
 const CustomizeGiftManager = lazy(() => import('./pages/admin/CustomizeGiftManager.jsx'));
+const PrivacyPolicyPage = lazy(() => import('./pages/PrivacyPolicyPage.jsx'));
+const TermsOfServicePage = lazy(() => import('./pages/TermsOfServicePage.jsx'));
+const ReturnPolicyPage = lazy(() => import('./pages/ReturnPolicyPage.jsx'));
+
 
 // Simple placeholder for non-existent pages
 const Placeholder = ({ title }) => (
@@ -138,9 +142,19 @@ function MainApp() {
                             <Placeholder title="Shipping" />
                         </Layout>
                     } />
+                    <Route path="/privacy" element={
+                        <Layout>
+                            <PrivacyPolicyPage />
+                        </Layout>
+                    } />
+                    <Route path="/terms" element={
+                        <Layout>
+                            <TermsOfServicePage />
+                        </Layout>
+                    } />
                     <Route path="/returns" element={
                         <Layout>
-                            <Placeholder title="Returns" />
+                            <ReturnPolicyPage />
                         </Layout>
                     } />
                     <Route path="/privacy" element={

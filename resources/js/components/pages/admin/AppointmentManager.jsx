@@ -96,7 +96,7 @@ const AppointmentManager = () => {
     const fetchAppointments = async () => {
         try {
             setLoading(true);
-            const response = await axios.get('/api/v1/appointments');
+            const response = await axios.get('/api/v1/admin/appointments');
             const sortedAppointments = [...response.data].sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
             setAppointments(sortedAppointments);
         } catch (err) {
@@ -113,7 +113,7 @@ const AppointmentManager = () => {
 
     const handleUpdateStatus = async (id, status) => {
         try {
-            const response = await axios.patch(`/api/v1/appointments/${id}/status`, { status });
+            const response = await axios.patch(`/api/v1/admin/appointments/${id}/status`, { status });
             setAppointments(prev => 
                 prev.map(app => app.id === id ? response.data.appointment : app)
             );
@@ -126,7 +126,7 @@ const AppointmentManager = () => {
     const handleClearCompleted = async () => {
         if (window.confirm('Are you sure you want to clear all "done" appointments? This action cannot be undone.')) {
             try {
-                await axios.post('/api/v1/appointments/clear-completed');
+                await axios.post('/api/v1/admin/appointments/clear-completed');
                 // Remove done appointments from local state for immediate feedback
                 setAppointments(prev => prev.filter(app => app.status !== 'done'));
             } catch (err) {

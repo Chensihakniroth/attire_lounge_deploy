@@ -2,7 +2,7 @@
 import React, { useEffect, useRef, useState, useCallback, forwardRef, memo } from 'react';
 import { motion } from 'framer-motion';
 import { Users, Scissors, Coffee, ArrowRight, Gem, Feather, Palette, ChevronDown, CheckCircle } from 'lucide-react';
-import Footer from '../layouts/Footer';
+import Footer from '../layouts/Footer.jsx';
 import { Link } from 'react-router-dom';
 
 import minioBaseUrl from '../../config.js';

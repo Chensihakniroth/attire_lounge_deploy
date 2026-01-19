@@ -1,32 +1,68 @@
-import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 import {
   MapPin, Phone, Mail, Clock,
   Instagram, Facebook, MessageSquare, Send,
-  ArrowRight, Check
+  ArrowRight, Check, AlertTriangle
 } from 'lucide-react';
 import { motion } from 'framer-motion';
+import api from '../../api';
 
 const Footer = () => {
   const [email, setEmail] = useState('');
-  const [subscribed, setSubscribed] = useState(false);
+  const [subscribeStatus, setSubscribeStatus] = useState('idle'); // idle, loading, success, error
+  const [errorMessage, setErrorMessage] = useState('');
+  const [adminClickCount, setAdminClickCount] = useState(0);
+  const navigate = useNavigate();
 
-  const handleSubscribe = (e) => {
+  useEffect(() => {
+    if (adminClickCount > 0) {
+      const timer = setTimeout(() => setAdminClickCount(0), 1000); // Reset after 1 second
+      return () => clearTimeout(timer);
+    }
+  }, [adminClickCount]);
+
+  const handleAdminClick = () => {
+    const newClickCount = adminClickCount + 1;
+    setAdminClickCount(newClickCount);
+    if (newClickCount >= 5) {
+      navigate('/admin/login');
+      setAdminClickCount(0);
+    }
+  };
+
+  const handleSubscribe = async (e) => {
     e.preventDefault();
-    if (email) {
-      console.log('Subscribed:', email);
-      setSubscribed(true);
+    if (!email) return;
+
+    setSubscribeStatus('loading');
+    setErrorMessage('');
+
+    try {
+      await api.post('/newsletter-subscriptions', { email });
+      setSubscribeStatus('success');
       setTimeout(() => {
-        setSubscribed(false);
+        setSubscribeStatus('idle');
         setEmail('');
       }, 3000);
+    } catch (error) {
+      setSubscribeStatus('error');
+      if (error.response && error.response.status === 422) {
+        setErrorMessage(error.response.data.message || 'This email is already subscribed.');
+      } else {
+        setErrorMessage('An unexpected error occurred. Please try again.');
+      }
+      setTimeout(() => {
+        setSubscribeStatus('idle');
+        setErrorMessage('');
+      }, 5000);
     }
   };
 
   const currentYear = new Date().getFullYear();
 
   return (
-    <footer className="bg-black text-white border-t border-white/10">
+    <footer className="bg-black/80 backdrop-blur-md text-white border-t border-white/10">
       {/* Main Footer Content */}
       <div className="max-w-7xl mx-auto px-6 py-12 md:py-16">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8 md:gap-12">
@@ -45,15 +81,14 @@ const Footer = () => {
 
             {/* Contact Information */}
             <div className="space-y-4">
-              <div className="flex items-start gap-3">
+               <div className="flex items-start gap-3">
                 <MapPin className="w-4 h-4 mt-1 text-white/60 flex-shrink-0" />
                 <p className="text-sm text-white/80">
                   10 E0, Street 03, Sangkat Chey Chumneah,<br />
                   Khan Daun Penh, Phnom Penh
                 </p>
               </div>
-
-              <div className="flex items-center gap-3">
+               <div className="flex items-center gap-3">
                 <Phone className="w-4 h-4 text-white/60 flex-shrink-0" />
                 <a
                   href="tel:+85569256369"
@@ -62,8 +97,7 @@ const Footer = () => {
                   (+855) 69-25-63-69
                 </a>
               </div>
-
-              <div className="flex items-center gap-3">
+               <div className="flex items-center gap-3">
                 <Mail className="w-4 h-4 text-white/60 flex-shrink-0" />
                 <a
                   href="mailto:attireloungekh@gmail.com"
@@ -72,8 +106,7 @@ const Footer = () => {
                   attireloungekh@gmail.com
                 </a>
               </div>
-
-              <div className="flex items-center gap-3">
+               <div className="flex items-center gap-3">
                 <Clock className="w-4 h-4 text-white/60 flex-shrink-0" />
                 <p className="text-sm text-white/80">
                   10:00 AM - 7:00 PM, Daily
@@ -157,6 +190,7 @@ const Footer = () => {
                     placeholder="Your email address"
                     className="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-3 text-sm placeholder:text-white/40 focus:outline-none focus:border-white/30 transition-colors"
                     required
+                    disabled={subscribeStatus === 'loading'}
                   />
                 </div>
 
@@ -164,29 +198,28 @@ const Footer = () => {
                   whileHover={{ scale: 1.02 }}
                   whileTap={{ scale: 0.98 }}
                   type="submit"
-                  className="w-full bg-white text-black py-3 rounded-lg font-medium text-sm hover:bg-gray-100 transition-all duration-300 flex items-center justify-center gap-2"
+                  className={`w-full text-black py-3 rounded-lg font-medium text-sm transition-all duration-300 flex items-center justify-center gap-2 ${
+                    subscribeStatus === 'success' ? 'bg-green-400' :
+                    subscribeStatus === 'error' ? 'bg-red-500' :
+                    'bg-white hover:bg-gray-100'
+                  }`}
+                  disabled={subscribeStatus === 'loading' || subscribeStatus === 'success'}
                 >
-                  {subscribed ? (
-                    <>
-                      <Check className="w-4 h-4" />
-                      Subscribed!
-                    </>
-                  ) : (
-                    <>
-                      Subscribe
-                      <Send className="w-4 h-4" />
-                    </>
-                  )}
+                  {subscribeStatus === 'idle' && <><Send className="w-4 h-4" /> Subscribe</>}
+                  {subscribeStatus === 'loading' && 'Subscribing...'}
+                  {subscribeStatus === 'success' && <><Check className="w-4 h-4" /> Subscribed!</>}
+                  {subscribeStatus === 'error' && <><AlertTriangle className="w-4 h-4" /> Error</>}
                 </motion.button>
               </form>
+              {errorMessage && <p className="text-red-400 text-xs mt-2">{errorMessage}</p>}
             </div>
 
             {/* Social Media */}
             <div>
-              <h3 className="text-sm font-medium uppercase tracking-widest mb-6 text-white/90">
+               <h3 className="text-sm font-medium uppercase tracking-widest mb-6 text-white/90">
                 Connect With Us
               </h3>
-              <div className="flex items-center gap-4">
+               <div className="flex items-center gap-4">
                 {[
                   {
                     icon: Instagram,
@@ -228,7 +261,7 @@ const Footer = () => {
         <div className="mt-12 pt-8 border-t border-white/10">
           <div className="flex flex-col md:flex-row items-center justify-between gap-6">
             {/* Copyright */}
-            <div className="text-center md:text-left">
+            <div className="text-center md:text-left cursor-pointer" onClick={handleAdminClick}>
               <p className="text-white/60 text-sm">
                 © {currentYear} Attire Lounge Official. All rights reserved.
               </p>
@@ -242,9 +275,7 @@ const Footer = () => {
               {[
                 { name: 'Privacy Policy', path: '/privacy' },
                 { name: 'Terms of Service', path: '/terms' },
-                { name: 'Shipping Policy', path: '/shipping' },
                 { name: 'Return Policy', path: '/returns' },
-                { name: 'FAQs', path: '/faq' },
               ].map((link) => (
                 <Link
                   key={link.name}

@@ -4,6 +4,8 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\AppointmentController;
 use App\Http\Controllers\ImageUploadController;
+use App\Http\Controllers\NewsletterSubscriptionController;
+use App\Http\Controllers\AdminLoginController; // Add this line
 
 Route::prefix('v1')->group(function () {
     // Handle OPTIONS preflight requests
@@ -11,7 +13,7 @@ Route::prefix('v1')->group(function () {
     Route::match(['options'], '/appointments/{id}/status', [AppointmentController::class, 'handleOptionsStatus']);
     Route::match(['options'], '/appointments/clear-completed', [AppointmentController::class, 'handleOptionsClearCompleted']);
 
-    // Products
+    // Public Product routes (accessible to all)
     Route::get('/products', [ProductController::class, 'index']);
     Route::get('/products/featured', [ProductController::class, 'featured']);
     Route::get('/products/categories', [ProductController::class, 'categories']);
@@ -21,18 +23,13 @@ Route::prefix('v1')->group(function () {
     // Search
     Route::get('/search', [ProductController::class, 'search']);
 
-    // Appointments
+    // Public Appointments route (for users to store appointments)
     Route::post('/appointments', [AppointmentController::class, 'store']);
-    Route::get('/appointments', [AppointmentController::class, 'index']);
-    Route::patch('/appointments/{appointment}/status', [AppointmentController::class, 'updateStatus']);
-    Route::post('/appointments/clear-completed', [AppointmentController::class, 'clearCompleted']);
 
-    // Image Upload
-    Route::post('/upload-image', [ImageUploadController::class, 'upload']);
-    Route::get('/images', [ImageUploadController::class, 'listImages']);
-    Route::post('/delete-image', [ImageUploadController::class, 'deleteImage']);
+    // Newsletter Subscription (public)
+    Route::post('/newsletter-subscriptions', [NewsletterSubscriptionController::class, 'store']);
 
-    // Debug endpoints
+    // Debug endpoints (should be protected in production)
     Route::get('/debug/appointments-table', function() {
         try {
             if (!\Illuminate\Support\Facades\Schema::hasTable('appointments')) {
@@ -66,5 +63,21 @@ Route::prefix('v1')->group(function () {
                 'error' => $e->getMessage()
             ], 500);
         }
+    });
+    
+    // Admin Login Route (public, as authentication is done here)
+    Route::post('/admin/login', [AdminLoginController::class, 'login']);
+
+    // Admin-specific routes - protected by authentication middleware
+    Route::middleware('auth:sanctum')->prefix('admin')->group(function () {
+        // Appointments management (admin only)
+        Route::get('/appointments', [AppointmentController::class, 'index']);
+        Route::patch('/appointments/{appointment}/status', [AppointmentController::class, 'updateStatus']);
+        Route::post('/appointments/clear-completed', [AppointmentController::class, 'clearCompleted']);
+
+        // Image Upload and management (admin only)
+        Route::post('/upload-image', [ImageUploadController::class, 'upload']);
+        Route::get('/images', [ImageUploadController::class, 'listImages']);
+        Route::post('/delete-image', [ImageUploadController::class, 'deleteImage']);
     });
 });

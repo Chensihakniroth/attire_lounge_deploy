@@ -35,7 +35,7 @@ const AdminDashboard = () => {
         const fetchDashboardData = async () => {
             setLoading(true);
             try {
-                const appointmentsResponse = await axios.get('/api/v1/appointments');
+                const appointmentsResponse = await axios.get('/api/v1/admin/appointments');
                 const sortedAppointments = [...appointmentsResponse.data].sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
                 setRecentAppointments(sortedAppointments.slice(0, 5));
 
