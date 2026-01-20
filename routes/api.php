@@ -7,8 +7,15 @@ use App\Http\Controllers\ImageUploadController;
 use App\Http\Controllers\NewsletterSubscriptionController;
 use App\Http\Controllers\AdminLoginController;
 use App\Http\Controllers\GiftRequestController;
+use App\Http\Controllers\RailwayUploadController;
 
 Route::prefix('v1')->group(function () {
+    Route::prefix('railway')->group(function () {
+        Route::post('/upload', [RailwayUploadController::class, 'upload']);
+        Route::get('/files', [RailwayUploadController::class, 'listFiles']);
+        Route::delete('/files/{id}', [RailwayUploadController::class, 'deleteFile']);
+        Route::post('/generate-url', [RailwayUploadController::class, 'generateSignedUrl']);
+    });
     // Handle OPTIONS preflight requests
     Route::match(['options'], '/appointments', [AppointmentController::class, 'handleOptions']);
     Route::match(['options'], '/appointments/{id}/status', [AppointmentController::class, 'handleOptionsStatus']);

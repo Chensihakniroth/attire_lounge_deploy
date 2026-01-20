@@ -72,6 +72,17 @@ return [
             'throw' => false,
         ],
 
+        'railway' => [
+            'driver' => 's3',
+            'key' => env('RAILWAY_S3_KEY'),
+            'secret' => env('RAILWAY_S3_SECRET'),
+            'region' => env('RAILWAY_S3_REGION', 'auto'),
+            'bucket' => env('RAILWAY_S3_BUCKET'),
+            'url' => env('RAILWAY_S3_URL'),
+            'endpoint' => env('RAILWAY_S3_ENDPOINT', 'https://storage.railway.app'),
+            'use_path_style_endpoint' => true,
+        ],
+
     ],
 
     /*

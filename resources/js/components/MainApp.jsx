@@ -23,6 +23,7 @@ const PrivateRoute = lazy(() => import('./pages/admin/PrivateRoute.jsx'));
 const AdminLayout = lazy(() => import('./pages/admin/AdminLayout.jsx'));
 const AppointmentManager = lazy(() => import('./pages/admin/AppointmentManager.jsx'));
 const CustomizeGiftManager = lazy(() => import('./pages/admin/CustomizeGiftManager.jsx'));
+const RailwayUpload = lazy(() => import('./FileUpload/RailwayUpload.jsx'));
 const PrivacyPolicyPage = lazy(() => import('./pages/PrivacyPolicyPage.jsx'));
 const TermsOfServicePage = lazy(() => import('./pages/TermsOfServicePage.jsx'));
 const ReturnPolicyPage = lazy(() => import('./pages/ReturnPolicyPage.jsx'));
@@ -110,6 +111,7 @@ function MainApp() {
                             <Route path="/admin" element={<AdminDashboard />} />
                             <Route path="/admin/appointments" element={<AppointmentManager />} />
                             <Route path="/admin/customize-gift" element={<CustomizeGiftManager />} />
+                            <Route path="/admin/railway-upload" element={<RailwayUpload />} />
                         </Route>
                     </Route>
 

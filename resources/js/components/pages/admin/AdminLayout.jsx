@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { NavLink, useNavigate, Outlet } from 'react-router-dom';
-import { LayoutDashboard, ImageIcon, Calendar, Gift, LogOut, Menu, X } from 'lucide-react';
+import { LayoutDashboard, ImageIcon, Calendar, Gift, LogOut, Menu, X, UploadCloud } from 'lucide-react';
 
 const AdminLayout = () => {
     const navigate = useNavigate();
@@ -15,6 +15,7 @@ const AdminLayout = () => {
         { name: 'Dashboard', to: '/admin', icon: LayoutDashboard },
         { name: 'Appointments', to: '/admin/appointments', icon: Calendar },
         { name: 'Gift Requests', to: '/admin/customize-gift', icon: Gift },
+        { name: 'Railway Upload', to: '/admin/railway-upload', icon: UploadCloud },
     ];
 
     const NavItem = ({ item }) => (
