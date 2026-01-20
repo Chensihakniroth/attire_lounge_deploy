@@ -30,7 +30,7 @@ class AdminLoginController extends Controller
         $user = Auth::user();
 
         // Add a role check to ensure only admins can log in
-        if ($user->role !== 'admin') {
+        if (!isset($user->role) || $user->role !== 'admin') {
             Auth::logout();
             throw ValidationException::withMessages([
                 'email' => ['You do not have administrative privileges.'],
