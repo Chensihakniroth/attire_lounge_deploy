@@ -28,15 +28,15 @@ class RailwayUploadController extends Controller
 
         // For now, a simple upload. Chunking can be added.
         try {
-            Storage::disk('railway')->put($key, file_get_contents($file));
+            Storage::disk('public')->put($key, file_get_contents($file));
 
             $newUpload = RailwayUpload::create([
                 'original_name' => $originalName,
                 's3_key' => $key,
-                'public_url' => Storage::disk('railway')->url($key),
+                'public_url' => Storage::disk('public')->url($key),
                 'file_type' => $file->getMimeType(),
                 'file_size' => $file->getSize(),
-                'bucket_name' => env('RAILWAY_S3_BUCKET'),
+
                 'user_id' => 1, // Assuming a logged in user, replace with Auth::id() later
             ]);
 
@@ -57,7 +57,7 @@ class RailwayUploadController extends Controller
         $upload = RailwayUpload::findOrFail($id);
 
         try {
-            Storage::disk('railway')->delete($upload->s3_key);
+            Storage::disk('public')->delete($upload->s3_key);
             $upload->delete();
             return response()->json(['message' => 'File deleted successfully']);
         } catch (\Exception $e) {
@@ -70,12 +70,12 @@ class RailwayUploadController extends Controller
         $request->validate(['key' => 'required|string']);
         $key = $request->input('key');
 
-        if (!Storage::disk('railway')->exists($key)) {
+        if (!Storage::disk('public')->exists($key)) {
             return response()->json(['error' => 'File not found'], 404);
         }
 
         try {
-            $url = Storage::disk('railway')->temporaryUrl(
+            $url = Storage::disk('public')->temporaryUrl(
                 $key,
                 now()->addMinutes(15) // URL valid for 15 minutes
             );

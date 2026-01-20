@@ -40,48 +40,18 @@ return [
 
         'public' => [
             'driver' => 'local',
-            'root' => storage_path('app/public'),
-            'url' => env('APP_URL').'/storage',
-            'visibility' => 'public',
+            'root' => base_path('public/elements'),
+            'url' => env('APP_URL').'/elements',
             'throw' => false,
             'report' => false,
+            'serve' => true,
         ],
 
-        's3' => [
-            'driver' => 's3',
-            'key' => env('AWS_ACCESS_KEY_ID'),
-            'secret' => env('AWS_SECRET_ACCESS_KEY'),
-            'region' => env('AWS_DEFAULT_REGION'),
-            'bucket' => env('AWS_BUCKET'),
-            'url' => env('AWS_URL'),
-            'endpoint' => env('AWS_ENDPOINT'),
-            'use_path_style_endpoint' => env('AWS_USE_PATH_STYLE_ENDPOINT', false),
-            'throw' => false,
-            'report' => false,
-        ],
 
-        'minio' => [
-            'driver' => 's3',
-            'key' => env('CDN_BUCKET_ACCESS_KEY_ID_example_us'),
-            'secret' => env('CDN_BUCKET_SECRET_ACCESS_KEY_example_us'),
-            'region' => env('CDN_BUCKET_REGION_example_us'),
-            'bucket' => env('CDN_BUCKET_NAME_example_us'),
-            'endpoint' => env('CDN_BUCKET_ENDPOINT_example_us'),
-            'url' => 'webserver-production-66ba.up.railway.app',
-            'use_path_style_endpoint' => true,
-            'throw' => false,
-        ],
 
-        'railway' => [
-            'driver' => 's3',
-            'key' => env('RAILWAY_S3_KEY'),
-            'secret' => env('RAILWAY_S3_SECRET'),
-            'region' => env('RAILWAY_S3_REGION', 'auto'),
-            'bucket' => env('RAILWAY_S3_BUCKET'),
-            'url' => env('RAILWAY_S3_URL'),
-            'endpoint' => env('RAILWAY_S3_ENDPOINT', 'https://storage.railway.app'),
-            'use_path_style_endpoint' => true,
-        ],
+
+
+
 
     ],
 
