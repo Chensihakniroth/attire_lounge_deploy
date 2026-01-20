@@ -15,7 +15,6 @@ const AdminLayout = () => {
         { name: 'Dashboard', to: '/admin', icon: LayoutDashboard },
         { name: 'Appointments', to: '/admin/appointments', icon: Calendar },
         { name: 'Gift Requests', to: '/admin/customize-gift', icon: Gift },
-        { name: 'Image Manager', to: '/admin/image-manager', icon: ImageIcon },
     ];
 
     const NavItem = ({ item }) => (

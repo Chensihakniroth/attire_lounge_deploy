@@ -5,7 +5,8 @@ use App\Http\Controllers\ProductController;
 use App\Http\Controllers\AppointmentController;
 use App\Http\Controllers\ImageUploadController;
 use App\Http\Controllers\NewsletterSubscriptionController;
-use App\Http\Controllers\AdminLoginController; // Add this line
+use App\Http\Controllers\AdminLoginController;
+use App\Http\Controllers\GiftRequestController;
 
 Route::prefix('v1')->group(function () {
     // Handle OPTIONS preflight requests
@@ -25,6 +26,12 @@ Route::prefix('v1')->group(function () {
 
     // Public Appointments route (for users to store appointments)
     Route::post('/appointments', [AppointmentController::class, 'store']);
+
+    // Gift Requests
+    Route::get('/gift-requests', [GiftRequestController::class, 'index']);
+    Route::post('/gift-requests', [GiftRequestController::class, 'store']);
+    Route::patch('/gift-requests/{giftRequest}/status', [GiftRequestController::class, 'updateStatus']);
+    Route::delete('/gift-requests/{giftRequest}', [GiftRequestController::class, 'destroy']);
 
     // Newsletter Subscription (public)
     Route::post('/newsletter-subscriptions', [NewsletterSubscriptionController::class, 'store']);

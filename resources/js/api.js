@@ -54,6 +54,50 @@ const API = {
     async searchProducts(query) {
         const response = await fetch(`/api/v1/search?search=${encodeURIComponent(query)}`);
         return await handleResponse(response);
+    },
+
+    // Submit a custom gift request
+    async submitGiftRequest(giftData) {
+        const response = await fetch('/api/v1/gift-requests', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json',
+            },
+            body: JSON.stringify(giftData),
+        });
+        return await handleResponse(response);
+    },
+
+    async getGiftRequests() {
+        const response = await fetch('/api/v1/gift-requests');
+        return await handleResponse(response);
+    },
+
+    async updateGiftRequestStatus(id, status) {
+        const response = await fetch(`/api/v1/gift-requests/${id}/status`, {
+            method: 'PATCH',
+            headers: {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json',
+            },
+            body: JSON.stringify({ status }),
+        });
+        return await handleResponse(response);
+    },
+
+    async deleteGiftRequest(id) {
+        const response = await fetch(`/api/v1/gift-requests/${id}`, {
+            method: 'DELETE',
+            headers: {
+                'Accept': 'application/json',
+            }
+        });
+        // For 204 No Content, there's no body to parse, so we handle it specially
+        if (response.status === 204) {
+            return null; 
+        }
+        return await handleResponse(response);
     }
 };
 

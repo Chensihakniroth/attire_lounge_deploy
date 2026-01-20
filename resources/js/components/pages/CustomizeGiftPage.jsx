@@ -1,28 +1,28 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { Link } from 'react-router-dom';
-import { ChevronLeft, Send, Gift, Package, Pencil, ShoppingCart, Check, Copy, Instagram, Facebook, Mail, Phone } from 'lucide-react';
+import { Send, ShoppingCart, Check, User, Mail, Phone, ArrowRight, Loader, AlertTriangle, Gift } from 'lucide-react';
+import api from '../../api';
 
 const giftOptions = {
-  ties: [
-    { id: 'tie-red', name: 'Silk Tie', color: 'Red', image: 'https://placehold.co/300x400/A83232/FFF?text=Red+Tie' },
-    { id: 'tie-blue', name: 'Silk Tie', color: 'Blue', image: 'https://placehold.co/300x400/3264A8/FFF?text=Blue+Tie' },
-    { id: 'tie-green', name: 'Silk Tie', color: 'Green', image: 'https://placehold.co/300x400/32A852/FFF?text=Green+Tie' },
-    { id: 'tie-black', name: 'Silk Tie', color: 'Black', image: 'https://placehold.co/300x400/333/FFF?text=Black+Tie' },
-  ],
-  pocketSquares: [
-    { id: 'ps-white', name: 'Linen Pocket Square', color: 'White', image: 'https://placehold.co/300x400/EEE/333?text=White+PS' },
-    { id: 'ps-navy', name: 'Linen Pocket Square', color: 'Navy', image: 'https://placehold.co/300x400/0d3542/FFF?text=Navy+PS' },
-    { id: 'ps-burgundy', name: 'Linen Pocket Square', color: 'Burgundy', image: 'https://placehold.co/300x400/800020/FFF?text=Burgundy+PS' },
-    { id: 'ps-gold', name: 'Linen Pocket Square', color: 'Gold', image: 'https://placehold.co/300x400/FFD700/333?text=Gold+PS' },
-    { id: 'ps-pattern', name: 'Patterned Pocket Square', color: 'Patterned', image: 'https://placehold.co/300x400/DDD/333?text=Patterned+PS' },
-  ],
-  boxes: [
-    { id: 'box-normal', name: 'Normal Box', image: 'https://placehold.co/300x300/666/FFF?text=Normal+Box' },
-    { id: 'box-big', name: 'Big Box', image: 'https://placehold.co/300x300/444/FFF?text=Big+Box' },
-    { id: 'box-designer', name: 'Designer Box', image: 'https://placehold.co/300x300/222/FFF?text=Designer+Box' },
-  ],
-};
+    ties: [
+      { id: 'tie-red', name: 'Silk Tie', color: 'Red', image: 'https://placehold.co/300x400/A83232/FFF?text=Red+Tie' },
+      { id: 'tie-blue', name: 'Silk Tie', color: 'Blue', image: 'https://placehold.co/300x400/3264A8/FFF?text=Blue+Tie' },
+      { id: 'tie-green', name: 'Silk Tie', color: 'Green', image: 'https://placehold.co/300x400/32A852/FFF?text=Green+Tie' },
+      { id: 'tie-black', name: 'Silk Tie', color: 'Black', image: 'https://placehold.co/300x400/333/FFF?text=Black+Tie' },
+    ],
+    pocketSquares: [
+      { id: 'ps-white', name: 'Linen Pocket Square', color: 'White', image: 'https://placehold.co/300x400/EEE/333?text=White+PS' },
+      { id: 'ps-navy', name: 'Linen Pocket Square', color: 'Navy', image: 'https://placehold.co/300x400/0d3542/FFF?text=Navy+PS' },
+      { id: 'ps-burgundy', name: 'Linen Pocket Square', color: 'Burgundy', image: 'https://placehold.co/300x400/800020/FFF?text=Burgundy+PS' },
+      { id: 'ps-gold', name: 'Linen Pocket Square', color: 'Gold', image: 'https://placehold.co/300x400/FFD700/333?text=Gold+PS' },
+      { id: 'ps-pattern', name: 'Patterned Pocket Square', color: 'Patterned', image: 'https://placehold.co/300x400/DDD/333?text=Patterned+PS' },
+    ],
+    boxes: [
+      { id: 'box-normal', name: 'Normal Box', image: 'https://placehold.co/300x300/666/FFF?text=Normal+Box' },
+      { id: 'box-big', name: 'Big Box', image: 'https://placehold.co/300x300/444/FFF?text=Big+Box' },
+      { id: 'box-designer', name: 'Designer Box', image: 'https://placehold.co/300x300/222/FFF?text=Designer+Box' },
+    ],
+  };
 
 const SelectionCard = ({ item, isSelected, onSelect }) => (
     <motion.div
@@ -47,109 +47,114 @@ const SelectionCard = ({ item, isSelected, onSelect }) => (
     </motion.div>
 );
 
-const SocialLink = ({ href, icon, label }) => (
-    <a
-        href={href}
-        target="_blank"
-        rel="noopener noreferrer"
-        className="flex flex-col items-center gap-2 text-attire-silver hover:text-white hover:scale-105 transition-all"
-    >
-        {icon}
-        <span className="text-xs">{label}</span>
-    </a>
+const InputField = ({ icon, ...props }) => (
+    <div className="relative">
+        <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+            {icon}
+        </div>
+        <input
+            {...props}
+            className="w-full pl-10 p-3 rounded-lg border bg-attire-dark/50 text-attire-cream placeholder-attire-silver/70 focus:border-white focus:ring-1 focus:ring-white transition-colors"
+        />
+    </div>
 );
 
 const CustomizeGiftPage = () => {
+    const [step, setStep] = useState(1);
+    const [formData, setFormData] = useState({ name: '', email: '', phone: '' });
     const [selectedTie, setSelectedTie] = useState(null);
     const [selectedPocketSquare, setSelectedPocketSquare] = useState(null);
     const [selectedBox, setSelectedBox] = useState(null);
     const [note, setNote] = useState('');
-    const [generatedMessage, setGeneratedMessage] = useState('');
-    const [isCopied, setIsCopied] = useState(false);
+    const [submissionStatus, setSubmissionStatus] = useState({ state: 'idle' }); // idle, loading, success, error
+    const [formErrors, setFormErrors] = useState({});
+    const [availableBoxes, setAvailableBoxes] = useState([]);
 
-    const isComplete = selectedTie && selectedPocketSquare && selectedBox;
+    useEffect(() => {
+        let newAvailableBoxes = [];
+        if (selectedTie && selectedPocketSquare) {
+            newAvailableBoxes = giftOptions.boxes;
+        } else if (selectedTie && !selectedPocketSquare) {
+            newAvailableBoxes = giftOptions.boxes.filter(box => box.id !== 'box-designer');
+        } else {
+            newAvailableBoxes = [];
+        }
+        setAvailableBoxes(newAvailableBoxes);
 
-    const handleFinalize = () => {
-        if (!isComplete) return;
+        if (selectedBox && !newAvailableBoxes.some(box => box.id === selectedBox.id)) {
+            setSelectedBox(null);
+        }
+    }, [selectedTie, selectedPocketSquare]);
 
-        const message = `
-New Custom Gift Box Order:
----------------------------
+    const isItemsComplete = selectedTie && selectedPocketSquare && selectedBox;
+
+    const handleDetailsSubmit = (e) => {
+        e.preventDefault();
+        const errors = {};
+        if (!formData.name.trim()) errors.name = 'Name is required.';
+        if (!formData.email.trim()) errors.email = 'Email is required.';
+        else if (!/\S+@\S+\.\S+/.test(formData.email)) errors.email = 'Email is invalid.';
+        if (!formData.phone.trim()) errors.phone = 'Phone is required.';
+        
+        if (Object.keys(errors).length > 0) {
+            setFormErrors(errors);
+            return;
+        }
+        setFormErrors({});
+        setStep(2);
+    };
+
+    const handleFinalize = async () => {
+        if (!isItemsComplete) return;
+
+        const preferences = `
 Tie: ${selectedTie.name} (${selectedTie.color})
 Pocket Square: ${selectedPocketSquare.name} (${selectedPocketSquare.color})
 Box: ${selectedBox.name}
-${note ? `\nNote: "${note}"` : ''}
----------------------------
-Please confirm availability and total price.
-        `.trim().replace(/^\s+/gm, '');
+${note ? `Note: "${note}"` : ''}
+        `.trim();
 
-        setGeneratedMessage(message);
-        window.scrollTo(0, 0);
-    };
+        const dataToSend = { ...formData, preferences };
 
-    const handleCopyToClipboard = () => {
-        navigator.clipboard.writeText(generatedMessage);
-        setIsCopied(true);
-        setTimeout(() => setIsCopied(false), 2000);
+        setSubmissionStatus({ state: 'loading' });
+        try {
+            await api.submitGiftRequest(dataToSend);
+            setSubmissionStatus({ state: 'success' });
+        } catch (error) {
+            setSubmissionStatus({ state: 'error', message: 'Something went wrong. Please try again.' });
+        }
     };
     
-    const resetSelections = () => {
+    const resetForm = () => {
+        setStep(1);
+        setFormData({ name: '', email: '', phone: '' });
         setSelectedTie(null);
         setSelectedPocketSquare(null);
         setSelectedBox(null);
         setNote('');
-        setGeneratedMessage('');
-        setIsCopied(false);
+        setSubmissionStatus({ state: 'idle' });
+        setFormErrors({});
     }
 
-    if (generatedMessage) {
-        const telegramUrl = `https://t.me/attireloungeofficial?text=${encodeURIComponent(generatedMessage)}`;
-        const mailUrl = `mailto:attireloungekh@gmail.com?subject=Custom Gift Box Order&body=${encodeURIComponent(generatedMessage)}`;
-
+    if (submissionStatus.state === 'success') {
         return (
             <div className="min-h-screen bg-attire-navy py-12 md:py-24 flex items-center justify-center">
-                <motion.div
-                    initial={{ opacity: 0, scale: 0.95 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    className="max-w-2xl w-full mx-auto px-4"
-                >
+                <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} className="max-w-md w-full mx-auto px-4">
                     <div className="bg-attire-dark/40 backdrop-blur-lg rounded-2xl border border-white/10 shadow-lg p-8 text-center">
-                        <h1 className="text-3xl md:text-4xl font-serif text-white mb-4">Your Order is Ready</h1>
-                        <p className="text-attire-silver mb-6">
-                            Copy the text below and send it to us on your preferred platform, or use one of the quick links.
+                        <Check size={48} className="mx-auto text-green-400 mb-4" />
+                        <h1 className="text-3xl font-serif text-white mb-4">Request Sent!</h1>
+                        <p className="text-attire-silver mb-8">
+                            Thank you, {formData.name}. We have received your custom gift request and will contact you shortly.
                         </p>
-
-                        <div className="bg-attire-dark/50 p-4 rounded-lg border border-white/10 text-left mb-6">
-                            <pre className="text-attire-cream whitespace-pre-wrap text-sm">{generatedMessage}</pre>
-                        </div>
-                        
-                        <button
-                            onClick={handleCopyToClipboard}
-                            className="w-full mb-8 px-6 py-3 rounded-lg font-semibold transition-all duration-300 flex items-center justify-center gap-2 bg-attire-accent text-attire-dark hover:opacity-90"
-                        >
-                            {isCopied ? <><Check size={20} /> Copied!</> : <><Copy size={20} /> Copy to Clipboard</>}
-                        </button>
-
-                        <h2 className="text-xl font-serif text-white mb-4">Contact us via</h2>
-                        <div className="flex items-center justify-center gap-8">
-                            <SocialLink href={telegramUrl} icon={<Send size={24} />} label="Telegram" />
-                            <SocialLink href={mailUrl} icon={<Mail size={24} />} label="Email" />
-                            <SocialLink href="https://instagram.com/attireloungeofficial" icon={<Instagram size={24} />} label="Instagram" />
-                            <SocialLink href="https://facebook.com/attireloungeofficial" icon={<Facebook size={24} />} label="Facebook" />
-                            <SocialLink href="tel:+85569256369" icon={<Phone size={24} />} label="Call Us" />
-                        </div>
-                        
-                        <div className="border-t border-white/10 my-8"></div>
-
-                        <button onClick={resetSelections} className="text-attire-silver hover:text-white transition-colors">
+                        <button onClick={resetForm} className="text-attire-accent hover:text-white transition-colors font-semibold">
                             Create Another Gift
                         </button>
                     </div>
                 </motion.div>
             </div>
-        )
+        );
     }
-
+    
     return (
         <div className="min-h-screen bg-attire-navy py-12 md:py-24">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -158,134 +163,103 @@ Please confirm availability and total price.
                         Customize a Gift Box
                     </h1>
                     <p className="text-lg text-attire-silver max-w-2xl mx-auto">
-                        Select one of each item to create a unique and thoughtful gift.
+                        Follow the steps to create a unique and thoughtful gift.
                     </p>
                 </div>
 
-                <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                    {/* Main Selection Area */}
-                    <div className="lg:col-span-2 space-y-12">
-                        {/* Ties */}
-                        <section>
-                            <h2 className="text-2xl font-serif text-white mb-6">1. Choose a Tie</h2>
-                            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                                {giftOptions.ties.map(tie => (
-                                    <SelectionCard
-                                        key={tie.id}
-                                        item={tie}
-                                        isSelected={selectedTie?.id === tie.id}
-                                        onSelect={() => setSelectedTie(tie)}
-                                    />
-                                ))}
-                            </div>
-                        </section>
-
-                        {/* Pocket Squares */}
-                        <section>
-                            <h2 className="text-2xl font-serif text-white mb-6">2. Choose a Pocket Square</h2>
-                            <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
-                                {giftOptions.pocketSquares.map(ps => (
-                                    <SelectionCard
-                                        key={ps.id}
-                                        item={ps}
-                                        isSelected={selectedPocketSquare?.id === ps.id}
-                                        onSelect={() => setSelectedPocketSquare(ps)}
-                                    />
-                                ))}
-                            </div>
-                        </section>
-
-                        {/* Boxes */}
-                        <section>
-                            <h2 className="text-2xl font-serif text-white mb-6">3. Choose a Box</h2>
-                            <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-                                {giftOptions.boxes.map(box => (
-                                    <SelectionCard
-                                        key={box.id}
-                                        item={box}
-                                        isSelected={selectedBox?.id === box.id}
-                                        onSelect={() => setSelectedBox(box)}
-                                    />
-                                ))}
-                            </div>
-                        </section>
-                        
-                        {/* Note */}
-                        <section>
-                            <h2 className="text-2xl font-serif text-white mb-6">4. Write a Personal Note (Optional)</h2>
-                            <textarea
-                                value={note}
-                                onChange={(e) => setNote(e.target.value)}
-                                placeholder="e.g. Happy Birthday, John!"
-                                className="w-full p-4 rounded-lg border bg-attire-dark/50 text-attire-cream placeholder-attire-silver/70 focus:border-white focus:ring-1 focus:ring-white transition-colors resize-none"
-                                rows="4"
-                            ></textarea>
-                        </section>
-                    </div>
-
-                    {/* Sidebar Summary */}
-                    <div className="lg:col-span-1">
-                        <div className="sticky top-28 bg-attire-dark/40 backdrop-blur-lg rounded-2xl border border-white/10 shadow-lg p-6">
-                            <h3 className="text-2xl font-serif text-white mb-6 flex items-center gap-3">
-                                <ShoppingCart size={24} />
-                                Your Gift Box
-                            </h3>
-                            <div className="space-y-4">
-                                {/* Tie */}
-                                <div className="flex items-center gap-4">
-                                    <div className="w-16 h-20 rounded-md bg-attire-charcoal flex-shrink-0 overflow-hidden">
-                                        {selectedTie && <img src={selectedTie.image} alt={selectedTie.name} className="w-full h-full object-cover" />}
-                                    </div>
-                                    <div>
-                                        <h4 className="font-semibold text-white">{selectedTie ? `${selectedTie.name} (${selectedTie.color})` : 'No Tie Selected'}</h4>
-                                        <p className="text-sm text-attire-silver">Tie</p>
-                                    </div>
-                                </div>
-                                {/* Pocket Square */}
-                                <div className="flex items-center gap-4">
-                                    <div className="w-16 h-20 rounded-md bg-attire-charcoal flex-shrink-0 overflow-hidden">
-                                        {selectedPocketSquare && <img src={selectedPocketSquare.image} alt={selectedPocketSquare.name} className="w-full h-full object-cover" />}
-                                    </div>
-                                    <div>
-                                        <h4 className="font-semibold text-white">{selectedPocketSquare ? `${selectedPocketSquare.name} (${selectedPocketSquare.color})` : 'No Pocket Square Selected'}</h4>
-                                        <p className="text-sm text-attire-silver">Pocket Square</p>
-                                    </div>
-                                </div>
-                                {/* Box */}
-                                <div className="flex items-center gap-4">
-                                    <div className="w-16 h-20 rounded-md bg-attire-charcoal flex-shrink-0 overflow-hidden">
-                                        {selectedBox && <img src={selectedBox.image} alt={selectedBox.name} className="w-full h-full object-cover" />}
-                                    </div>
-                                    <div>
-                                        <h4 className="font-semibold text-white">{selectedBox ? selectedBox.name : 'No Box Selected'}</h4>
-                                        <p className="text-sm text-attire-silver">Box</p>
-                                    </div>
-                                </div>
-                                {/* Note */}
-                                <div className="flex items-start gap-4">
-                                    <div className="w-16 h-20 rounded-md bg-attire-charcoal flex-shrink-0 flex items-center justify-center">
-                                        <Pencil size={24} className="text-attire-silver" />
-                                    </div>
-                                    <div>
-                                        <h4 className="font-semibold text-white">Personal Note</h4>
-                                        <p className="text-sm text-attire-silver italic">
-                                            {note ? `"${note}"` : 'No note added.'}
-                                        </p>
-                                    </div>
-                                </div>
-                            </div>
-                            <div className="border-t border-white/10 my-6"></div>
-                            <button
-                                onClick={handleFinalize}
-                                disabled={!isComplete}
-                                className="w-full px-6 py-3 rounded-lg font-semibold transition-all duration-300 flex items-center justify-center gap-2 bg-attire-accent text-attire-dark disabled:bg-gray-500 disabled:text-gray-300 disabled:cursor-not-allowed hover:opacity-90"
-                            >
-                                <Send className="w-5 h-5" />
-                                Finalize Gift
-                            </button>
+                {step === 1 && (
+                    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="max-w-xl mx-auto">
+                        <div className="bg-attire-dark/20 backdrop-blur-sm rounded-xl p-8">
+                            <h2 className="text-2xl font-serif text-white mb-6">Step 1: Your Details</h2>
+                            <form onSubmit={handleDetailsSubmit} className="space-y-4">
+                                <InputField
+                                    icon={<User size={16} className="text-gray-400" />}
+                                    type="text"
+                                    placeholder="Full Name"
+                                    value={formData.name}
+                                    onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                                />
+                                {formErrors.name && <p className="text-red-400 text-sm">{formErrors.name}</p>}
+                                <InputField
+                                    icon={<Mail size={16} className="text-gray-400" />}
+                                    type="email"
+                                    placeholder="Email Address"
+                                    value={formData.email}
+                                    onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                                />
+                                {formErrors.email && <p className="text-red-400 text-sm">{formErrors.email}</p>}
+                                <InputField
+                                    icon={<Phone size={16} className="text-gray-400" />}
+                                    type="tel"
+                                    placeholder="Phone Number"
+                                    value={formData.phone}
+                                    onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+                                />
+                                {formErrors.phone && <p className="text-red-400 text-sm">{formErrors.phone}</p>}
+                                <button type="submit" className="w-full mt-4 px-6 py-3 rounded-lg font-semibold transition-all duration-300 flex items-center justify-center gap-2 bg-attire-accent text-attire-dark hover:opacity-90">
+                                    Next Step <ArrowRight size={20} />
+                                </button>
+                            </form>
                         </div>
-                    </div>
-                </div>
+                    </motion.div>
+                )}
+                
+                {step === 2 && (
+                    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
+                        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                            <div className="lg:col-span-2 space-y-12">
+                                <section>
+                                    <h2 className="text-2xl font-serif text-white mb-6">Step 2: Choose Items</h2>
+                                    <div className="space-y-8">
+                                        <div>
+                                            <h3 className="text-xl font-semibold text-white/90 mb-4">Ties</h3>
+                                            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                                                {giftOptions.ties.map(tie => <SelectionCard key={tie.id} item={tie} isSelected={selectedTie?.id === tie.id} onSelect={() => setSelectedTie(prev => prev?.id === tie.id ? null : tie)} />)}
+                                            </div>
+                                        </div>
+                                        <div>
+                                            <h3 className="text-xl font-semibold text-white/90 mb-4">Pocket Squares</h3>
+                                            <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
+                                                {giftOptions.pocketSquares.map(ps => <SelectionCard key={ps.id} item={ps} isSelected={selectedPocketSquare?.id === ps.id} onSelect={() => setSelectedPocketSquare(prev => prev?.id === ps.id ? null : ps)} />)}
+                                            </div>
+                                        </div>
+                                        {availableBoxes.length > 0 && (
+                                            <div>
+                                                <h3 className="text-xl font-semibold text-white/90 mb-4">Boxes</h3>
+                                                <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                                                    {availableBoxes.map(box => <SelectionCard key={box.id} item={box} isSelected={selectedBox?.id === box.id} onSelect={() => setSelectedBox(prev => prev?.id === box.id ? null : box)} />)}
+                                                </div>
+                                            </div>
+                                        )}
+                                    </div>
+                                </section>
+                                <section>
+                                    <h2 className="text-2xl font-serif text-white mb-6">Step 3: Personal Note (Optional)</h2>
+                                    <textarea value={note} onChange={(e) => setNote(e.target.value)} placeholder="e.g. Happy Birthday, John!" className="w-full p-4 rounded-lg border bg-attire-dark/50 text-attire-cream placeholder-attire-silver/70 focus:border-white focus:ring-1 focus:ring-white transition-colors resize-none" rows="4"></textarea>
+                                </section>
+                            </div>
+                            <div className="lg:col-span-1">
+                                <div className="sticky top-24 bg-attire-dark/40 backdrop-blur-lg rounded-2xl border border-white/10 shadow-lg p-6">
+                                    <h3 className="text-xl font-serif text-white mb-4">Summary</h3>
+                                    <div className="space-y-3 text-sm">
+                                        <p><strong className="font-semibold text-white/90">Name:</strong> {formData.name}</p>
+                                        <p><strong className="font-semibold text-white/90">Email:</strong> {formData.email}</p>
+                                        <p><strong className="font-semibold text-white/90">Tie:</strong> {selectedTie ? `${selectedTie.name} (${selectedTie.color})` : 'Not selected'}</p>
+                                        <p><strong className="font-semibold text-white/90">Pocket Square:</strong> {selectedPocketSquare ? `${selectedPocketSquare.name} (${selectedPocketSquare.color})` : 'Not selected'}</p>
+                                        <p><strong className="font-semibold text-white/90">Box:</strong> {selectedBox ? selectedBox.name : 'Not selected'}</p>
+                                        <p><strong className="font-semibold text-white/90">Note:</strong> {note || 'None'}</p>
+                                    </div>
+                                    <div className="border-t border-white/10 my-6"></div>
+                                    {submissionStatus.state === 'error' && <p className="text-red-400 text-center mb-4">{submissionStatus.message}</p>}
+                                    <button onClick={handleFinalize} disabled={!isItemsComplete || submissionStatus.state === 'loading'} className="w-full px-6 py-3 rounded-lg font-semibold transition-all duration-300 flex items-center justify-center gap-2 bg-attire-accent text-attire-dark disabled:bg-gray-500 disabled:cursor-not-allowed hover:opacity-90">
+                                        {submissionStatus.state === 'loading' ? <Loader className="animate-spin" size={20} /> : <><Gift size={20} /> Submit Request</>}
+                                    </button>
+                                    <button onClick={() => setStep(1)} className="w-full text-center mt-4 text-attire-silver hover:text-white text-sm">Back to details</button>
+                                </div>
+                            </div>
+                        </div>
+                    </motion.div>
+                )}
             </div>
         </div>
     );
