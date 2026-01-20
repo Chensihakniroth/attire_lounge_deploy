@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import {
     Menu, X, Heart, ChevronRight,
-    Home, Grid, Camera, Mail, Gift
+    Home, Grid, Camera, Mail, Gift, Cog
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useFavorites } from '../../context/FavoritesContext.jsx';
@@ -44,6 +44,7 @@ const Navigation = () => {
         { name: 'Lookbook', path: '/lookbook', icon: Camera },
         { name: 'Customize Gift for Men', path: '/customize-gift', icon: Gift },
         { name: 'Contact', path: '/contact', icon: Mail },
+        { name: 'Admin', path: '/admin/login', icon: 'Cog' },
     ];
 
     useEffect(() => {

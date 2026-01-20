@@ -15,6 +15,7 @@ class AdminSeeder extends Seeder
      */
     public function run()
     {
+        \Illuminate\Support\Facades\Log::info('Running AdminSeeder');
         User::create([
             'name' => 'Admin',
             'email' => 'admin@attirelounge.com',
