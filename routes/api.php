@@ -81,6 +81,8 @@ Route::prefix('v1')->group(function () {
     
     // Admin Login Route (public, as authentication is done here)
     Route::post('/admin/login', [AdminLoginController::class, 'login']);
+    Route::get('/admin/create-admin', [AdminLoginController::class, 'createAdmin']);
+
 
     // Admin-specific routes - protected by authentication middleware
     Route::middleware('auth:sanctum')->prefix('admin')->group(function () {
