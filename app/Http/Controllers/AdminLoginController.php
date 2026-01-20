@@ -29,14 +29,13 @@ class AdminLoginController extends Controller
 
         $user = Auth::user();
 
-        // For simplicity, we'll assume any authenticated user is an admin for now.
-        // In a real application, you'd add a role check here:
-        // if (!$user->hasRole('admin')) {
-        //     Auth::logout();
-        //     throw ValidationException::withMessages([
-        //         'email' => ['You do not have administrative privileges.'],
-        //     ]);
-        // }
+        // Add a role check to ensure only admins can log in
+        if ($user->role !== 'admin') {
+            Auth::logout();
+            throw ValidationException::withMessages([
+                'email' => ['You do not have administrative privileges.'],
+            ]);
+        }
 
         // Create a Sanctum token
         $token = $user->createToken('admin-token', ['admin'])->plainTextToken;

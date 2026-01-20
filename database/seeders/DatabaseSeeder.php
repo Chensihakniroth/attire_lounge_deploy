@@ -22,6 +22,7 @@ class DatabaseSeeder extends Seeder
             ['name' => 'Test User', 'password' => bcrypt('password')]
         );
 
+        $this->call(AdminSeeder::class);
         $this->call(ProductsSeeder::class);
         $this->call(CollectionSeeder::class);
         $this->call(ImageSeeder::class);
