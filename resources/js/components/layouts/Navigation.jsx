@@ -44,7 +44,6 @@ const Navigation = () => {
         { name: 'Lookbook', path: '/lookbook', icon: Camera },
         { name: 'Customize Gift for Men', path: '/customize-gift', icon: Gift },
         { name: 'Contact', path: '/contact', icon: Mail },
-        { name: 'Admin', path: '/admin/login', icon: 'Cog' },
     ];
 
     useEffect(() => {
