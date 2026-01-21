@@ -47,11 +47,13 @@ return [
             'serve' => true,
         ],
 
-
-
-
-
-
+        'uploads' => [
+            'driver' => 'local',
+            'root' => env('UPLOADS_PATH', '/as'),
+            'url' => env('APP_URL').'/as',
+            'throw' => false,
+            'report' => false,
+        ],
 
     ],
 

@@ -24,19 +24,18 @@ class RailwayUploadController extends Controller
 
         $file = $request->file('file');
         $originalName = $file->getClientOriginalName();
-        $key = 'uploads/' . Str::uuid()->toString() . '/' . $originalName;
+        $key = Str::uuid()->toString() . '/' . $originalName;
 
         // For now, a simple upload. Chunking can be added.
         try {
-            Storage::disk('public')->put($key, file_get_contents($file));
+            Storage::disk('uploads')->put($key, file_get_contents($file));
 
             $newUpload = RailwayUpload::create([
                 'original_name' => $originalName,
                 's3_key' => $key,
-                'public_url' => Storage::disk('public')->url($key),
+                'public_url' => Storage::disk('uploads')->url($key),
                 'file_type' => $file->getMimeType(),
                 'file_size' => $file->getSize(),
-
                 'user_id' => 1, // Assuming a logged in user, replace with Auth::id() later
             ]);
 
@@ -57,31 +56,11 @@ class RailwayUploadController extends Controller
         $upload = RailwayUpload::findOrFail($id);
 
         try {
-            Storage::disk('public')->delete($upload->s3_key);
+            Storage::disk('uploads')->delete($upload->s3_key);
             $upload->delete();
             return response()->json(['message' => 'File deleted successfully']);
         } catch (\Exception $e) {
             return response()->json(['error' => 'Failed to delete file: ' . $e->getMessage()], 500);
-        }
-    }
-
-    public function generateSignedUrl(Request $request)
-    {
-        $request->validate(['key' => 'required|string']);
-        $key = $request->input('key');
-
-        if (!Storage::disk('public')->exists($key)) {
-            return response()->json(['error' => 'File not found'], 404);
-        }
-
-        try {
-            $url = Storage::disk('public')->temporaryUrl(
-                $key,
-                now()->addMinutes(15) // URL valid for 15 minutes
-            );
-            return response()->json(['url' => $url]);
-        } catch (\Exception $e) {
-            return response()->json(['error' => 'Could not generate signed URL: ' . $e->getMessage()], 500);
         }
     }
 }

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import axios from 'axios';
+
 import { Calendar, Gift, ImageIcon, ArrowRight, Clock, AlertTriangle, User } from 'lucide-react';
 import ErrorBoundary from '../../common/ErrorBoundary.jsx';
 

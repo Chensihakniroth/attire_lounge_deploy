@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Lock, Mail } from 'lucide-react';
-import axios from 'axios';
+
 
 const AdminLogin = () => {
     const [email, setEmail] = useState('');

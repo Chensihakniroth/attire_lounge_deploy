@@ -7,6 +7,21 @@ import railwayService from '../../services/railwayService';
 const FilePreviewModal = ({ file, onClose }) => {
     if (!file) return null;
 
+    const getFixedUrl = (url) => {
+        try {
+            const urlObject = new URL(url);
+            if (urlObject.pathname.startsWith('/uploads/uploads/')) {
+                urlObject.pathname = urlObject.pathname.replace('/uploads/uploads/', '/uploads/');
+            }
+            return urlObject.toString();
+        } catch (error) {
+            // If the URL is invalid, return it as is.
+            return url;
+        }
+    };
+
+    const fixedUrl = getFixedUrl(file.public_url);
+
     return (
         <div className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50">
             <div className="bg-white rounded-lg p-4 max-w-3xl w-full relative">
@@ -16,13 +31,13 @@ const FilePreviewModal = ({ file, onClose }) => {
                 <h3 className="text-lg font-semibold mb-4">{file.original_name}</h3>
                 <div className="max-h-[70vh] overflow-auto">
                     {file.file_type.startsWith('image/') ? (
-                        <img src={file.public_url} alt={file.original_name} className="w-full h-auto rounded" />
+                        <img src={fixedUrl} alt={file.original_name} className="w-full h-auto rounded" />
                     ) : file.file_type.startsWith('video/') ? (
-                        <video controls src={file.public_url} className="w-full h-auto rounded" />
+                        <video controls src={fixedUrl} className="w-full h-auto rounded" />
                     ) : (
                         <div className="text-center p-8">
                             <p>No preview available for this file type.</p>
-                            <a href={file.public_url} target="_blank" rel="noopener noreferrer" className="text-blue-500 hover:underline mt-4 inline-block">
+                            <a href={fixedUrl} target="_blank" rel="noopener noreferrer" className="text-blue-500 hover:underline mt-4 inline-block">
                                 Download File
                             </a>
                         </div>
@@ -65,7 +80,7 @@ const RailwayUpload = () => {
                     [tempId]: { ...prev[tempId], progress }
                 }));
             });
-            setFiles(prev => [response.data, ...prev]);
+            setFiles(prev => [response, ...prev]);
         } catch (error) {
             console.error('Upload failed:', error);
         } finally {
@@ -85,7 +100,19 @@ const RailwayUpload = () => {
     };
 
     const copyToClipboard = (text) => {
-        navigator.clipboard.writeText(text);
+        const getFixedUrl = (url) => {
+            try {
+                const urlObject = new URL(url);
+                if (urlObject.pathname.startsWith('/uploads/uploads/')) {
+                    urlObject.pathname = urlObject.pathname.replace('/uploads/uploads/', '/uploads/');
+                }
+                return urlObject.toString();
+            } catch (error) {
+                return url;
+            }
+        };
+        const fixedUrl = getFixedUrl(text);
+        navigator.clipboard.writeText(fixedUrl);
         // You could add a toast notification here
     };
 
