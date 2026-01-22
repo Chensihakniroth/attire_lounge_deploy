@@ -1,13 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { User, Mail, Phone, Gift, AlertTriangle, Loader, CheckCircle, XCircle, Trash2 } from 'lucide-react';
 import api from '../../../api';
-import { motion, AnimatePresence } from 'framer-motion';
-
-const cardVariants = {
-    hidden: { opacity: 0, scale: 0.95 },
-    visible: { opacity: 1, scale: 1 },
-    exit: { opacity: 0, scale: 0.9, transition: { duration: 0.2 } }
-};
 
 const GiftRequestCard = ({ request, onUpdate, onDelete }) => {
     const [isUpdating, setIsUpdating] = useState(false);
@@ -40,11 +33,8 @@ const GiftRequestCard = ({ request, onUpdate, onDelete }) => {
     }
 
     return (
-        <motion.div 
-            layout
-            variants={cardVariants}
-            whileHover={{ y: -5 }}
-            className={`bg-gray-800 p-5 rounded-xl shadow-sm border-l-4 ${statusStyles[request.status]}`}
+        <div 
+            className={`bg-gray-800 p-5 rounded-xl shadow-sm border-l-4 ${statusStyles[request.status]} transition-transform duration-200 hover:-translate-y-1`}
         >
             <div className="flex justify-between items-start pb-3 mb-3 border-b border-gray-700">
                 <div className="flex items-center">
@@ -89,7 +79,7 @@ const GiftRequestCard = ({ request, onUpdate, onDelete }) => {
                     </button>
                  </div>
             )}
-        </motion.div>
+        </div>
     );
 };
 
@@ -162,34 +152,19 @@ const CustomizeGiftManager = () => {
             return <p className="text-center text-gray-400">No gift requests found.</p>;
         }
 
-        const containerVariants = {
-            hidden: { opacity: 1 },
-            visible: {
-                opacity: 1,
-                transition: {
-                    staggerChildren: 0.1
-                }
-            }
-        };
-
         return (
-            <motion.div 
+            <div 
                 className="grid grid-cols-1 lg:grid-cols-2 gap-6"
-                variants={containerVariants}
-                initial="hidden"
-                animate="visible"
             >
-                <AnimatePresence>
-                    {giftRequests.map(request => (
-                        <GiftRequestCard 
-                            key={request.id} 
-                            request={request} 
-                            onUpdate={handleUpdate}
-                            onDelete={handleDelete}
-                        />
-                    ))}
-                </AnimatePresence>
-            </motion.div>
+                {giftRequests.map(request => (
+                    <GiftRequestCard 
+                        key={request.id} 
+                        request={request} 
+                        onUpdate={handleUpdate}
+                        onDelete={handleDelete}
+                    />
+                ))}
+            </div>
         );
     };
 

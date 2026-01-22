@@ -1,13 +1,6 @@
 import React, { useState, useEffect, useContext } from 'react';
 import { User, Mail, Phone, Calendar, Clock, MessageSquare, AlertTriangle, Loader, Check, X, Trash2 } from 'lucide-react';
 import { ThemeContext } from './ThemeContext';
-import { motion, AnimatePresence } from 'framer-motion';
-
-const appointmentVariants = {
-    hidden: { opacity: 0, y: 20 },
-    visible: { opacity: 1, y: 0 },
-    exit: { opacity: 0, y: -20, transition: { duration: 0.2 } }
-};
 
 const AppointmentRow = ({ appointment, onUpdateStatus, colors }) => {
     const statusStyles = {
@@ -17,15 +10,9 @@ const AppointmentRow = ({ appointment, onUpdateStatus, colors }) => {
     };
 
     return (
-        <motion.div
-            layout
-            variants={appointmentVariants}
-            initial="hidden"
-            animate="visible"
-            exit="exit"
-            whileHover={{ scale: 1.02, transition: { duration: 0.2 } }}
+        <div
             style={statusStyles[appointment.status]} 
-            className="p-5 rounded-xl shadow-sm"
+            className="p-5 rounded-xl shadow-sm transition-transform ease-in-out duration-200 hover:scale-[1.02]"
         >
             <div style={{borderColor: colors.border}} className="flex justify-between items-center pb-3 mb-3 border-b">
                 <div className="flex items-center">
@@ -89,7 +76,7 @@ const AppointmentRow = ({ appointment, onUpdateStatus, colors }) => {
                 <button onClick={() => onUpdateStatus(appointment.id, 'done')} disabled={appointment.status === 'done'} className="px-3 py-1.5 text-xs font-semibold text-green-800 bg-green-100 rounded-md hover:bg-green-200 disabled:opacity-60 disabled:cursor-not-allowed flex items-center"><Check className="w-4 h-4 mr-1" /> Mark as Done</button>
                 <button onClick={() => onUpdateStatus(appointment.id, 'cancelled')} disabled={appointment.status === 'cancelled'} className="px-3 py-1.5 text-xs font-semibold text-red-800 bg-red-100 rounded-md hover:bg-red-200 disabled:opacity-60 disabled:cursor-not-allowed flex items-center"><X className="w-4 h-4 mr-1" /> Cancel</button>
             </div>
-        </motion.div>
+        </div>
     );
 };
 
@@ -188,29 +175,14 @@ const AppointmentManager = () => {
             return <p style={{color: colors.sidebarText}} className="text-center">No appointments found.</p>;
         }
 
-        const containerVariants = {
-            hidden: { opacity: 1 },
-            visible: {
-                opacity: 1,
-                transition: {
-                    staggerChildren: 0.1
-                }
-            }
-        };
-
         return (
-            <motion.div 
+            <div
                 className="space-y-4"
-                variants={containerVariants}
-                initial="hidden"
-                animate="visible"
             >
-                <AnimatePresence>
-                    {appointments.map(appointment => (
-                        <AppointmentRow key={appointment.id} appointment={appointment} onUpdateStatus={handleUpdateStatus} colors={colors} />
-                    ))}
-                </AnimatePresence>
-            </motion.div>
+                {appointments.map(appointment => (
+                    <AppointmentRow key={appointment.id} appointment={appointment} onUpdateStatus={handleUpdateStatus} colors={colors} />
+                ))}
+            </div>
         );
     };
 

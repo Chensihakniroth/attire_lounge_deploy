@@ -4,6 +4,7 @@ import { motion } from 'framer-motion';
 import { Users, Scissors, Coffee, ArrowRight, Gem, Feather, Palette, ChevronDown, CheckCircle, BookOpen, Camera, Sparkles } from 'lucide-react';
 import Footer from '../layouts/Footer.jsx';
 import { Link } from 'react-router-dom';
+import SectionIndicator from './SectionIndicator.jsx';
 
 import minioBaseUrl from '../../config.js';
 
@@ -53,16 +54,16 @@ const HeroSection = memo(forwardRef(({ scrollToSection }, ref) => (
     </div>
     <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.8 }} className="relative z-10 h-full flex flex-col items-center justify-center">
       <img src={`${minioBaseUrl}/uploads/asset/AL_logo.png`} alt="Attire Lounge" className="h-auto mx-auto filter brightness-0 invert drop-shadow-[0_0_30px_rgba(0,0,0,0.8)] opacity-90 max-w-[280px] md:max-w-sm" loading="eager" />
-    </motion.div>
-    <motion.div
-      className="absolute bottom-10 left-[48%] -translate-x-1/2 flex flex-col items-center text-attire-cream opacity-70"
-      animate={{ y: ["-10%", "10%", "-10%"] }}
-      transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
-    >
-      <span className="mb-2 text-xs tracking-wide">Scroll Down</span>
-      <ChevronDown size={18} />
-      <ChevronDown size={18} className="-mt-2" />
-      <ChevronDown size={18} className="-mt-2" />
+      <motion.div
+        className="flex flex-col items-center text-attire-cream opacity-70 mt-16" // Added mt-16 for spacing, removed absolute positioning
+        animate={{ y: ["-10%", "10%", "-10%"] }}
+        transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
+      >
+        <span className="mb-2 text-xs tracking-wide">Scroll Down</span>
+        <ChevronDown size={18} />
+        <ChevronDown size={18} className="-mt-2" />
+        <ChevronDown size={18} className="-mt-2" />
+      </motion.div>
     </motion.div>
   </section>
 )));
@@ -342,6 +343,7 @@ const HomePage = () => {
 
   const scrollToSection = useCallback((index) => {
     if (isScrollingRef.current || !sectionsRef.current[index] || isMenuOpen) return;
+    setActiveSection(index); // Update state immediately
     isScrollingRef.current = true;
     const targetY = sectionsRef.current[index].offsetTop;
     const startY = window.scrollY;
@@ -357,7 +359,6 @@ const HomePage = () => {
       if (timeElapsed < duration) {
         requestAnimationFrame(animation);
       } else {
-        setActiveSection(index);
         isScrollingRef.current = false;
       }
     };
@@ -400,8 +401,16 @@ const HomePage = () => {
 
   const { services, lookbookFeatures } = homePageData;
 
+  const sectionNames = ['Home', 'Philosophy', 'Collections', 'Experience', 'Membership', 'Lookbook', 'Contact'];
+
   return (
     <div className="snap-scroll-container bg-attire-dark">
+      <SectionIndicator 
+        sections={sectionNames}
+        activeSection={activeSection}
+        scrollToSection={scrollToSection}
+        isMenuOpen={isMenuOpen}
+      />
       <HeroSection ref={el => sectionsRef.current[0] = el} scrollToSection={scrollToSection} />
       <PhilosophySection ref={el => sectionsRef.current[1] = el} />
       <CollectionsSection ref={el => sectionsRef.current[2] = el} />
