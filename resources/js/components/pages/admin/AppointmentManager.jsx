@@ -1,59 +1,65 @@
-import React, { useState, useEffect } from 'react';
-
+import React, { useState, useEffect, useContext } from 'react';
 import { User, Mail, Phone, Calendar, Clock, MessageSquare, AlertTriangle, Loader, Check, X, Trash2 } from 'lucide-react';
+import { ThemeContext } from './ThemeContext';
+import { motion, AnimatePresence } from 'framer-motion';
 
-const AppointmentRow = ({ appointment, onUpdateStatus }) => {
+const appointmentVariants = {
+    hidden: { opacity: 0, y: 20 },
+    visible: { opacity: 1, y: 0 },
+    exit: { opacity: 0, y: -20, transition: { duration: 0.2 } }
+};
+
+const AppointmentRow = ({ appointment, onUpdateStatus, colors }) => {
     const statusStyles = {
-        pending: 'border-gray-300',
-        done: 'border-green-500',
-        cancelled: 'border-red-500',
+        pending: { borderLeft: `4px solid ${colors.border}`, backgroundColor: colors.card },
+        done: { borderLeft: '4px solid #22c55e', backgroundColor: colors.card },
+        cancelled: { borderLeft: '4px solid #ef4444', backgroundColor: colors.card },
     };
-    
-    const statusBgStyles = {
-        pending: 'bg-gray-100',
-        done: 'bg-green-50',
-        cancelled: 'bg-red-50',
-    }
 
     return (
-        <div className={`bg-white p-5 rounded-xl shadow-sm border-l-4 ${statusStyles[appointment.status] || 'border-gray-300'} ${statusBgStyles[appointment.status] || 'bg-white'}`}>
-            {/* Header */}
-            <div className="flex justify-between items-center pb-3 mb-3 border-b">
+        <motion.div
+            layout
+            variants={appointmentVariants}
+            initial="hidden"
+            animate="visible"
+            exit="exit"
+            whileHover={{ scale: 1.02, transition: { duration: 0.2 } }}
+            style={statusStyles[appointment.status]} 
+            className="p-5 rounded-xl shadow-sm"
+        >
+            <div style={{borderColor: colors.border}} className="flex justify-between items-center pb-3 mb-3 border-b">
                 <div className="flex items-center">
-                    <User className="w-5 h-5 text-blue-600 mr-3" />
-                    <h3 className="text-lg font-semibold text-gray-900">{appointment.name}</h3>
+                    <User style={{color: colors.primary}} className="w-5 h-5 mr-3" />
+                    <h3 style={{color: colors.mainText}} className="text-lg font-semibold">{appointment.name}</h3>
                 </div>
-                <span className="text-xs font-bold uppercase px-3 py-1 rounded-full bg-gray-200 text-gray-800">{appointment.status}</span>
+                <span style={{backgroundColor: colors.background, color: colors.sidebarText}} className="text-xs font-bold uppercase px-3 py-1 rounded-full">{appointment.status}</span>
             </div>
 
-            {/* Body */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                {/* Left Column: Contact & Date */}
                 <div className="md:col-span-1 space-y-4">
-                    <div className="flex items-center text-gray-600">
+                    <div style={{color: colors.sidebarText}} className="flex items-center">
                         <Mail className="w-4 h-4 mr-3 flex-shrink-0" />
-                        <a href={`mailto:${appointment.email}`} className="hover:text-blue-600 truncate text-sm">{appointment.email}</a>
+                        <a href={`mailto:${appointment.email}`} style={{color: colors.primary}} className="hover:underline truncate text-sm">{appointment.email}</a>
                     </div>
-                    <div className="flex items-center text-gray-600">
+                    <div style={{color: colors.sidebarText}} className="flex items-center">
                         <Phone className="w-4 h-4 mr-3 flex-shrink-0" />
                         <span className="text-sm">{appointment.phone}</span>
                     </div>
-                    <div className="flex items-center text-gray-600 pt-2 border-t mt-2">
+                    <div style={{borderColor: colors.border}} className="flex items-center text-gray-600 pt-2 border-t mt-2">
                         <Calendar className="w-4 h-4 mr-3 flex-shrink-0" />
                         <span className="text-sm font-medium">{new Date(appointment.date).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })} at {appointment.time}</span>
                     </div>
                 </div>
 
-                {/* Middle Column: Message & Service */}
                 <div className="md:col-span-2 space-y-4">
                     <div>
-                        <p className="font-semibold text-gray-700 text-sm mb-1">Service Requested</p>
-                        <p className="text-sm text-gray-800">{appointment.service}</p>
+                        <p style={{color: colors.mainText}} className="font-semibold text-sm mb-1">Service Requested</p>
+                        <p style={{color: colors.sidebarText}} className="text-sm">{appointment.service}</p>
                     </div>
                     {appointment.message && (
                         <div>
-                             <p className="font-semibold text-gray-700 text-sm mb-1">Message</p>
-                            <div className="flex items-start text-gray-600 text-sm">
+                             <p style={{color: colors.mainText}} className="font-semibold text-sm mb-1">Message</p>
+                            <div style={{color: colors.sidebarText}} className="flex items-start text-sm">
                                 <MessageSquare className="w-4 h-4 mr-3 mt-0.5 flex-shrink-0" />
                                 <p className="italic">{appointment.message}</p>
                             </div>
@@ -62,16 +68,16 @@ const AppointmentRow = ({ appointment, onUpdateStatus }) => {
                 </div>
             </div>
 
-            {/* Image Gallery */}
             {appointment.favorite_item_image_url && appointment.favorite_item_image_url.length > 0 && (
                 <div className="mt-4 pt-4 border-t">
-                    <h4 className="text-sm font-semibold text-gray-600 mb-2">Selected Items</h4>
+                    <h4 style={{color: colors.sidebarText}} className="text-sm font-semibold mb-2">Selected Items</h4>
                     <div className="flex flex-wrap gap-3">
                         {appointment.favorite_item_image_url.map((imageUrl, index) => (
-                            <img 
+                            <img
                                 key={index}
-                                src={imageUrl} 
+                                src={imageUrl}
                                 alt={`Favorite Item ${index + 1}`}
+                                style={{borderColor: colors.border}}
                                 className="w-16 h-16 object-cover rounded-lg shadow-sm border"
                             />
                         ))}
@@ -79,16 +85,16 @@ const AppointmentRow = ({ appointment, onUpdateStatus }) => {
                 </div>
             )}
 
-            {/* Footer: Actions */}
-            <div className="mt-4 pt-4 border-t flex justify-end space-x-2">
+            <div style={{borderColor: colors.border}} className="mt-4 pt-4 border-t flex justify-end space-x-2">
                 <button onClick={() => onUpdateStatus(appointment.id, 'done')} disabled={appointment.status === 'done'} className="px-3 py-1.5 text-xs font-semibold text-green-800 bg-green-100 rounded-md hover:bg-green-200 disabled:opacity-60 disabled:cursor-not-allowed flex items-center"><Check className="w-4 h-4 mr-1" /> Mark as Done</button>
                 <button onClick={() => onUpdateStatus(appointment.id, 'cancelled')} disabled={appointment.status === 'cancelled'} className="px-3 py-1.5 text-xs font-semibold text-red-800 bg-red-100 rounded-md hover:bg-red-200 disabled:opacity-60 disabled:cursor-not-allowed flex items-center"><X className="w-4 h-4 mr-1" /> Cancel</button>
             </div>
-        </div>
+        </motion.div>
     );
 };
 
 const AppointmentManager = () => {
+    const { colors } = useContext(ThemeContext);
     const [appointments, setAppointments] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
@@ -100,18 +106,13 @@ const AppointmentManager = () => {
             const appointmentsWithParsedImages = response.data.map(app => {
                 let imageUrls = [];
                 try {
-                    // Check if it's a string and not null/undefined
                     if (typeof app.favorite_item_image_url === 'string') {
-                        // Attempt to parse the JSON string
                         const parsed = JSON.parse(app.favorite_item_image_url);
-                        // Ensure the parsed result is an array
                         imageUrls = Array.isArray(parsed) ? parsed : [];
                     } else if (Array.isArray(app.favorite_item_image_url)) {
-                        // If it's already an array, use it directly
                         imageUrls = app.favorite_item_image_url;
                     }
                 } catch (e) {
-                    // If parsing fails, log the error and default to an empty array
                     console.error('Failed to parse favorite_item_image_url:', e);
                 }
                 return { ...app, favorite_item_image_url: imageUrls };
@@ -134,7 +135,7 @@ const AppointmentManager = () => {
         try {
             const response = await axios.patch(`/api/v1/admin/appointments/${id}/status`, { status });
             const updatedAppointment = response.data.appointment;
-            
+
             let imageUrls = [];
             try {
                 if (typeof updatedAppointment.favorite_item_image_url === 'string') {
@@ -146,10 +147,10 @@ const AppointmentManager = () => {
             } catch (e) {
                 console.error('Failed to parse favorite_item_image_url on update:', e);
             }
-            
+
             const finalUpdatedAppointment = { ...updatedAppointment, favorite_item_image_url: imageUrls };
-    
-            setAppointments(prev => 
+
+            setAppointments(prev =>
                 prev.map(app => app.id === id ? finalUpdatedAppointment : app)
             );
         } catch (err) {
@@ -157,12 +158,11 @@ const AppointmentManager = () => {
             alert('Failed to update status. Please try again.');
         }
     };
-    
+
     const handleClearCompleted = async () => {
         if (window.confirm('Are you sure you want to clear all "done" appointments? This action cannot be undone.')) {
             try {
                 await axios.post('/api/v1/admin/appointments/clear-completed');
-                // Remove done appointments from local state for immediate feedback
                 setAppointments(prev => prev.filter(app => app.status !== 'done'));
             } catch (err) {
                 console.error('Error clearing completed appointments:', err);
@@ -173,7 +173,7 @@ const AppointmentManager = () => {
 
     const renderContent = () => {
         if (loading) {
-            return <div className="flex justify-center items-center h-64"><Loader className="animate-spin text-blue-500" size={48} /></div>;
+            return <div className="flex justify-center items-center h-64"><Loader style={{color: colors.primary}} className="animate-spin" size={48} /></div>;
         }
 
         if (error) {
@@ -181,15 +181,32 @@ const AppointmentManager = () => {
         }
 
         if (appointments.length === 0) {
-            return <p className="text-center text-gray-500">No appointments found.</p>;
+            return <p style={{color: colors.sidebarText}} className="text-center">No appointments found.</p>;
         }
 
+        const containerVariants = {
+            hidden: { opacity: 1 },
+            visible: {
+                opacity: 1,
+                transition: {
+                    staggerChildren: 0.1
+                }
+            }
+        };
+
         return (
-            <div className="space-y-4">
-                {appointments.map(appointment => (
-                    <AppointmentRow key={appointment.id} appointment={appointment} onUpdateStatus={handleUpdateStatus} />
-                ))}
-            </div>
+            <motion.div 
+                className="space-y-4"
+                variants={containerVariants}
+                initial="hidden"
+                animate="visible"
+            >
+                <AnimatePresence>
+                    {appointments.map(appointment => (
+                        <AppointmentRow key={appointment.id} appointment={appointment} onUpdateStatus={handleUpdateStatus} colors={colors} />
+                    ))}
+                </AnimatePresence>
+            </motion.div>
         );
     };
 
@@ -197,8 +214,8 @@ const AppointmentManager = () => {
         <div className="space-y-6">
             <div className="flex justify-between items-center">
                 <div>
-                    <h1 className="text-3xl font-bold text-gray-900">Appointment Requests</h1>
-                    <p className="mt-1 text-gray-600">Manage incoming appointment requests from customers.</p>
+                    <h1 style={{color: colors.mainText}} className="text-3xl font-bold">Appointment Requests</h1>
+                    <p style={{color: colors.sidebarText}} className="mt-1">Manage incoming appointment requests from customers.</p>
                 </div>
                 <button
                     onClick={handleClearCompleted}

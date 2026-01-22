@@ -18,8 +18,61 @@ export const products = [
     ...createProductItems('Mocha Mousse \'25', 'mm', 'Mocha Mousse', 7, [180, 500]),
     ...createProductItems('Groom Collection', 'g', 'Groom', 10, [250, 800]),
     ...createProductItems('Office Collection', 'of', 'Office', 5, [200, 550]),
-    ...createProductItems('Accessories', 'acc', 'Tie', 5, [45, 90]),
-    ...createProductItems('Accessories', 'acc', 'Pocket Square', 5, [25, 60]),
+    {
+        id: 'browntie',
+        name: 'Brown Tie',
+        collection: 'Accessories',
+        collectionSlug: 'accessories',
+        price: 55,
+        images: [`${minioBaseUrl}/uploads/collections/accessories/browntie.jpg`],
+        createdAt: new Date(),
+        popularity: 0.8,
+        description: 'A classic brown tie.'
+    },
+    {
+        id: 'bluetie',
+        name: 'Blue Tie',
+        collection: 'Accessories',
+        collectionSlug: 'accessories',
+        price: 55,
+        images: [`${minioBaseUrl}/uploads/collections/accessories/bluetie.jpg`],
+        createdAt: new Date(),
+        popularity: 0.9,
+        description: 'A classic blue tie.'
+    },
+    {
+        id: 'blue49',
+        name: 'Blue Silk Tie',
+        collection: 'Accessories',
+        collectionSlug: 'accessories',
+        price: 85,
+        images: [`${minioBaseUrl}/uploads/collections/accessories/blue49.jpg`],
+        createdAt: new Date(),
+        popularity: 0.95,
+        description: 'A luxurious blue tie made of silk.'
+    },
+    {
+        id: 'brown49',
+        name: 'Brown Silk Tie',
+        collection: 'Accessories',
+        collectionSlug: 'accessories',
+        price: 85,
+        images: [`${minioBaseUrl}/uploads/collections/accessories/brown49.jpg`],
+        createdAt: new Date(),
+        popularity: 0.92,
+        description: 'A luxurious brown tie made of silk.'
+    },
+    {
+        id: 'cuff',
+        name: 'Cufflinks',
+        collection: 'Accessories',
+        collectionSlug: 'accessories',
+        price: 120,
+        images: [`${minioBaseUrl}/uploads/collections/accessories/cuff.JPG`],
+        createdAt: new Date(),
+        popularity: 0.98,
+        description: 'Elegant cufflinks to complete your look.'
+    }
 ];
 
 export const collections = [
@@ -49,6 +102,6 @@ export const collections = [
       "slug": "accessories",
       "title": "Accessories",
       "description": "The finishing touches that define your style.",
-      "image": `${minioBaseUrl}/uploads/collections/default/acc1.jpg`
+      "image": `${minioBaseUrl}/uploads/collections/accessories/cuff.JPG`
     }
 ];

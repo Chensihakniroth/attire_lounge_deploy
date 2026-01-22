@@ -19,12 +19,6 @@ const imageSlideVariants = {
         opacity: 1,
         scale: 1
     },
-    exit: (direction) => ({
-        zIndex: 0,
-        x: direction < 0 ? 100 : -100,
-        opacity: 0,
-        scale: 0.95
-    })
 };
 
 const Lightbox = ({
@@ -77,13 +71,10 @@ const Lightbox = ({
                     <motion.div
                         // This single motion component now handles EVERYTHING
                         key={selectedImage.id}
-                        layout
-                        layoutId={`lookbook-image-container-${selectedImage.id}`}
                         variants={imageSlideVariants}
                         custom={direction}
                         initial="enter"
                         animate="center"
-                        exit="exit"
                         transition={{
                             x: { type: "spring", stiffness: 300, damping: 30 },
                             opacity: { duration: 0.2 },

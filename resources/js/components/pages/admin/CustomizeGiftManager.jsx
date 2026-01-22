@@ -1,6 +1,13 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { User, Mail, Phone, Gift, AlertTriangle, Loader, CheckCircle, XCircle, Trash2 } from 'lucide-react';
 import api from '../../../api';
+import { motion, AnimatePresence } from 'framer-motion';
+
+const cardVariants = {
+    hidden: { opacity: 0, scale: 0.95 },
+    visible: { opacity: 1, scale: 1 },
+    exit: { opacity: 0, scale: 0.9, transition: { duration: 0.2 } }
+};
 
 const GiftRequestCard = ({ request, onUpdate, onDelete }) => {
     const [isUpdating, setIsUpdating] = useState(false);
@@ -33,35 +40,40 @@ const GiftRequestCard = ({ request, onUpdate, onDelete }) => {
     }
 
     return (
-        <div className={`bg-white p-5 rounded-xl shadow-sm border-l-4 ${statusStyles[request.status] || 'border-gray-500'}`}>
-            <div className="flex justify-between items-start pb-3 mb-3 border-b">
+        <motion.div 
+            layout
+            variants={cardVariants}
+            whileHover={{ y: -5 }}
+            className={`bg-gray-800 p-5 rounded-xl shadow-sm border-l-4 ${statusStyles[request.status]}`}
+        >
+            <div className="flex justify-between items-start pb-3 mb-3 border-b border-gray-700">
                 <div className="flex items-center">
-                    <User className="w-5 h-5 text-gray-500 mr-3" />
-                    <h3 className="text-lg font-semibold text-gray-900">{request.name}</h3>
+                    <User className="w-5 h-5 text-gray-400 mr-3" />
+                    <h3 className="text-lg font-semibold text-white">{request.name}</h3>
                 </div>
                 <span className={`px-3 py-1 text-xs font-bold uppercase rounded-full ${statusBadgeStyles[request.status]}`}>
                     {request.status}
                 </span>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-3 text-sm">
-                <div className="flex items-center text-gray-600">
+                <div className="flex items-center text-gray-400">
                     <Mail className="w-4 h-4 mr-3 flex-shrink-0" />
-                    <a href={`mailto:${request.email}`} className="hover:text-blue-600 truncate text-sm">{request.email}</a>
+                    <a href={`mailto:${request.email}`} className="hover:text-blue-500 truncate text-sm">{request.email}</a>
                 </div>
-                <div className="flex items-center text-gray-600">
+                <div className="flex items-center text-gray-400">
                     <Phone className="w-4 h-4 mr-3 flex-shrink-0" />
                     <span className="text-sm">{request.phone}</span>
                 </div>
             </div>
-            <div className="mt-4 pt-4 border-t">
-                <p className="font-semibold text-gray-700 text-sm mb-1">Preferences</p>
-                <div className="flex items-start text-gray-600 text-sm">
+            <div className="mt-4 pt-4 border-t border-gray-700">
+                <p className="font-semibold text-white text-sm mb-1">Preferences</p>
+                <div className="flex items-start text-gray-400 text-sm">
                     <Gift className="w-4 h-4 mr-3 mt-0.5 flex-shrink-0" />
                     <pre className="whitespace-pre-wrap font-sans italic">{request.preferences}</pre>
                 </div>
             </div>
             {request.status === 'Pending' && (
-                <div className="mt-4 pt-4 border-t flex items-center justify-end gap-2">
+                <div className="mt-4 pt-4 border-t border-gray-700 flex items-center justify-end gap-2">
                     <button onClick={() => handleUpdate('Completed')} disabled={isUpdating} className="px-3 py-1 text-sm font-semibold text-white bg-green-500 hover:bg-green-600 rounded-md flex items-center gap-1 disabled:bg-gray-400">
                         <CheckCircle size={14} /> Mark Done
                     </button>
@@ -71,13 +83,13 @@ const GiftRequestCard = ({ request, onUpdate, onDelete }) => {
                 </div>
             )}
             {(request.status === 'Completed' || request.status === 'Cancelled') && (
-                 <div className="mt-4 pt-4 border-t flex items-center justify-end">
-                    <button onClick={handleDelete} disabled={isUpdating} className="px-3 py-1 text-sm font-semibold text-gray-600 hover:bg-gray-200 rounded-md flex items-center gap-1 disabled:opacity-50">
+                 <div className="mt-4 pt-4 border-t border-gray-700 flex items-center justify-end">
+                    <button onClick={handleDelete} disabled={isUpdating} className="px-3 py-1 text-sm font-semibold text-gray-400 hover:bg-gray-600 rounded-md flex items-center gap-1 disabled:opacity-50">
                         <Trash2 size={14} /> Delete
                     </button>
                  </div>
             )}
-        </div>
+        </motion.div>
     );
 };
 
@@ -112,7 +124,6 @@ const CustomizeGiftManager = () => {
             );
         } catch (err) {
             console.error('Failed to update status:', err);
-            // Optionally, show an error to the user
         }
     }, []);
 
@@ -136,7 +147,7 @@ const CustomizeGiftManager = () => {
 
         if (error) {
             return (
-                <div className="flex flex-col items-center justify-center h-64 bg-red-50 text-red-700 rounded-lg">
+                <div className="flex flex-col items-center justify-center h-64 bg-red-900/20 text-red-200 rounded-lg">
                     <AlertTriangle size={48} className="mb-4" />
                     <p>{error}</p>
                 </div>
@@ -144,28 +155,45 @@ const CustomizeGiftManager = () => {
         }
 
         if (giftRequests.length === 0) {
-            return <p className="text-center text-gray-500">No gift requests found.</p>;
+            return <p className="text-center text-gray-400">No gift requests found.</p>;
         }
 
+        const containerVariants = {
+            hidden: { opacity: 1 },
+            visible: {
+                opacity: 1,
+                transition: {
+                    staggerChildren: 0.1
+                }
+            }
+        };
+
         return (
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                {giftRequests.map(request => (
-                    <GiftRequestCard 
-                        key={request.id} 
-                        request={request} 
-                        onUpdate={handleUpdate}
-                        onDelete={handleDelete}
-                    />
-                ))}
-            </div>
+            <motion.div 
+                className="grid grid-cols-1 lg:grid-cols-2 gap-6"
+                variants={containerVariants}
+                initial="hidden"
+                animate="visible"
+            >
+                <AnimatePresence>
+                    {giftRequests.map(request => (
+                        <GiftRequestCard 
+                            key={request.id} 
+                            request={request} 
+                            onUpdate={handleUpdate}
+                            onDelete={handleDelete}
+                        />
+                    ))}
+                </AnimatePresence>
+            </motion.div>
         );
     };
 
     return (
         <div className="space-y-6">
             <div>
-                <h1 className="text-3xl font-bold text-gray-900">Customize Gift Requests</h1>
-                <p className="mt-1 text-gray-600">Review and manage customized gift inquiries from customers.</p>
+                <h1 className="text-3xl font-bold text-white">Customize Gift Requests</h1>
+                <p className="mt-1 text-gray-400">Review and manage customized gift inquiries from customers.</p>
             </div>
             {renderContent()}
         </div>

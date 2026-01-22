@@ -5,7 +5,7 @@ import CollectionCard from './collections/CollectionCard';
 import { collections as mockCollections } from '../../data/products.js'; // Import mock collections
 
 const PageHeader = () => (
-    <div className="text-center py-16 sm:py-24" style={{ backgroundColor: '#0d3542' }}>
+    <div className="text-center py-16 sm:py-24 bg-attire-navy">
         <motion.h1
             className="text-4xl sm:text-5xl md:text-6xl font-serif font-light text-white mb-4"
             initial={{ opacity: 0, y: 20 }}
@@ -35,8 +35,19 @@ const CollectionsPage = () => {
         }, 500);
     }, []);
 
+    const browseAllCard = {
+        id: 0,
+        slug: 'products',
+        title: 'Browse All',
+        description: 'Explore our entire range of products.',
+        image: 'https://via.placeholder.com/600x800',
+        itemsCount: 'All'
+    };
+
+    const collectionsWithBrowseAll = [browseAllCard, ...mockCollections];
+
     return (
-        <div className="min-h-screen bg-white text-gray-800">
+        <div className="min-h-screen bg-attire-navy text-white">
             <PageHeader />
 
             <main className="max-w-screen-xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
@@ -47,28 +58,40 @@ const CollectionsPage = () => {
                         layout
                         className="grid grid-cols-1 md:grid-cols-3 gap-8 md:gap-12"
                     >
-                        {mockCollections.map((collection) => ( // Use mockCollections directly
-                            <Link to={`/products?collection=${collection.slug}`} key={collection.id}>
+                        {collectionsWithBrowseAll.map((collection) => (
+                            <Link to={collection.id === 0 ? '/products' : `/products?collection=${collection.slug}`} key={collection.id}>
                                 <motion.div
                                     layout
                                     initial={{ opacity: 0, y: 20 }}
                                     animate={{ opacity: 1, y: 0 }}
                                     transition={{ duration: 0.6, ease: 'easeOut' }}
                                 >
-                                    <CollectionCard collection={collection} />
+                                    {collection.id === 0 ? (
+                                        <div className="group cursor-pointer relative"
+                                            style={{
+                                                height: '28rem',
+                                                border: '1px solid rgba(255, 255, 255, 0.1)',
+                                                borderRadius: '0.25rem',
+                                                overflow: 'hidden'
+                                            }}
+                                        >
+                                            <div
+                                                className="absolute inset-0 bg-cover bg-center"
+                                                style={{ backgroundImage: `url(${collection.image})` }}
+                                            ></div>
+                                            <div className="absolute inset-0 bg-yellow-500 opacity-30 group-hover:opacity-40 transition-opacity"></div>
+                                            <div className="relative z-10 flex items-center justify-center h-full">
+                                                <h3 className="text-3xl font-serif text-white">{collection.title}</h3>
+                                            </div>
+                                        </div>
+                                    ) : (
+                                        <CollectionCard collection={collection} />
+                                    )}
                                 </motion.div>
                             </Link>
                         ))}
                     </motion.div>
                 )}
-                <div className="text-center mt-16">
-                    <Link
-                        to="/products"
-                        className="bg-attire-navy text-white font-semibold px-10 py-4 rounded-lg hover:bg-attire-navy/90 transition-colors inline-block"
-                    >
-                        Browse All Products
-                    </Link>
-                </div>
             </main>
         </div>
     );

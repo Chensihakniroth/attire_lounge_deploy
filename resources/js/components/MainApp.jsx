@@ -20,6 +20,7 @@ const FavoritesPage = lazy(() => import('./pages/FavoritesPage.jsx'));
 const AdminDashboard = lazy(() => import('./pages/admin/AdminDashboard.jsx'));
 const AdminLogin = lazy(() => import('./pages/admin/AdminLogin.jsx'));
 const PrivateRoute = lazy(() => import('./pages/admin/PrivateRoute.jsx'));
+
 const AdminLayout = lazy(() => import('./pages/admin/AdminLayout.jsx'));
 const AppointmentManager = lazy(() => import('./pages/admin/AppointmentManager.jsx'));
 const CustomizeGiftManager = lazy(() => import('./pages/admin/CustomizeGiftManager.jsx'));

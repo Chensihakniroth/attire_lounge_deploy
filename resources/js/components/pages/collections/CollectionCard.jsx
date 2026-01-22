@@ -19,7 +19,7 @@ const CollectionCard = ({ collection }) => {
                                     transition={{ duration: 0.4, ease: 'easeOut' }}
                                 />
                             </div>            <div className="pt-6 text-center">
-                <h3 className="text-2xl font-serif text-attire-navy">{collection.title}</h3>
+                <h3 className="text-2xl font-serif text-attire-accent">{collection.title}</h3>
                 <p className="text-base text-gray-600 mt-2 mb-4">{collection.description}</p>
                 <span className="inline-block bg-gray-100 text-gray-700 text-xs font-medium px-4 py-2 rounded-full">
                     {collection.itemsCount} items

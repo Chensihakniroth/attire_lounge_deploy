@@ -106,7 +106,7 @@ const CollectionsSection = memo(forwardRef((props, ref) => (
     <section className="relative snap-section min-h-screen h-screen" ref={ref}>
         {/* Background Image */}
         <div className="absolute inset-0 w-full h-full bg-cover bg-center"
-             style={{ backgroundImage: `url('${minioBaseUrl}/uploads/collections/Model/1.jpg')` }}
+             style={{ backgroundImage: `url('${minioBaseUrl}/uploads/collections/default/g1.jpg')` }}
         />
 <div className="absolute inset-0 bg-black/50" />
 
@@ -257,7 +257,7 @@ const MembershipSection = memo(forwardRef((props, ref) => (
 
 const LookbookSection = memo(forwardRef(({ lookbookFeatures }, ref) => (
   <section className="relative snap-section bg-attire-dark min-h-screen h-screen" ref={ref}>
-    <img src={`${minioBaseUrl}/uploads/collections/Model/5.jpg`} alt="Lookbook Background" className="absolute inset-0 w-full h-full object-cover object-center" loading="lazy" decoding="async" />
+    <img src={`${minioBaseUrl}/uploads/collections/default/of3.jpg`} alt="Lookbook Background" className="absolute inset-0 w-full h-full object-cover object-center" loading="lazy" decoding="async" />
     <div className="absolute inset-0 bg-gradient-to-b from-attire-dark/80 to-attire-dark/40" />
     
     <div className="relative h-full flex flex-col items-center justify-center text-center text-attire-cream p-4 md:p-8">
@@ -305,7 +305,7 @@ const LookbookSection = memo(forwardRef(({ lookbookFeatures }, ref) => (
 
 
 const FooterSection = memo(forwardRef((props, ref) => (
-  <section className="relative snap-section bg-attire-dark min-h-screen h-screen flex flex-col justify-center" ref={ref}>
+  <section className="relative snap-section bg-black" ref={ref}>
     <div className="w-full">
       <Footer />
     </div>

@@ -1,9 +1,12 @@
 import React, { useState, useMemo, useEffect, useRef } from 'react';
 import { useLocation, Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
+import { wrap } from "popmotion";
+import Lightbox from './lookbook/Lightbox';
 import { ChevronLeft, ChevronRight, Search, ChevronsUpDown, X, Filter, ChevronDown } from 'lucide-react';
 import { products as allProducts, collections as allCollections } from '../../data/products.js';
 import ItemCard from './collections/ItemCard';
+import { useFavorites } from '../../context/FavoritesContext.jsx';
 import useDebounce from '../../hooks/useDebounce.js';
 
 const sortOptions = [
@@ -25,22 +28,12 @@ const ProductListPage = () => {
 
     const [sortOrder, setSortOrder] = useState('popularity-desc');
     const [priceRange, setPriceRange] = useState([0, 1000]);
+    const [[page, direction], setPage] = useState([null, 0]);
+    const { favorites, addFavorite, removeFavorite, isFavorited } = useFavorites();
     
     const [selectedCollections, setSelectedCollections] = useState(() => {
         return collectionQuery ? [collectionQuery] : [];
     });
-
-    useEffect(() => {
-        const newCollectionQuery = new URLSearchParams(location.search).get('collection');
-        if (newCollectionQuery && !selectedCollections.includes(newCollectionQuery)) {
-            setSelectedCollections([newCollectionQuery]);
-        } else if (!newCollectionQuery && selectedCollections.length > 0 && collectionQuery) {
-            // This might be needed if you expect to clear filters via URL changes
-            // setSelectedCollections([]);
-        }
-    }, [location.search]);
-
-    const debouncedPriceRange = useDebounce(priceRange, 500);
 
     const { pageTitle, filteredProducts } = useMemo(() => {
         let products = [...allProducts];
@@ -74,6 +67,45 @@ const ProductListPage = () => {
 
         return { pageTitle, filteredProducts: products };
     }, [sortOrder, selectedCollections]);
+
+    const imageIndex = page !== null ? wrap(0, filteredProducts.length, page) : null;
+    const selectedImage = page !== null ? filteredProducts[imageIndex] : null;
+
+    const openLightbox = (index) => setPage([index, 0]);
+    const closeLightbox = () => setPage([null, 0]);
+    const paginate = (newDirection) => {
+        if (page === null || !filteredProducts.length) return;
+        setPage([page + newDirection, newDirection]);
+    };
+
+    const toggleFavorite = (id) => {
+        if (isFavorited(id)) {
+            removeFavorite(id);
+        } else {
+            addFavorite(id);
+        }
+    };
+
+    useEffect(() => {
+        const handleKeyDown = (e) => {
+            if (page === null) return;
+            if (e.key === 'ArrowRight') paginate(1);
+            if (e.key === 'ArrowLeft') paginate(-1);
+            if (e.key === 'Escape') closeLightbox();
+        };
+        window.addEventListener('keydown', handleKeyDown);
+        return () => window.removeEventListener('keydown', handleKeyDown);
+    }, [page]);
+    
+    useEffect(() => {
+        const newCollectionQuery = new URLSearchParams(location.search).get('collection');
+        if (newCollectionQuery && !selectedCollections.includes(newCollectionQuery)) {
+            setSelectedCollections([newCollectionQuery]);
+        } else if (!newCollectionQuery && selectedCollections.length > 0 && collectionQuery) {
+            // This might be needed if you expect to clear filters via URL changes
+            // setSelectedCollections([]);
+        }
+    }, [location.search]);
 
     const containerVariants = {
         hidden: { opacity: 0 },
@@ -129,8 +161,8 @@ const ProductListPage = () => {
                         initial="hidden"
                         animate="visible"
                     >
-                        {filteredProducts.map(item => (
-                            <ItemCard key={item.id} product={item} />
+                        {filteredProducts.map((item, index) => (
+                            <ItemCard key={item.id} product={item} openLightbox={() => openLightbox(index)} />
                         ))}
                     </motion.div>
                 </AnimatePresence>
@@ -143,7 +175,24 @@ const ProductListPage = () => {
                 )}
             </main>
 
-
+            <AnimatePresence>
+                {selectedImage && (
+                    <Lightbox
+                        key="lightbox"
+                        selectedImage={{
+                            ...selectedImage,
+                            src: selectedImage.images[0],
+                            title: selectedImage.name,
+                            collection: selectedImage.collection
+                        }}
+                        closeLightbox={closeLightbox}
+                        direction={direction}
+                        paginate={paginate}
+                        toggleFavorite={toggleFavorite}
+                        favorites={favorites}
+                    />
+                )}
+            </AnimatePresence>
         </div>
     );
 };
