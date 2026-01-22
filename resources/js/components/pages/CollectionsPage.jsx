@@ -79,7 +79,7 @@ const CollectionsPage = () => {
                                                 className="absolute inset-0 bg-cover bg-center"
                                                 style={{ backgroundImage: `url(${collection.image})` }}
                                             ></div>
-                                            <div className="absolute inset-0 bg-yellow-500 opacity-30 group-hover:opacity-40 transition-opacity"></div>
+                                            <div className="absolute inset-0 transition-opacity" style={{ backgroundColor: '#f5a81c' }}></div>
                                             <div className="relative z-10 flex items-center justify-center h-full">
                                                 <h3 className="text-3xl font-serif text-white">{collection.title}</h3>
                                             </div>

@@ -113,7 +113,11 @@ const CustomizeGiftManager = () => {
 
     useEffect(() => {
         setLoading(true);
-        fetchGiftRequests();
+        fetchGiftRequests(); // Initial fetch
+
+        const intervalId = setInterval(fetchGiftRequests, 60000); // Fetch every 60 seconds
+
+        return () => clearInterval(intervalId); // Cleanup on unmount
     }, [fetchGiftRequests]);
 
     const handleUpdate = useCallback(async (id, status) => {

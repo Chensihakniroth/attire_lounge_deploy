@@ -128,7 +128,11 @@ const AppointmentManager = () => {
     };
 
     useEffect(() => {
-        fetchAppointments();
+        fetchAppointments(); // Initial fetch
+
+        const intervalId = setInterval(fetchAppointments, 60000); // Fetch every 60 seconds
+
+        return () => clearInterval(intervalId); // Cleanup on unmount
     }, []);
 
     const handleUpdateStatus = async (id, status) => {

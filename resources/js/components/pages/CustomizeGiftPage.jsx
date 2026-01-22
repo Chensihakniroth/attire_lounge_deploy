@@ -86,6 +86,12 @@ const CustomizeGiftPage = () => {
         }
     }, [selectedTie, selectedPocketSquare]);
 
+    useEffect(() => {
+        if (submissionStatus.state === 'success') {
+            window.scrollTo(0, 0); // Scroll to top on successful submission
+        }
+    }, [submissionStatus.state]);
+
     const isItemsComplete = selectedTie && selectedPocketSquare && selectedBox;
 
     const handleDetailsSubmit = (e) => {
