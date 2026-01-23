@@ -20,7 +20,7 @@ const Navigation = () => {
         window.addEventListener('lookbookFilterStateChange', handler);
         return () => window.removeEventListener('lookbookFilterStateChange', handler);
     }, []);
-    
+
     const location = useLocation();
     const isHomePage = location.pathname === '/';
 
@@ -66,16 +66,16 @@ const Navigation = () => {
     const isNavVisible = isHovered || isMenuOpen || isMobile;
 
     const isTransparentNav = isHomePage && !isScrolled && !isMenuOpen && !isMobile && !isHovered;
-    
+
     const showBorder = !isHomePage || isScrolled || isMenuOpen || isMobile;
-        
-    const navBackgroundClass = isTransparentNav 
+
+    const navBackgroundClass = isTransparentNav
         ? 'bg-opacity-0'
         : `bg-opacity-30 backdrop-blur-xl ${showBorder ? 'border-b border-white/10' : 'border-b-0'}`;
-        
+
     const navTextColor = 'text-white';
     const navIconColor = 'text-white/80';
-    
+
     const navVariants = {
         visible: { opacity: 1, y: 0 },
         hidden: { opacity: 0, y: "-25%" }
@@ -177,7 +177,7 @@ const Navigation = () => {
                                 ))}
                             </motion.ul>
                             <div className="absolute bottom-0 left-0 w-full p-6 border-t border-white/10">
-                                <p className="text-xs text-attire-silver text-center">© 2024 Attire Lounge. All rights reserved.</p>
+                                <p className="text-xs text-attire-silver text-center">© 2026 Attire Lounge official.  All rights reserved.</p>
                             </div>
                         </motion.div>
                     </>

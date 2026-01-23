@@ -8,7 +8,7 @@ const CollectionCard = ({ collection }) => {
             whileHover={{ y: -8 }}
             transition={{ type: 'spring', stiffness: 300 }}
         >
-                            <div className="overflow-hidden border border-gray-200 h-[28rem]">
+                            <div className="overflow-hidden h-[28rem]">
                                 <motion.img
                                     src={collection.image}
                                     alt={collection.title}

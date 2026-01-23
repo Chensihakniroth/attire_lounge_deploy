@@ -31,6 +31,26 @@ const homePageData = {
       description: "Not just what to wear, but how to wear it. Our guides help you master the art of dressing for any occasion.",
       icon: <Sparkles size={40} className="text-attire-accent" />
     }
+  ],
+  tipsAndTricks: [
+    {
+      title: "Mastering the Tie Knot",
+      image: `${minioBaseUrl}/uploads/asset/vid1.jpg`,
+      link: "https://www.instagram.com/p/placeholder1/", // Placeholder link
+      description: "Learn essential tie knots for every occasion."
+    },
+    {
+      title: "Cufflink Elegance",
+      image: `${minioBaseUrl}/uploads/asset/vid2.jpg`,
+      link: "https://www.tiktok.com/@placeholder2/", // Placeholder link
+      description: "Elevate your look with the perfect cufflinks."
+    },
+    {
+      title: "Pocket Square Folds",
+      image: `${minioBaseUrl}/uploads/asset/vid3.jpg`,
+      link: "https://www.youtube.com/watch?v=placeholder3", // Placeholder link
+      description: "Add a touch of class with stylish pocket square folds."
+    },
   ]
 };
 
@@ -257,7 +277,7 @@ const MembershipSection = memo(forwardRef((props, ref) => (
 )));
 
 const LookbookSection = memo(forwardRef(({ lookbookFeatures }, ref) => (
-  <section className="relative snap-section bg-attire-dark min-h-screen h-screen" ref={ref}>
+  <section className="relative snap-section bg-attire-dark py-8 md:py-16" ref={ref}>
     <img src={`${minioBaseUrl}/uploads/collections/default/of3.jpg`} alt="Lookbook Background" className="absolute inset-0 w-full h-full object-cover object-center" loading="lazy" decoding="async" />
     <div className="absolute inset-0 bg-gradient-to-b from-attire-dark/80 to-attire-dark/40" />
     
@@ -269,12 +289,12 @@ const LookbookSection = memo(forwardRef(({ lookbookFeatures }, ref) => (
         viewport={{ once: true, amount: 0.2 }}
         className="w-full max-w-6xl mx-auto"
       >
-        <motion.h2 variants={itemVariants} className="font-serif text-4xl md:text-6xl mb-4">The Art of Style</motion.h2>
-        <motion.p variants={itemVariants} transition={{ delay: 0.2 }} className="max-w-2xl mx-auto text-attire-silver md:text-lg mb-12">
+        <motion.h2 variants={itemVariants} className="font-serif text-3xl md:text-5xl mb-4">The Art of Style</motion.h2>
+        <motion.p variants={itemVariants} transition={{ delay: 0.2 }} className="max-w-2xl mx-auto text-attire-silver text-base md:text-lg mb-6 md:mb-10">
           Explore our curated lookbook for inspiration and discover the timeless elegance that defines Attire Lounge.
         </motion.p>
 
-        <div className="grid md:grid-cols-3 gap-8 md:gap-12 mb-12">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-8 mb-6 md:mb-10">
           {lookbookFeatures.map((feature, index) => (
             <motion.div 
               key={index}
@@ -285,24 +305,99 @@ const LookbookSection = memo(forwardRef(({ lookbookFeatures }, ref) => (
               <motion.div 
                 whileHover={{ scale: 1.1, rotate: 5 }} 
                 transition={{ type: "spring", stiffness: 300 }}
-                className="mb-4"
+                className="mb-2"
               >
                 {feature.icon}
               </motion.div>
-              <h3 className="font-serif text-xl md:text-2xl text-white mb-2">{feature.title}</h3>
-              <p className="text-attire-silver text-sm">{feature.description}</p>
+              <h3 className="font-serif text-base md:text-xl text-white mb-1">{feature.title}</h3>
+              <p className="text-attire-silver text-xs leading-snug">{feature.description}</p>
             </motion.div>
           ))}
         </div>
 
         <motion.div variants={itemVariants} transition={{ delay: 1 }}>
-          <Link to="/lookbook" className="inline-block bg-attire-accent text-white font-semibold px-10 py-4 rounded-lg hover:bg-attire-accent/90 transition-colors">View Lookbook</Link>
+          <Link to="/lookbook" className="inline-block bg-attire-accent text-white font-semibold px-8 py-3 rounded-lg hover:bg-attire-accent/90 transition-colors text-sm md:text-base">View Lookbook</Link>
         </motion.div>
       </motion.div>
     </div>
   </section>
 )));
 
+const TipsAndTricksSection = memo(forwardRef(({ tipsAndTricks }, ref) => {
+  return (
+    <section className="relative snap-section bg-attire-navy pt-8 pb-16" ref={ref}>
+      <div className="relative z-10 w-full max-w-7xl mx-auto text-center text-attire-cream px-4">
+        <motion.div
+          variants={containerVariants}
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true, amount: 0.2 }}
+          className="mb-10"
+        >
+          <motion.h2 variants={itemVariants} className="font-serif text-3xl md:text-5xl mb-4">Tips & Tricks</motion.h2>
+          <motion.p variants={itemVariants} transition={{ delay: 0.2 }} className="max-w-2xl mx-auto text-attire-silver text-base md:text-lg">
+            Master the art of sophisticated dressing with our expert guidance.
+          </motion.p>
+        </motion.div>
+
+        {/* Desktop Grid */}
+        <div className="hidden md:grid md:grid-cols-3 md:gap-8">
+          {tipsAndTricks.map((tip, i) => (
+            <motion.div
+              key={i}
+              variants={itemVariants}
+              transition={{ delay: 0.4 + i * 0.2 }}
+              className="flex flex-col items-center text-center"
+            >
+              <a
+                href={tip.link}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="block w-full h-auto rounded-lg overflow-hidden group"
+              >
+                <img
+                  src={tip.image}
+                  alt={tip.title}
+                  className="w-full h-full object-contain object-center group-hover:scale-105 transition-transform duration-500 ease-in-out"
+                  loading="lazy"
+                />
+              </a>
+              <div>
+                <h3 className="font-serif text-lg md:text-xl text-white mb-1 break-words">{tip.title}</h3>
+                <p className="text-attire-silver text-sm break-words">{tip.description}</p>
+              </div>
+            </motion.div>
+          ))}
+        </div>
+        
+        {/* Mobile Grid */}
+        <div className="md:hidden flex flex-wrap justify-center gap-4">
+          {tipsAndTricks.map((tip, i) => (
+            <div key={i} className="w-[calc(50%-0.5rem)] flex flex-col items-center text-center">
+                <a
+                  href={tip.link}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="block w-full aspect-video rounded-lg overflow-hidden group shadow-lg"
+                >
+                  <img
+                    src={tip.image}
+                    alt={tip.title}
+                    className="w-full h-full object-cover object-center transition-transform duration-500 ease-in-out group-hover:scale-105"
+                    loading="lazy"
+                  />
+                </a>
+                <div className="mt-2">
+                  <h3 className="font-serif text-base text-white mb-1">{tip.title}</h3>
+                  <p className="text-attire-silver text-xs leading-snug">{tip.description}</p>
+                </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}));
 
 
 const FooterSection = memo(forwardRef((props, ref) => (
@@ -333,7 +428,7 @@ const HomePage = () => {
   }, []);
 
   useEffect(() => {
-    sectionsRef.current = sectionsRef.current.slice(0, 7); // 7 sections total
+    sectionsRef.current = sectionsRef.current.slice(0, 8); // 8 sections total
     const handleMenuStateChange = (e) => {
       if (e.detail && e.detail.isMenuOpen !== undefined) setIsMenuOpen(e.detail.isMenuOpen);
     };
@@ -399,9 +494,9 @@ const HomePage = () => {
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [isMobile, isMenuOpen, activeSection, scrollToSection]);
 
-  const { services, lookbookFeatures } = homePageData;
+  const { services, lookbookFeatures, tipsAndTricks } = homePageData;
 
-  const sectionNames = ['Home', 'Philosophy', 'Collections', 'Experience', 'Membership', 'Lookbook', 'Contact'];
+  const sectionNames = ['Home', 'Philosophy', 'Collections', 'Experience', 'Membership', 'Lookbook', 'Tips & Tricks', 'Contact'];
 
   return (
     <div className="snap-scroll-container bg-attire-dark">
@@ -417,7 +512,8 @@ const HomePage = () => {
       <ExperienceSection ref={el => sectionsRef.current[3] = el} services={services} />
       <MembershipSection ref={el => sectionsRef.current[4] = el} />
       <LookbookSection ref={el => sectionsRef.current[5] = el} lookbookFeatures={lookbookFeatures} />
-      <FooterSection ref={el => sectionsRef.current[6] = el} />
+      <TipsAndTricksSection ref={el => sectionsRef.current[6] = el} tipsAndTricks={tipsAndTricks} />
+      <FooterSection ref={el => sectionsRef.current[7] = el} />
     </div>
   );
 };

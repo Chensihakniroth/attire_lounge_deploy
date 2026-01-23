@@ -44,7 +44,7 @@ const CollectionsPage = () => {
         itemsCount: 'All'
     };
 
-    const collectionsWithBrowseAll = [browseAllCard, ...mockCollections];
+    const collectionsWithBrowseAll = [...mockCollections, browseAllCard];
 
     return (
         <div className="min-h-screen bg-attire-navy text-white">
@@ -70,7 +70,6 @@ const CollectionsPage = () => {
                                         <div className="group cursor-pointer relative"
                                             style={{
                                                 height: '28rem',
-                                                border: '1px solid rgba(255, 255, 255, 0.1)',
                                                 borderRadius: '0.25rem',
                                                 overflow: 'hidden'
                                             }}
