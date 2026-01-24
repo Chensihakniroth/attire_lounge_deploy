@@ -322,8 +322,8 @@ const LookbookSection = memo(forwardRef(({ lookbookFeatures }, ref) => (
 
 const TipsAndTricksSection = memo(forwardRef(({ tipsAndTricks }, ref) => {
   return (
-    <section className="relative snap-section bg-attire-navy pt-8 pb-16" ref={ref}>
-      <div className="relative z-10 w-full max-w-7xl mx-auto text-center text-attire-cream px-4">
+    <section className="relative snap-section bg-attire-navy min-h-screen !h-auto !overflow-visible flex flex-col py-24 md:py-32" ref={ref}>
+      <div className="relative z-10 w-full max-w-7xl mx-auto text-center text-attire-cream px-4 my-auto">
         <motion.div
           variants={containerVariants}
           initial="hidden"
@@ -350,16 +350,16 @@ const TipsAndTricksSection = memo(forwardRef(({ tipsAndTricks }, ref) => {
                 href={tip.link}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="block w-full h-auto rounded-lg overflow-hidden group"
+                className="block w-full aspect-video rounded-lg overflow-hidden group shadow-lg"
               >
                 <img
                   src={tip.image}
                   alt={tip.title}
-                  className="w-full h-full object-contain object-center group-hover:scale-105 transition-transform duration-500 ease-in-out"
+                  className="w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-500 ease-in-out"
                   loading="lazy"
                 />
               </a>
-              <div>
+              <div className="mt-4">
                 <h3 className="font-serif text-lg md:text-xl text-white mb-1 break-words">{tip.title}</h3>
                 <p className="text-attire-silver text-sm break-words">{tip.description}</p>
               </div>
@@ -397,13 +397,13 @@ const TipsAndTricksSection = memo(forwardRef(({ tipsAndTricks }, ref) => {
 }));
 
 
-const FooterSection = memo(forwardRef((props, ref) => (
-  <section className="relative snap-section bg-black" ref={ref}>
+const FooterSection = memo(() => (
+  <section className="relative bg-black">
     <div className="w-full">
       <Footer />
     </div>
   </section>
-)));
+));
 
 
 
@@ -425,7 +425,7 @@ const HomePage = () => {
   }, []);
 
   useEffect(() => {
-    sectionsRef.current = sectionsRef.current.slice(0, 8); // 8 sections total
+    sectionsRef.current = sectionsRef.current.slice(0, 7); // 7 sections total (excluding footer)
     const handleMenuStateChange = (e) => {
       if (e.detail && e.detail.isMenuOpen !== undefined) setIsMenuOpen(e.detail.isMenuOpen);
     };
@@ -460,8 +460,24 @@ const HomePage = () => {
   useEffect(() => {
     if (isMobile || isMenuOpen) return;
     const handleWheel = (e) => {
+      if (isScrollingRef.current) {
+        e.preventDefault();
+        return;
+      }
+
+      const section = sectionsRef.current[activeSection];
+      if (section) {
+        const isLongSection = section.offsetHeight > window.innerHeight + 10;
+        if (isLongSection) {
+          const atBottom = Math.ceil(window.scrollY + window.innerHeight) >= section.offsetTop + section.offsetHeight - 5;
+          const atTop = window.scrollY <= section.offsetTop + 5;
+
+          if (e.deltaY > 0 && !atBottom) return; // Allow normal scroll down
+          if (e.deltaY < 0 && !atTop) return; // Allow normal scroll up
+        }
+      }
+
       e.preventDefault();
-      if (isScrollingRef.current) return;
       const deltaY = e.deltaY;
       let newIndex = activeSection;
       if (Math.abs(deltaY) > 5) {
@@ -477,6 +493,16 @@ const HomePage = () => {
   useEffect(() => {
     const handleKeyDown = (e) => {
       if (isMobile || isMenuOpen || isScrollingRef.current) return;
+
+      const section = sectionsRef.current[activeSection];
+      if (section && section.offsetHeight > window.innerHeight + 10) {
+        const atBottom = Math.ceil(window.scrollY + window.innerHeight) >= section.offsetTop + section.offsetHeight - 5;
+        const atTop = window.scrollY <= section.offsetTop + 5;
+
+        if ((e.key === 'ArrowDown' || e.key === 'PageDown') && !atBottom) return;
+        if ((e.key === 'ArrowUp' || e.key === 'PageUp') && !atTop) return;
+      }
+
       let newIndex = activeSection;
       switch (e.key) {
         case 'ArrowDown': case 'PageDown': e.preventDefault(); newIndex = Math.min(activeSection + 1, sectionsRef.current.length - 1); break;
@@ -493,7 +519,7 @@ const HomePage = () => {
 
   const { services, lookbookFeatures, tipsAndTricks } = homePageData;
 
-  const sectionNames = ['Home', 'Philosophy', 'Collections', 'Experience', 'Membership', 'Lookbook', 'Tips & Tricks', 'Contact'];
+  const sectionNames = ['Home', 'Philosophy', 'Collections', 'Experience', 'Membership', 'Lookbook', 'Tips & Tricks'];
 
   return (
     <div className="snap-scroll-container bg-attire-dark">
@@ -510,7 +536,7 @@ const HomePage = () => {
       <MembershipSection ref={el => sectionsRef.current[4] = el} />
       <LookbookSection ref={el => sectionsRef.current[5] = el} lookbookFeatures={lookbookFeatures} />
       <TipsAndTricksSection ref={el => sectionsRef.current[6] = el} tipsAndTricks={tipsAndTricks} />
-      <FooterSection ref={el => sectionsRef.current[7] = el} />
+      <FooterSection />
     </div>
   );
 };
