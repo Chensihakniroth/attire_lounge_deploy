@@ -193,10 +193,7 @@ const ExperienceSection = memo(forwardRef((props, ref) => (
                         <CheckCircle className="w-7 h-7 text-attire-accent mt-1 flex-shrink-0" />
                         <span>Styling team certified from Milan, Italy</span>
                     </li>
-                    <li className="flex items-start gap-4">
-                        <CheckCircle className="w-7 h-7 text-attire-accent mt-1 flex-shrink-0" />
-                        <span>Free complimentary drinks</span>
-                    </li>
+
                     <li className="flex items-start gap-4">
                         <CheckCircle className="w-7 h-7 text-attire-accent mt-1 flex-shrink-0" />
                         <span>Diverse sizes suitable for all body types</span>
