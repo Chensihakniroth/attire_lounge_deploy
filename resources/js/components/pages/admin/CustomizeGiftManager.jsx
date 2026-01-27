@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { User, Mail, Phone, Gift, AlertTriangle, Loader, CheckCircle, XCircle, Trash2 } from 'lucide-react';
-import api from '../../../api';
+import { useAdmin } from './AdminContext';
 
 const GiftRequestCard = ({ request, onUpdate, onDelete }) => {
     const [isUpdating, setIsUpdating] = useState(false);
@@ -84,54 +84,38 @@ const GiftRequestCard = ({ request, onUpdate, onDelete }) => {
 };
 
 const CustomizeGiftManager = () => {
-    const [giftRequests, setGiftRequests] = useState([]);
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState(null);
-
-    const fetchGiftRequests = useCallback(async () => {
-        try {
-            const data = await api.getGiftRequests();
-            setGiftRequests(data);
-            setError(null);
-        } catch (err) {
-            setError('Failed to fetch gift requests. Please try again later.');
-            console.error(err);
-        } finally {
-            setLoading(false);
-        }
-    }, []);
+    const { 
+        giftRequests, 
+        giftRequestsLoading, 
+        fetchGiftRequests, 
+        updateGiftRequestStatus, 
+        deleteGiftRequest 
+    } = useAdmin();
 
     useEffect(() => {
-        setLoading(true);
-        fetchGiftRequests(); // Initial fetch
-
-        const intervalId = setInterval(fetchGiftRequests, 60000); // Fetch every 60 seconds
-
-        return () => clearInterval(intervalId); // Cleanup on unmount
+        fetchGiftRequests(); // Use context fetcher
+        const intervalId = setInterval(() => fetchGiftRequests(false), 60000); 
+        return () => clearInterval(intervalId);
     }, [fetchGiftRequests]);
 
     const handleUpdate = useCallback(async (id, status) => {
         try {
-            const updatedRequest = await api.updateGiftRequestStatus(id, status);
-            setGiftRequests(prevRequests => 
-                prevRequests.map(req => req.id === id ? updatedRequest : req)
-            );
+            await updateGiftRequestStatus(id, status);
         } catch (err) {
             console.error('Failed to update status:', err);
         }
-    }, []);
+    }, [updateGiftRequestStatus]);
 
     const handleDelete = useCallback(async (id) => {
         try {
-            await api.deleteGiftRequest(id);
-            setGiftRequests(prevRequests => prevRequests.filter(req => req.id !== id));
+            await deleteGiftRequest(id);
         } catch (err) {
             console.error('Failed to delete request:', err);
         }
-    }, []);
+    }, [deleteGiftRequest]);
 
     const renderContent = () => {
-        if (loading) {
+        if (giftRequestsLoading && giftRequests.length === 0) {
             return (
                 <div className="flex justify-center items-center h-64">
                     <Loader className="animate-spin text-purple-500" size={48} />
@@ -139,16 +123,7 @@ const CustomizeGiftManager = () => {
             );
         }
 
-        if (error) {
-            return (
-                <div className="flex flex-col items-center justify-center h-64 bg-red-900/20 text-red-200 rounded-lg">
-                    <AlertTriangle size={48} className="mb-4" />
-                    <p>{error}</p>
-                </div>
-            );
-        }
-
-        if (giftRequests.length === 0) {
+        if (giftRequests.length === 0 && !giftRequestsLoading) {
             return <p className="text-center text-gray-400">No gift requests found.</p>;
         }
 

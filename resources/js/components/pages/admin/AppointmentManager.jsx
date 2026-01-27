@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useContext } from 'react';
 import { User, Mail, Phone, Calendar, Clock, MessageSquare, AlertTriangle, Loader, Check, X, Trash2 } from 'lucide-react';
 import { ThemeContext } from './ThemeContext';
+import { useAdmin } from './AdminContext';
 
 const AppointmentRow = ({ appointment, onUpdateStatus, colors }) => {
     const statusStyles = {
@@ -82,75 +83,24 @@ const AppointmentRow = ({ appointment, onUpdateStatus, colors }) => {
 
 const AppointmentManager = () => {
     const { colors } = useContext(ThemeContext);
-    const [appointments, setAppointments] = useState([]);
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState(null);
-
-    const fetchAppointments = async () => {
-        try {
-            setLoading(true);
-            const response = await axios.get('/api/v1/admin/appointments');
-            const appointmentsWithParsedImages = response.data.map(app => {
-                let imageUrls = [];
-                try {
-                    if (typeof app.favorite_item_image_url === 'string') {
-                        const parsed = JSON.parse(app.favorite_item_image_url);
-                        imageUrls = Array.isArray(parsed) ? parsed : [];
-                    } else if (Array.isArray(app.favorite_item_image_url)) {
-                        imageUrls = app.favorite_item_image_url;
-                    }
-                } catch (e) {
-                    console.error('Failed to parse favorite_item_image_url:', e);
-                }
-                return { ...app, favorite_item_image_url: imageUrls };
-            });
-            const sortedAppointments = [...appointmentsWithParsedImages].sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
-            setAppointments(sortedAppointments);
-        } catch (err) {
-            console.error('Error fetching appointments:', err);
-            setError('Failed to load appointments. Please try again later.');
-        } finally {
-            setLoading(false);
-        }
-    };
+    const { 
+        appointments, 
+        appointmentsLoading, 
+        fetchAppointments, 
+        updateAppointmentStatus, 
+        clearCompletedAppointments 
+    } = useAdmin();
 
     useEffect(() => {
-        fetchAppointments(); // Initial fetch
-
-        const intervalId = setInterval(fetchAppointments, 60000); // Fetch every 60 seconds
-
-        return () => clearInterval(intervalId); // Cleanup on unmount
-    }, []);
+        fetchAppointments(); // Use context fetcher which handles caching
+        const intervalId = setInterval(() => fetchAppointments(false), 60000); 
+        return () => clearInterval(intervalId);
+    }, [fetchAppointments]);
 
     const handleUpdateStatus = async (id, status) => {
-        // Optimistic Update: Immediately update the UI
-        const previousAppointments = [...appointments];
-        
-        setAppointments(prev =>
-            prev.map(app => 
-                app.id === id ? { ...app, status: status } : app
-            )
-        );
-
         try {
-            const response = await axios.patch(`/api/v1/admin/appointments/${id}/status`, { status });
-            // The server returns the updated appointment, we can use it to confirm the data is correct
-            // or just rely on our optimistic update if we trust it. 
-            // For now, let's just stick with the optimistic value unless we want to sync other fields.
-            
-            // Optional: You could update with the server response to be 100% sure, 
-            // but for a simple status change, the optimistic one is usually fine.
-            // If we wanted to be strict:
-            /*
-            const updatedAppointment = response.data.appointment;
-            // ... parsing logic ...
-            setAppointments(prev => prev.map(app => app.id === id ? parsedUpdatedApp : app));
-            */
-
+            await updateAppointmentStatus(id, status);
         } catch (err) {
-            console.error(`Error updating appointment ${id} to status ${status}:`, err);
-            // Revert on failure
-            setAppointments(previousAppointments);
             alert('Failed to update status. Please try again.');
         }
     };
@@ -158,35 +108,51 @@ const AppointmentManager = () => {
     const handleClearCompleted = async () => {
         if (window.confirm('Are you sure you want to clear all "done" appointments? This action cannot be undone.')) {
             try {
-                await axios.post('/api/v1/admin/appointments/clear-completed');
-                setAppointments(prev => prev.filter(app => app.status !== 'done'));
+                await clearCompletedAppointments();
             } catch (err) {
-                console.error('Error clearing completed appointments:', err);
                 alert('Failed to clear completed appointments. Please try again.');
             }
         }
     };
 
     const renderContent = () => {
-        if (loading) {
+        if (appointmentsLoading && appointments.length === 0) {
             return <div className="flex justify-center items-center h-64"><Loader style={{color: colors.primary}} className="animate-spin" size={48} /></div>;
         }
 
-        if (error) {
-            return <div className="flex flex-col items-center justify-center h-64 bg-red-50 text-red-700 rounded-lg"><AlertTriangle size={48} className="mb-4" /><p>{error}</p></div>;
-        }
-
-        if (appointments.length === 0) {
-            return <p style={{color: colors.sidebarText}} className="text-center">No appointments found.</p>;
+        // Context handles errors by just not updating, or we could add error state to context. 
+        // For now, if no appointments and not loading, assume empty or error handled elsewhere (or logged).
+        
+        if (appointments.length === 0 && !appointmentsLoading) {
+             return <p style={{color: colors.sidebarText}} className="text-center">No appointments found.</p>;
         }
 
         return (
-            <div
-                className="space-y-4"
-            >
-                {appointments.map(appointment => (
-                    <AppointmentRow key={appointment.id} appointment={appointment} onUpdateStatus={handleUpdateStatus} colors={colors} />
-                ))}
+            <div className="space-y-4">
+                {appointments.map(app => {
+                    // Parse image URL logic moved here for display
+                    let imageUrls = [];
+                    try {
+                        if (typeof app.favorite_item_image_url === 'string') {
+                            const parsed = JSON.parse(app.favorite_item_image_url);
+                            imageUrls = Array.isArray(parsed) ? parsed : [];
+                        } else if (Array.isArray(app.favorite_item_image_url)) {
+                            imageUrls = app.favorite_item_image_url;
+                        }
+                    } catch (e) {
+                         // console.error('Failed to parse favorite_item_image_url:', e);
+                    }
+                    const appointmentWithImages = { ...app, favorite_item_image_url: imageUrls };
+                    
+                    return (
+                        <AppointmentRow 
+                            key={app.id} 
+                            appointment={appointmentWithImages} 
+                            onUpdateStatus={handleUpdateStatus} 
+                            colors={colors} 
+                        />
+                    );
+                })}
             </div>
         );
     };

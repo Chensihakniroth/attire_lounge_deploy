@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { NavLink, useNavigate, Outlet, useLocation } from 'react-router-dom';
 import { LayoutDashboard, Calendar, Gift, LogOut, Menu, X } from 'lucide-react';
 import { ThemeProvider } from './ThemeContext';
+import { AdminProvider } from './AdminContext';
 import { motion, AnimatePresence } from 'framer-motion';
 
 const NavItem = ({ item }) => {
@@ -115,31 +116,33 @@ const AdminLayout = () => {
 
     return (
         <ThemeProvider>
-            <div id="admin-root" className="flex h-screen bg-gray-900 font-sans">
-                <Sidebar isOpen={isSidebarOpen} setOpen={setSidebarOpen} />
-                
-                <div className="flex-1 flex flex-col overflow-hidden">
-                    <header className="h-16 bg-gray-800 border-b border-gray-700 flex items-center px-4 justify-between flex-shrink-0">
-                        <button onClick={() => setSidebarOpen(true)} className="text-gray-400 focus:outline-none lg:hidden">
-                            <Menu size={24} />
-                        </button>
-                        <h1 className="text-lg font-semibold text-white">Admin Panel</h1>
-                    </header>
-                    <main className="flex-1 overflow-y-auto p-6 md:p-8">
-                        <AnimatePresence mode="wait">
-                            <motion.div
-                                key={location.pathname}
-                                initial={{ opacity: 0, y: 20 }}
-                                animate={{ opacity: 1, y: 0 }}
-                                exit={{ opacity: 0, y: -20 }}
-                                transition={{ duration: 0.2 }}
-                            >
-                                <Outlet />
-                            </motion.div>
-                        </AnimatePresence>
-                    </main>
+            <AdminProvider>
+                <div id="admin-root" className="flex h-screen bg-gray-900 font-sans">
+                    <Sidebar isOpen={isSidebarOpen} setOpen={setSidebarOpen} />
+                    
+                    <div className="flex-1 flex flex-col overflow-hidden">
+                        <header className="h-16 bg-gray-800 border-b border-gray-700 flex items-center px-4 justify-between flex-shrink-0">
+                            <button onClick={() => setSidebarOpen(true)} className="text-gray-400 focus:outline-none lg:hidden">
+                                <Menu size={24} />
+                            </button>
+                            <h1 className="text-lg font-semibold text-white">Admin Panel</h1>
+                        </header>
+                        <main className="flex-1 overflow-y-auto p-6 md:p-8">
+                            <AnimatePresence mode="wait">
+                                <motion.div
+                                    key={location.pathname}
+                                    initial={{ opacity: 0, y: 20 }}
+                                    animate={{ opacity: 1, y: 0 }}
+                                    exit={{ opacity: 0, y: -20 }}
+                                    transition={{ duration: 0.2 }}
+                                >
+                                    <Outlet />
+                                </motion.div>
+                            </AnimatePresence>
+                        </main>
+                    </div>
                 </div>
-            </div>
+            </AdminProvider>
         </ThemeProvider>
     );
 };

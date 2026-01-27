@@ -12,7 +12,7 @@ class GiftRequestController extends Controller
      */
     public function index()
     {
-        return response()->json(GiftRequest::latest()->get());
+        return response()->json(GiftRequest::orderBy('created_at', 'desc')->get());
     }
 
     /**
