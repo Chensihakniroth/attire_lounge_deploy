@@ -17,7 +17,7 @@ export const AdminProvider = ({ children }) => {
     const [giftRequestsLoading, setGiftRequestsLoading] = useState(false);
 
     // Global Stats (derived or fetched)
-    const [stats, setStats] = useState({ appointments: 0, gifts: 0, images: 0 });
+    const [stats, setStats] = useState({ appointments: 0, gifts: 0 });
 
     // --- Appointments Logic ---
     const fetchAppointments = useCallback(async (forceRefresh = false) => {

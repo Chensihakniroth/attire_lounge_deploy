@@ -128,12 +128,11 @@ const AdminDashboard = () => {
                 </motion.div>
 
                 <motion.div 
-                    className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
+                    className="grid grid-cols-1 md:grid-cols-2 gap-6"
                     variants={containerVariants}
                 >
                     <StatCard icon={<Calendar className="text-blue-500" />} title="Total Appointments" value={stats.appointments} link="/admin/appointments" loading={isLoading} />
                     <StatCard icon={<Gift className="text-green-500" />} title="Gift Requests" value={stats.gifts} link="/admin/customize-gift" loading={isLoading} />
-                    <StatCard icon={<ImageIcon className="text-purple-500" />} title="Total Images" value={stats.images} link="/admin/image-manager" loading={isLoading} />
                 </motion.div>
 
                 <motion.div variants={cardVariants} className="bg-gray-800 p-6 rounded-xl shadow-sm">
