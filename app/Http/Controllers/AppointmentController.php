@@ -88,7 +88,8 @@ class AppointmentController extends Controller
      */
     public function index()
     {
-        $appointments = Appointment::all();
+        // Optimization: Sort by latest first directly in the database query
+        $appointments = Appointment::orderBy('created_at', 'desc')->get();
         return response()->json($appointments);
     }
 

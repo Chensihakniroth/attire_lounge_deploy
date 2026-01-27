@@ -123,29 +123,34 @@ const AppointmentManager = () => {
     }, []);
 
     const handleUpdateStatus = async (id, status) => {
+        // Optimistic Update: Immediately update the UI
+        const previousAppointments = [...appointments];
+        
+        setAppointments(prev =>
+            prev.map(app => 
+                app.id === id ? { ...app, status: status } : app
+            )
+        );
+
         try {
             const response = await axios.patch(`/api/v1/admin/appointments/${id}/status`, { status });
+            // The server returns the updated appointment, we can use it to confirm the data is correct
+            // or just rely on our optimistic update if we trust it. 
+            // For now, let's just stick with the optimistic value unless we want to sync other fields.
+            
+            // Optional: You could update with the server response to be 100% sure, 
+            // but for a simple status change, the optimistic one is usually fine.
+            // If we wanted to be strict:
+            /*
             const updatedAppointment = response.data.appointment;
+            // ... parsing logic ...
+            setAppointments(prev => prev.map(app => app.id === id ? parsedUpdatedApp : app));
+            */
 
-            let imageUrls = [];
-            try {
-                if (typeof updatedAppointment.favorite_item_image_url === 'string') {
-                    const parsed = JSON.parse(updatedAppointment.favorite_item_image_url);
-                    imageUrls = Array.isArray(parsed) ? parsed : [];
-                } else if (Array.isArray(updatedAppointment.favorite_item_image_url)) {
-                    imageUrls = updatedAppointment.favorite_item_image_url;
-                }
-            } catch (e) {
-                console.error('Failed to parse favorite_item_image_url on update:', e);
-            }
-
-            const finalUpdatedAppointment = { ...updatedAppointment, favorite_item_image_url: imageUrls };
-
-            setAppointments(prev =>
-                prev.map(app => app.id === id ? finalUpdatedAppointment : app)
-            );
         } catch (err) {
             console.error(`Error updating appointment ${id} to status ${status}:`, err);
+            // Revert on failure
+            setAppointments(previousAppointments);
             alert('Failed to update status. Please try again.');
         }
     };
