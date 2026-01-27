@@ -55,6 +55,18 @@ return [
             'report' => false,
         ],
 
+        'minio' => [
+            'driver' => 's3',
+            'key' => env('MINIO_ACCESS_KEY'),
+            'secret' => env('MINIO_SECRET_KEY'),
+            'region' => env('MINIO_REGION', 'us-east-1'),
+            'bucket' => env('MINIO_BUCKET', 'product-assets'),
+            'url' => env('MINIO_URL'),
+            'endpoint' => env('MINIO_ENDPOINT', 'https://bucket-production-4ca0.up.railway.app'),
+            'use_path_style_endpoint' => true,
+            'throw' => false,
+        ],
+
     ],
 
     /*
