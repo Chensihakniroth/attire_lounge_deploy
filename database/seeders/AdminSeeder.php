@@ -16,11 +16,13 @@ class AdminSeeder extends Seeder
     public function run()
     {
         \Illuminate\Support\Facades\Log::info('Running AdminSeeder');
-        User::create([
-            'name' => 'Admin',
-            'email' => 'admin@attirelounge.com',
-            'password' => Hash::make('admin123'), // Change this to a secure password
-            'role' => 'admin',
-        ]);
+        User::updateOrCreate(
+            ['email' => 'admin@attirelounge.com'],
+            [
+                'name' => 'Admin',
+                'password' => Hash::make('admin123'),
+                'role' => 'admin',
+            ]
+        );
     }
 }
