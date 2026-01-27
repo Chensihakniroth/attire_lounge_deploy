@@ -54,7 +54,7 @@ const AdminLogin = () => {
                 muted 
                 className="absolute top-0 left-0 w-full h-full object-cover z-0"
             >
-                <source src="https://bucket-production-df32.up.railway.app/product-assets/uploads/asset/hero-background1.mp4" type="video/mp4" />
+                <source src="https://bucket-production-4ca0.up.railway.app/product-assets/uploads/asset/hero-background1.mp4" type="video/mp4" />
                 Your browser does not support the video tag.
             </motion.video>
             <div className="absolute top-0 left-0 w-full h-full bg-black opacity-50 z-10"></div>

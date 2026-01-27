@@ -195,10 +195,10 @@ const AppointmentManager = () => {
                 </div>
                 <button
                     onClick={handleClearCompleted}
-                    className="flex items-center px-4 py-2 text-sm font-medium text-white bg-gray-800 rounded-lg hover:bg-gray-900"
+                    className="flex items-center px-4 py-2 text-sm font-medium text-gray-400 bg-gray-800 border border-gray-700 rounded-lg hover:text-red-400 hover:border-red-400/50 hover:bg-red-500/10 transition-all duration-200 shadow-sm active:scale-95 group"
                 >
-                    <Trash2 className="w-4 h-4 mr-2" />
-                    Clear Completed
+                    <Trash2 className="w-4 h-4 mr-2 text-gray-500 group-hover:text-red-400 transition-colors" />
+                    Clear All
                 </button>
             </div>
             {renderContent()}

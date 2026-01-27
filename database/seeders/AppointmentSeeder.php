@@ -29,8 +29,8 @@ class AppointmentSeeder extends Seeder
             'message' => 'Looking forward to my fitting.',
             'status' => 'confirmed',
             'favorite_item_image_url' => json_encode([
-                'https://bucket-production-df32.up.railway.app/product-assets/uploads/collections/default/g1.jpg',
-                'https://bucket-production-df32.up.railway.app/product-assets/uploads/collections/default/hvn2.jpg'
+                'https://bucket-production-4ca0.up.railway.app/product-assets/uploads/collections/default/g1.jpg',
+                'https://bucket-production-4ca0.up.railway.app/product-assets/uploads/collections/default/hvn2.jpg'
             ]),
         ]);
 
@@ -45,7 +45,7 @@ class AppointmentSeeder extends Seeder
             'message' => 'Need a tuxedo for my wedding.',
             'status' => 'pending',
             'favorite_item_image_url' => json_encode([
-                'https://bucket-production-df32.up.railway.app/product-assets/uploads/collections/default/mm1.jpg'
+                'https://bucket-production-4ca0.up.railway.app/product-assets/uploads/collections/default/mm1.jpg'
             ]),
         ]);
 

@@ -397,13 +397,13 @@ const TipsAndTricksSection = memo(forwardRef(({ tipsAndTricks }, ref) => {
 }));
 
 
-const FooterSection = memo(() => (
-  <section className="relative bg-black">
+const FooterSection = memo(forwardRef((props, ref) => (
+  <section className="relative bg-black" ref={ref}>
     <div className="w-full">
       <Footer />
     </div>
   </section>
-));
+)));
 
 
 
@@ -425,7 +425,7 @@ const HomePage = () => {
   }, []);
 
   useEffect(() => {
-    sectionsRef.current = sectionsRef.current.slice(0, 7); // 7 sections total (excluding footer)
+    sectionsRef.current = sectionsRef.current.slice(0, 8); // 8 sections total (including footer)
     const handleMenuStateChange = (e) => {
       if (e.detail && e.detail.isMenuOpen !== undefined) setIsMenuOpen(e.detail.isMenuOpen);
     };
@@ -435,6 +435,10 @@ const HomePage = () => {
 
   const scrollToSection = useCallback((index) => {
     if (isScrollingRef.current || !sectionsRef.current[index] || isMenuOpen) return;
+    
+    // Disable snap scroll to footer
+    if (index === 7) return;
+
     setActiveSection(index); // Update state immediately
     isScrollingRef.current = true;
     const targetY = sectionsRef.current[index].offsetTop;
@@ -466,6 +470,19 @@ const HomePage = () => {
       }
 
       const section = sectionsRef.current[activeSection];
+      // Disable snap when scrolling down from the second to last section (Tips & Tricks) to Footer
+      // activeSection 6 is Tips & Tricks, 7 is Footer
+      if (activeSection === 6 && e.deltaY > 0) {
+          // Allow normal scroll if we are at the bottom of section 6 or just moving down
+          // We return here to let the default browser scroll handle the transition to footer naturally
+          return; 
+      }
+      
+      // Also allow normal scrolling within the footer itself (activeSection 7)
+      if (activeSection === 7) {
+          return;
+      }
+
       if (section) {
         const isLongSection = section.offsetHeight > window.innerHeight + 10;
         if (isLongSection) {
@@ -483,6 +500,10 @@ const HomePage = () => {
       if (Math.abs(deltaY) > 5) {
         if (deltaY > 0) newIndex = Math.min(activeSection + 1, sectionsRef.current.length - 1);
         else newIndex = Math.max(activeSection - 1, 0);
+        
+        // Don't snap scroll to footer (index 7), let natural scroll handle it (handled by the check above, but double check here)
+        if (newIndex === 7 && deltaY > 0) return; 
+
         if (newIndex !== activeSection) scrollToSection(newIndex);
       }
     };
@@ -495,6 +516,12 @@ const HomePage = () => {
       if (isMobile || isMenuOpen || isScrollingRef.current) return;
 
       const section = sectionsRef.current[activeSection];
+      
+      // Allow default keyboard scrolling when at Tips & Tricks (6) going down, or at Footer (7)
+      if ((activeSection === 6 && (e.key === 'ArrowDown' || e.key === 'PageDown')) || activeSection === 7) {
+          return;
+      }
+
       if (section && section.offsetHeight > window.innerHeight + 10) {
         const atBottom = Math.ceil(window.scrollY + window.innerHeight) >= section.offsetTop + section.offsetHeight - 5;
         const atTop = window.scrollY <= section.offsetTop + 5;
@@ -511,6 +538,10 @@ const HomePage = () => {
         case 'End': e.preventDefault(); newIndex = sectionsRef.current.length - 1; break;
         default: return;
       }
+      
+      // Don't snap scroll to footer on key press either
+      if (newIndex === 7) return;
+
       if (newIndex !== activeSection) scrollToSection(newIndex);
     };
     window.addEventListener('keydown', handleKeyDown);
@@ -519,7 +550,7 @@ const HomePage = () => {
 
   const { services, lookbookFeatures, tipsAndTricks } = homePageData;
 
-  const sectionNames = ['Home', 'Philosophy', 'Collections', 'Experience', 'Membership', 'Lookbook', 'Tips & Tricks'];
+  const sectionNames = ['Home', 'Philosophy', 'Collections', 'Experience', 'Membership', 'Lookbook', 'Tips & Tricks', 'Contact'];
 
   return (
     <div className="snap-scroll-container bg-attire-dark">
@@ -536,7 +567,7 @@ const HomePage = () => {
       <MembershipSection ref={el => sectionsRef.current[4] = el} />
       <LookbookSection ref={el => sectionsRef.current[5] = el} lookbookFeatures={lookbookFeatures} />
       <TipsAndTricksSection ref={el => sectionsRef.current[6] = el} tipsAndTricks={tipsAndTricks} />
-      <FooterSection />
+      <FooterSection ref={el => sectionsRef.current[7] = el} />
     </div>
   );
 };

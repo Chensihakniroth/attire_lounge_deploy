@@ -12,7 +12,7 @@ class ProductsSeeder extends Seeder
     public function run(): void
     {
         // Define MinIO endpoint and base path from Gemini's memory
-        $minioEndpoint = 'https://bucket-production-df32.up.railway.app';
+        $minioEndpoint = 'https://bucket-production-4ca0.up.railway.app';
         $basePath = 'product-assets/uploads/collections/default/';
 
         // Helper to get full image URL
