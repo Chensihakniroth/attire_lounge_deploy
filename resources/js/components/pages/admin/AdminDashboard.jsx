@@ -4,6 +4,7 @@ import { Calendar, Gift, ImageIcon, ArrowRight, Clock, AlertTriangle, User } fro
 import ErrorBoundary from '../../common/ErrorBoundary.jsx';
 import Skeleton from '../../common/Skeleton.jsx';
 import { motion } from 'framer-motion';
+import { useAdmin } from './AdminContext';
 
 const cardVariants = {
     hidden: { opacity: 0, y: 20 },
@@ -81,46 +82,27 @@ const RecentActivitySkeleton = () => (
 );
 
 const AdminDashboard = () => {
-    const [stats, setStats] = useState({ appointments: 0, gifts: 0, images: 0 });
-    const [recentAppointments, setRecentAppointments] = useState([]);
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState(null);
+    const { 
+        appointments, 
+        appointmentsLoading, 
+        fetchAppointments,
+        giftRequests,
+        giftRequestsLoading,
+        fetchGiftRequests,
+        stats
+    } = useAdmin();
 
     useEffect(() => {
-        const fetchDashboardData = async () => {
-            setLoading(true);
-            try {
-                // Using axios which is assumed to be globally available or imported elsewhere
-                const appointmentsResponse = await axios.get('/api/v1/admin/appointments');
-                const sortedAppointments = [...appointmentsResponse.data].sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
-                setRecentAppointments(sortedAppointments.slice(0, 5));
+        fetchAppointments();
+        fetchGiftRequests();
+    }, [fetchAppointments, fetchGiftRequests]);
 
-                setStats({
-                    appointments: appointmentsResponse.data.length,
-                    images: 'N/A', // Placeholder
-                    gifts: 0, // Placeholder
-                });
-
-            } catch (err) {
-                console.error("Error fetching dashboard data:", err);
-                setError("Could not load dashboard data. Please check the console for more details.");
-            } finally {
-                setLoading(false);
-            }
-        };
-        fetchDashboardData();
-    }, []);
-
-    if (error) {
-        return (
-            <div className="bg-red-900/20 p-6 rounded-lg">
-                <div className="flex">
-                    <div className="flex-shrink-0"><AlertTriangle className="h-5 w-5 text-red-500" /></div>
-                    <div className="ml-3"><h3 className="text-sm font-medium text-red-200">{error}</h3></div>
-                </div>
-            </div>
-        );
-    }
+    // Derived state for recent appointments (no need to sort if backend does, but for safety/limit we slice)
+    const recentAppointments = appointments.slice(0, 5);
+    
+    // Show loading only if we have NO data and are loading. 
+    // If we have cached data, show it immediately (stale-while-revalidate).
+    const isLoading = (appointmentsLoading && appointments.length === 0) || (giftRequestsLoading && giftRequests.length === 0);
 
     const containerVariants = {
         hidden: { opacity: 0 },
@@ -149,14 +131,14 @@ const AdminDashboard = () => {
                     className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
                     variants={containerVariants}
                 >
-                    <StatCard icon={<Calendar className="text-blue-500" />} title="Total Appointments" value={stats.appointments} link="/admin/appointments" loading={loading} />
-                    <StatCard icon={<Gift className="text-green-500" />} title="Gift Requests" value={stats.gifts} link="/admin/customize-gift" loading={loading} />
-                    <StatCard icon={<ImageIcon className="text-purple-500" />} title="Total Images" value={stats.images} link="/admin/image-manager" loading={loading} />
+                    <StatCard icon={<Calendar className="text-blue-500" />} title="Total Appointments" value={stats.appointments} link="/admin/appointments" loading={isLoading} />
+                    <StatCard icon={<Gift className="text-green-500" />} title="Gift Requests" value={stats.gifts} link="/admin/customize-gift" loading={isLoading} />
+                    <StatCard icon={<ImageIcon className="text-purple-500" />} title="Total Images" value={stats.images} link="/admin/image-manager" loading={isLoading} />
                 </motion.div>
 
                 <motion.div variants={cardVariants} className="bg-gray-800 p-6 rounded-xl shadow-sm">
                     <h2 className="text-lg font-semibold mb-4 text-white">Recent Activity</h2>
-                    {loading ? (
+                    {isLoading ? (
                         <RecentActivitySkeleton />
                     ) : recentAppointments.length > 0 ? (
                         <motion.ul 
