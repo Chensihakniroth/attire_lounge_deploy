@@ -1,103 +1,66 @@
-// API service for frontend
-async function handleResponse(response) {
-    const contentType = response.headers.get('content-type') || '';
-    const text = await response.text();
-    if (!response.ok) {
-        // include body text for debugging (trimmed)
-        const snippet = text ? text.substring(0, 1000) : '';
-        throw new Error(`API error ${response.status}: ${snippet}`);
-    }
-    if (contentType.includes('application/json')) {
-        try {
-            return JSON.parse(text);
-        } catch (err) {
-            throw new Error('Failed to parse JSON response from API: ' + err.message);
-        }
-    }
-    // If content-type not JSON, return text for debug
-    throw new Error('Expected JSON response from API but received: ' + (text ? text.substring(0, 1000) : '[no body]'));
-}
+import axios from 'axios';
+
+// Helper to extract data from axios response
+const getData = (response) => response.data;
 
 const API = {
     // Fetch products with optional filters
     async getProducts(filters = {}) {
         const params = new URLSearchParams(filters).toString();
-        const response = await fetch(`/api/v1/products?${params}`);
-        return await handleResponse(response);
+        const response = await axios.get(`/api/v1/products?${params}`);
+        return getData(response);
     },
 
     // Fetch featured products
     async getFeaturedProducts() {
-        const response = await fetch('/api/v1/products/featured');
-        return await handleResponse(response);
+        const response = await axios.get('/api/v1/products/featured');
+        return getData(response);
     },
 
     // Fetch categories
     async getCategories() {
-        const response = await fetch('/api/v1/products/categories');
-        return await handleResponse(response);
+        const response = await axios.get('/api/v1/products/categories');
+        return getData(response);
     },
 
     // Fetch collections
     async getCollections() {
-        const response = await fetch('/api/v1/products/collections');
-        return await handleResponse(response);
+        const response = await axios.get('/api/v1/products/collections');
+        return getData(response);
     },
 
     // Fetch single product by slug
     async getProduct(slug) {
-        const response = await fetch(`/api/v1/products/${slug}`);
-        return await handleResponse(response);
+        const response = await axios.get(`/api/v1/products/${slug}`);
+        return getData(response);
     },
 
     // Search products
     async searchProducts(query) {
-        const response = await fetch(`/api/v1/search?search=${encodeURIComponent(query)}`);
-        return await handleResponse(response);
+        const response = await axios.get(`/api/v1/search?search=${encodeURIComponent(query)}`);
+        return getData(response);
     },
 
     // Submit a custom gift request
     async submitGiftRequest(giftData) {
-        const response = await fetch('/api/v1/gift-requests', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'Accept': 'application/json',
-            },
-            body: JSON.stringify(giftData),
-        });
-        return await handleResponse(response);
+        const response = await axios.post('/api/v1/gift-requests', giftData);
+        return getData(response);
     },
 
     async getGiftRequests() {
-        const response = await fetch('/api/v1/gift-requests');
-        return await handleResponse(response);
+        const response = await axios.get('/api/v1/gift-requests');
+        return getData(response);
     },
 
     async updateGiftRequestStatus(id, status) {
-        const response = await fetch(`/api/v1/gift-requests/${id}/status`, {
-            method: 'PATCH',
-            headers: {
-                'Content-Type': 'application/json',
-                'Accept': 'application/json',
-            },
-            body: JSON.stringify({ status }),
-        });
-        return await handleResponse(response);
+        const response = await axios.patch(`/api/v1/gift-requests/${id}/status`, { status });
+        return getData(response);
     },
 
     async deleteGiftRequest(id) {
-        const response = await fetch(`/api/v1/gift-requests/${id}`, {
-            method: 'DELETE',
-            headers: {
-                'Accept': 'application/json',
-            }
-        });
-        // For 204 No Content, there's no body to parse, so we handle it specially
-        if (response.status === 204) {
-            return null; 
-        }
-        return await handleResponse(response);
+        const response = await axios.delete(`/api/v1/gift-requests/${id}`);
+        // Axios handles 204 automatically, returning undefined data usually, which is fine
+        return getData(response);
     }
 };
 
