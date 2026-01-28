@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../../resources/js/config.js"],
+  "sourcesContent": ["const minioBaseUrl = 'https://bucket-production-4ca0.up.railway.app/product-assets';\nexport default minioBaseUrl;\n"],
+  "mappings": "AAAA,IAAMA,EAAe,+DACdC,EAAQD",
+  "names": ["minioBaseUrl", "config_default"]
+}

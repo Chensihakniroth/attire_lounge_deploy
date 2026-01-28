@@ -13,7 +13,7 @@ const AppointmentRow = ({ appointment, onUpdateStatus, colors }) => {
     return (
         <div
             style={statusStyles[appointment.status]} 
-            className="p-5 rounded-xl shadow-sm transition-transform ease-in-out duration-200 hover:scale-[1.02]"
+            className="p-5 rounded-xl shadow-md transition duration-200 ease-out hover:scale-[1.01] hover:shadow-xl border border-gray-700/30 hover:border-gray-600/50"
         >
             <div style={{borderColor: colors.border}} className="flex justify-between items-center pb-3 mb-3 border-b">
                 <div className="flex items-center">

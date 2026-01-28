@@ -1,0 +1,1 @@
+var t="https://bucket-production-4ca0.up.railway.app/product-assets",a=t;export{a};

@@ -3,7 +3,7 @@ import React, { useEffect, useRef, useState, useCallback, forwardRef, memo } fro
 import { motion } from 'framer-motion';
 import { Users, Scissors, Coffee, ArrowRight, Gem, Feather, Palette, ChevronDown, CheckCircle, BookOpen, Camera, Sparkles } from 'lucide-react';
 import Footer from '../layouts/Footer.jsx';
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import SectionIndicator from './SectionIndicator.jsx';
 
 import minioBaseUrl from '../../config.js';
@@ -69,7 +69,7 @@ const itemVariants = {
 const HeroSection = memo(forwardRef(({ scrollToSection }, ref) => (
   <section className="relative snap-section overflow-hidden min-h-screen h-screen" ref={ref}>
     <div className="absolute inset-0 w-full h-full overflow-hidden">
-      <video autoPlay muted loop playsInline preload="auto" className="absolute w-full h-full object-cover" style={{ objectPosition: 'center 10%' }}><source src={`${minioBaseUrl}/uploads/asset/hero-background1.mp4`} type="video/mp4" /></video>
+      <video autoPlay muted loop playsInline preload="metadata" className="absolute w-full h-full object-cover" style={{ objectPosition: 'center 10%' }}><source src={`${minioBaseUrl}/uploads/asset/hero-background1.mp4`} type="video/mp4" /></video>
       <div className="absolute inset-0 bg-attire-dark/40" />
     </div>
     <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.8 }} className="relative z-10 h-full flex flex-col items-center justify-center">
@@ -125,11 +125,14 @@ const PhilosophySection = memo(forwardRef((props, ref) => (
 
 const CollectionsSection = memo(forwardRef((props, ref) => (
     <section className="relative snap-section min-h-screen h-screen" ref={ref}>
-        {/* Background Image */}
-        <div className="absolute inset-0 w-full h-full bg-cover bg-center"
-             style={{ backgroundImage: `url('${minioBaseUrl}/uploads/collections/default/g1.jpg')` }}
+        {/* Background Image - Converted to img for lazy loading */}
+        <img 
+            src={`${minioBaseUrl}/uploads/collections/default/g1.jpg`}
+            alt="Collections Background"
+            className="absolute inset-0 w-full h-full object-cover object-center"
+            loading="lazy"
         />
-<div className="absolute inset-0 bg-black/50" />
+        <div className="absolute inset-0 bg-black/50" />
 
         <div className="relative z-10 flex flex-col justify-center items-center text-center h-full max-w-4xl mx-auto px-6">
             <motion.div
@@ -413,6 +416,7 @@ const HomePage = () => {
   const [isMobile, setIsMobile] = useState(false);
   const [activeSection, setActiveSection] = useState(0);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const location = useLocation();
 
   const sectionsRef = useRef([]);
   const isScrollingRef = useRef(false);
@@ -548,9 +552,17 @@ const HomePage = () => {
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [isMobile, isMenuOpen, activeSection, scrollToSection]);
 
+  useEffect(() => {
+    if (location.hash === '#membership') {
+      setTimeout(() => {
+        scrollToSection(4);
+      }, 100); // Slight delay to ensure render
+    }
+  }, [location.hash, scrollToSection]);
+
   const { services, lookbookFeatures, tipsAndTricks } = homePageData;
 
-  const sectionNames = ['Home', 'Philosophy', 'Collections', 'Experience', 'Membership', 'Lookbook', 'Tips & Tricks', 'Contact'];
+  const sectionNames = ['Home', 'Philosophy', 'Collections', 'Experience', 'Membership', 'Lookbook', 'Tips & Tricks', 'Appointment and Contact'];
 
   return (
     <div className="snap-scroll-container bg-attire-dark">

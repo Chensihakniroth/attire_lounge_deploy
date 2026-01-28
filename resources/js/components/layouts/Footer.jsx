@@ -124,11 +124,11 @@ const Footer = () => {
               </h3>
               <ul className="space-y-4">
                 {[
-                  { name: 'Sartorial', path: '/collections/sartorial' },
-                  { name: 'Groom', path: '/collections/groom' },
-                  { name: 'Office', path: '/collections/office' },
-                  { name: 'Accessories', path: '/collections/accessories' },
-                  { name: 'New Arrivals', path: '/collections/new-arrivals' },
+                  { name: 'Havana Collection', path: '/products?collection=havana-collection' },
+                  { name: 'Mocha Mousse \'25', path: '/products?collection=mocha-mousse-25' },
+                  { name: 'Groom Collection', path: '/products?collection=groom-collection' },
+                  { name: 'Office Collection', path: '/products?collection=office-collection' },
+                  { name: 'Accessories', path: '/products?collection=accessories' },
                 ].map((item) => (
                   <li key={item.name}>
                     <Link
@@ -150,11 +150,9 @@ const Footer = () => {
               </h3>
               <ul className="space-y-4">
                 {[
-                  { name: 'About Us', path: '/about' },
-                  { name: 'Appointments', path: '/appointment' },
-                  { name: 'Attire Club', path: '/membership' },
+                  { name: 'Attire Club', path: '/#membership' },
                   { name: 'Lookbook', path: '/lookbook' },
-                  { name: 'Contact', path: '/contact' },
+                  { name: 'Appointment and Contact', path: '/contact' },
                 ].map((item) => (
                   <li key={item.name}>
                     <Link

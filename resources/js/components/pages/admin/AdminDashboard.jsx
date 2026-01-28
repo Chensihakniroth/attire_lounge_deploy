@@ -23,22 +23,27 @@ const StatCard = ({ icon, title, value, link, loading }) => {
     }
 
     return (
-        <motion.div variants={cardVariants} className="bg-gray-800 p-6 rounded-xl shadow-sm hover:shadow-lg transition-shadow duration-300">
+        <motion.div 
+            variants={cardVariants} 
+            className="bg-gray-800 p-6 rounded-xl shadow-md border border-gray-700/50 
+                       transform transition duration-200 ease-out
+                       hover:-translate-y-1 hover:shadow-xl hover:border-gray-600 hover:bg-gray-750"
+        >
             <div className="flex justify-between items-start">
-                <div className="flex items-center justify-center h-12 w-12 rounded-full bg-gray-700">
+                <div className="flex items-center justify-center h-12 w-12 rounded-full bg-gray-700 group-hover:bg-gray-600 transition-colors">
                     {icon}
                 </div>
                 {link && (
-                    <Link to={link} className="p-2 text-gray-400 hover:text-white transition-colors">
+                    <Link to={link} className="p-2 text-gray-400 hover:text-white transition-colors bg-gray-700/50 rounded-lg hover:bg-gray-600">
                         <ArrowRight size={20} />
                     </Link>
                 )}
             </div>
             <div className="mt-4">
-                <p className="text-3xl font-bold text-white">
+                <p className="text-3xl font-bold text-white tracking-tight">
                     {value}
                 </p>
-                <p className="text-sm font-medium text-gray-400 mt-1">{title}</p>
+                <p className="text-sm font-medium text-gray-400 mt-1 uppercase tracking-wider">{title}</p>
             </div>
         </motion.div>
     );
@@ -49,7 +54,8 @@ const RecentActivityItem = ({ item }) => (
         initial={{ opacity: 0, x: -20 }}
         animate={{ opacity: 1, x: 0 }}
         transition={{ duration: 0.3 }}
-        className="py-4 flex items-center justify-between border-b border-gray-700"
+        className="py-4 px-4 flex items-center justify-between border-b border-gray-700/50 last:border-0 rounded-lg 
+                   transition duration-200 ease-out hover:bg-gray-700/30 hover:translate-x-1"
     >
         <div className="flex items-center space-x-4">
             <div className="h-10 w-10 flex items-center justify-center bg-gray-700 rounded-full">

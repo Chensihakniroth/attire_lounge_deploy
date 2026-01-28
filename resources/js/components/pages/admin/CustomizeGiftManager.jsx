@@ -34,7 +34,7 @@ const GiftRequestCard = ({ request, onUpdate, onDelete }) => {
 
     return (
         <div 
-            className={`bg-gray-800 p-5 rounded-xl shadow-sm border-l-4 ${statusStyles[request.status]} transition-transform duration-200 hover:-translate-y-1`}
+            className={`bg-gray-800 p-5 rounded-xl shadow-md border-l-4 ${statusStyles[request.status]} transition duration-200 ease-out hover:-translate-y-1 hover:shadow-xl border-t border-r border-b border-gray-700/50 hover:border-gray-600`}
         >
             <div className="flex justify-between items-start pb-3 mb-3 border-b border-gray-700">
                 <div className="flex items-center">

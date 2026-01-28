@@ -3,6 +3,7 @@ import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import CollectionCard from './collections/CollectionCard';
 import { collections as mockCollections } from '../../data/products.js'; // Import mock collections
+import minioBaseUrl from '../../config.js';
 
 const PageHeader = () => (
     <div className="text-center py-16 sm:py-24 bg-attire-navy">
@@ -40,7 +41,7 @@ const CollectionsPage = () => {
         slug: 'products',
         title: 'Browse All',
         description: 'Explore our entire range of products.',
-        image: 'https://via.placeholder.com/600x800',
+        image: `${minioBaseUrl}/uploads/collections/default/of3.jpg`,
         itemsCount: 'All'
     };
 

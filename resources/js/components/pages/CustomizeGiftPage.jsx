@@ -2,25 +2,30 @@ import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Send, ShoppingCart, Check, User, Mail, Phone, ArrowRight, Loader, AlertTriangle, Gift } from 'lucide-react';
 import api from '../../api';
+import minioBaseUrl from '../../config';
 
 const giftOptions = {
     ties: [
-      { id: 'tie-red', name: 'Silk Tie', color: 'Red', image: 'https://placehold.co/300x400/A83232/FFF?text=Red+Tie' },
-      { id: 'tie-blue', name: 'Silk Tie', color: 'Blue', image: 'https://placehold.co/300x400/3264A8/FFF?text=Blue+Tie' },
-      { id: 'tie-green', name: 'Silk Tie', color: 'Green', image: 'https://placehold.co/300x400/32A852/FFF?text=Green+Tie' },
-      { id: 'tie-black', name: 'Silk Tie', color: 'Black', image: 'https://placehold.co/300x400/333/FFF?text=Black+Tie' },
+      { id: 'tie-brown69', name: 'Silk Tie', color: 'Brown', image: `${minioBaseUrl}/uploads/collections/accessories/brown69.jpg` },
+      { id: 'tie-cream49', name: 'Silk Tie', color: 'Cream', image: `${minioBaseUrl}/uploads/collections/accessories/cream49.jpg` },
+      { id: 'tie-cyan69', name: 'Silk Tie', color: 'Cyan', image: `${minioBaseUrl}/uploads/collections/accessories/cyan69.jpg` },
+      { id: 'tie-blue69', name: 'Silk Tie', color: 'Blue', image: `${minioBaseUrl}/uploads/collections/accessories/blue69.jpg` },
+      { id: 'tie-green49', name: 'Silk Tie', color: 'Green', image: `${minioBaseUrl}/uploads/collections/accessories/green49.jpg` },
+      { id: 'tie-white69', name: 'Silk Tie', color: 'White', image: `${minioBaseUrl}/uploads/collections/accessories/white69.jpg` },
+      { id: 'tie-red69', name: 'Silk Tie', color: 'Red', image: `${minioBaseUrl}/uploads/collections/accessories/red69.jpg` },
     ],
     pocketSquares: [
-      { id: 'ps-white', name: 'Linen Pocket Square', color: 'White', image: 'https://placehold.co/300x400/EEE/333?text=White+PS' },
-      { id: 'ps-navy', name: 'Linen Pocket Square', color: 'Navy', image: 'https://placehold.co/300x400/0d3542/FFF?text=Navy+PS' },
-      { id: 'ps-burgundy', name: 'Linen Pocket Square', color: 'Burgundy', image: 'https://placehold.co/300x400/800020/FFF?text=Burgundy+PS' },
-      { id: 'ps-gold', name: 'Linen Pocket Square', color: 'Gold', image: 'https://placehold.co/300x400/FFD700/333?text=Gold+PS' },
-      { id: 'ps-pattern', name: 'Patterned Pocket Square', color: 'Patterned', image: 'https://placehold.co/300x400/DDD/333?text=Patterned+PS' },
+      { id: 'ps-blue', name: 'Linen Pocket Square', color: 'Blue', image: `${minioBaseUrl}/uploads/collections/accessories/psblue.jpg` },
+      { id: 'ps-green', name: 'Linen Pocket Square', color: 'Green', image: `${minioBaseUrl}/uploads/collections/accessories/psgreen.jpg` },
+      { id: 'ps-pink', name: 'Linen Pocket Square', color: 'Pink', image: `${minioBaseUrl}/uploads/collections/accessories/pspink.jpg` },
+      { id: 'ps-red', name: 'Linen Pocket Square', color: 'Red', image: `${minioBaseUrl}/uploads/collections/accessories/psred.jpg` },
+      { id: 'ps-yellowgreen', name: 'Linen Pocket Square', color: 'Yellow Green', image: `${minioBaseUrl}/uploads/collections/accessories/psyellowgreen.jpg` },
+      { id: 'ps-yellow', name: 'Linen Pocket Square', color: 'Yellow', image: `${minioBaseUrl}/uploads/collections/accessories/psyellow.jpg` },
     ],
     boxes: [
-      { id: 'box-normal', name: 'Normal Box', image: 'https://placehold.co/300x300/666/FFF?text=Normal+Box' },
-      { id: 'box-big', name: 'Big Box', image: 'https://placehold.co/300x300/444/FFF?text=Big+Box' },
-      { id: 'box-designer', name: 'Designer Box', image: 'https://placehold.co/300x300/222/FFF?text=Designer+Box' },
+      { id: 'box-small', name: 'Small Box', image: `${minioBaseUrl}/uploads/collections/accessories/smallbox.jpg` },
+      { id: 'box-mid', name: 'Mid Box', image: `${minioBaseUrl}/uploads/collections/accessories/midbox.jpg` },
+      { id: 'box-designer', name: 'Designer Box', image: `${minioBaseUrl}/uploads/collections/accessories/designer_box.jpg` },
     ],
   };
 
@@ -101,7 +106,7 @@ const CustomizeGiftPage = () => {
         if (!formData.email.trim()) errors.email = 'Email is required.';
         else if (!/\S+@\S+\.\S+/.test(formData.email)) errors.email = 'Email is invalid.';
         if (!formData.phone.trim()) errors.phone = 'Phone is required.';
-        
+
         if (Object.keys(errors).length > 0) {
             setFormErrors(errors);
             return;
@@ -130,7 +135,7 @@ ${note ? `Note: "${note}"` : ''}
             setSubmissionStatus({ state: 'error', message: 'Something went wrong. Please try again.' });
         }
     };
-    
+
     const resetForm = () => {
         setStep(1);
         setFormData({ name: '', email: '', phone: '' });
@@ -160,7 +165,7 @@ ${note ? `Note: "${note}"` : ''}
             </div>
         );
     }
-    
+
     return (
         <div className="min-h-screen bg-attire-navy py-12 md:py-24">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -209,7 +214,7 @@ ${note ? `Note: "${note}"` : ''}
                         </div>
                     </motion.div>
                 )}
-                
+
                 {step === 2 && (
                     <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
                         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">

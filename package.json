@@ -3,10 +3,10 @@
     "scripts": {
         "dev": "concurrently \"npm run dev:css\" \"npm run dev:js\"",
         "dev:css": "tailwindcss -i ./resources/css/app.css -o ./public/css/app.css --watch",
-        "dev:js": "esbuild resources/js/app.jsx --bundle --outfile=public/js/app.js --watch --loader:.js=jsx --loader:.jsx=jsx",
+        "dev:js": "esbuild resources/js/app.jsx --bundle --splitting --outdir=public/js --format=esm --watch --sourcemap --loader:.js=jsx --loader:.jsx=jsx",
         "build": "npm run build:css && npm run build:js",
         "build:css": "tailwindcss -i ./resources/css/app.css -o ./public/css/app.css --minify",
-        "build:js": "esbuild resources/js/app.jsx --bundle --minify --outfile=public/js/app.js --loader:.js=jsx --loader:.jsx=jsx"
+        "build:js": "esbuild resources/js/app.jsx --bundle --splitting --minify --outdir=public/js --format=esm --sourcemap --loader:.js=jsx --loader:.jsx=jsx"
     },
     "dependencies": {
         "@tailwindcss/aspect-ratio": "^0.4.2",
