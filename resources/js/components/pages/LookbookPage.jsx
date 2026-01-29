@@ -48,9 +48,36 @@ const LookbookPage = () => {
     const [filter, setFilter] = useState('all');
     const [favorites, setFavorites] = useState([]);
 
-    const filteredImages = images.filter(img => filter === 'all' || img.category.includes(filter));
+    const [currentPage, setCurrentPage] = useState(1);
+    const itemsPerPage = 16;
+
+    useEffect(() => {
+        setCurrentPage(1);
+    }, [filter]);
+
+    const filteredImages = React.useMemo(() => 
+        images.filter(img => filter === 'all' || img.category.includes(filter)), 
+    [images, filter]);
+    
+    const totalPages = Math.ceil(filteredImages.length / itemsPerPage);
+    
+    const paginatedImages = React.useMemo(() => 
+        filteredImages.slice(
+            (currentPage - 1) * itemsPerPage,
+            currentPage * itemsPerPage
+        ), 
+    [filteredImages, currentPage, itemsPerPage]);
+
     const imageIndex = page !== null ? wrap(0, filteredImages.length, page) : null;
     const selectedImage = page !== null ? filteredImages[imageIndex] : null;
+
+    const handlePageChange = (newPage) => {
+        if (newPage >= 1 && newPage <= totalPages) {
+            setCurrentPage(newPage);
+            const mainContent = document.getElementById('main-content');
+            if(mainContent) mainContent.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+    };
 
     useEffect(() => {
         const savedFavorites = localStorage.getItem('lookbook_favorites');
@@ -161,17 +188,17 @@ const LookbookPage = () => {
                 className="flex-grow overflow-y-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none] touch-pan-y"
             >
                 <motion.div
-                    key={filter}
+                    key={filter + currentPage}
                     variants={containerVariants}
                     initial="hidden"
                     animate="visible"
                     className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 p-4 lg:p-8"
                 >
-                    {filteredImages.map((image, index) => (
+                    {paginatedImages.map((image, index) => (
                         <div
                             key={image.id}
                             className="group relative cursor-pointer overflow-hidden h-[28rem]"
-                            onClick={() => openLightbox(index)}
+                            onClick={() => openLightbox((currentPage - 1) * itemsPerPage + index)}
                         >
                             <img
                                 src={image.src}
@@ -181,6 +208,28 @@ const LookbookPage = () => {
                         </div>
                     ))}
                 </motion.div>
+
+                {totalPages > 1 && (
+                    <div className="flex justify-center items-center gap-4 py-8 pb-20">
+                        <button
+                            onClick={() => handlePageChange(currentPage - 1)}
+                            disabled={currentPage === 1}
+                            className="p-2 rounded-full border border-attire-silver/20 text-attire-silver hover:bg-white/10 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                        >
+                            <ChevronLeft size={20} />
+                        </button>
+                        <span className="text-attire-silver font-medium">
+                            Page {currentPage} of {totalPages}
+                        </span>
+                        <button
+                            onClick={() => handlePageChange(currentPage + 1)}
+                            disabled={currentPage === totalPages}
+                            className="p-2 rounded-full border border-attire-silver/20 text-attire-silver hover:bg-white/10 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                        >
+                            <ChevronRight size={20} />
+                        </button>
+                    </div>
+                )}
             </motion.div>
 
             <AnimatePresence>

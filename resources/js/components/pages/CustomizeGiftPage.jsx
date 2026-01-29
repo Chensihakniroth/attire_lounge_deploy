@@ -3,6 +3,7 @@ import { motion } from 'framer-motion';
 import { Send, ShoppingCart, Check, User, Mail, Phone, ArrowRight, Loader, AlertTriangle, Gift } from 'lucide-react';
 import api from '../../api';
 import minioBaseUrl from '../../config';
+import Skeleton from '../common/Skeleton.jsx';
 
 const giftOptions = {
     ties: [
@@ -29,28 +30,53 @@ const giftOptions = {
     ],
   };
 
-const SelectionCard = ({ item, isSelected, onSelect }) => (
-    <motion.div
-        onClick={onSelect}
-        className={`relative rounded-lg overflow-hidden border-2 cursor-pointer transition-all duration-300 ${isSelected ? 'border-attire-accent' : 'border-transparent'}`}
-        whileHover={{ scale: 1.05 }}
-    >
-        <div className="absolute inset-0 bg-black/20 z-10"></div>
-        <img src={item.image} alt={item.name} className="w-full h-full object-cover" />
-        <div className="absolute bottom-0 left-0 p-3 z-20">
-            <h4 className="font-semibold text-white">{item.name}</h4>
-            {item.color && <p className="text-sm text-white/80">{item.color}</p>}
-        </div>
-        {isSelected && (
-            <motion.div
-                layoutId={`selected-check-${item.id}`}
-                className="absolute top-2 right-2 bg-attire-accent text-attire-dark rounded-full w-6 h-6 flex items-center justify-center z-20"
-            >
-                <Check size={16} />
-            </motion.div>
-        )}
-    </motion.div>
-);
+const SelectionCard = ({ item, isSelected, onSelect }) => {
+    const [isLoaded, setIsLoaded] = React.useState(false);
+
+    return (
+        <motion.div
+            onClick={onSelect}
+            className={`relative rounded-lg overflow-hidden border-2 cursor-pointer transition-all duration-300 ${isSelected ? 'border-attire-accent' : 'border-transparent'}`}
+            whileHover={{ scale: 1.05 }}
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+        >
+            <div className="absolute inset-0 bg-black/20 z-10"></div>
+            
+            {!isLoaded && (
+                <div className="absolute inset-0 z-0">
+                    <Skeleton className="w-full h-full rounded-none bg-gray-800" />
+                    <div className="absolute inset-0 flex items-center justify-center">
+                        <Loader className="animate-spin text-attire-accent/20" size={24} />
+                    </div>
+                </div>
+            )}
+
+            <motion.img 
+                src={item.image} 
+                alt={item.name} 
+                className="w-full h-full object-cover"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: isLoaded ? 1 : 0 }}
+                transition={{ duration: 0.5 }}
+                onLoad={() => setIsLoaded(true)}
+            />
+
+            <div className="absolute bottom-0 left-0 p-3 z-20">
+                <h4 className="font-semibold text-white">{item.name}</h4>
+                {item.color && <p className="text-sm text-white/80">{item.color}</p>}
+            </div>
+            {isSelected && (
+                <motion.div
+                    layoutId={`selected-check-${item.id}`}
+                    className="absolute top-2 right-2 bg-attire-accent text-attire-dark rounded-full w-6 h-6 flex items-center justify-center z-20"
+                >
+                    <Check size={16} />
+                </motion.div>
+            )}
+        </motion.div>
+    );
+};
 
 const InputField = ({ icon, ...props }) => (
     <div className="relative">
@@ -216,7 +242,17 @@ ${note ? `Note: "${note}"` : ''}
                 )}
 
                 {step === 2 && (
-                    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
+                    <motion.div 
+                        initial="hidden" 
+                        animate="visible"
+                        variants={{
+                            hidden: { opacity: 0 },
+                            visible: { 
+                                opacity: 1,
+                                transition: { staggerChildren: 0.05 }
+                            }
+                        }}
+                    >
                         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
                             <div className="lg:col-span-2 space-y-12">
                                 <section>

@@ -420,6 +420,8 @@ const HomePage = () => {
 
   const sectionsRef = useRef([]);
   const isScrollingRef = useRef(false);
+  const wheelTimeoutRef = useRef(null);
+  const isScrollLockedRef = useRef(false);
 
   useEffect(() => {
     const checkMobile = () => setIsMobile(window.innerWidth < 768);
@@ -468,47 +470,56 @@ const HomePage = () => {
   useEffect(() => {
     if (isMobile || isMenuOpen) return;
     const handleWheel = (e) => {
-      if (isScrollingRef.current) {
-        e.preventDefault();
-        return;
+      // 1. Debounce logic: Detect end of stream (gesture)
+      // If no new event comes within 100ms, we consider the gesture/inertia finished.
+      clearTimeout(wheelTimeoutRef.current);
+      wheelTimeoutRef.current = setTimeout(() => {
+          isScrollLockedRef.current = false;
+      }, 100);
+
+      // 2. If we are already locked (acted on this stream) or animating, block everything.
+      if (isScrollLockedRef.current || isScrollingRef.current) {
+          e.preventDefault();
+          return;
       }
 
       const section = sectionsRef.current[activeSection];
-      // Disable snap when scrolling down from the second to last section (Tips & Tricks) to Footer
-      // activeSection 6 is Tips & Tricks, 7 is Footer
-      if (activeSection === 6 && e.deltaY > 0) {
-          // Allow normal scroll if we are at the bottom of section 6 or just moving down
-          // We return here to let the default browser scroll handle the transition to footer naturally
-          return;
-      }
-
-      // Also allow normal scrolling within the footer itself (activeSection 7)
-      if (activeSection === 7) {
-          return;
-      }
-
+      
+      // Check for Long Section logic (allow normal scroll if not at edges)
       if (section) {
         const isLongSection = section.offsetHeight > window.innerHeight + 10;
         if (isLongSection) {
           const atBottom = Math.ceil(window.scrollY + window.innerHeight) >= section.offsetTop + section.offsetHeight - 5;
           const atTop = window.scrollY <= section.offsetTop + 5;
 
-          if (e.deltaY > 0 && !atBottom) return; // Allow normal scroll down
-          if (e.deltaY < 0 && !atTop) return; // Allow normal scroll up
+          // If inside a long section, ALLOW default scrolling.
+          // Do NOT preventDefault, Do NOT lock.
+          if (e.deltaY > 0 && !atBottom) return; 
+          if (e.deltaY < 0 && !atTop) return; 
         }
       }
 
+      // Disable snap when scrolling down from the second to last section (Tips & Tricks) to Footer
+      if (activeSection === 6 && e.deltaY > 0) return;
+
+      // Also allow normal scrolling within the footer itself
+      if (activeSection === 7) return;
+
       e.preventDefault();
+      
       const deltaY = e.deltaY;
       let newIndex = activeSection;
       if (Math.abs(deltaY) > 5) {
         if (deltaY > 0) newIndex = Math.min(activeSection + 1, sectionsRef.current.length - 1);
         else newIndex = Math.max(activeSection - 1, 0);
 
-        // Don't snap scroll to footer (index 7), let natural scroll handle it (handled by the check above, but double check here)
+        // Don't snap scroll to footer
         if (newIndex === 7 && deltaY > 0) return;
 
-        if (newIndex !== activeSection) scrollToSection(newIndex);
+        if (newIndex !== activeSection) {
+            isScrollLockedRef.current = true; // Lock for the rest of this gesture stream
+            scrollToSection(newIndex);
+        }
       }
     };
     window.addEventListener('wheel', handleWheel, { passive: false });

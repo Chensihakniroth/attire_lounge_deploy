@@ -35,6 +35,13 @@ const ProductListPage = () => {
         return collectionQuery ? [collectionQuery] : [];
     });
 
+    const [currentPage, setCurrentPage] = useState(1);
+    const itemsPerPage = 16;
+
+    useEffect(() => {
+        setCurrentPage(1);
+    }, [selectedCollections, sortOrder]);
+
     const { pageTitle, filteredProducts } = useMemo(() => {
         let products = [...allProducts];
 
@@ -126,6 +133,19 @@ const ProductListPage = () => {
     
     const isDefaultPrice = true; // Price filter removed
 
+    const totalPages = Math.ceil(filteredProducts.length / itemsPerPage);
+    const paginatedProducts = filteredProducts.slice(
+        (currentPage - 1) * itemsPerPage,
+        currentPage * itemsPerPage
+    );
+
+    const handlePageChange = (newPage) => {
+        if (newPage >= 1 && newPage <= totalPages) {
+            setCurrentPage(newPage);
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+    };
+
     return (
         <div className="min-h-screen bg-attire-navy">
             <header className="text-center py-16 sm:py-24">
@@ -158,9 +178,14 @@ const ProductListPage = () => {
                     variants={containerVariants}
                     initial="hidden"
                     animate="visible"
+                    key={currentPage} 
                 >
-                    {filteredProducts.map((item, index) => (
-                        <ItemCard key={item.id} product={item} openLightbox={() => openLightbox(index)} />
+                    {paginatedProducts.map((item, index) => (
+                        <ItemCard 
+                            key={item.id} 
+                            product={item} 
+                            openLightbox={() => openLightbox((currentPage - 1) * itemsPerPage + index)} 
+                        />
                     ))}
                 </motion.div>
 
@@ -169,6 +194,28 @@ const ProductListPage = () => {
                         <p className="text-2xl font-serif text-attire-cream">No products found.</p>
                         <p className="text-attire-cream mt-2">Try adjusting your filters or search term.</p>
                     </motion.div>
+                )}
+
+                {totalPages > 1 && (
+                    <div className="flex justify-center items-center gap-4 mt-12">
+                        <button
+                            onClick={() => handlePageChange(currentPage - 1)}
+                            disabled={currentPage === 1}
+                            className="p-2 rounded-full border border-attire-silver/20 text-attire-silver hover:bg-white/10 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                        >
+                            <ChevronLeft size={20} />
+                        </button>
+                        <span className="text-attire-silver font-medium">
+                            Page {currentPage} of {totalPages}
+                        </span>
+                        <button
+                            onClick={() => handlePageChange(currentPage + 1)}
+                            disabled={currentPage === totalPages}
+                            className="p-2 rounded-full border border-attire-silver/20 text-attire-silver hover:bg-white/10 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                        >
+                            <ChevronRight size={20} />
+                        </button>
+                    </div>
                 )}
             </main>
 
