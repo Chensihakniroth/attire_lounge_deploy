@@ -100,7 +100,7 @@ const PhilosophySection = memo(forwardRef((props, ref) => (
         >
           <motion.h2 variants={itemVariants} className="font-serif text-sm md:text-base tracking-[0.2em] text-attire-accent uppercase mb-4">Our Philosophy</motion.h2>
           <motion.p variants={itemVariants} transition={{ delay: 0.2 }} className="font-serif text-2xl md:text-4xl leading-relaxed mb-8">
-            Attire Lounge is Cambodia's first sartorial gentlemen's styling house, offering a variety of ready-to-wear collections and premium styling with our Milan-certified team.
+            Attire Lounge Official is Cambodia's first sartorial gentlemen's styling house, offering a variety of ready-to-wear collections and style consultation with our certified stylists.
           </motion.p>
           <motion.div variants={itemVariants} transition={{ delay: 0.4 }}>
             <Link to="/contact" className="inline-block bg-attire-accent text-white font-semibold px-10 py-4 rounded-lg hover:bg-attire-accent/90 transition-colors">
@@ -126,7 +126,7 @@ const PhilosophySection = memo(forwardRef((props, ref) => (
 const CollectionsSection = memo(forwardRef((props, ref) => (
     <section className="relative snap-section min-h-screen h-screen" ref={ref}>
         {/* Background Image - Converted to img for lazy loading */}
-        <img 
+        <img
             src={`${minioBaseUrl}/uploads/collections/default/g1.jpg`}
             alt="Collections Background"
             className="absolute inset-0 w-full h-full object-cover object-center"
@@ -229,7 +229,7 @@ const MembershipSection = memo(forwardRef((props, ref) => (
             >
                 <motion.h2 variants={itemVariants} className="font-serif text-3xl md:text-4xl text-white mb-2">ATTIRE CLUB</motion.h2>
                 <motion.h3 variants={itemVariants} transition={{ delay: 0.1 }} className="text-attire-accent tracking-[0.2em] uppercase text-sm mb-6">Membership Card</motion.h3>
-                
+
                 <motion.div variants={itemVariants} transition={{ delay: 0.2 }} className="text-sm md:text-base text-attire-silver space-y-3 leading-relaxed">
                     <p>Entitlement upon a minimum purchase of US$500 per receipt. Requires full name, DOB (month & date), and contact number.</p>
 
@@ -280,12 +280,12 @@ const LookbookSection = memo(forwardRef(({ lookbookFeatures }, ref) => (
   <section className="relative snap-section bg-attire-dark py-8 md:py-16" ref={ref}>
     <img src={`${minioBaseUrl}/uploads/collections/default/of3.jpg`} alt="Lookbook Background" className="absolute inset-0 w-full h-full object-cover object-center" loading="lazy" decoding="async" />
     <div className="absolute inset-0 bg-gradient-to-b from-attire-dark/80 to-attire-dark/40" />
-    
+
     <div className="relative h-full flex flex-col items-center justify-center text-center text-attire-cream p-4 md:p-8">
-      <motion.div 
-        variants={containerVariants} 
-        initial="hidden" 
-        whileInView="visible" 
+      <motion.div
+        variants={containerVariants}
+        initial="hidden"
+        whileInView="visible"
         viewport={{ once: true, amount: 0.2 }}
         className="w-full max-w-6xl mx-auto"
       >
@@ -296,14 +296,14 @@ const LookbookSection = memo(forwardRef(({ lookbookFeatures }, ref) => (
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-8 mb-6 md:mb-10">
           {lookbookFeatures.map((feature, index) => (
-            <motion.div 
+            <motion.div
               key={index}
               variants={itemVariants}
               transition={{ delay: 0.4 + index * 0.2 }}
               className="bg-attire-dark/30 backdrop-blur-md border border-attire-cream/10 rounded-2xl shadow-lg p-6 flex flex-col items-center"
             >
-              <motion.div 
-                whileHover={{ scale: 1.1, rotate: 5 }} 
+              <motion.div
+                whileHover={{ scale: 1.1, rotate: 5 }}
                 transition={{ type: "spring", stiffness: 300 }}
                 className="mb-2"
               >
@@ -369,7 +369,7 @@ const TipsAndTricksSection = memo(forwardRef(({ tipsAndTricks }, ref) => {
             </motion.div>
           ))}
         </div>
-        
+
         {/* Mobile Grid */}
         <div className="md:hidden flex flex-wrap justify-center gap-4">
           {tipsAndTricks.map((tip, i) => (
@@ -439,7 +439,7 @@ const HomePage = () => {
 
   const scrollToSection = useCallback((index) => {
     if (isScrollingRef.current || !sectionsRef.current[index] || isMenuOpen) return;
-    
+
     // Disable snap scroll to footer
     if (index === 7) return;
 
@@ -479,9 +479,9 @@ const HomePage = () => {
       if (activeSection === 6 && e.deltaY > 0) {
           // Allow normal scroll if we are at the bottom of section 6 or just moving down
           // We return here to let the default browser scroll handle the transition to footer naturally
-          return; 
+          return;
       }
-      
+
       // Also allow normal scrolling within the footer itself (activeSection 7)
       if (activeSection === 7) {
           return;
@@ -504,9 +504,9 @@ const HomePage = () => {
       if (Math.abs(deltaY) > 5) {
         if (deltaY > 0) newIndex = Math.min(activeSection + 1, sectionsRef.current.length - 1);
         else newIndex = Math.max(activeSection - 1, 0);
-        
+
         // Don't snap scroll to footer (index 7), let natural scroll handle it (handled by the check above, but double check here)
-        if (newIndex === 7 && deltaY > 0) return; 
+        if (newIndex === 7 && deltaY > 0) return;
 
         if (newIndex !== activeSection) scrollToSection(newIndex);
       }
@@ -520,7 +520,7 @@ const HomePage = () => {
       if (isMobile || isMenuOpen || isScrollingRef.current) return;
 
       const section = sectionsRef.current[activeSection];
-      
+
       // Allow default keyboard scrolling when at Tips & Tricks (6) going down, or at Footer (7)
       if ((activeSection === 6 && (e.key === 'ArrowDown' || e.key === 'PageDown')) || activeSection === 7) {
           return;
@@ -542,7 +542,7 @@ const HomePage = () => {
         case 'End': e.preventDefault(); newIndex = sectionsRef.current.length - 1; break;
         default: return;
       }
-      
+
       // Don't snap scroll to footer on key press either
       if (newIndex === 7) return;
 
@@ -566,7 +566,7 @@ const HomePage = () => {
 
   return (
     <div className="snap-scroll-container bg-attire-dark">
-      <SectionIndicator 
+      <SectionIndicator
         sections={sectionNames}
         activeSection={activeSection}
         scrollToSection={scrollToSection}

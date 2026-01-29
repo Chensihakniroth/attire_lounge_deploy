@@ -153,7 +153,7 @@ var PhilosophySection = (0, import_react2.memo)((0, import_react2.forwardRef)((p
     viewport: { once: true, amount: 0.6 }
   },
   /* @__PURE__ */ import_react2.default.createElement(motion.h2, { variants: itemVariants, className: "font-serif text-sm md:text-base tracking-[0.2em] text-attire-accent uppercase mb-4" }, "Our Philosophy"),
-  /* @__PURE__ */ import_react2.default.createElement(motion.p, { variants: itemVariants, transition: { delay: 0.2 }, className: "font-serif text-2xl md:text-4xl leading-relaxed mb-8" }, "Attire Lounge is Cambodia's first sartorial gentlemen's styling house, offering a variety of ready-to-wear collections and premium styling with our Milan-certified team."),
+  /* @__PURE__ */ import_react2.default.createElement(motion.p, { variants: itemVariants, transition: { delay: 0.2 }, className: "font-serif text-2xl md:text-4xl leading-relaxed mb-8" }, "Attire Lounge Official is Cambodia's first sartorial gentlemen's styling house, offering a variety of ready-to-wear collections and style consultation with our certified stylists."),
   /* @__PURE__ */ import_react2.default.createElement(motion.div, { variants: itemVariants, transition: { delay: 0.4 } }, /* @__PURE__ */ import_react2.default.createElement(Link, { to: "/contact", className: "inline-block bg-attire-accent text-white font-semibold px-10 py-4 rounded-lg hover:bg-attire-accent/90 transition-colors" }, "Make Appointment"))
 )), /* @__PURE__ */ import_react2.default.createElement("div", { className: "relative w-full h-full overflow-hidden hidden md:block" }, /* @__PURE__ */ import_react2.default.createElement(
   "img",
@@ -463,4 +463,4 @@ var HomePage_default = HomePage;
 export {
   HomePage_default as default
 };
-//# sourceMappingURL=HomePage-JMYGP5EV.js.map
+//# sourceMappingURL=HomePage-4VM4IUPW.js.map
