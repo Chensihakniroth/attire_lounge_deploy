@@ -6,26 +6,26 @@ import minioBaseUrl from '../../config';
 
 const giftOptions = {
     ties: [
-      { id: 'tie-brown69', name: 'Silk Tie', color: 'Brown', image: `${minioBaseUrl}/uploads/collections/accessories/brown69.jpg` },
-      { id: 'tie-cream49', name: 'Silk Tie', color: 'Cream', image: `${minioBaseUrl}/uploads/collections/accessories/cream49.jpg` },
-      { id: 'tie-cyan69', name: 'Silk Tie', color: 'Cyan', image: `${minioBaseUrl}/uploads/collections/accessories/cyan69.jpg` },
-      { id: 'tie-blue69', name: 'Silk Tie', color: 'Blue', image: `${minioBaseUrl}/uploads/collections/accessories/blue69.jpg` },
-      { id: 'tie-green49', name: 'Silk Tie', color: 'Green', image: `${minioBaseUrl}/uploads/collections/accessories/green49.jpg` },
-      { id: 'tie-white69', name: 'Silk Tie', color: 'White', image: `${minioBaseUrl}/uploads/collections/accessories/white69.jpg` },
-      { id: 'tie-red69', name: 'Silk Tie', color: 'Red', image: `${minioBaseUrl}/uploads/collections/accessories/red69.jpg` },
+      { id: 'tie-brown69', name: 'Silk Tie', color: 'Brown', image: `${minioBaseUrl}/uploads/collections/accessories/brown69.webp` },
+      { id: 'tie-cream49', name: 'Silk Tie', color: 'Cream', image: `${minioBaseUrl}/uploads/collections/accessories/cream49.webp` },
+      { id: 'tie-cyan69', name: 'Silk Tie', color: 'Cyan', image: `${minioBaseUrl}/uploads/collections/accessories/cyan69.webp` },
+      { id: 'tie-blue69', name: 'Silk Tie', color: 'Blue', image: `${minioBaseUrl}/uploads/collections/accessories/blue69.webp` },
+      { id: 'tie-green49', name: 'Silk Tie', color: 'Green', image: `${minioBaseUrl}/uploads/collections/accessories/green49.webp` },
+      { id: 'tie-white69', name: 'Silk Tie', color: 'White', image: `${minioBaseUrl}/uploads/collections/accessories/white69.webp` },
+      { id: 'tie-red69', name: 'Silk Tie', color: 'Red', image: `${minioBaseUrl}/uploads/collections/accessories/red69.webp` },
     ],
     pocketSquares: [
-      { id: 'ps-blue', name: 'Linen Pocket Square', color: 'Blue', image: `${minioBaseUrl}/uploads/collections/accessories/psblue.jpg` },
-      { id: 'ps-green', name: 'Linen Pocket Square', color: 'Green', image: `${minioBaseUrl}/uploads/collections/accessories/psgreen.jpg` },
-      { id: 'ps-pink', name: 'Linen Pocket Square', color: 'Pink', image: `${minioBaseUrl}/uploads/collections/accessories/pspink.jpg` },
-      { id: 'ps-red', name: 'Linen Pocket Square', color: 'Red', image: `${minioBaseUrl}/uploads/collections/accessories/psred.jpg` },
-      { id: 'ps-yellowgreen', name: 'Linen Pocket Square', color: 'Yellow Green', image: `${minioBaseUrl}/uploads/collections/accessories/psyellowgreen.jpg` },
-      { id: 'ps-yellow', name: 'Linen Pocket Square', color: 'Yellow', image: `${minioBaseUrl}/uploads/collections/accessories/psyellow.jpg` },
+      { id: 'ps-blue', name: 'Linen Pocket Square', color: 'Blue', image: `${minioBaseUrl}/uploads/collections/accessories/psblue.webp` },
+      { id: 'ps-green', name: 'Linen Pocket Square', color: 'Green', image: `${minioBaseUrl}/uploads/collections/accessories/psgreen.webp` },
+      { id: 'ps-pink', name: 'Linen Pocket Square', color: 'Pink', image: `${minioBaseUrl}/uploads/collections/accessories/pspink.webp` },
+      { id: 'ps-red', name: 'Linen Pocket Square', color: 'Red', image: `${minioBaseUrl}/uploads/collections/accessories/psred.webp` },
+      { id: 'ps-yellowgreen', name: 'Linen Pocket Square', color: 'Yellow Green', image: `${minioBaseUrl}/uploads/collections/accessories/psyellowgreen.webp` },
+      { id: 'ps-yellow', name: 'Linen Pocket Square', color: 'Yellow', image: `${minioBaseUrl}/uploads/collections/accessories/psyellow.webp` },
     ],
     boxes: [
-      { id: 'box-small', name: 'Small Box', image: `${minioBaseUrl}/uploads/collections/accessories/smallbox.jpg` },
-      { id: 'box-mid', name: 'Mid Box', image: `${minioBaseUrl}/uploads/collections/accessories/midbox.jpg` },
-      { id: 'box-designer', name: 'Designer Box', image: `${minioBaseUrl}/uploads/collections/accessories/designer_box.jpg` },
+      { id: 'box-small', name: 'Small Box', image: `${minioBaseUrl}/uploads/collections/accessories/smallbox.webp` },
+      { id: 'box-mid', name: 'Mid Box', image: `${minioBaseUrl}/uploads/collections/accessories/midbox.webp` },
+      { id: 'box-designer', name: 'Designer Box', image: `${minioBaseUrl}/uploads/collections/accessories/designer_box.webp` },
     ],
   };
 

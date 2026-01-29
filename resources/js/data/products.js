@@ -37,7 +37,7 @@ export const products = [
         collection: 'Accessories',
         collectionSlug: 'accessories',
         price: 85,
-        images: [`${minioBaseUrl}/uploads/collections/accessories/brown69.jpg`],
+        images: [`${minioBaseUrl}/uploads/collections/accessories/brown69.webp`],
         createdAt: new Date(),
         popularity: 0.9,
         description: 'A premium brown silk tie.'
@@ -48,7 +48,7 @@ export const products = [
         collection: 'Accessories',
         collectionSlug: 'accessories',
         price: 85,
-        images: [`${minioBaseUrl}/uploads/collections/accessories/cream49.jpg`],
+        images: [`${minioBaseUrl}/uploads/collections/accessories/cream49.webp`],
         createdAt: new Date(),
         popularity: 0.85,
         description: 'An elegant cream silk tie.'
@@ -59,7 +59,7 @@ export const products = [
         collection: 'Accessories',
         collectionSlug: 'accessories',
         price: 85,
-        images: [`${minioBaseUrl}/uploads/collections/accessories/cyan69.jpg`],
+        images: [`${minioBaseUrl}/uploads/collections/accessories/cyan69.webp`],
         createdAt: new Date(),
         popularity: 0.88,
         description: 'A vibrant cyan silk tie.'
@@ -70,7 +70,7 @@ export const products = [
         collection: 'Accessories',
         collectionSlug: 'accessories',
         price: 85,
-        images: [`${minioBaseUrl}/uploads/collections/accessories/blue69.jpg`],
+        images: [`${minioBaseUrl}/uploads/collections/accessories/blue69.webp`],
         createdAt: new Date(),
         popularity: 0.93,
         description: 'A deep blue silk tie for formal occasions.'
@@ -81,7 +81,7 @@ export const products = [
         collection: 'Accessories',
         collectionSlug: 'accessories',
         price: 85,
-        images: [`${minioBaseUrl}/uploads/collections/accessories/green49.jpg`],
+        images: [`${minioBaseUrl}/uploads/collections/accessories/green49.webp`],
         createdAt: new Date(),
         popularity: 0.87,
         description: 'A sophisticated green silk tie.'
@@ -92,7 +92,7 @@ export const products = [
         collection: 'Accessories',
         collectionSlug: 'accessories',
         price: 85,
-        images: [`${minioBaseUrl}/uploads/collections/accessories/white69.jpg`],
+        images: [`${minioBaseUrl}/uploads/collections/accessories/white69.webp`],
         createdAt: new Date(),
         popularity: 0.82,
         description: 'A pristine white silk tie.'
@@ -103,7 +103,7 @@ export const products = [
         collection: 'Accessories',
         collectionSlug: 'accessories',
         price: 85,
-        images: [`${minioBaseUrl}/uploads/collections/accessories/red69.jpg`],
+        images: [`${minioBaseUrl}/uploads/collections/accessories/red69.webp`],
         createdAt: new Date(),
         popularity: 0.91,
         description: 'A classic red silk tie.'
@@ -115,7 +115,7 @@ export const products = [
         collection: 'Accessories',
         collectionSlug: 'accessories',
         price: 45,
-        images: [`${minioBaseUrl}/uploads/collections/accessories/psblue.jpg`],
+        images: [`${minioBaseUrl}/uploads/collections/accessories/psblue.webp`],
         createdAt: new Date(),
         popularity: 0.89,
         description: 'A classic blue pocket square.'
@@ -126,7 +126,7 @@ export const products = [
         collection: 'Accessories',
         collectionSlug: 'accessories',
         price: 45,
-        images: [`${minioBaseUrl}/uploads/collections/accessories/psgreen.jpg`],
+        images: [`${minioBaseUrl}/uploads/collections/accessories/psgreen.webp`],
         createdAt: new Date(),
         popularity: 0.84,
         description: 'A refined green pocket square.'
@@ -137,7 +137,7 @@ export const products = [
         collection: 'Accessories',
         collectionSlug: 'accessories',
         price: 45,
-        images: [`${minioBaseUrl}/uploads/collections/accessories/pspink.jpg`],
+        images: [`${minioBaseUrl}/uploads/collections/accessories/pspink.webp`],
         createdAt: new Date(),
         popularity: 0.86,
         description: 'A stylish pink pocket square.'
@@ -148,7 +148,7 @@ export const products = [
         collection: 'Accessories',
         collectionSlug: 'accessories',
         price: 45,
-        images: [`${minioBaseUrl}/uploads/collections/accessories/psred.jpg`],
+        images: [`${minioBaseUrl}/uploads/collections/accessories/psred.webp`],
         createdAt: new Date(),
         popularity: 0.88,
         description: 'A bold red pocket square.'
@@ -159,7 +159,7 @@ export const products = [
         collection: 'Accessories',
         collectionSlug: 'accessories',
         price: 45,
-        images: [`${minioBaseUrl}/uploads/collections/accessories/psyellowgreen.jpg`],
+        images: [`${minioBaseUrl}/uploads/collections/accessories/psyellowgreen.webp`],
         createdAt: new Date(),
         popularity: 0.83,
         description: 'A unique yellow green pocket square.'
@@ -170,7 +170,7 @@ export const products = [
         collection: 'Accessories',
         collectionSlug: 'accessories',
         price: 45,
-        images: [`${minioBaseUrl}/uploads/collections/accessories/psyellow.jpg`],
+        images: [`${minioBaseUrl}/uploads/collections/accessories/psyellow.webp`],
         createdAt: new Date(),
         popularity: 0.85,
         description: 'A cheerful yellow pocket square.'
