@@ -153,19 +153,16 @@ const ProductListPage = () => {
                     removeCollectionFilter={removeCollectionFilter}
                 />
                 
-                <AnimatePresence mode="wait">
-                    <motion.div
-                        key={filteredProducts.map(p => p.id).join('-')}
-                        className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-x-6 gap-y-12 mt-8"
-                        variants={containerVariants}
-                        initial="hidden"
-                        animate="visible"
-                    >
-                        {filteredProducts.map((item, index) => (
-                            <ItemCard key={item.id} product={item} openLightbox={() => openLightbox(index)} />
-                        ))}
-                    </motion.div>
-                </AnimatePresence>
+                <motion.div
+                    className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-x-6 gap-y-12 mt-8"
+                    variants={containerVariants}
+                    initial="hidden"
+                    animate="visible"
+                >
+                    {filteredProducts.map((item, index) => (
+                        <ItemCard key={item.id} product={item} openLightbox={() => openLightbox(index)} />
+                    ))}
+                </motion.div>
 
                 {filteredProducts.length === 0 && (
                     <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="text-center py-20 w-full">

@@ -14,6 +14,7 @@ const ItemCard = ({ product, openLightbox }) => {
 
     return (
         <motion.div
+            layout
             className="text-center"
             onClick={openLightbox}
             variants={itemVariants}
