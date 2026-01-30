@@ -1,6 +1,6 @@
 // resources/js/components/pages/HomePage.jsx - V6 (Final Polish with Glass Effects)
 import React, { useEffect, useRef, useState, useCallback, forwardRef, memo } from 'react';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { Users, Scissors, Coffee, ArrowRight, Gem, Feather, Palette, ChevronDown, CheckCircle, BookOpen, Camera, Sparkles } from 'lucide-react';
 import Footer from '../layouts/Footer.jsx';
 import { Link, useLocation } from 'react-router-dom';
@@ -123,40 +123,121 @@ const PhilosophySection = memo(forwardRef((props, ref) => (
     </section>
 )));
 
-const CollectionsSection = memo(forwardRef((props, ref) => (
-    <section className="relative snap-section min-h-screen h-screen" ref={ref}>
-        {/* Background Image - Converted to img for lazy loading */}
-        <img
-            src={`${minioBaseUrl}/uploads/collections/default/g1.webp?v=new`}
-            alt="Collections Background"
-            className="absolute inset-0 w-full h-full object-cover object-center"
-            loading="lazy"
-        />
-        <div className="absolute inset-0 bg-black/50" />
+const CollectionsSection = memo(forwardRef((props, ref) => {
+    const showcaseImages = [
+        `${minioBaseUrl}/uploads/collections/default/hvn1.jpg`,
+        `${minioBaseUrl}/uploads/collections/default/mm1.jpg`,
+        `${minioBaseUrl}/uploads/collections/default/g1.webp?v=new`,
+        `${minioBaseUrl}/uploads/collections/default/of1.jpg`
+    ];
+    const [currentImageIndex, setCurrentImageIndex] = useState(0);
 
-        <div className="relative z-10 flex flex-col justify-center items-center text-center h-full max-w-4xl mx-auto px-6">
-            <motion.div
-                variants={containerVariants}
-                initial="hidden"
-                whileInView="visible"
-                viewport={{ once: true, amount: 0.6 }}
-                className="w-full"
-            >
-                <motion.h2 variants={itemVariants} className="font-serif text-3xl md:text-5xl text-white mb-4">
-                    Our Collections
-                </motion.h2>
-                <motion.p variants={itemVariants} transition={{ delay: 0.2 }} className="text-attire-silver text-lg md:text-xl leading-relaxed max-w-2xl mx-auto mb-8">
-                    From timeless classics to modern statements, our collections are curated to suit every gentleman's style. We offer a diverse range of ready-to-wear pieces, each crafted with precision and an eye for detail.
-                </motion.p>
-                <motion.div variants={itemVariants} transition={{ delay: 0.4 }}>
-                    <Link to="/collections" className="inline-block bg-attire-accent text-white font-semibold px-10 py-4 rounded-lg hover:bg-attire-accent/90 transition-colors">
-                        Browse Collections
-                    </Link>
+    useEffect(() => {
+        const interval = setInterval(() => {
+            setCurrentImageIndex((prev) => (prev + 1) % showcaseImages.length);
+        }, 3000);
+        return () => clearInterval(interval);
+    }, []);
+
+    return (
+        <section className="relative snap-section min-h-screen h-screen flex items-center" ref={ref}>
+            {/* Background Image - Static Darkened */}
+            <img
+                src={`${minioBaseUrl}/uploads/collections/default/g1.webp?v=new`}
+                alt="Collections Background"
+                className="absolute inset-0 w-full h-full object-cover object-center opacity-40 blur-sm"
+                loading="lazy"
+            />
+            <div className="absolute inset-0 bg-gradient-to-r from-attire-navy/90 to-attire-dark/80" />
+
+            <div className="relative z-10 w-full max-w-7xl mx-auto px-6 grid grid-cols-1 lg:grid-cols-2 gap-12 items-center h-full">
+                
+                {/* Left Side: Content */}
+                <motion.div
+                    variants={containerVariants}
+                    initial="hidden"
+                    whileInView="visible"
+                    viewport={{ once: true, amount: 0.6 }}
+                    className="flex flex-col justify-center text-left"
+                >
+                    <motion.div variants={itemVariants} className="inline-flex items-center gap-2 mb-6">
+                        <span className="h-px w-12 bg-attire-accent"></span>
+                        <span className="text-attire-accent text-xs tracking-[0.3em] uppercase">Est. 2024</span>
+                    </motion.div>
+
+                    <motion.h2 variants={itemVariants} className="font-serif text-5xl md:text-7xl text-white mb-6 leading-tight">
+                        Curated <br/> <span className="text-transparent bg-clip-text bg-gradient-to-r from-attire-cream to-attire-silver">Elegance</span>
+                    </motion.h2>
+
+                    <motion.p variants={itemVariants} transition={{ delay: 0.2 }} className="text-attire-silver text-lg leading-relaxed max-w-xl mb-8">
+                        From the vibrant energy of Havana to the sharp silhouettes of our Office line.
+                        Discover ready-to-wear masterpieces tailored for the modern gentleman.
+                    </motion.p>
+
+                    <motion.div variants={itemVariants} className="flex flex-wrap gap-3 mb-10">
+                        {['Havana Collection', 'Mocha Mousse', 'Groom & Formal', 'Office Wear'].map((tag, i) => (
+                            <span key={i} className="px-4 py-2 bg-white/5 border border-white/10 rounded-full text-xs text-attire-cream/80 backdrop-blur-sm">
+                                {tag}
+                            </span>
+                        ))}
+                    </motion.div>
+
+                    <motion.div variants={itemVariants} transition={{ delay: 0.4 }}>
+                        <Link to="/collections" className="group relative inline-flex items-center gap-3 bg-attire-accent text-white font-semibold px-8 py-4 rounded-full overflow-hidden transition-all hover:bg-attire-accent/90 hover:pr-12 w-fit">
+                            <span>Browse Collections</span>
+                            <ArrowRight className="w-5 h-5 absolute right-5 opacity-0 group-hover:opacity-100 group-hover:translate-x-0 -translate-x-4 transition-all duration-300" />
+                        </Link>
+                    </motion.div>
                 </motion.div>
-            </motion.div>
-        </div>
-    </section>
-)));
+
+                {/* Right Side: Dynamic Image Card */}
+                <motion.div
+                    initial={{ opacity: 0, x: 50 }}
+                    whileInView={{ opacity: 1, x: 0 }}
+                    transition={{ duration: 0.8, delay: 0.2 }}
+                    className="hidden lg:block relative h-[620px] aspect-[3/4] ml-auto mr-8"
+                >
+                    <div className="absolute inset-0 bg-white/5 backdrop-blur-md rounded-[2rem] border border-white/10 transform rotate-3 scale-95 z-0" />
+                    
+                    <div className="relative h-full w-full rounded-[2rem] overflow-hidden shadow-2xl z-10 border border-white/10 bg-attire-dark">
+                        <AnimatePresence mode="wait">
+                            <motion.div
+                                key={currentImageIndex}
+                                initial={{ opacity: 0 }}
+                                animate={{ opacity: 1 }}
+                                exit={{ opacity: 0 }}
+                                transition={{ duration: 0.6 }}
+                                className="absolute inset-0 w-full h-full"
+                            >
+                                <img
+                                    src={showcaseImages[currentImageIndex]}
+                                    alt="Collection Showcase"
+                                    className="absolute inset-0 w-full h-full object-cover"
+                                />
+                                <div className="absolute bottom-0 left-0 w-full p-8 bg-gradient-to-t from-black/90 via-black/50 to-transparent">
+                                    <p className="text-attire-accent text-xs tracking-widest uppercase mb-1">Featured</p>
+                                    <h3 className="text-2xl font-serif text-white">
+                                        {['Havana', 'Mocha Mousse', 'Groom', 'Office'][currentImageIndex]}
+                                    </h3>
+                                </div>
+                            </motion.div>
+                        </AnimatePresence>
+
+                        {/* Static Indicators */}
+                        <div className="absolute bottom-8 right-8 z-20 flex gap-2">
+                            {showcaseImages.map((_, idx) => (
+                                <div 
+                                    key={idx} 
+                                    className={`h-1.5 rounded-full transition-all duration-500 ${idx === currentImageIndex ? 'w-8 bg-attire-accent' : 'w-2 bg-white/30'}`} 
+                                />
+                            ))}
+                        </div>
+                    </div>
+                </motion.div>
+            </div>
+        </section>
+    );
+}));
 
 const ExperienceSection = memo(forwardRef((props, ref) => (
   <section className="relative snap-section min-h-screen h-screen grid grid-cols-1 md:grid-cols-2 items-center bg-attire-navy" ref={ref}>
