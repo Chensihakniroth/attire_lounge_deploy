@@ -106,6 +106,12 @@ const API = {
         const response = await axios.delete(`/api/v1/gift-requests/${id}`);
         // Axios handles 204 automatically, returning undefined data usually, which is fine
         return getData(response);
+    },
+
+    // Subscribe to newsletter
+    async subscribeNewsletter(data) {
+        const response = await axios.post('/api/v1/newsletter-subscriptions', data);
+        return getData(response);
     }
 };
 

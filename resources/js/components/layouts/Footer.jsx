@@ -3,13 +3,14 @@ import { Link, useNavigate } from 'react-router-dom';
 import {
   MapPin, Phone, Mail, Clock,
   Instagram, Facebook, MessageSquare, Send,
-  ArrowRight, Check, AlertTriangle
+  ArrowRight, Check, AlertTriangle, ChevronRight
 } from 'lucide-react';
 import { motion } from 'framer-motion';
 import api from '../../api';
+import minioBaseUrl from '../../config.js'; // Ensure correct import path
 
 const Footer = () => {
-  const [email, setEmail] = useState('');
+  const [phoneNumber, setPhoneNumber] = useState('');
   const [subscribeStatus, setSubscribeStatus] = useState('idle'); // idle, loading, success, error
   const [errorMessage, setErrorMessage] = useState('');
   const [adminClickCount, setAdminClickCount] = useState(0);
@@ -33,22 +34,22 @@ const Footer = () => {
 
   const handleSubscribe = async (e) => {
     e.preventDefault();
-    if (!email) return;
+    if (!phoneNumber) return;
 
     setSubscribeStatus('loading');
     setErrorMessage('');
 
     try {
-      await api.post('/newsletter-subscriptions', { email });
+      await api.subscribeNewsletter({ phone_number: phoneNumber });
       setSubscribeStatus('success');
       setTimeout(() => {
         setSubscribeStatus('idle');
-        setEmail('');
+        setPhoneNumber('');
       }, 3000);
-    } catch (error) {
+      } catch (error) {
       setSubscribeStatus('error');
-      if (error.response && error.response.status === 422) {
-        setErrorMessage(error.response.data.message || 'This email is already subscribed.');
+      if (error.response && error.response.data && error.response.data.message) {
+        setErrorMessage(error.response.data.message);
       } else {
         setErrorMessage('An unexpected error occurred. Please try again.');
       }
@@ -62,105 +63,97 @@ const Footer = () => {
   const currentYear = new Date().getFullYear();
 
   return (
-    <footer className="bg-black backdrop-blur-md text-white border-t border-white/10">
-      {/* Main Footer Content */}
-      <div className="max-w-7xl mx-auto px-6 py-12 md:py-16">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-8 md:gap-12">
+    <footer className="bg-black text-white border-t border-white/5 relative overflow-hidden font-light">
+      {/* Decorative Background Elements */}
+      <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-attire-navy/20 rounded-full blur-[150px] pointer-events-none -translate-y-1/2 translate-x-1/2" />
+      <div className="absolute bottom-0 left-0 w-[400px] h-[400px] bg-attire-accent/5 rounded-full blur-[120px] pointer-events-none translate-y-1/2 -translate-x-1/2" />
 
-          {/* Company Information - Left Column */}
-          <div className="space-y-6">
-            <div>
-              <h2 className="text-2xl font-serif font-light tracking-widest mb-3">
-                ATTIRE<span className="font-medium">LOUNGE</span>
-              </h2>
-              <p className="text-white/70 text-sm leading-relaxed">
-                First Gentlemen's Styling House in Cambodia.
-                Premium sartorial collections and personal styling services.
+      {/* Main Footer Content */}
+      <div className="relative z-10 max-w-screen-2xl mx-auto px-6 pt-20 pb-12">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16">
+
+          {/* Company Brand & Contact - Spans 4 columns */}
+          <div className="lg:col-span-4 space-y-8">
+            <div className="space-y-4">
+              <Link to="/" className="inline-block group">
+                 <h2 className="text-2xl md:text-3xl font-serif tracking-[0.2em] text-white group-hover:text-attire-accent transition-colors duration-300 uppercase">
+                  Attire Lounge <span className="font-semibold text-attire-accent">Official</span>
+                </h2>
+                <div className="h-0.5 w-12 bg-attire-accent mt-2 group-hover:w-full transition-all duration-500 ease-out" />
+              </Link>
+              <p className="text-attire-silver/80 text-sm leading-relaxed max-w-md font-light">
+                Cambodia's first gentlemen's styling house. We don't just sell clothes; we craft identities through premium sartorial collections and expert styling.
               </p>
             </div>
 
-            {/* Contact Information */}
-            <div className="space-y-4">
-               <div className="flex items-start gap-3">
-                <MapPin className="w-4 h-4 mt-1 text-white/60 flex-shrink-0" />
-                <p className="text-sm text-white/80">
+            {/* Contact Details */}
+            <div className="space-y-5">
+               <div className="flex items-start gap-4 group">
+                <div className="p-2 bg-white/5 rounded-full group-hover:bg-attire-accent/20 transition-colors">
+                    <MapPin className="w-4 h-4 text-attire-accent" />
+                </div>
+                <p className="text-sm text-attire-silver leading-relaxed group-hover:text-white transition-colors">
                   10 E0, Street 03, Sangkat Chey Chumneah,<br />
                   Khan Daun Penh, Phnom Penh
                 </p>
               </div>
-               <div className="flex items-center gap-3">
-                <Phone className="w-4 h-4 text-white/60 flex-shrink-0" />
-                <a
-                  href="tel:+85569256369"
-                  className="text-sm text-white/80 hover:text-white transition-colors"
-                >
+               <div className="flex items-center gap-4 group">
+                <div className="p-2 bg-white/5 rounded-full group-hover:bg-attire-accent/20 transition-colors">
+                    <Phone className="w-4 h-4 text-attire-accent" />
+                </div>
+                <a href="tel:+85569256369" className="text-sm text-attire-silver hover:text-white transition-colors">
                   (+855) 69-25-63-69
                 </a>
               </div>
-               <div className="flex items-center gap-3">
-                <Mail className="w-4 h-4 text-white/60 flex-shrink-0" />
-                <a
-                  href="mailto:attireloungekh@gmail.com"
-                  className="text-sm text-white/80 hover:text-white transition-colors"
-                >
+               <div className="flex items-center gap-4 group">
+                <div className="p-2 bg-white/5 rounded-full group-hover:bg-attire-accent/20 transition-colors">
+                    <Mail className="w-4 h-4 text-attire-accent" />
+                </div>
+                <a href="mailto:attireloungekh@gmail.com" className="text-sm text-attire-silver hover:text-white transition-colors">
                   attireloungekh@gmail.com
                 </a>
-              </div>
-               <div className="flex items-center gap-3">
-                <Clock className="w-4 h-4 text-white/60 flex-shrink-0" />
-                <p className="text-sm text-white/80">
-                  10:00 AM - 7:00 PM, Daily
-                </p>
               </div>
             </div>
           </div>
 
-          {/* Navigation Links - Middle Columns */}
-          <div className="md:col-span-2 grid grid-cols-2 gap-8">
-            {/* Quick Links */}
+          {/* Links Section - Spans 4 columns (2+2 internal grid) */}
+          <div className="lg:col-span-5 grid grid-cols-2 gap-8 lg:px-8">
+            {/* Collections */}
             <div>
-              <h3 className="text-sm font-medium uppercase tracking-widest mb-6 text-white/90">
-                Collections
-              </h3>
+              <h3 className="text-xs font-bold uppercase tracking-[0.2em] mb-8 text-white/40">Collections</h3>
               <ul className="space-y-4">
                 {[
-                  { name: 'Havana Collection', path: '/products?collection=havana-collection' },
-                  { name: 'Mocha Mousse \'25', path: '/products?collection=mocha-mousse-25' },
-                  { name: 'Groom Collection', path: '/products?collection=groom-collection' },
-                  { name: 'Office Collection', path: '/products?collection=office-collection' },
+                  { name: 'Havana', path: '/products?collection=havana-collection' },
+                  { name: 'Mocha Mousse', path: '/products?collection=mocha-mousse-25' },
+                  { name: 'Groom', path: '/products?collection=groom-collection' },
+                  { name: 'Office', path: '/products?collection=office-collection' },
                   { name: 'Accessories', path: '/products?collection=accessories' },
                 ].map((item) => (
                   <li key={item.name}>
-                    <Link
-                      to={item.path}
-                      className="group flex items-center text-white/70 hover:text-white transition-colors text-sm"
-                    >
-                      <ArrowRight className="w-3 h-3 mr-2 opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all" />
-                      {item.name}
+                    <Link to={item.path} className="group flex items-center text-attire-silver hover:text-white transition-all text-sm">
+                      <ChevronRight className="w-3 h-3 text-attire-accent opacity-0 -ml-2 group-hover:opacity-100 group-hover:ml-0 transition-all duration-300 mr-2" />
+                      <span className="group-hover:translate-x-1 transition-transform">{item.name}</span>
                     </Link>
                   </li>
                 ))}
               </ul>
             </div>
 
-            {/* Information */}
+            {/* Discover */}
             <div>
-              <h3 className="text-sm font-medium uppercase tracking-widest mb-6 text-white/90">
-                Information
-              </h3>
+              <h3 className="text-xs font-bold uppercase tracking-[0.2em] mb-8 text-white/40">Discover</h3>
               <ul className="space-y-4">
                 {[
                   { name: 'Attire Club', path: '/#membership' },
                   { name: 'Lookbook', path: '/lookbook' },
-                  { name: 'Appointment and Contact', path: '/contact' },
+                  { name: 'Tips & Tricks', path: '/#tips-tricks' }, // Assuming anchor exists or will exist
+                  { name: 'Contact Us', path: '/contact' },
+                  { name: 'Book Appointment', path: '/contact' },
                 ].map((item) => (
                   <li key={item.name}>
-                    <Link
-                      to={item.path}
-                      className="group flex items-center text-white/70 hover:text-white transition-colors text-sm"
-                    >
-                      <ArrowRight className="w-3 h-3 mr-2 opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all" />
-                      {item.name}
+                    <Link to={item.path} className="group flex items-center text-attire-silver hover:text-white transition-all text-sm">
+                       <ChevronRight className="w-3 h-3 text-attire-accent opacity-0 -ml-2 group-hover:opacity-100 group-hover:ml-0 transition-all duration-300 mr-2" />
+                      <span className="group-hover:translate-x-1 transition-transform">{item.name}</span>
                     </Link>
                   </li>
                 ))}
@@ -168,133 +161,85 @@ const Footer = () => {
             </div>
           </div>
 
-          {/* Newsletter & Social Media - Right Column */}
-          <div className="space-y-8">
-            {/* Newsletter Signup */}
-            <div>
-              <h3 className="text-sm font-medium uppercase tracking-widest mb-6 text-white/90">
-                Stay Updated
-              </h3>
-              <p className="text-white/70 text-sm mb-6">
-                Subscribe for exclusive collections, styling tips, and members-only offers.
+          {/* Newsletter - Spans 3 columns */}
+          <div className="lg:col-span-3 space-y-8">
+            <div className="bg-white/5 rounded-2xl p-6 border border-white/10 backdrop-blur-sm">
+              <h3 className="text-lg font-serif text-white mb-2">The Gentleman's Digest</h3>
+              <p className="text-attire-silver/70 text-xs mb-6 leading-relaxed">
+                Join our exclusive Telegram VIP group for early access to new drops, styling guides, and member-only privileges.
               </p>
 
-              <form onSubmit={handleSubscribe} className="space-y-4">
-                <div className="relative">
+              <form onSubmit={handleSubscribe} className="space-y-3">
+                <div className="relative group">
+                   <Phone className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/30 group-focus-within:text-attire-accent transition-colors" />
                   <input
-                    type="email"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    placeholder="Your email address"
-                    className="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-3 text-sm placeholder:text-white/40 focus:outline-none focus:border-white/30 transition-colors"
+                    type="tel"
+                    value={phoneNumber}
+                    onChange={(e) => setPhoneNumber(e.target.value)}
+                    placeholder="Telegram Phone Number"
+                    className="w-full bg-black/40 border border-white/10 rounded-lg pl-10 pr-4 py-3 text-sm text-white placeholder:text-white/20 focus:outline-none focus:border-attire-accent/50 focus:bg-black/60 transition-all"
                     required
                     disabled={subscribeStatus === 'loading'}
                   />
                 </div>
 
                 <motion.button
-                  whileHover={{ scale: 1.02 }}
-                  whileTap={{ scale: 0.98 }}
+                  whileHover={{ scale: 1.01 }}
+                  whileTap={{ scale: 0.99 }}
                   type="submit"
-                  className={`w-full text-black py-3 rounded-lg font-medium text-sm transition-all duration-300 flex items-center justify-center gap-2 ${
-                    subscribeStatus === 'success' ? 'bg-green-400' :
-                    subscribeStatus === 'error' ? 'bg-red-500' :
-                    'bg-white hover:bg-gray-100'
+                  className={`w-full py-3 rounded-lg font-medium text-xs uppercase tracking-wider transition-all duration-300 flex items-center justify-center gap-2 ${
+                    subscribeStatus === 'success' ? 'bg-green-500/20 text-green-400 border border-green-500/30' :
+                    subscribeStatus === 'error' ? 'bg-red-500/20 text-red-400 border border-red-500/30' :
+                    'bg-attire-accent hover:bg-attire-accent/90 text-white shadow-lg shadow-attire-accent/20'
                   }`}
                   disabled={subscribeStatus === 'loading' || subscribeStatus === 'success'}
                 >
-                  {subscribeStatus === 'idle' && <><Send className="w-4 h-4" /> Subscribe</>}
-                  {subscribeStatus === 'loading' && 'Subscribing...'}
-                  {subscribeStatus === 'success' && <><Check className="w-4 h-4" /> Subscribed!</>}
-                  {subscribeStatus === 'error' && <><AlertTriangle className="w-4 h-4" /> Error</>}
+                  {subscribeStatus === 'idle' && 'Subscribe'}
+                  {subscribeStatus === 'loading' && <span className="animate-pulse">Processing...</span>}
+                  {subscribeStatus === 'success' && <><Check className="w-4 h-4" /> Joined</>}
+                  {subscribeStatus === 'error' && <><AlertTriangle className="w-4 h-4" /> Failed</>}
                 </motion.button>
               </form>
-              {errorMessage && <p className="text-red-400 text-xs mt-2">{errorMessage}</p>}
+               {errorMessage && <p className="text-red-400/80 text-[10px] mt-2 text-center">{errorMessage}</p>}
             </div>
 
-            {/* Social Media */}
-            <div>
-               <h3 className="text-sm font-medium uppercase tracking-widest mb-6 text-white/90">
-                Connect With Us
-              </h3>
-               <div className="flex items-center gap-4">
+             {/* Socials */}
+             <div className="flex items-center justify-between lg:justify-start lg:gap-4 pt-2">
                 {[
-                  {
-                    icon: Instagram,
-                    label: 'Instagram',
-                    url: 'https://instagram.com/attireloungeofficial',
-                    color: 'hover:bg-pink-500/20 hover:border-pink-500/30'
-                  },
-                  {
-                    icon: Facebook,
-                    label: 'Facebook',
-                    url: 'https://facebook.com/attireloungeofficial',
-                    color: 'hover:bg-blue-500/20 hover:border-blue-500/30'
-                  },
-                  {
-                    icon: MessageSquare,
-                    label: 'Telegram',
-                    url: 'https://t.me/attireloungeofficial',
-                    color: 'hover:bg-blue-400/20 hover:border-blue-400/30'
-                  },
-                ].map((social) => (
+                  { icon: Instagram, url: 'https://instagram.com/attireloungeofficial' },
+                  { icon: Facebook, url: 'https://facebook.com/attireloungeofficial' },
+                  { icon: Send, url: 'https://t.me/attireloungeofficial' }, // Changed to Send (Telegram)
+                ].map((social, idx) => (
                   <motion.a
-                    key={social.label}
+                    key={idx}
                     href={social.url}
                     target="_blank"
                     rel="noopener noreferrer"
-                    whileHover={{ y: -2 }}
-                    className={`p-3 border border-white/10 rounded-lg hover:bg-white/5 transition-all ${social.color}`}
-                    aria-label={social.label}
+                    whileHover={{ y: -3 }}
+                    className="w-10 h-10 flex items-center justify-center rounded-full border border-white/10 bg-white/5 hover:bg-attire-accent hover:border-attire-accent text-white/70 hover:text-white transition-all duration-300"
                   >
-                    <social.icon className="w-5 h-5 text-white/80" />
+                    <social.icon className="w-4 h-4" />
                   </motion.a>
                 ))}
-              </div>
             </div>
           </div>
         </div>
 
-        {/* Bottom Bar - Copyright & Legal Links */}
-        <div className="mt-12 pt-8 border-t border-white/10">
-          <div className="flex flex-col md:flex-row items-center justify-between gap-6">
-            {/* Copyright */}
-            <div className="text-center md:text-left cursor-pointer" onClick={handleAdminClick}>
-              <p className="text-white/60 text-sm">
-                © {currentYear} Attire Lounge Official. All rights reserved.
-              </p>
-              <p className="text-white/40 text-xs mt-1">
-                First Gentlemen's Styling House in Cambodia
-              </p>
-            </div>
+        {/* Footer Bottom */}
+        <div className="mt-20 pt-8 border-t border-white/5 flex flex-col md:flex-row items-center justify-between gap-6 text-xs text-attire-silver/50">
+           <div className="flex flex-col md:flex-row items-center gap-2 md:gap-8">
+               <span className="cursor-pointer hover:text-attire-silver transition-colors" onClick={handleAdminClick}>
+                   &copy; {currentYear} Attire Lounge Official.
+               </span>
+               <span className="hidden md:inline w-px h-3 bg-white/10" />
+               <span>First Gentlemen's Styling House in Cambodia.</span>
+           </div>
 
-            {/* Legal Links */}
-            <div className="flex flex-wrap items-center justify-center gap-6 text-sm">
-              {[
-                { name: 'Privacy Policy', path: '/privacy' },
-                { name: 'Terms of Service', path: '/terms' },
-                { name: 'Return Policy', path: '/returns' },
-              ].map((link) => (
-                <Link
-                  key={link.name}
-                  to={link.path}
-                  className="text-white/60 hover:text-white transition-colors text-xs uppercase tracking-wider"
-                >
-                  {link.name}
-                </Link>
-              ))}
-            </div>
-          </div>
-
-          {/* Membership Note */}
-          <div className="mt-6 pt-6 border-t border-white/5 text-center">
-            <p className="text-white/40 text-xs">
-              Attire Club Membership available with minimum purchase of US$500.
-              <Link to="/membership" className="ml-1 text-white/60 hover:text-white transition-colors">
-                Learn more →
-              </Link>
-            </p>
-          </div>
+           <div className="flex items-center gap-6">
+               <Link to="/privacy" className="hover:text-white transition-colors">Privacy</Link>
+               <Link to="/terms" className="hover:text-white transition-colors">Terms</Link>
+               <Link to="/returns" className="hover:text-white transition-colors">Returns</Link>
+           </div>
         </div>
       </div>
     </footer>

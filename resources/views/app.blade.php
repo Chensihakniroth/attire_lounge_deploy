@@ -8,6 +8,6 @@
     </head>
     <body>
         <div id="app"></div>
-        <script type="module" src="{{ asset('js/app.js') }}"></script>
+        <script type="module" src="{{ asset('js/app.js') }}?v={{ time() }}"></script>
     </body>
 </html>

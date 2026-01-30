@@ -11,7 +11,7 @@ class NewsletterSubscriptionController extends Controller
     public function store(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'email' => 'required|email|unique:newsletter_subscriptions,email',
+            'phone_number' => 'required|string|unique:newsletter_subscriptions,phone_number',
         ]);
 
         if ($validator->fails()) {
@@ -19,10 +19,10 @@ class NewsletterSubscriptionController extends Controller
         }
 
         try {
-            NewsletterSubscription::create(['email' => $request->email]);
+            NewsletterSubscription::create(['phone_number' => $request->phone_number]);
             return response()->json(['message' => 'Successfully subscribed!'], 201);
         } catch (\Exception $e) {
-            return response()->json(['message' => 'An error occurred.'], 500);
+            return response()->json(['message' => $e->getMessage()], 500);
         }
     }
 }

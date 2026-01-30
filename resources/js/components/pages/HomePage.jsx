@@ -1,7 +1,7 @@
 // resources/js/components/pages/HomePage.jsx - V6 (Final Polish with Glass Effects)
 import React, { useEffect, useRef, useState, useCallback, forwardRef, memo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Users, Scissors, Coffee, ArrowRight, Gem, Feather, Palette, ChevronDown, CheckCircle, BookOpen, Camera, Sparkles } from 'lucide-react';
+import { Users, Scissors, Coffee, ArrowRight, Gem, Feather, Palette, ChevronDown, CheckCircle, BookOpen, Camera, Sparkles, Play, Gift, Wine, Crown, CreditCard } from 'lucide-react';
 import Footer from '../layouts/Footer.jsx';
 import { Link, useLocation } from 'react-router-dom';
 import SectionIndicator from './SectionIndicator.jsx';
@@ -239,52 +239,76 @@ const CollectionsSection = memo(forwardRef((props, ref) => {
     );
 }));
 
-const ExperienceSection = memo(forwardRef((props, ref) => (
-  <section className="relative snap-section min-h-screen h-screen grid grid-cols-1 md:grid-cols-2 items-center bg-attire-navy" ref={ref}>
-    {/* Mobile Background */}
-    <div className="md:hidden absolute inset-0">
-      <img src={`${minioBaseUrl}/uploads/collections/default/both.jpg`} alt="Background" className="w-full h-full object-cover"/>
-      <div className="absolute inset-0 bg-black/60"/>
-    </div>
+const ExperienceSection = memo(forwardRef(({ services }, ref) => (
+  <section className="relative snap-section min-h-screen h-screen flex items-center bg-attire-navy overflow-hidden" ref={ref}>
+    {/* Minimal Ambient Background - Toned down */}
+    <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-attire-accent/5 rounded-full blur-[150px] pointer-events-none mix-blend-screen opacity-50" />
 
-    {/* Left side - Image (Desktop) */}
-    <div className="relative w-full h-full overflow-hidden hidden md:block">
-        <img
-            src={`${minioBaseUrl}/uploads/collections/default/both.jpg`}
-            alt="Attire Lounge Style"
-            className="absolute inset-0 w-full h-full object-cover"
-            loading="lazy"
-        />
-        <div className="absolute inset-0 bg-gradient-to-l from-attire-navy via-transparent to-transparent" />
-    </div>
+    <div className="w-full h-full grid grid-cols-1 lg:grid-cols-2">
+        {/* Visual Side (Left on Desktop, Hidden/BG on Mobile) */}
+        <div className="relative h-full w-full order-2 lg:order-1">
+            {/* Mobile BG (Absolute) */}
+            <div className="absolute inset-0 lg:hidden z-0">
+                <img src={`${minioBaseUrl}/uploads/collections/default/both.jpg`} alt="Background" className="w-full h-full object-cover"/>
+                <div className="absolute inset-0 bg-attire-navy/95 backdrop-blur-sm"/>
+            </div>
 
-    {/* Right side - Text Content */}
-    <div className="relative flex flex-col justify-center text-attire-cream p-8 md:p-16 h-full">
-        <motion.div
-            variants={containerVariants}
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true, amount: 0.6 }}
-        >
-            <motion.h2 variants={itemVariants} className="font-serif text-3xl md:text-5xl text-white mb-8">What sets us apart?</motion.h2>
-            <motion.div variants={itemVariants} transition={{ delay: 0.2 }}>
-                <ul className="space-y-5 text-base md:text-lg leading-relaxed">
-                    <li className="flex items-start gap-4">
-                        <CheckCircle className="w-7 h-7 text-attire-accent mt-1 flex-shrink-0" />
-                        <span>Receive free styling consultation upon your appointment</span>
-                    </li>
-                    <li className="flex items-start gap-4">
-                        <CheckCircle className="w-7 h-7 text-attire-accent mt-1 flex-shrink-0" />
-                        <span>Styling team certified from Milan, Italy</span>
-                    </li>
+            {/* Desktop Image */}
+            <div className="hidden lg:block absolute inset-0">
+                <div className="w-full h-full">
+                    <img
+                        src={`${minioBaseUrl}/uploads/collections/default/both.jpg`}
+                        alt="Attire Lounge Experience"
+                        className="w-full h-full object-cover"
+                    />
+                </div>
+                 <div className="absolute inset-0 bg-gradient-to-r from-transparent via-attire-navy/10 to-attire-navy" />
+            </div>
+        </div>
 
-                    <li className="flex items-start gap-4">
-                        <CheckCircle className="w-7 h-7 text-attire-accent mt-1 flex-shrink-0" />
-                        <span>Diverse sizes suitable for all body types</span>
-                    </li>
-                </ul>
+        {/* Content Side */}
+        <div className="relative z-10 flex flex-col justify-center px-6 md:px-16 lg:px-24 py-12 h-full order-1 lg:order-2">
+            <motion.div
+                variants={containerVariants}
+                initial="hidden"
+                whileInView="visible"
+                viewport={{ once: true, amount: 0.2 }}
+                className="max-w-xl mx-auto lg:mx-0 w-full"
+            >
+                {/* Header - Minimal */}
+                <motion.div variants={itemVariants} className="flex items-center gap-3 mb-6">
+                    <span className="h-px w-6 bg-attire-accent/50"></span>
+                    <span className="text-attire-accent/80 tracking-[0.2em] uppercase text-[10px] font-medium">Why Choose Us</span>
+                </motion.div>
+
+                <motion.h2 variants={itemVariants} className="font-serif text-3xl md:text-5xl text-white mb-12 leading-tight">
+                    The Art of <br/> <span className="text-attire-silver/50 italic font-light">Refinement</span>
+                </motion.h2>
+
+                <div className="space-y-8">
+                    {services.map((service, index) => (
+                        <motion.div
+                            key={index}
+                            variants={itemVariants}
+                            className="group flex gap-6 items-start pl-2"
+                        >
+                            <div className="shrink-0 mt-1">
+                                {/* Minimal Icon: Simple circle, subtle interaction */}
+                                <div className="p-3 rounded-full bg-white/5 text-attire-accent group-hover:bg-attire-accent group-hover:text-white transition-all duration-500 ease-out">
+                                    {React.cloneElement(service.icon, { size: 20, className: "current-color" })}
+                                </div>
+                            </div>
+                            <div>
+                                <h3 className="text-lg md:text-xl font-serif text-white mb-2 group-hover:translate-x-1 transition-transform duration-300">{service.name}</h3>
+                                <p className="text-sm text-attire-silver/50 leading-relaxed font-light max-w-sm group-hover:text-attire-silver/80 transition-colors duration-300">
+                                    {service.description}
+                                </p>
+                            </div>
+                        </motion.div>
+                    ))}
+                </div>
             </motion.div>
-        </motion.div>
+        </div>
     </div>
   </section>
 )));
@@ -292,68 +316,127 @@ const ExperienceSection = memo(forwardRef((props, ref) => (
 
 
 const MembershipSection = memo(forwardRef((props, ref) => (
-    <section className="relative snap-section min-h-screen h-screen grid grid-cols-1 md:grid-cols-2 items-center bg-attire-navy" ref={ref}>
-        {/* Mobile Background */}
-        <div className="md:hidden absolute inset-0">
+    <section className="relative snap-section min-h-screen h-screen grid grid-cols-1 lg:grid-cols-12 items-center bg-attire-navy overflow-hidden" ref={ref}>
+        {/* Ambient Lighting */}
+        <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-attire-accent/10 rounded-full blur-[120px] pointer-events-none mix-blend-screen" />
+        <div className="absolute bottom-0 left-0 w-[400px] h-[400px] bg-white/5 rounded-full blur-[100px] pointer-events-none" />
+
+        {/* Mobile Background (Dimmed) */}
+        <div className="lg:hidden absolute inset-0 z-0">
           <img src={`${minioBaseUrl}/uploads/collections/default/vc.jpg`} alt="Background" className="w-full h-full object-cover"/>
-          <div className="absolute inset-0 bg-black/60"/>
+          <div className="absolute inset-0 bg-attire-navy/90 backdrop-blur-sm"/>
         </div>
 
-        {/* Left side - Text Content */}
-        <div className="relative flex flex-col justify-center text-attire-cream p-8 md:p-12 h-full overflow-y-auto">
+        {/* Content Side (Left) */}
+        <div className="relative z-10 col-span-1 lg:col-span-5 flex flex-col justify-center h-full px-6 md:px-12 lg:pl-20 lg:pr-4 py-8 overflow-y-auto lg:overflow-visible">
             <motion.div
                 variants={containerVariants}
                 initial="hidden"
                 whileInView="visible"
-                viewport={{ once: true, amount: 0.1 }}
-                className="w-full max-w-xl"
+                viewport={{ once: true, amount: 0.2 }}
+                className="w-full max-w-lg mx-auto lg:mx-0"
             >
-                <motion.h2 variants={itemVariants} className="font-serif text-3xl md:text-4xl text-white mb-2">ATTIRE CLUB</motion.h2>
-                <motion.h3 variants={itemVariants} transition={{ delay: 0.1 }} className="text-attire-accent tracking-[0.2em] uppercase text-sm mb-6">Membership Card</motion.h3>
+                {/* Header */}
+                <motion.div variants={itemVariants} className="flex items-center gap-3 mb-4">
+                    <Crown className="text-attire-accent w-6 h-6" />
+                    <span className="text-attire-accent tracking-[0.3em] uppercase text-xs font-semibold">Exclusive Access</span>
+                </motion.div>
+                
+                <motion.h2 variants={itemVariants} className="font-serif text-4xl md:text-5xl text-white mb-6 leading-tight">
+                    The Attire <br/><span className="italic text-attire-silver">Club</span>
+                </motion.h2>
 
-                <motion.div variants={itemVariants} transition={{ delay: 0.2 }} className="text-sm md:text-base text-attire-silver space-y-3 leading-relaxed">
-                    <p> Entitlement upon a minimum purchase of US$500 per receipt.
-                        Requires full name, DOB (month & date), and contact number.</p>
+                <motion.p variants={itemVariants} className="text-attire-silver/80 text-sm mb-8 font-light leading-relaxed border-l-2 border-attire-accent/50 pl-4">
+                    Join an elite circle of gentlemen. Unlock privileged pricing, seasonal rewards, and curated experiences.
+                    <span className="block mt-2 text-xs opacity-60">*Minimum spend of US$500 to qualify.</span>
+                </motion.p>
 
-                    <div>
-                        <h4 className="font-semibold text-attire-cream mb-1 mt-3">Benefits</h4>
-                        <ul className="list-disc list-outside space-y-1 pl-5 text-sm">
-                            <li>Up to 15% on regular purchases:
-                                <ul className="list-['–'] list-outside pl-5 space-y-px mt-1">
-                                    <li>8% off on purchases from US$500 to US$1,000</li>
-                                    <li>10% off on purchases from US$1,001 to US$1,500</li>
-                                    <li>15% off on all purchases of US$1,501 and above</li>
-                                </ul>
-                            </li>
-                            <li>Extra seasonal benefits including birthday gifts and access to exclusive gentleman's club events.</li>
-                            <li>Special offers from our partners:
-                                <ul className="list-['–'] list-outside pl-5 space-y-px mt-1">
-                                    <li>10% off at CUFFEINE: plant-based coffee</li>
-                                    <li>8% off cocktails at Kravat Speakeasy Bar</li>
-                                </ul>
-                            </li>
-                        </ul>
+                {/* Benefits Grid */}
+                <div className="grid grid-cols-1 gap-4 mb-8">
+                    {/* Tier 1: Shopping Perks */}
+                    <motion.div variants={itemVariants} className="bg-white/5 border border-white/10 rounded-xl p-4 hover:bg-white/10 transition-colors">
+                        <div className="flex items-center gap-3 mb-3">
+                            <div className="p-2 bg-attire-accent/20 rounded-lg text-attire-accent"><CreditCard size={18} /></div>
+                            <h4 className="text-white font-serif text-lg">Privileged Pricing</h4>
+                        </div>
+                        <div className="space-y-2">
+                            <div className="flex justify-between items-center text-sm text-attire-silver">
+                                <span>$500 - $1,000</span>
+                                <span className="font-semibold text-white">8% Off</span>
+                            </div>
+                            <div className="w-full bg-white/10 h-1 rounded-full overflow-hidden">
+                                <div className="bg-attire-accent h-full w-[53%]" />
+                            </div>
+                            <div className="flex justify-between items-center text-sm text-attire-silver">
+                                <span>$1,001 - $1,500</span>
+                                <span className="font-semibold text-white">10% Off</span>
+                            </div>
+                             <div className="w-full bg-white/10 h-1 rounded-full overflow-hidden">
+                                <div className="bg-attire-accent h-full w-[66%]" />
+                            </div>
+                             <div className="flex justify-between items-center text-sm text-attire-silver">
+                                <span>$1,500+</span>
+                                <span className="font-semibold text-white">15% Off</span>
+                            </div>
+                             <div className="w-full bg-white/10 h-1 rounded-full overflow-hidden">
+                                <div className="bg-attire-accent h-full w-full" />
+                            </div>
+                        </div>
+                    </motion.div>
+
+                    <div className="grid grid-cols-2 gap-4">
+                         {/* Tier 2: Lifestyle */}
+                        <motion.div variants={itemVariants} className="bg-white/5 border border-white/10 rounded-xl p-4 hover:bg-white/10 transition-colors">
+                            <div className="flex items-center gap-2 mb-2">
+                                <Wine size={16} className="text-attire-accent" />
+                                <h4 className="text-white font-serif text-base">Partners</h4>
+                            </div>
+                            <ul className="text-xs text-attire-silver space-y-1">
+                                <li>• 10% @ CUFFEINE</li>
+                                <li>• 8% @ Kravat Bar</li>
+                            </ul>
+                        </motion.div>
+
+                        {/* Tier 3: Seasonal */}
+                        <motion.div variants={itemVariants} className="bg-white/5 border border-white/10 rounded-xl p-4 hover:bg-white/10 transition-colors">
+                            <div className="flex items-center gap-2 mb-2">
+                                <Gift size={16} className="text-attire-accent" />
+                                <h4 className="text-white font-serif text-base">Rewards</h4>
+                            </div>
+                            <ul className="text-xs text-attire-silver space-y-1">
+                                <li>• Birthday Gifts</li>
+                                <li>• Event Access</li>
+                            </ul>
+                        </motion.div>
                     </div>
+                </div>
 
-                    <div>
-                        <h4 className="font-semibold text-attire-cream mb-1 mt-3">Terms & Conditions</h4>
-                        <p className="text-xs text-gray-400">
-                            Not responsible for lost, stolen, or damaged cards (reissue fee: US$10). Cannot be used with other offers. Not redeemable for cash. Non-transferable; cardholder must be present. Membership may be terminated for non-compliance. Subject to renewal and may be discontinued at our discretion. Terms are subject to change.
-                        </p>
-                    </div>
+                 {/* Terms - Collapsible-ish look */}
+                <motion.div variants={itemVariants} className="text-[10px] text-white/30 leading-snug max-w-md">
+                     <p>Terms apply. Card must be presented. Non-transferable. Lost card fee $10. Subject to change.</p>
                 </motion.div>
             </motion.div>
         </div>
 
-        {/* Right side - Image (Desktop) */}
-        <div className="relative w-full h-full overflow-hidden hidden md:block">
-            <img
-                src={`${minioBaseUrl}/uploads/collections/default/vc.jpg`}
-                alt="Attire Club Membership"
-                className="absolute inset-0 w-full h-full object-cover"
-                loading="lazy"
-            />
-            <div className="absolute inset-0 bg-gradient-to-r from-attire-navy via-transparent to-transparent" />
+        {/* Visual Side (Right) */}
+        <div className="relative h-full hidden lg:block col-span-7 overflow-hidden">
+            {/* Main Image with Scale Effect */}
+            <motion.div 
+                initial={{ scale: 1.1 }}
+                whileInView={{ scale: 1 }}
+                transition={{ duration: 1.5, ease: "easeOut" }}
+                className="absolute inset-0 w-full h-full"
+            >
+                <img
+                    src={`${minioBaseUrl}/uploads/collections/default/vc.jpg`}
+                    alt="Attire Club Membership"
+                    className="absolute inset-0 w-full h-full object-cover object-center"
+                    loading="lazy"
+                />
+            </motion.div>
+            
+            {/* Gradient Overlay for Text Readability blend */}
+            <div className="absolute inset-0 bg-gradient-to-r from-attire-navy via-attire-navy/40 to-transparent w-2/3" />
         </div>
     </section>
 )));
@@ -407,74 +490,77 @@ const LookbookSection = memo(forwardRef(({ lookbookFeatures }, ref) => (
 
 const TipsAndTricksSection = memo(forwardRef(({ tipsAndTricks }, ref) => {
   return (
-    <section className="relative snap-section bg-attire-navy min-h-screen !h-auto !overflow-visible flex flex-col py-24 md:py-32" ref={ref}>
-      <div className="relative z-10 w-full max-w-7xl mx-auto text-center text-attire-cream px-4 my-auto">
+    <section className="relative snap-section bg-attire-navy min-h-screen h-screen overflow-hidden flex flex-col justify-center" ref={ref}>
+       {/* Ambient Background */}
+       <div className="absolute inset-0 overflow-hidden pointer-events-none">
+          <div className="absolute top-0 left-1/4 w-96 h-96 bg-attire-accent/5 rounded-full blur-[100px]" />
+          <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-white/5 rounded-full blur-[100px]" />
+       </div>
+
+      <div className="relative z-10 w-full max-w-7xl mx-auto text-center text-attire-cream px-4">
         <motion.div
           variants={containerVariants}
           initial="hidden"
           whileInView="visible"
           viewport={{ once: true, amount: 0.2 }}
-          className="mb-10"
+          className="mb-8 md:mb-12"
         >
-          <motion.h2 variants={itemVariants} className="font-serif text-3xl md:text-5xl mb-4">Tips & Tricks</motion.h2>
-          <motion.p variants={itemVariants} transition={{ delay: 0.2 }} className="max-w-2xl mx-auto text-attire-silver text-base md:text-lg">
+          <motion.h2 variants={itemVariants} className="font-serif text-3xl md:text-5xl mb-3">Tips & Tricks</motion.h2>
+          <motion.p variants={itemVariants} transition={{ delay: 0.2 }} className="max-w-2xl mx-auto text-attire-silver text-sm md:text-lg font-light">
             Master the art of sophisticated dressing with our expert guidance.
           </motion.p>
         </motion.div>
 
-        {/* Desktop Grid */}
-        <div className="hidden md:grid md:grid-cols-3 md:gap-8">
+        {/* Responsive Grid - Optimized for h-screen */}
+        <div className="grid grid-cols-2 md:grid-cols-3 gap-4 md:gap-8 px-2 md:px-0 max-w-5xl mx-auto">
           {tipsAndTricks.map((tip, i) => (
             <motion.div
               key={i}
               variants={itemVariants}
-              transition={{ delay: 0.4 + i * 0.2 }}
-              className="flex flex-col items-center text-center"
+              transition={{ delay: 0.2 + i * 0.1 }}
+              className={`group relative flex flex-col ${i === 2 ? 'col-span-2 md:col-span-1' : ''}`}
             >
               <a
                 href={tip.link}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="block w-full aspect-video rounded-lg overflow-hidden group shadow-lg"
+                className="relative block w-full aspect-[3/4] rounded-xl overflow-hidden shadow-xl bg-attire-dark/50"
               >
+                {/* Image */}
                 <img
                   src={tip.image}
                   alt={tip.title}
-                  className="w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-500 ease-in-out"
+                  className="w-full h-full object-cover object-center transition-transform duration-700 ease-out group-hover:scale-110"
                   loading="lazy"
                 />
+                
+                {/* Gradient Overlay */}
+                <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent opacity-80 transition-opacity duration-300" />
+                
+                {/* Play Button */}
+                <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-300 transform scale-75 group-hover:scale-100">
+                    <div className="w-12 h-12 md:w-16 md:h-16 rounded-full bg-white/10 backdrop-blur-md flex items-center justify-center border border-white/20 shadow-lg group-hover:bg-attire-accent/80 group-hover:border-attire-accent transition-colors duration-300">
+                        <Play className="w-5 h-5 md:w-8 md:h-8 text-white fill-current ml-1" />
+                    </div>
+                </div>
+
+                {/* Text Content */}
+                <div className="absolute bottom-0 left-0 w-full p-4 md:p-6 text-left transform translate-y-2 group-hover:translate-y-0 transition-transform duration-300">
+                     <div className="h-0.5 w-0 bg-attire-accent mb-2 group-hover:w-10 transition-all duration-500 ease-out" />
+                     <h3 className="font-serif text-lg md:text-2xl text-white mb-1 leading-tight drop-shadow-lg">{tip.title}</h3>
+                     <p className="text-attire-silver text-[10px] md:text-sm line-clamp-1 md:line-clamp-2 opacity-80 group-hover:opacity-100 group-hover:text-white transition-all duration-300 font-light">
+                        {tip.description}
+                     </p>
+                </div>
               </a>
-              <div className="mt-4">
-                <h3 className="font-serif text-lg md:text-xl text-white mb-1 break-words">{tip.title}</h3>
-                <p className="text-attire-silver text-sm break-words">{tip.description}</p>
-              </div>
             </motion.div>
           ))}
-        </div>
-
-        {/* Mobile Grid */}
-        <div className="md:hidden flex flex-wrap justify-center gap-4">
-          {tipsAndTricks.map((tip, i) => (
-            <div key={i} className="w-[calc(50%-0.5rem)] flex flex-col items-center text-center">
-                <a
-                  href={tip.link}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="block w-full aspect-video rounded-lg overflow-hidden group shadow-lg"
-                >
-                  <img
-                    src={tip.image}
-                    alt={tip.title}
-                    className="w-full h-full object-cover object-center transition-transform duration-500 ease-in-out group-hover:scale-105"
-                    loading="lazy"
-                  />
-                </a>
-                <div className="mt-2">
-                  <h3 className="font-serif text-base text-white mb-1">{tip.title}</h3>
-                  <p className="text-attire-silver text-xs leading-snug">{tip.description}</p>
-                </div>
-            </div>
-          ))}
+          {/* Mobile visible third card - using different grid layout for mobile if needed */}
+          <motion.div
+             variants={itemVariants}
+             transition={{ delay: 0.4 }}
+             className="md:hidden col-span-2 hidden" // Keep hidden if we want to stick to 2 on mobile for h-screen
+          />
         </div>
       </div>
     </section>
@@ -526,7 +612,8 @@ const HomePage = () => {
     const handleScroll = () => {
         clearTimeout(scrollTimeout);
         scrollTimeout = setTimeout(() => {
-            if (!window.lenis || isMenuOpen) return;
+            // Disable snapping on mobile (width < 768) or if menu is open or lenis isn't ready
+            if (!window.lenis || isMenuOpen || window.innerWidth < 768) return;
 
             const scrollY = window.scrollY;
             const viewportHeight = window.innerHeight;
