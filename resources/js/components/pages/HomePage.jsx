@@ -69,56 +69,124 @@ const itemVariants = {
 const HeroSection = memo(forwardRef(({ scrollToSection }, ref) => (
   <section className="relative snap-section overflow-hidden min-h-screen h-screen" ref={ref}>
     <div className="absolute inset-0 w-full h-full overflow-hidden">
-      <video autoPlay muted loop playsInline preload="metadata" className="absolute w-full h-full object-cover" style={{ objectPosition: 'center 10%' }}><source src={`${minioBaseUrl}/uploads/asset/hero-background1.mp4`} type="video/mp4" /></video>
-      <div className="absolute inset-0 bg-attire-dark/40" />
-    </div>
-    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.8 }} className="relative z-10 h-full flex flex-col items-center justify-center">
-      <img src={`${minioBaseUrl}/uploads/asset/AL_logo.png`} alt="Attire Lounge" className="h-auto mx-auto filter brightness-0 invert drop-shadow-[0_0_30px_rgba(0,0,0,0.8)] opacity-90 max-w-[280px] md:max-w-sm" loading="eager" />
-      <motion.div
-        className="flex flex-col items-center text-attire-cream opacity-70 mt-16" // Added mt-16 for spacing, removed absolute positioning
-        animate={{ y: ["-10%", "10%", "-10%"] }}
-        transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
+      <video 
+        autoPlay 
+        muted 
+        loop 
+        playsInline 
+        preload="metadata" 
+        className="absolute w-full h-full object-cover" 
+        style={{ objectPosition: 'center 20%' }}
       >
-        <span className="mb-2 text-xs tracking-wide">Scroll Down</span>
-        <ChevronDown size={18} />
-        <ChevronDown size={18} className="-mt-2" />
-        <ChevronDown size={18} className="-mt-2" />
+        <source src={`${minioBaseUrl}/uploads/asset/hero-background1.mp4`} type="video/mp4" />
+      </video>
+      {/* Cleaner Gradient Overlay: Clearer center, darkened edges for focus */}
+      <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-transparent to-black/80" />
+    </div>
+
+    <motion.div 
+      initial={{ opacity: 0, y: 20 }} 
+      animate={{ opacity: 1, y: 0 }} 
+      transition={{ duration: 1.2, ease: "easeOut" }} 
+      className="relative z-10 h-full flex flex-col items-center justify-center px-4"
+    >
+      {/* Logo */}
+      <img 
+        src={`${minioBaseUrl}/uploads/asset/AL_logo.png`} 
+        alt="Attire Lounge" 
+        className="h-auto w-full max-w-[240px] md:max-w-md filter brightness-0 invert drop-shadow-2xl opacity-95 mb-6" 
+        loading="eager" 
+      />
+      
+      {/* Minimal Tagline */}
+      <motion.p 
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ delay: 0.8, duration: 1 }}
+        className="text-attire-silver/80 text-[10px] md:text-xs tracking-[0.4em] uppercase font-light text-center mb-12"
+      >
+        Est. 2024 &nbsp;<span className="text-attire-accent">•</span>&nbsp; Phnom Penh
+      </motion.p>
+
+      {/* Simplified Scroll Indicator */}
+      <motion.div
+        className="absolute bottom-12 flex flex-col items-center gap-4 cursor-pointer group mix-blend-screen"
+        onClick={() => scrollToSection(1)}
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ delay: 1.5, duration: 1 }}
+      >
+        <span className="text-[10px] tracking-[0.3em] text-white/50 uppercase group-hover:text-white transition-colors duration-500">Discover</span>
+        <div className="w-[1px] h-16 bg-white/10 overflow-hidden rounded-full">
+          <motion.div 
+            className="w-full h-1/2 bg-gradient-to-b from-transparent to-attire-accent"
+            animate={{ y: ["-100%", "100%"] }}
+            transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
+          />
+        </div>
       </motion.div>
     </motion.div>
   </section>
 )));
 
 const PhilosophySection = memo(forwardRef((props, ref) => (
-    <section className="relative snap-section min-h-screen h-screen grid grid-cols-1 md:grid-cols-2 items-center bg-attire-navy" ref={ref}>
+    <section className="relative snap-section min-h-screen h-screen grid grid-cols-1 lg:grid-cols-2 items-center bg-attire-navy overflow-hidden" ref={ref}>
+      {/* Ambient Light */}
+      <div className="absolute top-0 left-0 w-[400px] h-[400px] bg-attire-accent/5 rounded-full blur-[120px] pointer-events-none" />
+
       {/* Left side - Text Content */}
-      <div className="flex flex-col justify-center text-attire-cream p-8 md:p-16 h-full">
+      <div className="relative z-10 flex flex-col justify-center text-attire-cream p-8 md:p-16 lg:p-24 h-full order-2 lg:order-1">
         <motion.div
             variants={containerVariants}
             initial="hidden"
             whileInView="visible"
-            viewport={{ once: true, amount: 0.6 }}
+            viewport={{ once: true, amount: 0.4 }}
+            className="max-w-xl"
         >
-          <motion.h2 variants={itemVariants} className="font-serif text-sm md:text-base tracking-[0.2em] text-attire-accent uppercase mb-4">Our Philosophy</motion.h2>
-          <motion.p variants={itemVariants} transition={{ delay: 0.2 }} className="font-serif text-2xl md:text-4xl leading-relaxed mb-8">
-            Attire Lounge Official is Cambodia's first sartorial gentlemen's styling house, offering a variety of ready-to-wear collections and style consultation with our certified stylists.
+          {/* Section Indicator */}
+          <motion.div variants={itemVariants} className="flex items-center gap-4 mb-8">
+              <span className="text-attire-accent font-serif text-lg italic">02</span>
+              <div className="h-px w-8 bg-attire-accent/50" />
+              <h2 className="text-attire-accent tracking-[0.3em] uppercase text-[10px] md:text-xs font-bold">Our Philosophy</h2>
+          </motion.div>
+
+          <motion.h3 variants={itemVariants} className="font-serif text-4xl md:text-6xl leading-tight text-white mb-8">
+            Crafting the <span className="text-attire-silver italic font-light">Modern Identity</span>
+          </motion.h3>
+
+          <motion.p variants={itemVariants} className="text-attire-silver/80 text-sm md:text-lg leading-relaxed mb-12 font-light border-l border-attire-accent/30 pl-8">
+            Attire Lounge Official is Cambodia's premier sartorial destination. We blend traditional craftsmanship with contemporary styling to empower the modern gentleman.
           </motion.p>
-          <motion.div variants={itemVariants} transition={{ delay: 0.4 }}>
-            <Link to="/contact" className="inline-block bg-attire-accent text-white font-semibold px-10 py-4 rounded-lg hover:bg-attire-accent/90 transition-colors">
-              Make Appointment
+
+          <motion.div variants={itemVariants} className="flex flex-wrap gap-8 items-center">
+            <Link to="/contact" className="group relative overflow-hidden bg-attire-accent text-white px-10 py-4 rounded-full transition-all duration-300 hover:pr-14 shadow-lg shadow-attire-accent/10">
+              <span className="relative z-10 font-semibold text-sm">Make Appointment</span>
+              <ArrowRight className="absolute right-5 top-1/2 -translate-y-1/2 w-5 h-5 opacity-0 group-hover:opacity-100 group-hover:translate-x-0 -translate-x-4 transition-all duration-300" />
+            </Link>
+            
+            <Link to="/lookbook" className="text-xs uppercase tracking-[0.2em] text-white/40 hover:text-white transition-colors duration-300 border-b border-white/5 hover:border-white/20 pb-1">
+                Explore Lookbook
             </Link>
           </motion.div>
         </motion.div>
       </div>
 
       {/* Right side - Image */}
-      <div className="relative w-full h-full overflow-hidden hidden md:block">
-        <img
-          src={`${minioBaseUrl}/uploads/collections/default/as5.jpg`}
-          alt="Attire Lounge Interior"
-          className="absolute inset-0 w-full h-full object-cover"
-          loading="lazy"
-        />
-        <div className="absolute inset-0 bg-gradient-to-r from-attire-navy via-transparent to-transparent" />
+      <div className="relative w-full h-full overflow-hidden order-1 lg:order-2 hidden md:block">
+        <motion.div 
+            initial={{ scale: 1.05 }}
+            whileInView={{ scale: 1 }}
+            transition={{ duration: 1.5, ease: "easeOut" }}
+            className="h-full w-full"
+        >
+            <img
+              src={`${minioBaseUrl}/uploads/collections/default/as5.jpg`}
+              alt="Attire Lounge Interior"
+              className="absolute inset-0 w-full h-full object-cover"
+              loading="lazy"
+            />
+        </motion.div>
+        <div className="absolute inset-0 bg-gradient-to-r from-attire-navy via-attire-navy/10 to-transparent" />
       </div>
     </section>
 )));
@@ -442,48 +510,114 @@ const MembershipSection = memo(forwardRef((props, ref) => (
 )));
 
 const LookbookSection = memo(forwardRef(({ lookbookFeatures }, ref) => (
-  <section className="relative snap-section bg-attire-dark py-8 md:py-16" ref={ref}>
-    <img src={`${minioBaseUrl}/uploads/collections/default/of3.jpg`} alt="Lookbook Background" className="absolute inset-0 w-full h-full object-cover object-center" loading="lazy" decoding="async" />
-    <div className="absolute inset-0 bg-gradient-to-b from-attire-dark/80 to-attire-dark/40" />
-
-    <div className="relative h-full flex flex-col items-center justify-center text-center text-attire-cream p-4 md:p-8">
-      <motion.div
-        variants={containerVariants}
-        initial="hidden"
-        whileInView="visible"
-        viewport={{ once: true, amount: 0.2 }}
-        className="w-full max-w-6xl mx-auto"
-      >
-        <motion.h2 variants={itemVariants} className="font-serif text-3xl md:text-5xl mb-4">The Art of Style</motion.h2>
-        <motion.p variants={itemVariants} transition={{ delay: 0.2 }} className="max-w-2xl mx-auto text-attire-silver text-base md:text-lg mb-6 md:mb-10">
-          Explore our curated lookbook for inspiration and discover the timeless elegance that defines Attire Lounge.
-        </motion.p>
-
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-8 mb-6 md:mb-10">
-          {lookbookFeatures.map((feature, index) => (
-            <motion.div
-              key={index}
-              variants={itemVariants}
-              transition={{ delay: 0.4 + index * 0.2 }}
-              className="bg-attire-dark/30 backdrop-blur-md border border-attire-cream/10 rounded-2xl shadow-lg p-6 flex flex-col items-center"
-            >
-              <motion.div
-                whileHover={{ scale: 1.1, rotate: 5 }}
-                transition={{ type: "spring", stiffness: 300 }}
-                className="mb-2"
-              >
-                {feature.icon}
-              </motion.div>
-              <h3 className="font-serif text-base md:text-xl text-white mb-1">{feature.title}</h3>
-              <p className="text-attire-silver text-xs leading-snug">{feature.description}</p>
-            </motion.div>
-          ))}
-        </div>
-
-        <motion.div variants={itemVariants} transition={{ delay: 1 }}>
-          <Link to="/lookbook" className="inline-block bg-attire-accent text-white font-semibold px-8 py-3 rounded-lg hover:bg-attire-accent/90 transition-colors text-sm md:text-base">View Lookbook</Link>
+  <section className="relative snap-section min-h-screen bg-black flex items-center overflow-hidden" ref={ref}>
+    {/* Artistic Background */}
+    <div className="absolute inset-0 z-0">
+        <motion.div 
+            initial={{ scale: 1.1 }}
+            whileInView={{ scale: 1 }}
+            transition={{ duration: 15, ease: "linear" }}
+            className="w-full h-full"
+        >
+             <img 
+                src={`${minioBaseUrl}/uploads/collections/default/mm7.jpg`} 
+                alt="Lookbook Background" 
+                className="w-full h-full object-cover object-center opacity-50 grayscale-[20%] contrast-125" 
+                loading="lazy" 
+                decoding="async" 
+            />
         </motion.div>
-      </motion.div>
+        {/* Mood Gradient - Heavy on left for text readability */}
+        <div className="absolute inset-0 bg-gradient-to-r from-black via-black/80 to-transparent/20" />
+        {/* Subtle Grain Overlay for Texture */}
+        <div className="absolute inset-0 opacity-[0.03] pointer-events-none" style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E")` }} />
+    </div>
+
+    <div className="relative z-10 w-full max-w-screen-xl mx-auto px-6 lg:px-12 grid grid-cols-1 lg:grid-cols-2 gap-12 h-full content-center items-center py-20">
+        
+        {/* Left: Artistic Typography & Intro */}
+        <motion.div 
+            variants={containerVariants}
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, amount: 0.5 }}
+            className="relative select-none"
+        >
+            {/* Decorative Vertical Line */}
+            <motion.div variants={itemVariants} className="absolute -left-4 lg:-left-12 top-0 bottom-0 w-px bg-gradient-to-b from-transparent via-attire-accent to-transparent opacity-50" />
+            
+            {/* Massive Background Text */}
+            <motion.h2 
+                variants={itemVariants} 
+                className="font-serif text-[5rem] sm:text-[7rem] md:text-[9rem] leading-[0.8] tracking-tighter text-white mix-blend-overlay opacity-20 pointer-events-none"
+            >
+                LOOK<br/>BOOK
+            </motion.h2>
+
+            {/* Foreground Intro */}
+            <motion.div variants={itemVariants} className="mt-8 ml-2 lg:ml-4 flex flex-col items-start gap-4">
+                 <div className="flex items-center gap-3">
+                     <span className="text-attire-accent font-serif italic text-xl">03</span>
+                     <div className="h-px w-12 bg-attire-accent/50" />
+                 </div>
+                 
+                 <div>
+                    <h3 className="text-white text-2xl tracking-[0.2em] uppercase font-light mb-4">Inspiration</h3>
+                    <p className="text-attire-silver/70 text-sm md:text-base leading-relaxed max-w-md border-l-2 border-white/10 pl-6">
+                        Where traditional craftsmanship meets contemporary vision. A curated gallery of our finest styling work.
+                    </p>
+                 </div>
+            </motion.div>
+        </motion.div>
+
+        {/* Right: Editorial Interactive List */}
+        <motion.div 
+            variants={containerVariants}
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, amount: 0.5 }}
+            className="flex flex-col gap-2 lg:pl-12"
+        >
+            {lookbookFeatures.map((feature, index) => (
+                <motion.div 
+                    key={index}
+                    variants={itemVariants}
+                    className="group relative border-b border-white/10 py-6 cursor-pointer hover:border-white/30 transition-colors duration-500"
+                >
+                    <div className="flex items-center justify-between group-hover:pl-4 transition-all duration-500 ease-out">
+                        <div className="flex items-center gap-6">
+                             {/* Icon showing on hover effect */}
+                             <div className="text-white/30 group-hover:text-attire-accent scale-75 group-hover:scale-100 transition-all duration-500">
+                                {React.cloneElement(feature.icon, { size: 28, strokeWidth: 1 })}
+                             </div>
+                             
+                             <h4 className="font-serif text-2xl md:text-4xl text-white/80 group-hover:text-white transition-colors duration-300">
+                                {feature.title}
+                             </h4>
+                        </div>
+                        
+                        {/* Arrow */}
+                        <ArrowRight className="w-5 h-5 text-white/20 -rotate-45 group-hover:rotate-0 group-hover:text-attire-accent transition-all duration-500" />
+                    </div>
+                    
+                    {/* Expandable Description */}
+                    <div className="grid grid-rows-[0fr] group-hover:grid-rows-[1fr] transition-[grid-template-rows] duration-500 ease-out">
+                        <div className="overflow-hidden">
+                            <p className="text-attire-silver/50 text-sm font-light mt-4 pl-[3.5rem] max-w-md pb-2">
+                                {feature.description}
+                            </p>
+                        </div>
+                    </div>
+                </motion.div>
+            ))}
+
+            <motion.div variants={itemVariants} className="mt-10 pl-4">
+                 <Link to="/lookbook" className="group inline-flex items-center gap-3 text-white/60 hover:text-white transition-colors uppercase text-xs tracking-[0.2em]">
+                    <span className="border-b border-transparent group-hover:border-attire-accent pb-1 transition-all">Enter Gallery</span>
+                    <ArrowRight size={14} className="group-hover:translate-x-1 transition-transform" />
+                 </Link>
+            </motion.div>
+        </motion.div>
     </div>
   </section>
 )));
