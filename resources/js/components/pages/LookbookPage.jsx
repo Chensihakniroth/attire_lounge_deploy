@@ -34,14 +34,14 @@ const LookbookPage = () => {
         { id: 21, src: `${minioBaseUrl}/uploads/collections/default/of5.jpg`, title: 'Professional Polish', collection: 'Office Collection', category: ['business'], span: 'col-span-1 row-span-1' },
 
         // Groom & Formal Collection
-        { id: 22, src: `${minioBaseUrl}/uploads/collections/default/g1.jpg`, title: 'Classic Tuxedo', collection: 'Groom Collection', category: ['grooms', 'formal'], span: 'col-span-1 row-span-1' },
-        { id: 23, src: `${minioBaseUrl}/uploads/collections/default/g2.jpg`, title: 'Wedding Day', collection: 'Groom Collection', category: ['grooms', 'formal'], span: 'col-span-1 row-span-2' },
-        { id: 24, src: `${minioBaseUrl}/uploads/collections/default/g3.jpg`, title: 'Groomsmen Style', collection: 'Groom Collection', category: ['grooms', 'formal'], span: 'col-span-1 row-span-1' },
-        { id: 25, src: `${minioBaseUrl}/uploads/collections/default/g4.jpg`, title: 'Elegant Ceremony', collection: 'Groom Collection', category: ['grooms', 'formal'], span: 'col-span-2 row-span-1' },
-        { id: 26, src: `${minioBaseUrl}/uploads/collections/default/g5.jpg`, title: 'Reception Look', collection: 'Groom Collection', category: ['grooms', 'formal'], span: 'col-span-1 row-span-1' },
-        { id: 27, src: `${minioBaseUrl}/uploads/collections/default/g6.jpg`, title: 'Tailored Perfection', collection: 'Groom Collection', category: ['grooms', 'formal'], span: 'col-span-1 row-span-2' },
-        { id: 28, src: `${minioBaseUrl}/uploads/collections/default/g7.jpg`, title: 'Celebration Suit', collection: 'Groom Collection', category: ['grooms', 'formal'], span: 'col-span-1 row-span-1' },
-        { id: 29, src: `${minioBaseUrl}/uploads/collections/default/g8.jpg`, title: 'Formal Event', collection: 'Groom Collection', category: ['grooms', 'formal'], span: 'col-span-2 row-span-2' },
+        { id: 22, src: `${minioBaseUrl}/uploads/collections/default/g1.webp?v=new`, title: 'Classic Tuxedo', collection: 'Groom Collection', category: ['grooms', 'formal'], span: 'col-span-1 row-span-1' },
+        { id: 23, src: `${minioBaseUrl}/uploads/collections/default/g2.webp?v=new`, title: 'Wedding Day', collection: 'Groom Collection', category: ['grooms', 'formal'], span: 'col-span-1 row-span-2' },
+        { id: 24, src: `${minioBaseUrl}/uploads/collections/default/g3.webp?v=new`, title: 'Groomsmen Style', collection: 'Groom Collection', category: ['grooms', 'formal'], span: 'col-span-1 row-span-1' },
+        { id: 25, src: `${minioBaseUrl}/uploads/collections/default/g4.webp?v=new`, title: 'Elegant Ceremony', collection: 'Groom Collection', category: ['grooms', 'formal'], span: 'col-span-2 row-span-1' },
+        { id: 26, src: `${minioBaseUrl}/uploads/collections/default/g5.webp?v=new`, title: 'Reception Look', collection: 'Groom Collection', category: ['grooms', 'formal'], span: 'col-span-1 row-span-1' },
+        { id: 27, src: `${minioBaseUrl}/uploads/collections/default/g6.webp?v=new`, title: 'Tailored Perfection', collection: 'Groom Collection', category: ['grooms', 'formal'], span: 'col-span-1 row-span-2' },
+        { id: 28, src: `${minioBaseUrl}/uploads/collections/default/g7.webp?v=new`, title: 'Celebration Suit', collection: 'Groom Collection', category: ['grooms', 'formal'], span: 'col-span-1 row-span-1' },
+        { id: 29, src: `${minioBaseUrl}/uploads/collections/default/g8.webp?v=new`, title: 'Formal Event', collection: 'Groom Collection', category: ['grooms', 'formal'], span: 'col-span-2 row-span-2' },
     ]);
 
     const [[page, direction], setPage] = useState([null, 0]);

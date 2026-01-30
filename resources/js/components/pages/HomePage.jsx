@@ -127,7 +127,7 @@ const CollectionsSection = memo(forwardRef((props, ref) => (
     <section className="relative snap-section min-h-screen h-screen" ref={ref}>
         {/* Background Image - Converted to img for lazy loading */}
         <img
-            src={`${minioBaseUrl}/uploads/collections/default/g1.webp`}
+            src={`${minioBaseUrl}/uploads/collections/default/g1.webp?v=new`}
             alt="Collections Background"
             className="absolute inset-0 w-full h-full object-cover object-center"
             loading="lazy"
