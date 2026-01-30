@@ -25,6 +25,7 @@ class GiftRequestController extends Controller
             'email' => 'required|email|max:255',
             'phone' => 'required|string|max:255',
             'preferences' => 'nullable|string',
+            'selected_items' => 'nullable|array',
         ]);
 
         $giftRequest = GiftRequest::create($validated);

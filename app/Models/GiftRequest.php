@@ -15,5 +15,10 @@ class GiftRequest extends Model
         'phone',
         'preferences',
         'status',
+        'selected_items',
+    ];
+
+    protected $casts = [
+        'selected_items' => 'array',
     ];
 }

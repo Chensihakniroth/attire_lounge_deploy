@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { motion } from 'framer-motion';
-import { Send, ShoppingCart, Check, User, Mail, Phone, ArrowRight, Loader, AlertTriangle, Gift } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { Send, ShoppingCart, Check, User, Mail, Phone, ArrowRight, Loader, AlertTriangle, Gift, ChevronLeft } from 'lucide-react';
 import api from '../../api';
 import minioBaseUrl from '../../config';
 import Skeleton from '../common/Skeleton.jsx';
@@ -36,57 +36,69 @@ const SelectionCard = ({ item, isSelected, onSelect }) => {
     return (
         <motion.div
             onClick={onSelect}
-            className={`relative rounded-lg overflow-hidden border-2 cursor-pointer transition-all duration-300 ${isSelected ? 'border-attire-accent' : 'border-transparent'}`}
-            whileHover={{ scale: 1.05 }}
+            className={`group relative rounded-2xl overflow-hidden border-2 cursor-pointer transition-all duration-300 ${
+                isSelected 
+                    ? 'border-attire-accent shadow-[0_0_20px_rgba(212,168,76,0.25)]' 
+                    : 'border-white/5 hover:border-white/20'
+            }`}
+            whileHover={{ y: -5 }}
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
         >
-            <div className="absolute inset-0 bg-black/20 z-10"></div>
-            
-            {!isLoaded && (
-                <div className="absolute inset-0 z-0">
-                    <Skeleton className="w-full h-full rounded-none bg-gray-800" />
-                    <div className="absolute inset-0 flex items-center justify-center">
-                        <Loader className="animate-spin text-attire-accent/20" size={24} />
+            <div className="aspect-[4/5] w-full relative">
+                {!isLoaded && (
+                    <div className="absolute inset-0 z-0 bg-white/5">
+                        <div className="absolute inset-0 flex items-center justify-center">
+                            <Loader className="animate-spin text-attire-accent/20" size={24} />
+                        </div>
                     </div>
-                </div>
-            )}
+                )}
 
-            <motion.img 
-                src={item.image} 
-                alt={item.name} 
-                className="w-full h-full object-cover"
-                initial={{ opacity: 0 }}
-                animate={{ opacity: isLoaded ? 1 : 0 }}
-                transition={{ duration: 0.5 }}
-                onLoad={() => setIsLoaded(true)}
-            />
-
-            <div className="absolute bottom-0 left-0 p-3 z-20">
-                <h4 className="font-semibold text-white">{item.name}</h4>
-                {item.color && <p className="text-sm text-white/80">{item.color}</p>}
+                <motion.img 
+                    src={item.image} 
+                    alt={item.name} 
+                    className={`w-full h-full object-cover transition-all duration-500 ${
+                        isSelected ? 'opacity-100 scale-105' : 'opacity-80 group-hover:opacity-100 group-hover:scale-105'
+                    }`}
+                    onLoad={() => setIsLoaded(true)}
+                />
+                
+                <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent opacity-80" />
             </div>
-            {isSelected && (
-                <motion.div
-                    layoutId={`selected-check-${item.id}`}
-                    className="absolute top-2 right-2 bg-attire-accent text-attire-dark rounded-full w-6 h-6 flex items-center justify-center z-20"
-                >
-                    <Check size={16} />
-                </motion.div>
-            )}
+
+            <div className="absolute bottom-0 left-0 p-4 z-20 w-full">
+                <h4 className="font-serif text-white text-lg leading-tight mb-1">{item.name}</h4>
+                {item.color && <p className="text-xs text-attire-silver uppercase tracking-wider">{item.color}</p>}
+            </div>
+
+            <AnimatePresence>
+                {isSelected && (
+                    <motion.div
+                        initial={{ scale: 0, opacity: 0 }}
+                        animate={{ scale: 1, opacity: 1 }}
+                        exit={{ scale: 0, opacity: 0 }}
+                        className="absolute top-3 right-3 bg-attire-accent text-black rounded-full p-1.5 shadow-lg z-20"
+                    >
+                        <Check size={16} strokeWidth={3} />
+                    </motion.div>
+                )}
+            </AnimatePresence>
         </motion.div>
     );
 };
 
-const InputField = ({ icon, ...props }) => (
-    <div className="relative">
-        <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-            {icon}
+const InputField = ({ icon, label, ...props }) => (
+    <div>
+        {label && <label className="block text-xs font-semibold text-attire-silver uppercase tracking-widest mb-2 ml-1">{label}</label>}
+        <div className="relative group">
+            <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-attire-silver group-focus-within:text-attire-accent transition-colors">
+                {icon}
+            </div>
+            <input
+                {...props}
+                className="w-full pl-12 pr-4 py-3.5 rounded-2xl border bg-black/40 text-white placeholder-white/20 transition-all border-white/10 focus:border-attire-accent/50 focus:ring-1 focus:ring-attire-accent/30 focus:outline-none"
+            />
         </div>
-        <input
-            {...props}
-            className="w-full pl-10 p-3 rounded-lg border bg-attire-dark/50 text-attire-cream placeholder-attire-silver/70 focus:border-white focus:ring-1 focus:ring-white transition-colors"
-        />
     </div>
 );
 
@@ -97,7 +109,7 @@ const CustomizeGiftPage = () => {
     const [selectedPocketSquare, setSelectedPocketSquare] = useState(null);
     const [selectedBox, setSelectedBox] = useState(null);
     const [note, setNote] = useState('');
-    const [submissionStatus, setSubmissionStatus] = useState({ state: 'idle' }); // idle, loading, success, error
+    const [submissionStatus, setSubmissionStatus] = useState({ state: 'idle' });
     const [formErrors, setFormErrors] = useState({});
     const [availableBoxes, setAvailableBoxes] = useState([]);
 
@@ -119,7 +131,7 @@ const CustomizeGiftPage = () => {
 
     useEffect(() => {
         if (submissionStatus.state === 'success') {
-            window.scrollTo(0, 0); // Scroll to top on successful submission
+            window.scrollTo({ top: 0, behavior: 'smooth' });
         }
     }, [submissionStatus.state]);
 
@@ -139,6 +151,7 @@ const CustomizeGiftPage = () => {
         }
         setFormErrors({});
         setStep(2);
+        window.scrollTo({ top: 0, behavior: 'smooth' });
     };
 
     const handleFinalize = async () => {
@@ -151,7 +164,13 @@ Box: ${selectedBox.name}
 ${note ? `Note: "${note}"` : ''}
         `.trim();
 
-        const dataToSend = { ...formData, preferences };
+        const selectedItems = [
+            { type: 'Tie', ...selectedTie },
+            { type: 'Pocket Square', ...selectedPocketSquare },
+            { type: 'Box', ...selectedBox }
+        ];
+
+        const dataToSend = { ...formData, preferences, selected_items: selectedItems };
 
         setSubmissionStatus({ state: 'loading' });
         try {
@@ -175,15 +194,23 @@ ${note ? `Note: "${note}"` : ''}
 
     if (submissionStatus.state === 'success') {
         return (
-            <div className="min-h-screen bg-attire-navy py-12 md:py-24 flex items-center justify-center">
-                <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} className="max-w-md w-full mx-auto px-4">
-                    <div className="bg-attire-dark/40 backdrop-blur-lg rounded-2xl border border-white/10 shadow-lg p-8 text-center">
-                        <Check size={48} className="mx-auto text-green-400 mb-4" />
-                        <h1 className="text-3xl font-serif text-white mb-4">Request Sent!</h1>
-                        <p className="text-attire-silver mb-8">
-                            Thank you, {formData.name}. We have received your custom gift request and will contact you shortly.
+            <div className="min-h-screen bg-attire-navy relative overflow-hidden flex items-center justify-center">
+                {/* Background Decorations */}
+                <div className="fixed top-0 left-0 w-full h-screen overflow-hidden pointer-events-none z-0">
+                    <div className="absolute top-[-10%] right-[-5%] w-[600px] h-[600px] bg-attire-accent/[0.03] rounded-full blur-[160px]" />
+                    <div className="absolute bottom-[-10%] left-[-10%] w-[500px] h-[500px] bg-blue-900/[0.05] rounded-full blur-[140px]" />
+                </div>
+
+                <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} className="relative z-10 max-w-md w-full mx-auto px-4">
+                    <div className="bg-black/20 backdrop-blur-xl rounded-3xl border border-white/10 shadow-2xl p-10 text-center">
+                        <div className="w-20 h-20 bg-green-500/10 rounded-full flex items-center justify-center mx-auto mb-6 border border-green-500/20">
+                            <Check size={40} className="text-green-400" />
+                        </div>
+                        <h1 className="text-4xl font-serif text-white mb-4">Request Sent!</h1>
+                        <p className="text-attire-silver mb-8 leading-relaxed">
+                            Thank you, {formData.name}. We have received your custom gift request and will contact you shortly to finalize the details.
                         </p>
-                        <button onClick={resetForm} className="text-attire-accent hover:text-white transition-colors font-semibold">
+                        <button onClick={resetForm} className="w-full py-4 rounded-full font-semibold transition-all duration-300 bg-attire-accent text-black hover:bg-white">
                             Create Another Gift
                         </button>
                     </div>
@@ -193,123 +220,244 @@ ${note ? `Note: "${note}"` : ''}
     }
 
     return (
-        <div className="min-h-screen bg-attire-navy py-12 md:py-24">
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                <div className="text-center mb-12">
-                    <h1 className="text-4xl md:text-5xl font-serif text-white mb-4">
-                        Customize a Gift Box
-                    </h1>
-                    <p className="text-lg text-attire-silver max-w-2xl mx-auto">
-                        Follow the steps to create a unique and thoughtful gift.
-                    </p>
+        <div className="min-h-screen bg-attire-navy relative overflow-x-clip">
+            {/* Background Decorations */}
+            <div className="fixed top-0 left-0 w-full h-screen overflow-hidden pointer-events-none z-0">
+                <div className="absolute top-[-10%] right-[-5%] w-[600px] h-[600px] bg-attire-accent/[0.03] rounded-full blur-[160px]" />
+                <div className="absolute bottom-[-10%] left-[-10%] w-[500px] h-[500px] bg-blue-900/[0.05] rounded-full blur-[140px]" />
+            </div>
+
+            <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-28 sm:py-36">
+                <div className="text-center mb-16">
+                    <motion.div
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.8 }}
+                    >
+                        <span className="text-attire-accent text-xs tracking-[0.3em] uppercase mb-4 inline-block">Curate</span>
+                        <h1 className="text-5xl md:text-7xl font-serif font-light text-white mb-6">
+                            The Perfect Gift
+                        </h1>
+                        <p className="text-lg text-attire-silver max-w-2xl mx-auto font-light leading-relaxed">
+                            Craft a bespoke gift box with our finest accessories. <br/>A gesture of timeless elegance.
+                        </p>
+                    </motion.div>
                 </div>
 
-                {step === 1 && (
-                    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="max-w-xl mx-auto">
-                        <div className="bg-attire-dark/20 backdrop-blur-sm rounded-xl p-8">
-                            <h2 className="text-2xl font-serif text-white mb-6">Step 1: Your Details</h2>
-                            <form onSubmit={handleDetailsSubmit} className="space-y-4">
-                                <InputField
-                                    icon={<User size={16} className="text-gray-400" />}
-                                    type="text"
-                                    placeholder="Full Name"
-                                    value={formData.name}
-                                    onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                                />
-                                {formErrors.name && <p className="text-red-400 text-sm">{formErrors.name}</p>}
-                                <InputField
-                                    icon={<Mail size={16} className="text-gray-400" />}
-                                    type="email"
-                                    placeholder="Email Address"
-                                    value={formData.email}
-                                    onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                                />
-                                {formErrors.email && <p className="text-red-400 text-sm">{formErrors.email}</p>}
-                                <InputField
-                                    icon={<Phone size={16} className="text-gray-400" />}
-                                    type="tel"
-                                    placeholder="Phone Number"
-                                    value={formData.phone}
-                                    onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                                />
-                                {formErrors.phone && <p className="text-red-400 text-sm">{formErrors.phone}</p>}
-                                <button type="submit" className="w-full mt-4 px-6 py-3 rounded-lg font-semibold transition-all duration-300 flex items-center justify-center gap-2 bg-attire-accent text-attire-dark hover:opacity-90">
-                                    Next Step <ArrowRight size={20} />
-                                </button>
-                            </form>
-                        </div>
-                    </motion.div>
-                )}
+                <AnimatePresence mode="wait">
+                    {step === 1 ? (
+                        <motion.div 
+                            key="step1"
+                            initial={{ opacity: 0, y: 20 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            exit={{ opacity: 0, y: -20 }}
+                            transition={{ duration: 0.5 }}
+                            className="max-w-xl mx-auto"
+                        >
+                            <div className="bg-black/20 backdrop-blur-xl rounded-3xl border border-white/10 p-8 md:p-10 shadow-2xl">
+                                <div className="flex items-center justify-between mb-8">
+                                    <h2 className="text-2xl font-serif text-white">Your Details</h2>
+                                    <span className="text-attire-silver/50 text-sm font-mono">01 / 02</span>
+                                </div>
+                                
+                                <form onSubmit={handleDetailsSubmit} className="space-y-6">
+                                    <div>
+                                        <InputField
+                                            label="Full Name"
+                                            icon={<User size={18} />}
+                                            type="text"
+                                            placeholder="Enter your name"
+                                            value={formData.name}
+                                            onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                                        />
+                                        {formErrors.name && <p className="text-red-400 text-xs mt-2 ml-1">{formErrors.name}</p>}
+                                    </div>
+                                    
+                                    <div>
+                                        <InputField
+                                            label="Email Address"
+                                            icon={<Mail size={18} />}
+                                            type="email"
+                                            placeholder="Enter your email"
+                                            value={formData.email}
+                                            onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                                        />
+                                        {formErrors.email && <p className="text-red-400 text-xs mt-2 ml-1">{formErrors.email}</p>}
+                                    </div>
+                                    
+                                    <div>
+                                        <InputField
+                                            label="Phone Number"
+                                            icon={<Phone size={18} />}
+                                            type="tel"
+                                            placeholder="Enter your phone number"
+                                            value={formData.phone}
+                                            onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+                                        />
+                                        {formErrors.phone && <p className="text-red-400 text-xs mt-2 ml-1">{formErrors.phone}</p>}
+                                    </div>
 
-                {step === 2 && (
-                    <motion.div 
-                        initial="hidden" 
-                        animate="visible"
-                        variants={{
-                            hidden: { opacity: 0 },
-                            visible: { 
-                                opacity: 1,
-                                transition: { staggerChildren: 0.05 }
-                            }
-                        }}
-                    >
-                        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                            <div className="lg:col-span-2 space-y-12">
+                                    <button 
+                                        type="submit" 
+                                        className="w-full mt-6 py-4 rounded-full font-semibold transition-all duration-300 flex items-center justify-center gap-2 bg-white text-black hover:bg-attire-accent hover:text-black group"
+                                    >
+                                        Start Customizing 
+                                        <ArrowRight size={18} className="group-hover:translate-x-1 transition-transform" />
+                                    </button>
+                                </form>
+                            </div>
+                        </motion.div>
+                    ) : (
+                        <motion.div 
+                            key="step2"
+                            initial={{ opacity: 0 }} 
+                            animate={{ opacity: 1 }}
+                            className="grid grid-cols-1 lg:grid-cols-12 gap-8"
+                        >
+                            <div className="lg:col-span-8 space-y-16">
+                                {/* Ties Section */}
                                 <section>
-                                    <h2 className="text-2xl font-serif text-white mb-6">Step 2: Choose Items</h2>
-                                    <div className="space-y-8">
-                                        <div>
-                                            <h3 className="text-xl font-semibold text-white/90 mb-4">Ties</h3>
-                                            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                                                {giftOptions.ties.map(tie => <SelectionCard key={tie.id} item={tie} isSelected={selectedTie?.id === tie.id} onSelect={() => setSelectedTie(prev => prev?.id === tie.id ? null : tie)} />)}
+                                    <div className="flex items-center gap-4 mb-8">
+                                        <div className="h-px flex-grow bg-white/10"></div>
+                                        <h3 className="text-xl font-serif text-white uppercase tracking-widest">Select a Tie</h3>
+                                        <div className="h-px flex-grow bg-white/10"></div>
+                                    </div>
+                                    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                                        {giftOptions.ties.map(tie => (
+                                            <SelectionCard 
+                                                key={tie.id} 
+                                                item={tie} 
+                                                isSelected={selectedTie?.id === tie.id} 
+                                                onSelect={() => setSelectedTie(prev => prev?.id === tie.id ? null : tie)} 
+                                            />
+                                        ))}
+                                    </div>
+                                </section>
+
+                                {/* Pocket Squares Section */}
+                                <section>
+                                    <div className="flex items-center gap-4 mb-8">
+                                        <div className="h-px flex-grow bg-white/10"></div>
+                                        <h3 className="text-xl font-serif text-white uppercase tracking-widest">Select a Pocket Square</h3>
+                                        <div className="h-px flex-grow bg-white/10"></div>
+                                    </div>
+                                    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                                        {giftOptions.pocketSquares.map(ps => (
+                                            <SelectionCard 
+                                                key={ps.id} 
+                                                item={ps} 
+                                                isSelected={selectedPocketSquare?.id === ps.id} 
+                                                onSelect={() => setSelectedPocketSquare(prev => prev?.id === ps.id ? null : ps)} 
+                                            />
+                                        ))}
+                                    </div>
+                                </section>
+
+                                {/* Boxes Section */}
+                                <AnimatePresence>
+                                    {availableBoxes.length > 0 && (
+                                        <motion.section
+                                            initial={{ opacity: 0, height: 0 }}
+                                            animate={{ opacity: 1, height: 'auto' }}
+                                            exit={{ opacity: 0, height: 0 }}
+                                        >
+                                            <div className="flex items-center gap-4 mb-8 mt-12">
+                                                <div className="h-px flex-grow bg-white/10"></div>
+                                                <h3 className="text-xl font-serif text-white uppercase tracking-widest">Select a Box</h3>
+                                                <div className="h-px flex-grow bg-white/10"></div>
                                             </div>
-                                        </div>
-                                        <div>
-                                            <h3 className="text-xl font-semibold text-white/90 mb-4">Pocket Squares</h3>
-                                            <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
-                                                {giftOptions.pocketSquares.map(ps => <SelectionCard key={ps.id} item={ps} isSelected={selectedPocketSquare?.id === ps.id} onSelect={() => setSelectedPocketSquare(prev => prev?.id === ps.id ? null : ps)} />)}
+                                            <div className="grid grid-cols-2 md:grid-cols-3 gap-6">
+                                                {availableBoxes.map(box => (
+                                                    <SelectionCard 
+                                                        key={box.id} 
+                                                        item={box} 
+                                                        isSelected={selectedBox?.id === box.id} 
+                                                        onSelect={() => setSelectedBox(prev => prev?.id === box.id ? null : box)} 
+                                                    />
+                                                ))}
                                             </div>
+                                        </motion.section>
+                                    )}
+                                </AnimatePresence>
+
+                                {/* Note Section */}
+                                <section className="pt-8">
+                                    <label className="block text-xs font-semibold text-attire-silver uppercase tracking-widest mb-4 ml-1">Personal Note (Optional)</label>
+                                    <textarea 
+                                        value={note} 
+                                        onChange={(e) => setNote(e.target.value)} 
+                                        placeholder="Add a special message for the recipient..." 
+                                        className="w-full p-5 rounded-2xl border bg-black/20 text-white placeholder-white/20 focus:border-attire-accent/50 focus:ring-1 focus:ring-attire-accent/30 transition-all border-white/10 resize-none" 
+                                        rows="4"
+                                    ></textarea>
+                                </section>
+                            </div>
+
+                            {/* Sticky Sidebar */}
+                            <div className="lg:col-span-4">
+                                <div className="sticky top-28 space-y-6">
+                                    <div className="bg-black/40 backdrop-blur-xl rounded-3xl border border-white/10 shadow-2xl p-8">
+                                        <div className="flex items-center justify-between mb-6">
+                                            <h3 className="text-xl font-serif text-white">Summary</h3>
+                                            <button onClick={() => setStep(1)} className="text-xs text-attire-silver hover:text-white underline underline-offset-4 decoration-white/20 hover:decoration-white transition-all">
+                                                Edit Details
+                                            </button>
                                         </div>
-                                        {availableBoxes.length > 0 && (
-                                            <div>
-                                                <h3 className="text-xl font-semibold text-white/90 mb-4">Boxes</h3>
-                                                <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-                                                    {availableBoxes.map(box => <SelectionCard key={box.id} item={box} isSelected={selectedBox?.id === box.id} onSelect={() => setSelectedBox(prev => prev?.id === box.id ? null : box)} />)}
-                                                </div>
+                                        
+                                        <div className="space-y-4 mb-8">
+                                            <div className="flex justify-between items-start pb-4 border-b border-white/5">
+                                                <span className="text-sm text-attire-silver">For</span>
+                                                <span className="text-sm text-white font-medium text-right">{formData.name}</span>
+                                            </div>
+                                            
+                                            <SummaryItem label="Tie" item={selectedTie} />
+                                            <SummaryItem label="Pocket Square" item={selectedPocketSquare} />
+                                            <SummaryItem label="Gift Box" item={selectedBox} />
+                                        </div>
+
+                                        {submissionStatus.state === 'error' && (
+                                            <div className="bg-red-500/10 border border-red-500/20 rounded-xl p-3 mb-4 flex items-center gap-3">
+                                                <AlertTriangle size={16} className="text-red-400" />
+                                                <p className="text-xs text-red-300">{submissionStatus.message}</p>
                                             </div>
                                         )}
+
+                                        <button 
+                                            onClick={handleFinalize} 
+                                            disabled={!isItemsComplete || submissionStatus.state === 'loading'} 
+                                            className="w-full py-4 rounded-full font-semibold transition-all duration-300 flex items-center justify-center gap-2 bg-attire-accent text-black disabled:bg-white/10 disabled:text-white/30 disabled:cursor-not-allowed hover:bg-white"
+                                        >
+                                            {submissionStatus.state === 'loading' ? <Loader className="animate-spin" size={20} /> : <><Gift size={20} /> Request Gift Box</>}
+                                        </button>
+                                        
+                                        {!isItemsComplete && (
+                                            <p className="text-center text-xs text-attire-silver/50 mt-4">
+                                                Please select all items to proceed.
+                                            </p>
+                                        )}
                                     </div>
-                                </section>
-                                <section>
-                                    <h2 className="text-2xl font-serif text-white mb-6">Step 3: Personal Note (Optional)</h2>
-                                    <textarea value={note} onChange={(e) => setNote(e.target.value)} placeholder="e.g. Happy Birthday, John!" className="w-full p-4 rounded-lg border bg-attire-dark/50 text-attire-cream placeholder-attire-silver/70 focus:border-white focus:ring-1 focus:ring-white transition-colors resize-none" rows="4"></textarea>
-                                </section>
-                            </div>
-                            <div className="lg:col-span-1">
-                                <div className="sticky top-24 bg-attire-dark/40 backdrop-blur-lg rounded-2xl border border-white/10 shadow-lg p-6">
-                                    <h3 className="text-xl font-serif text-white mb-4">Summary</h3>
-                                    <div className="space-y-3 text-sm">
-                                        <p><strong className="font-semibold text-white/90">Name:</strong> {formData.name}</p>
-                                        <p><strong className="font-semibold text-white/90">Email:</strong> {formData.email}</p>
-                                        <p><strong className="font-semibold text-white/90">Tie:</strong> {selectedTie ? `${selectedTie.name} (${selectedTie.color})` : 'Not selected'}</p>
-                                        <p><strong className="font-semibold text-white/90">Pocket Square:</strong> {selectedPocketSquare ? `${selectedPocketSquare.name} (${selectedPocketSquare.color})` : 'Not selected'}</p>
-                                        <p><strong className="font-semibold text-white/90">Box:</strong> {selectedBox ? selectedBox.name : 'Not selected'}</p>
-                                        <p><strong className="font-semibold text-white/90">Note:</strong> {note || 'None'}</p>
-                                    </div>
-                                    <div className="border-t border-white/10 my-6"></div>
-                                    {submissionStatus.state === 'error' && <p className="text-red-400 text-center mb-4">{submissionStatus.message}</p>}
-                                    <button onClick={handleFinalize} disabled={!isItemsComplete || submissionStatus.state === 'loading'} className="w-full px-6 py-3 rounded-lg font-semibold transition-all duration-300 flex items-center justify-center gap-2 bg-attire-accent text-attire-dark disabled:bg-gray-500 disabled:cursor-not-allowed hover:opacity-90">
-                                        {submissionStatus.state === 'loading' ? <Loader className="animate-spin" size={20} /> : <><Gift size={20} /> Submit Request</>}
-                                    </button>
-                                    <button onClick={() => setStep(1)} className="w-full text-center mt-4 text-attire-silver hover:text-white text-sm">Back to details</button>
                                 </div>
                             </div>
-                        </div>
-                    </motion.div>
-                )}
+                        </motion.div>
+                    )}
+                </AnimatePresence>
             </div>
         </div>
     );
 };
+
+const SummaryItem = ({ label, item }) => (
+    <div className="flex justify-between items-center">
+        <span className="text-sm text-attire-silver">{label}</span>
+        {item ? (
+            <div className="text-right">
+                <p className="text-sm text-white font-medium">{item.name}</p>
+                {item.color && <p className="text-xs text-attire-silver/70">{item.color}</p>}
+            </div>
+        ) : (
+            <span className="text-sm text-white/20 italic">Select item</span>
+        )}
+    </div>
+);
 
 export default CustomizeGiftPage;

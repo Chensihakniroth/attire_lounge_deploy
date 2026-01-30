@@ -1,6 +1,6 @@
 // resources/jsx/components/MainApp.jsx - UPDATED VERSION
 import React, { Suspense, lazy, useEffect } from 'react';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
 import Lenis from 'lenis';
 
 // Components
@@ -53,8 +53,19 @@ const Layout = ({ children, includeFooter = true }) => {
     );
 };
 
-function MainApp() {
+const LenisScroll = () => {
+    const location = useLocation();
+
     useEffect(() => {
+        // Disable Lenis on Admin routes to allow native scrolling within the fixed layout
+        if (location.pathname.startsWith('/admin')) {
+            if (window.lenis) {
+                window.lenis.destroy();
+                window.lenis = null;
+            }
+            return;
+        }
+
         const lenis = new Lenis({
             duration: 1.5,
             easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
@@ -77,11 +88,17 @@ function MainApp() {
 
         return () => {
             lenis.destroy();
+            window.lenis = null;
         };
-    }, []);
+    }, [location.pathname]); // Re-run when path changes to check if we entered/left admin
 
+    return null;
+};
+
+function MainApp() {
     return (
         <Router>
+            <LenisScroll />
             <ScrollToTop />
             <Suspense fallback={<LoadingSpinner />}>
                 <Routes>

@@ -29,7 +29,6 @@ class AppointmentController extends Controller
                 'time' => 'required|string|max:255', // Stored as string, e.g., "14:30"
                 'message' => 'nullable|string',
                 'favorite_item_image_url' => 'nullable|array',
-                'favorite_item_image_url.*' => 'string',
             ]);
 
             Log::info('Validation passed.', $validatedData);

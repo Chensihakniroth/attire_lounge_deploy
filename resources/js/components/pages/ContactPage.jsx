@@ -271,26 +271,23 @@ const ContactPage = () => {
 
         setIsSubmitting(true);
         try {
-            let messageWithFavorites = formData.message;
-            if (selectedFavorites.length > 0) {
-                const selectedItems = products
-                    .filter(p => selectedFavorites.includes(p.id))
-                    .map(p => p.name);
-                messageWithFavorites += `\n\nInterested in these items:\n- ${selectedItems.join('\n- ')}`;
-            }
+            const messageBody = formData.message;
 
             try {
-                let imageUrls = selectedFavorites.map(favId => {
+                let favoriteItems = selectedFavorites.map(favId => {
                     const product = products.find(p => p.id === favId);
-                    return product && product.images.length > 0 ? product.images[0] : null;
-                }).filter(url => url !== null);
+                    return product ? { 
+                        image: product.images[0] || null, 
+                        name: product.name 
+                    } : null;
+                }).filter(item => item !== null && item.image !== null);
 
                 const submissionData = {
                     ...formData,
-                    message: messageWithFavorites,
+                    message: messageBody,
                     preferred_date: formData.date,
                     preferred_time: formData.time,
-                    favorite_item_image_url: imageUrls,
+                    favorite_item_image_url: favoriteItems,
                 };
                 await axios.post('/api/v1/appointments', submissionData);
             } catch (dbError) {
@@ -306,7 +303,7 @@ Phone: ${formData.phone}
 Service: ${appointmentTypes.find(type => type.value === formData.service)?.label || formData.service}
 Date: ${formData.date}
 Time: ${formData.time}
-Message: ${messageWithFavorites}
+Message: ${messageBody}
             `.trim();
 
             const telegramUrl = `https://t.me/attireloungeofficial?text=${encodeURIComponent(telegramMessage)}`;

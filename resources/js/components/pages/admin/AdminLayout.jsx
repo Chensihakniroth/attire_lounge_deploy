@@ -127,7 +127,7 @@ const AdminLayout = () => {
                             </button>
                             <h1 className="text-lg font-semibold text-white">Admin Panel</h1>
                         </header>
-                        <main className="flex-1 overflow-y-auto p-6 md:p-8">
+                        <main className="flex-1 overflow-y-auto p-6 md:p-8 hide-scrollbar">
                             <AnimatePresence mode="wait">
                                 <motion.div
                                     key={location.pathname}
