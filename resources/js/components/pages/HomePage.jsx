@@ -127,7 +127,7 @@ const CollectionsSection = memo(forwardRef((props, ref) => (
     <section className="relative snap-section min-h-screen h-screen" ref={ref}>
         {/* Background Image - Converted to img for lazy loading */}
         <img
-            src={`${minioBaseUrl}/uploads/collections/default/g1.jpg`}
+            src={`${minioBaseUrl}/uploads/collections/default/g1.webp`}
             alt="Collections Background"
             className="absolute inset-0 w-full h-full object-cover object-center"
             loading="lazy"
@@ -231,7 +231,8 @@ const MembershipSection = memo(forwardRef((props, ref) => (
                 <motion.h3 variants={itemVariants} transition={{ delay: 0.1 }} className="text-attire-accent tracking-[0.2em] uppercase text-sm mb-6">Membership Card</motion.h3>
 
                 <motion.div variants={itemVariants} transition={{ delay: 0.2 }} className="text-sm md:text-base text-attire-silver space-y-3 leading-relaxed">
-                    <p>Entitlement upon a minimum purchase of US$500 per receipt. Requires full name, DOB (month & date), and contact number.</p>
+                    <p> Entitlement upon a minimum purchase of US$500 per receipt.
+                        Requires full name, DOB (month & date), and contact number.</p>
 
                     <div>
                         <h4 className="font-semibold text-attire-cream mb-1 mt-3">Benefits</h4>
@@ -401,7 +402,7 @@ const TipsAndTricksSection = memo(forwardRef(({ tipsAndTricks }, ref) => {
 
 
 const FooterSection = memo(forwardRef((props, ref) => (
-  <section className="relative bg-black" ref={ref}>
+  <section className="relative snap-section !h-auto !min-h-screen !overflow-visible bg-black" ref={ref}>
     <div className="w-full">
       <Footer />
     </div>
@@ -413,22 +414,11 @@ const FooterSection = memo(forwardRef((props, ref) => (
 // --- Main Homepage Component ---
 
 const HomePage = () => {
-  const [isMobile, setIsMobile] = useState(false);
   const [activeSection, setActiveSection] = useState(0);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const location = useLocation();
 
   const sectionsRef = useRef([]);
-  const isScrollingRef = useRef(false);
-  const wheelTimeoutRef = useRef(null);
-  const isScrollLockedRef = useRef(false);
-
-  useEffect(() => {
-    const checkMobile = () => setIsMobile(window.innerWidth < 768);
-    checkMobile();
-    window.addEventListener('resize', checkMobile);
-    return () => window.removeEventListener('resize', checkMobile);
-  }, []);
 
   useEffect(() => {
     sectionsRef.current = sectionsRef.current.slice(0, 8); // 8 sections total (including footer)
@@ -440,128 +430,96 @@ const HomePage = () => {
   }, []);
 
   const scrollToSection = useCallback((index) => {
-    if (isScrollingRef.current || !sectionsRef.current[index] || isMenuOpen) return;
+    if (sectionsRef.current[index]) {
+       if (window.lenis) {
+           window.lenis.scrollTo(sectionsRef.current[index], { duration: 1.5 });
+       } else {
+           sectionsRef.current[index].scrollIntoView({ behavior: 'smooth' });
+       }
+    }
+  }, []);
 
-    // Disable snap scroll to footer
-    if (index === 7) return;
+  // --- Smooth JS Snap Logic (Replaces CSS Snap) ---
+  useEffect(() => {
+    let scrollTimeout;
+    const handleScroll = () => {
+        clearTimeout(scrollTimeout);
+        scrollTimeout = setTimeout(() => {
+            if (!window.lenis || isMenuOpen) return;
 
-    setActiveSection(index); // Update state immediately
-    isScrollingRef.current = true;
-    const targetY = sectionsRef.current[index].offsetTop;
-    const startY = window.scrollY;
-    const distance = targetY - startY;
-    const duration = 400;
-    let startTime = null;
-    const easing = (t) => t === 0 ? 0 : t === 1 ? 1 : t < 0.5 ? Math.pow(2, 20 * t - 10) / 2 : (2 - Math.pow(2, -20 * t + 10)) / 2;
-    const animation = (currentTime) => {
-      if (startTime === null) startTime = currentTime;
-      const timeElapsed = currentTime - startTime;
-      const progress = Math.min(timeElapsed / duration, 1);
-      window.scrollTo(0, startY + distance * easing(progress));
-      if (timeElapsed < duration) {
-        requestAnimationFrame(animation);
-      } else {
-        isScrollingRef.current = false;
-      }
+            const scrollY = window.scrollY;
+            const viewportHeight = window.innerHeight;
+
+            let closestIndex = -1;
+            let minDistance = Infinity;
+
+            // Find closest section top
+            sectionsRef.current.forEach((section, index) => {
+                if (!section) return;
+                const distance = Math.abs(section.offsetTop - scrollY);
+                if (distance < minDistance) {
+                    minDistance = distance;
+                    closestIndex = index;
+                }
+            });
+
+            if (closestIndex !== -1) {
+                const targetSection = sectionsRef.current[closestIndex];
+                const dist = Math.abs(targetSection.offsetTop - scrollY);
+                const isTallSection = targetSection.offsetHeight > viewportHeight + 50;
+
+                // If we are very close (already snapped), do nothing to avoid jitter
+                if (dist < 5) return;
+
+                // Logic:
+                // 1. If it's a standard section (100vh), ALWAYS snap to it if we are closer to it than another.
+                // 2. If it's a TALL section:
+                //    - Only snap to top if we are near the top (e.g. < 30% into it).
+                //    - If we are deep inside, allow free scroll.
+
+                if (!isTallSection) {
+                    window.lenis.scrollTo(targetSection, { duration: 0.8 });
+                } else {
+                    // Tall section logic
+                    const snapThreshold = viewportHeight * 0.3;
+                    if (dist < snapThreshold) {
+                         window.lenis.scrollTo(targetSection, { duration: 0.8 });
+                    }
+                }
+            }
+        }, 50); // 50ms debounce: Snappier start after scrolling stops
     };
-    requestAnimationFrame(animation);
+
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
   }, [isMenuOpen]);
 
   useEffect(() => {
-    if (isMobile || isMenuOpen) return;
-    const handleWheel = (e) => {
-      // 1. Debounce logic: Detect end of stream (gesture)
-      // If no new event comes within 100ms, we consider the gesture/inertia finished.
-      clearTimeout(wheelTimeoutRef.current);
-      wheelTimeoutRef.current = setTimeout(() => {
-          isScrollLockedRef.current = false;
-      }, 100);
-
-      // 2. If we are already locked (acted on this stream) or animating, block everything.
-      if (isScrollLockedRef.current || isScrollingRef.current) {
-          e.preventDefault();
-          return;
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            const index = sectionsRef.current.indexOf(entry.target);
+            if (index !== -1) {
+              setActiveSection(index);
+            }
+          }
+        });
+      },
+      {
+        root: null,
+        // Trigger when the section center is near the viewport center
+        rootMargin: '-50% 0px -50% 0px',
+        threshold: 0
       }
+    );
 
-      const section = sectionsRef.current[activeSection];
-      
-      // Check for Long Section logic (allow normal scroll if not at edges)
-      if (section) {
-        const isLongSection = section.offsetHeight > window.innerHeight + 10;
-        if (isLongSection) {
-          const atBottom = Math.ceil(window.scrollY + window.innerHeight) >= section.offsetTop + section.offsetHeight - 5;
-          const atTop = window.scrollY <= section.offsetTop + 5;
+    sectionsRef.current.forEach((section) => {
+      if (section) observer.observe(section);
+    });
 
-          // If inside a long section, ALLOW default scrolling.
-          // Do NOT preventDefault, Do NOT lock.
-          if (e.deltaY > 0 && !atBottom) return; 
-          if (e.deltaY < 0 && !atTop) return; 
-        }
-      }
-
-      // Disable snap when scrolling down from the second to last section (Tips & Tricks) to Footer
-      if (activeSection === 6 && e.deltaY > 0) return;
-
-      // Also allow normal scrolling within the footer itself
-      if (activeSection === 7) return;
-
-      e.preventDefault();
-      
-      const deltaY = e.deltaY;
-      let newIndex = activeSection;
-      if (Math.abs(deltaY) > 5) {
-        if (deltaY > 0) newIndex = Math.min(activeSection + 1, sectionsRef.current.length - 1);
-        else newIndex = Math.max(activeSection - 1, 0);
-
-        // Don't snap scroll to footer
-        if (newIndex === 7 && deltaY > 0) return;
-
-        if (newIndex !== activeSection) {
-            isScrollLockedRef.current = true; // Lock for the rest of this gesture stream
-            scrollToSection(newIndex);
-        }
-      }
-    };
-    window.addEventListener('wheel', handleWheel, { passive: false });
-    return () => window.removeEventListener('wheel', handleWheel);
-  }, [isMobile, isMenuOpen, activeSection, scrollToSection]);
-
-  useEffect(() => {
-    const handleKeyDown = (e) => {
-      if (isMobile || isMenuOpen || isScrollingRef.current) return;
-
-      const section = sectionsRef.current[activeSection];
-
-      // Allow default keyboard scrolling when at Tips & Tricks (6) going down, or at Footer (7)
-      if ((activeSection === 6 && (e.key === 'ArrowDown' || e.key === 'PageDown')) || activeSection === 7) {
-          return;
-      }
-
-      if (section && section.offsetHeight > window.innerHeight + 10) {
-        const atBottom = Math.ceil(window.scrollY + window.innerHeight) >= section.offsetTop + section.offsetHeight - 5;
-        const atTop = window.scrollY <= section.offsetTop + 5;
-
-        if ((e.key === 'ArrowDown' || e.key === 'PageDown') && !atBottom) return;
-        if ((e.key === 'ArrowUp' || e.key === 'PageUp') && !atTop) return;
-      }
-
-      let newIndex = activeSection;
-      switch (e.key) {
-        case 'ArrowDown': case 'PageDown': e.preventDefault(); newIndex = Math.min(activeSection + 1, sectionsRef.current.length - 1); break;
-        case 'ArrowUp': case 'PageUp': e.preventDefault(); newIndex = Math.max(activeSection - 1, 0); break;
-        case 'Home': e.preventDefault(); newIndex = 0; break;
-        case 'End': e.preventDefault(); newIndex = sectionsRef.current.length - 1; break;
-        default: return;
-      }
-
-      // Don't snap scroll to footer on key press either
-      if (newIndex === 7) return;
-
-      if (newIndex !== activeSection) scrollToSection(newIndex);
-    };
-    window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [isMobile, isMenuOpen, activeSection, scrollToSection]);
+    return () => observer.disconnect();
+  }, []);
 
   useEffect(() => {
     if (location.hash === '#membership') {

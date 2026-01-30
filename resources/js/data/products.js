@@ -1,13 +1,13 @@
 import minioBaseUrl from '../config.js';
 
-const createProductItems = (collection, prefix, name, count, priceRange) => {
+const createProductItems = (collection, prefix, name, count, priceRange, fileExt = 'jpg') => {
     return Array.from({ length: count }, (_, i) => ({
         id: `${prefix}${i + 1}`,
         name: `${name} Style ${i + 1}`,
         collection: collection,
         collectionSlug: collection.toLowerCase().replace(/ /g, '-').replace(/'/g, ''),
         price: Math.floor(Math.random() * (priceRange[1] - priceRange[0] + 1)) + priceRange[0],
-        images: [`${minioBaseUrl}/uploads/collections/default/${prefix}${i + 1}.jpg`],
+        images: [`${minioBaseUrl}/uploads/collections/default/${prefix}${i + 1}.${fileExt}`],
         createdAt: new Date(Date.now() - Math.floor(Math.random() * 30) * 24 * 60 * 60 * 1000), // Randomly in the last 30 days
         popularity: Math.random(),
     }));
@@ -16,7 +16,7 @@ const createProductItems = (collection, prefix, name, count, priceRange) => {
 export const products = [
     ...createProductItems('Havana Collection', 'hvn', 'Havana', 8, [150, 450]),
     ...createProductItems('Mocha Mousse \'25', 'mm', 'Mocha Mousse', 7, [180, 500]),
-    ...createProductItems('Groom Collection', 'g', 'Groom', 10, [250, 800]),
+    ...createProductItems('Groom Collection', 'g', 'Groom', 10, [250, 800], 'webp'),
     ...createProductItems('Office Collection', 'of', 'Office', 5, [200, 550]),
 
     {
@@ -197,7 +197,7 @@ export const collections = [
       "slug": "groom-collection",
       "title": "Groom Collection",
       "description": "Exquisite tailoring for the most memorable occasions.",
-      "image": `${minioBaseUrl}/uploads/collections/default/g1.jpg`
+      "image": `${minioBaseUrl}/uploads/collections/default/g1.webp`
     },
     {
       "id": 4,

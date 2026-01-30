@@ -1,6 +1,7 @@
 // resources/jsx/components/MainApp.jsx - UPDATED VERSION
-import React, { Suspense, lazy } from 'react';
+import React, { Suspense, lazy, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import Lenis from 'lenis';
 
 // Components
 import Navigation from './layouts/Navigation.jsx';
@@ -53,6 +54,32 @@ const Layout = ({ children, includeFooter = true }) => {
 };
 
 function MainApp() {
+    useEffect(() => {
+        const lenis = new Lenis({
+            duration: 1.5,
+            easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
+            direction: 'vertical',
+            gestureDirection: 'vertical',
+            smooth: true,
+            mouseMultiplier: 0.8,
+            smoothTouch: false,
+            touchMultiplier: 2,
+        });
+
+        window.lenis = lenis;
+
+        function raf(time) {
+            lenis.raf(time);
+            requestAnimationFrame(raf);
+        }
+
+        requestAnimationFrame(raf);
+
+        return () => {
+            lenis.destroy();
+        };
+    }, []);
+
     return (
         <Router>
             <ScrollToTop />
