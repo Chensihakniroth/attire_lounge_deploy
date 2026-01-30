@@ -1,31 +1,35 @@
 // resources/js/components/pages/ContactPage.jsx - OFFICIAL ATTIRING LOUNGE CONTACT PAGE (UPDATED for Consolidated UI)
 import React, { useState, Fragment } from 'react';
 import { Listbox, Transition } from '@headlessui/react';
-import { Mail, Phone, MapPin, Clock, Send, CheckCircle, Instagram, Facebook, ChevronDown, Check } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { Mail, Phone, MapPin, Clock, Send, CheckCircle, Instagram, Facebook, ChevronDown, Check, MessageSquare } from 'lucide-react';
 import { useFavorites } from '../../context/FavoritesContext';
 import { products } from '../../data/products';
+import axios from 'axios';
 
 // --- Reusable Components (Moved Outside) ---
 
 // Glassy Card Component for consistency
 const GlassCard = ({ children, className = '' }) => (
-    <div className={`bg-attire-dark/40 backdrop-blur-lg rounded-2xl border border-white/10 shadow-lg ${className}`}>
+    <div className={`bg-black/20 backdrop-blur-xl rounded-3xl border border-white/10 shadow-2xl ${className}`}>
         {children}
     </div>
 );
 
 // Reusable component for sidebar info items
 const InfoItem = ({ icon, title, details, action }) => (
-    <div className="flex items-start gap-4">
-        <div className="mt-1 flex-shrink-0">{icon}</div>
+    <div className="flex items-start gap-5 group">
+        <div className="mt-1 flex-shrink-0 p-3 bg-white/5 rounded-2xl border border-white/5 group-hover:bg-attire-accent/10 group-hover:border-attire-accent/20 transition-all duration-300">
+            {React.cloneElement(icon, { size: 20, className: "text-attire-silver group-hover:text-attire-accent transition-colors" })}
+        </div>
         <div>
-            <h4 className="font-semibold text-attire-cream">{title}</h4>
+            <h4 className="text-sm font-semibold text-white uppercase tracking-wider mb-1">{title}</h4>
             {action ? (
-                <a href={action} target="_blank" rel="noopener noreferrer" className="text-attire-silver hover:text-white transition-colors">
+                <a href={action} target="_blank" rel="noopener noreferrer" className="text-attire-silver hover:text-white transition-colors leading-relaxed">
                     {details.map((line, i) => <p key={i}>{line}</p>)}
                 </a>
             ) : (
-                 details.map((line, i) => <p key={i} className="text-attire-silver">{line}</p>)
+                 details.map((line, i) => <p key={i} className="text-attire-silver leading-relaxed">{line}</p>)
             )}
         </div>
     </div>
@@ -34,20 +38,29 @@ const InfoItem = ({ icon, title, details, action }) => (
 // Reusable form field components for a cleaner structure
 const InputField = ({ name, label, error, ...props }) => (
     <div>
-        <label className="block text-sm font-medium text-attire-cream mb-2">{label}</label>
+        <label className="block text-xs font-semibold text-attire-silver uppercase tracking-widest mb-2 ml-1">{label}</label>
         <input
             name={name}
             {...props}
-            className={`w-full px-4 py-3 rounded-lg border bg-attire-dark/50 text-attire-cream placeholder-attire-silver/70 transition-colors
-                ${error ? 'border-red-500' : 'border-white/10'}
-                focus:border-white focus:ring-1 focus:ring-white`}
+            className={`w-full px-4 py-3.5 rounded-2xl border bg-black/40 text-white placeholder-white/20 transition-all
+                ${error ? 'border-red-500/50' : 'border-white/10'}
+                focus:border-attire-accent/50 focus:ring-1 focus:ring-attire-accent/30 focus:outline-none`}
         />
-        {error && <p className="mt-1 text-sm text-red-600">{error}</p>}
+        <AnimatePresence>
+            {error && (
+                <motion.p 
+                    initial={{ opacity: 0, y: -5 }} 
+                    animate={{ opacity: 1, y: 0 }} 
+                    className="mt-1.5 text-xs text-red-400 ml-1"
+                >
+                    {error}
+                </motion.p>
+            )}
+        </AnimatePresence>
     </div>
 );
 
 const SelectField = ({ name, label, options, value, onChange }) => {
-    // Find the full option object based on the current value
     const selectedOption = options.find(o => o.value === value);
 
     return (
@@ -55,15 +68,14 @@ const SelectField = ({ name, label, options, value, onChange }) => {
             <Listbox
                 value={value}
                 onChange={(newValue) => {
-                    // Adapt to the existing handleChange which expects an event-like object
                     onChange({ target: { name, value: newValue } });
                 }}
             >
-                <Listbox.Label className="block text-sm font-medium text-attire-cream mb-2">{label}</Listbox.Label>
+                <Listbox.Label className="block text-xs font-semibold text-attire-silver uppercase tracking-widest mb-2 ml-1">{label}</Listbox.Label>
                 <div className="relative">
-                    <Listbox.Button className="relative w-full cursor-default rounded-lg border bg-attire-dark/50 py-3 pl-4 pr-10 text-left text-attire-cream transition-colors border-white/10 focus:outline-none focus-visible:border-white focus-visible:ring-1 focus-visible:ring-white">
+                    <Listbox.Button className="relative w-full cursor-default rounded-2xl border bg-black/40 py-3.5 pl-4 pr-10 text-left text-white transition-all border-white/10 focus:outline-none focus:border-attire-accent/50 focus:ring-1 focus:ring-attire-accent/30">
                         <span className="block truncate">{selectedOption?.label}</span>
-                        <span className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2">
+                        <span className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3">
                             <ChevronDown className="h-5 w-5 text-attire-silver" aria-hidden="true" />
                         </span>
                     </Listbox.Button>
@@ -73,24 +85,24 @@ const SelectField = ({ name, label, options, value, onChange }) => {
                         leaveFrom="opacity-100"
                         leaveTo="opacity-0"
                     >
-                        <Listbox.Options className="absolute z-10 mt-1 max-h-60 w-full overflow-auto rounded-xl bg-attire-dark/80 backdrop-blur-lg py-1 text-base shadow-lg ring-1 ring-black/5 focus:outline-none sm:text-sm">
+                        <Listbox.Options className="absolute z-50 mt-2 max-h-60 w-full overflow-auto rounded-2xl bg-[#1a1a1a] border border-white/10 py-1 text-base shadow-2xl focus:outline-none sm:text-sm">
                             {options.map((option, optionIdx) => (
                                 <Listbox.Option
                                     key={optionIdx}
                                     className={({ active }) =>
-                                        `relative cursor-default select-none py-2 pl-10 pr-4 ${ 
-                                            active ? 'bg-white/10 text-white' : 'text-attire-cream'
+                                        `relative cursor-default select-none py-3 pl-10 pr-4 transition-colors ${ 
+                                            active ? 'bg-attire-accent/10 text-attire-accent' : 'text-attire-silver'
                                         }`
                                     }
                                     value={option.value}
                                 >
                                     {({ selected }) => (
                                         <>
-                                            <span className={`block truncate ${selected ? 'font-medium' : 'font-normal'}`}>
+                                            <span className={`block truncate ${selected ? 'font-semibold text-white' : 'font-normal'}`}>
                                                 {option.label}
                                             </span>
                                             {selected ? (
-                                                <span className="absolute inset-y-0 left-0 flex items-center pl-3 text-white">
+                                                <span className="absolute inset-y-0 left-0 flex items-center pl-3 text-attire-accent">
                                                     <Check className="h-5 w-5" aria-hidden="true" />
                                                 </span>
                                             ) : null}
@@ -108,34 +120,31 @@ const SelectField = ({ name, label, options, value, onChange }) => {
 
 const TextareaField = ({ name, label, error, ...props }) => (
     <div>
-        <label className="block text-sm font-medium text-attire-cream mb-2">{label}</label>
+        <label className="block text-xs font-semibold text-attire-silver uppercase tracking-widest mb-2 ml-1">{label}</label>
         <textarea
             name={name}
-            rows={5}
+            rows={4}
             {...props}
-            className={`w-full px-4 py-3 rounded-lg border bg-attire-dark/50 text-attire-cream placeholder-attire-silver/70 transition-colors resize-none
-                ${error ? 'border-red-500' : 'border-white/10'}
-                focus:border-white focus:ring-1 focus:ring-white`}
+            className={`w-full px-4 py-3.5 rounded-2xl border bg-black/40 text-white placeholder-white/20 transition-all resize-none
+                ${error ? 'border-red-500/50' : 'border-white/10'}
+                focus:border-attire-accent/50 focus:ring-1 focus:ring-attire-accent/30 focus:outline-none`}
         />
-        {error && <p className="mt-1 text-sm text-red-600">{error}</p>}
+        <AnimatePresence>
+            {error && (
+                <motion.p 
+                    initial={{ opacity: 0, y: -5 }} 
+                    animate={{ opacity: 1, y: 0 }} 
+                    className="mt-1.5 text-xs text-red-400 ml-1"
+                >
+                    {error}
+                </motion.p>
+            )}
+        </AnimatePresence>
     </div>
 );
 
-const SocialLink = ({ href, icon }) => (
-    <a
-        href={href}
-        target="_blank"
-        rel="noopener noreferrer"
-        className="text-attire-silver hover:text-white hover:scale-110 transition-all"
-    >
-        {icon}
-    </a>
-);
-
 const FavoritesSelector = ({ favoriteProducts, selectedFavorites, onSelectionChange }) => {
-    if (favoriteProducts.length === 0) {
-        return null;
-    }
+    if (favoriteProducts.length === 0) return null;
 
     const handleCheckboxChange = (productId) => {
         if (selectedFavorites.includes(productId)) {
@@ -146,24 +155,33 @@ const FavoritesSelector = ({ favoriteProducts, selectedFavorites, onSelectionCha
     };
 
     return (
-        <div>
-            <label className="block text-sm font-medium text-attire-cream mb-2">Include Favorited Items (Optional)</label>
-            <div className="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4 p-4 rounded-lg border bg-attire-dark/50 border-white/10">
+        <div className="mt-2">
+            <label className="block text-xs font-semibold text-attire-silver uppercase tracking-widest mb-3 ml-1">Include Favorited Items</label>
+            <div className="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3 p-3 rounded-2xl border bg-black/20 border-white/5">
                 {favoriteProducts.map(product => (
-                    <div key={product.id} className="relative group">
-                        <label htmlFor={`fav-${product.id}`} className="cursor-pointer">
-                            <img src={product.images[0]} alt={product.name} className="w-full h-auto object-cover rounded-lg aspect-square transition-all duration-300 group-hover:opacity-70"/>
-                            <div className="absolute bottom-0 left-0 right-0 bg-black/50 p-2 rounded-b-lg">
-                                <p className="text-xs text-white text-center truncate">{product.name}</p>
-                            </div>
-                        </label>
-                        <input
-                            type="checkbox"
-                            id={`fav-${product.id}`}
-                            checked={selectedFavorites.includes(product.id)}
-                            onChange={() => handleCheckboxChange(product.id)}
-                            className="absolute top-2 left-2 h-5 w-5 rounded-full border-2 border-white bg-black/20 text-attire-blue-500 focus:ring-0 focus:outline-none transition-all duration-300 checked:bg-attire-blue-500 checked:border-attire-gold"
+                    <div 
+                        key={product.id} 
+                        className={`relative group cursor-pointer rounded-2xl overflow-hidden border-2 transition-all duration-300 ${
+                            selectedFavorites.includes(product.id) ? 'border-attire-accent' : 'border-transparent'
+                        }`}
+                        onClick={() => handleCheckboxChange(product.id)}
+                    >
+                        <img 
+                            src={product.images[0]} 
+                            alt={product.name} 
+                            className={`w-full aspect-square object-cover transition-transform duration-500 group-hover:scale-110 ${
+                                selectedFavorites.includes(product.id) ? 'opacity-100' : 'opacity-40 group-hover:opacity-60'
+                            }`}
                         />
+                        <div className="absolute inset-0 bg-black/20" />
+                        {selectedFavorites.includes(product.id) && (
+                            <div className="absolute top-1 right-1 bg-attire-accent text-black rounded-full p-0.5">
+                                <Check size={12} strokeWidth={3} />
+                            </div>
+                        )}
+                        <div className="absolute bottom-0 left-0 right-0 bg-black/60 backdrop-blur-sm p-1.5">
+                            <p className="text-[10px] text-white text-center truncate font-medium">{product.name}</p>
+                        </div>
                     </div>
                 ))}
             </div>
@@ -181,9 +199,9 @@ const ContactPage = () => {
         name: '',
         email: '',
         phone: '',
-        service: 'sartorial', // Changed from appointmentType to service
-        date: '', // New field for appointment date
-        time: '', // New field for appointment time
+        service: 'sartorial',
+        date: '',
+        time: '',
         message: '',
     });
 
@@ -191,30 +209,27 @@ const ContactPage = () => {
     const [errors, setErrors] = useState({});
     const [generatedMessage, setGeneratedMessage] = useState('');
 
-    // Define icon style once
-    const iconStyle = "w-6 h-6 text-attire-cream";
-
     const officialContactInfo = [
         {
-            icon: <Phone className={iconStyle} />,
+            icon: <Phone />,
             title: "Phone",
             details: ["(+855) 69-25-63-69"],
             action: "tel:+85569256369"
         },
         {
-            icon: <Mail className={iconStyle} />,
+            icon: <Mail />,
             title: "Email",
             details: ["attireloungekh@gmail.com"],
             action: "mailto:attireloungekh@gmail.com"
         },
         {
-            icon: <MapPin className={iconStyle} />,
+            icon: <MapPin />,
             title: "Store Location",
-            details: ["10 E0, Street 03", "Sangkat Chey Chumneah", "Khan Daun Penh, Phnom Penh"],
-            action: "https://maps.app.goo.gl/vZbPnCNMmmiKcR9g7" // Update with actual maps link
+            details: ["10 E0, Street 03, Phnom Penh"],
+            action: "https://maps.app.goo.gl/vZbPnCNMmmiKcR9g7"
         },
         {
-            icon: <Clock className={iconStyle} />,
+            icon: <Clock />,
             title: "Opening Hours",
             details: ["Mon - Sun: 10AM - 7PM"],
             action: null
@@ -236,9 +251,9 @@ const ContactPage = () => {
         if (!formData.email.trim() || !/\S+@\S+\.\S+/.test(formData.email)) {
             newErrors.email = 'Please enter a valid email';
         }
-        if (!formData.phone.trim()) newErrors.phone = 'Please enter your phone number'; // Phone is now required
-        if (!formData.date) newErrors.date = 'Please select an appointment date'; // Validate date
-        if (!formData.time) newErrors.time = 'Please select an appointment time'; // Validate time
+        if (!formData.phone.trim()) newErrors.phone = 'Please enter your phone number';
+        if (!formData.date) newErrors.date = 'Required';
+        if (!formData.time) newErrors.time = 'Required';
         if (!formData.message.trim()) newErrors.message = 'Please include your message';
         setErrors(newErrors);
         return Object.keys(newErrors).length === 0;
@@ -258,15 +273,11 @@ const ContactPage = () => {
                 messageWithFavorites += `\n\nInterested in these items:\n- ${selectedItems.join('\n- ')}`;
             }
 
-            // Step 1: Try to save to the database
             try {
-                let imageUrls = [];
-                if (selectedFavorites.length > 0) {
-                    imageUrls = selectedFavorites.map(favId => {
-                        const product = products.find(p => p.id === favId);
-                        return product && product.images.length > 0 ? product.images[0] : null;
-                    }).filter(url => url !== null); // Filter out any nulls if a product or image wasn't found
-                }
+                let imageUrls = selectedFavorites.map(favId => {
+                    const product = products.find(p => p.id === favId);
+                    return product && product.images.length > 0 ? product.images[0] : null;
+                }).filter(url => url !== null);
 
                 const submissionData = {
                     ...formData,
@@ -278,10 +289,8 @@ const ContactPage = () => {
                 await axios.post('/api/v1/appointments', submissionData);
             } catch (dbError) {
                 console.error("Could not save appointment to database:", dbError);
-                // We don't alert the user here, as the Telegram link is the primary action.
             }
 
-            // Step 2: Always proceed with the Telegram functionality
             const telegramMessage = `
 New Appointment Request:
 
@@ -296,13 +305,11 @@ Message: ${messageWithFavorites}
 
             const telegramUrl = `https://t.me/attireloungeofficial?text=${encodeURIComponent(telegramMessage)}`;
             window.open(telegramUrl, '_blank');
-
-            // Update the confirmation message
-            setGeneratedMessage(`Your appointment request has been submitted and a pre-filled Telegram message has been opened. Please press 'Send' in Telegram to finalize your request.\n\nFor your reference, here is the message content:\n\n${telegramMessage}`);
+            setGeneratedMessage(`Your request has been prepared. Please send the pre-filled message in Telegram to finalize.\n\nMessage preview:\n\n${telegramMessage}`);
 
         } catch (error) {
-            console.error("Error creating Telegram link:", error);
-            alert('Failed to open Telegram. Please ensure you have Telegram installed and try again.');
+            console.error("Error:", error);
+            alert('Failed to process. Please try again.');
         } finally {
             setIsSubmitting(false);
         }
@@ -315,31 +322,51 @@ Message: ${messageWithFavorites}
     };
 
     return (
-        <div className="min-h-screen bg-attire-navy py-24 sm:py-32">
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                {/* Simplified Header */}
-                <div className="text-center mb-16">
-                    <h1 className="text-4xl md:text-5xl font-serif text-white mb-4">
-                        Get in Touch
-                    </h1>
-                    <p className="text-lg text-attire-silver max-w-2xl mx-auto">
-                        We're here to help you define your style. Reach out for appointments or inquiries.
-                    </p>
+        <div className="min-h-screen bg-attire-navy relative">
+            {/* Background Orbs */}
+            <div className="fixed top-0 left-0 w-full h-screen overflow-hidden pointer-events-none z-0">
+                <div className="absolute top-[-10%] right-[-5%] w-[600px] h-[600px] bg-attire-accent/5 rounded-full blur-[120px]" />
+                <div className="absolute bottom-[-10%] left-[-10%] w-[500px] h-[500px] bg-blue-900/10 rounded-full blur-[100px]" />
+            </div>
+
+            <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-28 sm:py-36">
+                {/* Header */}
+                <div className="text-center mb-20">
+                    <motion.div
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.8 }}
+                    >
+                        <span className="text-attire-accent text-xs tracking-[0.3em] uppercase mb-4 inline-block">Contact</span>
+                        <h1 className="text-5xl md:text-7xl font-serif font-light text-white mb-6">
+                            Get in Touch
+                        </h1>
+                        <p className="text-lg text-attire-silver max-w-2xl mx-auto font-light leading-relaxed">
+                            Ready to redefine your style? Reach out to schedule a Milan-certified styling consultation or visit our store in Phnom Penh.
+                        </p>
+                    </motion.div>
                 </div>
 
-                {/* Form and Connect Section */}
-                <GlassCard className="p-8 md:p-12">
-                    <div className="grid grid-cols-1 lg:grid-cols-3 gap-x-12 gap-y-16">
-                        {/* Contact Form */}
-                        <div className="lg:col-span-2">
+                <GlassCard className="p-1 md:p-2 lg:p-3 overflow-hidden">
+                    <div className="grid grid-cols-1 lg:grid-cols-12 gap-0">
+                        
+                        {/* Form Section */}
+                        <div className="lg:col-span-8 p-8 md:p-12">
                             {generatedMessage ? (
-                                <div>
-                                    <h2 className="text-3xl font-serif text-white mb-4">Appointment Details</h2>
-                                    <p className="text-attire-silver mb-6">
-                                        Your appointment request has been generated. If you were not redirected, please copy the text below and send it to us via Email or on one of our social media APP.
+                                <motion.div 
+                                    initial={{ opacity: 0, scale: 0.95 }}
+                                    animate={{ opacity: 1, scale: 1 }}
+                                    className="h-full flex flex-col justify-center"
+                                >
+                                    <div className="w-16 h-16 bg-attire-accent/20 rounded-full flex items-center justify-center mb-8 border border-attire-accent/30">
+                                        <Check size={32} className="text-attire-accent" />
+                                    </div>
+                                    <h2 className="text-3xl font-serif text-white mb-4">Request Ready</h2>
+                                    <p className="text-attire-silver mb-8 leading-relaxed">
+                                        We've prepared your appointment request. If the Telegram app didn't open automatically, please use the text below.
                                     </p>
-                                    <div className="bg-attire-dark/50 p-4 rounded-lg border border-white/10">
-                                        <pre className="text-attire-cream whitespace-pre-wrap text-sm">{generatedMessage}</pre>
+                                    <div className="bg-black/40 p-6 rounded-2xl border border-white/5 mb-8">
+                                        <pre className="text-attire-silver whitespace-pre-wrap text-sm leading-relaxed italic">{generatedMessage}</pre>
                                     </div>
                                     <button
                                         onClick={() => {
@@ -347,26 +374,26 @@ Message: ${messageWithFavorites}
                                             setFormData({ name: '', email: '', phone: '', service: 'sartorial', date: '', time: '', message: '' });
                                             setSelectedFavorites([]);
                                         }}
-                                        className="mt-6 w-full md:w-auto px-8 py-3 rounded-lg font-semibold transition-all duration-300 flex items-center justify-center gap-2 bg-black text-white hover:bg-gray-800"
+                                        className="w-fit px-10 py-4 rounded-full font-semibold transition-all duration-300 bg-attire-accent text-black hover:bg-white"
                                     >
-                                        Create New Appointment
+                                        Start New Request
                                     </button>
-                                </div>
+                                </motion.div>
                             ) : (
-                                <form onSubmit={handleSubmit} className="space-y-6">
-                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                        <InputField name="name" label="Full Name *" value={formData.name} onChange={handleChange} error={errors.name} placeholder="Your Name" />
-                                        <InputField name="email" type="email" label="Email Address *" value={formData.email} onChange={handleChange} error={errors.email} placeholder="your.email@example.com" />
+                                <form onSubmit={handleSubmit} className="space-y-8">
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                                        <InputField name="name" label="Full Name" value={formData.name} onChange={handleChange} error={errors.name} placeholder="Christian Bale" />
+                                        <InputField name="email" type="email" label="Email Address" value={formData.email} onChange={handleChange} error={errors.email} placeholder="bruce@wayne.com" />
                                     </div>
 
-                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                        <InputField name="phone" type="tel" label="Phone Number *" value={formData.phone} onChange={handleChange} error={errors.phone} placeholder="(+855) XX-XX-XX-XX" />
-                                        <SelectField name="service" label="Appointment Type" value={formData.service} onChange={handleChange} options={appointmentTypes} />
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                                        <InputField name="phone" type="tel" label="Phone Number" value={formData.phone} onChange={handleChange} error={errors.phone} placeholder="(+855) 69-25-63-69" />
+                                        <SelectField name="service" label="Service Type" value={formData.service} onChange={handleChange} options={appointmentTypes} />
                                     </div>
 
-                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                        <InputField name="date" type="date" label="Appointment Date *" value={formData.date} onChange={handleChange} error={errors.date} />
-                                        <InputField name="time" type="time" label="Appointment Time *" value={formData.time} onChange={handleChange} error={errors.time} />
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                                        <InputField name="date" type="date" label="Preferred Date" value={formData.date} onChange={handleChange} error={errors.date} />
+                                        <InputField name="time" type="time" label="Preferred Time" value={formData.time} onChange={handleChange} error={errors.time} />
                                     </div>
 
                                     <FavoritesSelector
@@ -375,37 +402,53 @@ Message: ${messageWithFavorites}
                                         onSelectionChange={setSelectedFavorites}
                                     />
 
-                                    <TextareaField name="message" label="Your Message *" value={formData.message} onChange={handleChange} error={errors.message} placeholder="Tell us about your styling need (color, fitting, size, event, etc)" />
+                                    <TextareaField name="message" label="Message & Requirements" value={formData.message} onChange={handleChange} error={errors.message} placeholder="Specific styling needs, event type, or fitting preferences..." />
 
                                     <button
                                         type="submit"
                                         disabled={isSubmitting}
-                                        className="w-full md:w-auto px-8 py-3 rounded-lg font-semibold transition-all duration-300 flex items-center justify-center gap-2 bg-black text-white hover:bg-gray-800 disabled:bg-gray-400 disabled:cursor-not-allowed"
+                                        className="group relative inline-flex items-center gap-3 bg-attire-accent text-black font-bold px-10 py-4 rounded-full overflow-hidden transition-all hover:bg-white hover:pr-12 disabled:bg-attire-silver/30 disabled:cursor-not-allowed"
                                     >
-                                        <Send className="w-5 h-5" />
-                                        {isSubmitting ? 'Sending...' : 'Request Appointment'}
+                                        <span>{isSubmitting ? 'Processing...' : 'Send to Telegram'}</span>
+                                        {!isSubmitting && <Send className="w-5 h-5 absolute right-5 opacity-0 group-hover:opacity-100 group-hover:translate-x-0 -translate-x-4 transition-all duration-300" />}
                                     </button>
                                 </form>
                             )}
                         </div>
 
-                        {/* Consolidated Sidebar Information */}
-                        <div className="space-y-10">
-                            <div>
-                                <h3 className="text-2xl font-serif text-white mb-6">Contact Information</h3>
-                                <div className="space-y-6">
-                                    {officialContactInfo.map(info => (
-                                        <InfoItem key={info.title} icon={info.icon} title={info.title} details={info.details} action={info.action} />
-                                    ))}
+                        {/* Sidebar */}
+                        <div className="lg:col-span-4 p-8 md:p-12 lg:border-l border-white/10 flex flex-col justify-between space-y-16">
+                            <div className="space-y-12">
+                                <div className="space-y-8">
+                                    <h3 className="text-xs font-bold text-attire-accent uppercase tracking-[0.3em]">Information</h3>
+                                    <div className="space-y-8">
+                                        {officialContactInfo.map(info => (
+                                            <InfoItem key={info.title} icon={info.icon} title={info.title} details={info.details} action={info.action} />
+                                        ))}
+                                    </div>
+                                </div>
+
+                                <div className="space-y-8">
+                                    <h3 className="text-xs font-bold text-attire-accent uppercase tracking-[0.3em]">Connect</h3>
+                                    <div className="flex items-center gap-4">
+                                        {[
+                                            { icon: <Instagram />, href: "https://instagram.com/attireloungeofficial", color: "hover:text-pink-400" },
+                                            { icon: <Facebook />, href: "https://facebook.com/attireloungeofficial", color: "hover:text-blue-400" },
+                                            { icon: <MessageSquare />, href: "https://t.me/attireloungeofficial", color: "hover:text-blue-300" }
+                                        ].map((social, i) => (
+                                            <a key={i} href={social.href} target="_blank" rel="noopener noreferrer" className={`p-4 bg-white/5 rounded-2xl border border-white/5 text-attire-silver transition-all duration-300 ${social.color} hover:bg-white/10 hover:scale-110`}>
+                                                {React.cloneElement(social.icon, { size: 24 })}
+                                            </a>
+                                        ))}
+                                    </div>
                                 </div>
                             </div>
-                            <div>
-                                <h3 className="text-2xl font-serif text-white mb-6">Connect With Us</h3>
-                                <div className="flex items-center gap-4">
-                                    <SocialLink href="https://instagram.com/attireloungeofficial" icon={<Instagram className="w-6 h-6" />} />
-                                    <SocialLink href="https://facebook.com/attireloungeofficial" icon={<Facebook className="w-6 h-6" />} />
-                                    <SocialLink href="https://t.me/attireloungeofficial" icon={<Send className="w-6 h-6" />} />
-                                </div>
+
+                            <div className="pt-12 border-t border-white/5">
+                                <p className="text-[10px] text-attire-silver/40 uppercase tracking-[0.2em] leading-relaxed">
+                                    Attire Lounge Official<br/>
+                                    Sartorial Excellence Cambodia
+                                </p>
                             </div>
                         </div>
                     </div>

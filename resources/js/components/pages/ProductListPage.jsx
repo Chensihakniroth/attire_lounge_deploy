@@ -3,7 +3,7 @@ import { useLocation, Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { wrap } from "popmotion";
 import Lightbox from './lookbook/Lightbox';
-import { ChevronLeft, ChevronRight, Search, ChevronsUpDown, X, Filter, ChevronDown } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Search, ChevronsUpDown, X, Filter, ChevronDown, Check } from 'lucide-react';
 import { products as allProducts, collections as allCollections } from '../../data/products.js';
 import ItemCard from './collections/ItemCard';
 import { useFavorites } from '../../context/FavoritesContext.jsx';
@@ -11,10 +11,10 @@ import useDebounce from '../../hooks/useDebounce.js';
 
 const sortOptions = [
     { value: 'popularity-desc', label: 'Most Popular' },
-    { value: 'createdAt-desc', label: 'Newest' },
-    { value: 'createdAt-asc', label: 'Oldest' },
+    { value: 'createdAt-desc', label: 'Newest Arrivals' },
+    { value: 'price-asc', label: 'Price: Low to High' },
+    { value: 'price-desc', label: 'Price: High to Low' },
     { value: 'name-asc', label: 'Name: A to Z' },
-    { value: 'name-desc', label: 'Name: Z to A' },
 ];
 
 const useQuery = () => {
@@ -108,9 +108,6 @@ const ProductListPage = () => {
         const newCollectionQuery = new URLSearchParams(location.search).get('collection');
         if (newCollectionQuery && !selectedCollections.includes(newCollectionQuery)) {
             setSelectedCollections([newCollectionQuery]);
-        } else if (!newCollectionQuery && selectedCollections.length > 0 && collectionQuery) {
-            // This might be needed if you expect to clear filters via URL changes
-            // setSelectedCollections([]);
         }
     }, [location.search]);
 
@@ -131,8 +128,6 @@ const ProductListPage = () => {
         setSelectedCollections(prev => prev.filter(s => s !== slug));
     };
     
-    const isDefaultPrice = true; // Price filter removed
-
     const totalPages = Math.ceil(filteredProducts.length / itemsPerPage);
     const paginatedProducts = filteredProducts.slice(
         (currentPage - 1) * itemsPerPage,
@@ -147,73 +142,101 @@ const ProductListPage = () => {
     };
 
     return (
-        <div className="min-h-screen bg-attire-navy">
-            <header className="text-center py-16 sm:py-24">
-                <motion.h1
-                    className="text-4xl sm:text-5xl md:text-6xl font-serif font-light text-white mb-4"
+        <div className="min-h-screen bg-attire-navy relative">
+            {/* Background Decorations */}
+            <div className="fixed top-0 left-0 w-full h-screen overflow-hidden pointer-events-none z-0">
+                <div className="absolute top-[-10%] right-[-5%] w-[600px] h-[600px] bg-attire-accent/5 rounded-full blur-[120px]" />
+                <div className="absolute bottom-[-10%] left-[-10%] w-[500px] h-[500px] bg-blue-900/10 rounded-full blur-[100px]" />
+            </div>
+
+            <header className="relative z-10 pt-28 pb-12 px-6 text-center">
+                <motion.div
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.8, ease: "easeOut" }}
                 >
-                    {pageTitle}
-                </motion.h1>
-                <Link to="/collections" className="flex items-center justify-center gap-2 text-sm text-white hover:text-black transition-colors">
-                    <ChevronLeft size={16} />
-                    Back to Collections
-                </Link>
+                    <h1 className="text-5xl md:text-7xl font-serif font-light text-white mb-6">
+                        {pageTitle}
+                    </h1>
+                    <div className="flex items-center justify-center gap-2">
+                        <Link to="/collections" className="group flex items-center gap-2 text-sm text-attire-silver hover:text-white transition-colors">
+                            <ChevronLeft size={16} className="group-hover:-translate-x-1 transition-transform" />
+                            Back to Collections
+                        </Link>
+                    </div>
+                </motion.div>
             </header>
 
-            <main className="max-w-screen-xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-                <Controls
-                    sortOrder={sortOrder}
-                    setSortOrder={setSortOrder}
-                    selectedCollections={selectedCollections}
-                    handleCollectionToggle={handleCollectionToggle}
-                    clearFilters={clearFilters}
-                    removeCollectionFilter={removeCollectionFilter}
-                />
+            <main className="relative z-10 max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-8 pb-24">
+                <div className="sticky top-24 z-30 mb-8 transition-all duration-300">
+                    <Controls
+                        sortOrder={sortOrder}
+                        setSortOrder={setSortOrder}
+                        selectedCollections={selectedCollections}
+                        handleCollectionToggle={handleCollectionToggle}
+                        clearFilters={clearFilters}
+                        removeCollectionFilter={removeCollectionFilter}
+                    />
+                </div>
                 
-                <motion.div
-                    className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-x-6 gap-y-12 mt-8"
-                    variants={containerVariants}
-                    initial="hidden"
-                    animate="visible"
-                    key={currentPage} 
-                >
-                    {paginatedProducts.map((item, index) => (
-                        <ItemCard 
-                            key={item.id} 
-                            product={item} 
-                            openLightbox={() => openLightbox((currentPage - 1) * itemsPerPage + index)} 
-                        />
-                    ))}
-                </motion.div>
-
-                {filteredProducts.length === 0 && (
-                    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="text-center py-20 w-full">
-                        <p className="text-2xl font-serif text-attire-cream">No products found.</p>
-                        <p className="text-attire-cream mt-2">Try adjusting your filters or search term.</p>
-                    </motion.div>
-                )}
+                <AnimatePresence mode="wait">
+                    {filteredProducts.length > 0 ? (
+                        <motion.div
+                            key={currentPage + sortOrder + selectedCollections.join('')}
+                            className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-x-6 gap-y-12"
+                            variants={containerVariants}
+                            initial="hidden"
+                            animate="visible"
+                            exit={{ opacity: 0 }}
+                        >
+                            {paginatedProducts.map((item, index) => (
+                                <ItemCard 
+                                    key={item.id} 
+                                    product={item} 
+                                    openLightbox={() => openLightbox((currentPage - 1) * itemsPerPage + index)} 
+                                />
+                            ))}
+                        </motion.div>
+                    ) : (
+                        <motion.div 
+                            initial={{ opacity: 0 }} 
+                            animate={{ opacity: 1 }} 
+                            exit={{ opacity: 0 }}
+                            className="flex flex-col items-center justify-center py-32 text-center"
+                        >
+                            <div className="w-20 h-20 bg-white/5 rounded-full flex items-center justify-center mb-6 border border-white/10">
+                                <Search size={32} className="text-attire-silver/50" />
+                            </div>
+                            <h3 className="text-2xl font-serif text-white mb-2">No products found</h3>
+                            <p className="text-attire-silver">Try adjusting your filters to find what you're looking for.</p>
+                            <button 
+                                onClick={clearFilters}
+                                className="mt-6 text-attire-accent hover:text-white transition-colors underline underline-offset-4"
+                            >
+                                Clear all filters
+                            </button>
+                        </motion.div>
+                    )}
+                </AnimatePresence>
 
                 {totalPages > 1 && (
-                    <div className="flex justify-center items-center gap-4 mt-12">
+                    <div className="flex justify-center items-center gap-6 mt-20">
                         <button
                             onClick={() => handlePageChange(currentPage - 1)}
                             disabled={currentPage === 1}
-                            className="p-2 rounded-full border border-attire-silver/20 text-attire-silver hover:bg-white/10 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                            className="group p-3 rounded-full border border-white/10 text-white hover:bg-white/10 disabled:opacity-30 disabled:cursor-not-allowed transition-all"
                         >
-                            <ChevronLeft size={20} />
+                            <ChevronLeft size={20} className="group-hover:-translate-x-0.5 transition-transform" />
                         </button>
-                        <span className="text-attire-silver font-medium">
-                            Page {currentPage} of {totalPages}
+                        <span className="text-attire-silver font-medium text-sm tracking-wider">
+                            PAGE {currentPage} / {totalPages}
                         </span>
                         <button
                             onClick={() => handlePageChange(currentPage + 1)}
                             disabled={currentPage === totalPages}
-                            className="p-2 rounded-full border border-attire-silver/20 text-attire-silver hover:bg-white/10 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                            className="group p-3 rounded-full border border-white/10 text-white hover:bg-white/10 disabled:opacity-30 disabled:cursor-not-allowed transition-all"
                         >
-                            <ChevronRight size={20} />
+                            <ChevronRight size={20} className="group-hover:translate-x-0.5 transition-transform" />
                         </button>
                     </div>
                 )}
@@ -253,63 +276,76 @@ const Controls = ({
 
     const scroll = (direction) => {
         if (scrollContainerRef.current) {
-            scrollContainerRef.current.scrollBy({ left: direction * 150, behavior: 'smooth' });
+            scrollContainerRef.current.scrollBy({ left: direction * 200, behavior: 'smooth' });
         }
     };
 
     return (
-        <div className="flex flex-col gap-4 mb-6 p-4 bg-black/10 rounded-lg shadow-sm border border-attire-silver/10">
-            <div className="flex flex-col md:flex-row items-center justify-between gap-4 w-full">
-                <div className="flex items-center w-full">
-                    <button onClick={() => scroll(-1)} className="p-1 text-attire-silver/70 hover:text-white md:hidden"><ChevronLeft size={20} /></button>
-                    <div ref={scrollContainerRef} className="flex items-center gap-2 overflow-x-auto flex-nowrap [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
-                        <span className="text-sm font-medium text-attire-silver flex-shrink-0">Collections:</span>
+        <div className="w-full">
+            <div className="backdrop-blur-xl bg-black/20 border border-white/10 rounded-2xl p-2 md:p-3 flex flex-col md:flex-row gap-4 shadow-xl">
+                {/* Collections Filter Scroll */}
+                <div className="flex-grow flex items-center min-w-0 relative">
+                    <div className="absolute left-0 top-0 bottom-0 w-8 bg-gradient-to-r from-black/20 to-transparent z-10 md:hidden pointer-events-none" />
+                    <div className="absolute right-0 top-0 bottom-0 w-8 bg-gradient-to-l from-black/20 to-transparent z-10 md:hidden pointer-events-none" />
+                    
+                    <button onClick={() => scroll(-1)} className="p-2 text-white/50 hover:text-white md:hidden z-20"><ChevronLeft size={18} /></button>
+                    
+                    <div ref={scrollContainerRef} className="flex items-center gap-2 overflow-x-auto flex-nowrap px-2 md:px-0 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
+                        <span className="text-xs font-medium text-attire-silver/60 uppercase tracking-wider flex-shrink-0 mr-2 hidden md:block">Collections</span>
                         {allCollections.map(collection => (
                             <button
                                 key={collection.id}
                                 onClick={() => handleCollectionToggle(collection.slug)}
-                                className={`px-3 py-1 text-sm rounded-full transition-colors flex-shrink-0 ${
+                                className={`px-4 py-2 text-sm rounded-full transition-all duration-300 flex-shrink-0 border ${
                                     selectedCollections.includes(collection.slug)
-                                        ? 'bg-attire-accent text-attire-dark font-semibold'
-                                        : 'bg-attire-charcoal text-attire-silver hover:bg-attire-navy'
+                                        ? 'bg-attire-accent text-black border-attire-accent font-medium shadow-[0_0_15px_rgba(212,168,76,0.3)]'
+                                        : 'bg-white/5 text-attire-silver border-white/5 hover:bg-white/10 hover:text-white'
                                 }`}
                             >
                                 {collection.title}
                             </button>
                         ))}
                     </div>
-                    <button onClick={() => scroll(1)} className="p-1 text-attire-silver/70 hover:text-white md:hidden"><ChevronRight size={20} /></button>
+                    
+                    <button onClick={() => scroll(1)} className="p-2 text-white/50 hover:text-white md:hidden z-20"><ChevronRight size={18} /></button>
                 </div>
 
-                <div className="flex items-center gap-4 flex-shrink-0">
-                    <span className="text-sm font-medium text-attire-silver hidden lg:block">Sort by:</span>
+                {/* Sort Dropdown */}
+                <div className="flex-shrink-0 border-t md:border-t-0 md:border-l border-white/10 pt-3 md:pt-0 md:pl-3">
                     <FilterSortDropdown 
                         sortOrder={sortOrder} 
                         setSortOrder={setSortOrder} 
-                        clearFilters={clearFilters}
                     />
                 </div>
             </div>
             
-            {selectedCollections.length > 0 && (
-                <div className="flex items-center flex-wrap gap-2 pt-4 border-t border-attire-silver/10">
-                    <span className="text-sm font-medium text-attire-silver">Active Filters:</span>
-                    {selectedCollections.map(slug => {
-                        const collection = allCollections.find(c => c.slug === slug);
-                        return (
-                            <FilterTag key={slug} onRemove={() => removeCollectionFilter(slug)}>
-                                {collection?.title || slug}
-                            </FilterTag>
-                        );
-                    })}
-                    <button
-                        onClick={clearFilters}
-                        className="text-sm font-semibold text-attire-accent hover:underline ml-auto"
+            {/* Active Filters Display */}
+            <AnimatePresence>
+                {selectedCollections.length > 0 && (
+                    <motion.div 
+                        initial={{ opacity: 0, y: -10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: -10 }}
+                        className="flex items-center flex-wrap gap-2 mt-4 px-2"
                     >
-                        Clear All
-                    </button>
-                </div>
-            )}
+                        <span className="text-xs text-attire-silver/60 uppercase tracking-wider mr-2">Active:</span>
+                        {selectedCollections.map(slug => {
+                            const collection = allCollections.find(c => c.slug === slug);
+                            return (
+                                <FilterTag key={slug} onRemove={() => removeCollectionFilter(slug)}>
+                                    {collection?.title || slug}
+                                </FilterTag>
+                            );
+                        })}
+                        <button
+                            onClick={clearFilters}
+                            className="text-xs font-medium text-red-400 hover:text-red-300 ml-auto transition-colors px-2"
+                        >
+                            Clear All
+                        </button>
+                    </motion.div>
+                )}
+            </AnimatePresence>
         </div>
     );
 };
@@ -320,23 +356,22 @@ const FilterTag = ({ children, onRemove }) => (
         initial={{ opacity: 0, scale: 0.8 }}
         animate={{ opacity: 1, scale: 1 }}
         exit={{ opacity: 0, scale: 0.8 }}
-        className="flex items-center gap-2 bg-attire-accent text-attire-dark rounded-full pl-3 pr-2 py-1 text-sm font-medium"
+        className="flex items-center gap-2 bg-white/10 border border-white/10 text-white rounded-full pl-3 pr-1 py-1 text-xs font-medium"
     >
         <span>{children}</span>
-        <button onClick={onRemove} className="text-attire-dark/80 hover:text-attire-dark">
-            <X size={16} />
+        <button onClick={onRemove} className="p-1 hover:bg-white/20 rounded-full transition-colors">
+            <X size={14} />
         </button>
     </motion.div>
 );
 
 const FilterSortDropdown = ({
     sortOrder, 
-    setSortOrder, 
-    clearFilters 
+    setSortOrder
 }) => {
     const [isOpen, setIsOpen] = useState(false);
-
     const dropdownRef = useRef(null);
+
     useEffect(() => {
         const handleClickOutside = (event) => {
             if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
@@ -347,53 +382,43 @@ const FilterSortDropdown = ({
         return () => document.removeEventListener("mousedown", handleClickOutside);
     }, []);
 
-    const allSortOptions = [...sortOptions];
-    const selectedLabel = allSortOptions.find(opt => opt.value === sortOrder)?.label || 'Sort & Filter';
+    const selectedLabel = sortOptions.find(opt => opt.value === sortOrder)?.label || 'Sort By';
 
     return (
-        <div ref={dropdownRef} className="relative w-64 z-20">
+        <div ref={dropdownRef} className="relative z-50 min-w-[200px]">
             <button
                 onClick={() => setIsOpen(!isOpen)}
-                className="flex items-center justify-between w-full px-4 py-2 bg-attire-charcoal border border-attire-silver/20 rounded-full text-sm font-medium text-white hover:bg-attire-navy focus:outline-none focus:ring-2 focus:ring-attire-accent"
+                className="flex items-center justify-between w-full px-4 py-2.5 bg-black/40 hover:bg-black/60 border border-white/10 rounded-xl text-sm font-medium text-white transition-all focus:outline-none focus:ring-1 focus:ring-attire-accent/50"
             >
-                <span>{selectedLabel}</span>
-                <motion.div animate={{ rotate: isOpen ? 180 : 0 }}>
-                    <ChevronDown size={16} />
-                </motion.div>
+                <span className="truncate mr-2">{selectedLabel}</span>
+                <ChevronDown size={16} className={`text-attire-silver transition-transform duration-300 ${isOpen ? 'rotate-180' : ''}`} />
             </button>
             <AnimatePresence>
                 {isOpen && (
                     <motion.div
-                        initial={{ opacity: 0, y: -10 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        exit={{ opacity: 0, y: -10 }}
-                        className="absolute right-0 mt-2 w-full bg-attire-charcoal border border-attire-silver/10 rounded-md shadow-lg overflow-hidden p-4"
+                        initial={{ opacity: 0, y: 8, scale: 0.95 }}
+                        animate={{ opacity: 1, y: 0, scale: 1 }}
+                        exit={{ opacity: 0, y: 8, scale: 0.95 }}
+                        transition={{ duration: 0.2 }}
+                        className="absolute right-0 mt-2 w-56 bg-[#1a1a1a] border border-white/10 rounded-xl shadow-2xl overflow-hidden py-1"
                     >
-                        <div className="mb-4">
-                            <h4 className="font-semibold text-lg mb-2 text-white">Sort by</h4>
-                            {sortOptions.map(option => (
-                                <div
-                                    key={option.value}
-                                    onClick={() => {
-                                        setSortOrder(option.value);
-                                        setIsOpen(false);
-                                    }}
-                                    className={`px-2 py-1 text-sm cursor-pointer rounded-md hover:bg-attire-navy ${sortOrder === option.value ? 'font-bold bg-attire-navy text-white' : 'font-medium text-attire-silver'}`}
-                                >
-                                    <span>{option.label}</span>
-                                </div>
-                            ))}
-                        </div>
-
-                        <button
-                            onClick={() => {
-                                clearFilters();
-                                setIsOpen(false);
-                            }}
-                            className="w-full mt-4 py-2 px-4 border border-transparent rounded-md shadow-sm text-md font-medium text-attire-dark bg-attire-accent hover:bg-opacity-90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-attire-accent"
-                        >
-                            Clear All Filters
-                        </button>
+                        {sortOptions.map(option => (
+                            <button
+                                key={option.value}
+                                onClick={() => {
+                                    setSortOrder(option.value);
+                                    setIsOpen(false);
+                                }}
+                                className={`w-full flex items-center justify-between px-4 py-3 text-sm text-left transition-colors ${
+                                    sortOrder === option.value 
+                                        ? 'bg-attire-accent/10 text-attire-accent' 
+                                        : 'text-attire-silver hover:bg-white/5 hover:text-white'
+                                }`}
+                            >
+                                <span>{option.label}</span>
+                                {sortOrder === option.value && <Check size={14} />}
+                            </button>
+                        ))}
                     </motion.div>
                 )}
             </AnimatePresence>
