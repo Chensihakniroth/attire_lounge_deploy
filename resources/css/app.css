@@ -14,6 +14,8 @@
     }
 
     html {
+        /* Fluid typography: shrinks from 16px on desktop to ~13px on very small mobile */
+        font-size: clamp(13px, 0.8rem + 0.4vw, 16px);
         scrollbar-width: none;
         -ms-overflow-style: none;
         overscroll-behavior: contain;

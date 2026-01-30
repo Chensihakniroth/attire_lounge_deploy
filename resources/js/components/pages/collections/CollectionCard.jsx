@@ -17,7 +17,7 @@ const CollectionCard = ({ collection }) => {
                     className="w-full h-full object-cover"
                     initial={{ scale: 1 }}
                     whileHover={{ scale: 1.05 }}
-                    transition={{ duration: 0.6, ease: 'easeOut' }}
+                    transition={{ duration: 0.4, ease: 'easeOut' }}
                 />
                 {/* Gradient Overlays */}
                 <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent" />

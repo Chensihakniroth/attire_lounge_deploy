@@ -61,7 +61,7 @@ const containerVariants = {
 };
 const itemVariants = {
   hidden: { opacity: 0, y: 30 },
-  visible: { opacity: 1, y: 0, transition: { duration: 0.6, ease: 'easeOut' } }
+  visible: { opacity: 1, y: 0, transition: { duration: 0.4, ease: 'easeOut' } }
 };
 
 // --- Section Components (Memoized for performance) ---
@@ -309,33 +309,30 @@ const CollectionsSection = memo(forwardRef((props, ref) => {
 
 const ExperienceSection = memo(forwardRef(({ services }, ref) => (
   <section className="relative snap-section min-h-screen h-screen flex items-center bg-attire-navy overflow-hidden" ref={ref}>
-    {/* Minimal Ambient Background - Toned down */}
-    <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-attire-accent/5 rounded-full blur-[150px] pointer-events-none mix-blend-screen opacity-50" />
+    {/* Mobile Background Image (Absolute) */}
+    <div className="absolute inset-0 z-0 lg:hidden">
+        <img 
+            src={`${minioBaseUrl}/uploads/collections/default/both.jpg`} 
+            alt="Experience Background Mobile" 
+            className="w-full h-full object-cover object-center grayscale-[20%]"
+        />
+        <div className="absolute inset-0 bg-black/70" />
+    </div>
 
-    <div className="w-full h-full grid grid-cols-1 lg:grid-cols-2">
-        {/* Visual Side (Left on Desktop, Hidden/BG on Mobile) */}
-        <div className="relative h-full w-full order-2 lg:order-1">
-            {/* Mobile BG (Absolute) */}
-            <div className="absolute inset-0 lg:hidden z-0">
-                <img src={`${minioBaseUrl}/uploads/collections/default/both.jpg`} alt="Background" className="w-full h-full object-cover"/>
-                <div className="absolute inset-0 bg-attire-navy/95 backdrop-blur-sm"/>
-            </div>
-
-            {/* Desktop Image */}
-            <div className="hidden lg:block absolute inset-0">
-                <div className="w-full h-full">
-                    <img
-                        src={`${minioBaseUrl}/uploads/collections/default/both.jpg`}
-                        alt="Attire Lounge Experience"
-                        className="w-full h-full object-cover"
-                    />
-                </div>
-                 <div className="absolute inset-0 bg-gradient-to-r from-transparent via-attire-navy/10 to-attire-navy" />
-            </div>
+    {/* Desktop 2-Column Layout */}
+    <div className="relative z-10 w-full h-full grid grid-cols-1 lg:grid-cols-2">
+        {/* Left Side: Image (Desktop only) */}
+        <div className="hidden lg:block relative h-full w-full overflow-hidden">
+            <img 
+                src={`${minioBaseUrl}/uploads/collections/default/both.jpg`} 
+                alt="Attire Lounge Experience" 
+                className="absolute inset-0 w-full h-full object-cover"
+            />
+            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-attire-navy/10 to-attire-navy" />
         </div>
 
-        {/* Content Side */}
-        <div className="relative z-10 flex flex-col justify-center px-6 md:px-16 lg:px-24 py-12 h-full order-1 lg:order-2">
+        {/* Right Side: Content */}
+        <div className="relative z-10 flex flex-col justify-center px-6 md:px-16 lg:px-24 py-12 h-full">
             <motion.div
                 variants={containerVariants}
                 initial="hidden"
@@ -384,131 +381,123 @@ const ExperienceSection = memo(forwardRef(({ services }, ref) => (
 
 
 const MembershipSection = memo(forwardRef((props, ref) => (
-    <section className="relative snap-section min-h-screen h-screen grid grid-cols-1 lg:grid-cols-12 items-center bg-attire-navy overflow-hidden" ref={ref}>
-        {/* Ambient Lighting */}
-        <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-attire-accent/10 rounded-full blur-[120px] pointer-events-none mix-blend-screen" />
-        <div className="absolute bottom-0 left-0 w-[400px] h-[400px] bg-white/5 rounded-full blur-[100px] pointer-events-none" />
-
-        {/* Mobile Background (Dimmed) */}
-        <div className="lg:hidden absolute inset-0 z-0">
-          <img src={`${minioBaseUrl}/uploads/collections/default/vc.jpg`} alt="Background" className="w-full h-full object-cover"/>
-          <div className="absolute inset-0 bg-attire-navy/90 backdrop-blur-sm"/>
+    <section className="relative snap-section min-h-screen h-screen flex items-center bg-attire-navy overflow-hidden" ref={ref}>
+        {/* Mobile Background Image (Absolute) */}
+        <div className="absolute inset-0 z-0 lg:hidden">
+            <img 
+                src={`${minioBaseUrl}/uploads/collections/default/vc.jpg`} 
+                alt="Membership Background Mobile" 
+                className="w-full h-full object-cover object-center"
+            />
+            <div className="absolute inset-0 bg-black/70" />
         </div>
 
-        {/* Content Side (Left) */}
-        <div className="relative z-10 col-span-1 lg:col-span-5 flex flex-col justify-center h-full px-6 md:px-12 lg:pl-20 lg:pr-4 py-8 overflow-y-auto lg:overflow-visible">
-            <motion.div
-                variants={containerVariants}
-                initial="hidden"
-                whileInView="visible"
-                viewport={{ once: true, amount: 0.2 }}
-                className="w-full max-w-lg mx-auto lg:mx-0"
-            >
-                {/* Header */}
-                <motion.div variants={itemVariants} className="flex items-center gap-3 mb-4">
-                    <Crown className="text-attire-accent w-6 h-6" />
-                    <span className="text-attire-accent tracking-[0.3em] uppercase text-xs font-semibold">Exclusive Access</span>
-                </motion.div>
-                
-                <motion.h2 variants={itemVariants} className="font-serif text-4xl md:text-5xl text-white mb-6 leading-tight">
-                    The Attire <br/><span className="italic text-attire-silver">Club</span>
-                </motion.h2>
-
-                <motion.p variants={itemVariants} className="text-attire-silver/80 text-sm mb-8 font-light leading-relaxed border-l-2 border-attire-accent/50 pl-4">
-                    Join an elite circle of gentlemen. Unlock privileged pricing, seasonal rewards, and curated experiences.
-                    <span className="block mt-2 text-xs opacity-60">*Minimum spend of US$500 to qualify.</span>
-                </motion.p>
-
-                {/* Benefits Grid */}
-                <div className="grid grid-cols-1 gap-4 mb-8">
-                    {/* Tier 1: Shopping Perks */}
-                    <motion.div variants={itemVariants} className="bg-white/5 border border-white/10 rounded-xl p-4 hover:bg-white/10 transition-colors">
-                        <div className="flex items-center gap-3 mb-3">
-                            <div className="p-2 bg-attire-accent/20 rounded-lg text-attire-accent"><CreditCard size={18} /></div>
-                            <h4 className="text-white font-serif text-lg">Privileged Pricing</h4>
-                        </div>
-                        <div className="space-y-2">
-                            <div className="flex justify-between items-center text-sm text-attire-silver">
-                                <span>$500 - $1,000</span>
-                                <span className="font-semibold text-white">8% Off</span>
-                            </div>
-                            <div className="w-full bg-white/10 h-1 rounded-full overflow-hidden">
-                                <div className="bg-attire-accent h-full w-[53%]" />
-                            </div>
-                            <div className="flex justify-between items-center text-sm text-attire-silver">
-                                <span>$1,001 - $1,500</span>
-                                <span className="font-semibold text-white">10% Off</span>
-                            </div>
-                             <div className="w-full bg-white/10 h-1 rounded-full overflow-hidden">
-                                <div className="bg-attire-accent h-full w-[66%]" />
-                            </div>
-                             <div className="flex justify-between items-center text-sm text-attire-silver">
-                                <span>$1,500+</span>
-                                <span className="font-semibold text-white">15% Off</span>
-                            </div>
-                             <div className="w-full bg-white/10 h-1 rounded-full overflow-hidden">
-                                <div className="bg-attire-accent h-full w-full" />
-                            </div>
-                        </div>
+        {/* Desktop 2-Column Grid */}
+        <div className="relative z-10 w-full h-full grid grid-cols-1 lg:grid-cols-12 items-center">
+            {/* Content Side (Left) */}
+            <div className="relative z-10 col-span-1 lg:col-span-5 flex flex-col justify-center h-full px-6 md:px-12 lg:pl-20 lg:pr-4 py-8">
+                <motion.div
+                    variants={containerVariants}
+                    initial="hidden"
+                    whileInView="visible"
+                    viewport={{ once: true, amount: 0.2 }}
+                    className="w-full max-w-lg mx-auto lg:mx-0"
+                >
+                    {/* Header */}
+                    <motion.div variants={itemVariants} className="flex items-center gap-3 mb-4">
+                        <Crown className="text-attire-accent w-6 h-6" />
+                        <span className="text-attire-accent tracking-[0.3em] uppercase text-xs font-semibold">Exclusive Access</span>
                     </motion.div>
+                    
+                    <motion.h2 variants={itemVariants} className="font-serif text-4xl md:text-5xl text-white mb-6 leading-tight">
+                        The Attire <br/><span className="italic text-attire-silver">Club</span>
+                    </motion.h2>
 
-                    <div className="grid grid-cols-2 gap-4">
-                         {/* Tier 2: Lifestyle */}
+                    <motion.p variants={itemVariants} className="text-attire-silver/80 text-sm mb-8 font-light leading-relaxed border-l-2 border-attire-accent/50 pl-4">
+                        Join an elite circle of gentlemen. Unlock privileged pricing, seasonal rewards, and curated experiences.
+                        <span className="block mt-2 text-xs opacity-60">*Minimum spend of US$500 to qualify.</span>
+                    </motion.p>
+
+                    {/* Benefits Grid */}
+                    <div className="grid grid-cols-1 gap-4 mb-8">
+                        {/* Tier 1: Shopping Perks */}
                         <motion.div variants={itemVariants} className="bg-white/5 border border-white/10 rounded-xl p-4 hover:bg-white/10 transition-colors">
-                            <div className="flex items-center gap-2 mb-2">
-                                <Wine size={16} className="text-attire-accent" />
-                                <h4 className="text-white font-serif text-base">Partners</h4>
+                            <div className="flex items-center gap-3 mb-3">
+                                <div className="p-2 bg-attire-accent/20 rounded-lg text-attire-accent"><CreditCard size={18} /></div>
+                                <h4 className="text-white font-serif text-lg">Privileged Pricing</h4>
                             </div>
-                            <ul className="text-xs text-attire-silver space-y-1">
-                                <li>• 10% @ CUFFEINE</li>
-                                <li>• 8% @ Kravat Bar</li>
-                            </ul>
+                            <div className="space-y-2">
+                                <div className="flex justify-between items-center text-sm text-attire-silver">
+                                    <span>$500 - $1,000</span>
+                                    <span className="font-semibold text-white">8% Off</span>
+                                </div>
+                                <div className="w-full bg-white/10 h-1 rounded-full overflow-hidden">
+                                    <div className="bg-attire-accent h-full w-[53%]" />
+                                </div>
+                                <div className="flex justify-between items-center text-sm text-attire-silver">
+                                    <span>$1,001 - $1,500</span>
+                                    <span className="font-semibold text-white">10% Off</span>
+                                </div>
+                                 <div className="w-full bg-white/10 h-1 rounded-full overflow-hidden">
+                                    <div className="bg-attire-accent h-full w-[66%]" />
+                                </div>
+                                 <div className="flex justify-between items-center text-sm text-attire-silver">
+                                    <span>$1,500+</span>
+                                    <span className="font-semibold text-white">15% Off</span>
+                                </div>
+                                 <div className="w-full bg-white/10 h-1 rounded-full overflow-hidden">
+                                    <div className="bg-attire-accent h-full w-full" />
+                                </div>
+                            </div>
                         </motion.div>
 
-                        {/* Tier 3: Seasonal */}
-                        <motion.div variants={itemVariants} className="bg-white/5 border border-white/10 rounded-xl p-4 hover:bg-white/10 transition-colors">
-                            <div className="flex items-center gap-2 mb-2">
-                                <Gift size={16} className="text-attire-accent" />
-                                <h4 className="text-white font-serif text-base">Rewards</h4>
-                            </div>
-                            <ul className="text-xs text-attire-silver space-y-1">
-                                <li>• Birthday Gifts</li>
-                                <li>• Event Access</li>
-                            </ul>
-                        </motion.div>
+                        <div className="grid grid-cols-2 gap-4">
+                             {/* Tier 2: Lifestyle */}
+                            <motion.div variants={itemVariants} className="bg-white/5 border border-white/10 rounded-xl p-4 hover:bg-white/10 transition-colors">
+                                <div className="flex items-center gap-2 mb-2">
+                                    <Wine size={16} className="text-attire-accent" />
+                                    <h4 className="text-white font-serif text-base">Partners</h4>
+                                </div>
+                                <ul className="text-xs text-attire-silver space-y-1">
+                                    <li>• 10% @ CUFFEINE</li>
+                                    <li>• 8% @ Kravat Bar</li>
+                                </ul>
+                            </motion.div>
+
+                            {/* Tier 3: Seasonal */}
+                            <motion.div variants={itemVariants} className="bg-white/5 border border-white/10 rounded-xl p-4 hover:bg-white/10 transition-colors">
+                                <div className="flex items-center gap-2 mb-2">
+                                    <Gift size={16} className="text-attire-accent" />
+                                    <h4 className="text-white font-serif text-base">Rewards</h4>
+                                </div>
+                                <ul className="text-xs text-attire-silver space-y-1">
+                                    <li>• Birthday Gifts</li>
+                                    <li>• Event Access</li>
+                                </ul>
+                            </motion.div>
+                        </div>
                     </div>
-                </div>
 
-                 {/* Terms - Collapsible-ish look */}
-                <motion.div variants={itemVariants} className="text-[10px] text-white/30 leading-snug max-w-md">
-                     <p>Terms apply. Card must be presented. Non-transferable. Lost card fee $10. Subject to change.</p>
-                </motion.div>
-            </motion.div>
-        </div>
-
-        {/* Visual Side (Right) */}
-        <div className="relative h-full hidden lg:block col-span-7 overflow-hidden">
-            {/* Main Image with Scale Effect */}
-            <motion.div 
-                initial={{ scale: 1.1 }}
-                whileInView={{ scale: 1 }}
-                transition={{ duration: 1.5, ease: "easeOut" }}
-                className="absolute inset-0 w-full h-full"
-            >
-                <img
-                    src={`${minioBaseUrl}/uploads/collections/default/vc.jpg`}
-                    alt="Attire Club Membership"
-                    className="absolute inset-0 w-full h-full object-cover object-center"
-                    loading="lazy"
-                />
-            </motion.div>
-            
-            {/* Gradient Overlay for Text Readability blend */}
-            <div className="absolute inset-0 bg-gradient-to-r from-attire-navy via-attire-navy/40 to-transparent w-2/3" />
-        </div>
-    </section>
-)));
-
+                     {/* Terms - Collapsible-ish look */}
+                    <motion.div variants={itemVariants} className="text-[10px] text-white/30 leading-snug max-w-md">
+                         <p>Terms apply. Card must be presented. Non-transferable. Lost card fee $10. Subject to change.</p>
+                    </motion.div>
+                                    </motion.div>
+                            </div>
+                
+                            {/* Visual Side (Right - Desktop only) */}
+                            <div className="hidden lg:block relative col-span-7 h-full overflow-hidden">
+                                <img
+                                    src={`${minioBaseUrl}/uploads/collections/default/vc.jpg`}
+                                    alt="Attire Club Membership"
+                                    className="absolute inset-0 w-full h-full object-cover object-center"
+                                    loading="lazy"
+                                />
+                                <div className="absolute inset-0 bg-gradient-to-r from-attire-navy via-attire-navy/40 to-transparent w-2/3" />
+                            </div>
+                        </div>
+                    </section>
+                )));
 const LookbookSection = memo(forwardRef(({ lookbookFeatures }, ref) => (
   <section className="relative snap-section min-h-screen bg-black flex items-center overflow-hidden" ref={ref}>
     {/* Artistic Background */}
@@ -733,7 +722,7 @@ const HomePage = () => {
   const scrollToSection = useCallback((index) => {
     if (sectionsRef.current[index]) {
        if (window.lenis) {
-           window.lenis.scrollTo(sectionsRef.current[index], { duration: 1.5 });
+           window.lenis.scrollTo(sectionsRef.current[index], { duration: 1.0 });
        } else {
            sectionsRef.current[index].scrollIntoView({ behavior: 'smooth' });
        }
@@ -780,12 +769,12 @@ const HomePage = () => {
                 //    - If we are deep inside, allow free scroll.
 
                 if (!isTallSection) {
-                    window.lenis.scrollTo(targetSection, { duration: 0.8 });
+                    window.lenis.scrollTo(targetSection, { duration: 0.6 });
                 } else {
                     // Tall section logic
                     const snapThreshold = viewportHeight * 0.3;
                     if (dist < snapThreshold) {
-                         window.lenis.scrollTo(targetSection, { duration: 0.8 });
+                         window.lenis.scrollTo(targetSection, { duration: 0.6 });
                     }
                 }
             }

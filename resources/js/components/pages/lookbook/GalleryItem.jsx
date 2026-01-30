@@ -31,7 +31,7 @@ const GalleryItem = ({ image, openLightbox, toggleFavorite, isFavorite }) => {
                 onLoad={() => setIsLoaded(true)}
                 initial={{ opacity: 0 }}
                 animate={{ opacity: isLoaded ? 1 : 0 }}
-                transition={{ duration: 0.6 }}
+                transition={{ duration: 0.4 }}
             />
             
             {/* Animated overlay with content */}

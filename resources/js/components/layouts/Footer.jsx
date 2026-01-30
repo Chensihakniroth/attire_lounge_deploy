@@ -204,7 +204,7 @@ const Footer = () => {
             </div>
 
              {/* Socials */}
-             <div className="flex items-center justify-between lg:justify-start lg:gap-4 pt-2">
+             <div className="flex items-center gap-4 pt-2">
                 {[
                   { icon: Instagram, url: 'https://instagram.com/attireloungeofficial' },
                   { icon: Facebook, url: 'https://facebook.com/attireloungeofficial' },

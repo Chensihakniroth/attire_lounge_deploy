@@ -41,11 +41,11 @@ const Placeholder = ({ title }) => (
 );
 
 // Layout wrapper component - ALWAYS includes Footer (except for HomePage)
-const Layout = ({ children, includeFooter = true }) => {
+const Layout = ({ children, includeFooter = true, includePadding = true }) => {
     return (
         <div className="min-h-screen flex flex-col">
             <Navigation />
-            <main className="flex-grow pt-24 md:pt-0">
+            <main className={`flex-grow ${includePadding ? 'pt-24 md:pt-0' : ''}`}>
                 {children}
             </main>
             {includeFooter && <Footer />}
@@ -67,7 +67,7 @@ const LenisScroll = () => {
         }
 
         const lenis = new Lenis({
-            duration: 1.5,
+            duration: 1.0,
             easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
             direction: 'vertical',
             gestureDirection: 'vertical',
@@ -106,7 +106,7 @@ function MainApp() {
                     <Route path="/" element={
                         <div className="min-h-screen flex flex-col">
                             <Navigation />
-                            <main className="flex-grow pt-24 md:pt-0">
+                            <main className="flex-grow">
                                 <HomePage />
                             </main>
                             {/* Footer is now INSIDE HomePage as section 4 */}
@@ -159,7 +159,7 @@ function MainApp() {
                     </Route>
 
                     <Route path="/admin/login" element={
-                        <Layout>
+                        <Layout includeFooter={false} includePadding={false}>
                             <AdminLogin />
                         </Layout>
                     } />

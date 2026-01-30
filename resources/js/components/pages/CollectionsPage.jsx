@@ -77,7 +77,7 @@ const CollectionsPage = () => {
                                     layout
                                     initial={{ opacity: 0, y: 30 }}
                                     animate={{ opacity: 1, y: 0 }}
-                                    transition={{ duration: 0.6, delay: index * 0.1, ease: 'easeOut' }}
+                                    transition={{ duration: 0.4, delay: index * 0.1, ease: 'easeOut' }}
                                     className="h-full"
                                 >
                                     {collection.id === 0 ? (
