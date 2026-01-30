@@ -1,4 +1,5 @@
 import React, { createContext, useState, useContext, useEffect } from 'react';
+import { products } from '../data/products.js';
 
 const FavoritesContext = createContext();
 
@@ -8,7 +9,13 @@ export const FavoritesProvider = ({ children }) => {
     const [favorites, setFavorites] = useState(() => {
         try {
             const localData = localStorage.getItem('attire-lounge-favorites');
-            return localData ? JSON.parse(localData) : [];
+            if (localData) {
+                const parsedData = JSON.parse(localData);
+                // Filter out any IDs that don't exist in the current product list
+                const validIds = parsedData.filter(id => products.some(p => p.id === id));
+                return validIds;
+            }
+            return [];
         } catch (error) {
             console.error("Could not parse favorites from localStorage", error);
             return [];

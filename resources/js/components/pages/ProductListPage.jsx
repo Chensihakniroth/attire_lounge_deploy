@@ -143,10 +143,10 @@ const ProductListPage = () => {
 
     return (
         <div className="min-h-screen bg-attire-navy relative">
-            {/* Background Decorations */}
+            {/* Background Decorations - Softened */}
             <div className="fixed top-0 left-0 w-full h-screen overflow-hidden pointer-events-none z-0">
-                <div className="absolute top-[-10%] right-[-5%] w-[600px] h-[600px] bg-attire-accent/5 rounded-full blur-[120px]" />
-                <div className="absolute bottom-[-10%] left-[-10%] w-[500px] h-[500px] bg-blue-900/10 rounded-full blur-[100px]" />
+                <div className="absolute top-[-10%] right-[-5%] w-[600px] h-[600px] bg-attire-accent/[0.03] rounded-full blur-[160px]" />
+                <div className="absolute bottom-[-10%] left-[-10%] w-[500px] h-[500px] bg-blue-900/[0.05] rounded-full blur-[140px]" />
             </div>
 
             <header className="relative z-10 pt-28 pb-12 px-6 text-center">
@@ -168,7 +168,7 @@ const ProductListPage = () => {
             </header>
 
             <main className="relative z-10 max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-8 pb-24">
-                <div className="sticky top-24 z-30 mb-8 transition-all duration-300">
+                <div className="z-40 mb-8 transition-all duration-300 relative">
                     <Controls
                         sortOrder={sortOrder}
                         setSortOrder={setSortOrder}
@@ -385,7 +385,7 @@ const FilterSortDropdown = ({
     const selectedLabel = sortOptions.find(opt => opt.value === sortOrder)?.label || 'Sort By';
 
     return (
-        <div ref={dropdownRef} className="relative z-50 min-w-[200px]">
+        <div ref={dropdownRef} className="relative z-[100] min-w-[200px]">
             <button
                 onClick={() => setIsOpen(!isOpen)}
                 className="flex items-center justify-between w-full px-4 py-2.5 bg-black/40 hover:bg-black/60 border border-white/10 rounded-xl text-sm font-medium text-white transition-all focus:outline-none focus:ring-1 focus:ring-attire-accent/50"

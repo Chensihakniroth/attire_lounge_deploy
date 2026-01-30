@@ -49,10 +49,10 @@ const CollectionsPage = () => {
 
     return (
         <div className="min-h-screen bg-attire-navy relative overflow-hidden">
-            {/* Background Decorations */}
+            {/* Background Decorations - Softened */}
             <div className="fixed top-0 left-0 w-full h-screen overflow-hidden pointer-events-none z-0">
-                <div className="absolute top-[-10%] left-[-5%] w-[700px] h-[700px] bg-blue-900/10 rounded-full blur-[120px]" />
-                <div className="absolute bottom-[-10%] right-[-10%] w-[600px] h-[600px] bg-attire-accent/5 rounded-full blur-[100px]" />
+                <div className="absolute top-[-10%] left-[-5%] w-[700px] h-[700px] bg-blue-900/[0.05] rounded-full blur-[160px]" />
+                <div className="absolute bottom-[-10%] right-[-10%] w-[600px] h-[600px] bg-attire-accent/[0.03] rounded-full blur-[140px]" />
             </div>
 
             <PageHeader />

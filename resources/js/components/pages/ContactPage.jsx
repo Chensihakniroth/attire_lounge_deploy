@@ -36,7 +36,7 @@ const InfoItem = ({ icon, title, details, action }) => (
 );
 
 // Reusable form field components for a cleaner structure
-const InputField = ({ name, label, error, ...props }) => (
+const InputField = ({ name, label, error, className = '', ...props }) => (
     <div>
         <label className="block text-xs font-semibold text-attire-silver uppercase tracking-widest mb-2 ml-1">{label}</label>
         <input
@@ -44,7 +44,8 @@ const InputField = ({ name, label, error, ...props }) => (
             {...props}
             className={`w-full px-4 py-3.5 rounded-2xl border bg-black/40 text-white placeholder-white/20 transition-all
                 ${error ? 'border-red-500/50' : 'border-white/10'}
-                focus:border-attire-accent/50 focus:ring-1 focus:ring-attire-accent/30 focus:outline-none`}
+                focus:border-attire-accent/50 focus:ring-1 focus:ring-attire-accent/30 focus:outline-none 
+                [color-scheme:dark] ${className}`} // Forces native date/time pickers to use dark mode
         />
         <AnimatePresence>
             {error && (
@@ -85,13 +86,13 @@ const SelectField = ({ name, label, options, value, onChange }) => {
                         leaveFrom="opacity-100"
                         leaveTo="opacity-0"
                     >
-                        <Listbox.Options className="absolute z-50 mt-2 max-h-60 w-full overflow-auto rounded-2xl bg-[#1a1a1a] border border-white/10 py-1 text-base shadow-2xl focus:outline-none sm:text-sm">
+                        <Listbox.Options className="absolute z-50 mt-2 max-h-60 w-full overflow-auto rounded-2xl bg-[#1a1a1a]/90 backdrop-blur-xl border border-white/10 py-1 text-base shadow-2xl focus:outline-none sm:text-sm [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
                             {options.map((option, optionIdx) => (
                                 <Listbox.Option
                                     key={optionIdx}
                                     className={({ active }) =>
                                         `relative cursor-default select-none py-3 pl-10 pr-4 transition-colors ${ 
-                                            active ? 'bg-attire-accent/10 text-attire-accent' : 'text-attire-silver'
+                                            active ? 'bg-attire-accent/20 text-attire-accent font-medium' : 'text-attire-silver hover:bg-white/5 hover:text-white'
                                         }`
                                     }
                                     value={option.value}
@@ -162,25 +163,30 @@ const FavoritesSelector = ({ favoriteProducts, selectedFavorites, onSelectionCha
                     <div 
                         key={product.id} 
                         className={`relative group cursor-pointer rounded-2xl overflow-hidden border-2 transition-all duration-300 ${
-                            selectedFavorites.includes(product.id) ? 'border-attire-accent' : 'border-transparent'
+                            selectedFavorites.includes(product.id) ? 'border-attire-accent shadow-[0_0_15px_rgba(212,168,76,0.2)]' : 'border-white/5 hover:border-white/20'
                         }`}
                         onClick={() => handleCheckboxChange(product.id)}
                     >
                         <img 
                             src={product.images[0]} 
                             alt={product.name} 
-                            className={`w-full aspect-square object-cover transition-transform duration-500 group-hover:scale-110 ${
-                                selectedFavorites.includes(product.id) ? 'opacity-100' : 'opacity-40 group-hover:opacity-60'
+                            className={`w-full aspect-[4/5] object-cover transition-all duration-500 group-hover:scale-110 ${
+                                selectedFavorites.includes(product.id) ? 'opacity-100 brightness-110' : 'opacity-80 group-hover:opacity-100'
                             }`}
                         />
-                        <div className="absolute inset-0 bg-black/20" />
+                        
                         {selectedFavorites.includes(product.id) && (
-                            <div className="absolute top-1 right-1 bg-attire-accent text-black rounded-full p-0.5">
-                                <Check size={12} strokeWidth={3} />
-                            </div>
+                            <motion.div 
+                                initial={{ scale: 0.5, opacity: 0 }}
+                                animate={{ scale: 1, opacity: 1 }}
+                                className="absolute top-2 right-2 bg-attire-accent text-black rounded-full p-1 shadow-lg z-20"
+                            >
+                                <Check size={14} strokeWidth={4} />
+                            </motion.div>
                         )}
-                        <div className="absolute bottom-0 left-0 right-0 bg-black/60 backdrop-blur-sm p-1.5">
-                            <p className="text-[10px] text-white text-center truncate font-medium">{product.name}</p>
+                        
+                        <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent p-2 pt-4">
+                            <p className="text-[10px] text-white text-center truncate font-semibold tracking-wide uppercase">{product.name}</p>
                         </div>
                     </div>
                 ))}
@@ -323,10 +329,10 @@ Message: ${messageWithFavorites}
 
     return (
         <div className="min-h-screen bg-attire-navy relative">
-            {/* Background Orbs */}
+            {/* Background Orbs - Softened */}
             <div className="fixed top-0 left-0 w-full h-screen overflow-hidden pointer-events-none z-0">
-                <div className="absolute top-[-10%] right-[-5%] w-[600px] h-[600px] bg-attire-accent/5 rounded-full blur-[120px]" />
-                <div className="absolute bottom-[-10%] left-[-10%] w-[500px] h-[500px] bg-blue-900/10 rounded-full blur-[100px]" />
+                <div className="absolute top-[-10%] right-[-5%] w-[600px] h-[600px] bg-attire-accent/[0.03] rounded-full blur-[160px]" />
+                <div className="absolute bottom-[-10%] left-[-10%] w-[500px] h-[500px] bg-blue-900/[0.05] rounded-full blur-[140px]" />
             </div>
 
             <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-28 sm:py-36">

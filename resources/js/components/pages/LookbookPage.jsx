@@ -3,7 +3,26 @@ import { motion, AnimatePresence } from 'framer-motion';
 import Lightbox from './lookbook/Lightbox';
 import { wrap } from "popmotion";
 import minioBaseUrl from '../../config.js';
-import { ChevronLeft, ChevronRight } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Filter } from 'lucide-react';
+
+const PageHeader = () => (
+    <div className="relative text-center py-20 sm:py-32 px-6 z-10 pointer-events-none">
+        <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, ease: "easeOut" }}
+        >
+            <span className="text-attire-accent text-xs tracking-[0.3em] uppercase mb-4 inline-block">Curated</span>
+            <h1 className="text-5xl md:text-7xl font-serif font-light text-white mb-6">
+                The Lookbook
+            </h1>
+            <p className="text-lg text-attire-silver max-w-2xl mx-auto leading-relaxed font-light">
+                A visual journey through our latest sartorial creations. 
+                Find inspiration for your next bespoke ensemble.
+            </p>
+        </motion.div>
+    </div>
+);
 
 const LookbookPage = () => {
     const [images] = useState([
@@ -74,8 +93,7 @@ const LookbookPage = () => {
     const handlePageChange = (newPage) => {
         if (newPage >= 1 && newPage <= totalPages) {
             setCurrentPage(newPage);
-            const mainContent = document.getElementById('main-content');
-            if(mainContent) mainContent.scrollTo({ top: 0, behavior: 'smooth' });
+            window.scrollTo({ top: 0, behavior: 'smooth' });
         }
     };
 
@@ -143,61 +161,67 @@ const LookbookPage = () => {
     };
 
     return (
-        <motion.div
-            className="h-full w-full flex flex-col bg-attire-navy overflow-hidden relative"
-        >
-            <div className="w-full p-6 bg-attire-dark/20 backdrop-blur-sm z-10 lg:pt-24">
-                <div className="flex items-center">
+        <div className="min-h-screen bg-attire-navy relative overflow-hidden">
+            {/* Background Decorations - Softened to prevent pixelation */}
+            <div className="fixed top-0 left-0 w-full h-screen overflow-hidden pointer-events-none z-0">
+                <div className="absolute top-[-10%] right-[-5%] w-[600px] h-[600px] bg-attire-accent/[0.03] rounded-full blur-[160px]" />
+                <div className="absolute bottom-[-10%] left-[-10%] w-[500px] h-[500px] bg-blue-900/[0.05] rounded-full blur-[140px]" />
+            </div>
+
+            <PageHeader />
+
+            <div className="relative z-10 sticky top-24 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-12 pointer-events-auto">
+                <div className="w-full bg-black/20 backdrop-blur-xl border border-white/10 rounded-2xl p-2 md:p-3 flex items-center shadow-2xl">
                     <button 
                         onClick={() => scroll(-1)}
-                        className="p-1 text-white/50 hover:text-white md:hidden"
+                        className="p-2 text-white/50 hover:text-white md:hidden z-20"
                     >
-                        <ChevronLeft size={20} />
+                        <ChevronLeft size={18} />
                     </button>
-                    <div ref={scrollContainerRef} className="flex-grow flex items-center justify-start md:justify-center gap-4 overflow-x-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none] py-2">
+                    
+                    <div ref={scrollContainerRef} className="flex-grow flex items-center justify-start md:justify-center gap-2 overflow-x-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none] px-2">
+                        <span className="text-xs font-medium text-attire-silver/60 uppercase tracking-wider flex-shrink-0 mr-2 hidden md:block">Categories</span>
                         {categories.map((category) => (
                             <button
                                 key={category.id}
                                 onClick={() => setFilter(category.id)}
-                                className={`flex-shrink-0 px-5 py-2.5 rounded-full text-sm font-medium transition-colors relative ${
-                                    filter === category.id ? 'text-white' : 'text-attire-silver/70 hover:text-white'
+                                className={`flex-shrink-0 px-5 py-2 rounded-full text-sm transition-all duration-300 border ${
+                                    filter === category.id 
+                                        ? 'bg-attire-accent text-black border-attire-accent font-medium shadow-[0_0_15px_rgba(212,168,76,0.3)]' 
+                                        : 'bg-white/5 text-attire-silver border-white/5 hover:bg-white/10 hover:text-white'
                                 }`}
                             >
-                                {filter === category.id && (
-                                    <motion.div
-                                        layoutId="lookbook-filter-active"
-                                        className="absolute inset-0 bg-attire-accent shadow-md rounded-full"
-                                        transition={{ type: 'spring', stiffness: 200, damping: 20 }}
-                                    />
-                                )}
-                                <span className="relative z-10">{category.name}</span>
+                                {category.name}
                             </button>
                         ))}
                     </div>
+
                     <button 
                         onClick={() => scroll(1)}
-                        className="p-1 text-white/50 hover:text-white md:hidden"
+                        className="p-2 text-white/50 hover:text-white md:hidden z-20"
                     >
-                        <ChevronRight size={20} />
+                        <ChevronRight size={18} />
                     </button>
                 </div>
             </div>
 
-            <motion.div
-                id="main-content"
-                className="flex-grow overflow-y-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none] touch-pan-y"
-            >
+            <main className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-24">
                 <motion.div
                     key={filter + currentPage}
                     variants={containerVariants}
                     initial="hidden"
                     animate="visible"
-                    className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 p-4 lg:p-8"
+                    className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6"
                 >
                     {paginatedImages.map((image, index) => (
-                        <div
+                        <motion.div
                             key={image.id}
-                            className="group relative cursor-pointer overflow-hidden h-[28rem]"
+                            layout
+                            variants={{
+                                hidden: { opacity: 0, y: 20 },
+                                visible: { opacity: 1, y: 0 }
+                            }}
+                            className="group relative cursor-pointer overflow-hidden rounded-2xl border border-white/5 shadow-lg h-[28rem]"
                             onClick={() => openLightbox((currentPage - 1) * itemsPerPage + index)}
                         >
                             <img
@@ -205,32 +229,33 @@ const LookbookPage = () => {
                                 alt={image.title}
                                 className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
                             />
-                        </div>
+                            <div className="absolute inset-0 bg-black/20 group-hover:bg-transparent transition-colors duration-500" />
+                        </motion.div>
                     ))}
                 </motion.div>
 
                 {totalPages > 1 && (
-                    <div className="flex justify-center items-center gap-4 py-8 pb-20">
+                    <div className="flex justify-center items-center gap-6 mt-20">
                         <button
                             onClick={() => handlePageChange(currentPage - 1)}
                             disabled={currentPage === 1}
-                            className="p-2 rounded-full border border-attire-silver/20 text-attire-silver hover:bg-white/10 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                            className="group p-3 rounded-full border border-white/10 text-white hover:bg-white/10 disabled:opacity-30 disabled:cursor-not-allowed transition-all"
                         >
-                            <ChevronLeft size={20} />
+                            <ChevronLeft size={20} className="group-hover:-translate-x-0.5 transition-transform" />
                         </button>
-                        <span className="text-attire-silver font-medium">
-                            Page {currentPage} of {totalPages}
+                        <span className="text-attire-silver font-medium text-sm tracking-wider">
+                            PAGE {currentPage} / {totalPages}
                         </span>
                         <button
                             onClick={() => handlePageChange(currentPage + 1)}
                             disabled={currentPage === totalPages}
-                            className="p-2 rounded-full border border-attire-silver/20 text-attire-silver hover:bg-white/10 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                            className="group p-3 rounded-full border border-white/10 text-white hover:bg-white/10 disabled:opacity-30 disabled:cursor-not-allowed transition-all"
                         >
-                            <ChevronRight size={20} />
+                            <ChevronRight size={20} className="group-hover:translate-x-0.5 transition-transform" />
                         </button>
                     </div>
                 )}
-            </motion.div>
+            </main>
 
             <AnimatePresence>
                 {selectedImage && (
@@ -245,7 +270,7 @@ const LookbookPage = () => {
                     />
                 )}
             </AnimatePresence>
-        </motion.div>
+        </div>
     );
 };
 

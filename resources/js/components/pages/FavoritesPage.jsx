@@ -55,9 +55,11 @@ const FavoritesPage = () => {
 
     return (
         <div className="min-h-screen bg-attire-navy relative overflow-hidden">
-            {/* Background Texture */}
-            <div className="absolute top-0 left-0 w-full h-96 bg-gradient-to-b from-white/5 to-transparent pointer-events-none" />
-            <div className="absolute top-20 right-0 w-96 h-96 bg-attire-accent/5 rounded-full blur-3xl pointer-events-none" />
+            {/* Background Texture - Softened */}
+            <div className="fixed top-0 left-0 w-full h-screen overflow-hidden pointer-events-none z-0">
+                <div className="absolute top-[-10%] right-[-5%] w-[600px] h-[600px] bg-attire-accent/[0.03] rounded-full blur-[160px]" />
+                <div className="absolute bottom-[-10%] left-[-10%] w-[500px] h-[500px] bg-blue-900/[0.05] rounded-full blur-[140px]" />
+            </div>
 
             <header className="relative z-10 pt-24 pb-12 sm:pt-32 sm:pb-16 px-6 text-center">
                 <motion.div
