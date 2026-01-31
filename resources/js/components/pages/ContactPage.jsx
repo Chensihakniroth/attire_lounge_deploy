@@ -2,7 +2,7 @@
 import React, { useState, Fragment } from 'react';
 import { Listbox, Transition } from '@headlessui/react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Mail, Phone, MapPin, Clock, Send, CheckCircle, Instagram, Facebook, ChevronDown, Check, MessageSquare } from 'lucide-react';
+import { Mail, Phone, MapPin, Clock, Send, CheckCircle, Instagram, Facebook, ChevronDown, Check } from 'lucide-react';
 import { useFavorites } from '../../context/FavoritesContext';
 import { products } from '../../data/products';
 import axios from 'axios';
@@ -437,7 +437,7 @@ Message: ${messageBody}
                                         {[
                                             { icon: <Instagram />, href: "https://instagram.com/attireloungeofficial", color: "hover:text-pink-400" },
                                             { icon: <Facebook />, href: "https://facebook.com/attireloungeofficial", color: "hover:text-blue-400" },
-                                            { icon: <MessageSquare />, href: "https://t.me/attireloungeofficial", color: "hover:text-blue-300" }
+                                            { icon: <Send />, href: "https://t.me/attireloungeofficial", color: "hover:text-blue-300" }
                                         ].map((social, i) => (
                                             <a key={i} href={social.href} target="_blank" rel="noopener noreferrer" className={`p-4 bg-white/5 rounded-2xl border border-white/5 text-attire-silver transition-all duration-300 ${social.color} hover:bg-white/10 hover:scale-110`}>
                                                 {React.cloneElement(social.icon, { size: 24 })}

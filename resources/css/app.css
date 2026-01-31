@@ -15,7 +15,8 @@
 
     html {
         /* Fluid typography: shrinks from 16px on desktop to ~13px on very small mobile */
-        font-size: clamp(13px, 0.8rem + 0.4vw, 16px);
+        /* Scaled to 90% of original to simulate 90% zoom level (Requested by user) */
+        font-size: clamp(11.7px, 0.72rem + 0.36vw, 14.4px);
         scrollbar-width: none;
         -ms-overflow-style: none;
         overscroll-behavior: contain;
@@ -335,19 +336,19 @@ footer {
 
 /* Logo size optimization */
 .hero-logo {
-    width: 300px;
+    width: 270px;
     height: auto;
 }
 
 @media (min-width: 768px) {
     .hero-logo {
-        width: 400px;
+        width: 360px;
     }
 }
 
 @media (min-width: 1024px) {
     .hero-logo {
-        width: 450px;
+        width: 405px;
     }
 }
 
