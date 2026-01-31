@@ -109,6 +109,17 @@ const Lightbox = ({
                         initial="enter"
                         animate="center"
                         exit="exit"
+                        drag="x"
+                        dragConstraints={{ left: 0, right: 0 }}
+                        dragElastic={1}
+                        onDragEnd={(e, { offset, velocity }) => {
+                            const swipeThreshold = 50;
+                            if (offset.x < -swipeThreshold) {
+                                paginate(1);
+                            } else if (offset.x > swipeThreshold) {
+                                paginate(-1);
+                            }
+                        }}
                         className={`relative shadow-2xl origin-center bg-[#050505] overflow-hidden transition-all duration-500 ease-out ${
                             isFullscreen 
                                 ? 'w-full h-full rounded-none' 
