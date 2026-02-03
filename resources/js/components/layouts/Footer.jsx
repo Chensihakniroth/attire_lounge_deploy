@@ -88,7 +88,12 @@ const Footer = () => {
 
             {/* Contact Details */}
             <div className="space-y-5">
-               <div className="flex items-start gap-4 group">
+               <a 
+                 href="https://maps.app.goo.gl/vZbPnCNMmmiKcR9g7" 
+                 target="_blank" 
+                 rel="noopener noreferrer" 
+                 className="flex items-start gap-4 group"
+               >
                 <div className="p-2 bg-white/5 rounded-full group-hover:bg-attire-accent/20 transition-colors">
                     <MapPin className="w-4 h-4 text-attire-accent" />
                 </div>
@@ -96,7 +101,7 @@ const Footer = () => {
                   10 E0, Street 03, Sangkat Chey Chumneah,<br />
                   Khan Daun Penh, Phnom Penh
                 </p>
-              </div>
+              </a>
                <div className="flex items-center gap-4 group">
                 <div className="p-2 bg-white/5 rounded-full group-hover:bg-attire-accent/20 transition-colors">
                     <Phone className="w-4 h-4 text-attire-accent" />
@@ -190,7 +195,7 @@ const Footer = () => {
                   className={`w-full py-3 rounded-lg font-medium text-xs uppercase tracking-wider transition-all duration-300 flex items-center justify-center gap-2 ${
                     subscribeStatus === 'success' ? 'bg-green-500/20 text-green-400 border border-green-500/30' :
                     subscribeStatus === 'error' ? 'bg-red-500/20 text-red-400 border border-red-500/30' :
-                    'bg-attire-accent hover:bg-attire-accent/90 text-white shadow-lg shadow-attire-accent/20'
+                    'bg-attire-navy hover:bg-attire-navy/90 text-white shadow-lg shadow-attire-navy/20'
                   }`}
                   disabled={subscribeStatus === 'loading' || subscribeStatus === 'success'}
                 >
