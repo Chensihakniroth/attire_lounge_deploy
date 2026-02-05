@@ -34,19 +34,19 @@ const homePageData = {
   ],
   tipsAndTricks: [
     {
-      title: "3 របៀបស្ទាយអាវធំពណ៌ខ្មៅ",
+      title: "3 Ways to Style a Black Jacket",
       image: `${minioBaseUrl}/uploads/asset/vid1.jpg`,
       link: "https://www.instagram.com/p/DAM3OG6yKnL/",
       description: "Three Ways to style a black jacket by Attire Lounge Official. Make an appointment with us today and receive a free consultation on your attire."
     },
     {
-      title: "3 របៀបស្ទាយអាវធំឡេវ៦",
+      title: "3 Ways to Style a Double-Breasted Jacket",
       image: `${minioBaseUrl}/uploads/asset/vid2.jpg`,
       link: "https://www.instagram.com/p/DByeCz0Sz4Q/",
       description: "Three ways to style a black double-breasted jacket by Attire Lounge Official. Make an appointment with us today and receive a free consultation on your attire."
     },
     {
-      title: "3 របៀបស្ទាយអាវធំក្រឡាជ្រុង",
+      title: "3 Ways to Style a Dark Green Jacket",
       image: `${minioBaseUrl}/uploads/asset/vid3.jpg`,
       link: "https://www.instagram.com/p/DAyD5N7Sw7Z/",
       description: "Three ways to style a checked blazer by @attireloungeofficial. Make an appointment with us today and receive a free consultation on your attire."
@@ -246,17 +246,15 @@ const CollectionsSection = memo(forwardRef((props, ref) => {
                                     {/* News Overlay */}
                                     <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent opacity-80" />
                                     
-                                    <div className="absolute bottom-6 left-6 lg:bottom-10 lg:left-10 right-6 lg:right-10">
                                         <div className="overflow-hidden">
                                             <motion.h3 
                                                 initial={{ y: "100%" }}
                                                 animate={{ y: 0 }}
-                                                className="text-xl md:text-2xl lg:text-3xl font-serif text-white italic"
+                                                className="text-lg md:text-xl lg:text-2xl font-serif text-white uppercase tracking-[0.2em]"
                                             >
                                                 {['Havana Dispatch', 'Mocha Mousse', 'The Groom Edit', 'Office Journal'][currentImageIndex]}
                                             </motion.h3>
                                         </div>
-                                    </div>
                                 </motion.div>
                             </AnimatePresence>
                         </div>
@@ -715,7 +713,7 @@ const TipsAndTricksSection = memo(forwardRef(({ tipsAndTricks }, ref) => {
                                     </span>
                                 </div>
                                 
-                                <h3 className={`font-khmer text-xl md:text-3xl text-white mb-3 leading-tight`}>
+                                <h3 className={`font-serif text-xl md:text-3xl text-white mb-3 leading-tight`}>
                                     {tip.title}
                                 </h3>
 
