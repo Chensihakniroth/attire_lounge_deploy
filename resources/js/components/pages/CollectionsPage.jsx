@@ -19,8 +19,8 @@ const PageHeader = () => (
                 Our Collections
             </h1>
             <p className="text-lg text-attire-silver max-w-2xl mx-auto leading-relaxed font-light">
-                Curated ensembles where timeless elegance meets modern craftsmanship. 
-                Each piece is designed to elevate your personal style.
+                Curated ensembles where timeless elegance meets modern style. 
+                Each piece is designed to elevate your personal look with effortless sophistication.
             </p>
         </motion.div>
     </div>

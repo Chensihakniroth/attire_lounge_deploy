@@ -47,19 +47,17 @@ const SelectionCard = ({ item, isSelected, onSelect }) => {
         >
             <div className="aspect-[4/5] w-full relative">
                 {!isLoaded && (
-                    <div className="absolute inset-0 z-0 bg-white/5">
-                        <div className="absolute inset-0 flex items-center justify-center">
-                            <Loader className="animate-spin text-attire-accent/20" size={24} />
-                        </div>
+                    <div className="absolute inset-0 z-10">
+                        <Skeleton className="w-full h-full rounded-none" />
                     </div>
                 )}
 
                 <motion.img 
                     src={item.image} 
                     alt={item.name} 
-                    className={`w-full h-full object-cover transition-all duration-500 ${
-                        isSelected ? 'opacity-100 scale-105' : 'opacity-80 group-hover:opacity-100 group-hover:scale-105'
-                    }`}
+                    className={`w-full h-full object-cover transition-all duration-700 ${
+                        isLoaded ? 'opacity-100 scale-100' : 'opacity-0 scale-105'
+                    } ${isSelected ? 'scale-105' : 'group-hover:scale-105'}`}
                     onLoad={() => setIsLoaded(true)}
                 />
                 
@@ -236,7 +234,7 @@ ${note ? `Note: "${note}"` : ''}
                     >
                         <span className="text-attire-accent text-xs tracking-[0.3em] uppercase mb-4 inline-block">Curate</span>
                         <h1 className="text-5xl md:text-7xl font-serif font-light text-white mb-6">
-                            The Perfect Gift
+                            The perfect gift for gentlemen
                         </h1>
                         <p className="text-lg text-attire-silver max-w-2xl mx-auto font-light leading-relaxed">
                             Craft a bespoke gift box with our finest accessories. <br/>A gesture of timeless elegance.

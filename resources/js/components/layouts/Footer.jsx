@@ -76,8 +76,8 @@ const Footer = () => {
           <div className="lg:col-span-4 space-y-8">
             <div className="space-y-4">
               <Link to="/" className="inline-block group">
-                 <h2 className="text-2xl md:text-3xl font-serif tracking-[0.2em] text-white group-hover:text-attire-accent transition-colors duration-300 uppercase">
-                  Attire Lounge <span className="font-semibold text-attire-accent">Official</span>
+                 <h2 className="text-2xl md:text-3xl font-serif tracking-[0.2em] text-white hover:text-attire-accent transition-colors duration-300 uppercase">
+                  Attire Lounge Official
                 </h2>
                 <div className="h-0.5 w-12 bg-attire-accent mt-2 group-hover:w-full transition-all duration-500 ease-out" />
               </Link>

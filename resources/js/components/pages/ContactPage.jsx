@@ -86,7 +86,7 @@ const SelectField = ({ name, label, options, value, onChange }) => {
                         leaveFrom="opacity-100"
                         leaveTo="opacity-0"
                     >
-                        <Listbox.Options className="absolute z-50 mt-2 max-h-60 w-full overflow-auto rounded-2xl bg-[#1a1a1a]/90 backdrop-blur-xl border border-white/10 py-1 text-base shadow-2xl focus:outline-none sm:text-sm [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
+                        <Listbox.Options className="absolute z-50 mt-2 max-h-80 w-full overflow-auto rounded-2xl bg-[#1a1a1a]/90 backdrop-blur-xl border border-white/10 py-1 text-base shadow-2xl focus:outline-none sm:text-sm">
                             {options.map((option, optionIdx) => (
                                 <Listbox.Option
                                     key={optionIdx}
@@ -207,7 +207,7 @@ const ContactPage = () => {
         phone: '',
         service: 'sartorial',
         date: '',
-        time: '',
+        time: '11:00',
         message: '',
     });
 
@@ -249,6 +249,16 @@ const ContactPage = () => {
         { value: 'accessories', label: 'Accessories Styling' },
         { value: 'membership', label: 'Attire Club Membership' },
         { value: 'general', label: 'General Inquiry' }
+    ];
+
+    const timeSlots = [
+        { value: '11:00', label: '11:00 AM' },
+        { value: '12:00', label: '12:00 PM' },
+        { value: '13:00', label: '01:00 PM' },
+        { value: '14:00', label: '02:00 PM' },
+        { value: '15:00', label: '03:00 PM' },
+        { value: '16:00', label: '04:00 PM' },
+        { value: '17:00', label: '05:00 PM' },
     ];
 
     const validateForm = () => {
@@ -302,7 +312,7 @@ Email: ${formData.email}
 Phone: ${formData.phone}
 Service: ${appointmentTypes.find(type => type.value === formData.service)?.label || formData.service}
 Date: ${formData.date}
-Time: ${formData.time}
+Time: ${timeSlots.find(slot => slot.value === formData.time)?.label || formData.time}
 Message: ${messageBody}
             `.trim();
 
@@ -396,7 +406,7 @@ Message: ${messageBody}
 
                                     <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                                         <InputField name="date" type="date" label="Preferred Date" value={formData.date} onChange={handleChange} error={errors.date} />
-                                        <InputField name="time" type="time" label="Preferred Time" value={formData.time} onChange={handleChange} error={errors.time} />
+                                        <SelectField name="time" label="Preferred Time" value={formData.time} onChange={handleChange} options={timeSlots} />
                                     </div>
 
                                     <FavoritesSelector

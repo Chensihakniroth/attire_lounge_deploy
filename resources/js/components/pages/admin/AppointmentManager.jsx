@@ -12,6 +12,16 @@ const AppointmentRow = ({ appointment, onUpdateStatus, colors }) => {
 
     const status = statusConfig[appointment.status] || statusConfig.pending;
 
+    const formatTime = (timeStr) => {
+        if (!timeStr) return '';
+        const [hours] = timeStr.split(':');
+        let h = parseInt(hours, 10);
+        const ampm = h >= 12 ? 'PM' : 'AM';
+        h = h % 12;
+        h = h ? h : 12;
+        return `${h}${ampm}`;
+    };
+
     return (
         <div className={`p-6 rounded-3xl backdrop-blur-xl bg-black/20 border border-white/10 shadow-lg transition-all duration-300 hover:bg-black/30 hover:border-white/20 group`}>
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-4 mb-4 border-b border-white/5">
@@ -41,7 +51,7 @@ const AppointmentRow = ({ appointment, onUpdateStatus, colors }) => {
                     </div>
                     <div className="flex items-center text-attire-silver/80 pt-3 border-t border-white/5 mt-3">
                         <Calendar className="w-4 h-4 mr-3 text-attire-silver/40" />
-                        <span className="text-sm font-medium">{new Date(appointment.date).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })} <span className="text-white/20 mx-1">|</span> {appointment.time}</span>
+                        <span className="text-sm font-medium">{new Date(appointment.date).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })} <span className="text-white/20 mx-1">|</span> {formatTime(appointment.time)}</span>
                     </div>
                 </div>
 

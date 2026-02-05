@@ -105,7 +105,7 @@ const HeroSection = memo(forwardRef(({ scrollToSection }, ref) => (
         transition={{ delay: 0.8, duration: 1 }}
         className="text-attire-silver/80 text-[10px] md:text-xs tracking-[0.4em] uppercase font-light text-center mb-12"
       >
-        Est. 2024 &nbsp;<span className="text-attire-accent">•</span>&nbsp; Phnom Penh
+        Phnom Penh
       </motion.p>
 
       {/* Simplified Scroll Indicator */}
@@ -151,11 +151,11 @@ const PhilosophySection = memo(forwardRef((props, ref) => (
           </motion.div>
 
           <motion.h3 variants={itemVariants} className="font-serif text-4xl md:text-6xl leading-tight text-white mb-8">
-            Crafting the <span className="text-attire-silver italic font-light">Modern Identity</span>
+            Ready-to-wear pieces crafted for <span className="text-attire-silver italic font-light">timeless confidence</span>
           </motion.h3>
 
           <motion.p variants={itemVariants} className="text-attire-silver/80 text-sm md:text-lg leading-relaxed mb-12 font-light border-l border-attire-accent/30 pl-8">
-            Attire Lounge Official is Cambodia's premier sartorial destination. We blend traditional craftsmanship with contemporary styling to empower the modern gentleman.
+            Attire Lounge Official is Cambodia’s premier destination for refined ready-to-wear menswear. We curate timeless pieces and contemporary designs that embody elegance, empowering the modern gentleman to dress with confidence and distinction.
           </motion.p>
 
           <motion.div variants={itemVariants} className="flex flex-wrap gap-8 items-center">
@@ -174,15 +174,16 @@ const PhilosophySection = memo(forwardRef((props, ref) => (
       {/* Right side - Image */}
       <div className="relative w-full h-full overflow-hidden order-1 lg:order-2 hidden md:block">
         <motion.div 
-            initial={{ scale: 1.05 }}
-            whileInView={{ scale: 1 }}
+            initial={{ scale: 1.2 }}
+            whileInView={{ scale: 1.15 }}
             transition={{ duration: 1.5, ease: "easeOut" }}
             className="h-full w-full"
         >
             <img
-              src={`${minioBaseUrl}/uploads/collections/default/as5.jpg`}
+              src={`${minioBaseUrl}/uploads/collections/default/key.jpg`}
               alt="Attire Lounge Interior"
               className="absolute inset-0 w-full h-full object-cover"
+              style={{ objectPosition: 'center 40%' }}
               loading="lazy"
             />
         </motion.div>
@@ -208,104 +209,209 @@ const CollectionsSection = memo(forwardRef((props, ref) => {
     }, []);
 
     return (
-        <section className="relative snap-section min-h-screen h-screen flex items-center" ref={ref}>
-            {/* Background Image - Static Darkened */}
-            <img
-                src={`${minioBaseUrl}/uploads/collections/default/g1.webp?v=new`}
-                alt="Collections Background"
-                className="absolute inset-0 w-full h-full object-cover object-center opacity-40 blur-sm"
-                loading="lazy"
-            />
-            <div className="absolute inset-0 bg-gradient-to-r from-attire-navy/90 to-attire-dark/80" />
+        <section className="relative snap-section min-h-screen h-screen flex items-center bg-attire-navy overflow-hidden" ref={ref}>
+            {/* Background Style - Navy Fade & Light Only */}
+            <div className="absolute inset-0 z-0">
+                <div className="absolute inset-0 w-full h-full bg-gradient-to-r from-attire-navy/40 via-attire-navy to-attire-navy" />
+                {/* Ambient Light from Section 2 */}
+                <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-attire-accent/5 rounded-full blur-[150px] pointer-events-none" />
+            </div>
 
-            <div className="relative z-10 w-full max-w-7xl mx-auto px-6 grid grid-cols-1 lg:grid-cols-2 gap-12 items-center h-full">
+            <div className="relative z-10 w-full max-w-[1800px] mx-auto px-6 lg:px-20 flex flex-col lg:grid lg:grid-cols-12 gap-12 lg:gap-0 items-center justify-center h-full py-20 lg:py-0">
                 
-                {/* Left Side: Content */}
+                {/* Visual - Left on Desktop, Top on Mobile (Columns 1-6) */}
+                <div className="w-full lg:col-span-6 relative h-[45vh] md:h-[55vh] lg:h-[80vh] flex items-center justify-center z-10 order-1">
+                    <motion.div 
+                        initial={{ opacity: 0, scale: 0.9 }}
+                        whileInView={{ opacity: 1, scale: 1 }}
+                        transition={{ duration: 1.2, ease: "easeOut" }}
+                        className="relative w-full h-full max-w-[320px] md:max-w-md lg:max-w-lg aspect-[3/4]"
+                    >
+                        {/* Main Image Container */}
+                        <div className="relative w-full h-full border border-white/5 overflow-hidden group rounded-sm shadow-2xl">
+                            <AnimatePresence>
+                                <motion.div
+                                    key={currentImageIndex}
+                                    initial={{ opacity: 0 }}
+                                    animate={{ opacity: 1 }}
+                                    exit={{ opacity: 0 }}
+                                    transition={{ duration: 1.5, ease: "easeInOut" }}
+                                    className="absolute inset-0 w-full h-full"
+                                >
+                                    <img
+                                        src={showcaseImages[currentImageIndex]}
+                                        alt="Collection Dispatch"
+                                        className="w-full h-full object-cover transition-all duration-[3000ms] group-hover:scale-110"
+                                    />
+                                    {/* News Overlay */}
+                                    <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent opacity-80" />
+                                    
+                                    <div className="absolute bottom-6 left-6 lg:bottom-10 lg:left-10 right-6 lg:right-10">
+                                        <div className="overflow-hidden">
+                                            <motion.h3 
+                                                initial={{ y: "100%" }}
+                                                animate={{ y: 0 }}
+                                                className="text-xl md:text-2xl lg:text-3xl font-serif text-white italic"
+                                            >
+                                                {['Havana Dispatch', 'Mocha Mousse', 'The Groom Edit', 'Office Journal'][currentImageIndex]}
+                                            </motion.h3>
+                                        </div>
+                                    </div>
+                                </motion.div>
+                            </AnimatePresence>
+                        </div>
+                    </motion.div>
+                </div>
+
+                {/* Editorial Story - Right on Desktop, Bottom on Mobile (Columns 8-12) */}
                 <motion.div
                     variants={containerVariants}
                     initial="hidden"
                     whileInView="visible"
-                    viewport={{ once: true, amount: 0.6 }}
-                    className="flex flex-col justify-center text-left"
+                    viewport={{ once: true, amount: 0.4 }}
+                    className="w-full lg:col-start-8 lg:col-span-5 flex flex-col justify-center z-20 order-2 text-center lg:text-left"
                 >
-                    <motion.div variants={itemVariants} className="inline-flex items-center gap-2 mb-6">
-                        <span className="h-px w-12 bg-attire-accent"></span>
-                        <span className="text-attire-accent text-xs tracking-[0.3em] uppercase">Est. 2024</span>
+                    <motion.div variants={itemVariants} className="flex items-center justify-center lg:justify-start gap-6 mb-8 lg:mb-12">
+                        <div className="flex flex-col">
+                            <span className="text-attire-accent text-[8px] md:text-[10px] tracking-[0.5em] uppercase font-bold mb-1">The Portfolio</span>
+                            <span className="text-white/30 text-[8px] md:text-[10px] tracking-[0.3em] uppercase font-medium">Our Collections</span>
+                        </div>
+                        <div className="h-px w-12 md:w-20 bg-white/10" />
                     </motion.div>
 
-                    <motion.h2 variants={itemVariants} className="font-serif text-5xl md:text-7xl text-white mb-6 leading-tight">
-                        Curated <br/> <span className="text-transparent bg-clip-text bg-gradient-to-r from-attire-cream to-attire-silver">Elegance</span>
+                    <motion.h2 variants={itemVariants} className="font-serif text-5xl md:text-7xl lg:text-8xl text-white mb-6 lg:mb-10 leading-[0.8] tracking-tighter">
+                        CURATED <br/> 
+                        <span className="text-attire-accent italic">ELEGANCE</span>
                     </motion.h2>
 
-                    <motion.p variants={itemVariants} transition={{ delay: 0.2 }} className="text-attire-silver text-lg leading-relaxed max-w-xl mb-8">
-                        From the vibrant energy of Havana to the sharp silhouettes of our Office line.
-                        Discover ready-to-wear masterpieces tailored for the modern gentleman.
-                    </motion.p>
-
-                    <motion.div variants={itemVariants} className="flex flex-wrap gap-3 mb-10">
-                        {['Havana Collection', 'Mocha Mousse', 'Groom & Formal', 'Office Wear'].map((tag, i) => (
-                            <span key={i} className="px-4 py-2 bg-white/5 border border-white/10 rounded-full text-xs text-attire-cream/80 backdrop-blur-sm">
-                                {tag}
-                            </span>
-                        ))}
+                    <motion.div variants={itemVariants} className="max-w-md mx-auto lg:mx-0 mb-8 lg:mb-12">
+                        <p className="text-attire-silver text-xs md:text-sm lg:text-base leading-relaxed font-light mb-6">
+                            From the sharp precision of our Office line to the timeless allure of our Groom collections. 
+                            Discover a versatile range of ready-to-wear pieces crafted for every chapter of the modern gentleman's life.
+                        </p>
                     </motion.div>
 
-                    <motion.div variants={itemVariants} transition={{ delay: 0.4 }}>
-                        <Link to="/collections" className="group relative inline-flex items-center gap-3 bg-attire-accent text-white font-semibold px-8 py-4 rounded-full overflow-hidden transition-all hover:bg-attire-accent/90 hover:pr-12 w-fit">
-                            <span>Browse Collections</span>
-                            <ArrowRight className="w-5 h-5 absolute right-5 opacity-0 group-hover:opacity-100 group-hover:translate-x-0 -translate-x-4 transition-all duration-300" />
+                    <motion.div variants={itemVariants} className="flex justify-center lg:justify-start">
+                        <Link to="/collections" className="group flex items-center gap-6 lg:gap-8 py-3 lg:py-4 px-6 lg:px-8 border border-white/10 bg-white/5 hover:bg-white hover:text-black transition-all duration-500 rounded-sm">
+                            <span className="tracking-[0.3em] lg:tracking-[0.4em] text-[8px] md:text-[10px] font-bold uppercase whitespace-nowrap">Explore All Collections</span>
+                            <div className="w-px h-4 bg-current opacity-30" />
+                            <ArrowRight className="group-hover:translate-x-2 transition-transform duration-500" size={14} />
                         </Link>
                     </motion.div>
-                </motion.div>
-
-                {/* Right Side: Dynamic Image Card */}
-                <motion.div
-                    initial={{ opacity: 0, x: 50 }}
-                    whileInView={{ opacity: 1, x: 0 }}
-                    transition={{ duration: 0.8, delay: 0.2 }}
-                    className="hidden lg:block relative h-[620px] aspect-[3/4] ml-auto mr-8"
-                >
-                    <div className="absolute inset-0 bg-white/5 backdrop-blur-md rounded-[2rem] border border-white/10 transform rotate-3 scale-95 z-0" />
-                    
-                    <div className="relative h-full w-full rounded-[2rem] overflow-hidden shadow-2xl z-10 border border-white/10 bg-attire-dark">
-                        <AnimatePresence mode="wait">
-                            <motion.div
-                                key={currentImageIndex}
-                                initial={{ opacity: 0 }}
-                                animate={{ opacity: 1 }}
-                                exit={{ opacity: 0 }}
-                                transition={{ duration: 0.6 }}
-                                className="absolute inset-0 w-full h-full"
-                            >
-                                <img
-                                    src={showcaseImages[currentImageIndex]}
-                                    alt="Collection Showcase"
-                                    className="absolute inset-0 w-full h-full object-cover"
-                                />
-                                <div className="absolute bottom-0 left-0 w-full p-8 bg-gradient-to-t from-black/90 via-black/50 to-transparent">
-                                    <p className="text-attire-accent text-xs tracking-widest uppercase mb-1">Featured</p>
-                                    <h3 className="text-2xl font-serif text-white">
-                                        {['Havana', 'Mocha Mousse', 'Groom', 'Office'][currentImageIndex]}
-                                    </h3>
-                                </div>
-                            </motion.div>
-                        </AnimatePresence>
-
-                        {/* Static Indicators */}
-                        <div className="absolute bottom-8 right-8 z-20 flex gap-2">
-                            {showcaseImages.map((_, idx) => (
-                                <div 
-                                    key={idx} 
-                                    className={`h-1.5 rounded-full transition-all duration-500 ${idx === currentImageIndex ? 'w-8 bg-attire-accent' : 'w-2 bg-white/30'}`} 
-                                />
-                            ))}
-                        </div>
-                    </div>
                 </motion.div>
             </div>
         </section>
     );
 }));
+
+const FashionShowSection = memo(forwardRef((props, ref) => (
+    <section className="relative snap-section min-h-screen h-screen w-full overflow-hidden" ref={ref}>
+        {/* Full Screen Background Image with Parallax Effect */}
+        <div className="absolute inset-0 z-0">
+             <motion.img 
+                initial={{ scale: 1.1 }}
+                whileInView={{ scale: 1 }}
+                transition={{ duration: 1.5, ease: "easeOut" }}
+                src="https://images.prestigeonline.com/wp-content/uploads/sites/9/2026/02/02140813/Z629270-1353x900.jpg" 
+                alt="Rosewood Fashion Event" 
+                className="w-full h-full object-cover"
+                loading="lazy"
+            />
+            {/* Cinematic Gradient Overlays */}
+            <div className="absolute inset-0 bg-gradient-to-r from-black/90 via-black/40 to-transparent" />
+            <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-transparent to-transparent" />
+        </div>
+
+        {/* Content Container - Magazine Cover Style */}
+        <div className="relative z-10 h-full max-w-7xl mx-auto px-6 flex flex-col justify-center lg:justify-end lg:pb-32">
+            <motion.div
+                variants={containerVariants}
+                initial="hidden"
+                whileInView="visible"
+                viewport={{ once: true, amount: 0.4 }}
+                className="max-w-3xl"
+            >
+                {/* Event Badge */}
+                <motion.div variants={itemVariants} className="inline-flex items-center gap-3 px-4 py-2 bg-attire-accent text-black rounded-full mb-8 backdrop-blur-md shadow-[0_0_20px_rgba(212,168,76,0.3)]">
+                    <span className="text-[10px] font-bold uppercase tracking-widest">Event Report</span>
+                    <span className="w-1 h-1 bg-black rounded-full" />
+                    <span className="text-[10px] font-bold uppercase tracking-widest">Feb 2025</span>
+                </motion.div>
+
+                {/* Big Title */}
+                <motion.h2 variants={itemVariants} className="font-serif text-5xl md:text-7xl lg:text-8xl text-white mb-8 leading-[0.9]">
+                    Gentlemen’s <br/> 
+                    <span className="text-transparent bg-clip-text bg-gradient-to-r from-attire-cream to-attire-silver italic pr-4">Fashion Showcase</span>
+                </motion.h2>
+
+                {/* Description with border accent */}
+                <motion.p variants={itemVariants} className="text-attire-silver text-lg md:text-xl font-light leading-relaxed mb-12 border-l-2 border-attire-accent pl-6 max-w-lg bg-black/20 backdrop-blur-sm p-4 rounded-r-xl">
+                    Attire Lounge takes over Rosewood Phnom Penh for an inaugural showcase of sartorial excellence and street refinement.
+                </motion.p>
+
+                {/* CTA Button */}
+                <motion.div variants={itemVariants}>
+                    <a href="https://www.prestigeonline.com/kh/cambodia/attire-lounge-official-hosts-first-curated-gentlemens-fashion-showcase/" 
+                       target="_blank" 
+                       rel="noopener noreferrer"
+                       className="group flex items-center gap-6 w-fit"
+                    >
+                        <div className="relative w-16 h-16 flex items-center justify-center bg-white/10 rounded-full backdrop-blur-sm border border-white/20 group-hover:bg-attire-accent group-hover:border-attire-accent transition-all duration-500 shadow-xl">
+                             <ArrowRight className="text-white group-hover:text-black transition-colors duration-300" size={24} />
+                        </div>
+                        <div>
+                            <span className="block text-xs text-attire-silver uppercase tracking-widest mb-1 group-hover:text-white transition-colors">Read Coverage</span>
+                            <span className="font-serif text-xl text-white italic group-hover:underline decoration-attire-accent underline-offset-4 decoration-1">
+                                On Prestige Online
+                            </span>
+                        </div>
+                    </a>
+                </motion.div>
+            </motion.div>
+        </div>
+
+        {/* Desktop Sidebar Info */}
+        <div className="absolute right-0 top-0 h-full w-[30%] border-l border-white/5 hidden lg:flex flex-col justify-between p-12 bg-black/30 backdrop-blur-[4px]">
+             {/* Top Spacer */}
+             <div className="h-20" /> 
+             
+             {/* Center Decorative */}
+             <div className="flex justify-center">
+                <div className="w-[1px] h-32 bg-gradient-to-b from-transparent via-attire-accent to-transparent opacity-50" />
+             </div>
+
+             {/* Bottom Info */}
+             <div className="space-y-10">
+                 <motion.div 
+                    initial={{ opacity: 0, x: 20 }}
+                    whileInView={{ opacity: 1, x: 0 }}
+                    transition={{ delay: 0.5 }}
+                 >
+                    <p className="text-[10px] text-attire-accent uppercase tracking-[0.3em] mb-2">Venue</p>
+                    <p className="text-white font-serif text-3xl">Rosewood<br/>Phnom Penh</p>
+                 </motion.div>
+                 
+                 <motion.div
+                    initial={{ opacity: 0, x: 20 }}
+                    whileInView={{ opacity: 1, x: 0 }}
+                    transition={{ delay: 0.7 }}
+                 >
+                    <p className="text-[10px] text-attire-accent uppercase tracking-[0.3em] mb-3">Collections</p>
+                    <ul className="text-white/80 font-light space-y-2 text-sm">
+                        <li className="flex items-center gap-2">
+                            <span className="w-1.5 h-1.5 rounded-full bg-white/20" />
+                            Shades of Elegance
+                        </li>
+                        <li className="flex items-center gap-2">
+                            <span className="w-1.5 h-1.5 rounded-full bg-white/20" />
+                            Street Sartorial
+                        </li>
+                    </ul>
+                 </motion.div>
+             </div>
+        </div>
+    </section>
+)));
 
 const ExperienceSection = memo(forwardRef(({ services }, ref) => (
   <section className="relative snap-section min-h-screen h-screen flex items-center bg-attire-navy overflow-hidden" ref={ref}>
@@ -498,192 +604,146 @@ const MembershipSection = memo(forwardRef((props, ref) => (
                         </div>
                     </section>
                 )));
-const LookbookSection = memo(forwardRef(({ lookbookFeatures }, ref) => (
-  <section className="relative snap-section min-h-screen bg-black flex items-center overflow-hidden" ref={ref}>
-    {/* Artistic Background */}
-    <div className="absolute inset-0 z-0">
-        <motion.div 
-            initial={{ scale: 1.1 }}
-            whileInView={{ scale: 1 }}
-            transition={{ duration: 15, ease: "linear" }}
-            className="w-full h-full"
-        >
-             <img 
-                src={`${minioBaseUrl}/uploads/collections/default/mm7.jpg`} 
-                alt="Lookbook Background" 
-                className="w-full h-full object-cover object-center opacity-50 grayscale-[20%] contrast-125" 
-                loading="lazy" 
-                decoding="async" 
-            />
-        </motion.div>
-        {/* Mood Gradient - Heavy on left for text readability */}
-        <div className="absolute inset-0 bg-gradient-to-r from-black via-black/80 to-transparent/20" />
-        {/* Subtle Grain Overlay for Texture */}
-        <div className="absolute inset-0 opacity-[0.03] pointer-events-none" style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E")` }} />
-    </div>
+const LookbookSection = memo(forwardRef((props, ref) => (
+  <section className="relative snap-section min-h-screen h-screen w-full overflow-hidden flex items-center justify-center" ref={ref}>
+      {/* Single Cinematic Background Image */}
+      <div className="absolute inset-0 z-0">
+          <motion.img 
+              initial={{ scale: 1.1 }}
+              whileInView={{ scale: 1 }}
+              transition={{ duration: 2, ease: "easeOut" }}
+              src={`${minioBaseUrl}/uploads/collections/default/as2.jpg`} 
+              alt="Lookbook Background" 
+              className="w-full h-full object-cover"
+          />
+          {/* Overlays for Stylist Depth */}
+          <div className="absolute inset-0 bg-black/60 backdrop-blur-[2px]" />
+          <div className="absolute inset-0 bg-gradient-to-b from-black via-transparent to-black" />
+      </div>
 
-    <div className="relative z-10 w-full max-w-screen-xl mx-auto px-6 lg:px-12 grid grid-cols-1 lg:grid-cols-2 gap-12 h-full content-center items-center py-20">
-        
-        {/* Left: Artistic Typography & Intro */}
-        <motion.div 
-            variants={containerVariants}
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true, amount: 0.5 }}
-            className="relative select-none"
-        >
-            {/* Decorative Vertical Line */}
-            <motion.div variants={itemVariants} className="absolute -left-4 lg:-left-12 top-0 bottom-0 w-px bg-gradient-to-b from-transparent via-attire-accent to-transparent opacity-50" />
-            
-            {/* Massive Background Text */}
-            <motion.h2 
-                variants={itemVariants} 
-                className="font-serif text-[5rem] sm:text-[7rem] md:text-[9rem] leading-[0.8] tracking-tighter text-white mix-blend-overlay opacity-20 pointer-events-none"
-            >
-                LOOK<br/>BOOK
-            </motion.h2>
-
-            {/* Foreground Intro */}
-            <motion.div variants={itemVariants} className="mt-8 ml-2 lg:ml-4 flex flex-col items-start gap-4">
-                 <div className="flex items-center gap-3">
-                     <span className="text-attire-accent font-serif italic text-xl">03</span>
-                     <div className="h-px w-12 bg-attire-accent/50" />
-                 </div>
-                 
-                 <div>
-                    <h3 className="text-white text-2xl tracking-[0.2em] uppercase font-light mb-4">Inspiration</h3>
-                    <p className="text-attire-silver/70 text-sm md:text-base leading-relaxed max-w-md border-l-2 border-white/10 pl-6">
-                        Where traditional craftsmanship meets contemporary vision. A curated gallery of our finest styling work.
-                    </p>
-                 </div>
-            </motion.div>
-        </motion.div>
-
-        {/* Right: Editorial Interactive List */}
-        <motion.div 
-            variants={containerVariants}
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true, amount: 0.5 }}
-            className="flex flex-col gap-2 lg:pl-12"
-        >
-            {lookbookFeatures.map((feature, index) => (
-                <motion.div 
-                    key={index}
-                    variants={itemVariants}
-                    className="group relative border-b border-white/10 py-6 cursor-pointer hover:border-white/30 transition-colors duration-500"
-                >
-                    <div className="flex items-center justify-between group-hover:pl-4 transition-all duration-500 ease-out">
-                        <div className="flex items-center gap-6">
-                             {/* Icon showing on hover effect */}
-                             <div className="text-white/30 group-hover:text-attire-accent scale-75 group-hover:scale-100 transition-all duration-500">
-                                {React.cloneElement(feature.icon, { size: 28, strokeWidth: 1 })}
-                             </div>
-                             
-                             <h4 className="font-serif text-2xl md:text-4xl text-white/80 group-hover:text-white transition-colors duration-300">
-                                {feature.title}
-                             </h4>
-                        </div>
-                        
-                        {/* Arrow */}
-                        <ArrowRight className="w-5 h-5 text-white/20 -rotate-45 group-hover:rotate-0 group-hover:text-attire-accent transition-all duration-500" />
-                    </div>
-                    
-                    {/* Expandable Description */}
-                    <div className="grid grid-rows-[0fr] group-hover:grid-rows-[1fr] transition-[grid-template-rows] duration-500 ease-out">
-                        <div className="overflow-hidden">
-                            <p className="text-attire-silver/50 text-sm font-light mt-4 pl-[3.5rem] max-w-md pb-2">
-                                {feature.description}
-                            </p>
-                        </div>
-                    </div>
-                </motion.div>
-            ))}
-
-            <motion.div variants={itemVariants} className="mt-10 pl-4">
-                 <Link to="/lookbook" className="group inline-flex items-center gap-3 text-white/60 hover:text-white transition-colors uppercase text-xs tracking-[0.2em]">
-                    <span className="border-b border-transparent group-hover:border-attire-accent pb-1 transition-all">Enter Gallery</span>
-                    <ArrowRight size={14} className="group-hover:translate-x-1 transition-transform" />
-                 </Link>
-            </motion.div>
-        </motion.div>
-    </div>
+      {/* Centered Minimalist Content */}
+      <div className="relative z-10 text-center px-6">
+          <motion.div
+              initial={{ opacity: 0, y: 30 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ duration: 1, ease: "easeOut" }}
+          >
+              <span className="text-attire-accent text-[10px] tracking-[0.6em] uppercase font-bold mb-6 block">The Visuals</span>
+              <h2 className="text-6xl md:text-8xl lg:text-9xl font-serif text-white uppercase tracking-tighter mb-12">
+                  Lookbook <br/>
+                  <span className="italic text-transparent bg-clip-text bg-gradient-to-r from-attire-cream to-white opacity-80">Archives</span>
+              </h2>
+              
+              <Link to="/lookbook" className="group relative inline-flex flex-col items-center gap-4">
+                  <div className="w-20 h-20 rounded-full border border-white/20 flex items-center justify-center group-hover:bg-white group-hover:border-white transition-all duration-500">
+                      <ArrowRight className="text-white group-hover:text-black transition-colors duration-300" size={28} />
+                  </div>
+                  <span className="text-[10px] tracking-[0.4em] text-white/50 uppercase font-bold group-hover:text-white transition-colors">Explore All Works</span>
+              </Link>
+          </motion.div>
+      </div>
   </section>
 )));
 
 const TipsAndTricksSection = memo(forwardRef(({ tipsAndTricks }, ref) => {
+  const [hoveredIndex, setHoveredIndex] = useState(1); // Center card active by default
+
   return (
-    <section className="relative snap-section bg-attire-navy min-h-screen h-screen overflow-hidden flex flex-col justify-center" ref={ref}>
-       {/* Ambient Background */}
-       <div className="absolute inset-0 overflow-hidden pointer-events-none">
-          <div className="absolute top-0 left-1/4 w-96 h-96 bg-attire-accent/5 rounded-full blur-[100px]" />
-          <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-white/5 rounded-full blur-[100px]" />
+    <section className="relative snap-section bg-attire-dark min-h-screen h-screen overflow-hidden flex flex-col justify-center" ref={ref}>
+       {/* Background Elements */}
+       <div className="absolute inset-0 bg-attire-dark pointer-events-none">
+          <div className="absolute top-[-10%] left-[-10%] w-[50%] h-[50%] bg-attire-navy/30 rounded-full blur-[120px]" />
+          <div className="absolute bottom-[-10%] right-[-10%] w-[50%] h-[50%] bg-attire-accent/10 rounded-full blur-[120px]" />
        </div>
 
-      <div className="relative z-10 w-full max-w-7xl mx-auto text-center text-attire-cream px-4">
+      <div className="relative z-10 w-full h-full flex flex-col px-6 md:px-16 lg:px-24 py-16 md:py-20 lg:py-24">
+        {/* Header Area */}
         <motion.div
           variants={containerVariants}
           initial="hidden"
           whileInView="visible"
           viewport={{ once: true, amount: 0.2 }}
-          className="mb-8 md:mb-12"
+          className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-12 shrink-0"
         >
-          <motion.h2 variants={itemVariants} className="font-serif text-3xl md:text-5xl mb-3">Tips & Tricks</motion.h2>
-          <motion.p variants={itemVariants} transition={{ delay: 0.2 }} className="max-w-2xl mx-auto text-attire-silver text-sm md:text-lg font-light">
-            Master the art of sophisticated dressing with our expert guidance.
-          </motion.p>
+            <div>
+                 <div className="flex items-center gap-3 mb-3">
+                     <span className="text-attire-accent font-serif italic text-xl">04</span>
+                     <div className="h-px w-12 bg-attire-accent/50" />
+                 </div>
+                <h2 className="font-serif text-4xl md:text-6xl text-white leading-none tracking-tight">
+                    Style <span className="text-attire-silver italic font-light">Notes</span>
+                </h2>
+            </div>
+            <p className="text-attire-silver/60 text-sm md:text-base font-light max-w-sm text-left md:text-right hidden md:block">
+                Elevate your daily attire with our curated guide to gentleman's etiquette and style hacks.
+            </p>
         </motion.div>
 
-        {/* Responsive Grid - Optimized for h-screen */}
-        <div className="grid grid-cols-2 md:grid-cols-3 gap-4 md:gap-8 px-2 md:px-0 max-w-5xl mx-auto">
-          {tipsAndTricks.map((tip, i) => (
-            <motion.div
-              key={i}
-              variants={itemVariants}
-              transition={{ delay: 0.2 + i * 0.1 }}
-              className={`group relative flex flex-col ${i === 2 ? 'col-span-2 md:col-span-1' : ''}`}
-            >
-              <a
-                href={tip.link}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="relative block w-full aspect-[3/4] rounded-xl overflow-hidden shadow-xl bg-attire-dark/50"
-              >
-                {/* Image */}
-                <img
-                  src={tip.image}
-                  alt={tip.title}
-                  className="w-full h-full object-cover object-center transition-transform duration-700 ease-out group-hover:scale-110"
-                  loading="lazy"
-                />
-                
-                {/* Gradient Overlay */}
-                <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent opacity-80 transition-opacity duration-300" />
-                
-                {/* Play Button */}
-                <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-300 transform scale-75 group-hover:scale-100">
-                    <div className="w-12 h-12 md:w-16 md:h-16 rounded-full bg-white/10 backdrop-blur-md flex items-center justify-center border border-white/20 shadow-lg group-hover:bg-attire-accent/80 group-hover:border-attire-accent transition-colors duration-300">
-                        <Play className="w-5 h-5 md:w-8 md:h-8 text-white fill-current ml-1" />
-                    </div>
-                </div>
+        {/* Accordion Gallery */}
+        <div className="flex-1 flex flex-col md:flex-row gap-4 h-full min-h-0 w-full">
+          {tipsAndTricks.map((tip, i) => {
+            const isHovered = hoveredIndex === i;
+            return (
+                <motion.div
+                  key={i}
+                  initial={{ opacity: 0, y: 20 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ delay: i * 0.1, duration: 0.5 }}
+                  onMouseEnter={() => setHoveredIndex(i)}
+                  onClick={() => setHoveredIndex(i)} // For mobile tap
+                  className={`relative overflow-hidden rounded-2xl cursor-pointer transition-all duration-700 ease-[cubic-bezier(0.25,1,0.5,1)] ${isHovered ? 'flex-[3] md:flex-[4]' : 'flex-[1]'} group`}
+                >
+                    {/* Background Image */}
+                    <img
+                        src={tip.image}
+                        alt={tip.title}
+                        className={`absolute inset-0 w-full h-full object-cover object-[center_20%] transition-transform duration-1000 ease-out ${isHovered ? 'scale-110 grayscale-0' : 'scale-100 grayscale-[30%] opacity-60'}`}
+                        loading="lazy"
+                    />
+                    <div className={`absolute inset-0 bg-gradient-to-b from-black/10 via-transparent to-black/90 transition-opacity duration-500 ${isHovered ? 'opacity-90' : 'opacity-90'}`} />
 
-                {/* Text Content */}
-                <div className="absolute bottom-0 left-0 w-full p-4 md:p-6 text-left transform translate-y-2 group-hover:translate-y-0 transition-transform duration-300">
-                     <div className="h-0.5 w-0 bg-attire-accent mb-2 group-hover:w-10 transition-all duration-500 ease-out" />
-                     <h3 className="font-serif text-lg md:text-2xl text-white mb-1 leading-tight drop-shadow-lg">{tip.title}</h3>
-                     <p className="text-attire-silver text-[10px] md:text-sm line-clamp-1 md:line-clamp-2 opacity-80 group-hover:opacity-100 group-hover:text-white transition-all duration-300 font-light">
-                        {tip.description}
-                     </p>
-                </div>
-              </a>
-            </motion.div>
-          ))}
-          {/* Mobile visible third card - using different grid layout for mobile if needed */}
-          <motion.div
-             variants={itemVariants}
-             transition={{ delay: 0.4 }}
-             className="md:hidden col-span-2 hidden" // Keep hidden if we want to stick to 2 on mobile for h-screen
-          />
+                    {/* Content Container */}
+                    <div className="absolute inset-0 p-6 md:p-8 flex flex-col justify-end">
+                        
+                        {/* Vertical Title for Collapsed State (Desktop) */}
+                        <div className={`hidden md:block absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 transition-all duration-500 ${isHovered ? 'opacity-0 scale-75' : 'opacity-100 scale-100'}`}>
+                             <span className="font-serif text-3xl text-white/50 tracking-widest whitespace-nowrap -rotate-90 block origin-center mix-blend-overlay">
+                                {tip.title.split(' ')[0]}
+                             </span>
+                        </div>
+
+                        <div className="relative z-10 flex justify-between items-end">
+                            {/* Main Content */}
+                            <div className={`transition-all duration-500 ${isHovered ? 'w-full md:w-3/4 translate-y-0 opacity-100' : 'translate-y-4 opacity-100 md:opacity-0'}`}>
+                                <div className="flex items-center gap-4 mb-3">
+                                    <span className={`font-serif text-3xl md:text-5xl transition-colors duration-300 ${isHovered ? 'text-attire-accent' : 'text-white/40'}`}>
+                                        0{i + 1}
+                                    </span>
+                                </div>
+                                
+                                <h3 className={`font-serif text-2xl md:text-4xl text-white mb-3 leading-tight`}>
+                                    {tip.title}
+                                </h3>
+
+                                <div className={`overflow-hidden transition-all duration-500 ${isHovered ? 'max-h-40 opacity-100 mt-2' : 'max-h-0 opacity-0'}`}>
+                                    <p className="text-attire-silver/80 text-sm md:text-base font-light mb-6 line-clamp-2 md:line-clamp-none">
+                                        {tip.description}
+                                    </p>
+                                    
+                                    <a href={tip.link} target="_blank" rel="noreferrer" className="inline-flex items-center gap-3 text-white uppercase tracking-widest text-[10px] md:text-xs font-semibold group/btn hover:text-attire-accent transition-colors">
+                                        <div className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center backdrop-blur-sm border border-white/10 group-hover/btn:bg-attire-accent group-hover/btn:border-attire-accent group-hover/btn:text-white transition-all">
+                                            <Play size={14} fill="currentColor" className="ml-0.5" />
+                                        </div>
+                                        <span>Watch Tutorial</span>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </motion.div>
+            );
+          })}
         </div>
       </div>
     </section>
@@ -711,7 +771,7 @@ const HomePage = () => {
   const sectionsRef = useRef([]);
 
   useEffect(() => {
-    sectionsRef.current = sectionsRef.current.slice(0, 8); // 8 sections total (including footer)
+    sectionsRef.current = sectionsRef.current.slice(0, 9); // 9 sections total (including footer)
     const handleMenuStateChange = (e) => {
       if (e.detail && e.detail.isMenuOpen !== undefined) setIsMenuOpen(e.detail.isMenuOpen);
     };
@@ -815,14 +875,14 @@ const HomePage = () => {
   useEffect(() => {
     if (location.hash === '#membership') {
       setTimeout(() => {
-        scrollToSection(4);
+        scrollToSection(5);
       }, 100); // Slight delay to ensure render
     }
   }, [location.hash, scrollToSection]);
 
   const { services, lookbookFeatures, tipsAndTricks } = homePageData;
 
-  const sectionNames = ['Home', 'Philosophy', 'Collections', 'Experience', 'Membership', 'Lookbook', 'Tips & Tricks', 'Appointment and Contact'];
+  const sectionNames = ['Home', 'Philosophy', 'Collections', 'Fashion Show', 'Experience', 'Membership', 'Lookbook', 'Tips & Tricks', 'Appointment and Contact'];
 
   return (
     <div className="snap-scroll-container bg-attire-dark">
@@ -835,11 +895,12 @@ const HomePage = () => {
       <HeroSection ref={el => sectionsRef.current[0] = el} scrollToSection={scrollToSection} />
       <PhilosophySection ref={el => sectionsRef.current[1] = el} />
       <CollectionsSection ref={el => sectionsRef.current[2] = el} />
-      <ExperienceSection ref={el => sectionsRef.current[3] = el} services={services} />
-      <MembershipSection ref={el => sectionsRef.current[4] = el} />
-      <LookbookSection ref={el => sectionsRef.current[5] = el} lookbookFeatures={lookbookFeatures} />
-      <TipsAndTricksSection ref={el => sectionsRef.current[6] = el} tipsAndTricks={tipsAndTricks} />
-      <FooterSection ref={el => sectionsRef.current[7] = el} />
+      <FashionShowSection ref={el => sectionsRef.current[3] = el} />
+      <ExperienceSection ref={el => sectionsRef.current[4] = el} services={services} />
+      <MembershipSection ref={el => sectionsRef.current[5] = el} />
+      <LookbookSection ref={el => sectionsRef.current[6] = el} lookbookFeatures={lookbookFeatures} />
+      <TipsAndTricksSection ref={el => sectionsRef.current[7] = el} tipsAndTricks={tipsAndTricks} />
+      <FooterSection ref={el => sectionsRef.current[8] = el} />
     </div>
   );
 };
