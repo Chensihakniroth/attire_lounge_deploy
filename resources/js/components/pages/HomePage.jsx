@@ -5,6 +5,7 @@ import { Users, Scissors, Coffee, ArrowRight, Gem, Feather, Palette, ChevronDown
 import Footer from '../layouts/Footer.jsx';
 import { Link, useLocation } from 'react-router-dom';
 import SectionIndicator from './SectionIndicator.jsx';
+import FashionShow from '../sections/FashionShow.jsx';
 
 import minioBaseUrl from '../../config.js';
 
@@ -174,8 +175,8 @@ const PhilosophySection = memo(forwardRef((props, ref) => (
       {/* Right side - Image */}
       <div className="relative w-full h-full overflow-hidden order-1 lg:order-2 hidden md:block">
         <motion.div 
-            initial={{ scale: 1.2 }}
-            whileInView={{ scale: 1.15 }}
+            initial={{ scale: 1.3 }}
+            whileInView={{ scale: 1.25 }}
             transition={{ duration: 1.5, ease: "easeOut" }}
             className="h-full w-full"
         >
@@ -183,7 +184,7 @@ const PhilosophySection = memo(forwardRef((props, ref) => (
               src={`${minioBaseUrl}/uploads/collections/default/key.jpg`}
               alt="Attire Lounge Interior"
               className="absolute inset-0 w-full h-full object-cover"
-              style={{ objectPosition: 'center 40%' }}
+              style={{ objectPosition: 'center 60%' }}
               loading="lazy"
             />
         </motion.div>
@@ -301,115 +302,6 @@ const CollectionsSection = memo(forwardRef((props, ref) => {
         </section>
     );
 }));
-
-const FashionShowSection = memo(forwardRef((props, ref) => (
-    <section className="relative snap-section min-h-screen h-screen w-full overflow-hidden" ref={ref}>
-        {/* Full Screen Background Image with Parallax Effect */}
-        <div className="absolute inset-0 z-0">
-             <motion.img 
-                initial={{ scale: 1.1 }}
-                whileInView={{ scale: 1 }}
-                transition={{ duration: 1.5, ease: "easeOut" }}
-                src="https://images.prestigeonline.com/wp-content/uploads/sites/9/2026/02/02140813/Z629270-1353x900.jpg" 
-                alt="Rosewood Fashion Event" 
-                className="w-full h-full object-cover"
-                loading="lazy"
-            />
-            {/* Cinematic Gradient Overlays */}
-            <div className="absolute inset-0 bg-gradient-to-r from-black/90 via-black/40 to-transparent" />
-            <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-transparent to-transparent" />
-        </div>
-
-        {/* Content Container - Magazine Cover Style */}
-        <div className="relative z-10 h-full max-w-7xl mx-auto px-6 flex flex-col justify-center lg:justify-end lg:pb-32">
-            <motion.div
-                variants={containerVariants}
-                initial="hidden"
-                whileInView="visible"
-                viewport={{ once: true, amount: 0.4 }}
-                className="max-w-3xl"
-            >
-                {/* Event Badge */}
-                <motion.div variants={itemVariants} className="inline-flex items-center gap-3 px-4 py-2 bg-attire-accent text-black rounded-full mb-8 backdrop-blur-md shadow-[0_0_20px_rgba(212,168,76,0.3)]">
-                    <span className="text-[10px] font-bold uppercase tracking-widest">Event Report</span>
-                    <span className="w-1 h-1 bg-black rounded-full" />
-                    <span className="text-[10px] font-bold uppercase tracking-widest">Feb 2025</span>
-                </motion.div>
-
-                {/* Big Title */}
-                <motion.h2 variants={itemVariants} className="font-serif text-5xl md:text-7xl lg:text-8xl text-white mb-8 leading-[0.9]">
-                    Gentlemen’s <br/> 
-                    <span className="text-transparent bg-clip-text bg-gradient-to-r from-attire-cream to-attire-silver italic pr-4">Fashion Showcase</span>
-                </motion.h2>
-
-                {/* Description with border accent */}
-                <motion.p variants={itemVariants} className="text-attire-silver text-lg md:text-xl font-light leading-relaxed mb-12 border-l-2 border-attire-accent pl-6 max-w-lg bg-black/20 backdrop-blur-sm p-4 rounded-r-xl">
-                    Attire Lounge takes over Rosewood Phnom Penh for an inaugural showcase of sartorial excellence and street refinement.
-                </motion.p>
-
-                {/* CTA Button */}
-                <motion.div variants={itemVariants}>
-                    <a href="https://www.prestigeonline.com/kh/cambodia/attire-lounge-official-hosts-first-curated-gentlemens-fashion-showcase/" 
-                       target="_blank" 
-                       rel="noopener noreferrer"
-                       className="group flex items-center gap-6 w-fit"
-                    >
-                        <div className="relative w-16 h-16 flex items-center justify-center bg-white/10 rounded-full backdrop-blur-sm border border-white/20 group-hover:bg-attire-accent group-hover:border-attire-accent transition-all duration-500 shadow-xl">
-                             <ArrowRight className="text-white group-hover:text-black transition-colors duration-300" size={24} />
-                        </div>
-                        <div>
-                            <span className="block text-xs text-attire-silver uppercase tracking-widest mb-1 group-hover:text-white transition-colors">Read Coverage</span>
-                            <span className="font-serif text-xl text-white italic group-hover:underline decoration-attire-accent underline-offset-4 decoration-1">
-                                On Prestige Online
-                            </span>
-                        </div>
-                    </a>
-                </motion.div>
-            </motion.div>
-        </div>
-
-        {/* Desktop Sidebar Info */}
-        <div className="absolute right-0 top-0 h-full w-[30%] border-l border-white/5 hidden lg:flex flex-col justify-between p-12 bg-black/30 backdrop-blur-[4px]">
-             {/* Top Spacer */}
-             <div className="h-20" /> 
-             
-             {/* Center Decorative */}
-             <div className="flex justify-center">
-                <div className="w-[1px] h-32 bg-gradient-to-b from-transparent via-attire-accent to-transparent opacity-50" />
-             </div>
-
-             {/* Bottom Info */}
-             <div className="space-y-10">
-                 <motion.div 
-                    initial={{ opacity: 0, x: 20 }}
-                    whileInView={{ opacity: 1, x: 0 }}
-                    transition={{ delay: 0.5 }}
-                 >
-                    <p className="text-[10px] text-attire-accent uppercase tracking-[0.3em] mb-2">Venue</p>
-                    <p className="text-white font-serif text-3xl">Rosewood<br/>Phnom Penh</p>
-                 </motion.div>
-                 
-                 <motion.div
-                    initial={{ opacity: 0, x: 20 }}
-                    whileInView={{ opacity: 1, x: 0 }}
-                    transition={{ delay: 0.7 }}
-                 >
-                    <p className="text-[10px] text-attire-accent uppercase tracking-[0.3em] mb-3">Collections</p>
-                    <ul className="text-white/80 font-light space-y-2 text-sm">
-                        <li className="flex items-center gap-2">
-                            <span className="w-1.5 h-1.5 rounded-full bg-white/20" />
-                            Shades of Elegance
-                        </li>
-                        <li className="flex items-center gap-2">
-                            <span className="w-1.5 h-1.5 rounded-full bg-white/20" />
-                            Street Sartorial
-                        </li>
-                    </ul>
-                 </motion.div>
-             </div>
-        </div>
-    </section>
-)));
 
 const ExperienceSection = memo(forwardRef(({ services }, ref) => (
   <section className="relative snap-section min-h-screen h-screen flex items-center bg-attire-navy overflow-hidden" ref={ref}>
@@ -886,7 +778,7 @@ const HomePage = () => {
       <HeroSection ref={el => sectionsRef.current[0] = el} scrollToSection={scrollToSection} />
       <PhilosophySection ref={el => sectionsRef.current[1] = el} />
       <CollectionsSection ref={el => sectionsRef.current[2] = el} />
-      <FashionShowSection ref={el => sectionsRef.current[3] = el} />
+      <FashionShow ref={el => sectionsRef.current[3] = el} />
       <ExperienceSection ref={el => sectionsRef.current[4] = el} services={services} />
       <MembershipSection ref={el => sectionsRef.current[5] = el} />
       <LookbookSection ref={el => sectionsRef.current[6] = el} lookbookFeatures={lookbookFeatures} />
