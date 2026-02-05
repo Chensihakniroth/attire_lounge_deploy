@@ -19,10 +19,9 @@ const ItemCard = ({ product, openLightbox }) => {
             onClick={openLightbox}
             variants={itemVariants}
         >
-            <div className="relative overflow-hidden mb-4 aspect-w-3 aspect-h-4 group">
+            <div className="relative overflow-hidden aspect-w-3 aspect-h-4 group rounded-sm">
                 <img src={imageUrl} alt={product.name} className="w-full h-full object-cover" />
             </div>
-            <h3 className="text-base text-attire-cream">{product.name}</h3>
         </motion.div>
     );
 };

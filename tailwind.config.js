@@ -25,6 +25,7 @@ module.exports = {
       fontFamily: {
         'serif': ['Playfair Display', 'serif'],
         'sans': ['Inter', 'sans-serif'],
+        'khmer': ['Bayon', 'sans-serif'],
       },
       animation: {
         'float': 'float 6s ease-in-out infinite',

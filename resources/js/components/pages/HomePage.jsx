@@ -34,22 +34,22 @@ const homePageData = {
   ],
   tipsAndTricks: [
     {
-      title: "Mastering the Tie Knot",
+      title: "3 របៀបស្ទាយអាវធំពណ៌ខ្មៅ",
       image: `${minioBaseUrl}/uploads/asset/vid1.jpg`,
-      link: "https://www.instagram.com/p/placeholder1/", // Placeholder link
-      description: "Learn essential tie knots for every occasion."
+      link: "https://www.instagram.com/p/DAM3OG6yKnL/",
+      description: "Three Ways to style a black jacket by Attire Lounge Official. Make an appointment with us today and receive a free consultation on your attire."
     },
     {
-      title: "Cufflink Elegance",
+      title: "3 របៀបស្ទាយអាវធំឡេវ៦",
       image: `${minioBaseUrl}/uploads/asset/vid2.jpg`,
-      link: "https://www.tiktok.com/@placeholder2/", // Placeholder link
-      description: "Elevate your look with the perfect cufflinks."
+      link: "https://www.instagram.com/p/DByeCz0Sz4Q/",
+      description: "Three ways to style a black double-breasted jacket by Attire Lounge Official. Make an appointment with us today and receive a free consultation on your attire."
     },
     {
-      title: "Pocket Square Folds",
+      title: "3 របៀបស្ទាយអាវធំក្រឡាជ្រុង",
       image: `${minioBaseUrl}/uploads/asset/vid3.jpg`,
-      link: "https://www.youtube.com/watch?v=placeholder3", // Placeholder link
-      description: "Add a touch of class with stylish pocket square folds."
+      link: "https://www.instagram.com/p/DAyD5N7Sw7Z/",
+      description: "Three ways to style a checked blazer by @attireloungeofficial. Make an appointment with us today and receive a free consultation on your attire."
     },
   ]
 };
@@ -670,12 +670,12 @@ const TipsAndTricksSection = memo(forwardRef(({ tipsAndTricks }, ref) => {
                      <span className="text-attire-accent font-serif italic text-xl">04</span>
                      <div className="h-px w-12 bg-attire-accent/50" />
                  </div>
-                <h2 className="font-serif text-4xl md:text-6xl text-white leading-none tracking-tight">
-                    Style <span className="text-attire-silver italic font-light">Notes</span>
+                <h2 className="font-serif text-4xl md:text-5xl text-white mb-6 leading-tight">
+                    3 Ways to <br/><span className="italic text-attire-silver">Style the Jacket</span>
                 </h2>
             </div>
             <p className="text-attire-silver/60 text-sm md:text-base font-light max-w-sm text-left md:text-right hidden md:block">
-                Elevate your daily attire with our curated guide to gentleman's etiquette and style hacks.
+                Master the art of jacket styling with our expert guide, featuring versatile looks for the modern gentleman.
             </p>
         </motion.div>
 
@@ -698,21 +698,14 @@ const TipsAndTricksSection = memo(forwardRef(({ tipsAndTricks }, ref) => {
                     <img
                         src={tip.image}
                         alt={tip.title}
-                        className={`absolute inset-0 w-full h-full object-cover object-[center_20%] transition-transform duration-1000 ease-out ${isHovered ? 'scale-110 grayscale-0' : 'scale-100 grayscale-[30%] opacity-60'}`}
+                        className={`absolute inset-0 w-full h-full object-cover object-[center_20%] transition-transform duration-1000 ease-out ${isHovered ? 'scale-110 grayscale-0 opacity-100' : 'scale-100 grayscale-0 opacity-100'}`}
                         loading="lazy"
                     />
-                    <div className={`absolute inset-0 bg-gradient-to-b from-black/10 via-transparent to-black/90 transition-opacity duration-500 ${isHovered ? 'opacity-90' : 'opacity-90'}`} />
+                    <div className={`absolute inset-0 bg-gradient-to-b from-black/10 via-transparent to-black/90 transition-opacity duration-500 ${isHovered ? 'opacity-90' : 'opacity-20'}`} />
 
                     {/* Content Container */}
                     <div className="absolute inset-0 p-6 md:p-8 flex flex-col justify-end">
                         
-                        {/* Vertical Title for Collapsed State (Desktop) */}
-                        <div className={`hidden md:block absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 transition-all duration-500 ${isHovered ? 'opacity-0 scale-75' : 'opacity-100 scale-100'}`}>
-                             <span className="font-serif text-3xl text-white/50 tracking-widest whitespace-nowrap -rotate-90 block origin-center mix-blend-overlay">
-                                {tip.title.split(' ')[0]}
-                             </span>
-                        </div>
-
                         <div className="relative z-10 flex justify-between items-end">
                             {/* Main Content */}
                             <div className={`transition-all duration-500 ${isHovered ? 'w-full md:w-3/4 translate-y-0 opacity-100' : 'translate-y-4 opacity-100 md:opacity-0'}`}>
@@ -722,7 +715,7 @@ const TipsAndTricksSection = memo(forwardRef(({ tipsAndTricks }, ref) => {
                                     </span>
                                 </div>
                                 
-                                <h3 className={`font-serif text-2xl md:text-4xl text-white mb-3 leading-tight`}>
+                                <h3 className={`font-khmer text-xl md:text-3xl text-white mb-3 leading-tight`}>
                                     {tip.title}
                                 </h3>
 

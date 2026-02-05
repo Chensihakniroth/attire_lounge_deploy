@@ -28,10 +28,6 @@ const FavoritesPage = () => {
     const toggleFavorite = (id) => {
         if (isFavorited(id)) {
             removeFavorite(id);
-            // If we remove the current item from lightbox, close it or stay safe
-            if (selectedImage && selectedImage.id === id) {
-                // Optional: Close lightbox or let it update
-            }
         } else {
             addFavorite(id);
         }
@@ -50,83 +46,129 @@ const FavoritesPage = () => {
 
     const containerVariants = {
         hidden: { opacity: 0 },
-        visible: { opacity: 1, transition: { staggerChildren: 0.05 } }
+        visible: { opacity: 1, transition: { staggerChildren: 0.1, delayChildren: 0.2 } }
+    };
+
+    const itemVariants = {
+        hidden: { opacity: 0, y: 20 },
+        visible: { opacity: 1, y: 0, transition: { duration: 0.6, ease: "easeOut" } }
     };
 
     return (
-        <div className="min-h-screen bg-attire-navy relative overflow-hidden">
-            {/* Background Texture - Softened */}
-            <div className="fixed top-0 left-0 w-full h-screen overflow-hidden pointer-events-none z-0">
-                <div className="absolute top-[-10%] right-[-5%] w-[600px] h-[600px] bg-attire-accent/[0.03] rounded-full blur-[160px]" />
-                <div className="absolute bottom-[-10%] left-[-10%] w-[500px] h-[500px] bg-blue-900/[0.05] rounded-full blur-[140px]" />
+        <div className="min-h-screen bg-attire-navy relative overflow-hidden flex flex-col">
+            {/* Cinematic Background */}
+            <div className="fixed inset-0 pointer-events-none z-0">
+                <div className="absolute top-[-10%] right-[-5%] w-[800px] h-[800px] bg-attire-accent/[0.03] rounded-full blur-[160px] animate-pulse-soft" />
+                <div className="absolute bottom-[-10%] left-[-10%] w-[600px] h-[600px] bg-attire-accent/[0.05] rounded-full blur-[140px] animate-float" />
+                <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')] opacity-[0.03] mix-blend-overlay" />
             </div>
 
-            <header className="relative z-10 pt-24 pb-12 sm:pt-32 sm:pb-16 px-6 text-center">
-                <motion.div
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.8, ease: "easeOut" }}
-                >
-                    <h1 className="text-5xl md:text-7xl font-serif font-light text-white mb-6">
-                        Your Favorites
-                    </h1>
-                    
-                    <div className="flex items-center justify-center gap-6 text-sm">
-                        <Link to="/collections" className="flex items-center gap-2 text-attire-silver hover:text-white transition-colors">
-                            <ChevronLeft size={16} />
-                            Back to Collections
-                        </Link>
-                        <span className="w-1 h-1 bg-attire-silver/30 rounded-full" />
-                        <span className="text-attire-accent font-medium">
-                            {favoriteProducts.length} {favoriteProducts.length === 1 ? 'Item' : 'Items'} Saved
-                        </span>
-                    </div>
-                </motion.div>
+            {/* Header Section */}
+            <header className="relative z-10 pt-32 pb-16 px-6 overflow-hidden">
+                <div className="max-w-7xl mx-auto">
+                    <motion.div
+                        initial={{ opacity: 0, y: 30 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 1, ease: "easeOut" }}
+                        className="flex flex-col md:flex-row md:items-end justify-between gap-8"
+                    >
+                        <div className="max-w-2xl">
+                            <motion.div 
+                                initial={{ opacity: 0, x: -20 }}
+                                animate={{ opacity: 1, x: 0 }}
+                                transition={{ delay: 0.5 }}
+                                className="flex items-center gap-3 mb-6"
+                            >
+                                <div className="h-px w-8 bg-attire-accent" />
+                                <span className="text-attire-accent font-serif italic text-lg">Curated Gallery</span>
+                            </motion.div>
+                            
+                            <h1 className="text-6xl md:text-8xl font-serif text-white mb-6 tracking-tighter leading-[0.9]">
+                                Your <br/>
+                                <span className="italic text-transparent bg-clip-text bg-gradient-to-r from-attire-cream to-attire-silver opacity-90">Favorites</span>
+                            </h1>
+                            
+                            <p className="text-attire-silver/60 text-lg font-light leading-relaxed max-w-md border-l border-white/10 pl-6">
+                                A private collection of your preferred pieces, selected for your next sartorial chapter.
+                            </p>
+                        </div>
+
+                        <div className="flex flex-col items-start md:items-end gap-6">
+                            <div className="flex items-center gap-4 bg-white/5 backdrop-blur-md border border-white/10 px-6 py-3 rounded-full">
+                                <Heart size={18} className="text-attire-accent fill-attire-accent animate-pulse-soft" />
+                                <span className="text-white font-medium tracking-widest text-xs uppercase">
+                                    {favoriteProducts.length} {favoriteProducts.length === 1 ? 'Piece' : 'Pieces'} Saved
+                                </span>
+                            </div>
+                            
+                            <Link to="/collections" className="group flex items-center gap-3 text-attire-silver/50 hover:text-white transition-all text-[10px] uppercase tracking-[0.3em] font-bold">
+                                <ChevronLeft size={14} className="group-hover:-translate-x-1 transition-transform" />
+                                Continue Exploring
+                            </Link>
+                        </div>
+                    </motion.div>
+                </div>
             </header>
 
-            <main className="relative z-10 max-w-screen-xl mx-auto px-4 sm:px-6 lg:px-8 pb-24">
+            {/* Main Content */}
+            <main className="relative z-10 flex-grow max-w-7xl mx-auto w-full px-6 pb-32">
                 {favoriteProducts.length > 0 ? (
                     <motion.div
-                        className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-x-6 gap-y-12"
+                        className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-x-8 gap-y-16"
                         variants={containerVariants}
                         initial="hidden"
                         animate="visible"
                     >
                         {favoriteProducts.map((item, index) => (
-                            <div key={item.id} className="group relative">
-                                <ItemCard 
-                                    product={item} 
-                                    openLightbox={() => openLightbox(index)}
-                                />
-                                <button 
-                                    onClick={(e) => {
-                                        e.stopPropagation();
-                                        removeFavorite(item.id);
-                                    }}
-                                    className="absolute top-2 right-2 p-2 bg-black/50 text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity hover:bg-red-500/80"
-                                    title="Remove from favorites"
-                                >
-                                    <Heart size={16} fill="currentColor" />
-                                </button>
-                            </div>
+                            <motion.div 
+                                key={item.id} 
+                                variants={itemVariants}
+                                className="group relative"
+                            >
+                                <div className="relative overflow-hidden rounded-sm shadow-2xl transition-transform duration-500 group-hover:-translate-y-2">
+                                    <ItemCard 
+                                        product={item} 
+                                        openLightbox={() => openLightbox(index)}
+                                    />
+                                    
+                                    {/* Glass Remove Button Overlay */}
+                                    <button 
+                                        onClick={(e) => {
+                                            e.stopPropagation();
+                                            removeFavorite(item.id);
+                                        }}
+                                        className="absolute top-4 right-4 z-20 w-10 h-10 flex items-center justify-center bg-black/40 backdrop-blur-md border border-white/10 text-white rounded-full opacity-0 translate-y-2 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-300 hover:bg-red-500 hover:border-red-500"
+                                        title="Remove from favorites"
+                                    >
+                                        <Heart size={16} fill="currentColor" />
+                                    </button>
+                                </div>
+                            </motion.div>
                         ))}
                     </motion.div>
                 ) : (
                     <motion.div 
-                        initial={{ opacity: 0, scale: 0.95 }} 
-                        animate={{ opacity: 1, scale: 1 }} 
-                        className="flex flex-col items-center justify-center py-20 text-center"
+                        initial={{ opacity: 0 }} 
+                        animate={{ opacity: 1 }} 
+                        className="flex flex-col items-center justify-center py-32 text-center"
                     >
-                        <div className="w-24 h-24 bg-white/5 rounded-full flex items-center justify-center mb-8 border border-white/10">
-                            <Heart size={40} className="text-attire-silver/50" />
+                        <div className="relative mb-12">
+                            <div className="absolute inset-0 bg-attire-accent/20 blur-[60px] rounded-full animate-pulse-soft" />
+                            <div className="relative w-32 h-32 bg-white/5 backdrop-blur-sm rounded-full flex items-center justify-center border border-white/10 shadow-2xl">
+                                <Heart size={48} className="text-white/20" strokeWidth={1} />
+                            </div>
                         </div>
-                        <h2 className="text-3xl font-serif text-white mb-4">No favorites yet</h2>
-                        <p className="text-attire-silver max-w-md mx-auto mb-10 leading-relaxed">
-                            Your wishlist is empty. Explore our collections and find the pieces that speak to your style.
+                        
+                        <h2 className="font-serif text-4xl md:text-5xl text-white mb-6">Your gallery is <span className="italic text-attire-silver">empty</span></h2>
+                        <p className="text-attire-silver/50 text-lg font-light max-w-md mx-auto mb-12 leading-relaxed">
+                            Discover our latest collections and start curating your perfect wardrobe today.
                         </p>
-                        <Link to="/collections" className="group inline-flex items-center gap-3 bg-attire-accent text-white font-semibold px-8 py-4 rounded-full transition-all hover:bg-attire-accent/90 hover:pr-10">
-                            <span>Start Browsing</span>
-                            <ArrowRight className="w-5 h-5 opacity-0 -ml-4 group-hover:opacity-100 group-hover:ml-0 transition-all" />
+                        
+                        <Link to="/collections" className="group relative flex flex-col items-center gap-4">
+                            <div className="w-16 h-16 rounded-full border border-white/20 flex items-center justify-center group-hover:bg-white group-hover:border-white transition-all duration-500 shadow-xl shadow-white/5">
+                                <ArrowRight className="text-white group-hover:text-black transition-colors duration-300" size={24} />
+                            </div>
+                            <span className="text-[10px] tracking-[0.4em] text-white/50 uppercase font-bold group-hover:text-white transition-colors">Start Curating</span>
                         </Link>
                     </motion.div>
                 )}
@@ -138,7 +180,7 @@ const FavoritesPage = () => {
                         key="lightbox"
                         selectedImage={{
                             ...selectedImage,
-                            src: selectedImage.images[0], // Ensure compatibility with Lightbox format
+                            src: selectedImage.images[0],
                             title: selectedImage.name,
                             collection: selectedImage.collection
                         }}
