@@ -46,29 +46,4 @@ class AdminLoginController extends Controller
             'user' => $user, // Optionally return user data
         ]);
     }
-
-    public function createAdmin()
-    {
-        try {
-            // Check if user already exists
-            $user = User::where('email', 'admin@attirelounge.com')->first();
-            if ($user) {
-                // Optionally, update the password if the user exists
-                $user->password = 'admin123';
-                $user->save();
-                return response()->json(['message' => 'Admin user already exists. Password has been reset.']);
-            } else {
-                // Create the user if they don't exist
-                User::create([
-                    'name' => 'Admin',
-                    'email' => 'admin@attirelounge.com',
-                    'password' => 'admin123', // The 'hashed' cast on the User model will handle hashing
-                    'role' => 'admin',
-                ]);
-                return response()->json(['message' => 'Admin user created successfully. You can now log in.']);
-            }
-        } catch (\Exception $e) {
-            return response()->json(['message' => 'Failed to create or update admin user.', 'error' => $e->getMessage()], 500);
-        }
-    }
 }

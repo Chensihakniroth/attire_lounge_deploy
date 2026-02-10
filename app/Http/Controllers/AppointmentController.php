@@ -75,14 +75,6 @@ class AppointmentController extends Controller
     }
 
     /**
-     * Handle OPTIONS request for CORS preflight
-     */
-    public function handleOptions()
-    {
-        return response()->json([], 200);
-    }
-
-    /**
      * Display a listing of the appointments.
      */
     public function index()
@@ -138,14 +130,6 @@ class AppointmentController extends Controller
     }
 
     /**
-     * Handle OPTIONS request for CORS preflight for status update.
-     */
-    public function handleOptionsStatus()
-    {
-        return response()->json([], 200);
-    }
-
-    /**
      * Clear all completed appointments.
      */
     public function clearCompleted()
@@ -174,13 +158,5 @@ class AppointmentController extends Controller
         } finally {
             Log::info('=== CLEAR COMPLETED APPOINTMENTS END ===');
         }
-    }
-
-    /**
-     * Handle OPTIONS request for CORS preflight for clear completed.
-     */
-    public function handleOptionsClearCompleted()
-    {
-        return response()->json([], 200);
     }
 }

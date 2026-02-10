@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import {
     Menu, X, Heart, ChevronRight,
-    Home, Grid, Camera, Mail, Gift, Cog
+    Home, Grid, Camera, Mail, Gift, Cog, Star
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useFavorites } from '../../context/FavoritesContext.jsx';

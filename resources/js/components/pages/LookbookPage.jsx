@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import Lightbox from './lookbook/Lightbox';
-import { wrap } from "popmotion";
+import { wrap } from "../../helpers/math.js";
 import minioBaseUrl from '../../config.js';
 import { ChevronLeft, ChevronRight, Filter } from 'lucide-react';
 import { useFavorites } from '../../context/FavoritesContext';

@@ -1,6 +1,7 @@
 import React, { memo, forwardRef } from 'react';
 import { motion } from 'framer-motion';
 import { ArrowRight, ExternalLink } from 'lucide-react';
+import { Link } from 'react-router-dom';
 
 const containerVariants = {
   hidden: {},
@@ -58,17 +59,15 @@ const FashionShow = memo(forwardRef((props, ref) => {
               </motion.div>
 
               <motion.div variants={itemVariants} className="pt-6">
-                <a 
-                  href="https://www.prestigeonline.com/kh/cambodia/attire-lounge-official-hosts-first-curated-gentlemens-fashion-showcase/" 
-                  target="_blank" 
-                  rel="noopener noreferrer"
+                <Link 
+                  to="/fashion-show" 
                   className="group inline-flex items-center gap-8 py-5 px-10 border border-white/10 bg-white/[0.02] hover:bg-white hover:text-black transition-all duration-700 rounded-full backdrop-blur-sm"
                 >
-                  <span className="text-[10px] font-bold uppercase tracking-[0.4em]">Read Full Story</span>
+                  <span className="text-[10px] font-bold uppercase tracking-[0.4em]">View Event Report</span>
                   <div className="w-10 h-10 rounded-full border border-current flex items-center justify-center group-hover:bg-black group-hover:text-white transition-all duration-500">
                     <ArrowRight size={16} />
                   </div>
-                </a>
+                </Link>
               </motion.div>
             </motion.div>
           </div>

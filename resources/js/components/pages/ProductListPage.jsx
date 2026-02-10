@@ -1,7 +1,7 @@
 import React, { useState, useMemo, useEffect, useRef } from 'react';
 import { useLocation, Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { wrap } from "popmotion";
+import { wrap } from "../../helpers/math.js";
 import Lightbox from './lookbook/Lightbox';
 import { ChevronLeft, ChevronRight, Search, ChevronsUpDown, X, Filter, ChevronDown, Check } from 'lucide-react';
 import { products as allProducts, collections as allCollections } from '../../data/products.js';

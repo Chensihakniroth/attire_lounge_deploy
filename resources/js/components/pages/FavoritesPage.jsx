@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { wrap } from "popmotion";
+import { wrap } from "../../helpers/math.js";
 import { useFavorites } from '../../context/FavoritesContext.jsx';
 import { products as allProducts } from '../../data/products.js';
 import ItemCard from './collections/ItemCard.jsx';

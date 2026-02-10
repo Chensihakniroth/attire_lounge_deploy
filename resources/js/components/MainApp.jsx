@@ -13,23 +13,47 @@ import Footer from './layouts/Footer.jsx';
 // import ScrollToTop from './common/ScrollToTop.jsx';
 
 // Pages that you have created
-const HomePage = lazy(() => import('./pages/HomePage.jsx'));
-const CollectionsPage = lazy(() => import('./pages/CollectionsPage.jsx'));
-const ProductListPage = lazy(() => import('./pages/ProductListPage.jsx'));
-const LookbookPage = lazy(() => import('./pages/LookbookPage.jsx'));
-const ContactPage = lazy(() => import('./pages/ContactPage.jsx'));
-const CustomizeGiftPage = lazy(() => import('./pages/CustomizeGiftPage.jsx'));
-const FavoritesPage = lazy(() => import('./pages/FavoritesPage.jsx'));
-const AdminDashboard = lazy(() => import('./pages/admin/AdminDashboard.jsx'));
-const AdminLogin = lazy(() => import('./pages/admin/AdminLogin.jsx'));
-const PrivateRoute = lazy(() => import('./pages/admin/PrivateRoute.jsx'));
+const lazyWithRetry = (componentImport) =>
+    lazy(async () => {
+        const pageHasAlreadyBeenForceRefreshed = JSON.parse(
+            window.localStorage.getItem('page-has-been-force-refreshed') || 'false'
+        );
 
-const AdminLayout = lazy(() => import('./pages/admin/AdminLayout.jsx'));
-const AppointmentManager = lazy(() => import('./pages/admin/AppointmentManager.jsx'));
-const CustomizeGiftManager = lazy(() => import('./pages/admin/CustomizeGiftManager.jsx'));
-const PrivacyPolicyPage = lazy(() => import('./pages/PrivacyPolicyPage.jsx'));
-const TermsOfServicePage = lazy(() => import('./pages/TermsOfServicePage.jsx'));
-const ReturnPolicyPage = lazy(() => import('./pages/ReturnPolicyPage.jsx'));
+        try {
+            const component = await componentImport();
+            window.localStorage.setItem('page-has-been-force-refreshed', 'false');
+            return component;
+        } catch (error) {
+            if (!pageHasAlreadyBeenForceRefreshed) {
+                // Personal preference: wait a bit before refreshing
+                window.localStorage.setItem('page-has-been-force-refreshed', 'true');
+                return window.location.reload();
+            }
+
+            // The page has already been reloaded and still fails, so let's throw an error
+            // to be caught by the ErrorBoundary
+            throw error;
+        }
+    });
+
+const HomePage = lazyWithRetry(() => import('./pages/HomePage.jsx'));
+const CollectionsPage = lazyWithRetry(() => import('./pages/CollectionsPage.jsx'));
+const ProductListPage = lazyWithRetry(() => import('./pages/ProductListPage.jsx'));
+const LookbookPage = lazyWithRetry(() => import('./pages/LookbookPage.jsx'));
+const FashionShowPage = lazyWithRetry(() => import('./pages/FashionShowPage.jsx'));
+const ContactPage = lazyWithRetry(() => import('./pages/ContactPage.jsx'));
+const CustomizeGiftPage = lazyWithRetry(() => import('./pages/CustomizeGiftPage.jsx'));
+const FavoritesPage = lazyWithRetry(() => import('./pages/FavoritesPage.jsx'));
+const AdminDashboard = lazyWithRetry(() => import('./pages/admin/AdminDashboard.jsx'));
+const AdminLogin = lazyWithRetry(() => import('./pages/admin/AdminLogin.jsx'));
+const PrivateRoute = lazyWithRetry(() => import('./pages/admin/PrivateRoute.jsx'));
+
+const AdminLayout = lazyWithRetry(() => import('./pages/admin/AdminLayout.jsx'));
+const AppointmentManager = lazyWithRetry(() => import('./pages/admin/AppointmentManager.jsx'));
+const CustomizeGiftManager = lazyWithRetry(() => import('./pages/admin/CustomizeGiftManager.jsx'));
+const PrivacyPolicyPage = lazyWithRetry(() => import('./pages/PrivacyPolicyPage.jsx'));
+const TermsOfServicePage = lazyWithRetry(() => import('./pages/TermsOfServicePage.jsx'));
+const ReturnPolicyPage = lazyWithRetry(() => import('./pages/ReturnPolicyPage.jsx'));
 
 
 // Simple placeholder for non-existent pages
@@ -180,6 +204,11 @@ const AnimatedRoutes = () => {
                         <LookbookPage />
                     </Layout>
                 } />
+                <Route path="/fashion-show" element={
+                    <Layout includePadding={false}>
+                        <FashionShowPage />
+                    </Layout>
+                } />
                 <Route path="/contact" element={
                     <Layout>
                         <ContactPage />
@@ -244,16 +273,6 @@ const AnimatedRoutes = () => {
                 <Route path="/returns" element={
                     <Layout>
                         <ReturnPolicyPage />
-                    </Layout>
-                } />
-                <Route path="/privacy" element={
-                    <Layout>
-                        <Placeholder title="Privacy" />
-                    </Layout>
-                } />
-                <Route path="/terms" element={
-                    <Layout>
-                        <Placeholder title="Terms" />
                     </Layout>
                 } />
                 <Route path="/appointment" element={
