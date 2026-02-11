@@ -118,8 +118,12 @@ const ActGallery = memo(({ act, title, description, images, isRight = false }) =
           ref={containerRef}
           drag="x"
           dragConstraints={constraints}
-          dragElastic={0}
-          dragTransition={{ power: 0.2, timeConstant: 250 }}
+          dragElastic={0.1}
+          dragTransition={{ 
+            power: 0.1, 
+            timeConstant: 400 
+          }}
+          whileDrag={{ scale: 0.998 }}
           className="flex gap-6 pb-12 will-change-transform"
           style={{ touchAction: 'none' }}
         >

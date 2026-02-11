@@ -26,7 +26,7 @@ const giftOptions = {
     boxes: [
       { id: 'box-small', name: 'Small Box', image: `${minioBaseUrl}/uploads/collections/accessories/smallbox.webp` },
       { id: 'box-mid', name: 'Mid Box', image: `${minioBaseUrl}/uploads/collections/accessories/midbox.webp` },
-      { id: 'box-designer', name: 'Designer Box', image: `${minioBaseUrl}/uploads/collections/accessories/designer_box.webp` },
+      { id: 'box-designer', name: 'Designer Box', image: `${minioBaseUrl}/uploads/collections/accessories/designer_box.jpg` },
     ],
   };
 
@@ -37,8 +37,8 @@ const SelectionCard = ({ item, isSelected, onSelect }) => {
         <motion.div
             onClick={onSelect}
             className={`group relative rounded-2xl overflow-hidden border-2 cursor-pointer transition-all duration-300 ${
-                isSelected 
-                    ? 'border-attire-accent shadow-[0_0_20px_rgba(212,168,76,0.25)]' 
+                isSelected
+                    ? 'border-attire-accent shadow-[0_0_20px_rgba(212,168,76,0.25)]'
                     : 'border-white/5 hover:border-white/20'
             }`}
             whileHover={{ y: -5 }}
@@ -52,15 +52,15 @@ const SelectionCard = ({ item, isSelected, onSelect }) => {
                     </div>
                 )}
 
-                <motion.img 
-                    src={item.image} 
-                    alt={item.name} 
+                <motion.img
+                    src={item.image}
+                    alt={item.name}
                     className={`w-full h-full object-cover transition-all duration-700 ${
                         isLoaded ? 'opacity-100 scale-100' : 'opacity-0 scale-105'
                     } ${isSelected ? 'scale-105' : 'group-hover:scale-105'}`}
                     onLoad={() => setIsLoaded(true)}
                 />
-                
+
                 <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent opacity-80" />
             </div>
 
@@ -244,7 +244,7 @@ ${note ? `Note: "${note}"` : ''}
 
                 <AnimatePresence mode="wait">
                     {step === 1 ? (
-                        <motion.div 
+                        <motion.div
                             key="step1"
                             initial={{ opacity: 0, y: 20 }}
                             animate={{ opacity: 1, y: 0 }}
@@ -257,7 +257,7 @@ ${note ? `Note: "${note}"` : ''}
                                     <h2 className="text-2xl font-serif text-white">Your Details</h2>
                                     <span className="text-attire-silver/50 text-sm font-mono">01 / 02</span>
                                 </div>
-                                
+
                                 <form onSubmit={handleDetailsSubmit} className="space-y-6">
                                     <div>
                                         <InputField
@@ -270,7 +270,7 @@ ${note ? `Note: "${note}"` : ''}
                                         />
                                         {formErrors.name && <p className="text-red-400 text-xs mt-2 ml-1">{formErrors.name}</p>}
                                     </div>
-                                    
+
                                     <div>
                                         <InputField
                                             label="Email Address"
@@ -282,7 +282,7 @@ ${note ? `Note: "${note}"` : ''}
                                         />
                                         {formErrors.email && <p className="text-red-400 text-xs mt-2 ml-1">{formErrors.email}</p>}
                                     </div>
-                                    
+
                                     <div>
                                         <InputField
                                             label="Phone Number"
@@ -295,20 +295,20 @@ ${note ? `Note: "${note}"` : ''}
                                         {formErrors.phone && <p className="text-red-400 text-xs mt-2 ml-1">{formErrors.phone}</p>}
                                     </div>
 
-                                    <button 
-                                        type="submit" 
+                                    <button
+                                        type="submit"
                                         className="w-full mt-6 py-4 rounded-full font-semibold transition-all duration-300 flex items-center justify-center gap-2 bg-white text-black hover:bg-attire-accent hover:text-black group"
                                     >
-                                        Start Customizing 
+                                        Start Customizing
                                         <ArrowRight size={18} className="group-hover:translate-x-1 transition-transform" />
                                     </button>
                                 </form>
                             </div>
                         </motion.div>
                     ) : (
-                        <motion.div 
+                        <motion.div
                             key="step2"
-                            initial={{ opacity: 0 }} 
+                            initial={{ opacity: 0 }}
                             animate={{ opacity: 1 }}
                             className="grid grid-cols-1 lg:grid-cols-12 gap-8"
                         >
@@ -322,11 +322,11 @@ ${note ? `Note: "${note}"` : ''}
                                     </div>
                                     <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
                                         {giftOptions.ties.map(tie => (
-                                            <SelectionCard 
-                                                key={tie.id} 
-                                                item={tie} 
-                                                isSelected={selectedTie?.id === tie.id} 
-                                                onSelect={() => setSelectedTie(prev => prev?.id === tie.id ? null : tie)} 
+                                            <SelectionCard
+                                                key={tie.id}
+                                                item={tie}
+                                                isSelected={selectedTie?.id === tie.id}
+                                                onSelect={() => setSelectedTie(prev => prev?.id === tie.id ? null : tie)}
                                             />
                                         ))}
                                     </div>
@@ -341,11 +341,11 @@ ${note ? `Note: "${note}"` : ''}
                                     </div>
                                     <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
                                         {giftOptions.pocketSquares.map(ps => (
-                                            <SelectionCard 
-                                                key={ps.id} 
-                                                item={ps} 
-                                                isSelected={selectedPocketSquare?.id === ps.id} 
-                                                onSelect={() => setSelectedPocketSquare(prev => prev?.id === ps.id ? null : ps)} 
+                                            <SelectionCard
+                                                key={ps.id}
+                                                item={ps}
+                                                isSelected={selectedPocketSquare?.id === ps.id}
+                                                onSelect={() => setSelectedPocketSquare(prev => prev?.id === ps.id ? null : ps)}
                                             />
                                         ))}
                                     </div>
@@ -366,11 +366,11 @@ ${note ? `Note: "${note}"` : ''}
                                             </div>
                                             <div className="grid grid-cols-2 md:grid-cols-3 gap-6">
                                                 {availableBoxes.map(box => (
-                                                    <SelectionCard 
-                                                        key={box.id} 
-                                                        item={box} 
-                                                        isSelected={selectedBox?.id === box.id} 
-                                                        onSelect={() => setSelectedBox(prev => prev?.id === box.id ? null : box)} 
+                                                    <SelectionCard
+                                                        key={box.id}
+                                                        item={box}
+                                                        isSelected={selectedBox?.id === box.id}
+                                                        onSelect={() => setSelectedBox(prev => prev?.id === box.id ? null : box)}
                                                     />
                                                 ))}
                                             </div>
@@ -381,11 +381,11 @@ ${note ? `Note: "${note}"` : ''}
                                 {/* Note Section */}
                                 <section className="pt-8">
                                     <label className="block text-xs font-semibold text-attire-silver uppercase tracking-widest mb-4 ml-1">Personal Note (Optional)</label>
-                                    <textarea 
-                                        value={note} 
-                                        onChange={(e) => setNote(e.target.value)} 
-                                        placeholder="Add a special message for the recipient..." 
-                                        className="w-full p-5 rounded-2xl border bg-black/20 text-white placeholder-white/20 focus:border-attire-accent/50 focus:ring-1 focus:ring-attire-accent/30 transition-all border-white/10 resize-none" 
+                                    <textarea
+                                        value={note}
+                                        onChange={(e) => setNote(e.target.value)}
+                                        placeholder="Add a special message for the recipient..."
+                                        className="w-full p-5 rounded-2xl border bg-black/20 text-white placeholder-white/20 focus:border-attire-accent/50 focus:ring-1 focus:ring-attire-accent/30 transition-all border-white/10 resize-none"
                                         rows="4"
                                     ></textarea>
                                 </section>
@@ -401,13 +401,13 @@ ${note ? `Note: "${note}"` : ''}
                                                 Edit Details
                                             </button>
                                         </div>
-                                        
+
                                         <div className="space-y-4 mb-8">
                                             <div className="flex justify-between items-start pb-4 border-b border-white/5">
                                                 <span className="text-sm text-attire-silver">For</span>
                                                 <span className="text-sm text-white font-medium text-right">{formData.name}</span>
                                             </div>
-                                            
+
                                             <SummaryItem label="Tie" item={selectedTie} />
                                             <SummaryItem label="Pocket Square" item={selectedPocketSquare} />
                                             <SummaryItem label="Gift Box" item={selectedBox} />
@@ -420,14 +420,14 @@ ${note ? `Note: "${note}"` : ''}
                                             </div>
                                         )}
 
-                                        <button 
-                                            onClick={handleFinalize} 
-                                            disabled={!isItemsComplete || submissionStatus.state === 'loading'} 
+                                        <button
+                                            onClick={handleFinalize}
+                                            disabled={!isItemsComplete || submissionStatus.state === 'loading'}
                                             className="w-full py-4 rounded-full font-semibold transition-all duration-300 flex items-center justify-center gap-2 bg-attire-accent text-black disabled:bg-white/10 disabled:text-white/30 disabled:cursor-not-allowed hover:bg-white"
                                         >
                                             {submissionStatus.state === 'loading' ? <Loader className="animate-spin" size={20} /> : <><Gift size={20} /> Request Gift Box</>}
                                         </button>
-                                        
+
                                         {!isItemsComplete && (
                                             <p className="text-center text-xs text-attire-silver/50 mt-4">
                                                 Please select all items to proceed.
