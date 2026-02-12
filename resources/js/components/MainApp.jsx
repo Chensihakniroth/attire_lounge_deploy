@@ -51,7 +51,7 @@ const PrivateRoute = lazyWithRetry(() => import('./pages/admin/PrivateRoute.jsx'
 const AdminLayout = lazyWithRetry(() => import('./pages/admin/AdminLayout.jsx'));
 const AppointmentManager = lazyWithRetry(() => import('./pages/admin/AppointmentManager.jsx'));
 const CustomizeGiftManager = lazyWithRetry(() => import('./pages/admin/CustomizeGiftManager.jsx'));
-const InventoryManager = lazyWithRetry(() => import('./pages/admin/InventoryManager.jsx'));
+import InventoryManager from './pages/admin/InventoryManager.jsx';
 const PrivacyPolicyPage = lazyWithRetry(() => import('./pages/PrivacyPolicyPage.jsx'));
 const TermsOfServicePage = lazyWithRetry(() => import('./pages/TermsOfServicePage.jsx'));
 const ReturnPolicyPage = lazyWithRetry(() => import('./pages/ReturnPolicyPage.jsx'));
