@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Package, AlertTriangle, CheckCircle, XCircle } from 'lucide-react';
-import minioBaseUrl from '../../../config.js';
+import minioBaseUrl from '../../../config';
 
 const giftOptions = {
     ties: [
@@ -29,8 +29,13 @@ const giftOptions = {
 
 const InventoryManager = () => {
     const [outOfStockItems, setOutOfStockItems] = useState(() => {
-        const saved = localStorage.getItem('out_of_stock_items');
-        return saved ? JSON.parse(saved) : [];
+        try {
+            const saved = localStorage.getItem('out_of_stock_items');
+            return saved ? JSON.parse(saved) : [];
+        } catch (e) {
+            console.error("Failed to parse out_of_stock_items", e);
+            return [];
+        }
     });
 
     useEffect(() => {
