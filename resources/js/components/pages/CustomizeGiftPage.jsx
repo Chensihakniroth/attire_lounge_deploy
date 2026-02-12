@@ -16,12 +16,12 @@ const giftOptions = {
       { id: 'tie-red69', name: 'Silk Tie', color: 'Red', image: `${minioBaseUrl}/uploads/collections/accessories/red69.webp` },
     ],
     pocketSquares: [
-      { id: 'ps-blue', name: 'Linen Pocket Square', color: 'Blue', image: `${minioBaseUrl}/uploads/collections/accessories/psblue.webp` },
-      { id: 'ps-green', name: 'Linen Pocket Square', color: 'Green', image: `${minioBaseUrl}/uploads/collections/accessories/psgreen.webp` },
-      { id: 'ps-pink', name: 'Linen Pocket Square', color: 'Pink', image: `${minioBaseUrl}/uploads/collections/accessories/pspink.webp` },
-      { id: 'ps-red', name: 'Linen Pocket Square', color: 'Red', image: `${minioBaseUrl}/uploads/collections/accessories/psred.webp` },
-      { id: 'ps-yellowgreen', name: 'Linen Pocket Square', color: 'Yellow Green', image: `${minioBaseUrl}/uploads/collections/accessories/psyellowgreen.webp` },
-      { id: 'ps-yellow', name: 'Linen Pocket Square', color: 'Yellow', image: `${minioBaseUrl}/uploads/collections/accessories/psyellow.webp` },
+      { id: 'ps-blue', name: 'Silk Pocket Square', color: 'Blue', image: `${minioBaseUrl}/uploads/collections/accessories/psblue.webp` },
+      { id: 'ps-green', name: 'Silk Pocket Square', color: 'Green', image: `${minioBaseUrl}/uploads/collections/accessories/psgreen.webp` },
+      { id: 'ps-pink', name: 'Silk Pocket Square', color: 'Pink', image: `${minioBaseUrl}/uploads/collections/accessories/pspink.webp` },
+      { id: 'ps-red', name: 'Silk Pocket Square', color: 'Red', image: `${minioBaseUrl}/uploads/collections/accessories/psred.webp` },
+      { id: 'ps-yellowgreen', name: 'Silk Pocket Square', color: 'Yellow Green', image: `${minioBaseUrl}/uploads/collections/accessories/psyellowgreen.webp` },
+      { id: 'ps-yellow', name: 'Silk Pocket Square', color: 'Yellow', image: `${minioBaseUrl}/uploads/collections/accessories/psyellow.webp` },
     ],
     boxes: [
       { id: 'box-small', name: 'Small Box', image: `${minioBaseUrl}/uploads/collections/accessories/smallbox.webp` },
@@ -30,18 +30,22 @@ const giftOptions = {
     ],
   };
 
-const SelectionCard = ({ item, isSelected, onSelect }) => {
+const SelectionCard = ({ item, isSelected, onSelect, isOutOfStock }) => {
     const [isLoaded, setIsLoaded] = React.useState(false);
 
     return (
         <motion.div
-            onClick={onSelect}
-            className={`group relative rounded-2xl overflow-hidden border-2 cursor-pointer transition-all duration-300 ${
+            onClick={isOutOfStock ? null : onSelect}
+            className={`group relative rounded-2xl overflow-hidden border-2 transition-all duration-300 ${
+                isOutOfStock 
+                    ? 'opacity-60 cursor-not-allowed border-white/5 grayscale-[0.5]' 
+                    : 'cursor-pointer'
+            } ${
                 isSelected
                     ? 'border-attire-accent shadow-[0_0_20px_rgba(212,168,76,0.25)]'
-                    : 'border-white/5 hover:border-white/20'
+                    : !isOutOfStock ? 'border-white/5 hover:border-white/20' : ''
             }`}
-            whileHover={{ y: -5 }}
+            whileHover={isOutOfStock ? {} : { y: -5 }}
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
         >
@@ -57,11 +61,19 @@ const SelectionCard = ({ item, isSelected, onSelect }) => {
                     alt={item.name}
                     className={`w-full h-full object-cover transition-all duration-700 ${
                         isLoaded ? 'opacity-100 scale-100' : 'opacity-0 scale-105'
-                    } ${isSelected ? 'scale-105' : 'group-hover:scale-105'}`}
+                    } ${isSelected ? 'scale-105' : !isOutOfStock ? 'group-hover:scale-105' : ''}`}
                     onLoad={() => setIsLoaded(true)}
                 />
 
                 <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent opacity-80" />
+                
+                {isOutOfStock && (
+                    <div className="absolute inset-0 flex items-center justify-center z-30">
+                        <div className="bg-black/60 backdrop-blur-sm border border-white/20 px-4 py-2 rounded-full">
+                            <span className="text-[10px] font-bold text-white uppercase tracking-[0.2em]">Sold Out</span>
+                        </div>
+                    </div>
+                )}
             </div>
 
             <div className="absolute bottom-0 left-0 p-4 z-20 w-full">
@@ -110,6 +122,14 @@ const CustomizeGiftPage = () => {
     const [submissionStatus, setSubmissionStatus] = useState({ state: 'idle' });
     const [formErrors, setFormErrors] = useState({});
     const [availableBoxes, setAvailableBoxes] = useState([]);
+    const [outOfStockItems, setOutOfStockItems] = useState([]);
+
+    useEffect(() => {
+        const saved = localStorage.getItem('out_of_stock_items');
+        if (saved) {
+            setOutOfStockItems(JSON.parse(saved));
+        }
+    }, []);
 
     useEffect(() => {
         let newAvailableBoxes = [];
@@ -327,6 +347,7 @@ ${note ? `Note: "${note}"` : ''}
                                                 item={tie}
                                                 isSelected={selectedTie?.id === tie.id}
                                                 onSelect={() => setSelectedTie(prev => prev?.id === tie.id ? null : tie)}
+                                                isOutOfStock={outOfStockItems.includes(tie.id)}
                                             />
                                         ))}
                                     </div>
@@ -346,6 +367,7 @@ ${note ? `Note: "${note}"` : ''}
                                                 item={ps}
                                                 isSelected={selectedPocketSquare?.id === ps.id}
                                                 onSelect={() => setSelectedPocketSquare(prev => prev?.id === ps.id ? null : ps)}
+                                                isOutOfStock={outOfStockItems.includes(ps.id)}
                                             />
                                         ))}
                                     </div>
@@ -371,6 +393,7 @@ ${note ? `Note: "${note}"` : ''}
                                                         item={box}
                                                         isSelected={selectedBox?.id === box.id}
                                                         onSelect={() => setSelectedBox(prev => prev?.id === box.id ? null : box)}
+                                                        isOutOfStock={outOfStockItems.includes(box.id)}
                                                     />
                                                 ))}
                                             </div>

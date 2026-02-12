@@ -10,6 +10,7 @@ import { useFavorites } from '../../context/FavoritesContext.jsx';
 import useDebounce from '../../hooks/useDebounce.js';
 
 const sortOptions = [
+    { value: 'category-asc', label: 'By Category' },
     { value: 'popularity-desc', label: 'Most Popular' },
     { value: 'createdAt-desc', label: 'Newest Arrivals' },
     { value: 'price-asc', label: 'Price: Low to High' },
@@ -26,7 +27,7 @@ const ProductListPage = () => {
     const location = useLocation();
     const collectionQuery = query.get('collection');
 
-    const [sortOrder, setSortOrder] = useState('popularity-desc');
+    const [sortOrder, setSortOrder] = useState('category-asc');
     const [priceRange, setPriceRange] = useState([0, 1000]);
     const [[page, direction], setPage] = useState([null, 0]);
     const { favorites, addFavorite, removeFavorite, isFavorited } = useFavorites();
@@ -54,6 +55,16 @@ const ProductListPage = () => {
             ? currentCollectionDetails.title
             : "All Products";
 
+        const categoryPriority = {
+            'Ties': 1,
+            'Pocket Squares': 2,
+            'Cufflinks': 3,
+            'Tuxedos': 4,
+            'Business Suits': 5,
+            'Summer Suits': 6,
+            'Suits': 7
+        };
+
         const [sortKey, sortDirection] = sortOrder.split('-');
         products.sort((a, b) => {
             if (sortKey === 'price') {
@@ -65,9 +76,28 @@ const ProductListPage = () => {
             if (sortKey === 'popularity') {
                 return sortDirection === 'asc' ? a.popularity - b.popularity : b.popularity - a.popularity;
             }
+            if (sortKey === 'category') {
+                const priorityA = categoryPriority[a.category] || 99;
+                const priorityB = categoryPriority[b.category] || 99;
+                
+                if (priorityA !== priorityB) {
+                    return sortDirection === 'asc' ? priorityA - priorityB : priorityB - priorityA;
+                }
+                
+                // Same category, sort by collection
+                const colA = a.collection || '';
+                const colB = b.collection || '';
+                if (colA !== colB) {
+                    return colA.localeCompare(colB);
+                }
+                
+                // Same collection, sort by name
+                return a.name.localeCompare(b.name);
+            }
             if (sortKey === 'name') {
-                if (a.name < b.name) return sortDirection === 'asc' ? -1 : 1;
-                if (a.name > b.name) return sortDirection === 'asc' ? 1 : -1;
+                return sortDirection === 'asc' 
+                    ? a.name.localeCompare(b.name) 
+                    : b.name.localeCompare(a.name);
             }
             return 0;
         });
