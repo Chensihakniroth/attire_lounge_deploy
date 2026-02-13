@@ -1,42 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ChevronLeft, ChevronRight, X, Share2, Download, Heart, Maximize2, Minimize, Info } from 'lucide-react';
-
-const lightboxVariants = {
-    hidden: { opacity: 0, backdropFilter: 'blur(0px)' },
-    visible: { opacity: 1, backdropFilter: 'blur(20px)' },
-};
-
-const imageSlideVariants = {
-    enter: (direction) => ({
-        x: direction > 0 ? 100 : -100,
-        opacity: 0,
-        scale: 0.9,
-        rotateY: direction > 0 ? 5 : -5
-    }),
-    center: {
-        zIndex: 1,
-        x: 0,
-        opacity: 1,
-        scale: 1,
-        rotateY: 0,
-        transition: {
-            duration: 0.5,
-            ease: [0.19, 1, 0.22, 1] // Power4.easeOut
-        }
-    },
-    exit: (direction) => ({
-        zIndex: 0,
-        x: direction < 0 ? 100 : -100,
-        opacity: 0,
-        scale: 0.9,
-        rotateY: direction < 0 ? 5 : -5,
-        transition: {
-            duration: 0.5,
-            ease: [0.19, 1, 0.22, 1]
-        }
-    })
-};
+import { ChevronLeft, ChevronRight, X, Heart, Maximize2, Minimize } from 'lucide-react';
 
 const Lightbox = ({
     selectedImage,
@@ -47,9 +11,8 @@ const Lightbox = ({
     favorites
 }) => {
     const [isFullscreen, setIsFullscreen] = useState(false);
-    const [showInfo, setShowInfo] = useState(true);
+    const [isLoaded, setIsLoaded] = useState(false);
 
-    // Keyboard navigation
     useEffect(() => {
         const handleKeyDown = (e) => {
             if (e.key === 'ArrowRight') paginate(1);
@@ -60,6 +23,11 @@ const Lightbox = ({
         return () => window.removeEventListener('keydown', handleKeyDown);
     }, [paginate, closeLightbox]);
 
+    useEffect(() => {
+        setIsLoaded(false);
+        setIsFullscreen(false);
+    }, [selectedImage.id]);
+
     if (!selectedImage) return null;
 
     const handleToggleFullscreen = (e) => {
@@ -69,138 +37,145 @@ const Lightbox = ({
 
     return (
         <motion.div
-            variants={lightboxVariants}
-            initial="hidden"
-            animate="visible"
-            exit="hidden"
-            transition={{ duration: 0.4 }}
-            className="fixed inset-0 z-[100] flex items-center justify-center bg-black/95 overflow-hidden"
-            onClick={closeLightbox}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.2 }}
+            className="fixed inset-0 z-[100] flex items-center justify-center bg-attire-navy overflow-hidden"
+            onClick={(e) => e.stopPropagation()}
         >
-            {/* Film Grain Texture */}
-            <div className="absolute inset-0 opacity-[0.03] pointer-events-none" style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E")` }} />
-
-            {/* Top Bar Controls */}
-            <div className="absolute top-0 left-0 right-0 z-[110] p-6 flex justify-between items-start pointer-events-none">
-                <div className="flex flex-col text-white pointer-events-auto">
-                     <span className="text-[10px] tracking-[0.3em] uppercase text-attire-silver/60">Collection</span>
-                     <span className="font-serif text-xl tracking-wide">{selectedImage.collection}</span>
-                </div>
-                
-                <motion.button
-                    initial={{ rotate: -90, opacity: 0 }}
-                    animate={{ rotate: 0, opacity: 1 }}
-                    whileHover={{ scale: 1.1, rotate: 90 }}
-                    onClick={closeLightbox}
-                    className="p-3 bg-white/5 backdrop-blur-md rounded-full border border-white/10 hover:bg-white/10 hover:border-white/30 transition-all pointer-events-auto"
-                >
-                    <X className="w-5 h-5 text-white" />
-                </motion.button>
+            {/* Minimal Background Noise */}
+            <div className="absolute inset-0 pointer-events-none">
+                <div className="absolute inset-0 opacity-[0.03]" style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E")` }} />
             </div>
 
-            {/* Main Content Area */}
-            <div className="relative w-full h-full flex items-center justify-center p-4 md:p-12">
-                
-                <AnimatePresence initial={false} custom={direction} mode="wait">
-                    <motion.div
-                        key={selectedImage.id}
-                        custom={direction}
-                        variants={imageSlideVariants}
-                        initial="enter"
-                        animate="center"
-                        exit="exit"
-                        drag="x"
-                        dragConstraints={{ left: 0, right: 0 }}
-                        dragElastic={1}
-                        onDragEnd={(e, { offset, velocity }) => {
-                            const swipeThreshold = 50;
-                            if (offset.x < -swipeThreshold) {
-                                paginate(1);
-                            } else if (offset.x > swipeThreshold) {
-                                paginate(-1);
-                            }
-                        }}
-                        className={`relative shadow-2xl origin-center bg-[#050505] overflow-hidden transition-all duration-500 ease-out ${
-                            isFullscreen 
-                                ? 'w-full h-full rounded-none' 
-                                : 'w-full max-w-4xl aspect-[3/4] md:aspect-[4/3] max-h-[85vh] rounded-sm'
-                        }`}
-                        onClick={(e) => e.stopPropagation()}
+            {/* Header */}
+            {!isFullscreen && (
+                <div className="absolute top-0 left-0 right-0 z-[110] p-4 md:p-10 flex justify-between items-center pointer-events-none">
+                    <div className="flex flex-col pointer-events-auto">
+                        <span className="text-[8px] md:text-[10px] font-bold text-attire-accent uppercase tracking-[0.4em] mb-1">
+                            {selectedImage.collection || 'Collection'}
+                        </span>
+                        <h3 className="text-white font-serif text-sm md:text-lg tracking-wide">{selectedImage.title}</h3>
+                    </div>
+                    
+                    <button
+                        onClick={closeLightbox}
+                        className="p-2.5 md:p-3 bg-white/5 rounded-full border border-white/10 hover:bg-white/10 transition-all pointer-events-auto text-white"
                     >
-                        <img
-                            src={selectedImage.src}
-                            alt={selectedImage.title}
-                            className={`w-full h-full ${isFullscreen ? 'object-contain' : 'object-cover'} select-none`}
-                            draggable="false"
-                        />
-                        
-                        {/* Image Overlay Gradient - Only visible when not full screen or on hover */}
-                        <div className={`absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent transition-opacity duration-500 ${showInfo && !isFullscreen ? 'opacity-100' : 'opacity-0 hover:opacity-100'}`} />
+                        <X className="w-4 h-4 md:w-5 h-5" />
+                    </button>
+                </div>
+            )}
 
-                        {/* Info & Actions - Floating on Image */}
-                        <div className={`absolute bottom-0 left-0 right-0 p-6 md:p-8 flex items-end justify-between transition-all duration-500 ${showInfo && !isFullscreen ? 'translate-y-0 opacity-100' : 'translate-y-4 opacity-0 hover:translate-y-0 hover:opacity-100'}`}>
-                            
-                            <div className="max-w-md">
-                                <h2 className="text-3xl md:text-5xl font-serif text-white mb-2 tracking-tight">{selectedImage.title}</h2>
-                                <p className="text-attire-silver/70 text-sm font-light leading-relaxed line-clamp-2">
-                                    A statement of elegance from the {selectedImage.collection}. 
-                                    Tailored for the modern gentleman who appreciates the finer details.
-                                </p>
+            {/* Content Area */}
+            <div className={`relative w-full h-full flex flex-col lg:flex-row items-center justify-center transition-all ${isFullscreen ? 'p-0' : 'p-4 pt-24 pb-8 md:p-16 lg:p-24 lg:gap-20 overflow-y-auto lg:overflow-hidden max-w-[1600px] mx-auto'}`}>
+                
+                {/* Image Section */}
+                <div className={`relative flex-shrink-0 flex items-center justify-center ${isFullscreen ? 'w-full h-full' : 'w-full lg:w-[55%] py-8 lg:py-0'}`}>
+                    <AnimatePresence mode="wait">
+                        <motion.div
+                            key={selectedImage.id}
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            exit={{ opacity: 0 }}
+                            transition={{ duration: 0.2 }}
+                            className="relative w-full h-full flex items-center justify-center"
+                            onClick={handleToggleFullscreen}
+                        >
+                            <div className={`relative w-full h-full flex items-center justify-center ${isFullscreen ? 'cursor-zoom-out' : 'cursor-zoom-in'}`}>
+                                {!isLoaded && (
+                                    <div className="absolute inset-0 flex items-center justify-center">
+                                        <div className="w-6 h-6 border border-white/20 border-t-white rounded-full animate-spin" />
+                                    </div>
+                                )}
+                                <img
+                                    src={selectedImage.src}
+                                    alt={selectedImage.title}
+                                    onLoad={() => setIsLoaded(true)}
+                                    className={`transition-opacity duration-200 ${isLoaded ? 'opacity-100' : 'opacity-0'} ${isFullscreen ? 'w-full h-full object-contain' : 'max-w-full max-h-[45vh] lg:max-h-[70vh] object-contain shadow-2xl'}`}
+                                    draggable="false"
+                                />
                             </div>
+                        </motion.div>
+                    </AnimatePresence>
 
-                            <div className="flex items-center gap-3">
-                                <button 
-                                    onClick={(e) => { e.stopPropagation(); toggleFavorite(selectedImage.id); }} 
-                                    className={`p-3 rounded-full backdrop-blur-md border transition-all duration-300 ${favorites.includes(selectedImage.id) ? 'bg-red-500/20 border-red-500 text-red-500' : 'bg-white/10 border-white/10 text-white hover:bg-white/20'}`}
-                                >
-                                    <Heart className={`w-5 h-5 ${favorites.includes(selectedImage.id) ? 'fill-current' : ''}`} />
-                                </button>
-                                
-                                <button 
-                                    onClick={handleToggleFullscreen} 
-                                    className="p-3 rounded-full bg-white/10 backdrop-blur-md border border-white/10 text-white hover:bg-white/20 transition-all"
-                                >
-                                    {isFullscreen ? <Minimize className="w-5 h-5" /> : <Maximize2 className="w-5 h-5" />}
-                                </button>
+                    {/* Navigation */}
+                    {!isFullscreen && (
+                        <div className="absolute inset-x-0 top-1/2 -translate-y-1/2 flex justify-between px-0 pointer-events-none">
+                            <button 
+                                onClick={(e) => { e.stopPropagation(); paginate(-1); }} 
+                                className="p-2 md:p-4 text-white/20 hover:text-white transition-colors pointer-events-auto"
+                            >
+                                <ChevronLeft className="w-8 h-8 md:w-10 md:h-10" />
+                            </button>
+                            <button 
+                                onClick={(e) => { e.stopPropagation(); paginate(1); }} 
+                                className="p-2 md:p-4 text-white/20 hover:text-white transition-colors pointer-events-auto"
+                            >
+                                <ChevronRight className="w-8 h-8 md:w-10 md:h-10" />
+                            </button>
+                        </div>
+                    )}
+                </div>
+
+                {/* Info Section */}
+                {!isFullscreen && (
+                    <div className="w-full lg:w-[35%] flex flex-col justify-center text-left space-y-6 md:space-y-10 px-2 pb-10 lg:pb-0">
+                        <div className="space-y-3 md:space-y-6">
+                            <h2 className="text-2xl md:text-5xl font-serif text-white leading-tight">
+                                {selectedImage.title}
+                            </h2>
+                            <p className="text-attire-silver/60 text-xs md:text-base font-light leading-relaxed max-w-sm">
+                                A showcase of technical precision and timeless design. This piece highlights the intersection of classic elegance and modern silhouettes.
+                            </p>
+                        </div>
+
+                        <div className="grid grid-cols-2 gap-y-4 md:gap-y-6 gap-x-8 md:gap-x-12 border-t border-white/5 pt-6 md:pt-10">
+                            <div>
+                                <p className="text-[8px] md:text-[9px] font-bold text-attire-accent uppercase tracking-[0.3em] mb-1">Details</p>
+                                <p className="text-white/80 text-xs md:text-sm font-light">Custom Hand-finished</p>
+                            </div>
+                            <div>
+                                <p className="text-[8px] md:text-[9px] font-bold text-attire-accent uppercase tracking-[0.3em] mb-1">Fabric</p>
+                                <p className="text-white/80 text-xs md:text-sm font-light">Italian Wool-Silk</p>
+                            </div>
+                            <div>
+                                <p className="text-[8px] md:text-[9px] font-bold text-attire-accent uppercase tracking-[0.3em] mb-1">Fit</p>
+                                <p className="text-white/80 text-xs md:text-sm font-light">Sartorial Slim</p>
+                            </div>
+                            <div>
+                                <p className="text-[8px] md:text-[9px] font-bold text-attire-accent uppercase tracking-[0.3em] mb-1">Look</p>
+                                <p className="text-white/80 text-xs md:text-sm font-light">#{selectedImage.id.toString().padStart(2, '0')}</p>
                             </div>
                         </div>
-                    </motion.div>
-                </AnimatePresence>
 
-                {/* Floating Navigation Controls - Dissociated from Image */}
-                {!isFullscreen && (
-                    <>
-                        <motion.button 
-                            initial={{ opacity: 0, x: -20 }}
-                            animate={{ opacity: 1, x: 0 }}
-                            onClick={(e) => { e.stopPropagation(); paginate(-1); }} 
-                            className="absolute left-4 md:left-8 top-1/2 -translate-y-1/2 p-4 rounded-full text-white/50 hover:text-white hover:bg-white/5 transition-all group"
-                        >
-                            <ChevronLeft className="w-10 h-10 group-hover:-translate-x-1 transition-transform" />
-                        </motion.button>
-
-                        <motion.button 
-                            initial={{ opacity: 0, x: 20 }}
-                            animate={{ opacity: 1, x: 0 }}
-                            onClick={(e) => { e.stopPropagation(); paginate(1); }} 
-                            className="absolute right-4 md:right-8 top-1/2 -translate-y-1/2 p-4 rounded-full text-white/50 hover:text-white hover:bg-white/5 transition-all group"
-                        >
-                            <ChevronRight className="w-10 h-10 group-hover:translate-x-1 transition-transform" />
-                        </motion.button>
-                    </>
+                        <div className="pt-2 md:pt-4">
+                            <button 
+                                onClick={() => toggleFavorite(selectedImage.id)}
+                                className={`flex items-center gap-2 md:gap-3 px-6 md:px-10 py-3 md:py-4 rounded-full text-[10px] md:text-xs font-bold uppercase tracking-widest transition-all ${
+                                    favorites.includes(selectedImage.id) 
+                                        ? 'bg-attire-accent text-black' 
+                                        : 'bg-white/5 text-white border border-white/10 hover:bg-white/10'
+                                }`}
+                            >
+                                <Heart size={14} className={favorites.includes(selectedImage.id) ? 'fill-current' : ''} />
+                                {favorites.includes(selectedImage.id) ? 'Added' : 'Favorite'}
+                            </button>
+                        </div>
+                    </div>
                 )}
             </div>
 
-            {/* Bottom Progress Bar */}
-            <div className="absolute bottom-0 left-0 right-0 h-1 bg-white/10">
-                 <motion.div 
-                    initial={{ width: "0%" }}
-                    animate={{ width: "100%" }}
-                    key={selectedImage.id}
-                    transition={{ duration: 5, ease: "linear" }} // Auto-progress simulation visual only
-                    className="h-full bg-attire-accent"
-                 />
-            </div>
+            {/* Fullscreen Close */}
+            {isFullscreen && (
+                <button 
+                    onClick={handleToggleFullscreen}
+                    className="absolute top-6 right-6 p-4 bg-black/40 rounded-full text-white hover:bg-black/60 transition-all"
+                >
+                    <Minimize className="w-6 h-6" />
+                </button>
+            )}
         </motion.div>
     );
 };
