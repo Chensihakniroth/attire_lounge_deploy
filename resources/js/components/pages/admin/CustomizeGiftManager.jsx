@@ -1,8 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { User, Mail, Phone, Gift, AlertTriangle, Loader, CheckCircle, XCircle, Trash2, Package, Eye, EyeOff } from 'lucide-react';
+import { User, Mail, Phone, Gift, Loader, CheckCircle, XCircle, Trash2 } from 'lucide-react';
 import { useAdmin } from './AdminContext';
-import giftOptions from '../../../data/giftOptions';
-import api from '../../../api';
 
 const GiftRequestCard = ({ request, onUpdate, onDelete }) => {
     const [isUpdating, setIsUpdating] = useState(false);
@@ -41,10 +39,14 @@ const GiftRequestCard = ({ request, onUpdate, onDelete }) => {
                     <div>
                         <h3 className="text-lg font-serif text-white">{request.name}</h3>
                         <div className="flex items-center gap-3 text-xs text-attire-silver/60 mt-1">
-                            <span className="flex items-center gap-1 hover:text-white transition-colors">
-                                <Mail size={12} /> {request.email}
-                            </span>
-                            <span>•</span>
+                            {request.email && (
+                                <>
+                                    <span className="flex items-center gap-1 hover:text-white transition-colors">
+                                        <Mail size={12} /> {request.email}
+                                    </span>
+                                    <span>•</span>
+                                </>
+                            )}
                             <span className="flex items-center gap-1 hover:text-white transition-colors">
                                 <Phone size={12} /> {request.phone}
                             </span>
@@ -118,51 +120,7 @@ const GiftRequestCard = ({ request, onUpdate, onDelete }) => {
     );
 };
 
-const InventoryItem = ({ item, isOutOfStock, onToggle }) => {
-    const [isUpdating, setIsUpdating] = useState(false);
-
-    const handleToggle = async () => {
-        setIsUpdating(true);
-        try {
-            await onToggle(item.id, !isOutOfStock);
-        } finally {
-            setIsUpdating(false);
-        }
-    };
-
-    return (
-        <div className={`p-4 rounded-2xl border transition-all duration-300 ${
-            isOutOfStock ? 'bg-red-500/5 border-red-500/20' : 'bg-green-500/5 border-green-500/20'
-        }`}>
-            <div className="flex items-center gap-4">
-                <div className="h-16 w-16 rounded-xl overflow-hidden border border-white/10">
-                    <img src={item.image} alt={item.name} className={`w-full h-full object-cover ${isOutOfStock ? 'grayscale opacity-50' : ''}`} />
-                </div>
-                <div className="flex-grow">
-                    <h4 className="text-sm font-medium text-white">{item.name}</h4>
-                    <p className="text-xs text-attire-silver">{item.color || 'Default'}</p>
-                </div>
-                <button
-                    onClick={handleToggle}
-                    disabled={isUpdating}
-                    className={`flex items-center gap-2 px-3 py-2 rounded-xl text-xs font-bold uppercase tracking-wider transition-all ${
-                        isOutOfStock 
-                            ? 'bg-red-500/10 text-red-400 border border-red-500/20 hover:bg-red-500/20' 
-                            : 'bg-green-500/10 text-green-400 border border-green-500/20 hover:bg-green-500/20'
-                    }`}
-                >
-                    {isUpdating ? <Loader className="animate-spin" size={14} /> : (isOutOfStock ? <><EyeOff size={14} /> Out of Stock</> : <><Eye size={14} /> In Stock</>)}
-                </button>
-            </div>
-        </div>
-    );
-};
-
 const CustomizeGiftManager = () => {
-    const [activeTab, setActiveTab] = useState('requests');
-    const [outOfStockItems, setOutOfStockItems] = useState([]);
-    const [inventoryLoading, setInventoryLoading] = useState(false);
-
     const { 
         giftRequests, 
         giftRequestsLoading, 
@@ -171,27 +129,13 @@ const CustomizeGiftManager = () => {
         deleteGiftRequest 
     } = useAdmin();
 
-    const fetchInventory = useCallback(async () => {
-        setInventoryLoading(true);
-        try {
-            const items = await api.getOutOfStockItems();
-            setOutOfStockItems(items);
-        } catch (error) {
-            console.error('Failed to fetch inventory:', error);
-        } finally {
-            setInventoryLoading(false);
-        }
-    }, []);
-
     useEffect(() => {
         fetchGiftRequests(); // Use context fetcher
-        fetchInventory();
         const intervalId = setInterval(() => {
             fetchGiftRequests(false);
-            fetchInventory();
         }, 60000); 
         return () => clearInterval(intervalId);
-    }, [fetchGiftRequests, fetchInventory]);
+    }, [fetchGiftRequests]);
 
     const handleUpdate = useCallback(async (id, status) => {
         try {
@@ -209,115 +153,40 @@ const CustomizeGiftManager = () => {
         }
     }, [deleteGiftRequest]);
 
-    const handleToggleStock = async (itemId, isOutOfStock) => {
-        try {
-            await api.toggleGiftItemStock(itemId, isOutOfStock);
-            setOutOfStockItems(prev => 
-                isOutOfStock 
-                    ? [...prev, itemId] 
-                    : prev.filter(id => id !== itemId)
-            );
-        } catch (error) {
-            console.error('Failed to toggle stock:', error);
-        }
-    };
+    if (giftRequestsLoading && giftRequests.length === 0) {
+        return (
+            <div className="flex justify-center items-center h-64">
+                <Loader className="animate-spin text-attire-accent" size={48} />
+            </div>
+        );
+    }
 
-    const renderRequests = () => {
-        if (giftRequestsLoading && giftRequests.length === 0) {
-            return (
-                <div className="flex justify-center items-center h-64">
-                    <Loader className="animate-spin text-attire-accent" size={48} />
-                </div>
-            );
-        }
+    return (
+        <div className="space-y-8">
+            <div className="pb-4 border-b border-white/10">
+                <h1 className="text-4xl font-serif text-white mb-2">Gift Management</h1>
+                <p className="text-attire-silver text-sm">Manage customized gift box inquiries.</p>
+            </div>
 
-        if (giftRequests.length === 0 && !giftRequestsLoading) {
-            return (
+            {giftRequests.length === 0 ? (
                 <div className="text-center py-20 bg-black/20 rounded-3xl border border-white/5">
                     <div className="w-16 h-16 bg-white/5 rounded-full flex items-center justify-center mx-auto mb-4">
                         <Gift className="text-attire-silver/30" />
                     </div>
                     <p className="text-attire-silver/60">No gift requests found.</p>
                 </div>
-            );
-        }
-
-        return (
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                {giftRequests.map(request => (
-                    <GiftRequestCard 
-                        key={request.id} 
-                        request={request} 
-                        onUpdate={handleUpdate}
-                        onDelete={handleDelete}
-                    />
-                ))}
-            </div>
-        );
-    };
-
-    const renderInventory = () => {
-        if (inventoryLoading && outOfStockItems.length === 0 && Object.keys(giftOptions).length === 0) {
-            return (
-                <div className="flex justify-center items-center h-64">
-                    <Loader className="animate-spin text-attire-accent" size={48} />
+            ) : (
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    {giftRequests.map(request => (
+                        <GiftRequestCard 
+                            key={request.id} 
+                            request={request} 
+                            onUpdate={handleUpdate}
+                            onDelete={handleDelete}
+                        />
+                    ))}
                 </div>
-            );
-        }
-
-        return (
-            <div className="space-y-12">
-                {Object.entries(giftOptions).map(([category, items]) => (
-                    <div key={category} className="space-y-6">
-                        <div className="flex items-center gap-4">
-                            <h3 className="text-xl font-serif text-white uppercase tracking-widest">{category.replace(/([A-Z])/g, ' $1')}</h3>
-                            <div className="h-px flex-grow bg-white/10"></div>
-                        </div>
-                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                            {items.map(item => (
-                                <InventoryItem 
-                                    key={item.id} 
-                                    item={item} 
-                                    isOutOfStock={outOfStockItems.includes(item.id)}
-                                    onToggle={handleToggleStock}
-                                />
-                            ))}
-                        </div>
-                    </div>
-                ))}
-            </div>
-        );
-    };
-
-    return (
-        <div className="space-y-8">
-            <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 pb-4 border-b border-white/10">
-                <div>
-                    <h1 className="text-4xl font-serif text-white mb-2">Gift Management</h1>
-                    <p className="text-attire-silver text-sm">Manage customized gift box inquiries and item availability.</p>
-                </div>
-                
-                <div className="flex bg-black/40 p-1 rounded-2xl border border-white/5">
-                    <button 
-                        onClick={() => setActiveTab('requests')}
-                        className={`px-6 py-2.5 rounded-xl text-sm font-semibold transition-all duration-300 flex items-center gap-2 ${
-                            activeTab === 'requests' ? 'bg-attire-accent text-black' : 'text-attire-silver hover:text-white'
-                        }`}
-                    >
-                        <Gift size={18} /> Requests
-                    </button>
-                    <button 
-                        onClick={() => setActiveTab('inventory')}
-                        className={`px-6 py-2.5 rounded-xl text-sm font-semibold transition-all duration-300 flex items-center gap-2 ${
-                            activeTab === 'inventory' ? 'bg-attire-accent text-black' : 'text-attire-silver hover:text-white'
-                        }`}
-                    >
-                        <Package size={18} /> Inventory
-                    </button>
-                </div>
-            </div>
-
-            {activeTab === 'requests' ? renderRequests() : renderInventory()}
+            )}
         </div>
     );
 };
