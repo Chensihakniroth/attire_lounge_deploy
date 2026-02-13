@@ -6,6 +6,7 @@ import Footer from '../layouts/Footer.jsx';
 import { Link, useLocation } from 'react-router-dom';
 import SectionIndicator from './SectionIndicator.jsx';
 import FashionShow from '../sections/FashionShow.jsx';
+import OptimizedImage from '../common/OptimizedImage.jsx';
 
 import minioBaseUrl from '../../config.js';
 
@@ -585,10 +586,10 @@ const TipsAndTricksSection = memo(forwardRef(({ tipsAndTricks }, ref) => {
                   className={`relative overflow-hidden rounded-2xl cursor-pointer transition-all duration-700 ease-[cubic-bezier(0.25,1,0.5,1)] ${isHovered ? 'flex-[3] md:flex-[4]' : 'flex-[1]'} group`}
                 >
                     {/* Background Image */}
-                    <img
+                    <OptimizedImage
                         src={tip.image}
                         alt={tip.title}
-                        className={`absolute inset-0 w-full h-full object-cover object-[center_20%] transition-transform duration-1000 ease-out ${isHovered ? 'scale-110 grayscale-0 opacity-100' : 'scale-100 grayscale-0 opacity-100'}`}
+                        className={`absolute inset-0 w-full h-full object-cover object-[center_20%] transition-transform duration-1000 ease-out ${isHovered ? 'scale-110' : 'scale-100'}`}
                         loading="lazy"
                     />
                     <div className={`absolute inset-0 bg-gradient-to-b from-black/10 via-transparent to-black/90 transition-opacity duration-500 ${isHovered ? 'opacity-90' : 'opacity-20'}`} />

@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ChevronLeft, ChevronRight, X, Heart, Maximize2, Minimize } from 'lucide-react';
+import OptimizedImage from '../../common/OptimizedImage.jsx';
 
 const Lightbox = ({
     selectedImage,
@@ -84,16 +85,12 @@ const Lightbox = ({
                             onClick={handleToggleFullscreen}
                         >
                             <div className={`relative w-full h-full flex items-center justify-center ${isFullscreen ? 'cursor-zoom-out' : 'cursor-zoom-in'}`}>
-                                {!isLoaded && (
-                                    <div className="absolute inset-0 flex items-center justify-center">
-                                        <div className="w-6 h-6 border border-white/20 border-t-white rounded-full animate-spin" />
-                                    </div>
-                                )}
-                                <img
+                                <OptimizedImage
                                     src={selectedImage.src}
                                     alt={selectedImage.title}
-                                    onLoad={() => setIsLoaded(true)}
-                                    className={`transition-opacity duration-200 ${isLoaded ? 'opacity-100' : 'opacity-0'} ${isFullscreen ? 'w-full h-full object-contain' : 'max-w-full max-h-[45vh] lg:max-h-[70vh] object-contain shadow-2xl'}`}
+                                    containerClassName="w-full h-full flex items-center justify-center"
+                                    className={isFullscreen ? 'w-full h-full' : 'max-w-full max-h-[45vh] lg:max-h-[70vh] shadow-2xl'}
+                                    objectFit="contain"
                                     draggable="false"
                                 />
                             </div>

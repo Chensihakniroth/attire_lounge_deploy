@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import Lightbox from './lookbook/Lightbox';
+import OptimizedImage from '../common/OptimizedImage.jsx';
 import { wrap } from "../../helpers/math.js";
 import minioBaseUrl from '../../config.js';
 import { ChevronLeft, ChevronRight, Filter } from 'lucide-react';
@@ -212,7 +213,7 @@ const LookbookPage = () => {
                             className="group relative cursor-pointer overflow-hidden rounded-2xl border border-white/5 shadow-lg h-[28rem]"
                             onClick={() => openLightbox((currentPage - 1) * itemsPerPage + index)}
                         >
-                            <img
+                            <OptimizedImage
                                 src={image.src}
                                 alt={image.title}
                                 className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"

@@ -2,6 +2,7 @@ import React, { useEffect, useRef, useState, useMemo, memo } from 'react';
 import { motion } from 'framer-motion';
 import { ExternalLink, ArrowRight, MapPin, Calendar, Users, Star } from 'lucide-react';
 import minioBaseUrl from '../../config.js';
+import Skeleton from '../common/Skeleton.jsx';
 
 const fadeUp = {
   hidden: { opacity: 0, y: 30 },
@@ -56,9 +57,7 @@ const ProgressiveImage = memo(({ src, alt }) => {
         />
       )}
       {!isLoaded && (
-        <div className="absolute inset-0 flex items-center justify-center">
-          <div className="w-4 h-4 border border-attire-accent/10 border-t-attire-accent/40 rounded-full animate-spin" />
-        </div>
+        <Skeleton className="absolute inset-0 z-10 w-full h-full rounded-none" />
       )}
     </div>
   );

@@ -1,5 +1,6 @@
 import React from 'react';
 import { motion } from 'framer-motion';
+import OptimizedImage from '../../common/OptimizedImage.jsx';
 
 const itemVariants = {
     hidden: { y: 20, opacity: 0 },
@@ -19,8 +20,8 @@ const ItemCard = ({ product, openLightbox }) => {
             onClick={openLightbox}
             variants={itemVariants}
         >
-            <div className="relative overflow-hidden aspect-w-3 aspect-h-4 group rounded-sm">
-                <img src={imageUrl} alt={product.name} className="w-full h-full object-cover" />
+            <div className="relative overflow-hidden aspect-[3/4] group rounded-sm">
+                <OptimizedImage src={imageUrl} alt={product.name} className="w-full h-full object-cover" />
             </div>
         </motion.div>
     );
