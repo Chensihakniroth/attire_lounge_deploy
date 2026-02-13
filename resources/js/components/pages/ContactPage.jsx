@@ -264,7 +264,7 @@ const ContactPage = () => {
     const validateForm = () => {
         const newErrors = {};
         if (!formData.name.trim()) newErrors.name = 'Please enter your name';
-        if (!formData.email.trim() || !/\S+@\S+\.\S+/.test(formData.email)) {
+        if (formData.email.trim() && !/\S+@\S+\.\S+/.test(formData.email)) {
             newErrors.email = 'Please enter a valid email';
         }
         if (!formData.phone.trim()) newErrors.phone = 'Please enter your phone number';

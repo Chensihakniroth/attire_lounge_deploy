@@ -22,7 +22,7 @@ class AppointmentController extends Controller
             // Note: The frontend sends 'date' and 'time', which map directly to the database columns.
             $validatedData = $request->validate([
                 'name' => 'required|string|max:255',
-                'email' => 'required|string|email|max:255',
+                'email' => 'nullable|string|email|max:255',
                 'phone' => 'required|string|max:255',
                 'service' => 'required|string|max:255',
                 'date' => 'required|date',

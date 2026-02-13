@@ -146,8 +146,9 @@ const CustomizeGiftPage = () => {
         e.preventDefault();
         const errors = {};
         if (!formData.name.trim()) errors.name = 'Name is required.';
-        if (!formData.email.trim()) errors.email = 'Email is required.';
-        else if (!/\S+@\S+\.\S+/.test(formData.email)) errors.email = 'Email is invalid.';
+        if (formData.email.trim() && !/\S+@\S+\.\S+/.test(formData.email)) {
+            errors.email = 'Email is invalid.';
+        }
         if (!formData.phone.trim()) errors.phone = 'Phone is required.';
 
         if (Object.keys(errors).length > 0) {
