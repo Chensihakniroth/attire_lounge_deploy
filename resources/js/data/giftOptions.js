@@ -2,13 +2,13 @@ import minioBaseUrl from '../config';
 
 export const giftOptions = {
     ties: [
-      { id: 'tie-brown69', name: 'Silk Tie', color: 'Brown', price: 69, image: `${minioBaseUrl}/uploads/collections/accessories/brown69.webp` },
+      { id: 'tie-brown69', name: 'Hand-roll Silk Tie', color: 'Brown', price: 69, image: `${minioBaseUrl}/uploads/collections/accessories/brown69.webp` },
       { id: 'tie-cream49', name: 'Silk Tie', color: 'Cream', price: 49, image: `${minioBaseUrl}/uploads/collections/accessories/cream49.webp` },
-      { id: 'tie-cyan69', name: 'Silk Tie', color: 'Cyan', price: 69, image: `${minioBaseUrl}/uploads/collections/accessories/cyan69.webp` },
-      { id: 'tie-blue69', name: 'Silk Tie', color: 'Blue', price: 69, image: `${minioBaseUrl}/uploads/collections/accessories/blue69.webp` },
+      { id: 'tie-cyan69', name: 'Hand-roll Silk Tie', color: 'Cyan', price: 69, image: `${minioBaseUrl}/uploads/collections/accessories/cyan69.webp` },
+      { id: 'tie-blue69', name: 'Hand-roll Silk Tie', color: 'Blue', price: 69, image: `${minioBaseUrl}/uploads/collections/accessories/blue69.webp` },
       { id: 'tie-green49', name: 'Silk Tie', color: 'Green', price: 49, image: `${minioBaseUrl}/uploads/collections/accessories/green49.webp` },
-      { id: 'tie-white69', name: 'Silk Tie', color: 'White', price: 69, image: `${minioBaseUrl}/uploads/collections/accessories/white69.webp` },
-      { id: 'tie-red69', name: 'Silk Tie', color: 'Red', price: 69, image: `${minioBaseUrl}/uploads/collections/accessories/red69.webp` },
+      { id: 'tie-white69', name: 'Hand-roll Silk Tie', color: 'White', price: 69, image: `${minioBaseUrl}/uploads/collections/accessories/white69.webp` },
+      { id: 'tie-red69', name: 'Hand-roll Silk Tie', color: 'Red', price: 69, image: `${minioBaseUrl}/uploads/collections/accessories/red69.webp` },
     ],
     pocketSquares: [
       { id: 'ps-blue', name: 'Silk Pocket Square', color: 'Blue', price: 20, image: `${minioBaseUrl}/uploads/collections/accessories/psblue.webp` },
