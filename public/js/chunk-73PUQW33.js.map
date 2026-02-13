@@ -1,7 +1,0 @@
-{
-  "version": 3,
-  "sources": ["../../resources/js/components/pages/admin/ThemeContext.jsx"],
-  "sourcesContent": ["import React, { createContext } from 'react';\n\nexport const ThemeContext = createContext();\n\nexport const ThemeProvider = ({ children }) => {\n  const colors = {\n    background: '#111827', // bg-gray-900\n    card: '#1f2937', // bg-gray-800\n    border: '#374151', // border-gray-700\n    primary: '#3b82f6', // blue-500\n    mainText: '#ffffff', // text-white\n    sidebarText: '#9ca3af', // text-gray-400\n  };\n\n  return (\n    <ThemeContext.Provider value={{ colors }}>\n      {children}\n    </ThemeContext.Provider>\n  );\n};\n"],
-  "mappings": ";;;;;;AAAA,mBAAqC;AAE9B,IAAM,mBAAe,4BAAc;AAEnC,IAAM,gBAAgB,CAAC,EAAE,SAAS,MAAM;AAC7C,QAAM,SAAS;AAAA,IACb,YAAY;AAAA;AAAA,IACZ,MAAM;AAAA;AAAA,IACN,QAAQ;AAAA;AAAA,IACR,SAAS;AAAA;AAAA,IACT,UAAU;AAAA;AAAA,IACV,aAAa;AAAA;AAAA,EACf;AAEA,SACE,6BAAAA,QAAA,cAAC,aAAa,UAAb,EAAsB,OAAO,EAAE,OAAO,KACpC,QACH;AAEJ;",
-  "names": ["React"]
-}

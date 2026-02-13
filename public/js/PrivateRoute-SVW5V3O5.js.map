@@ -1,7 +1,0 @@
-{
-  "version": 3,
-  "sources": ["../../resources/js/components/pages/admin/PrivateRoute.jsx"],
-  "sourcesContent": ["import React from 'react';\nimport { Navigate, Outlet } from 'react-router-dom';\n\nconst PrivateRoute = () => {\n    const isAdmin = sessionStorage.getItem('isAdmin') === 'true';\n    return isAdmin ? <Outlet /> : <Navigate to=\"/admin/login\" />;\n};\n\nexport default PrivateRoute;\n"],
-  "mappings": ";;;;;;;;;;AAAA,mBAAkB;AAGlB,IAAM,eAAe,MAAM;AACvB,QAAM,UAAU,eAAe,QAAQ,SAAS,MAAM;AACtD,SAAO,UAAU,6BAAAA,QAAA,cAAC,YAAO,IAAK,6BAAAA,QAAA,cAAC,YAAS,IAAG,gBAAe;AAC9D;AAEA,IAAO,uBAAQ;",
-  "names": ["React"]
-}

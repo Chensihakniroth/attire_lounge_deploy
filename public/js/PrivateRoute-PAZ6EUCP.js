@@ -1,1 +1,0 @@
-import{d as i,e as o}from"./chunk-FH4KDN6G.js";import{c as e,d as r}from"./chunk-G5YI4KV6.js";var t=e(r());var m=()=>sessionStorage.getItem("isAdmin")==="true"?t.default.createElement(o,null):t.default.createElement(i,{to:"/admin/login"}),a=m;export{a as default};
