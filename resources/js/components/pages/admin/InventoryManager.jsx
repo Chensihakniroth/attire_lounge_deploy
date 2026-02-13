@@ -1,53 +1,51 @@
 import React, { useState, useEffect } from 'react';
-import { Package, AlertTriangle, CheckCircle, XCircle } from 'lucide-react';
-import minioBaseUrl from '../../../config';
-
-const giftOptions = {
-    ties: [
-      { id: 'tie-brown69', name: 'Silk Tie', color: 'Brown', image: `${minioBaseUrl}/uploads/collections/accessories/brown69.webp` },
-      { id: 'tie-cream49', name: 'Silk Tie', color: 'Cream', image: `${minioBaseUrl}/uploads/collections/accessories/cream49.webp` },
-      { id: 'tie-cyan69', name: 'Silk Tie', color: 'Cyan', image: `${minioBaseUrl}/uploads/collections/accessories/cyan69.webp` },
-      { id: 'tie-blue69', name: 'Silk Tie', color: 'Blue', image: `${minioBaseUrl}/uploads/collections/accessories/blue69.webp` },
-      { id: 'tie-green49', name: 'Silk Tie', color: 'Green', image: `${minioBaseUrl}/uploads/collections/accessories/green49.webp` },
-      { id: 'tie-white69', name: 'Silk Tie', color: 'White', image: `${minioBaseUrl}/uploads/collections/accessories/white69.webp` },
-      { id: 'tie-red69', name: 'Silk Tie', color: 'Red', image: `${minioBaseUrl}/uploads/collections/accessories/red69.webp` },
-    ],
-    pocketSquares: [
-      { id: 'ps-blue', name: 'Silk Pocket Square', color: 'Blue', image: `${minioBaseUrl}/uploads/collections/accessories/psblue.webp` },
-      { id: 'ps-green', name: 'Silk Pocket Square', color: 'Green', image: `${minioBaseUrl}/uploads/collections/accessories/psgreen.webp` },
-      { id: 'ps-pink', name: 'Silk Pocket Square', color: 'Pink', image: `${minioBaseUrl}/uploads/collections/accessories/pspink.webp` },
-      { id: 'ps-red', name: 'Silk Pocket Square', color: 'Red', image: `${minioBaseUrl}/uploads/collections/accessories/psred.webp` },
-      { id: 'ps-yellowgreen', name: 'Silk Pocket Square', color: 'Yellow Green', image: `${minioBaseUrl}/uploads/collections/accessories/psyellowgreen.webp` },
-      { id: 'ps-yellow', name: 'Silk Pocket Square', color: 'Yellow', image: `${minioBaseUrl}/uploads/collections/accessories/psyellow.webp` },
-    ],
-    boxes: [
-      { id: 'box-small', name: 'Small Box', image: `${minioBaseUrl}/uploads/collections/accessories/smallbox.webp` },
-      { id: 'box-mid', name: 'Mid Box', image: `${minioBaseUrl}/uploads/collections/accessories/midbox.webp` },
-      { id: 'box-designer', name: 'Designer Box', image: `${minioBaseUrl}/uploads/collections/accessories/designer_box.jpg` },
-    ],
-};
+import { Package, AlertTriangle, CheckCircle, XCircle, Loader } from 'lucide-react';
+import giftOptions from '../../../data/giftOptions';
+import api from '../../../api';
 
 const InventoryManager = () => {
-    const [outOfStockItems, setOutOfStockItems] = useState(() => {
+    const [outOfStockItems, setOutOfStockItems] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const [updatingItems, setUpdatingItems] = useState(new Set());
+
+    const fetchInventory = async () => {
         try {
-            const saved = localStorage.getItem('out_of_stock_items');
-            return saved ? JSON.parse(saved) : [];
-        } catch (e) {
-            console.error("Failed to parse out_of_stock_items", e);
-            return [];
+            const items = await api.getOutOfStockItems();
+            setOutOfStockItems(items);
+        } catch (error) {
+            console.error('Failed to fetch inventory:', error);
+        } finally {
+            setLoading(false);
         }
-    });
+    };
 
     useEffect(() => {
-        localStorage.setItem('out_of_stock_items', JSON.stringify(outOfStockItems));
-    }, [outOfStockItems]);
+        fetchInventory();
+    }, []);
 
-    const toggleStock = (id) => {
-        setOutOfStockItems(prev => 
-            prev.includes(id) 
-                ? prev.filter(item => item !== id) 
-                : [...prev, id]
-        );
+    const toggleStock = async (id) => {
+        if (updatingItems.has(id)) return;
+        
+        const isCurrentlyOutOfStock = outOfStockItems.includes(id);
+        const nextStatus = !isCurrentlyOutOfStock;
+
+        setUpdatingItems(prev => new Set(prev).add(id));
+        try {
+            await api.toggleGiftItemStock(id, nextStatus);
+            setOutOfStockItems(prev => 
+                nextStatus 
+                    ? [...prev, id] 
+                    : prev.filter(item => item !== id)
+            );
+        } catch (error) {
+            console.error('Failed to toggle stock:', error);
+        } finally {
+            setUpdatingItems(prev => {
+                const next = new Set(prev);
+                next.delete(id);
+                return next;
+            });
+        }
     };
 
     const renderSection = (title, items) => (
@@ -56,6 +54,7 @@ const InventoryManager = () => {
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
                 {items.map(item => {
                     const isOutOfStock = outOfStockItems.includes(item.id);
+                    const isUpdating = updatingItems.has(item.id);
                     return (
                         <div 
                             key={item.id}
@@ -64,11 +63,11 @@ const InventoryManager = () => {
                                 isOutOfStock 
                                     ? 'bg-red-500/5 border-red-500/20 hover:border-red-500/40' 
                                     : 'bg-black/20 border-white/10 hover:border-attire-accent/30'
-                            }`}
+                            } ${isUpdating ? 'opacity-70 pointer-events-none' : ''}`}
                         >
                             <div className="flex items-center gap-4">
                                 <div className="h-16 w-16 rounded-xl overflow-hidden border border-white/10 flex-shrink-0">
-                                    <img src={item.image} alt={item.name} className="w-full h-full object-cover" />
+                                    <img src={item.image} alt={item.name} className={`w-full h-full object-cover ${isOutOfStock ? 'grayscale opacity-50' : ''}`} />
                                 </div>
                                 <div className="flex-grow min-w-0">
                                     <h3 className="text-sm font-medium text-white truncate group-hover:text-attire-accent transition-colors">{item.name}</h3>
@@ -81,7 +80,7 @@ const InventoryManager = () => {
                                             : 'bg-green-500/20 text-green-400 group-hover:bg-green-500/30'
                                     }`}
                                 >
-                                    {isOutOfStock ? <XCircle size={20} /> : <CheckCircle size={20} />}
+                                    {isUpdating ? <Loader className="animate-spin" size={20} /> : (isOutOfStock ? <XCircle size={20} /> : <CheckCircle size={20} />)}
                                 </div>
                             </div>
                             <div className="mt-3 flex items-center justify-between">
@@ -100,6 +99,14 @@ const InventoryManager = () => {
         </section>
     );
 
+    if (loading) {
+        return (
+            <div className="flex justify-center items-center h-64">
+                <Loader className="animate-spin text-attire-accent" size={48} />
+            </div>
+        );
+    }
+
     return (
         <div className="space-y-8">
             <div className="pb-4 border-b border-white/10">
@@ -107,12 +114,12 @@ const InventoryManager = () => {
                 <p className="text-attire-silver text-sm">Toggle product availability for the Custom Gift Box curate page.</p>
             </div>
 
-            <div className="bg-attire-accent/10 border border-attire-accent/20 rounded-2xl p-4 flex items-start gap-4 mb-8">
-                <AlertTriangle className="text-attire-accent flex-shrink-0 mt-1" size={20} />
+            <div className="bg-blue-500/10 border border-blue-500/20 rounded-2xl p-4 flex items-start gap-4 mb-8">
+                <Package className="text-blue-400 flex-shrink-0 mt-1" size={20} />
                 <div>
-                    <h4 className="text-sm font-bold text-attire-accent uppercase tracking-wider">Note</h4>
+                    <h4 className="text-sm font-bold text-blue-400 uppercase tracking-wider">Sync Active</h4>
                     <p className="text-xs text-attire-silver leading-relaxed">
-                        Changes made here are applied locally and stored in your browser's storage. They will immediately affect the Customize Gift Page.
+                        Changes made here are saved to the backend and will immediately affect all users visiting the Customize Gift Page.
                     </p>
                 </div>
             </div>

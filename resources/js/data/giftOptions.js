@@ -1,0 +1,28 @@
+import minioBaseUrl from '../config';
+
+export const giftOptions = {
+    ties: [
+      { id: 'tie-brown69', name: 'Silk Tie', color: 'Brown', price: 69, image: `${minioBaseUrl}/uploads/collections/accessories/brown69.webp` },
+      { id: 'tie-cream49', name: 'Silk Tie', color: 'Cream', price: 49, image: `${minioBaseUrl}/uploads/collections/accessories/cream49.webp` },
+      { id: 'tie-cyan69', name: 'Silk Tie', color: 'Cyan', price: 69, image: `${minioBaseUrl}/uploads/collections/accessories/cyan69.webp` },
+      { id: 'tie-blue69', name: 'Silk Tie', color: 'Blue', price: 69, image: `${minioBaseUrl}/uploads/collections/accessories/blue69.webp` },
+      { id: 'tie-green49', name: 'Silk Tie', color: 'Green', price: 49, image: `${minioBaseUrl}/uploads/collections/accessories/green49.webp` },
+      { id: 'tie-white69', name: 'Silk Tie', color: 'White', price: 69, image: `${minioBaseUrl}/uploads/collections/accessories/white69.webp` },
+      { id: 'tie-red69', name: 'Silk Tie', color: 'Red', price: 69, image: `${minioBaseUrl}/uploads/collections/accessories/red69.webp` },
+    ],
+    pocketSquares: [
+      { id: 'ps-blue', name: 'Silk Pocket Square', color: 'Blue', price: 20, image: `${minioBaseUrl}/uploads/collections/accessories/psblue.webp` },
+      { id: 'ps-green', name: 'Silk Pocket Square', color: 'Green', price: 20, image: `${minioBaseUrl}/uploads/collections/accessories/psgreen.webp` },
+      { id: 'ps-pink', name: 'Silk Pocket Square', color: 'Pink', price: 20, image: `${minioBaseUrl}/uploads/collections/accessories/pspink.webp` },
+      { id: 'ps-red', name: 'Silk Pocket Square', color: 'Red', price: 20, image: `${minioBaseUrl}/uploads/collections/accessories/psred.webp` },
+      { id: 'ps-yellowgreen', name: 'Silk Pocket Square', color: 'Yellow Green', price: 20, image: `${minioBaseUrl}/uploads/collections/accessories/psyellowgreen.webp` },
+      { id: 'ps-yellow', name: 'Silk Pocket Square', color: 'Yellow', price: 20, image: `${minioBaseUrl}/uploads/collections/accessories/psyellow.webp` },
+    ],
+    boxes: [
+      { id: 'box-small', name: 'Small Box', price: 1, image: `${minioBaseUrl}/uploads/collections/accessories/smallbox.webp` },
+      { id: 'box-mid', name: 'Mid Box', price: 1.5, image: `${minioBaseUrl}/uploads/collections/accessories/midbox.webp` },
+      { id: 'box-designer', name: 'Designer Box', price: 10, image: `${minioBaseUrl}/uploads/collections/accessories/designer_box.jpg` },
+    ],
+};
+
+export default giftOptions;

@@ -28,6 +28,9 @@ Route::prefix('v1')->group(function () {
     Route::patch('/gift-requests/{giftRequest}/status', [GiftRequestController::class, 'updateStatus']);
     Route::delete('/gift-requests/{giftRequest}', [GiftRequestController::class, 'destroy']);
 
+    // Gift Item Stock (public access for fetching status)
+    Route::get('/gift-items/out-of-stock', [\App\Http\Controllers\GiftItemStockController::class, 'index']);
+
     // Newsletter Subscription (public)
     Route::post('/newsletter-subscriptions', [NewsletterSubscriptionController::class, 'store']);
 
@@ -45,5 +48,8 @@ Route::prefix('v1')->group(function () {
         Route::post('/upload-image', [ImageUploadController::class, 'upload']);
         Route::get('/images', [ImageUploadController::class, 'listImages']);
         Route::post('/delete-image', [ImageUploadController::class, 'deleteImage']);
+
+        // Gift Item Stock Management (admin only)
+        Route::post('/gift-items/toggle-stock', [\App\Http\Controllers\GiftItemStockController::class, 'toggle']);
     });
 });

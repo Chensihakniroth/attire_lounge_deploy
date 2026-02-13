@@ -4,31 +4,7 @@ import { Send, ShoppingCart, Check, User, Mail, Phone, ArrowRight, Loader, Alert
 import api from '../../api';
 import minioBaseUrl from '../../config';
 import Skeleton from '../common/Skeleton.jsx';
-
-const giftOptions = {
-    ties: [
-      { id: 'tie-brown69', name: 'Silk Tie', color: 'Brown', image: `${minioBaseUrl}/uploads/collections/accessories/brown69.webp` },
-      { id: 'tie-cream49', name: 'Silk Tie', color: 'Cream', image: `${minioBaseUrl}/uploads/collections/accessories/cream49.webp` },
-      { id: 'tie-cyan69', name: 'Silk Tie', color: 'Cyan', image: `${minioBaseUrl}/uploads/collections/accessories/cyan69.webp` },
-      { id: 'tie-blue69', name: 'Silk Tie', color: 'Blue', image: `${minioBaseUrl}/uploads/collections/accessories/blue69.webp` },
-      { id: 'tie-green49', name: 'Silk Tie', color: 'Green', image: `${minioBaseUrl}/uploads/collections/accessories/green49.webp` },
-      { id: 'tie-white69', name: 'Silk Tie', color: 'White', image: `${minioBaseUrl}/uploads/collections/accessories/white69.webp` },
-      { id: 'tie-red69', name: 'Silk Tie', color: 'Red', image: `${minioBaseUrl}/uploads/collections/accessories/red69.webp` },
-    ],
-    pocketSquares: [
-      { id: 'ps-blue', name: 'Silk Pocket Square', color: 'Blue', image: `${minioBaseUrl}/uploads/collections/accessories/psblue.webp` },
-      { id: 'ps-green', name: 'Silk Pocket Square', color: 'Green', image: `${minioBaseUrl}/uploads/collections/accessories/psgreen.webp` },
-      { id: 'ps-pink', name: 'Silk Pocket Square', color: 'Pink', image: `${minioBaseUrl}/uploads/collections/accessories/pspink.webp` },
-      { id: 'ps-red', name: 'Silk Pocket Square', color: 'Red', image: `${minioBaseUrl}/uploads/collections/accessories/psred.webp` },
-      { id: 'ps-yellowgreen', name: 'Silk Pocket Square', color: 'Yellow Green', image: `${minioBaseUrl}/uploads/collections/accessories/psyellowgreen.webp` },
-      { id: 'ps-yellow', name: 'Silk Pocket Square', color: 'Yellow', image: `${minioBaseUrl}/uploads/collections/accessories/psyellow.webp` },
-    ],
-    boxes: [
-      { id: 'box-small', name: 'Small Box', image: `${minioBaseUrl}/uploads/collections/accessories/smallbox.webp` },
-      { id: 'box-mid', name: 'Mid Box', image: `${minioBaseUrl}/uploads/collections/accessories/midbox.webp` },
-      { id: 'box-designer', name: 'Designer Box', image: `${minioBaseUrl}/uploads/collections/accessories/designer_box.jpg` },
-    ],
-  };
+import giftOptions from '../../data/giftOptions';
 
 const SelectionCard = ({ item, isSelected, onSelect, isOutOfStock }) => {
     const [isLoaded, setIsLoaded] = React.useState(false);
@@ -76,9 +52,14 @@ const SelectionCard = ({ item, isSelected, onSelect, isOutOfStock }) => {
                 )}
             </div>
 
-            <div className="absolute bottom-0 left-0 p-4 z-20 w-full">
-                <h4 className="font-serif text-white text-lg leading-tight mb-1">{item.name}</h4>
-                {item.color && <p className="text-xs text-attire-silver uppercase tracking-wider">{item.color}</p>}
+            <div className="absolute bottom-0 left-0 p-4 z-20 w-full flex justify-between items-end">
+                <div>
+                    <h4 className="font-serif text-white text-lg leading-tight mb-1">{item.name}</h4>
+                    {item.color && <p className="text-xs text-attire-silver uppercase tracking-wider">{item.color}</p>}
+                </div>
+                <div className="text-attire-accent font-mono text-sm bg-black/40 px-2 py-0.5 rounded-md backdrop-blur-sm border border-white/5">
+                    ${item.price}
+                </div>
             </div>
 
             <AnimatePresence>
@@ -125,10 +106,15 @@ const CustomizeGiftPage = () => {
     const [outOfStockItems, setOutOfStockItems] = useState([]);
 
     useEffect(() => {
-        const saved = localStorage.getItem('out_of_stock_items');
-        if (saved) {
-            setOutOfStockItems(JSON.parse(saved));
-        }
+        const fetchOutOfStock = async () => {
+            try {
+                const items = await api.getOutOfStockItems();
+                setOutOfStockItems(items);
+            } catch (error) {
+                console.error('Failed to fetch out of stock items:', error);
+            }
+        };
+        fetchOutOfStock();
     }, []);
 
     useEffect(() => {
@@ -154,6 +140,7 @@ const CustomizeGiftPage = () => {
     }, [submissionStatus.state]);
 
     const isItemsComplete = selectedTie && selectedPocketSquare && selectedBox;
+    const totalPrice = (selectedTie?.price || 0) + (selectedPocketSquare?.price || 0) + (selectedBox?.price || 0);
 
     const handleDetailsSubmit = (e) => {
         e.preventDefault();
@@ -219,8 +206,8 @@ ${note ? `Note: "${note}"` : ''}
                     <div className="absolute bottom-[-10%] left-[-10%] w-[500px] h-[500px] bg-blue-900/[0.05] rounded-full blur-[140px]" />
                 </div>
 
-                <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} className="relative z-10 max-w-md w-full mx-auto px-4">
-                    <div className="bg-black/20 backdrop-blur-xl rounded-3xl border border-white/10 shadow-2xl p-10 text-center">
+                <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} className="relative z-10 max-w-lg w-full mx-auto px-4">
+                    <div className="bg-black/20 backdrop-blur-xl rounded-3xl border border-white/10 shadow-2xl p-8 md:p-10 text-center">
                         <div className="w-20 h-20 bg-green-500/10 rounded-full flex items-center justify-center mx-auto mb-6 border border-green-500/20">
                             <Check size={40} className="text-green-400" />
                         </div>
@@ -228,6 +215,29 @@ ${note ? `Note: "${note}"` : ''}
                         <p className="text-attire-silver mb-8 leading-relaxed">
                             Thank you, {formData.name}. We have received your custom gift request and will contact you shortly to finalize the details.
                         </p>
+
+                        <div className="bg-white/5 rounded-2xl p-6 mb-8 text-left space-y-4">
+                            <h3 className="text-sm font-semibold text-attire-silver uppercase tracking-widest border-b border-white/10 pb-2">Your Selection</h3>
+                            <div className="space-y-3">
+                                <div className="flex justify-between items-center">
+                                    <span className="text-sm text-attire-silver">Tie</span>
+                                    <span className="text-sm text-white font-medium">{selectedTie?.name} (${selectedTie?.price})</span>
+                                </div>
+                                <div className="flex justify-between items-center">
+                                    <span className="text-sm text-attire-silver">Pocket Square</span>
+                                    <span className="text-sm text-white font-medium">{selectedPocketSquare?.name} (${selectedPocketSquare?.price})</span>
+                                </div>
+                                <div className="flex justify-between items-center">
+                                    <span className="text-sm text-attire-silver">Box</span>
+                                    <span className="text-sm text-white font-medium">{selectedBox?.name} (${selectedBox?.price})</span>
+                                </div>
+                                <div className="pt-3 border-t border-white/10 flex justify-between items-center">
+                                    <span className="text-base font-serif text-white">Total Estimate</span>
+                                    <span className="text-lg font-mono text-attire-accent">${totalPrice.toFixed(2)}</span>
+                                </div>
+                            </div>
+                        </div>
+
                         <button onClick={resetForm} className="w-full py-4 rounded-full font-semibold transition-all duration-300 bg-attire-accent text-black hover:bg-white">
                             Create Another Gift
                         </button>
@@ -434,6 +444,11 @@ ${note ? `Note: "${note}"` : ''}
                                             <SummaryItem label="Tie" item={selectedTie} />
                                             <SummaryItem label="Pocket Square" item={selectedPocketSquare} />
                                             <SummaryItem label="Gift Box" item={selectedBox} />
+
+                                            <div className="pt-4 border-t border-white/5 mt-4 flex justify-between items-center">
+                                                <span className="text-sm font-serif text-white">Total Estimate</span>
+                                                <span className="text-lg font-mono text-attire-accent">${totalPrice.toFixed(2)}</span>
+                                            </div>
                                         </div>
 
                                         {submissionStatus.state === 'error' && (
@@ -472,7 +487,10 @@ const SummaryItem = ({ label, item }) => (
         <span className="text-sm text-attire-silver">{label}</span>
         {item ? (
             <div className="text-right">
-                <p className="text-sm text-white font-medium">{item.name}</p>
+                <div className="flex items-center justify-end gap-2">
+                    <p className="text-sm text-white font-medium">{item.name}</p>
+                    <span className="text-xs text-attire-accent font-mono">${item.price}</span>
+                </div>
                 {item.color && <p className="text-xs text-attire-silver/70">{item.color}</p>}
             </div>
         ) : (

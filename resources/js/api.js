@@ -108,6 +108,19 @@ const API = {
         return getData(response);
     },
 
+    async getOutOfStockItems() {
+        const response = await axios.get('/api/v1/gift-items/out-of-stock');
+        return getData(response);
+    },
+
+    async toggleGiftItemStock(itemId, isOutOfStock) {
+        const response = await axios.post('/api/v1/admin/gift-items/toggle-stock', {
+            item_id: itemId,
+            is_out_of_stock: isOutOfStock
+        });
+        return getData(response);
+    },
+
     // Subscribe to newsletter
     async subscribeNewsletter(data) {
         const response = await axios.post('/api/v1/newsletter-subscriptions', data);
