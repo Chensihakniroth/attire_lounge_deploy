@@ -18,6 +18,8 @@
 !/public/.htaccess
 !/public/robots.txt
 !/public/favicon.ico
+!/public/js/
+!/public/css/
 /storage/*.key
 /storage/pail
 /vendor

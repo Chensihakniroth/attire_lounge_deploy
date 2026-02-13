@@ -1,0 +1,2 @@
+import{a as t}from"./chunk-32LHDP2E.js";import{c as a,d as r}from"./chunk-DIIP6FVD.js";var e=a(r());var n=({className:i=""})=>e.default.createElement("div",{className:`relative overflow-hidden bg-white/5 rounded-xl ${i}`},e.default.createElement(t.div,{className:"absolute inset-0 w-full h-full bg-gradient-to-r from-transparent via-white/5 to-transparent",animate:{x:["-100%","100%"]},transition:{duration:1.5,repeat:1/0,ease:"linear"},style:{skewX:-20}})),l=n;export{l as a};
+//# sourceMappingURL=chunk-JXRM6M5N.js.map
