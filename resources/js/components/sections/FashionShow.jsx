@@ -87,7 +87,9 @@ const FashionShow = memo(forwardRef((props, ref) => {
                 <OptimizedImage 
                   src="https://images.prestigeonline.com/wp-content/uploads/sites/9/2026/02/02140813/Z629270-1353x900.jpg" 
                   alt="Rosewood Fashion Event" 
+                  containerClassName="w-full h-full"
                   className="w-full h-full object-cover transition-transform duration-[2000ms] group-hover:scale-105"
+                  objectFit="cover"
                 />
                 
                 {/* Floating Info Card - Scaled for mobile */}
