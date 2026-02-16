@@ -8,6 +8,7 @@ const OptimizedImage = ({
     containerClassName = '', 
     objectFit = 'cover',
     skeletonClassName = '',
+    style = {},
     ...props 
 }) => {
     const [isLoaded, setIsLoaded] = useState(false);
@@ -15,7 +16,6 @@ const OptimizedImage = ({
     const imgRef = useRef(null);
 
     useEffect(() => {
-        // Reset state when src changes
         setIsLoaded(false);
         setError(false);
         
@@ -25,7 +25,10 @@ const OptimizedImage = ({
     }, [src]);
 
     return (
-        <div className={`relative overflow-hidden ${containerClassName} ${className}`}>
+        <div 
+            className={`relative ${containerClassName} ${objectFit === 'contain' ? 'flex items-center justify-center' : 'overflow-hidden'}`} 
+            style={style}
+        >
             {!isLoaded && !error && (
                 <Skeleton className={`absolute inset-0 z-10 w-full h-full rounded-none ${skeletonClassName}`} />
             )}
@@ -39,10 +42,19 @@ const OptimizedImage = ({
                     setError(true);
                     setIsLoaded(true);
                 }}
-                className={`w-full h-full transition-opacity duration-700 ease-in-out ${
+                className={`transition-opacity duration-500 ease-in-out ${
                     isLoaded ? 'opacity-100' : 'opacity-0'
-                }`}
-                style={{ objectFit }}
+                } ${
+                    objectFit === 'contain' 
+                        ? 'max-w-full max-h-full w-auto h-auto object-contain' 
+                        : 'w-full h-full object-cover'
+                } ${className}`}
+                style={{ 
+                    objectFit,
+                    // Prevent upscaling beyond natural resolution for "original resolution" feel
+                    maxWidth: objectFit === 'contain' ? '100%' : 'none',
+                    maxHeight: objectFit === 'contain' ? '100%' : 'none'
+                }}
                 {...props}
             />
             

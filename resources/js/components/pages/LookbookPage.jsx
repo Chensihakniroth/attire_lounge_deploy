@@ -151,6 +151,17 @@ const LookbookPage = () => {
 
     return (
         <div className="min-h-screen bg-attire-navy relative overflow-hidden">
+            <style>
+                {`
+                    .no-scrollbar::-webkit-scrollbar {
+                        display: none;
+                    }
+                    .no-scrollbar {
+                        -ms-overflow-style: none;
+                        scrollbar-width: none;
+                    }
+                `}
+            </style>
             {/* Background Decorations - Softened to prevent pixelation */}
             <div className="fixed top-0 left-0 w-full h-screen overflow-hidden pointer-events-none z-0">
                 <div className="absolute top-[-10%] right-[-5%] w-[600px] h-[600px] bg-attire-accent/[0.03] rounded-full blur-[160px]" />
@@ -168,7 +179,7 @@ const LookbookPage = () => {
                         <ChevronLeft size={18} />
                     </button>
                     
-                    <div ref={scrollContainerRef} className="flex-grow flex items-center justify-start md:justify-center gap-2 overflow-x-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none] px-2">
+                    <div ref={scrollContainerRef} className="flex-grow flex items-center justify-start md:justify-center gap-2 overflow-x-auto no-scrollbar px-2">
                         <span className="text-xs font-medium text-attire-silver/60 uppercase tracking-wider flex-shrink-0 mr-2 hidden md:block">Categories</span>
                         {categories.map((category) => (
                             <button
@@ -200,7 +211,7 @@ const LookbookPage = () => {
                     variants={containerVariants}
                     initial="hidden"
                     animate="visible"
-                    className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6"
+                    className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6"
                 >
                     {paginatedImages.map((image, index) => (
                         <motion.div
@@ -210,7 +221,7 @@ const LookbookPage = () => {
                                 hidden: { opacity: 0, y: 20 },
                                 visible: { opacity: 1, y: 0 }
                             }}
-                            className="group relative cursor-pointer overflow-hidden rounded-2xl border border-white/5 shadow-lg h-[28rem]"
+                            className="group relative cursor-pointer overflow-hidden rounded-xl aspect-[3/4] md:h-[28rem] md:aspect-auto"
                             onClick={() => openLightbox((currentPage - 1) * itemsPerPage + index)}
                         >
                             <OptimizedImage
@@ -218,7 +229,6 @@ const LookbookPage = () => {
                                 alt={image.title}
                                 className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
                             />
-                            <div className="absolute inset-0 bg-black/20 group-hover:bg-transparent transition-colors duration-500" />
                         </motion.div>
                     ))}
                 </motion.div>

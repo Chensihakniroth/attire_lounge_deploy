@@ -586,7 +586,7 @@ const TipsAndTricksSection = memo(forwardRef(({ tipsAndTricks }, ref) => {
                   className={`relative overflow-hidden rounded-2xl cursor-pointer transition-all duration-700 ease-[cubic-bezier(0.25,1,0.5,1)] ${isHovered ? 'flex-[3] md:flex-[4]' : 'flex-[1]'} group`}
                 >
                     {/* Background Image */}
-                    <OptimizedImage
+                    <img
                         src={tip.image}
                         alt={tip.title}
                         className={`absolute inset-0 w-full h-full object-cover object-[center_20%] transition-transform duration-1000 ease-out ${isHovered ? 'scale-110' : 'scale-100'}`}
