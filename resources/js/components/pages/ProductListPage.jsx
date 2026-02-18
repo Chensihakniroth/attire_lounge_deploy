@@ -1,13 +1,25 @@
-import React, { useState, useMemo, useEffect, useRef } from 'react';
+import React, { useState, useMemo, useEffect, useRef, memo } from 'react';
 import { useLocation, Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { wrap } from "../../helpers/math.js";
 import Lightbox from './lookbook/Lightbox';
-import { ChevronLeft, ChevronRight, Search, ChevronsUpDown, X, Filter, ChevronDown, Check } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Search, X, Filter, ChevronDown, Check, Star } from 'lucide-react';
 import { products as allProducts, collections as allCollections } from '../../data/products.js';
 import ItemCard from './collections/ItemCard';
 import { useFavorites } from '../../context/FavoritesContext.jsx';
-import useDebounce from '../../hooks/useDebounce.js';
+
+// --- Styled Components ---
+
+const GrainOverlay = memo(() => (
+  <div className="fixed inset-0 pointer-events-none z-50 opacity-[0.02] mix-blend-overlay">
+    <svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+      <filter id="noiseFilter">
+        <feTurbulence type="fractalNoise" baseFrequency="0.65" numOctaves="3" stitchTiles="stitch"/>
+      </filter>
+      <rect width="100%" height="100%" filter="url(#noiseFilter)"/>
+    </svg>
+  </div>
+));
 
 const sortOptions = [
     { value: 'category-asc', label: 'By Category' },
@@ -28,9 +40,8 @@ const ProductListPage = () => {
     const collectionQuery = query.get('collection');
 
     const [sortOrder, setSortOrder] = useState('category-asc');
-    const [priceRange, setPriceRange] = useState([0, 1000]);
     const [[page, direction], setPage] = useState([null, 0]);
-    const { favorites, addFavorite, removeFavorite, isFavorited } = useFavorites();
+    const { favorites, toggleFavorite, isFavorited } = useFavorites();
     
     const [selectedCollections, setSelectedCollections] = useState(() => {
         return collectionQuery ? [collectionQuery] : [];
@@ -38,6 +49,10 @@ const ProductListPage = () => {
 
     const [currentPage, setCurrentPage] = useState(1);
     const itemsPerPage = 16;
+
+    useEffect(() => {
+        window.scrollTo({ top: 0, behavior: 'instant' });
+    }, []);
 
     useEffect(() => {
         setCurrentPage(1);
@@ -84,14 +99,12 @@ const ProductListPage = () => {
                     return sortDirection === 'asc' ? priorityA - priorityB : priorityB - priorityA;
                 }
                 
-                // Same category, sort by collection
                 const colA = a.collection || '';
                 const colB = b.collection || '';
                 if (colA !== colB) {
                     return colA.localeCompare(colB);
                 }
                 
-                // Same collection, sort by name
                 return a.name.localeCompare(b.name);
             }
             if (sortKey === 'name') {
@@ -115,12 +128,8 @@ const ProductListPage = () => {
         setPage([page + newDirection, newDirection]);
     };
 
-    const toggleFavorite = (id) => {
-        if (isFavorited(id)) {
-            removeFavorite(id);
-        } else {
-            addFavorite(id);
-        }
+    const handleLocalToggleFavorite = (id) => {
+        toggleFavorite(id);
     };
 
     useEffect(() => {
@@ -140,11 +149,6 @@ const ProductListPage = () => {
             setSelectedCollections([newCollectionQuery]);
         }
     }, [location.search]);
-
-    const containerVariants = {
-        hidden: { opacity: 0 },
-        visible: { opacity: 1, transition: { staggerChildren: 0.05 } }
-    };
 
     const handleCollectionToggle = (slug) => {
         setSelectedCollections(prev => prev.includes(slug) ? prev.filter(s => s !== slug) : [...prev, slug]);
@@ -167,38 +171,62 @@ const ProductListPage = () => {
     const handlePageChange = (newPage) => {
         if (newPage >= 1 && newPage <= totalPages) {
             setCurrentPage(newPage);
-            window.scrollTo({ top: 0, behavior: 'smooth' });
+            window.scrollTo({ top: 400, behavior: 'smooth' });
         }
     };
 
     return (
-        <div className="min-h-screen bg-attire-navy relative">
-            {/* Background Decorations - Softened */}
-            <div className="fixed top-0 left-0 w-full h-screen overflow-hidden pointer-events-none z-0">
-                <div className="absolute top-[-10%] right-[-5%] w-[600px] h-[600px] bg-attire-accent/[0.03] rounded-full blur-[160px]" />
-                <div className="absolute bottom-[-10%] left-[-10%] w-[500px] h-[500px] bg-blue-900/[0.05] rounded-full blur-[140px]" />
+        <div className="min-h-screen bg-attire-navy relative overflow-x-hidden selection:bg-attire-accent selection:text-white">
+            <GrainOverlay />
+            
+            <style>
+                {`
+                    .no-scrollbar::-webkit-scrollbar {
+                        display: none;
+                    }
+                    .no-scrollbar {
+                        -ms-overflow-style: none;
+                        scrollbar-width: none;
+                    }
+                `}
+            </style>
+
+            {/* Background Decorations */}
+            <div className="fixed inset-0 pointer-events-none z-0">
+                <div className="absolute top-[-20%] left-[-10%] w-[1000px] h-[1000px] bg-attire-accent/[0.03] rounded-full blur-[180px]" />
+                <div className="absolute bottom-[-20%] right-[-10%] w-[800px] h-[800px] bg-white/[0.02] rounded-full blur-[150px]" />
             </div>
 
-            <header className="relative z-10 pt-28 pb-12 px-6 text-center">
+            <header className="relative z-10 pt-32 pb-16 sm:pt-48 sm:pb-24 px-6 text-center">
                 <motion.div
-                    initial={{ opacity: 0, y: 20 }}
+                    initial={{ opacity: 0, y: 30 }}
                     animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.8, ease: "easeOut" }}
+                    transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
+                    className="max-w-4xl mx-auto"
                 >
-                    <h1 className="text-5xl md:text-7xl font-serif font-light text-white mb-6">
-                        {pageTitle}
+                    <div className="flex items-center justify-center gap-4 mb-8">
+                        <div className="h-px w-8 bg-attire-accent/30" />
+                        <span className="text-attire-accent text-[10px] tracking-[0.6em] uppercase font-bold text-center">Collection</span>
+                        <div className="h-px w-8 bg-attire-accent/30" />
+                    </div>
+
+                    <h1 className="font-serif text-6xl md:text-8xl lg:text-[7rem] font-light text-white mb-10 leading-[0.85] tracking-tighter italic">
+                        {pageTitle.split(' ')[0]} <br /> 
+                        <span className="text-attire-silver/40">{pageTitle.split(' ').slice(1).join(' ') || 'Essentials'}</span>
                     </h1>
-                    <div className="flex items-center justify-center gap-2">
-                        <Link to="/collections" className="group flex items-center gap-2 text-sm text-attire-silver hover:text-white transition-colors">
-                            <ChevronLeft size={16} className="group-hover:-translate-x-1 transition-transform" />
-                            Back to Collections
+
+                    <div className="flex items-center justify-center">
+                        <Link to="/collections" className="group flex items-center gap-3 text-[10px] uppercase tracking-[0.3em] font-bold text-white/40 hover:text-attire-accent transition-colors duration-500">
+                            <ChevronLeft size={14} className="group-hover:-translate-x-2 transition-transform duration-500" />
+                            Back to Gallery
                         </Link>
                     </div>
                 </motion.div>
             </header>
 
-            <main className="relative z-10 max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-8 pb-24">
-                <div className="z-40 mb-8 transition-all duration-300 relative">
+            <main className="relative z-10 max-w-screen-2xl mx-auto px-6 sm:px-12 lg:px-24 pb-32">
+                {/* Enhanced Controls Bar */}
+                <div className="z-40 sticky top-24 mb-20 pointer-events-auto">
                     <Controls
                         sortOrder={sortOrder}
                         setSortOrder={setSortOrder}
@@ -213,11 +241,11 @@ const ProductListPage = () => {
                     {filteredProducts.length > 0 ? (
                         <motion.div
                             key={currentPage + sortOrder + selectedCollections.join('')}
-                            className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-x-6 gap-y-12"
-                            variants={containerVariants}
-                            initial="hidden"
-                            animate="visible"
+                            className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-x-6 gap-y-16"
+                            initial={{ opacity: 0, y: 20 }}
+                            animate={{ opacity: 1, y: 0 }}
                             exit={{ opacity: 0 }}
+                            transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
                         >
                             {paginatedProducts.map((item, index) => (
                                 <ItemCard 
@@ -231,42 +259,52 @@ const ProductListPage = () => {
                         <motion.div 
                             initial={{ opacity: 0 }} 
                             animate={{ opacity: 1 }} 
-                            exit={{ opacity: 0 }}
                             className="flex flex-col items-center justify-center py-32 text-center"
                         >
                             <div className="w-20 h-20 bg-white/5 rounded-full flex items-center justify-center mb-6 border border-white/10">
                                 <Search size={32} className="text-attire-silver/50" />
                             </div>
-                            <h3 className="text-2xl font-serif text-white mb-2">No products found</h3>
-                            <p className="text-attire-silver">Try adjusting your filters to find what you're looking for.</p>
+                            <h3 className="text-2xl font-serif text-white mb-2">No items found</h3>
+                            <p className="text-attire-silver/60 text-sm">Try adjusting your filters to find what you're looking for.</p>
                             <button 
                                 onClick={clearFilters}
-                                className="mt-6 text-attire-accent hover:text-white transition-colors underline underline-offset-4"
+                                className="mt-8 text-[10px] uppercase tracking-[0.2em] font-bold text-attire-accent hover:text-white transition-colors underline underline-offset-8"
                             >
-                                Clear all filters
+                                Reset Filters
                             </button>
                         </motion.div>
                     )}
                 </AnimatePresence>
 
+                {/* Enhanced Pagination */}
                 {totalPages > 1 && (
-                    <div className="flex justify-center items-center gap-6 mt-20">
+                    <div className="flex justify-center items-center gap-12 mt-32">
                         <button
                             onClick={() => handlePageChange(currentPage - 1)}
                             disabled={currentPage === 1}
-                            className="group p-3 rounded-full border border-white/10 text-white hover:bg-white/10 disabled:opacity-30 disabled:cursor-not-allowed transition-all"
+                            className="group flex flex-col items-center gap-4 text-white/20 hover:text-white disabled:opacity-0 transition-all duration-700"
                         >
-                            <ChevronLeft size={20} className="group-hover:-translate-x-0.5 transition-transform" />
+                            <ChevronLeft size={24} strokeWidth={1} className="group-hover:-translate-x-4 transition-transform duration-700" />
+                            <span className="text-[8px] uppercase tracking-[0.4em] font-bold">Previous</span>
                         </button>
-                        <span className="text-attire-silver font-medium text-sm tracking-wider">
-                            PAGE {currentPage} / {totalPages}
-                        </span>
+                        
+                        <div className="flex flex-col items-center gap-2">
+                             <div className="text-attire-accent font-serif italic text-xl">
+                                {currentPage.toString().padStart(2, '0')}
+                            </div>
+                            <div className="w-12 h-px bg-white/10" />
+                            <div className="text-white/20 text-[10px] font-bold">
+                                {totalPages.toString().padStart(2, '0')}
+                            </div>
+                        </div>
+
                         <button
                             onClick={() => handlePageChange(currentPage + 1)}
                             disabled={currentPage === totalPages}
-                            className="group p-3 rounded-full border border-white/10 text-white hover:bg-white/10 disabled:opacity-30 disabled:cursor-not-allowed transition-all"
+                            className="group flex flex-col items-center gap-4 text-white/20 hover:text-white disabled:opacity-0 transition-all duration-700"
                         >
-                            <ChevronRight size={20} className="group-hover:translate-x-0.5 transition-transform" />
+                            <ChevronRight size={24} strokeWidth={1} className="group-hover:translate-x-4 transition-transform duration-700" />
+                            <span className="text-[8px] uppercase tracking-[0.4em] font-bold">Next Page</span>
                         </button>
                     </div>
                 )}
@@ -285,7 +323,7 @@ const ProductListPage = () => {
                         closeLightbox={closeLightbox}
                         direction={direction}
                         paginate={paginate}
-                        toggleFavorite={toggleFavorite}
+                        toggleFavorite={handleLocalToggleFavorite}
                         favorites={favorites}
                     />
                 )}
@@ -306,30 +344,36 @@ const Controls = ({
 
     const scroll = (direction) => {
         if (scrollContainerRef.current) {
-            scrollContainerRef.current.scrollBy({ left: direction * 200, behavior: 'smooth' });
+            scrollContainerRef.current.scrollBy({ left: direction * 150, behavior: 'smooth' });
         }
     };
 
     return (
-        <div className="w-full">
-            <div className="backdrop-blur-xl bg-black/20 border border-white/10 rounded-2xl p-2 md:p-3 flex flex-col md:flex-row gap-4 shadow-xl">
+        <div className="w-full max-w-6xl mx-auto relative z-[100]">
+            <motion.div 
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.3, duration: 0.5 }}
+                className="relative bg-white/[0.03] backdrop-blur-2xl border border-white/10 rounded-full p-1 sm:p-1.5 flex items-center shadow-2xl"
+            >
                 {/* Collections Filter Scroll */}
                 <div className="flex-grow flex items-center min-w-0 relative">
-                    <div className="absolute left-0 top-0 bottom-0 w-8 bg-gradient-to-r from-black/20 to-transparent z-10 md:hidden pointer-events-none" />
-                    <div className="absolute right-0 top-0 bottom-0 w-8 bg-gradient-to-l from-black/20 to-transparent z-10 md:hidden pointer-events-none" />
+                    <button 
+                        onClick={() => scroll(-1)} 
+                        className="flex-shrink-0 p-2 text-white/20 hover:text-white transition-colors lg:hidden"
+                    >
+                        <ChevronLeft size={16} />
+                    </button>
                     
-                    <button onClick={() => scroll(-1)} className="p-2 text-white/50 hover:text-white md:hidden z-20"><ChevronLeft size={18} /></button>
-                    
-                    <div ref={scrollContainerRef} className="flex items-center gap-2 overflow-x-auto flex-nowrap px-2 md:px-0 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
-                        <span className="text-xs font-medium text-attire-silver/60 uppercase tracking-wider flex-shrink-0 mr-2 hidden md:block">Collections</span>
+                    <div ref={scrollContainerRef} className="flex-grow flex items-center justify-start lg:justify-center gap-1 overflow-x-auto lg:overflow-x-visible lg:flex-nowrap no-scrollbar px-2">
                         {allCollections.map(collection => (
                             <button
                                 key={collection.id}
                                 onClick={() => handleCollectionToggle(collection.slug)}
-                                className={`px-4 py-2 text-sm rounded-full transition-all duration-300 flex-shrink-0 border ${
+                                className={`px-4 sm:px-5 py-2 sm:py-2.5 text-[9px] sm:text-[10px] uppercase tracking-[0.2em] font-bold rounded-full transition-all duration-500 flex-shrink-0 ${
                                     selectedCollections.includes(collection.slug)
-                                        ? 'bg-attire-accent text-black border-attire-accent font-medium shadow-[0_0_15px_rgba(212,168,76,0.3)]'
-                                        : 'bg-white/5 text-attire-silver border-white/5 hover:bg-white/10 hover:text-white'
+                                        ? 'bg-white text-black shadow-lg'
+                                        : 'text-white/40 hover:text-white hover:bg-white/5'
                                 }`}
                             >
                                 {collection.title}
@@ -337,17 +381,22 @@ const Controls = ({
                         ))}
                     </div>
                     
-                    <button onClick={() => scroll(1)} className="p-2 text-white/50 hover:text-white md:hidden z-20"><ChevronRight size={18} /></button>
+                    <button 
+                        onClick={() => scroll(1)} 
+                        className="flex-shrink-0 p-2 text-white/20 hover:text-white transition-colors lg:hidden"
+                    >
+                        <ChevronRight size={16} />
+                    </button>
                 </div>
 
                 {/* Sort Dropdown */}
-                <div className="flex-shrink-0 border-t md:border-t-0 md:border-l border-white/10 pt-3 md:pt-0 md:pl-3">
+                <div className="flex-shrink-0 border-l border-white/10 pl-1 sm:pl-2">
                     <FilterSortDropdown 
                         sortOrder={sortOrder} 
                         setSortOrder={setSortOrder} 
                     />
                 </div>
-            </div>
+            </motion.div>
             
             {/* Active Filters Display */}
             <AnimatePresence>
@@ -356,20 +405,22 @@ const Controls = ({
                         initial={{ opacity: 0, y: -10 }}
                         animate={{ opacity: 1, y: 0 }}
                         exit={{ opacity: 0, y: -10 }}
-                        className="flex items-center flex-wrap gap-2 mt-4 px-2"
+                        className="flex flex-col sm:flex-row sm:items-center flex-wrap gap-4 mt-6 px-6"
                     >
-                        <span className="text-xs text-attire-silver/60 uppercase tracking-wider mr-2">Active:</span>
-                        {selectedCollections.map(slug => {
-                            const collection = allCollections.find(c => c.slug === slug);
-                            return (
-                                <FilterTag key={slug} onRemove={() => removeCollectionFilter(slug)}>
-                                    {collection?.title || slug}
-                                </FilterTag>
-                            );
-                        })}
+                        <div className="flex items-center flex-wrap gap-2">
+                            <span className="text-[9px] text-white/20 uppercase tracking-[0.3em] font-bold mr-2">Filtering By:</span>
+                            {selectedCollections.map(slug => {
+                                const collection = allCollections.find(c => c.slug === slug);
+                                return (
+                                    <FilterTag key={slug} onRemove={() => removeCollectionFilter(slug)}>
+                                        {collection?.title || slug}
+                                    </FilterTag>
+                                );
+                            })}
+                        </div>
                         <button
                             onClick={clearFilters}
-                            className="text-xs font-medium text-red-400 hover:text-red-300 ml-auto transition-colors px-2"
+                            className="text-[9px] uppercase tracking-[0.2em] font-bold text-red-400/60 hover:text-red-400 sm:ml-auto transition-colors px-2 self-start sm:self-auto"
                         >
                             Clear All
                         </button>
@@ -386,11 +437,11 @@ const FilterTag = ({ children, onRemove }) => (
         initial={{ opacity: 0, scale: 0.8 }}
         animate={{ opacity: 1, scale: 1 }}
         exit={{ opacity: 0, scale: 0.8 }}
-        className="flex items-center gap-2 bg-white/10 border border-white/10 text-white rounded-full pl-3 pr-1 py-1 text-xs font-medium"
+        className="flex items-center gap-3 bg-white/5 border border-white/10 text-white rounded-full pl-4 pr-2 py-1.5 text-[10px] font-bold tracking-wide"
     >
-        <span>{children}</span>
-        <button onClick={onRemove} className="p-1 hover:bg-white/20 rounded-full transition-colors">
-            <X size={14} />
+        <span className="opacity-60">{children}</span>
+        <button onClick={onRemove} className="p-1 hover:bg-white/10 rounded-full transition-colors">
+            <X size={12} className="text-white/40" />
         </button>
     </motion.div>
 );
@@ -415,22 +466,22 @@ const FilterSortDropdown = ({
     const selectedLabel = sortOptions.find(opt => opt.value === sortOrder)?.label || 'Sort By';
 
     return (
-        <div ref={dropdownRef} className="relative z-[100] min-w-[200px]">
+        <div ref={dropdownRef} className="static sm:relative">
             <button
                 onClick={() => setIsOpen(!isOpen)}
-                className="flex items-center justify-between w-full px-4 py-2.5 bg-black/40 hover:bg-black/60 border border-white/10 rounded-xl text-sm font-medium text-white transition-all focus:outline-none focus:ring-1 focus:ring-attire-accent/50"
+                className="flex items-center gap-2 px-3 sm:px-6 py-2 sm:py-2.5 bg-transparent hover:bg-white/5 rounded-full text-[9px] sm:text-[10px] font-bold uppercase tracking-[0.2em] text-white/60 hover:text-white transition-all focus:outline-none"
             >
-                <span className="truncate mr-2">{selectedLabel}</span>
-                <ChevronDown size={16} className={`text-attire-silver transition-transform duration-300 ${isOpen ? 'rotate-180' : ''}`} />
+                <span className="truncate max-w-[60px] sm:max-w-none">{selectedLabel}</span>
+                <ChevronDown size={14} className={`text-white/20 transition-transform duration-500 shrink-0 ${isOpen ? 'rotate-180' : ''}`} />
             </button>
             <AnimatePresence>
                 {isOpen && (
                     <motion.div
-                        initial={{ opacity: 0, y: 8, scale: 0.95 }}
+                        initial={{ opacity: 0, y: 10, scale: 0.95 }}
                         animate={{ opacity: 1, y: 0, scale: 1 }}
-                        exit={{ opacity: 0, y: 8, scale: 0.95 }}
-                        transition={{ duration: 0.2 }}
-                        className="absolute right-0 mt-2 w-56 bg-[#1a1a1a] border border-white/10 rounded-xl shadow-2xl overflow-hidden py-1"
+                        exit={{ opacity: 0, y: 10, scale: 0.95 }}
+                        transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
+                        className="absolute left-0 right-0 sm:left-auto sm:right-0 mt-4 sm:w-56 bg-attire-navy border border-white/10 rounded-2xl shadow-2xl overflow-hidden py-2 z-[120]"
                     >
                         {sortOptions.map(option => (
                             <button
@@ -439,14 +490,14 @@ const FilterSortDropdown = ({
                                     setSortOrder(option.value);
                                     setIsOpen(false);
                                 }}
-                                className={`w-full flex items-center justify-between px-4 py-3 text-sm text-left transition-colors ${
+                                className={`w-full flex items-center justify-between px-6 py-3 text-[10px] font-bold uppercase tracking-widest text-left transition-colors ${
                                     sortOrder === option.value 
-                                        ? 'bg-attire-accent/10 text-attire-accent' 
-                                        : 'text-attire-silver hover:bg-white/5 hover:text-white'
+                                        ? 'bg-white/10 text-attire-accent' 
+                                        : 'text-white/40 hover:bg-white/5 hover:text-white'
                                 }`}
                             >
                                 <span>{option.label}</span>
-                                {sortOrder === option.value && <Check size={14} />}
+                                {sortOrder === option.value && <Check size={12} />}
                             </button>
                         ))}
                     </motion.div>

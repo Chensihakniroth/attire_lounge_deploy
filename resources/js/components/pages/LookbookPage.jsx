@@ -25,7 +25,7 @@ const PageHeader = memo(() => (
         <motion.div
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 1.2, ease: [0.22, 1, 0.36, 1] }}
+            transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
             className="max-w-4xl mx-auto text-center"
         >
             <div className="flex items-center justify-center gap-4 mb-8">
@@ -38,10 +38,6 @@ const PageHeader = memo(() => (
                 Sartorial <br /> <span className="text-attire-silver/40">Lookbook</span>
             </h1>
             
-            <div className="flex items-center justify-center gap-1.5 mb-10">
-                {[1, 2, 3].map(i => <Star key={i} size={8} className="text-attire-accent opacity-40" fill="currentColor" />)}
-            </div>
-
             <p className="text-sm md:text-base text-attire-silver/60 max-w-xl mx-auto leading-relaxed font-light tracking-wide">
                 A definitive visual catalog of bespoke excellence. Explore the intersection of traditional craftsmanship and contemporary silhouette.
             </p>
@@ -205,7 +201,7 @@ const LookbookPage = () => {
                 <motion.div 
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.5, duration: 0.8 }}
+                    transition={{ delay: 0.3, duration: 0.5 }}
                     className="w-full bg-white/[0.03] backdrop-blur-2xl border border-white/10 rounded-full p-1.5 flex items-center shadow-2xl"
                 >
                     <button 
@@ -254,7 +250,7 @@ const LookbookPage = () => {
                             layout
                             variants={{
                                 hidden: { opacity: 0, y: 40 },
-                                visible: { opacity: 1, y: 0, transition: { duration: 0.8, ease: [0.22, 1, 0.36, 1] } }
+                                visible: { opacity: 1, y: 0, transition: { duration: 0.5, ease: [0.22, 1, 0.36, 1] } }
                             }}
                             className="group relative cursor-pointer overflow-hidden aspect-[3/4.2] rounded-[2px] shadow-2xl border border-white/5"
                             onClick={() => openLightbox((currentPage - 1) * itemsPerPage + index)}

@@ -181,10 +181,11 @@ const PhilosophySection = memo(forwardRef((props, ref) => (
             transition={{ duration: 1.5, ease: "easeOut" }}
             className="h-full w-full"
         >
-            <img
+            <OptimizedImage
               src={`${minioBaseUrl}/uploads/collections/default/key.jpg`}
               alt="Attire Lounge Interior"
-              className="absolute inset-0 w-full h-full object-cover"
+              containerClassName="absolute inset-0 w-full h-full"
+              className="w-full h-full"
               style={{ objectPosition: 'center 60%' }}
               loading="lazy"
             />
@@ -308,10 +309,12 @@ const ExperienceSection = memo(forwardRef(({ services }, ref) => (
   <section className="relative snap-section min-h-screen h-screen flex items-center bg-attire-navy overflow-hidden" ref={ref}>
     {/* Mobile Background Image (Absolute) */}
     <div className="absolute inset-0 z-0 lg:hidden">
-        <img 
+        <OptimizedImage 
             src={`${minioBaseUrl}/uploads/collections/default/both.jpg`} 
             alt="Experience Background Mobile" 
-            className="w-full h-full object-cover object-center grayscale-[20%]"
+            containerClassName="w-full h-full"
+            className="w-full h-full grayscale-[20%]"
+            style={{ objectPosition: 'center' }}
         />
         <div className="absolute inset-0 bg-black/70" />
     </div>
@@ -320,10 +323,11 @@ const ExperienceSection = memo(forwardRef(({ services }, ref) => (
     <div className="relative z-10 w-full h-full grid grid-cols-1 lg:grid-cols-2">
         {/* Left Side: Image (Desktop only) */}
         <div className="hidden lg:block relative h-full w-full overflow-hidden">
-            <img 
+            <OptimizedImage 
                 src={`${minioBaseUrl}/uploads/collections/default/both.jpg`} 
                 alt="Attire Lounge Experience" 
-                className="absolute inset-0 w-full h-full object-cover"
+                containerClassName="absolute inset-0 w-full h-full"
+                className="w-full h-full"
             />
             <div className="absolute inset-0 bg-gradient-to-r from-transparent via-attire-navy/10 to-attire-navy" />
         </div>
@@ -381,10 +385,11 @@ const MembershipSection = memo(forwardRef((props, ref) => (
     <section className="relative snap-section min-h-screen h-screen flex items-center bg-attire-navy overflow-hidden" ref={ref}>
         {/* Mobile Background Image (Absolute) */}
         <div className="absolute inset-0 z-0 lg:hidden">
-            <img 
+            <OptimizedImage 
                 src={`${minioBaseUrl}/uploads/collections/default/vc.jpg`} 
                 alt="Membership Background Mobile" 
-                className="w-full h-full object-cover object-center"
+                containerClassName="w-full h-full"
+                className="w-full h-full"
             />
             <div className="absolute inset-0 bg-black/70" />
         </div>
@@ -484,10 +489,12 @@ const MembershipSection = memo(forwardRef((props, ref) => (
                 
                             {/* Visual Side (Right - Desktop only) */}
                             <div className="hidden lg:block relative col-span-7 h-full overflow-hidden">
-                                <img
+                                <OptimizedImage
                                     src={`${minioBaseUrl}/uploads/collections/default/vc.jpg`}
                                     alt="Attire Club Membership"
-                                    className="absolute inset-0 w-full h-full object-cover object-center"
+                                    containerClassName="absolute inset-0 w-full h-full"
+                                    className="w-full h-full"
+                                    style={{ objectPosition: 'center' }}
                                     loading="lazy"
                                 />
                                 <div className="absolute inset-0 bg-gradient-to-r from-attire-navy via-attire-navy/40 to-transparent w-2/3" />
@@ -499,16 +506,22 @@ const LookbookSection = memo(forwardRef((props, ref) => (
   <section className="relative snap-section min-h-screen h-screen w-full overflow-hidden flex items-center justify-center" ref={ref}>
       {/* Single Cinematic Background Image */}
       <div className="absolute inset-0 z-0">
-          <motion.img 
+          <motion.div
               initial={{ scale: 1.1 }}
               whileInView={{ scale: 1 }}
-              transition={{ duration: 2, ease: "easeOut" }}
-              src={`${minioBaseUrl}/uploads/collections/default/as2.jpg`} 
-              alt="Lookbook Background" 
-              className="w-full h-full object-cover"
-          />
-          {/* Overlays for Stylist Depth */}
-          <div className="absolute inset-0 bg-black/60 backdrop-blur-[2px]" />
+              viewport={{ once: true }}
+              transition={{ duration: 2.5, ease: "easeOut" }}
+              className="w-full h-full will-change-transform"
+          >
+              <OptimizedImage 
+                  src={`${minioBaseUrl}/uploads/collections/default/as2.jpg`} 
+                  alt="Lookbook Background" 
+                  containerClassName="w-full h-full"
+                  className="w-full h-full"
+              />
+          </motion.div>
+          {/* Overlays for Stylist Depth - Removed backdrop-blur for performance */}
+          <div className="absolute inset-0 bg-black/70" />
           <div className="absolute inset-0 bg-gradient-to-b from-black via-transparent to-black" />
       </div>
 
@@ -517,6 +530,7 @@ const LookbookSection = memo(forwardRef((props, ref) => (
           <motion.div
               initial={{ opacity: 0, y: 30 }}
               whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
               transition={{ duration: 1, ease: "easeOut" }}
           >
               <span className="text-attire-accent text-[10px] tracking-[0.6em] uppercase font-bold mb-6 block">The Visuals</span>
@@ -586,10 +600,12 @@ const TipsAndTricksSection = memo(forwardRef(({ tipsAndTricks }, ref) => {
                   className={`relative overflow-hidden rounded-2xl cursor-pointer transition-all duration-700 ease-[cubic-bezier(0.25,1,0.5,1)] ${isHovered ? 'flex-[3] md:flex-[4]' : 'flex-[1]'} group`}
                 >
                     {/* Background Image */}
-                    <img
+                    <OptimizedImage
                         src={tip.image}
                         alt={tip.title}
-                        className={`absolute inset-0 w-full h-full object-cover object-[center_20%] transition-transform duration-1000 ease-out ${isHovered ? 'scale-110' : 'scale-100'}`}
+                        containerClassName="absolute inset-0 w-full h-full"
+                        className={`w-full h-full transition-transform duration-1000 ease-out ${isHovered ? 'scale-110' : 'scale-100'}`}
+                        style={{ objectPosition: 'center 20%' }}
                         loading="lazy"
                     />
                     <div className={`absolute inset-0 bg-gradient-to-b from-black/10 via-transparent to-black/90 transition-opacity duration-500 ${isHovered ? 'opacity-90' : 'opacity-20'}`} />
