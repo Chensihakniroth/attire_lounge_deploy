@@ -213,7 +213,7 @@ const LookbookPage = () => {
                     variants={containerVariants}
                     initial="hidden"
                     animate="visible"
-                    className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-8 lg:gap-12"
+                    className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6 lg:gap-8"
                 >
                     {paginatedImages.map((image, index) => (
                         <motion.div
@@ -229,19 +229,9 @@ const LookbookPage = () => {
                                 src={image.src}
                                 alt={image.title}
                                 containerClassName="w-full h-full"
-                                className="w-full h-full object-cover transition-transform duration-[1.5s] ease-out group-hover:scale-110"
+                                className="w-full h-full object-cover"
                                 objectFit="cover"
                             />
-                            
-                            {/* Sophisticated Minimal Overlay */}
-                            <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-700 p-6 flex flex-col justify-end">
-                                <span className="text-attire-accent text-[8px] tracking-[0.4em] uppercase font-bold mb-1 transform translate-y-4 group-hover:translate-y-0 transition-transform duration-700">
-                                    {image.collection}
-                                </span>
-                                <h3 className="text-white font-serif italic text-lg transform translate-y-4 group-hover:translate-y-0 transition-transform duration-700 delay-75">
-                                    {image.title}
-                                </h3>
-                            </div>
                         </motion.div>
                     ))}
                 </motion.div>

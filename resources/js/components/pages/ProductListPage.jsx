@@ -211,7 +211,7 @@ const ProductListPage = () => {
                     {filteredProducts.length > 0 ? (
                         <motion.div
                             key={currentPage + sortOrder + selectedCollections.join('')}
-                            className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-x-6 gap-y-16"
+                            className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-8 lg:gap-12"
                             initial={{ opacity: 0, y: 20 }}
                             animate={{ opacity: 1, y: 0 }}
                             exit={{ opacity: 0 }}
