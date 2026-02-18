@@ -47,9 +47,6 @@ const ItemCard = memo(({ product }) => {
                     <span className="text-attire-silver/40 text-[9px] uppercase tracking-widest font-medium">
                         {product.category}
                     </span>
-                    <span className="text-white/80 text-xs font-light tracking-tight">
-                        ${product.price}
-                    </span>
                 </div>
             </div>
         </motion.div>

@@ -130,66 +130,80 @@ const ProductDetailPage = () => {
                     data-lenis-prevent
                     className="w-full lg:w-[40%] xl:w-[35%] h-full overflow-y-auto no-scrollbar lg:bg-[#0a0a0a] lg:border-l border-white/5 scroll-smooth"
                 >
-                    {/* Spacer for Mobile: Ensures starting with full image view */}
+                    {/* Spacer for Mobile: Set to full screen so text starts completely hidden */}
                     <div className="h-screen lg:hidden pointer-events-none" />
 
                     <motion.div 
                         variants={stagger}
                         initial="initial"
                         animate="animate"
-                        className="p-6 md:p-10 lg:p-16 xl:p-20 pt-12 lg:pt-32 space-y-10 lg:space-y-14 bg-[#0a0a0a] lg:bg-transparent rounded-t-[40px] lg:rounded-none shadow-[0_-20px_50px_rgba(0,0,0,0.5)] lg:shadow-none lg:min-h-screen"
+                        className="p-8 md:p-12 lg:p-16 xl:p-20 pt-16 lg:pt-32 space-y-12 bg-[#0a0a0a] lg:bg-transparent rounded-t-[40px] lg:rounded-none shadow-[0_-40px_80px_rgba(0,0,0,0.8)] lg:shadow-none"
                     >
-                        {/* Header Branding */}
-                        <div className="space-y-4">
-                            <motion.div variants={slideUp} className="flex items-center gap-3">
-                                <div className="h-px w-6 bg-attire-accent" />
-                                <span className="text-[9px] font-bold uppercase tracking-[0.5em] text-attire-accent">
+                        {/* 1. BRANDING */}
+                        <div className="space-y-6">
+                            <motion.div variants={slideUp} className="flex flex-col gap-2">
+                                <span className="text-[10px] font-bold uppercase tracking-[0.6em] text-attire-accent">
                                     {product.collection}
+                                </span>
+                                <span className="text-[9px] text-white/30 uppercase tracking-[0.3em] font-medium">
+                                    {product.category}
                                 </span>
                             </motion.div>
                             
-                            <motion.h1 
-                                variants={slideUp}
-                                className="text-4xl xl:text-6xl font-serif text-white leading-[1.1] tracking-tighter italic"
-                            >
-                                {product.name}
-                            </motion.h1>
+                            <div className="space-y-4">
+                                <motion.h1 
+                                    variants={slideUp}
+                                    className="text-5xl xl:text-7xl font-serif text-white leading-none tracking-tighter italic"
+                                >
+                                    {product.name}
+                                </motion.h1>
+                            </div>
                         </div>
 
-                        {/* Summary */}
-                        <motion.div variants={slideUp}>
-                            <p className="text-attire-silver/60 text-base xl:text-lg leading-relaxed font-light max-w-sm">
-                                {product.description || "An exceptional piece of tailoring, merging classic heritage with a contemporary silhouette."}
-                            </p>
-                        </motion.div>
-
-                        {/* Accordion List */}
-                        <motion.div variants={slideUp} className="pt-6 border-t border-white/5 divide-y divide-white/5">
+                        {/* 2. TECHNICAL SPECIFICATIONS GRID */}
+                        <motion.div variants={slideUp} className="grid grid-cols-2 gap-px bg-white/5 border border-white/5 overflow-hidden rounded-sm">
                             {[
-                                { label: 'Color', value: product.color || 'Signature Hue' },
                                 { label: 'Fabric', value: product.fabric || 'Premium Wool Blend' },
-                                { label: 'Available Colors', value: product.available_colors || 'Consult Stylist' },
-                                { label: 'Description', value: product.detailed_description || product.description || 'A masterpiece of contemporary tailoring, this jacket features a refined silhouette designed for the modern gentleman.' }
-                            ].map((item) => (
-                                <div key={item.label} className="group py-5 flex flex-col gap-1.5 cursor-pointer hover:bg-white/[0.01] transition-all">
-                                    <div className="flex justify-between items-center w-full">
-                                        <span className="text-[8px] font-bold uppercase tracking-[0.2em] text-white/20 group-hover:text-attire-accent transition-colors">{item.label}</span>
-                                        <Plus size={14} className="text-white/10 group-hover:text-white group-hover:rotate-90 transition-all duration-500" />
-                                    </div>
-                                    <p className="text-sm xl:text-base font-serif italic text-white/10 group-hover:text-white/80 transition-colors leading-relaxed">
-                                        {item.value}
-                                    </p>
+                                { label: 'Color', value: product.color || 'Signature Hue' },
+                                { label: 'Silhouette', value: 'Modern Tailored' },
+                                { label: 'Details', value: 'Hand-Finished' }
+                            ].map((spec) => (
+                                <div key={spec.label} className="bg-[#0a0a0a] p-5 space-y-1">
+                                    <span className="text-[8px] uppercase tracking-[0.2em] text-white/30 font-bold">{spec.label}</span>
+                                    <p className="text-xs xl:text-sm font-serif italic text-white/80">{spec.value}</p>
                                 </div>
                             ))}
                         </motion.div>
 
-                        {/* CTA */}
-                        <motion.div variants={slideUp} className="pb-32">
-                            <button className="group w-full py-6 bg-white hover:bg-attire-accent text-black text-[10px] font-bold uppercase tracking-[0.4em] transition-all duration-700 flex items-center justify-center gap-4 relative overflow-hidden">
-                                <span className="relative z-10">Inquire Details</span>
-                                <ArrowRight size={16} className="relative z-10 group-hover:translate-x-2 transition-transform duration-500" />
+                        {/* 3. THE NARRATIVE */}
+                        <div className="space-y-8">
+                            <motion.div variants={slideUp} className="h-px w-full bg-gradient-to-r from-white/10 via-white/5 to-transparent" />
+                            
+                            <motion.div variants={slideUp} className="space-y-6">
+                                <p className="text-base xl:text-lg text-attire-silver/70 leading-relaxed font-light font-serif italic">
+                                    {product.detailed_description || product.description || "An exceptional piece of tailoring, merging classic heritage with a contemporary silhouette."}
+                                </p>
+                            </motion.div>
+
+                            <motion.div variants={slideUp} className="space-y-4">
+                                <h4 className="text-[10px] uppercase tracking-[0.4em] font-bold text-white/40">Availability</h4>
+                                <p className="text-xs text-white/60 font-light leading-relaxed">
+                                    Available in {product.available_colors || 'Consult Stylist'}. 
+                                    Each piece is meticulously inspected by our Milan-certified styling team before delivery.
+                                </p>
+                            </motion.div>
+                        </div>
+
+                        {/* 4. CALL TO ACTION */}
+                        <motion.div variants={slideUp} className="pt-8 pb-32">
+                            <button className="group w-full py-7 bg-white text-black text-[11px] font-bold uppercase tracking-[0.5em] transition-all duration-700 flex items-center justify-center gap-4 relative overflow-hidden">
+                                <span className="relative z-10">Consult Stylist</span>
+                                <ArrowRight size={18} className="relative z-10 group-hover:translate-x-2 transition-transform duration-500" />
                                 <div className="absolute inset-0 bg-attire-accent translate-y-full group-hover:translate-y-0 transition-transform duration-700" />
                             </button>
+                            <p className="text-center mt-6 text-[9px] uppercase tracking-[0.2em] text-white/20">
+                                Complimentary Alterations Included
+                            </p>
                         </motion.div>
                     </motion.div>
                 </section>
