@@ -51,8 +51,6 @@ const ProductDetailPage = () => {
 
     if (!product) return null;
 
-    const activeProgress = activePane === 'left' ? progressLeft : progressRight;
-
     return (
         <div className="h-screen bg-[#0a0a0a] text-white selection:bg-attire-accent selection:text-black overflow-hidden relative">
             
@@ -101,49 +99,43 @@ const ProductDetailPage = () => {
                 {/* LEFT: IMAGE PANE (DESKTOP FULL SCREEN) */}
                 <section 
                     ref={leftPaneRef}
-                    onMouseEnter={() => setActivePane('left')}
                     onScroll={(e) => handleScroll(e, 'left')}
                     data-lenis-prevent
-                    className="hidden lg:block w-full lg:w-[60%] xl:w-[65%] h-full overflow-y-auto no-scrollbar bg-black scroll-smooth"
+                    className="hidden lg:block w-full lg:w-[60%] xl:w-[65%] h-full overflow-y-auto no-scrollbar bg-[#0a0a0a] scroll-smooth"
                 >
                     <motion.div 
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
-                        className="w-full relative"
+                        className="w-full flex flex-col"
                     >
-                        {/* Image Container - Using min-h-[150vh] to guarantee scroll space for large images */}
-                        <div className="w-full min-h-[150vh] relative bg-[#0a0a0a]">
-                            <div className="w-full h-screen sticky top-0 overflow-hidden flex items-center justify-center">
-                                <OptimizedImage
-                                    src={product.images[0]}
-                                    alt={product.name}
-                                    objectFit="cover"
-                                    containerClassName="w-full h-full"
-                                    className="w-full h-full"
-                                />
-                                {/* Depth overlay */}
-                                <div className="absolute inset-0 bg-gradient-to-b from-black/20 via-transparent to-black/40" />
-                            </div>
-                        </div>
+                        <OptimizedImage
+                            src={product.images[0]}
+                            alt={product.name}
+                            objectFit="contain"
+                            containerClassName="w-full min-h-screen"
+                            className="w-full h-auto"
+                            bgClassName="bg-transparent"
+                            loading="eager"
+                        />
+                        {/* If there are more images, they could go here */}
                     </motion.div>
                 </section>
 
                 {/* RIGHT: CONTENT PANE (SCROLLS OVER IMAGE ON MOBILE) */}
                 <section 
                     ref={rightPaneRef}
-                    onMouseEnter={() => setActivePane('right')}
                     onScroll={(e) => handleScroll(e, 'right')}
                     data-lenis-prevent
                     className="w-full lg:w-[40%] xl:w-[35%] h-full overflow-y-auto no-scrollbar lg:bg-[#0a0a0a] lg:border-l border-white/5 scroll-smooth"
                 >
-                    {/* Spacer for Mobile to show the fixed image initially */}
-                    <div className="h-[85vh] lg:hidden pointer-events-none" />
+                    {/* Spacer for Mobile: Ensures starting with full image view */}
+                    <div className="h-screen lg:hidden pointer-events-none" />
 
                     <motion.div 
                         variants={stagger}
                         initial="initial"
                         animate="animate"
-                        className="p-8 md:p-12 lg:p-20 xl:p-24 pt-16 lg:pt-48 space-y-16 lg:space-y-24 bg-[#0a0a0a] lg:bg-transparent rounded-t-[40px] lg:rounded-none shadow-[0_-20px_50px_rgba(0,0,0,0.5)] lg:shadow-none min-h-screen"
+                        className="p-8 md:p-12 lg:p-20 xl:p-24 pt-16 lg:pt-48 space-y-16 lg:space-y-24 bg-[#0a0a0a] lg:bg-transparent rounded-t-[40px] lg:rounded-none shadow-[0_-20px_50px_rgba(0,0,0,0.5)] lg:shadow-none lg:min-h-screen"
                     >
                         {/* Header Branding */}
                         <div className="space-y-8">
@@ -201,7 +193,7 @@ const ProductDetailPage = () => {
                 {/* DYNAMIC SCROLL INDICATOR (HomePage Design) */}
                 <div className="hidden md:flex fixed right-8 top-1/2 -translate-y-1/2 z-40 h-[25vh] flex-col items-center justify-center mix-blend-difference pointer-events-none">
                     <span className="text-[8px] tracking-[0.4em] text-white/30 uppercase vertical-text transform rotate-180 mb-4">
-                        {activePane === 'left' ? 'Imagery' : 'Details'}
+                        Details
                     </span>
                     {/* Glass Track */}
                     <div className="relative w-[1px] h-full bg-white/10 backdrop-blur-sm rounded-full overflow-visible border-0">
@@ -210,7 +202,7 @@ const ProductDetailPage = () => {
                             className="absolute left-[-0.5px] w-0.5 bg-attire-accent shadow-[0_0_10px_rgba(212,168,76,0.8)] rounded-full"
                             initial={false}
                             animate={{ 
-                                top: `${activeProgress * 100}%`,
+                                top: `${progressRight * 100}%`,
                                 y: '-50%'
                             }}
                             style={{

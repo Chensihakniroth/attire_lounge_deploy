@@ -17,11 +17,9 @@ const ItemCard = ({ product }) => {
 
     return (
         <motion.div
-            layout
             className="text-center cursor-pointer group"
             onClick={() => navigate(`/product/${product.id}`)}
             variants={itemVariants}
-            whileHover={{ y: -5 }}
             transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
         >
             <div className="relative overflow-hidden aspect-[3/4] rounded-sm bg-white/5">

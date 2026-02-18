@@ -82,7 +82,7 @@ const CollectionsPage = () => {
                                     className="h-full"
                                 >
                                     {collection.id === 0 ? (
-                                        <div className="group relative h-[28rem] rounded-2xl overflow-hidden shadow-xl border border-white/5">
+                                        <div className="group relative h-[24rem] rounded-2xl overflow-hidden shadow-xl border border-white/5">
                                             {/* Background Image */}
                                             <div className="absolute inset-0">
                                                 <OptimizedImage 

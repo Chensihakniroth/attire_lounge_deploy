@@ -10,14 +10,7 @@ import { useFavorites } from '../../context/FavoritesContext.jsx';
 // --- Styled Components ---
 
 const GrainOverlay = memo(() => (
-  <div className="fixed inset-0 pointer-events-none z-50 opacity-[0.02] mix-blend-overlay">
-    <svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
-      <filter id="noiseFilter">
-        <feTurbulence type="fractalNoise" baseFrequency="0.65" numOctaves="3" stitchTiles="stitch"/>
-      </filter>
-      <rect width="100%" height="100%" filter="url(#noiseFilter)"/>
-    </svg>
-  </div>
+  <div className="fixed inset-0 pointer-events-none z-50 opacity-[0.015] mix-blend-overlay pointer-events-none bg-[url('https://grainy-gradients.vercel.app/noise.svg')]" />
 ));
 
 const sortOptions = [
@@ -153,7 +146,7 @@ const ProductListPage = () => {
     };
 
     return (
-        <div className="min-h-screen bg-attire-navy relative overflow-x-hidden selection:bg-attire-accent selection:text-white">
+        <div className="min-h-screen bg-attire-navy relative selection:bg-attire-accent selection:text-white">
             <GrainOverlay />
             
             <style>
@@ -168,10 +161,10 @@ const ProductListPage = () => {
                 `}
             </style>
 
-            {/* Background Decorations */}
-            <div className="fixed inset-0 pointer-events-none z-0">
-                <div className="absolute top-[-20%] left-[-10%] w-[1000px] h-[1000px] bg-attire-accent/[0.03] rounded-full blur-[180px]" />
-                <div className="absolute bottom-[-20%] right-[-10%] w-[800px] h-[800px] bg-white/[0.02] rounded-full blur-[150px]" />
+            {/* Background Decorations - Hardware Accelerated */}
+            <div className="fixed inset-0 pointer-events-none z-0 overflow-hidden">
+                <div className="absolute top-[-20%] left-[-10%] w-[1000px] h-[1000px] bg-attire-accent/[0.03] rounded-full blur-[180px] will-change-transform" />
+                <div className="absolute bottom-[-20%] right-[-10%] w-[800px] h-[800px] bg-white/[0.02] rounded-full blur-[150px] will-change-transform" />
             </div>
 
             <header className="relative z-10 pt-32 pb-16 sm:pt-48 sm:pb-24 px-6 text-center">
@@ -214,7 +207,7 @@ const ProductListPage = () => {
                     />
                 </div>
                 
-                <AnimatePresence mode="wait">
+                <AnimatePresence>
                     {filteredProducts.length > 0 ? (
                         <motion.div
                             key={currentPage + sortOrder + selectedCollections.join('')}
@@ -224,7 +217,7 @@ const ProductListPage = () => {
                             exit={{ opacity: 0 }}
                             transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
                         >
-                            {paginatedProducts.map((item, index) => (
+                            {paginatedProducts.map((item) => (
                                 <ItemCard 
                                     key={item.id} 
                                     product={item} 

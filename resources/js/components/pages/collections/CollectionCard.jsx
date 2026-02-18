@@ -6,9 +6,7 @@ import OptimizedImage from '../../common/OptimizedImage.jsx';
 const CollectionCard = ({ collection }) => {
     return (
         <motion.div
-            className="group relative h-[28rem] rounded-2xl overflow-hidden shadow-xl border border-white/5 bg-attire-dark"
-            whileHover={{ y: -8 }}
-            transition={{ type: 'spring', stiffness: 300 }}
+            className="group relative h-[24rem] rounded-2xl overflow-hidden shadow-xl border border-white/5 bg-attire-dark"
         >
             {/* Background Image */}
             <div className="absolute inset-0">
