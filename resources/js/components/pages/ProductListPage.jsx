@@ -358,7 +358,7 @@ const Controls = ({
                         className="flex flex-col sm:flex-row sm:items-center flex-wrap gap-4 mt-6 px-6"
                     >
                         <div className="flex items-center flex-wrap gap-2">
-                            <span className="text-[9px] text-white/20 uppercase tracking-[0.3em] font-bold mr-2">Filtering By:</span>
+                            <span className="text-[9px] text-white uppercase tracking-[0.3em] font-bold mr-2">Filtering By:</span>
                             {selectedCollections.map(slug => {
                                 const collection = allCollections.find(c => c.slug === slug);
                                 return (
@@ -370,7 +370,7 @@ const Controls = ({
                         </div>
                         <button
                             onClick={clearFilters}
-                            className="text-[9px] uppercase tracking-[0.2em] font-bold text-red-400/60 hover:text-red-400 sm:ml-auto transition-colors px-2 self-start sm:self-auto"
+                            className="text-[9px] uppercase tracking-[0.2em] font-bold text-white bg-red-900 border border-red-800 px-4 py-2 rounded-full sm:ml-auto transition-all duration-300 self-start sm:self-auto shadow-xl hover:bg-red-700"
                         >
                             Clear All
                         </button>
@@ -387,7 +387,7 @@ const FilterTag = ({ children, onRemove }) => (
         initial={{ opacity: 0, scale: 0.8 }}
         animate={{ opacity: 1, scale: 1 }}
         exit={{ opacity: 0, scale: 0.8 }}
-        className="flex items-center gap-3 bg-white/5 border border-white/10 text-white rounded-full pl-4 pr-2 py-1.5 text-[10px] font-bold tracking-wide"
+        className="flex items-center gap-3 bg-attire-dark border border-white/10 text-white rounded-full pl-4 pr-2 py-1.5 text-[10px] font-bold tracking-wide shadow-xl"
     >
         <span className="opacity-60">{children}</span>
         <button onClick={onRemove} className="p-1 hover:bg-white/10 rounded-full transition-colors">

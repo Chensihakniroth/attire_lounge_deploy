@@ -137,55 +137,57 @@ const ProductDetailPage = () => {
                         variants={stagger}
                         initial="initial"
                         animate="animate"
-                        className="p-8 md:p-12 lg:p-20 xl:p-24 pt-16 lg:pt-48 space-y-16 lg:space-y-24 bg-[#0a0a0a] lg:bg-transparent rounded-t-[40px] lg:rounded-none shadow-[0_-20px_50px_rgba(0,0,0,0.5)] lg:shadow-none lg:min-h-screen"
+                        className="p-6 md:p-10 lg:p-16 xl:p-20 pt-12 lg:pt-32 space-y-10 lg:space-y-14 bg-[#0a0a0a] lg:bg-transparent rounded-t-[40px] lg:rounded-none shadow-[0_-20px_50px_rgba(0,0,0,0.5)] lg:shadow-none lg:min-h-screen"
                     >
                         {/* Header Branding */}
-                        <div className="space-y-8">
-                            <motion.div variants={slideUp} className="flex items-center gap-4">
-                                <div className="h-px w-8 bg-attire-accent" />
-                                <span className="text-[10px] font-bold uppercase tracking-[0.6em] text-attire-accent">
+                        <div className="space-y-4">
+                            <motion.div variants={slideUp} className="flex items-center gap-3">
+                                <div className="h-px w-6 bg-attire-accent" />
+                                <span className="text-[9px] font-bold uppercase tracking-[0.5em] text-attire-accent">
                                     {product.collection}
                                 </span>
                             </motion.div>
                             
                             <motion.h1 
                                 variants={slideUp}
-                                className="text-5xl xl:text-8xl font-serif text-white leading-[0.9] tracking-tighter italic"
+                                className="text-4xl xl:text-6xl font-serif text-white leading-[1.1] tracking-tighter italic"
                             >
                                 {product.name}
                             </motion.h1>
                         </div>
 
                         {/* Summary */}
-                        <motion.div variants={slideUp} className="space-y-8">
-                            <p className="text-attire-silver/60 text-lg xl:text-xl leading-relaxed font-light max-w-sm">
+                        <motion.div variants={slideUp}>
+                            <p className="text-attire-silver/60 text-base xl:text-lg leading-relaxed font-light max-w-sm">
                                 {product.description || "An exceptional piece of tailoring, merging classic heritage with a contemporary silhouette."}
                             </p>
                         </motion.div>
 
                         {/* Accordion List */}
-                        <motion.div variants={slideUp} className="pt-8 border-t border-white/5 divide-y divide-white/5">
+                        <motion.div variants={slideUp} className="pt-6 border-t border-white/5 divide-y divide-white/5">
                             {[
-                                { label: 'Specifications', value: product.category },
-                                { label: 'Craftsmanship', value: 'Traditional Sartorial' },
-                                { label: 'Material', value: 'Premium Selection' },
-                                { label: 'Delivery', value: 'Complimentary Shipping' }
+                                { label: 'Color', value: product.color || 'Signature Hue' },
+                                { label: 'Fabric', value: product.fabric || 'Premium Wool Blend' },
+                                { label: 'Available Colors', value: product.available_colors || 'Consult Stylist' },
+                                { label: 'Description', value: product.detailed_description || product.description || 'A masterpiece of contemporary tailoring, this jacket features a refined silhouette designed for the modern gentleman.' }
                             ].map((item) => (
-                                <div key={item.label} className="group py-8 flex justify-between items-center cursor-pointer hover:bg-white/[0.01] transition-all">
-                                    <div className="space-y-1">
-                                        <span className="text-[9px] font-bold uppercase tracking-[0.2em] text-white/20 group-hover:text-attire-accent transition-colors">{item.label}</span>
-                                        <p className="text-lg font-serif italic text-white/10 group-hover:text-white/80 transition-colors">{item.value}</p>
+                                <div key={item.label} className="group py-5 flex flex-col gap-1.5 cursor-pointer hover:bg-white/[0.01] transition-all">
+                                    <div className="flex justify-between items-center w-full">
+                                        <span className="text-[8px] font-bold uppercase tracking-[0.2em] text-white/20 group-hover:text-attire-accent transition-colors">{item.label}</span>
+                                        <Plus size={14} className="text-white/10 group-hover:text-white group-hover:rotate-90 transition-all duration-500" />
                                     </div>
-                                    <Plus size={16} className="text-white/10 group-hover:text-white group-hover:rotate-90 transition-all duration-500" />
+                                    <p className="text-sm xl:text-base font-serif italic text-white/10 group-hover:text-white/80 transition-colors leading-relaxed">
+                                        {item.value}
+                                    </p>
                                 </div>
                             ))}
                         </motion.div>
 
                         {/* CTA */}
-                        <motion.div variants={slideUp} className="space-y-8 pb-48">
-                            <button className="group w-full py-8 bg-white hover:bg-attire-accent text-black text-[11px] font-bold uppercase tracking-[0.5em] transition-all duration-700 flex items-center justify-center gap-4 relative overflow-hidden">
+                        <motion.div variants={slideUp} className="pb-32">
+                            <button className="group w-full py-6 bg-white hover:bg-attire-accent text-black text-[10px] font-bold uppercase tracking-[0.4em] transition-all duration-700 flex items-center justify-center gap-4 relative overflow-hidden">
                                 <span className="relative z-10">Inquire Details</span>
-                                <ArrowRight size={18} className="relative z-10 group-hover:translate-x-2 transition-transform duration-500" />
+                                <ArrowRight size={16} className="relative z-10 group-hover:translate-x-2 transition-transform duration-500" />
                                 <div className="absolute inset-0 bg-attire-accent translate-y-full group-hover:translate-y-0 transition-transform duration-700" />
                             </button>
                         </motion.div>
