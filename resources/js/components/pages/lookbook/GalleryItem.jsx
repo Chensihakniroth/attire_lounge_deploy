@@ -1,10 +1,9 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { Heart, Maximize2 } from 'lucide-react';
+import OptimizedImage from '../../common/OptimizedImage.jsx';
 
 const GalleryItem = ({ image, openLightbox, toggleFavorite, isFavorite }) => {
-    const [isLoaded, setIsLoaded] = useState(false);
-
     // Variant for the grid item's animated entry
     const itemVariants = {
         hidden: { opacity: 0, y: 25, scale: 0.98 },
@@ -23,15 +22,12 @@ const GalleryItem = ({ image, openLightbox, toggleFavorite, isFavorite }) => {
             onClick={openLightbox}
             layoutId={`lookbook-image-container-${image.id}`}
         >
-            {/* Image with loading state and hover effect */}
-            <motion.img
+            {/* Image with skeleton loading and hover effect */}
+            <OptimizedImage
                 src={image.src}
                 alt={image.title}
-                className="absolute inset-0 w-full h-full object-cover"
-                onLoad={() => setIsLoaded(true)}
-                initial={{ opacity: 0 }}
-                animate={{ opacity: isLoaded ? 1 : 0 }}
-                transition={{ duration: 0.4 }}
+                containerClassName="absolute inset-0 w-full h-full"
+                className="w-full h-full"
             />
             
             {/* Animated overlay with content */}

@@ -1,6 +1,7 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { ArrowRight } from 'lucide-react';
+import OptimizedImage from '../../common/OptimizedImage.jsx';
 
 const CollectionCard = ({ collection }) => {
     return (
@@ -11,14 +12,19 @@ const CollectionCard = ({ collection }) => {
         >
             {/* Background Image */}
             <div className="absolute inset-0">
-                <motion.img
-                    src={collection.image}
-                    alt={collection.title}
-                    className="w-full h-full object-cover"
+                <motion.div
+                    className="w-full h-full"
                     initial={{ scale: 1 }}
                     whileHover={{ scale: 1.05 }}
                     transition={{ duration: 0.4, ease: 'easeOut' }}
-                />
+                >
+                    <OptimizedImage
+                        src={collection.image}
+                        alt={collection.title}
+                        containerClassName="w-full h-full"
+                        className="w-full h-full"
+                    />
+                </motion.div>
                 {/* Gradient Overlays */}
                 <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent" />
                 <div className="absolute inset-0 bg-black/20 group-hover:bg-black/10 transition-colors duration-500" />

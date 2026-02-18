@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { User, Mail, Phone, Gift, Loader, CheckCircle, XCircle, Trash2 } from 'lucide-react';
 import { useAdmin } from './AdminContext';
+import OptimizedImage from '../../common/OptimizedImage.jsx';
 
 const GiftRequestCard = ({ request, onUpdate, onDelete }) => {
     const [isUpdating, setIsUpdating] = useState(false);
@@ -73,10 +74,11 @@ const GiftRequestCard = ({ request, onUpdate, onDelete }) => {
                         {request.selected_items.map((item, index) => (
                             <div key={index} className="flex flex-col items-center min-w-[80px]">
                                 <div className="h-20 w-20 rounded-xl overflow-hidden border border-white/10 mb-2 relative group/img">
-                                    <img 
+                                    <OptimizedImage 
                                         src={item.image} 
                                         alt={item.name} 
-                                        className="w-full h-full object-cover transition-transform duration-500 group-hover/img:scale-110"
+                                        containerClassName="w-full h-full"
+                                        className="w-full h-full transition-transform duration-500 group-hover/img:scale-110"
                                     />
                                 </div>
                                 <p className="text-[10px] text-attire-silver text-center uppercase tracking-wide">{item.type}</p>

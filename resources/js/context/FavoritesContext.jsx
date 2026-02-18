@@ -45,11 +45,20 @@ export const FavoritesProvider = ({ children }) => {
         return favorites.includes(productId);
     };
 
+    const toggleFavorite = (productId) => {
+        if (favorites.includes(productId)) {
+            removeFavorite(productId);
+        } else {
+            addFavorite(productId);
+        }
+    };
+
     const value = {
         favorites,
         addFavorite,
         removeFavorite,
         isFavorited,
+        toggleFavorite
     };
 
     return (

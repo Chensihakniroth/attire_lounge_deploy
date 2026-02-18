@@ -93,11 +93,13 @@ const HeroSection = memo(forwardRef(({ scrollToSection }, ref) => (
       className="relative z-10 h-full flex flex-col items-center justify-center px-4"
     >
       {/* Logo */}
-      <img 
+      <OptimizedImage 
         src={`${minioBaseUrl}/uploads/asset/AL_logo.png`} 
         alt="Attire Lounge" 
-        className="h-auto w-full max-w-[240px] md:max-w-md filter brightness-0 invert drop-shadow-2xl opacity-95 mb-6" 
+        containerClassName="h-auto w-full max-w-[240px] md:max-w-md"
+        className="filter brightness-0 invert drop-shadow-2xl opacity-95 mb-6" 
         loading="eager" 
+        objectFit="contain"
       />
       
       {/* Minimal Tagline */}
@@ -241,10 +243,11 @@ const CollectionsSection = memo(forwardRef((props, ref) => {
                                     transition={{ duration: 1.5, ease: "easeInOut" }}
                                     className="absolute inset-0 w-full h-full"
                                 >
-                                    <img
+                                    <OptimizedImage
                                         src={showcaseImages[currentImageIndex]}
                                         alt="Collection Dispatch"
-                                        className="w-full h-full object-cover transition-all duration-[3000ms] group-hover:scale-110"
+                                        containerClassName="w-full h-full"
+                                        className="w-full h-full transition-all duration-[3000ms] group-hover:scale-110"
                                     />
                                     {/* News Overlay */}
                                     <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent opacity-80" />

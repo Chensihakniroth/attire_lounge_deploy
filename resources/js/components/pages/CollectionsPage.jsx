@@ -6,6 +6,7 @@ import { collections as mockCollections } from '../../data/products.js';
 import minioBaseUrl from '../../config.js';
 import LoadingSpinner from '../common/LoadingSpinner.jsx';
 import { ArrowRight } from 'lucide-react';
+import OptimizedImage from '../common/OptimizedImage.jsx';
 
 const PageHeader = () => (
     <div className="relative text-center py-20 sm:py-32 px-6 z-10">
@@ -84,10 +85,11 @@ const CollectionsPage = () => {
                                         <div className="group relative h-[28rem] rounded-2xl overflow-hidden shadow-xl border border-white/5">
                                             {/* Background Image */}
                                             <div className="absolute inset-0">
-                                                <img 
+                                                <OptimizedImage 
                                                     src={collection.image} 
                                                     alt={collection.title}
-                                                    className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                                                    containerClassName="w-full h-full"
+                                                    className="w-full h-full transition-transform duration-700 group-hover:scale-105"
                                                 />
                                                 <div className="absolute inset-0 bg-attire-accent/90 mix-blend-multiply opacity-90 transition-opacity duration-500" />
                                                 <div className="absolute inset-0 bg-black/20 group-hover:bg-black/10 transition-colors duration-500" />

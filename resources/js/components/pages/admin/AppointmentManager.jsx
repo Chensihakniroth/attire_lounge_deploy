@@ -2,6 +2,7 @@ import React, { useState, useEffect, useContext } from 'react';
 import { User, Mail, Phone, Calendar, Clock, MessageSquare, AlertTriangle, Loader, Check, X, Trash2 } from 'lucide-react';
 import { ThemeContext } from './ThemeContext';
 import { useAdmin } from './AdminContext';
+import OptimizedImage from '../../common/OptimizedImage.jsx';
 
 const AppointmentRow = ({ appointment, onUpdateStatus, colors }) => {
     const statusConfig = {
@@ -80,10 +81,11 @@ const AppointmentRow = ({ appointment, onUpdateStatus, colors }) => {
                                     return (
                                         <div key={index} className="flex flex-col items-center min-w-[80px]">
                                             <div className="h-16 w-16 rounded-lg overflow-hidden border border-white/10 mb-2 relative group/img">
-                                                <img
+                                                <OptimizedImage
                                                     src={imageUrl}
                                                     alt={name}
-                                                    className="w-full h-full object-cover transition-transform duration-500 group-hover/img:scale-110"
+                                                    containerClassName="w-full h-full"
+                                                    className="w-full h-full transition-transform duration-500 group-hover/img:scale-110"
                                                 />
                                             </div>
                                             <p className="text-[10px] text-white text-center font-medium truncate w-full max-w-[80px]" title={name}>{name}</p>

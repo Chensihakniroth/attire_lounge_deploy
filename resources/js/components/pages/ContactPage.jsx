@@ -6,6 +6,7 @@ import { Mail, Phone, MapPin, Clock, Send, CheckCircle, Instagram, Facebook, Che
 import { useFavorites } from '../../context/FavoritesContext';
 import { products } from '../../data/products';
 import axios from 'axios';
+import OptimizedImage from '../common/OptimizedImage.jsx';
 
 // --- Reusable Components (Moved Outside) ---
 
@@ -167,10 +168,11 @@ const FavoritesSelector = ({ favoriteProducts, selectedFavorites, onSelectionCha
                         }`}
                         onClick={() => handleCheckboxChange(product.id)}
                     >
-                        <img 
+                        <OptimizedImage 
                             src={product.images[0]} 
                             alt={product.name} 
-                            className={`w-full aspect-[4/5] object-cover transition-all duration-500 group-hover:scale-110 ${
+                            containerClassName="w-full aspect-[4/5]"
+                            className={`w-full h-full transition-all duration-500 group-hover:scale-110 ${
                                 selectedFavorites.includes(product.id) ? 'opacity-100 brightness-110' : 'opacity-80 group-hover:opacity-100'
                             }`}
                         />

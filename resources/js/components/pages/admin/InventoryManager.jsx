@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Package, AlertTriangle, CheckCircle, XCircle, Loader } from 'lucide-react';
 import giftOptions from '../../../data/giftOptions';
 import api from '../../../api';
+import OptimizedImage from '../../common/OptimizedImage.jsx';
 
 const InventoryManager = () => {
     const [outOfStockItems, setOutOfStockItems] = useState([]);
@@ -67,7 +68,12 @@ const InventoryManager = () => {
                         >
                             <div className="flex items-center gap-4">
                                 <div className="h-16 w-16 rounded-xl overflow-hidden border border-white/10 flex-shrink-0">
-                                    <img src={item.image} alt={item.name} className={`w-full h-full object-cover ${isOutOfStock ? 'grayscale opacity-50' : ''}`} />
+                                    <OptimizedImage 
+                                        src={item.image} 
+                                        alt={item.name} 
+                                        containerClassName="w-full h-full"
+                                        className={`w-full h-full ${isOutOfStock ? 'grayscale opacity-50' : ''}`} 
+                                    />
                                 </div>
                                 <div className="flex-grow min-w-0">
                                     <h3 className="text-sm font-medium text-white truncate group-hover:text-attire-accent transition-colors">{item.name}</h3>
