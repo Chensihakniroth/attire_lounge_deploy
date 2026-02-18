@@ -8,6 +8,7 @@ const OptimizedImage = ({
     containerClassName = '', 
     objectFit = 'cover',
     skeletonClassName = '',
+    bgClassName = 'bg-white/[0.02]',
     style = {},
     ...props 
 }) => {
@@ -16,17 +17,19 @@ const OptimizedImage = ({
     const imgRef = useRef(null);
 
     useEffect(() => {
-        setIsLoaded(false);
-        setError(false);
-        
+        // If image is already complete (cached), set loaded immediately
         if (imgRef.current && imgRef.current.complete) {
             setIsLoaded(true);
+            return;
         }
+
+        setIsLoaded(false);
+        setError(false);
     }, [src]);
 
     return (
         <div 
-            className={`relative ${containerClassName} ${objectFit === 'contain' ? 'flex items-center justify-center' : 'overflow-hidden'}`} 
+            className={`relative ${containerClassName} ${objectFit === 'contain' ? 'flex items-center justify-center' : 'overflow-hidden'} ${bgClassName}`} 
             style={style}
         >
             {!isLoaded && !error && (
@@ -42,7 +45,7 @@ const OptimizedImage = ({
                     setError(true);
                     setIsLoaded(true);
                 }}
-                className={`transition-opacity duration-500 ease-in-out ${
+                className={`transition-opacity duration-700 ease-in-out will-change-[opacity] ${
                     isLoaded ? 'opacity-100' : 'opacity-0'
                 } ${
                     objectFit === 'contain' 

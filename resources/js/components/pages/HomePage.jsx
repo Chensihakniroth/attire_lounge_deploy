@@ -97,7 +97,8 @@ const HeroSection = memo(forwardRef(({ scrollToSection }, ref) => (
         src={`${minioBaseUrl}/uploads/asset/AL_logo.png`} 
         alt="Attire Lounge" 
         containerClassName="h-auto w-full max-w-[240px] md:max-w-md"
-        className="filter brightness-0 invert drop-shadow-2xl opacity-95 mb-6" 
+        className="drop-shadow-2xl mb-6" 
+        bgClassName="bg-transparent"
         loading="eager" 
         objectFit="contain"
       />

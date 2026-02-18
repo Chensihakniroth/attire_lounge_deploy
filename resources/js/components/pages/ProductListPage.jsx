@@ -2,7 +2,6 @@ import React, { useState, useMemo, useEffect, useRef, memo } from 'react';
 import { useLocation, Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { wrap } from "../../helpers/math.js";
-import Lightbox from './lookbook/Lightbox';
 import { ChevronLeft, ChevronRight, Search, X, Filter, ChevronDown, Check, Star } from 'lucide-react';
 import { products as allProducts, collections as allCollections } from '../../data/products.js';
 import ItemCard from './collections/ItemCard';
@@ -40,7 +39,6 @@ const ProductListPage = () => {
     const collectionQuery = query.get('collection');
 
     const [sortOrder, setSortOrder] = useState('category-asc');
-    const [[page, direction], setPage] = useState([null, 0]);
     const { favorites, toggleFavorite, isFavorited } = useFavorites();
     
     const [selectedCollections, setSelectedCollections] = useState(() => {
@@ -118,31 +116,10 @@ const ProductListPage = () => {
         return { pageTitle, filteredProducts: products };
     }, [sortOrder, selectedCollections]);
 
-    const imageIndex = page !== null ? wrap(0, filteredProducts.length, page) : null;
-    const selectedImage = page !== null ? filteredProducts[imageIndex] : null;
-
-    const openLightbox = (index) => setPage([index, 0]);
-    const closeLightbox = () => setPage([null, 0]);
-    const paginate = (newDirection) => {
-        if (page === null || !filteredProducts.length) return;
-        setPage([page + newDirection, newDirection]);
-    };
-
     const handleLocalToggleFavorite = (id) => {
         toggleFavorite(id);
     };
 
-    useEffect(() => {
-        const handleKeyDown = (e) => {
-            if (page === null) return;
-            if (e.key === 'ArrowRight') paginate(1);
-            if (e.key === 'ArrowLeft') paginate(-1);
-            if (e.key === 'Escape') closeLightbox();
-        };
-        window.addEventListener('keydown', handleKeyDown);
-        return () => window.removeEventListener('keydown', handleKeyDown);
-    }, [page]);
-    
     useEffect(() => {
         const newCollectionQuery = new URLSearchParams(location.search).get('collection');
         if (newCollectionQuery && !selectedCollections.includes(newCollectionQuery)) {
@@ -251,7 +228,6 @@ const ProductListPage = () => {
                                 <ItemCard 
                                     key={item.id} 
                                     product={item} 
-                                    openLightbox={() => openLightbox((currentPage - 1) * itemsPerPage + index)} 
                                 />
                             ))}
                         </motion.div>
@@ -309,25 +285,6 @@ const ProductListPage = () => {
                     </div>
                 )}
             </main>
-
-            <AnimatePresence>
-                {selectedImage && (
-                    <Lightbox
-                        key="lightbox"
-                        selectedImage={{
-                            ...selectedImage,
-                            src: selectedImage.images[0],
-                            title: selectedImage.name,
-                            collection: selectedImage.collection
-                        }}
-                        closeLightbox={closeLightbox}
-                        direction={direction}
-                        paginate={paginate}
-                        toggleFavorite={handleLocalToggleFavorite}
-                        favorites={favorites}
-                    />
-                )}
-            </AnimatePresence>
         </div>
     );
 };

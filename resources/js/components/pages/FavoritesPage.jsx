@@ -1,49 +1,13 @@
-import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
-import { motion, AnimatePresence } from 'framer-motion';
 import { wrap } from "../../helpers/math.js";
 import { useFavorites } from '../../context/FavoritesContext.jsx';
 import { products as allProducts } from '../../data/products.js';
 import ItemCard from './collections/ItemCard.jsx';
-import Lightbox from './lookbook/Lightbox';
 import { ChevronLeft, Heart, ShoppingBag, ArrowRight } from 'lucide-react';
 
 const FavoritesPage = () => {
     const { favorites, addFavorite, removeFavorite, isFavorited } = useFavorites();
     const favoriteProducts = allProducts.filter(p => favorites.includes(p.id));
     
-    // Lightbox State
-    const [[page, direction], setPage] = useState([null, 0]);
-    const imageIndex = page !== null ? wrap(0, favoriteProducts.length, page) : null;
-    const selectedImage = page !== null ? favoriteProducts[imageIndex] : null;
-
-    const openLightbox = (index) => setPage([index, 0]);
-    const closeLightbox = () => setPage([null, 0]);
-    
-    const paginate = (newDirection) => {
-        if (page === null || !favoriteProducts.length) return;
-        setPage([page + newDirection, newDirection]);
-    };
-
-    const toggleFavorite = (id) => {
-        if (isFavorited(id)) {
-            removeFavorite(id);
-        } else {
-            addFavorite(id);
-        }
-    };
-
-    useEffect(() => {
-        const handleKeyDown = (e) => {
-            if (page === null) return;
-            if (e.key === 'ArrowRight') paginate(1);
-            if (e.key === 'ArrowLeft') paginate(-1);
-            if (e.key === 'Escape') closeLightbox();
-        };
-        window.addEventListener('keydown', handleKeyDown);
-        return () => window.removeEventListener('keydown', handleKeyDown);
-    }, [page]);
-
     const containerVariants = {
         hidden: { opacity: 0 },
         visible: { opacity: 1, transition: { staggerChildren: 0.1, delayChildren: 0.2 } }
@@ -128,7 +92,6 @@ const FavoritesPage = () => {
                                 <div className="relative overflow-hidden rounded-sm shadow-2xl transition-transform duration-500 group-hover:-translate-y-2">
                                     <ItemCard 
                                         product={item} 
-                                        openLightbox={() => openLightbox(index)}
                                     />
                                     
                                     {/* Glass Remove Button Overlay */}
@@ -173,25 +136,6 @@ const FavoritesPage = () => {
                     </motion.div>
                 )}
             </main>
-
-            <AnimatePresence>
-                {selectedImage && (
-                    <Lightbox
-                        key="lightbox"
-                        selectedImage={{
-                            ...selectedImage,
-                            src: selectedImage.images[0],
-                            title: selectedImage.name,
-                            collection: selectedImage.collection
-                        }}
-                        closeLightbox={closeLightbox}
-                        direction={direction}
-                        paginate={paginate}
-                        toggleFavorite={toggleFavorite}
-                        favorites={favorites}
-                    />
-                )}
-            </AnimatePresence>
         </div>
     );
 };

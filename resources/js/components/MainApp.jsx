@@ -39,6 +39,7 @@ const lazyWithRetry = (componentImport) =>
 const HomePage = lazyWithRetry(() => import('./pages/HomePage.jsx'));
 const CollectionsPage = lazyWithRetry(() => import('./pages/CollectionsPage.jsx'));
 const ProductListPage = lazyWithRetry(() => import('./pages/ProductListPage.jsx'));
+const ProductDetailPage = lazyWithRetry(() => import('./pages/ProductDetailPage.jsx'));
 const LookbookPage = lazyWithRetry(() => import('./pages/LookbookPage.jsx'));
 const FashionShowPage = lazyWithRetry(() => import('./pages/FashionShowPage.jsx'));
 const ContactPage = lazyWithRetry(() => import('./pages/ContactPage.jsx'));
@@ -77,22 +78,22 @@ const pageVariants = {
         opacity: 1,
         y: 0,
         transition: {
-            duration: 0.4,
-            ease: "easeOut"
+            duration: 0.5,
+            ease: [0.22, 1, 0.36, 1]
         }
     },
     exit: {
         opacity: 0,
         y: -10,
         transition: {
-            duration: 0.3,
-            ease: "easeIn"
+            duration: 0.4,
+            ease: [0.22, 1, 0.36, 1]
         }
     }
 };
 
 // Layout wrapper component - ALWAYS includes Footer (except for HomePage)
-const Layout = ({ children, includeFooter = true, includePadding = true }) => {
+const Layout = ({ children, includeHeader = true, includeFooter = true, includePadding = true }) => {
     return (
         <motion.div
             initial="initial"
@@ -101,7 +102,7 @@ const Layout = ({ children, includeFooter = true, includePadding = true }) => {
             variants={pageVariants}
             className="min-h-screen flex flex-col"
         >
-            <Navigation />
+            {includeHeader && <Navigation />}
             <main className={`flex-grow ${includePadding ? 'pt-24 md:pt-0' : ''}`}>
                 {children}
             </main>
@@ -198,6 +199,11 @@ const AnimatedRoutes = () => {
                 <Route path="/products/:collectionSlug" element={
                     <Layout>
                         <ProductListPage />
+                    </Layout>
+                } />
+                <Route path="/product/:productId" element={
+                    <Layout includeHeader={false} includeFooter={false} includePadding={false}>
+                        <ProductDetailPage />
                     </Layout>
                 } />
                 <Route path="/lookbook" element={

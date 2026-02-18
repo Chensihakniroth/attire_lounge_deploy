@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef, useMemo, memo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import Lightbox from './lookbook/Lightbox';
+import { useNavigate } from 'react-router-dom';
 import OptimizedImage from '../common/OptimizedImage.jsx';
 import { wrap } from "../../helpers/math.js";
 import minioBaseUrl from '../../config.js';
@@ -46,11 +46,11 @@ const PageHeader = memo(() => (
 ));
 
 const LookbookPage = () => {
+    const navigate = useNavigate();
     const { favorites, addFavorite, removeFavorite, isFavorited } = useFavorites();
     const [images] = useState([
         // Havana Collection - Sartorial
-        { id: 'hvn0-lookbook', src: `${minioBaseUrl}/uploads/collections/default/hvn0.jpg`, title: 'Havana Breezy', collection: 'Havana Collection', category: ['sartorial'] },
-        { id: 'hvn1', src: `${minioBaseUrl}/uploads/collections/default/hvn1.jpg`, title: 'Sunset Casual', collection: 'Havana Collection', category: ['sartorial'] },
+        { id: 'hvn1', src: `${minioBaseUrl}/uploads/collections/default/hvn1.jpg`, title: 'Havana Breezy', collection: 'Havana Collection', category: ['sartorial'] },
         { id: 'hvn2', src: `${minioBaseUrl}/uploads/collections/default/hvn2.jpg`, title: 'Cuban Nights', collection: 'Havana Collection', category: ['sartorial'] },
         { id: 'hvn3', src: `${minioBaseUrl}/uploads/collections/default/hvn3.jpg`, title: 'Linen Classic', collection: 'Havana Collection', category: ['sartorial'] },
         { id: 'hvn4', src: `${minioBaseUrl}/uploads/collections/default/hvn4.jpg`, title: 'Tropical Sophistication', collection: 'Havana Collection', category: ['sartorial'] },
@@ -85,7 +85,6 @@ const LookbookPage = () => {
         { id: 'g8', src: `${minioBaseUrl}/uploads/collections/default/g8.webp?v=new`, title: 'Formal Event', collection: 'Groom Collection', category: ['grooms', 'formal'] },
     ]);
 
-    const [[page, direction], setPage] = useState([null, 0]);
     const [filter, setFilter] = useState('all');
 
     const [currentPage, setCurrentPage] = useState(1);
@@ -112,21 +111,11 @@ const LookbookPage = () => {
         ), 
     [filteredImages, currentPage, itemsPerPage]);
 
-    const imageIndex = page !== null ? wrap(0, filteredImages.length, page) : null;
-    const selectedImage = page !== null ? filteredImages[imageIndex] : null;
-
     const handlePageChange = (newPage) => {
         if (newPage >= 1 && newPage <= totalPages) {
             setCurrentPage(newPage);
             window.scrollTo({ top: 300, behavior: 'smooth' });
         }
-    };
-
-    const openLightbox = (index) => setPage([index, 0]);
-    const closeLightbox = () => setPage([null, 0]);
-    const paginate = (newDirection) => {
-        if (page === null || !filteredImages.length) return;
-        setPage([page + newDirection, newDirection]);
     };
 
     const toggleFavorite = (id) => {
@@ -136,17 +125,6 @@ const LookbookPage = () => {
             addFavorite(id);
         }
     };
-
-    useEffect(() => {
-        const handleKeyDown = (e) => {
-            if (page === null) return;
-            if (e.key === 'ArrowRight') paginate(1);
-            if (e.key === 'ArrowLeft') paginate(-1);
-            if (e.key === 'Escape') closeLightbox();
-        };
-        window.addEventListener('keydown', handleKeyDown);
-        return () => window.removeEventListener('keydown', handleKeyDown);
-    }, [page]);
 
     const containerVariants = {
         hidden: { opacity: 0 },
@@ -253,7 +231,7 @@ const LookbookPage = () => {
                                 visible: { opacity: 1, y: 0, transition: { duration: 0.5, ease: [0.22, 1, 0.36, 1] } }
                             }}
                             className="group relative cursor-pointer overflow-hidden aspect-[3/4.2] rounded-[2px] shadow-2xl border border-white/5"
-                            onClick={() => openLightbox((currentPage - 1) * itemsPerPage + index)}
+                            onClick={() => navigate(`/product/${image.id}`)}
                         >
                             <OptimizedImage
                                 src={image.src}
@@ -313,20 +291,6 @@ const LookbookPage = () => {
             <div className="py-24 text-center opacity-10 select-none">
                 <span className="font-serif italic text-base tracking-[0.5em] uppercase text-white">Attire Lounge Official</span>
             </div>
-
-            <AnimatePresence>
-                {selectedImage && (
-                    <Lightbox
-                        key="lightbox"
-                        selectedImage={selectedImage}
-                        closeLightbox={closeLightbox}
-                        direction={direction}
-                        paginate={paginate}
-                        toggleFavorite={toggleFavorite}
-                        favorites={favorites}
-                    />
-                )}
-            </AnimatePresence>
         </div>
     );
 };
