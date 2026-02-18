@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { memo } from 'react';
 import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import OptimizedImage from '../../common/OptimizedImage.jsx';
@@ -11,7 +11,7 @@ const itemVariants = {
     }
 };
 
-const ItemCard = ({ product }) => {
+const ItemCard = memo(({ product }) => {
     const navigate = useNavigate();
     const imageUrl = product.images && product.images.length > 0 ? product.images[0] : '/path/to/default/image.jpg';
 
@@ -38,6 +38,6 @@ const ItemCard = ({ product }) => {
             </div>
         </motion.div>
     );
-};
+});
 
 export default ItemCard;

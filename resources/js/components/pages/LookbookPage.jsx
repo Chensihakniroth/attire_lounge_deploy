@@ -10,14 +10,7 @@ import { useFavorites } from '../../context/FavoritesContext';
 // --- Styled Components (Memoized for Performance) ---
 
 const GrainOverlay = memo(() => (
-  <div className="fixed inset-0 pointer-events-none z-50 opacity-[0.02] mix-blend-overlay">
-    <svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
-      <filter id="noiseFilter">
-        <feTurbulence type="fractalNoise" baseFrequency="0.65" numOctaves="3" stitchTiles="stitch"/>
-      </filter>
-      <rect width="100%" height="100%" filter="url(#noiseFilter)"/>
-    </svg>
-  </div>
+  <div className="fixed inset-0 pointer-events-none z-50 opacity-[0.015] mix-blend-overlay pointer-events-none bg-[url('https://grainy-gradients.vercel.app/noise.svg')]" />
 ));
 
 const PageHeader = memo(() => (
@@ -166,10 +159,10 @@ const LookbookPage = () => {
                 `}
             </style>
             
-            {/* Background Texture & Ambient Light */}
-            <div className="fixed inset-0 pointer-events-none z-0">
-                <div className="absolute top-[-20%] left-[-10%] w-[1000px] h-[1000px] bg-attire-accent/[0.03] rounded-full blur-[180px]" />
-                <div className="absolute bottom-[-20%] right-[-10%] w-[800px] h-[800px] bg-white/[0.02] rounded-full blur-[150px]" />
+            {/* Background Texture & Ambient Light - Hardware Accelerated */}
+            <div className="fixed inset-0 pointer-events-none z-0 overflow-hidden">
+                <div className="absolute top-[-20%] left-[-10%] w-[1000px] h-[1000px] bg-attire-accent/[0.03] rounded-full blur-[180px] will-change-transform" />
+                <div className="absolute bottom-[-20%] right-[-10%] w-[800px] h-[800px] bg-white/[0.02] rounded-full blur-[150px] will-change-transform" />
             </div>
 
             <PageHeader />
@@ -180,7 +173,7 @@ const LookbookPage = () => {
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: 0.3, duration: 0.5 }}
-                    className="w-full bg-white/[0.03] backdrop-blur-2xl border border-white/10 rounded-full p-1.5 flex items-center shadow-2xl"
+                    className="w-full bg-white/[0.03] backdrop-blur-md md:backdrop-blur-2xl border border-white/10 rounded-full p-1.5 flex items-center shadow-2xl"
                 >
                     <button 
                         onClick={() => scroll(-1)}
@@ -225,7 +218,6 @@ const LookbookPage = () => {
                     {paginatedImages.map((image, index) => (
                         <motion.div
                             key={image.id}
-                            layout
                             variants={{
                                 hidden: { opacity: 0, y: 40 },
                                 visible: { opacity: 1, y: 0, transition: { duration: 0.5, ease: [0.22, 1, 0.36, 1] } }

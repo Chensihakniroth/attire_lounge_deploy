@@ -304,7 +304,7 @@ const Controls = ({
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.3, duration: 0.5 }}
-                className="relative bg-white/[0.03] backdrop-blur-2xl border border-white/10 rounded-full p-1 sm:p-1.5 flex items-center shadow-2xl"
+                className="relative bg-white/[0.03] backdrop-blur-md md:backdrop-blur-xl border border-white/10 rounded-full p-1 sm:p-1.5 flex items-center shadow-2xl"
             >
                 {/* Collections Filter Scroll */}
                 <div className="flex-grow flex items-center min-w-0 relative">

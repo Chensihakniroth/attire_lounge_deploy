@@ -9,6 +9,7 @@ const OptimizedImage = ({
     objectFit = 'cover',
     skeletonClassName = '',
     bgClassName = 'bg-white/[0.02]',
+    priority = false,
     style = {},
     ...props 
 }) => {
@@ -45,6 +46,8 @@ const OptimizedImage = ({
                     setError(true);
                     setIsLoaded(true);
                 }}
+                loading={priority ? "eager" : "lazy"}
+                fetchpriority={priority ? "high" : "auto"}
                 className={`transition-opacity duration-700 ease-in-out will-change-[opacity] ${
                     isLoaded ? 'opacity-100' : 'opacity-0'
                 } ${

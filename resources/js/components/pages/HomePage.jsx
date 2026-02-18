@@ -99,6 +99,7 @@ const HeroSection = memo(forwardRef(({ scrollToSection }, ref) => (
         containerClassName="h-auto w-full max-w-[240px] md:max-w-md"
         className="drop-shadow-2xl mb-6" 
         bgClassName="bg-transparent"
+        priority={true}
         loading="eager" 
         objectFit="contain"
       />

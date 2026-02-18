@@ -1,3 +1,6 @@
+import React from 'react';
+import { motion } from 'framer-motion';
+import { Link } from 'react-router-dom';
 import { wrap } from "../../helpers/math.js";
 import { useFavorites } from '../../context/FavoritesContext.jsx';
 import { products as allProducts } from '../../data/products.js';

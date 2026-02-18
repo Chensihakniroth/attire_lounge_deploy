@@ -90,6 +90,7 @@ const ProductDetailPage = () => {
                     objectFit="cover"
                     containerClassName="w-full h-full"
                     className="w-full h-full"
+                    priority={true}
                 />
                 <div className="absolute inset-0 bg-black/30" />
             </div>
@@ -115,6 +116,7 @@ const ProductDetailPage = () => {
                             containerClassName="w-full min-h-screen"
                             className="w-full h-auto"
                             bgClassName="bg-transparent"
+                            priority={true}
                             loading="eager"
                         />
                         {/* If there are more images, they could go here */}
