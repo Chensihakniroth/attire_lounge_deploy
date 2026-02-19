@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
-import { motion, AnimatePresence } from 'framer-motion';
-import { ChevronLeft, Heart, Plus, ArrowRight } from 'lucide-react';
+import { motion, AnimatePresence, useMotionValue, useTransform } from 'framer-motion';
+import { ChevronLeft, Heart, Plus, ArrowRight, ChevronUp } from 'lucide-react';
 import OptimizedImage from '../common/OptimizedImage.jsx';
 import { products as allProducts } from '../../data/products.js';
 import { useFavorites } from '../../context/FavoritesContext.jsx';
@@ -32,6 +32,9 @@ const ProductDetailPage = () => {
     const [progressLeft, setProgressLeft] = useState(0);
     const [progressRight, setProgressRight] = useState(0);
 
+    const scrollYProgress = useMotionValue(0);
+    const scale = useTransform(scrollYProgress, [0, 1], [1, 1.1]);
+
     const product = useMemo(() => 
         allProducts.find(p => p.id === productId), 
     [productId]);
@@ -42,7 +45,10 @@ const ProductDetailPage = () => {
         const progress = scrollableHeight > 0 ? target.scrollTop / scrollableHeight : 0;
         
         if (pane === 'left') setProgressLeft(progress);
-        else setProgressRight(progress);
+        else {
+            setProgressRight(progress);
+            scrollYProgress.set(progress);
+        }
     };
 
     useEffect(() => {
@@ -84,15 +90,34 @@ const ProductDetailPage = () => {
 
             {/* MOBILE VIEW: FIXED IMAGE BACKGROUND */}
             <div className="lg:hidden fixed inset-0 z-0">
-                <OptimizedImage
-                    src={product.images[0]}
-                    alt={product.name}
-                    objectFit="cover"
-                    containerClassName="w-full h-full"
-                    className="w-full h-full"
-                    priority={true}
-                />
-                <div className="absolute inset-0 bg-black/30" />
+                <motion.div style={{ scale }} className="absolute inset-0">
+                    <OptimizedImage
+                        src={product.images[0]}
+                        alt={product.name}
+                        objectFit="cover"
+                        containerClassName="w-full h-full"
+                        className="w-full h-full"
+                        priority={true}
+                    />
+                </motion.div>
+                <div className="absolute inset-0 bg-black/10" />
+
+                {/* Mobile Swipe Indicator */}
+                <motion.div 
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: progressRight > 0.05 ? 0 : 1 }}
+                    transition={{ duration: 0.5 }}
+                    className="absolute bottom-12 left-1/2 -translate-x-1/2 flex flex-col items-center gap-3 pointer-events-none z-10"
+                >
+                    <motion.div
+                        animate={{ y: [0, -8, 0] }}
+                        transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
+                        className="flex flex-col items-center gap-2"
+                    >
+                        <span className="text-[9px] tracking-[0.5em] uppercase text-white/50 font-bold">Swipe Up</span>
+                        <ChevronUp size={20} className="text-attire-accent" strokeWidth={1.5} />
+                    </motion.div>
+                </motion.div>
             </div>
 
             <main className="h-full flex flex-col lg:flex-row overflow-hidden relative z-10">
@@ -197,7 +222,7 @@ const ProductDetailPage = () => {
                         {/* 4. CALL TO ACTION */}
                         <motion.div variants={slideUp} className="pt-8 pb-32">
                             <button className="group w-full py-7 bg-white text-black text-[11px] font-bold uppercase tracking-[0.5em] transition-all duration-700 flex items-center justify-center gap-4 relative overflow-hidden">
-                                <span className="relative z-10">Consult Stylist</span>
+                                <span className="relative z-10">Request Appointment</span>
                                 <ArrowRight size={18} className="relative z-10 group-hover:translate-x-2 transition-transform duration-500" />
                                 <div className="absolute inset-0 bg-attire-accent translate-y-full group-hover:translate-y-0 transition-transform duration-700" />
                             </button>

@@ -22,32 +22,12 @@ const ItemCard = memo(({ product }) => {
             variants={itemVariants}
             transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
         >
-            <div className="relative overflow-hidden aspect-[3/4] rounded-sm bg-white/5 mb-4">
+            <div className="relative overflow-hidden aspect-[3/4] rounded-sm bg-white/5">
                 <OptimizedImage 
                     src={imageUrl} 
                     alt={product.name} 
                     className="w-full h-full object-cover" 
                 />
-            </div>
-
-            {/* Product Info */}
-            <div className="space-y-1.5 px-1">
-                <div className="flex items-center gap-2">
-                    <span className="text-attire-accent text-[8px] uppercase tracking-[0.2em] font-bold">
-                        {product.collection}
-                    </span>
-                    <div className="h-px w-4 bg-attire-accent/20" />
-                </div>
-                
-                <h3 className="text-white font-serif text-base lg:text-lg italic leading-tight group-hover:text-attire-accent transition-colors duration-300">
-                    {product.name}
-                </h3>
-                
-                <div className="flex justify-between items-end pt-1">
-                    <span className="text-attire-silver/40 text-[9px] uppercase tracking-widest font-medium">
-                        {product.category}
-                    </span>
-                </div>
             </div>
         </motion.div>
     );
