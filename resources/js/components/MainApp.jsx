@@ -3,6 +3,7 @@ import React, { Suspense, lazy, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
 import { AnimatePresence, motion } from 'framer-motion';
 import Lenis from 'lenis';
+import usePullToRefresh from '../hooks/usePullToRefresh';
 
 // Components
 import Navigation from './layouts/Navigation.jsx';
@@ -311,6 +312,10 @@ const AnimatedRoutes = () => {
 };
 
 function MainApp() {
+    usePullToRefresh(() => {
+        window.location.reload();
+    });
+    
     return (
         <Router>
             <LenisScroll />

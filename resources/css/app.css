@@ -19,8 +19,7 @@
         font-size: clamp(11.7px, 0.72rem + 0.36vw, 14.4px);
         scrollbar-width: none;
         -ms-overflow-style: none;
-        overscroll-behavior: contain;
-        -webkit-overflow-scrolling: touch;
+        /* -webkit-overflow-scrolling: touch; - REMOVED as it can interfere with modern scroll behaviors */
     }
 
     /* Hide main scrollbar for Chrome, Safari and Opera */

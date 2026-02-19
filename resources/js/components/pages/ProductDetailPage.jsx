@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
-import { motion, AnimatePresence, useMotionValue, useTransform } from 'framer-motion';
+import { motion, AnimatePresence, useMotionValue, useTransform, useScroll } from 'framer-motion';
 import { ChevronLeft, Heart, Plus, ArrowRight, ChevronUp } from 'lucide-react';
 import OptimizedImage from '../common/OptimizedImage.jsx';
 import { products as allProducts } from '../../data/products.js';
@@ -30,26 +30,15 @@ const ProductDetailPage = () => {
     const rightPaneRef = useRef(null);
     const [activePane, setActivePane] = useState('right');
     const [progressLeft, setProgressLeft] = useState(0);
-    const [progressRight, setProgressRight] = useState(0);
 
-    const scrollYProgress = useMotionValue(0);
+    const { scrollYProgress } = useScroll();
     const scale = useTransform(scrollYProgress, [0, 1], [1, 1.1]);
 
     const product = useMemo(() => 
         allProducts.find(p => p.id === productId), 
     [productId]);
 
-    const handleScroll = (e, pane) => {
-        const target = e.currentTarget;
-        const scrollableHeight = target.scrollHeight - target.clientHeight;
-        const progress = scrollableHeight > 0 ? target.scrollTop / scrollableHeight : 0;
-        
-        if (pane === 'left') setProgressLeft(progress);
-        else {
-            setProgressRight(progress);
-            scrollYProgress.set(progress);
-        }
-    };
+
 
     useEffect(() => {
         window.scrollTo({ top: 0, behavior: 'instant' });
@@ -58,7 +47,7 @@ const ProductDetailPage = () => {
     if (!product) return null;
 
     return (
-        <div className="h-screen bg-[#0a0a0a] text-white selection:bg-attire-accent selection:text-black overflow-hidden relative">
+        <div className="bg-[#0a0a0a] text-white selection:bg-attire-accent selection:text-black relative min-h-screen">
             
             <style>
                 {`
@@ -105,7 +94,6 @@ const ProductDetailPage = () => {
                 {/* Mobile Swipe Indicator */}
                 <motion.div 
                     initial={{ opacity: 0 }}
-                    animate={{ opacity: progressRight > 0.05 ? 0 : 1 }}
                     transition={{ duration: 0.5 }}
                     className="absolute bottom-12 left-1/2 -translate-x-1/2 flex flex-col items-center gap-3 pointer-events-none z-10"
                 >
@@ -120,14 +108,12 @@ const ProductDetailPage = () => {
                 </motion.div>
             </div>
 
-            <main className="h-full flex flex-col lg:flex-row overflow-hidden relative z-10">
+            <main className="flex flex-col lg:flex-row relative z-10">
                 
                 {/* LEFT: IMAGE PANE (DESKTOP FULL SCREEN) */}
                 <section 
                     ref={leftPaneRef}
-                    onScroll={(e) => handleScroll(e, 'left')}
-                    data-lenis-prevent
-                    className="hidden lg:block w-full lg:w-[60%] xl:w-[65%] h-full overflow-y-auto no-scrollbar bg-[#0a0a0a] scroll-smooth"
+                    className="hidden lg:block w-full lg:w-[60%] xl:w-[65%] no-scrollbar bg-[#0a0a0a] scroll-smooth"
                 >
                     <motion.div 
                         initial={{ opacity: 0 }}
@@ -151,9 +137,7 @@ const ProductDetailPage = () => {
                 {/* RIGHT: CONTENT PANE (SCROLLS OVER IMAGE ON MOBILE) */}
                 <section 
                     ref={rightPaneRef}
-                    onScroll={(e) => handleScroll(e, 'right')}
-                    data-lenis-prevent
-                    className="w-full lg:w-[40%] xl:w-[35%] h-full overflow-y-auto no-scrollbar lg:bg-[#0a0a0a] lg:border-l border-white/5 scroll-smooth"
+                    className="w-full lg:w-[40%] xl:w-[35%] no-scrollbar lg:bg-[#0a0a0a] lg:border-l border-white/5 scroll-smooth"
                 >
                     {/* Spacer for Mobile: Set to full screen so text starts completely hidden */}
                     <div className="h-screen lg:hidden pointer-events-none" />
@@ -233,29 +217,7 @@ const ProductDetailPage = () => {
                     </motion.div>
                 </section>
 
-                {/* DYNAMIC SCROLL INDICATOR (HomePage Design) */}
-                <div className="hidden md:flex fixed right-8 top-1/2 -translate-y-1/2 z-40 h-[25vh] flex-col items-center justify-center mix-blend-difference pointer-events-none">
-                    <span className="text-[8px] tracking-[0.4em] text-white/30 uppercase vertical-text transform rotate-180 mb-4">
-                        Details
-                    </span>
-                    {/* Glass Track */}
-                    <div className="relative w-[1px] h-full bg-white/10 backdrop-blur-sm rounded-full overflow-visible border-0">
-                        {/* Active Indicator Pill */}
-                        <motion.div 
-                            className="absolute left-[-0.5px] w-0.5 bg-attire-accent shadow-[0_0_10px_rgba(212,168,76,0.8)] rounded-full"
-                            initial={false}
-                            animate={{ 
-                                top: `${progressRight * 100}%`,
-                                y: '-50%'
-                            }}
-                            style={{
-                                height: '15%', // Pill height
-                                top: 0 
-                            }}
-                            transition={{ type: "spring", stiffness: 300, damping: 30 }}
-                        />
-                    </div>
-                </div>
+
             </main>
 
             {/* Subtle Texture Layer */}
