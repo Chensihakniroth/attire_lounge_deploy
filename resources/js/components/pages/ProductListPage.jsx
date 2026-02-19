@@ -50,7 +50,7 @@ const ProductListPage = () => {
     }, [selectedCollections, sortOrder]);
 
     const { pageTitle, filteredProducts } = useMemo(() => {
-        let products = [...allProducts];
+        let products = allProducts.filter(p => !p.hidden);
 
         if (selectedCollections.length > 0) {
             products = products.filter(p => selectedCollections.includes(p.collectionSlug));

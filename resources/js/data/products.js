@@ -40,6 +40,7 @@ const createShadesCollectionItems = (collection, prefix, name, count, priceRange
         images: [`${minioBaseUrl}/uploads/shades1/${String(i + 1).padStart(3, '0')}.${fileExt}`],
         createdAt: new Date(Date.now() - Math.floor(Math.random() * 30) * 24 * 60 * 60 * 1000),
         popularity: Math.random(),
+        hidden: true,
         fabric: 'Super 150s Merino Wool',
         color: 'Onyx & Charcoal',
         detailed_description: 'A masterpiece of contemporary elegance, this piece features a razor-sharp silhouette crafted from the finest Italian wool. Designed for the discerning individual who demands both tradition and modern edge.'
@@ -58,6 +59,7 @@ const createStreetCollectionItems = (collection, prefix, name, count, priceRange
         images: [`${minioBaseUrl}/uploads/street1/${i + 1}.${fileExt}`],
         createdAt: new Date(Date.now() - Math.floor(Math.random() * 30) * 24 * 60 * 60 * 1000),
         popularity: Math.random(),
+        hidden: true,
         fabric: 'Technical Cotton Blend',
         color: 'Urban Concrete',
         detailed_description: 'Reimagining the classical suit for the urban landscape. This collection merges utilitarian functionality with sartorial precision, offering a versatile aesthetic that transitions seamlessly from street to formal settings.'
@@ -71,6 +73,8 @@ export const products = [
     ...createProductItems('Groom Collection', 'g', 'Groom', 10, [250, 800], 'webp', 'Tuxedos'),
     ...createProductItems('Office Collection', 'of', 'Office', 5, [200, 550], 'jpg', 'Business Suits'),
     ...createTravelCollectionItems('Traveling Collection', 't', 'Traveling', 11, [200, 700], 'webp', 'Traveling Suits'),
+    ...createShadesCollectionItems('Shade of Elegants', 'shades', 'Shade of Elegance', 11, [300, 900], 'webp', 'Elegant Wear'),
+    ...createStreetCollectionItems('Street Sartorial', 'street', 'Street Sartorial', 9, [200, 600], 'webp', 'Streetwear Suits'),
 
     {
         id: 'cuff',
