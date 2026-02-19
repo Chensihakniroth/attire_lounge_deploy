@@ -3,6 +3,7 @@ import { motion } from 'framer-motion';
 import { ExternalLink, ArrowRight, MapPin, Calendar, Users, Star } from 'lucide-react';
 import minioBaseUrl from '../../config.js';
 import Skeleton from '../common/Skeleton.jsx';
+import OptimizedImage from '../common/OptimizedImage.jsx';
 
 const fadeUp = {
   hidden: { opacity: 0, y: 30 },
@@ -213,9 +214,18 @@ const FashionShowPage = () => {
 
       {/* Enhanced Press & CTA Section */}
       <section className="py-32 lg:py-56 relative overflow-hidden">
-        {/* Subtle Background Text */}
-        <div className="absolute top-1/2 left-0 -translate-y-1/2 text-[25vw] font-serif italic text-white/[0.01] pointer-events-none select-none leading-none -translate-x-1/4">
-          Bespoke
+        {/* Top Fade Overlay */}
+        <div className="absolute top-0 left-0 w-full h-32 bg-gradient-to-b from-[#0d3542] to-transparent z-10 pointer-events-none" />
+        
+        {/* Subtle Background Image */}
+        <div className="absolute inset-0 z-0 opacity-10 pointer-events-none select-none">
+          <OptimizedImage
+            src={`https://bucket-production-4ca0.up.railway.app/product-assets/uploads/asset/fsb.webp`}
+            alt="Fashion Show Background"
+            objectFit="cover"
+            containerClassName="w-full h-full"
+            className="w-full h-full"
+          />
         </div>
 
         <div className="container mx-auto px-8 lg:px-32 relative z-10">
@@ -297,9 +307,7 @@ const FashionShowPage = () => {
         </div>
       </section>
 
-      <div className="py-16 text-center opacity-10">
-        <span className="font-serif italic text-base tracking-widest uppercase">Attire Lounge Official</span>
-      </div>
+
     </div>
   );
 };

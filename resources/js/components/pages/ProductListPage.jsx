@@ -161,12 +161,6 @@ const ProductListPage = () => {
                 `}
             </style>
 
-            {/* Background Decorations - Hardware Accelerated */}
-            <div className="fixed inset-0 pointer-events-none z-0 overflow-hidden">
-                <div className="absolute top-[-20%] left-[-10%] w-[1000px] h-[1000px] bg-attire-accent/[0.03] rounded-full blur-[180px] will-change-transform" />
-                <div className="absolute bottom-[-20%] right-[-10%] w-[800px] h-[800px] bg-white/[0.02] rounded-full blur-[150px] will-change-transform" />
-            </div>
-
             <header className="relative z-10 pt-32 pb-16 sm:pt-48 sm:pb-24 px-6 text-center">
                 <motion.div
                     initial={{ opacity: 0, y: 30 }}
@@ -290,56 +284,21 @@ const Controls = ({
     clearFilters,
     removeCollectionFilter
 }) => {
-    const scrollContainerRef = useRef(null);
-
-    const scroll = (direction) => {
-        if (scrollContainerRef.current) {
-            scrollContainerRef.current.scrollBy({ left: direction * 150, behavior: 'smooth' });
-        }
-    };
-
     return (
-        <div className="w-full max-w-6xl mx-auto relative z-[100]">
+        <div className="w-full max-w-6xl mx-auto relative z-40">
             <motion.div 
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.3, duration: 0.5 }}
-                className="relative bg-white/[0.03] backdrop-blur-md md:backdrop-blur-xl border border-white/10 rounded-full p-1 sm:p-1.5 flex items-center shadow-2xl"
+                className="relative z-50 bg-attire-navy/80 backdrop-blur-xl border border-white/20 rounded-full p-1 sm:p-1.5 flex items-center justify-between shadow-2xl"
             >
-                {/* Collections Filter Scroll */}
-                <div className="flex-grow flex items-center min-w-0 relative">
-                    <button 
-                        onClick={() => scroll(-1)} 
-                        className="flex-shrink-0 p-2 text-white/20 hover:text-white transition-colors lg:hidden"
-                    >
-                        <ChevronLeft size={16} />
-                    </button>
-                    
-                    <div ref={scrollContainerRef} className="flex-grow flex items-center justify-start lg:justify-center gap-1 overflow-x-auto lg:overflow-x-visible lg:flex-nowrap no-scrollbar px-2">
-                        {allCollections.map(collection => (
-                            <button
-                                key={collection.id}
-                                onClick={() => handleCollectionToggle(collection.slug)}
-                                className={`px-4 sm:px-5 py-2 sm:py-2.5 text-[9px] sm:text-[10px] uppercase tracking-[0.2em] font-bold rounded-full transition-all duration-500 flex-shrink-0 ${
-                                    selectedCollections.includes(collection.slug)
-                                        ? 'bg-white text-black shadow-lg'
-                                        : 'text-white/40 hover:text-white hover:bg-white/5'
-                                }`}
-                            >
-                                {collection.title}
-                            </button>
-                        ))}
-                    </div>
-                    
-                    <button 
-                        onClick={() => scroll(1)} 
-                        className="flex-shrink-0 p-2 text-white/20 hover:text-white transition-colors lg:hidden"
-                    >
-                        <ChevronRight size={16} />
-                    </button>
+                <div className="flex items-center">
+                    <CollectionDropdown 
+                        selectedCollections={selectedCollections}
+                        handleCollectionToggle={handleCollectionToggle}
+                    />
                 </div>
 
-                {/* Sort Dropdown */}
                 <div className="flex-shrink-0 border-l border-white/10 pl-1 sm:pl-2">
                     <FilterSortDropdown 
                         sortOrder={sortOrder} 
@@ -355,7 +314,7 @@ const Controls = ({
                         initial={{ opacity: 0, y: -10 }}
                         animate={{ opacity: 1, y: 0 }}
                         exit={{ opacity: 0, y: -10 }}
-                        className="flex flex-col sm:flex-row sm:items-center flex-wrap gap-4 mt-6 px-6"
+                        className="relative z-10 flex flex-col sm:flex-row sm:items-center flex-wrap gap-4 mt-6 px-6"
                     >
                         <div className="flex items-center flex-wrap gap-2">
                             <span className="text-[9px] text-white uppercase tracking-[0.3em] font-bold mr-2">Filtering By:</span>
@@ -374,6 +333,71 @@ const Controls = ({
                         >
                             Clear All
                         </button>
+                    </motion.div>
+                )}
+            </AnimatePresence>
+        </div>
+    );
+};
+
+const CollectionDropdown = ({
+    selectedCollections, 
+    handleCollectionToggle
+}) => {
+    const [isOpen, setIsOpen] = useState(false);
+    const dropdownRef = useRef(null);
+
+    useEffect(() => {
+        const handleClickOutside = (event) => {
+            if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+                setIsOpen(false);
+            }
+        };
+        document.addEventListener("mousedown", handleClickOutside);
+        return () => document.removeEventListener("mousedown", handleClickOutside);
+    }, []);
+
+    const selectedCount = selectedCollections.length;
+    const label = selectedCount === 0 
+        ? 'All Collections' 
+        : selectedCount === 1 
+            ? allCollections.find(c => c.slug === selectedCollections[0])?.title || '1 Collection'
+            : `${selectedCount} Collections`;
+
+    return (
+        <div ref={dropdownRef} className="relative">
+            <button
+                onClick={() => setIsOpen(!isOpen)}
+                className="flex items-center gap-2 px-4 sm:px-6 py-2 sm:py-2.5 bg-transparent hover:bg-white/5 rounded-full text-[9px] sm:text-[10px] font-bold uppercase tracking-[0.2em] text-white/60 hover:text-white transition-all focus:outline-none"
+            >
+                <span className="truncate max-w-[120px] sm:max-w-none">{label}</span>
+                <ChevronDown size={14} className={`text-white/20 transition-transform duration-500 shrink-0 ${isOpen ? 'rotate-180' : ''}`} />
+            </button>
+            <AnimatePresence>
+                {isOpen && (
+                    <motion.div
+                        initial={{ opacity: 0, y: 10, scale: 0.95 }}
+                        animate={{ opacity: 1, y: 0, scale: 1 }}
+                        exit={{ opacity: 0, y: 10, scale: 0.95 }}
+                        transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
+                        className="absolute left-0 mt-4 w-64 bg-[#050810] border border-white/10 rounded-2xl shadow-2xl overflow-hidden py-2 z-[300]"
+                    >
+                        {allCollections.map(collection => (
+                            <button
+                                key={collection.id}
+                                onClick={() => {
+                                    handleCollectionToggle(collection.slug);
+                                }}
+                                className={`w-full flex items-center justify-between px-6 py-3 text-[10px] font-bold uppercase tracking-widest text-left transition-colors ${
+                                    selectedCollections.includes(collection.slug)
+                                        ? 'bg-white/10 text-attire-accent' 
+                                        : 'text-white/40 hover:bg-white/5 hover:text-white'
+                                }`}
+                            >
+                                <span>{collection.title}</span>
+                                {selectedCollections.includes(collection.slug) && <Check size={12} />}
+                            </button>
+                        ))}
                     </motion.div>
                 )}
             </AnimatePresence>
@@ -431,7 +455,7 @@ const FilterSortDropdown = ({
                         animate={{ opacity: 1, y: 0, scale: 1 }}
                         exit={{ opacity: 0, y: 10, scale: 0.95 }}
                         transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
-                        className="absolute left-0 right-0 sm:left-auto sm:right-0 mt-4 sm:w-56 bg-attire-navy border border-white/10 rounded-2xl shadow-2xl overflow-hidden py-2 z-[120]"
+                        className="absolute left-0 right-0 sm:left-auto sm:right-0 mt-4 sm:w-56 bg-[#050810] border border-white/10 rounded-2xl shadow-2xl overflow-hidden py-2 z-[300]"
                     >
                         {sortOptions.map(option => (
                             <button

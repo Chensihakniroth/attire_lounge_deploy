@@ -201,14 +201,8 @@ ${note ? `Note: "${note}"` : ''}
     if (submissionStatus.state === 'success') {
         return (
             <div className="min-h-screen bg-attire-navy relative overflow-hidden flex items-center justify-center">
-                {/* Background Decorations */}
-                <div className="fixed top-0 left-0 w-full h-screen overflow-hidden pointer-events-none z-0">
-                    <div className="absolute top-[-10%] right-[-5%] w-[600px] h-[600px] bg-attire-accent/[0.03] rounded-full blur-[160px]" />
-                    <div className="absolute bottom-[-10%] left-[-10%] w-[500px] h-[500px] bg-blue-900/[0.05] rounded-full blur-[140px]" />
-                </div>
-
                 <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} className="relative z-10 max-w-lg w-full mx-auto px-4">
-                    <div className="bg-black/20 backdrop-blur-xl rounded-3xl border border-white/10 shadow-2xl p-8 md:p-10 text-center">
+                    <div className="bg-[#0a0f1a] rounded-3xl border border-white/10 shadow-2xl p-8 md:p-10 text-center">
                         <div className="w-20 h-20 bg-green-500/10 rounded-full flex items-center justify-center mx-auto mb-6 border border-green-500/20">
                             <Check size={40} className="text-green-400" />
                         </div>
@@ -250,12 +244,6 @@ ${note ? `Note: "${note}"` : ''}
 
     return (
         <div className="min-h-screen bg-attire-navy relative overflow-x-clip">
-            {/* Background Decorations */}
-            <div className="fixed top-0 left-0 w-full h-screen overflow-hidden pointer-events-none z-0">
-                <div className="absolute top-[-10%] right-[-5%] w-[600px] h-[600px] bg-attire-accent/[0.03] rounded-full blur-[160px]" />
-                <div className="absolute bottom-[-10%] left-[-10%] w-[500px] h-[500px] bg-blue-900/[0.05] rounded-full blur-[140px]" />
-            </div>
-
             <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-28 sm:py-36">
                 <div className="text-center mb-16">
                     <motion.div
@@ -283,7 +271,7 @@ ${note ? `Note: "${note}"` : ''}
                             transition={{ duration: 0.5 }}
                             className="max-w-xl mx-auto"
                         >
-                            <div className="bg-black/20 backdrop-blur-xl rounded-3xl border border-white/10 p-8 md:p-10 shadow-2xl">
+                            <div className="bg-[#0a0f1a] rounded-3xl border border-white/10 p-8 md:p-10 shadow-2xl">
                                 <div className="flex items-center justify-between mb-8">
                                     <h2 className="text-2xl font-serif text-white">Your Details</h2>
                                     <span className="text-attire-silver/50 text-sm font-mono">01 / 02</span>
@@ -428,7 +416,7 @@ ${note ? `Note: "${note}"` : ''}
                             {/* Sticky Sidebar */}
                             <div className="lg:col-span-4">
                                 <div className="sticky top-28 space-y-6">
-                                    <div className="bg-black/40 backdrop-blur-xl rounded-3xl border border-white/10 shadow-2xl p-8">
+                                    <div className="bg-[#0a0f1a] rounded-3xl border border-white/10 shadow-2xl p-8">
                                         <div className="flex items-center justify-between mb-6">
                                             <h3 className="text-xl font-serif text-white">Summary</h3>
                                             <button onClick={() => setStep(1)} className="text-xs text-attire-silver hover:text-white underline underline-offset-4 decoration-white/20 hover:decoration-white transition-all">

@@ -23,13 +23,6 @@ const FavoritesPage = () => {
 
     return (
         <div className="min-h-screen bg-attire-navy relative overflow-hidden flex flex-col">
-            {/* Cinematic Background */}
-            <div className="fixed inset-0 pointer-events-none z-0">
-                <div className="absolute top-[-10%] right-[-5%] w-[800px] h-[800px] bg-attire-accent/[0.03] rounded-full blur-[160px] animate-pulse-soft" />
-                <div className="absolute bottom-[-10%] left-[-10%] w-[600px] h-[600px] bg-attire-accent/[0.05] rounded-full blur-[140px] animate-float" />
-                <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')] opacity-[0.03] mix-blend-overlay" />
-            </div>
-
             {/* Header Section */}
             <header className="relative z-10 pt-32 pb-16 px-6 overflow-hidden">
                 <div className="max-w-7xl mx-auto">
@@ -61,7 +54,7 @@ const FavoritesPage = () => {
                         </div>
 
                         <div className="flex flex-col items-start md:items-end gap-6">
-                            <div className="flex items-center gap-4 bg-white/5 backdrop-blur-md border border-white/10 px-6 py-3 rounded-full">
+                            <div className="flex items-center gap-4 bg-white/5 border border-white/10 px-6 py-3 rounded-full">
                                 <Heart size={18} className="text-attire-accent fill-attire-accent animate-pulse-soft" />
                                 <span className="text-white font-medium tracking-widest text-xs uppercase">
                                     {favoriteProducts.length} {favoriteProducts.length === 1 ? 'Piece' : 'Pieces'} Saved
@@ -103,7 +96,7 @@ const FavoritesPage = () => {
                                             e.stopPropagation();
                                             removeFavorite(item.id);
                                         }}
-                                        className="absolute top-4 right-4 z-20 w-10 h-10 flex items-center justify-center bg-black/40 backdrop-blur-md border border-white/10 text-white rounded-full opacity-0 translate-y-2 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-300 hover:bg-red-500 hover:border-red-500"
+                                        className="absolute top-4 right-4 z-20 w-10 h-10 flex items-center justify-center bg-[#0a0f1a] border border-white/10 text-white rounded-full opacity-0 translate-y-2 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-300 hover:bg-red-500 hover:border-red-500"
                                         title="Remove from favorites"
                                     >
                                         <Heart size={16} fill="currentColor" />

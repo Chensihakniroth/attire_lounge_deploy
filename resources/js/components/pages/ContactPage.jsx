@@ -10,9 +10,9 @@ import OptimizedImage from '../common/OptimizedImage.jsx';
 
 // --- Reusable Components (Moved Outside) ---
 
-// Glassy Card Component for consistency
+// Glassy Card Component - Updated to solid for performance
 const GlassCard = ({ children, className = '' }) => (
-    <div className={`bg-black/20 backdrop-blur-xl rounded-3xl border border-white/10 shadow-2xl ${className}`}>
+    <div className={`bg-[#0a0f1a] rounded-3xl border border-white/10 shadow-2xl ${className}`}>
         {children}
     </div>
 );
@@ -87,7 +87,7 @@ const SelectField = ({ name, label, options, value, onChange }) => {
                         leaveFrom="opacity-100"
                         leaveTo="opacity-0"
                     >
-                        <Listbox.Options className="absolute z-50 mt-2 max-h-80 w-full overflow-auto rounded-2xl bg-[#1a1a1a]/90 backdrop-blur-xl border border-white/10 py-1 text-base shadow-2xl focus:outline-none sm:text-sm">
+                        <Listbox.Options className="absolute z-[300] mt-2 max-h-80 w-full overflow-auto rounded-2xl bg-[#050810] border border-white/10 py-1 text-base shadow-2xl focus:outline-none sm:text-sm">
                             {options.map((option, optionIdx) => (
                                 <Listbox.Option
                                     key={optionIdx}
@@ -338,12 +338,6 @@ Message: ${messageBody}
 
     return (
         <div className="min-h-screen bg-attire-navy relative">
-            {/* Background Orbs - Softened */}
-            <div className="fixed top-0 left-0 w-full h-screen overflow-hidden pointer-events-none z-0">
-                <div className="absolute top-[-10%] right-[-5%] w-[600px] h-[600px] bg-attire-accent/[0.03] rounded-full blur-[160px]" />
-                <div className="absolute bottom-[-10%] left-[-10%] w-[500px] h-[500px] bg-blue-900/[0.05] rounded-full blur-[140px]" />
-            </div>
-
             <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-28 sm:py-36">
                 {/* Header */}
                 <div className="text-center mb-20">

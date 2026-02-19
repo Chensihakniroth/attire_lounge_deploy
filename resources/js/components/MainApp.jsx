@@ -116,7 +116,7 @@ const LenisScroll = () => {
     const location = useLocation();
 
     useEffect(() => {
-        // Disable Lenis on Admin routes to allow native scrolling within the fixed layout
+        // Disable Lenis on Admin routes
         if (location.pathname.startsWith('/admin')) {
             if (window.lenis) {
                 window.lenis.destroy();
@@ -125,31 +125,33 @@ const LenisScroll = () => {
             return;
         }
 
-        const lenis = new Lenis({
-            duration: 1.0,
-            easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
-            direction: 'vertical',
-            gestureDirection: 'vertical',
-            smooth: true,
-            mouseMultiplier: 0.8,
-            smoothTouch: false,
-            touchMultiplier: 2,
-        });
+        // Initialize Lenis if it doesn't exist
+        if (!window.lenis) {
+            const lenis = new Lenis({
+                lerp: 0.1, // More organic smoothing than fixed duration
+                wheelMultiplier: 1.1, // Increased for better responsiveness
+                touchMultiplier: 1.5,
+                smoothWheel: true,
+                smoothTouch: false,
+            });
 
-        window.lenis = lenis;
+            window.lenis = lenis;
 
-        function raf(time) {
-            lenis.raf(time);
-            requestAnimationFrame(raf);
+            let rafId;
+            function raf(time) {
+                lenis.raf(time);
+                rafId = requestAnimationFrame(raf);
+            }
+
+            rafId = requestAnimationFrame(raf);
+
+            return () => {
+                cancelAnimationFrame(rafId);
+                lenis.destroy();
+                window.lenis = null;
+            };
         }
-
-        requestAnimationFrame(raf);
-
-        return () => {
-            lenis.destroy();
-            window.lenis = null;
-        };
-    }, [location.pathname]);
+    }, [location.pathname.startsWith('/admin')]); // Only re-run when moving to/from admin
 
     return null;
 };

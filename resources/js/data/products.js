@@ -14,11 +14,63 @@ const createProductItems = (collection, prefix, name, count, priceRange, fileExt
     }));
 };
 
+const createTravelCollectionItems = (collection, prefix, name, count, priceRange, fileExt = 'webp', category = 'Traveling Suits') => {
+    return Array.from({ length: count }, (_, i) => ({
+        id: `${prefix}${i}`, // t0, t1, ...
+        name: `${name} Style ${i}`,
+        collection: collection,
+        category: category,
+        collectionSlug: collection.toLowerCase().replace(/ /g, '-').replace(/'/g, ''),
+        price: Math.floor(Math.random() * (priceRange[1] - priceRange[0] + 1)) + priceRange[0],
+        images: [`${minioBaseUrl}/uploads/collections/Travel%20collections/${prefix}${i}.${fileExt}`], // Specific path
+        createdAt: new Date(Date.now() - Math.floor(Math.random() * 30) * 24 * 60 * 60 * 1000), // Randomly in the last 30 days
+        popularity: Math.random(),
+    }));
+};
+
+// New helper function for Shade of Elegants
+const createShadesCollectionItems = (collection, prefix, name, count, priceRange, fileExt = 'webp', category = 'Elegant Wear') => {
+    return Array.from({ length: count }, (_, i) => ({
+        id: `${prefix}${String(i + 1).padStart(3, '0')}`, // shades001, shades002, ...
+        name: `${name} Look ${String(i + 1).padStart(3, '0')}`,
+        collection: collection,
+        category: category,
+        collectionSlug: collection.toLowerCase().replace(/ /g, '-').replace(/'/g, ''),
+        price: Math.floor(Math.random() * (priceRange[1] - priceRange[0] + 1)) + priceRange[0],
+        images: [`${minioBaseUrl}/uploads/shades1/${String(i + 1).padStart(3, '0')}.${fileExt}`],
+        createdAt: new Date(Date.now() - Math.floor(Math.random() * 30) * 24 * 60 * 60 * 1000),
+        popularity: Math.random(),
+        fabric: 'Super 150s Merino Wool',
+        color: 'Onyx & Charcoal',
+        detailed_description: 'A masterpiece of contemporary elegance, this piece features a razor-sharp silhouette crafted from the finest Italian wool. Designed for the discerning individual who demands both tradition and modern edge.'
+    }));
+};
+
+// New helper function for Street Sartorial
+const createStreetCollectionItems = (collection, prefix, name, count, priceRange, fileExt = 'webp', category = 'Streetwear Suits') => {
+    return Array.from({ length: count }, (_, i) => ({
+        id: `${prefix}${i + 1}`, // street1, street2, ...
+        name: `${name} Style ${i + 1}`,
+        collection: collection,
+        category: category,
+        collectionSlug: collection.toLowerCase().replace(/ /g, '-').replace(/'/g, ''),
+        price: Math.floor(Math.random() * (priceRange[1] - priceRange[0] + 1)) + priceRange[0],
+        images: [`${minioBaseUrl}/uploads/street1/${i + 1}.${fileExt}`],
+        createdAt: new Date(Date.now() - Math.floor(Math.random() * 30) * 24 * 60 * 60 * 1000),
+        popularity: Math.random(),
+        fabric: 'Technical Cotton Blend',
+        color: 'Urban Concrete',
+        detailed_description: 'Reimagining the classical suit for the urban landscape. This collection merges utilitarian functionality with sartorial precision, offering a versatile aesthetic that transitions seamlessly from street to formal settings.'
+    }));
+};
+
+
 export const products = [
     ...createProductItems('Havana Collection', 'hvn', 'Havana', 8, [150, 450], 'jpg', 'Summer Suits'),
     ...createProductItems('Mocha Mousse \'25', 'mm', 'Mocha Mousse', 7, [180, 500], 'jpg', 'Business Suits'),
     ...createProductItems('Groom Collection', 'g', 'Groom', 10, [250, 800], 'webp', 'Tuxedos'),
     ...createProductItems('Office Collection', 'of', 'Office', 5, [200, 550], 'jpg', 'Business Suits'),
+    ...createTravelCollectionItems('Traveling Collection', 't', 'Traveling', 11, [200, 700], 'webp', 'Traveling Suits'),
 
     {
         id: 'cuff',
@@ -220,5 +272,12 @@ export const collections = [
       "title": "Accessories",
       "description": "The finishing touches that define your style.",
       "image": `${minioBaseUrl}/uploads/collections/accessories/cuff.JPG`
+    },
+    {
+      "id": 5,
+      "slug": "traveling-collection",
+      "title": "Traveling Collection",
+      "description": "Discover suits designed for the modern traveler.",
+      "image": `${minioBaseUrl}/uploads/collections/Travel%20collections/t0.webp`
     }
 ];
