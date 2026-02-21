@@ -6,12 +6,9 @@ import { ChevronLeft, ChevronRight, Search, X, Filter, ChevronDown, Check, Star 
 import { products as allProducts, collections as allCollections } from '../../data/products.js';
 import ItemCard from './collections/ItemCard';
 import { useFavorites } from '../../context/FavoritesContext.jsx';
+import GrainOverlay from '../common/GrainOverlay.jsx';
 
 // --- Styled Components ---
-
-const GrainOverlay = memo(() => (
-  <div className="fixed inset-0 pointer-events-none z-50 opacity-[0.015] mix-blend-overlay pointer-events-none bg-[url('https://grainy-gradients.vercel.app/noise.svg')]" />
-));
 
 const sortOptions = [
     { value: 'category-asc', label: 'By Category' },

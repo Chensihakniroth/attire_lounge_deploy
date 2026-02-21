@@ -7,14 +7,10 @@ import LookbookHeader from './lookbook/LookbookHeader.jsx';
 import LookbookFilter from './lookbook/LookbookFilter.jsx';
 import LookbookGrid from './lookbook/LookbookGrid.jsx';
 import LookbookPagination from './lookbook/LookbookPagination.jsx';
+import GrainOverlay from '../common/GrainOverlay.jsx';
 
 // --- Static Helpers ---
 const ITEMS_PER_PAGE = 16;
-
-const GrainOverlay = memo(() => (
-  <div className="fixed inset-0 pointer-events-none z-50 opacity-[0.015] mix-blend-overlay bg-[url('https://grainy-gradients.vercel.app/noise.svg')]" />
-));
-GrainOverlay.displayName = 'GrainOverlay';
 
 const BackgroundAesthetics = memo(() => (
     <div className="fixed inset-0 pointer-events-none z-0 overflow-hidden">

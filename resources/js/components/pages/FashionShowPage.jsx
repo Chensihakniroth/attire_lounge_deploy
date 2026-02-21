@@ -4,6 +4,7 @@ import { ExternalLink, ArrowRight, MapPin, Calendar, Users, Star } from 'lucide-
 import minioBaseUrl from '../../config.js';
 import Skeleton from '../common/Skeleton.jsx';
 import OptimizedImage from '../common/OptimizedImage.jsx';
+import GrainOverlay from '../common/GrainOverlay.jsx';
 
 const fadeUp = {
   hidden: { opacity: 0, y: 30 },
@@ -11,58 +12,6 @@ const fadeUp = {
 };
 
 const fallback = "https://images.unsplash.com/photo-1594932224030-940af6602380?q=80&w=2000";
-
-// Cinematic Grain Overlay
-const GrainOverlay = memo(() => (
-  <div className="fixed inset-0 pointer-events-none z-50 opacity-[0.02] mix-blend-overlay">
-    <svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
-      <filter id="noiseFilter">
-        <feTurbulence type="fractalNoise" baseFrequency="0.65" numOctaves="3" stitchTiles="stitch"/>
-      </filter>
-      <rect width="100%" height="100%" filter="url(#noiseFilter)"/>
-    </svg>
-  </div>
-));
-
-// High-Performance Image Component with smart lazy loading (same as Act I)
-const ProgressiveImage = memo(({ src, alt }) => {
-  const [isLoaded, setIsLoaded] = useState(false);
-  const [isInView, setIsInView] = useState(false);
-  const imgRef = useRef();
-
-  useEffect(() => {
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting) {
-          setIsInView(true);
-          observer.disconnect();
-        }
-      },
-      { rootMargin: '600px', threshold: 0.01 }
-    );
-    if (imgRef.current) observer.observe(imgRef.current);
-    return () => observer.disconnect();
-  }, []);
-
-  return (
-    <div ref={imgRef} className="relative w-full h-full bg-white/[0.02] overflow-hidden group" style={{ transform: 'translateZ(0)' }}>
-      {isInView && (
-        <img
-          src={src}
-          alt={alt}
-          decoding="async"
-          onLoad={() => setIsLoaded(true)}
-          className={`w-full h-full object-cover pointer-events-none transition-opacity duration-700 ease-out ${isLoaded ? 'opacity-100' : 'opacity-0'}`}
-          style={{ transform: 'translateZ(0)', backfaceVisibility: 'hidden' }}
-          onError={(e) => { e.target.src = fallback; setIsLoaded(true); }}
-        />
-      )}
-      {!isLoaded && (
-        <Skeleton className="absolute inset-0 z-10 w-full h-full rounded-none" />
-      )}
-    </div>
-  );
-});
 
 const ActGallery = memo(({ act, title, description, images, isRight = false }) => {
   const containerRef = useRef(null);
@@ -132,7 +81,7 @@ const ActGallery = memo(({ act, title, description, images, isRight = false }) =
               key={i} 
               className="flex-none w-[220px] md:w-[280px] lg:w-[340px] aspect-[3/4.2] rounded-[1px] shadow-xl border border-white/5 select-none overflow-hidden"
             >
-              <ProgressiveImage src={src} alt={`${act} - Walk ${i + 1}`} />
+              <OptimizedImage src={src} alt={`${act} - Walk ${i + 1}`} fallback={fallback} />
             </div>
           ))}
           <div className="flex-none w-px md:w-32" />
@@ -176,7 +125,7 @@ const FashionShowPage = () => {
 
   return (
     <div className="bg-[#0d3542] text-white min-h-screen selection:bg-attire-accent selection:text-white font-sans leading-relaxed overflow-x-hidden">
-      <GrainOverlay />
+      <GrainOverlay opacity={0.02} />
       
       <section className="relative h-screen flex items-center justify-center text-center overflow-hidden">
         <div className="absolute inset-0 z-0">
