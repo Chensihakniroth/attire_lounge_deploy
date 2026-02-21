@@ -37,17 +37,17 @@ export const LOOKBOOK_IMAGES = [
     { id: 'g8', src: `${minioBaseUrl}/uploads/collections/default/g8.webp?v=new`, title: 'Formal Event', collection: 'Groom Collection', category: ['grooms', 'formal'] },
 
     // Shade of Elegants Collection
-    { id: 'shades001', src: `${minioBaseUrl}/uploads/shades1/001.webp`, title: 'Elegance 001', collection: 'Shade of Elegants', category: ['shades'] },
-    { id: 'shades002', src: `${minioBaseUrl}/uploads/shades1/002.webp`, title: 'Elegance 002', collection: 'Shade of Elegants', category: ['shades'] },
-    { id: 'shades003', src: `${minioBaseUrl}/uploads/shades1/003.webp`, title: 'Elegance 003', collection: 'Shade of Elegants', category: ['shades'] },
-    { id: 'shades004', src: `${minioBaseUrl}/uploads/shades1/004.webp`, title: 'Elegance 004', collection: 'Shade of Elegants', category: ['shades'] },
-    { id: 'shades005', src: `${minioBaseUrl}/uploads/shades1/005.webp`, title: 'Elegance 005', collection: 'Shade of Elegants', category: ['shades'] },
-    { id: 'shades006', src: `${minioBaseUrl}/uploads/shades1/006.webp`, title: 'Elegance 006', collection: 'Shade of Elegants', category: ['shades'] },
-    { id: 'shades007', src: `${minioBaseUrl}/uploads/shades1/007.webp`, title: 'Elegance 007', collection: 'Shade of Elegants', category: ['shades'] },
-    { id: 'shades008', src: `${minioBaseUrl}/uploads/shades1/008.webp`, title: 'Elegance 008', collection: 'Shade of Elegants', category: ['shades'] },
-    { id: 'shades009', src: `${minioBaseUrl}/uploads/shades1/009.webp`, title: 'Elegance 009', collection: 'Shade of Elegants', category: ['shades'] },
-    { id: 'shades010', src: `${minioBaseUrl}/uploads/shades1/010.webp`, title: 'Elegance 010', collection: 'Shade of Elegants', category: ['shades'] },
-    { id: 'shades011', src: `${minioBaseUrl}/uploads/shades1/011.webp`, title: 'Elegance 011', collection: 'Shade of Elegants', category: ['shades'] },
+    { id: 'shades001', src: `${minioBaseUrl}/uploads/shades1/1.webp`, title: 'Elegance 001', collection: 'Shade of Elegants', category: ['shades'] },
+    { id: 'shades002', src: `${minioBaseUrl}/uploads/shades1/2.webp`, title: 'Elegance 002', collection: 'Shade of Elegants', category: ['shades'] },
+    { id: 'shades003', src: `${minioBaseUrl}/uploads/shades1/3.webp`, title: 'Elegance 003', collection: 'Shade of Elegants', category: ['shades'] },
+    { id: 'shades004', src: `${minioBaseUrl}/uploads/shades1/4.webp`, title: 'Elegance 004', collection: 'Shade of Elegants', category: ['shades'] },
+    { id: 'shades005', src: `${minioBaseUrl}/uploads/shades1/5.webp`, title: 'Elegance 005', collection: 'Shade of Elegants', category: ['shades'] },
+    { id: 'shades006', src: `${minioBaseUrl}/uploads/shades1/6.webp`, title: 'Elegance 006', collection: 'Shade of Elegants', category: ['shades'] },
+    { id: 'shades007', src: `${minioBaseUrl}/uploads/shades1/7.webp`, title: 'Elegance 007', collection: 'Shade of Elegants', category: ['shades'] },
+    { id: 'shades008', src: `${minioBaseUrl}/uploads/shades1/8.webp`, title: 'Elegance 008', collection: 'Shade of Elegants', category: ['shades'] },
+    { id: 'shades009', src: `${minioBaseUrl}/uploads/shades1/9.webp`, title: 'Elegance 009', collection: 'Shade of Elegants', category: ['shades'] },
+    { id: 'shades010', src: `${minioBaseUrl}/uploads/shades1/10.webp`, title: 'Elegance 010', collection: 'Shade of Elegants', category: ['shades'] },
+    { id: 'shades011', src: `${minioBaseUrl}/uploads/shades1/11.webp`, title: 'Elegance 011', collection: 'Shade of Elegants', category: ['shades'] },
 
     // Street Sartorial Collection
     { id: 'street1', src: `${minioBaseUrl}/uploads/street1/1.webp`, title: 'Street Style 1', collection: 'Street Sartorial', category: ['street'] },

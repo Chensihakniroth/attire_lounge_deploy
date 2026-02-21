@@ -145,8 +145,20 @@ const ProductListPage = () => {
         }
     };
 
+    const pageMotion = {
+        initial: { opacity: 0, y: 20 },
+        animate: { opacity: 1, y: 0, transition: { duration: 0.8, ease: [0.22, 1, 0.36, 1] } },
+        exit: { opacity: 0, y: -20, transition: { duration: 0.4, ease: [0.22, 1, 0.36, 1] } }
+    };
+
     return (
-        <div className="min-h-screen bg-attire-navy relative selection:bg-attire-accent selection:text-white">
+        <motion.div 
+            className="min-h-screen bg-attire-navy relative selection:bg-attire-accent selection:text-white"
+            initial="initial"
+            animate="animate"
+            exit="exit"
+            variants={pageMotion}
+        >
             <GrainOverlay />
             
             <style>
@@ -272,7 +284,7 @@ const ProductListPage = () => {
                     </div>
                 )}
             </main>
-        </div>
+        </motion.div>
     );
 };
 

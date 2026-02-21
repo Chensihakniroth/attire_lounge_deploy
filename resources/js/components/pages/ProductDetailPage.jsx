@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo, useRef } from 'react';
+import React, { useState, useEffect, useMemo, useRef, useLayoutEffect } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { motion, AnimatePresence, useMotionValue, useTransform, useScroll } from 'framer-motion';
 import { ChevronLeft, Heart, Plus, ArrowRight, ChevronUp } from 'lucide-react';
@@ -31,8 +31,17 @@ const ProductDetailPage = () => {
     const [activePane, setActivePane] = useState('right');
     const [progressLeft, setProgressLeft] = useState(0);
 
+    const [isReady, setIsReady] = useState(false);
+
+    useEffect(() => {
+        // A short delay to ensure the page layout is stable before applying scroll-based animations.
+        const timer = setTimeout(() => setIsReady(true), 100);
+        return () => clearTimeout(timer);
+    }, []);
+
     const { scrollYProgress } = useScroll();
-    const scale = useTransform(scrollYProgress, [0, 1], [1, 1.1]);
+    const scaleTransform = useTransform(scrollYProgress, [0, 1], [1, 1.1]);
+    const scale = isReady ? scaleTransform : 1;
 
     const product = useMemo(() => 
         allProducts.find(p => p.id === productId), 
@@ -40,14 +49,26 @@ const ProductDetailPage = () => {
 
 
 
-    useEffect(() => {
+    useLayoutEffect(() => {
         window.scrollTo({ top: 0, behavior: 'instant' });
     }, [productId]);
 
     if (!product) return null;
 
+    const pageMotion = {
+        initial: { opacity: 0 },
+        animate: { opacity: 1, transition: { duration: 0.8, ease: [0.22, 1, 0.36, 1] } },
+        exit: { opacity: 0, transition: { duration: 0.4, ease: [0.22, 1, 0.36, 1] } }
+    };
+
     return (
-        <div className="bg-[#0a0a0a] text-white selection:bg-attire-accent selection:text-black relative min-h-screen">
+        <motion.div
+            className="bg-[#0a0a0a] text-white selection:bg-attire-accent selection:text-black relative min-h-screen"
+            initial="initial"
+            animate="animate"
+            exit="exit"
+            variants={pageMotion}
+        >
             
             <style>
                 {`
@@ -227,7 +248,7 @@ const ProductDetailPage = () => {
                     <rect width="100%" height="100%" filter="url(#noise)" />
                 </svg>
             </div>
-        </div>
+        </motion.div>
     );
 };
 
