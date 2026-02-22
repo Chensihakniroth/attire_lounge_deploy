@@ -67,11 +67,42 @@ class Product extends Model
         return $query->where('in_stock', true);
     }
 
-    public function getDiscountedPriceAttribute()
+    public function getDiscountPercentAttribute()
     {
         if ($this->compare_price && $this->compare_price > $this->price) {
             return round((($this->compare_price - $this->price) / $this->compare_price) * 100);
         }
         return 0;
+    }
+
+    public function scopeFilter($query, array $filters)
+    {
+        if (isset($filters['category']) && $filters['category']) {
+            $query->where('category', $filters['category']);
+        }
+
+        if (isset($filters['search']) && $filters['search']) {
+            $query->where(function ($q) use ($filters) {
+                $q->where('name', 'like', '%' . $filters['search'] . '%')
+                  ->orWhere('description', 'like', '%' . $filters['search'] . '%');
+            });
+        }
+    }
+
+    public function scopeSort($query, $sort = 'newest')
+    {
+        switch ($sort) {
+            case 'price_low':
+                $query->orderBy('price');
+                break;
+            case 'price_high':
+                $query->orderByDesc('price');
+                break;
+            case 'featured':
+                $query->where('featured', true)->orderBy('sort_order');
+                break;
+            default:
+                $query->orderByDesc('created_at');
+        }
     }
 }
