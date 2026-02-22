@@ -1,18 +1,29 @@
-import React, { createContext, useState, useContext, useEffect } from 'react';
-import { products } from '../data/products.js';
+import React, { createContext, useState, useContext, useEffect, ReactNode } from 'react';
+import { products } from '../data/products';
+import { FavoritesContextType } from '../types/context';
 
-const FavoritesContext = createContext();
+const FavoritesContext = createContext<FavoritesContextType | undefined>(undefined);
 
-export const useFavorites = () => useContext(FavoritesContext);
+export const useFavorites = (): FavoritesContextType => {
+    const context = useContext(FavoritesContext);
+    if (!context) {
+        throw new Error('useFavorites must be used within a FavoritesProvider');
+    }
+    return context;
+};
 
-export const FavoritesProvider = ({ children }) => {
-    const [favorites, setFavorites] = useState(() => {
+interface FavoritesProviderProps {
+    children: ReactNode;
+}
+
+export const FavoritesProvider: React.FC<FavoritesProviderProps> = ({ children }) => {
+    const [favorites, setFavorites] = useState<(number | string)[]>(() => {
         try {
             const localData = localStorage.getItem('attire-lounge-favorites');
             if (localData) {
-                const parsedData = JSON.parse(localData);
+                const parsedData: (number | string)[] = JSON.parse(localData);
                 // Filter out any IDs that don't exist in the current product list
-                const validIds = parsedData.filter(id => products.some(p => p.id === id));
+                const validIds = parsedData.filter(id => products.some((p: any) => p.id === id));
                 return validIds;
             }
             return [];
@@ -30,22 +41,22 @@ export const FavoritesProvider = ({ children }) => {
         }
     }, [favorites]);
 
-    const addFavorite = (productId) => {
+    const addFavorite = (productId: number | string) => {
         setFavorites(prev => {
             if (prev.includes(productId)) return prev;
             return [...prev, productId];
         });
     };
 
-    const removeFavorite = (productId) => {
+    const removeFavorite = (productId: number | string) => {
         setFavorites(prev => prev.filter(id => id !== productId));
     };
 
-    const isFavorited = (productId) => {
+    const isFavorited = (productId: number | string): boolean => {
         return favorites.includes(productId);
     };
 
-    const toggleFavorite = (productId) => {
+    const toggleFavorite = (productId: number | string) => {
         if (favorites.includes(productId)) {
             removeFavorite(productId);
         } else {
@@ -53,7 +64,7 @@ export const FavoritesProvider = ({ children }) => {
         }
     };
 
-    const value = {
+    const value: FavoritesContextType = {
         favorites,
         addFavorite,
         removeFavorite,

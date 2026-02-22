@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\StoreAppointmentRequest;
+use App\Http\Requests\UpdateAppointmentStatusRequest;
 use Illuminate\Http\Request;
 use App\Models\Appointment;
 use Illuminate\Support\Facades\Log;
@@ -13,23 +15,14 @@ class AppointmentController extends Controller
     /**
      * Store a newly created appointment in storage.
      */
-    public function store(Request $request)
+    public function store(StoreAppointmentRequest $request)
     {
         Log::info('=== APPOINTMENT REQUEST START ===', ['data' => $request->all()]);
 
         try {
             // Validate the incoming request data.
             // Note: The frontend sends 'date' and 'time', which map directly to the database columns.
-            $validatedData = $request->validate([
-                'name' => 'required|string|max:255',
-                'email' => 'nullable|string|email|max:255',
-                'phone' => 'required|string|max:255',
-                'service' => 'required|string|max:255',
-                'date' => 'required|date',
-                'time' => 'required|string|max:255', // Stored as string, e.g., "14:30"
-                'message' => 'nullable|string',
-                'favorite_item_image_url' => 'nullable|array',
-            ]);
+            $validatedData = $request->validated();
 
             Log::info('Validation passed.', $validatedData);
 
@@ -48,15 +41,6 @@ class AppointmentController extends Controller
                 'message' => 'Appointment request submitted successfully!',
                 'appointment' => $appointment
             ], 201);
-
-        } catch (\Illuminate\Validation\ValidationException $e) {
-            Log::error('Validation Error:', ['errors' => $e->errors()]);
-
-            return response()->json([
-                'success' => false,
-                'message' => 'Validation Failed',
-                'errors' => $e->errors()
-            ], 422);
 
         } catch (\Exception $e) {
             Log::error('Appointment Creation Error:', [
@@ -87,14 +71,12 @@ class AppointmentController extends Controller
     /**
      * Update the status of the specified appointment.
      */
-    public function updateStatus(Request $request, Appointment $appointment)
+    public function updateStatus(UpdateAppointmentStatusRequest $request, Appointment $appointment)
     {
         Log::info('=== APPOINTMENT STATUS UPDATE START ===', ['appointment_id' => $appointment->id, 'request_data' => $request->all()]);
 
         try {
-            $validatedData = $request->validate([
-                'status' => 'required|string|in:pending,done,cancelled',
-            ]);
+            $validatedData = $request->validated();
 
             $appointment->status = $validatedData['status'];
             $appointment->save();
@@ -107,13 +89,6 @@ class AppointmentController extends Controller
                 'appointment' => $appointment
             ]);
 
-        } catch (\Illuminate\Validation\ValidationException $e) {
-            Log::error('Validation Error (Update Status):', ['errors' => $e->errors()]);
-            return response()->json([
-                'success' => false,
-                'message' => 'Validation Failed',
-                'errors' => $e->errors()
-            ], 422);
         } catch (\Exception $e) {
             Log::error('Appointment Status Update Error:', [
                 'message' => $e->getMessage(),

@@ -4,6 +4,18 @@ import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-route
 import { AnimatePresence, motion } from 'framer-motion';
 import Lenis from 'lenis';
 import usePullToRefresh from '../hooks/usePullToRefresh';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+
+// Initialize QueryClient
+const queryClient = new QueryClient({
+    defaultOptions: {
+        queries: {
+            refetchOnWindowFocus: false, // Prevent refetching when window gains focus
+            retry: 1, // Retry failed requests once
+            staleTime: 5 * 60 * 1000, // Data is fresh for 5 minutes
+        },
+    },
+});
 
 // Components
 import Navigation from './layouts/Navigation.jsx';
@@ -319,13 +331,15 @@ function MainApp() {
     });
     
     return (
-        <Router>
-            <LenisScroll />
-            {/* ScrollToTop removed as it conflicts with exit animations, handled in onExitComplete */}
-            <Suspense fallback={<LoadingSpinner />}>
-                <AnimatedRoutes />
-            </Suspense>
-        </Router>
+        <QueryClientProvider client={queryClient}>
+            <Router>
+                <LenisScroll />
+                {/* ScrollToTop removed as it conflicts with exit animations, handled in onExitComplete */}
+                <Suspense fallback={<LoadingSpinner />}>
+                    <AnimatedRoutes />
+                </Suspense>
+            </Router>
+        </QueryClientProvider>
     );
 }
 
