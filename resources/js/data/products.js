@@ -37,7 +37,7 @@ const createShadesCollectionItems = (collection, prefix, name, count, priceRange
         category: category,
         collectionSlug: collection.toLowerCase().replace(/ /g, '-').replace(/'/g, ''),
         price: Math.floor(Math.random() * (priceRange[1] - priceRange[0] + 1)) + priceRange[0],
-        images: [`${minioBaseUrl}/uploads/shades1/${String(i + 1).padStart(3, '0')}.${fileExt}`],
+        images: [`${minioBaseUrl}/uploads/shades1/${i + 1}.${fileExt}`],
         createdAt: new Date(Date.now() - Math.floor(Math.random() * 30) * 24 * 60 * 60 * 1000),
         popularity: Math.random(),
         hidden: true,

@@ -158,8 +158,8 @@ const FashionShowPage = () => {
         </motion.div>
       </section>
 
-      <ActGallery act="Act I" title="Shades of <br/> Elegance" images={act1Images} />
-      <ActGallery act="Act II" title="Street <br/> Sartorial" images={act2Images} isRight={true} />
+      <ActGallery act="Act I" title="Shades of <br/> Elegance" description="Formal elegance for gentlemen has typically been confined to the safety of black or midnight blue. Through ACT I, we chose to show you that gentlemen’s wardrobes can be as vibrant as their ambitions. We wanted to showcase how soft-textured accessories and subtle color hues can elevate formal, elegant attire for Cambodian gentlemen." images={act1Images} />
+      <ActGallery act="Act II" title="Street <br/> Sartorial" description="The word ‘sartorial’ traditionally refers to refined, elegant menswear. We placed ‘street’ before it because elegance should have room to bend. It should allow space for self-expression, mixing and matching, whether it’s a quality piece from Attire Lounge Official, something thrifted, or even something borrowed from your family’s closet" images={act2Images} isRight={true} />
 
       {/* Enhanced Press & CTA Section */}
       <section className="py-32 lg:py-56 relative overflow-hidden">

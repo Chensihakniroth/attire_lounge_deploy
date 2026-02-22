@@ -2,7 +2,7 @@ import React, { memo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import GalleryItem from './GalleryItem.jsx';
 
-const LookbookGrid = memo(({ images, onImageClick }) => {
+const LookbookGrid = memo(({ images }) => {
     // Container variants to coordinate the staggered reveal of children
     const containerVariants = {
         hidden: { opacity: 0 },
@@ -33,7 +33,6 @@ const LookbookGrid = memo(({ images, onImageClick }) => {
                     <GalleryItem 
                         key={image.id} 
                         image={image} 
-                        onClick={() => onImageClick(image.id)} 
                     />
                 ))}
             </motion.div>

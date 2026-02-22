@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo, memo, useCallback } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useSearchParams } from 'react-router-dom';
 import { LOOKBOOK_IMAGES } from '../../data/lookbook.js';
 
 // Sub-components
@@ -21,8 +21,8 @@ const BackgroundAesthetics = memo(() => (
 BackgroundAesthetics.displayName = 'BackgroundAesthetics';
 
 const LookbookPage = () => {
-    const navigate = useNavigate();
-    const [filter, setFilter] = useState('all');
+    const [searchParams, setSearchParams] = useSearchParams();
+    const filter = searchParams.get('filter') || 'all';
     const [currentPage, setCurrentPage] = useState(1);
 
     // Initial scroll to top
@@ -52,8 +52,8 @@ const LookbookPage = () => {
 
     // Optimized Handlers
     const handleFilterChange = useCallback((newFilter) => {
-        setFilter(newFilter);
-    }, []);
+        setSearchParams({ filter: newFilter });
+    }, [setSearchParams]);
 
     const handlePageChange = useCallback((newPage) => {
         if (newPage >= 1 && newPage <= totalPages) {
@@ -62,10 +62,6 @@ const LookbookPage = () => {
             window.scrollTo({ top: 400, behavior: 'smooth' });
         }
     }, [totalPages]);
-
-    const handleImageClick = useCallback((id) => {
-        navigate(`/product/${id}`);
-    }, [navigate]);
 
     return (
         <div className="min-h-screen bg-attire-navy relative overflow-x-hidden selection:bg-attire-accent selection:text-white">
@@ -100,7 +96,6 @@ const LookbookPage = () => {
             <main className="relative z-10 max-w-screen-2xl mx-auto px-6 sm:px-12 lg:px-24 pb-32">
                 <LookbookGrid 
                     images={paginatedImages} 
-                    onImageClick={handleImageClick} 
                 />
 
                 <LookbookPagination 

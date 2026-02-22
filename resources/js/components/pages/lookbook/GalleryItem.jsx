@@ -1,8 +1,9 @@
 import React, { memo } from 'react';
 import { motion } from 'framer-motion';
+import { Link } from 'react-router-dom';
 import OptimizedImage from '../../common/OptimizedImage.jsx';
 
-const GalleryItem = memo(({ image, onClick }) => {
+const GalleryItem = memo(({ image }) => {
     const itemVariants = {
         hidden: { 
             opacity: 0, 
@@ -26,21 +27,22 @@ const GalleryItem = memo(({ image, onClick }) => {
     };
 
     return (
-        <motion.div
-            variants={itemVariants}
-            className="group relative cursor-pointer overflow-hidden aspect-[3/4.2] rounded-[2px] shadow-2xl border border-white/5 bg-white/5"
-            onClick={onClick}
-        >
-            <OptimizedImage
-                src={image.src}
-                alt={image.title}
-                containerClassName="w-full h-full"
-                className="w-full h-full object-cover transform transition-transform duration-700 group-hover:scale-105"
-                objectFit="cover"
-                priority={false}
-                loading="lazy"
-            />
-        </motion.div>
+        <Link to={`/product/${image.id}`}>
+            <motion.div
+                variants={itemVariants}
+                className="group relative overflow-hidden aspect-[3/4.2] rounded-[2px] shadow-2xl border border-white/5 bg-white/5"
+            >
+                <OptimizedImage
+                    src={image.src}
+                    alt={image.title}
+                    containerClassName="w-full h-full"
+                    className="w-full h-full object-cover transform transition-transform duration-700 group-hover:scale-105"
+                    objectFit="cover"
+                    priority={false}
+                    loading="lazy"
+                />
+            </motion.div>
+        </Link>
     );
 });
 
