@@ -1,11 +1,13 @@
-import React, { useState, useEffect, useLayoutEffect, useMemo, useRef } from 'react';
+import React, { useState, useEffect, useLayoutEffect, useRef } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
-import { motion, AnimatePresence, useTransform, useScroll } from 'framer-motion';
+import { motion as m, useTransform, useScroll } from 'framer-motion';
 import { ChevronLeft, Heart, ArrowRight, ChevronUp, Loader2 } from 'lucide-react';
+// @ts-ignore
 import OptimizedImage from '../common/OptimizedImage';
 import { useFavorites } from '../../context/FavoritesContext';
 import { useProduct } from '../../hooks/useProducts';
-import { Product } from '../../types';
+
+const motion = m as any;
 
 const transitionBase = { duration: 1, ease: [0.22, 1, 0.36, 1] };
 const stagger = {
@@ -26,7 +28,7 @@ const ProductDetailPage: React.FC = () => {
     const { productId: slug } = useParams<{ productId: string }>();
     const navigate = useNavigate();
     const { favorites, toggleFavorite } = useFavorites();
-    
+
     const leftPaneRef = useRef(null);
     const rightPaneRef = useRef(null);
     const [isReady, setIsReady] = useState(false);
@@ -82,7 +84,7 @@ const ProductDetailPage: React.FC = () => {
             exit="exit"
             variants={pageMotion}
         >
-            
+
             <style>
                 {`
                     .no-scrollbar::-webkit-scrollbar { display: none; }
@@ -93,20 +95,20 @@ const ProductDetailPage: React.FC = () => {
 
             {/* Absolute Fixed Actions (Top Layer) */}
             <div className="fixed top-0 left-0 w-full z-[999] px-6 lg:px-12 py-8 flex justify-between items-center pointer-events-none">
-                <button 
+                <button
                     onClick={() => navigate(-1)}
                     className="w-12 h-12 rounded-full border border-white/10 flex items-center justify-center group pointer-events-auto cursor-pointer hover:bg-white transition-all duration-500 backdrop-blur-md bg-black/20"
                 >
                     <ChevronLeft size={20} className="group-hover:text-black transition-colors" />
                 </button>
 
-                <button 
+                <button
                     onClick={() => toggleFavorite(product.id as string)}
                     className="w-12 h-12 rounded-full border border-white/5 flex items-center justify-center pointer-events-auto cursor-pointer hover:border-white/20 transition-all duration-500 group backdrop-blur-md bg-black/20"
                 >
-                    <Heart 
-                        size={20} 
-                        className={`transition-all duration-500 ${isFavorited ? 'fill-attire-accent text-attire-accent' : 'text-white/40 group-hover:text-white'}`} 
+                    <Heart
+                        size={20}
+                        className={`transition-all duration-500 ${isFavorited ? 'fill-attire-accent text-attire-accent' : 'text-white/40 group-hover:text-white'}`}
                     />
                 </button>
             </div>
@@ -126,7 +128,7 @@ const ProductDetailPage: React.FC = () => {
                 <div className="absolute inset-0 bg-black/10" />
 
                 {/* Mobile Swipe Indicator */}
-                <motion.div 
+                <motion.div
                     initial={{ opacity: 0 }}
                     transition={{ duration: 0.5 }}
                     className="absolute bottom-12 left-1/2 -translate-x-1/2 flex flex-col items-center gap-3 pointer-events-none z-10"
@@ -143,13 +145,13 @@ const ProductDetailPage: React.FC = () => {
             </div>
 
             <main className="flex flex-col lg:flex-row relative z-10">
-                
+
                 {/* LEFT: IMAGE PANE (DESKTOP FULL SCREEN) */}
-                <section 
+                <section
                     ref={leftPaneRef}
                     className="hidden lg:block w-full lg:w-[60%] xl:w-[65%] no-scrollbar bg-[#0a0a0a] scroll-smooth"
                 >
-                    <motion.div 
+                    <motion.div
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
                         className="w-full flex flex-col"
@@ -168,14 +170,14 @@ const ProductDetailPage: React.FC = () => {
                 </section>
 
                 {/* RIGHT: CONTENT PANE (SCROLLS OVER IMAGE ON MOBILE) */}
-                <section 
+                <section
                     ref={rightPaneRef}
                     className="w-full lg:w-[40%] xl:w-[35%] no-scrollbar bg-transparent lg:bg-[#0a0a0a] lg:border-l border-white/5 scroll-smooth"
                 >
                     {/* Spacer for Mobile: Set to full screen so text starts completely hidden */}
                     <div className="h-screen lg:hidden pointer-events-none" />
 
-                    <motion.div 
+                    <motion.div
                         variants={stagger}
                         initial="initial"
                         animate="animate"
@@ -191,9 +193,9 @@ const ProductDetailPage: React.FC = () => {
                                     {product.category}
                                 </span>
                             </motion.div>
-                            
+
                             <div className="space-y-4">
-                                <motion.h1 
+                                <motion.h1
                                     variants={slideUp}
                                     className="text-5xl xl:text-7xl font-serif text-white leading-none tracking-tighter italic"
                                 >
@@ -220,7 +222,7 @@ const ProductDetailPage: React.FC = () => {
                         {/* 3. THE NARRATIVE */}
                         <div className="space-y-8">
                             <motion.div variants={slideUp} className="h-px w-full bg-gradient-to-r from-white/10 via-white/5 to-transparent" />
-                            
+
                             <motion.div variants={slideUp} className="space-y-6">
                                 <p className="text-base xl:text-lg text-attire-silver/70 leading-relaxed font-light font-serif italic">
                                     {product.detailed_description || product.description || "An exceptional piece of tailoring, merging classic heritage with a contemporary silhouette."}
@@ -230,7 +232,7 @@ const ProductDetailPage: React.FC = () => {
                             <motion.div variants={slideUp} className="space-y-4">
                                 <h4 className="text-[10px] uppercase tracking-[0.4em] font-bold text-white/40">Availability</h4>
                                 <p className="text-xs text-white/60 font-light leading-relaxed">
-                                    Available in {product.color || 'Consult Stylist'}. 
+                                    Available in {product.color || 'Consult Stylist'}.
                                     Each piece is meticulously inspected by our Milan-certified styling team before delivery.
                                 </p>
                             </motion.div>
@@ -238,9 +240,9 @@ const ProductDetailPage: React.FC = () => {
 
                         {/* 4. CALL TO ACTION */}
                         <motion.div variants={slideUp} className="pt-8 pb-32 space-y-4">
-                            <Link 
+                            <Link
                                 to="/contact"
-                                className="group w-full py-8 bg-white text-black text-[12px] font-bold uppercase tracking-[0.5em] 
+                                className="group w-full py-8 bg-white text-black text-[12px] font-bold uppercase tracking-[0.5em]
                                            rounded-full transition-all duration-500 ease-out
                                            flex items-center justify-center gap-4
                                            relative overflow-hidden

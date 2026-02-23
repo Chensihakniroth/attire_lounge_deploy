@@ -1,11 +1,13 @@
 import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
-import { motion, AnimatePresence } from 'framer-motion';
-import { ChevronLeft, ChevronRight, Search, X, Filter, ChevronDown, Check, ArrowUpDown } from 'lucide-react';
-import { useFavorites } from '../../context/FavoritesContext';
+import { motion as m, AnimatePresence } from 'framer-motion';
+import { ChevronLeft, ChevronRight, Search, X, ChevronDown, Check, ArrowUpDown } from 'lucide-react';
+// @ts-ignore
 import GrainOverlay from '../common/GrainOverlay';
 import { useProducts, useCollections, useCategories } from '../../hooks/useProducts';
 import { Product, Collection, Category } from '../../types';
+
+const motion = m as any;
 import ItemCard from './collections/ItemCard';
 import useDebounce from '../../hooks/useDebounce';
 
@@ -26,13 +28,13 @@ const sortOptions: SortOption[] = [
 
 const ProductListPage: React.FC = () => {
     const [searchParams, setSearchParams] = useSearchParams();
-    const navigate = useNavigate();
+    // navigate removed as it was unused
 
     // -- Derived State from URL --
-    const selectedCollections = useMemo(() => 
-        searchParams.get('collection')?.split(',').filter(c => c.trim() !== '') || [], 
+    const selectedCollections = useMemo(() =>
+        searchParams.get('collection')?.split(',').filter(c => c.trim() !== '') || [],
         [searchParams]);
-    
+
     const selectedCategory = searchParams.get('category') || '';
     const sortOrder = searchParams.get('sort') || 'newest';
     const currentPage = parseInt(searchParams.get('page') || '1', 10);
@@ -72,13 +74,13 @@ const ProductListPage: React.FC = () => {
     const { data: categoriesData } = useCategories();
     const categories = categoriesData || [];
 
-    const { data: productsData, isLoading, isError } = useProducts({
+    const { data: productsData, isLoading } = useProducts({
         page: currentPage,
         sort: sortOrder,
         collection: selectedCollections.length > 0 ? selectedCollections.join(',') : undefined,
         category: selectedCategory || undefined,
         search: debouncedSearchTerm || undefined,
-        per_page: 100, // Fetch up to 100 products
+        per_page: 12, // 12 items for matching grid columns (2, 3, 4)
     });
 
     const products = productsData?.data || [];
@@ -136,7 +138,7 @@ const ProductListPage: React.FC = () => {
     const handlePageChange = (newPage: number) => {
         if (meta && newPage >= 1 && newPage <= meta.last_page) {
             updateParams({ page: newPage.toString() });
-            window.scrollTo({ top: 400, behavior: 'smooth' });
+            window.scrollTo({ top: 0, behavior: 'smooth' });
         }
     };
 
@@ -149,7 +151,7 @@ const ProductListPage: React.FC = () => {
         }
         if (selectedCollections.length === 1) {
             const col = collections.find(c => c.slug === selectedCollections[0]);
-            return col ? col.name : 'Collection'; 
+            return col ? col.name : 'Collection';
         }
         return "All Products";
     }, [selectedCollections, selectedCategory, debouncedSearchTerm, collections, categories]);
@@ -162,7 +164,7 @@ const ProductListPage: React.FC = () => {
     };
 
     return (
-        <motion.div 
+        <motion.div
             className="min-h-screen bg-attire-navy relative selection:bg-attire-accent selection:text-white"
             initial="initial"
             animate="animate"
@@ -170,7 +172,7 @@ const ProductListPage: React.FC = () => {
             variants={pageMotion}
         >
             <GrainOverlay />
-            
+
             <style>
                 {`
                     .no-scrollbar::-webkit-scrollbar { display: none; }
@@ -225,12 +227,12 @@ const ProductListPage: React.FC = () => {
                         allCategories={categories}
                     />
                 </div>
-                
+
                 <AnimatePresence mode='wait'>
                     {isLoading ? (
-                        <motion.div 
+                        <motion.div
                             key="loading"
-                            initial={{ opacity: 0 }} 
+                            initial={{ opacity: 0 }}
                             animate={{ opacity: 1 }}
                             exit={{ opacity: 0 }}
                             className="flex justify-center items-center py-32"
@@ -247,17 +249,17 @@ const ProductListPage: React.FC = () => {
                             transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
                         >
                             {products.map((item: Product) => (
-                                <ItemCard 
-                                    key={item.id} 
-                                    product={item} 
+                                <ItemCard
+                                    key={item.id}
+                                    product={item}
                                 />
                             ))}
                         </motion.div>
                     ) : (
-                        <motion.div 
+                        <motion.div
                             key="empty"
-                            initial={{ opacity: 0 }} 
-                            animate={{ opacity: 1 }} 
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
                             exit={{ opacity: 0 }}
                             className="flex flex-col items-center justify-center py-32 text-center"
                         >
@@ -266,7 +268,7 @@ const ProductListPage: React.FC = () => {
                             </div>
                             <h3 className="text-2xl font-serif text-white mb-2">No items found</h3>
                             <p className="text-attire-silver/60 text-sm">Try adjusting your filters to find what you're looking for.</p>
-                            <button 
+                            <button
                                 onClick={clearFilters}
                                 className="mt-8 text-[10px] uppercase tracking-[0.2em] font-bold text-attire-accent hover:text-white transition-colors underline underline-offset-8"
                             >
@@ -287,7 +289,7 @@ const ProductListPage: React.FC = () => {
                             <ChevronLeft size={24} strokeWidth={1} className="group-hover:-translate-x-4 transition-transform duration-700" />
                             <span className="text-[8px] uppercase tracking-[0.4em] font-bold">Previous</span>
                         </button>
-                        
+
                         <div className="flex flex-col items-center gap-2">
                              <div className="text-attire-accent font-serif italic text-xl">
                                 {currentPage.toString().padStart(2, '0')}
@@ -331,13 +333,13 @@ interface ControlsProps {
     allCategories: Category[];
 }
 
-const Controls: React.FC<ControlsProps> = ({ 
+const Controls: React.FC<ControlsProps> = ({
     searchTerm,
     handleSearchChange,
-    sortOrder, 
-    setSortOrder, 
-    selectedCollections, 
-    handleCollectionToggle, 
+    sortOrder,
+    setSortOrder,
+    selectedCollections,
+    handleCollectionToggle,
     selectedCategory,
     handleCategoryChange,
     clearFilters,
@@ -351,7 +353,7 @@ const Controls: React.FC<ControlsProps> = ({
     return (
         <div className="w-full max-w-7xl mx-auto relative z-50 px-4">
             {/* Main Floating Bar - Mirror effect */}
-            <motion.div 
+            <motion.div
                 initial={{ opacity: 0, y: -20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
@@ -362,15 +364,15 @@ const Controls: React.FC<ControlsProps> = ({
                     <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
                         <Search size={18} className="text-white/50 group-focus-within:text-attire-accent transition-colors duration-300" />
                     </div>
-                    <input 
-                        type="text" 
+                    <input
+                        type="text"
                         value={searchTerm}
                         onChange={handleSearchChange}
                         placeholder="Search products..."
                         className="w-full bg-white/10 hover:bg-white/15 focus:bg-white border border-white/5 focus:border-white focus:text-black rounded-xl py-3.5 pl-12 pr-10 text-sm font-medium text-white placeholder-white/50 focus:placeholder-black/40 focus:ring-0 focus:outline-none transition-all duration-300"
                     />
                     {searchTerm && (
-                        <button 
+                        <button
                             onClick={() => handleSearchChange({ target: { value: '' } } as any)}
                             className="absolute inset-y-0 right-0 pr-3 flex items-center text-white/50 group-focus-within:text-black/50 hover:text-white transition-colors"
                         >
@@ -389,7 +391,7 @@ const Controls: React.FC<ControlsProps> = ({
                         activeCount={selectedCollections.length}
                     >
                         {allCollections.map(collection => (
-                            <DropdownItem 
+                            <DropdownItem
                                 key={collection.id}
                                 label={collection.name}
                                 isSelected={selectedCollections.includes(collection.slug)}
@@ -405,7 +407,7 @@ const Controls: React.FC<ControlsProps> = ({
                         activeLabel={allCategories.find(c => c.slug === selectedCategory)?.name}
                     >
                         {allCategories.map(category => (
-                            <DropdownItem 
+                            <DropdownItem
                                 key={category.id}
                                 label={category.name}
                                 isSelected={selectedCategory === category.slug}
@@ -420,11 +422,11 @@ const Controls: React.FC<ControlsProps> = ({
                      <SortDropdown sortOrder={sortOrder} setSortOrder={setSortOrder} />
                 </div>
             </motion.div>
-            
+
             {/* Active Filters Display */}
             <AnimatePresence>
                 {hasActiveFilters && (
-                    <motion.div 
+                    <motion.div
                         initial={{ opacity: 0, height: 0 }}
                         animate={{ opacity: 1, height: 'auto' }}
                         exit={{ opacity: 0, height: 0 }}
@@ -434,23 +436,23 @@ const Controls: React.FC<ControlsProps> = ({
                             <span className="text-[10px] text-white/60 uppercase tracking-widest font-bold mr-2">
                                 Active Filters:
                             </span>
-                            
+
                             {searchTerm && (
                                 <ActiveFilterChip label={`Search: ${searchTerm}`} onRemove={() => handleSearchChange({ target: { value: '' } } as any)} />
                             )}
 
                             {selectedCategory && (
-                                <ActiveFilterChip 
-                                    label={allCategories.find(c => c.slug === selectedCategory)?.name || selectedCategory} 
-                                    onRemove={removeCategoryFilter} 
+                                <ActiveFilterChip
+                                    label={allCategories.find(c => c.slug === selectedCategory)?.name || selectedCategory}
+                                    onRemove={removeCategoryFilter}
                                 />
                             )}
 
                             {selectedCollections.map(slug => (
-                                <ActiveFilterChip 
-                                    key={slug} 
-                                    label={allCollections.find(c => c.slug === slug)?.name || slug} 
-                                    onRemove={() => removeCollectionFilter(slug)} 
+                                <ActiveFilterChip
+                                    key={slug}
+                                    label={allCollections.find(c => c.slug === slug)?.name || slug}
+                                    onRemove={() => removeCollectionFilter(slug)}
                                 />
                             ))}
 
@@ -497,19 +499,19 @@ const Dropdown: React.FC<DropdownProps> = ({ label, activeCount = 0, activeLabel
     const displayText = activeLabel || (activeCount > 0 ? `${label} (${activeCount})` : label);
 
     return (
-        <div className={`relative shrink-0 ${isOpen ? 'z-[100]' : 'z-auto'}`} ref={containerRef}>
+        <div className={`relative shrink-0 w-[140px] md:w-[160px] lg:w-[180px] ${isOpen ? 'z-[100]' : 'z-auto'}`} ref={containerRef}>
             <button
                 onClick={() => setIsOpen(!isOpen)}
                 className={`
-                    flex items-center gap-2 px-5 py-3 rounded-xl text-[10px] font-bold uppercase tracking-widest transition-all duration-300 border
-                    ${isOpen || isActive 
-                        ? 'bg-white text-black border-white shadow-lg shadow-white/10' 
+                    w-full flex items-center justify-between gap-2 px-4 md:px-5 py-3 rounded-xl text-[10px] font-bold uppercase tracking-widest transition-all duration-300 border
+                    ${isOpen || isActive
+                        ? 'bg-white text-black border-white shadow-lg shadow-white/10'
                         : 'bg-white/10 text-white/80 border-transparent hover:bg-white/20 hover:text-white'
                     }
                 `}
             >
-                <span className="truncate max-w-[100px] md:max-w-[140px]">{displayText}</span>
-                <ChevronDown size={14} className={`transition-transform duration-300 ${isOpen ? 'rotate-180' : ''}`} />
+                <span className="truncate text-left flex-1">{displayText}</span>
+                <ChevronDown size={14} className={`shrink-0 transition-transform duration-300 ${isOpen ? 'rotate-180' : ''}`} />
             </button>
 
             <AnimatePresence>
@@ -544,8 +546,8 @@ const DropdownItem: React.FC<DropdownItemProps> = ({ label, isSelected, onClick 
         onClick={onClick}
         className={`
             w-full flex items-center justify-between px-4 py-3 rounded-lg text-[10px] font-bold uppercase tracking-widest text-left transition-all
-            ${isSelected 
-                ? 'bg-attire-accent text-white shadow-lg shadow-attire-accent/20' 
+            ${isSelected
+                ? 'bg-attire-accent text-white shadow-lg shadow-attire-accent/20'
                 : 'text-white/70 hover:bg-white/10 hover:text-white'
             }
         `}
@@ -579,21 +581,21 @@ const SortDropdown: React.FC<SortDropdownProps> = ({ sortOrder, setSortOrder }) 
     const activeLabel = sortOptions.find(opt => opt.value === sortOrder)?.label || 'Sort By';
 
     return (
-        <div className={`relative w-full md:w-auto ${isOpen ? 'z-[100]' : 'z-auto'}`} ref={containerRef}>
+        <div className={`relative w-full shrink-0 md:w-[180px] lg:w-[200px] ${isOpen ? 'z-[100]' : 'z-auto'}`} ref={containerRef}>
             <button
                 onClick={() => setIsOpen(!isOpen)}
                 className={`
-                    w-full md:w-auto flex items-center justify-between md:justify-start gap-4 px-5 py-3 rounded-xl text-[10px] font-bold uppercase tracking-widest transition-all duration-300 border
-                    ${isOpen || isFiltered 
-                        ? 'bg-white text-black border-white shadow-lg shadow-white/10' 
+                    w-full flex items-center justify-between gap-4 px-4 md:px-5 py-3 rounded-xl text-[10px] font-bold uppercase tracking-widest transition-all duration-300 border
+                    ${isOpen || isFiltered
+                        ? 'bg-white text-black border-white shadow-lg shadow-white/10'
                         : 'bg-white/5 text-white/50 border-white/5 hover:bg-white/10 hover:text-white hover:border-white/20'
                     }
                 `}
             >
-                <span className="flex items-center gap-2.5">
-                    <ArrowUpDown size={14} className={isOpen || isFiltered ? 'text-black' : 'text-white/30'} />
-                    <span className="truncate max-w-[100px] md:max-w-none">{activeLabel}</span>
-                </span>
+                <div className="flex items-center gap-2.5 truncate flex-1">
+                    <ArrowUpDown size={14} className={`shrink-0 ${isOpen || isFiltered ? 'text-black' : 'text-white/30'}`} />
+                    <span className="truncate text-left">{activeLabel}</span>
+                </div>
                 <ChevronDown size={14} className={`shrink-0 transition-transform duration-300 ${isOpen ? 'rotate-180' : ''}`} />
             </button>
 
@@ -616,8 +618,8 @@ const SortDropdown: React.FC<SortDropdownProps> = ({ sortOrder, setSortOrder }) 
                                     }}
                                     className={`
                                         w-full flex items-center justify-between px-4 py-3 rounded-lg text-[10px] font-bold uppercase tracking-widest text-left transition-all
-                                        ${sortOrder === option.value 
-                                            ? 'bg-attire-accent text-white shadow-lg shadow-attire-accent/20' 
+                                        ${sortOrder === option.value
+                                            ? 'bg-attire-accent text-white shadow-lg shadow-attire-accent/20'
                                             : 'text-white/50 hover:bg-white/5 hover:text-white'
                                         }
                                     `}
@@ -649,8 +651,8 @@ const ActiveFilterChip: React.FC<ActiveFilterChipProps> = ({ label, onRemove }) 
         className="flex items-center gap-2 bg-white border border-white text-black rounded-full pl-3 pr-2 py-1.5 text-[9px] font-bold uppercase tracking-wider shadow-lg shadow-white/10"
     >
         <span className="opacity-90">{label}</span>
-        <button 
-            onClick={onRemove} 
+        <button
+            onClick={onRemove}
             className="p-0.5 hover:bg-black/10 rounded-full transition-colors"
         >
             <X size={12} className="text-black/50 hover:text-black" />
