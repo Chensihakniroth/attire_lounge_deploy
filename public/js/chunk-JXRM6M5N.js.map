@@ -1,7 +1,0 @@
-{
-  "version": 3,
-  "sources": ["../../resources/js/components/common/Skeleton.jsx"],
-  "sourcesContent": ["import React from 'react';\nimport { motion } from 'framer-motion';\n\nconst Skeleton = ({ className = '' }) => (\n    <div className={`relative overflow-hidden bg-white/5 rounded-xl ${className}`}>\n        <motion.div\n            className=\"absolute inset-0 w-full h-full bg-gradient-to-r from-transparent via-white/5 to-transparent\"\n            animate={{\n                x: ['-100%', '100%'],\n            }}\n            transition={{\n                duration: 1.5,\n                repeat: Infinity,\n                ease: \"linear\",\n            }}\n            style={{ skewX: -20 }}\n        />\n    </div>\n);\n\nexport default Skeleton;\n"],
-  "mappings": "uFAAA,IAAAA,EAAkB,OAGlB,IAAMC,EAAW,CAAC,CAAE,UAAAC,EAAY,EAAG,IAC/B,EAAAC,QAAA,cAAC,OAAI,UAAW,kDAAkDD,CAAS,IACvE,EAAAC,QAAA,cAACC,EAAO,IAAP,CACG,UAAU,8FACV,QAAS,CACL,EAAG,CAAC,QAAS,MAAM,CACvB,EACA,WAAY,CACR,SAAU,IACV,OAAQ,IACR,KAAM,QACV,EACA,MAAO,CAAE,MAAO,GAAI,EACxB,CACJ,EAGGC,EAAQJ",
-  "names": ["import_react", "Skeleton", "className", "React", "motion", "Skeleton_default"]
-}

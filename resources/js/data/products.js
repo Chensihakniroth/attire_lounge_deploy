@@ -72,7 +72,7 @@ export const products = [
     ...createProductItems('Mocha Mousse \'25', 'mm', 'Mocha Mousse', 7, [180, 500], 'jpg', 'Business Suits'),
     ...createProductItems('Groom Collection', 'g', 'Groom', 10, [250, 800], 'webp', 'Tuxedos'),
     ...createProductItems('Office Collection', 'of', 'Office', 5, [200, 550], 'jpg', 'Business Suits'),
-    ...createTravelCollectionItems('Traveling Collection', 't', 'Traveling', 11, [200, 700], 'webp', 'Traveling Suits'),
+    ...createTravelCollectionItems('Travel Collection', 't', 'Traveling', 11, [200, 700], 'webp', 'Suits'),
     ...createShadesCollectionItems('Shade of Elegants', 'shades', 'Shade of Elegance', 11, [300, 900], 'webp', 'Elegant Wear'),
     ...createStreetCollectionItems('Street Sartorial', 'street', 'Street Sartorial', 9, [200, 600], 'webp', 'Streetwear Suits'),
 
@@ -279,8 +279,8 @@ export const collections = [
     },
     {
       "id": 5,
-      "slug": "traveling-collection",
-      "title": "Traveling Collection",
+      "slug": "travel-collection",
+      "title": "Travel Collection",
       "description": "Discover suits designed for the modern traveler.",
       "image": `${minioBaseUrl}/uploads/collections/Travel%20collections/t0.webp`
     }

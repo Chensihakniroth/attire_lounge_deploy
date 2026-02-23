@@ -1,10 +1,11 @@
-import React, { useState, useEffect, useMemo, useRef, useLayoutEffect } from 'react';
+import React, { useState, useEffect, useLayoutEffect, useMemo, useRef } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
-import { motion, AnimatePresence, useMotionValue, useTransform, useScroll } from 'framer-motion';
-import { ChevronLeft, Heart, Plus, ArrowRight, ChevronUp } from 'lucide-react';
-import OptimizedImage from '../common/OptimizedImage.jsx';
-import { products as allProducts } from '../../data/products.js';
-import { useFavorites } from '../../context/FavoritesContext.jsx';
+import { motion, AnimatePresence, useTransform, useScroll } from 'framer-motion';
+import { ChevronLeft, Heart, ArrowRight, ChevronUp, Loader2 } from 'lucide-react';
+import OptimizedImage from '../common/OptimizedImage';
+import { useFavorites } from '../../context/FavoritesContext';
+import { useProduct } from '../../hooks/useProducts';
+import { Product } from '../../types';
 
 const transitionBase = { duration: 1, ease: [0.22, 1, 0.36, 1] };
 const stagger = {
@@ -21,20 +22,19 @@ const slideUp = {
     exit: { opacity: 0, y: 20 }
 };
 
-const ProductDetailPage = () => {
-    const { productId } = useParams();
+const ProductDetailPage: React.FC = () => {
+    const { productId: slug } = useParams<{ productId: string }>();
     const navigate = useNavigate();
     const { favorites, toggleFavorite } = useFavorites();
     
     const leftPaneRef = useRef(null);
     const rightPaneRef = useRef(null);
-    const [activePane, setActivePane] = useState('right');
-    const [progressLeft, setProgressLeft] = useState(0);
-
     const [isReady, setIsReady] = useState(false);
 
+    // -- Fetch Data --
+    const { data: product, isLoading, isError } = useProduct(slug || '');
+
     useEffect(() => {
-        // A short delay to ensure the page layout is stable before applying scroll-based animations.
         const timer = setTimeout(() => setIsReady(true), 100);
         return () => clearTimeout(timer);
     }, []);
@@ -43,23 +43,36 @@ const ProductDetailPage = () => {
     const scaleTransform = useTransform(scrollYProgress, [0, 1], [1, 1.1]);
     const scale = isReady ? scaleTransform : 1;
 
-    const product = useMemo(() => 
-        allProducts.find(p => p.id === productId), 
-    [productId]);
-
-
-
     useLayoutEffect(() => {
         window.scrollTo({ top: 0, behavior: 'instant' });
-    }, [productId]);
+    }, [slug]);
 
-    if (!product) return null;
+    if (isLoading) {
+        return (
+            <div className="min-h-screen bg-[#0a0a0a] flex items-center justify-center">
+                <Loader2 className="text-attire-accent animate-spin" size={32} />
+            </div>
+        );
+    }
+
+    if (isError || !product) {
+        return (
+            <div className="min-h-screen bg-[#0a0a0a] flex flex-col items-center justify-center p-8 text-center">
+                <h2 className="text-2xl font-serif text-white mb-4 italic">Product Not Found</h2>
+                <Link to="/products" className="text-attire-accent text-[10px] uppercase tracking-[0.2em] font-bold underline">
+                    Return to Collections
+                </Link>
+            </div>
+        );
+    }
 
     const pageMotion = {
         initial: { opacity: 0 },
         animate: { opacity: 1, transition: { duration: 0.8, ease: [0.22, 1, 0.36, 1] } },
         exit: { opacity: 0, transition: { duration: 0.4, ease: [0.22, 1, 0.36, 1] } }
     };
+
+    const isFavorited = favorites.includes(product.id as string);
 
     return (
         <motion.div
@@ -79,21 +92,21 @@ const ProductDetailPage = () => {
             </style>
 
             {/* Absolute Fixed Actions (Top Layer) */}
-            <div className="fixed top-0 left-0 w-full z-[100] px-6 lg:px-12 py-8 flex justify-between items-center pointer-events-none">
+            <div className="fixed top-0 left-0 w-full z-[999] px-6 lg:px-12 py-8 flex justify-between items-center pointer-events-none">
                 <button 
                     onClick={() => navigate(-1)}
-                    className="w-12 h-12 rounded-full border border-white/10 flex items-center justify-center group pointer-events-auto hover:bg-white transition-all duration-500 backdrop-blur-md"
+                    className="w-12 h-12 rounded-full border border-white/10 flex items-center justify-center group pointer-events-auto cursor-pointer hover:bg-white transition-all duration-500 backdrop-blur-md bg-black/20"
                 >
                     <ChevronLeft size={20} className="group-hover:text-black transition-colors" />
                 </button>
 
                 <button 
-                    onClick={() => toggleFavorite(product.id)}
-                    className="w-12 h-12 rounded-full border border-white/5 flex items-center justify-center pointer-events-auto hover:border-white/20 transition-all duration-500 group backdrop-blur-md"
+                    onClick={() => toggleFavorite(product.id as string)}
+                    className="w-12 h-12 rounded-full border border-white/5 flex items-center justify-center pointer-events-auto cursor-pointer hover:border-white/20 transition-all duration-500 group backdrop-blur-md bg-black/20"
                 >
                     <Heart 
                         size={20} 
-                        className={`transition-all duration-500 ${favorites.includes(product.id) ? 'fill-attire-accent text-attire-accent' : 'text-white/40 group-hover:text-white'}`} 
+                        className={`transition-all duration-500 ${isFavorited ? 'fill-attire-accent text-attire-accent' : 'text-white/40 group-hover:text-white'}`} 
                     />
                 </button>
             </div>
@@ -151,14 +164,13 @@ const ProductDetailPage = () => {
                             priority={true}
                             loading="eager"
                         />
-                        {/* If there are more images, they could go here */}
                     </motion.div>
                 </section>
 
                 {/* RIGHT: CONTENT PANE (SCROLLS OVER IMAGE ON MOBILE) */}
                 <section 
                     ref={rightPaneRef}
-                    className="w-full lg:w-[40%] xl:w-[35%] no-scrollbar lg:bg-[#0a0a0a] lg:border-l border-white/5 scroll-smooth"
+                    className="w-full lg:w-[40%] xl:w-[35%] no-scrollbar bg-transparent lg:bg-[#0a0a0a] lg:border-l border-white/5 scroll-smooth"
                 >
                     {/* Spacer for Mobile: Set to full screen so text starts completely hidden */}
                     <div className="h-screen lg:hidden pointer-events-none" />
@@ -167,7 +179,7 @@ const ProductDetailPage = () => {
                         variants={stagger}
                         initial="initial"
                         animate="animate"
-                        className="p-8 md:p-12 lg:p-16 xl:p-20 pt-16 lg:pt-32 space-y-12 bg-[#0a0a0a] lg:bg-transparent rounded-t-[40px] lg:rounded-none shadow-[0_-40px_80px_rgba(0,0,0,0.8)] lg:shadow-none"
+                        className="p-8 md:p-12 lg:p-16 xl:p-20 pt-16 lg:pt-32 space-y-12 lg:bg-transparent lg:rounded-none lg:shadow-none product-detail-mobile-arch"
                     >
                         {/* 1. BRANDING */}
                         <div className="space-y-6">
@@ -218,36 +230,36 @@ const ProductDetailPage = () => {
                             <motion.div variants={slideUp} className="space-y-4">
                                 <h4 className="text-[10px] uppercase tracking-[0.4em] font-bold text-white/40">Availability</h4>
                                 <p className="text-xs text-white/60 font-light leading-relaxed">
-                                    Available in {product.available_colors || 'Consult Stylist'}. 
+                                    Available in {product.color || 'Consult Stylist'}. 
                                     Each piece is meticulously inspected by our Milan-certified styling team before delivery.
                                 </p>
                             </motion.div>
                         </div>
 
                         {/* 4. CALL TO ACTION */}
-                        <motion.div variants={slideUp} className="pt-8 pb-32">
-                            <button className="group w-full py-7 bg-white text-black text-[11px] font-bold uppercase tracking-[0.5em] transition-all duration-700 flex items-center justify-center gap-4 relative overflow-hidden">
+                        <motion.div variants={slideUp} className="pt-8 pb-32 space-y-4">
+                            <Link 
+                                to="/contact"
+                                className="group w-full py-8 bg-white text-black text-[12px] font-bold uppercase tracking-[0.5em] 
+                                           rounded-full transition-all duration-500 ease-out
+                                           flex items-center justify-center gap-4
+                                           relative overflow-hidden
+                                           hover:bg-attire-accent hover:scale-[1.02] active:scale-[0.98]
+                                           shadow-[0_20px_40px_rgba(255,255,255,0.05)]"
+                            >
                                 <span className="relative z-10">Request Appointment</span>
-                                <ArrowRight size={18} className="relative z-10 group-hover:translate-x-2 transition-transform duration-500" />
-                                <div className="absolute inset-0 bg-attire-accent translate-y-full group-hover:translate-y-0 transition-transform duration-700" />
-                            </button>
-                            <p className="text-center mt-6 text-[9px] uppercase tracking-[0.2em] text-white/20">
+                                <ArrowRight size={20} className="relative z-10 group-hover:translate-x-2 transition-transform duration-500 ease-out" />
+                                <div className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/20 to-white/0 -translate-x-full group-hover:translate-x-full transition-transform duration-1000" />
+                            </Link>
+
+                            <p className="text-center mt-8 text-[9px] uppercase tracking-[0.2em] text-white/20">
                                 Complimentary Alterations Included
                             </p>
                         </motion.div>
                     </motion.div>
                 </section>
 
-
             </main>
-
-            {/* Subtle Texture Layer */}
-            <div className="fixed inset-0 pointer-events-none z-[200] opacity-[0.02] mix-blend-overlay">
-                <svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
-                    <filter id="noise"><feTurbulence type="fractalNoise" baseFrequency="0.65" numOctaves="3" /></filter>
-                    <rect width="100%" height="100%" filter="url(#noise)" />
-                </svg>
-            </div>
         </motion.div>
     );
 };

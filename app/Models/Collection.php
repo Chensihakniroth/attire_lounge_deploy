@@ -32,7 +32,7 @@ class Collection extends Model
 
     public function products()
     {
-        return $this->hasMany(Product::class, 'collection', 'name');
+        return $this->hasMany(Product::class, 'collection_id');
     }
 
     public function getImageUrlAttribute()

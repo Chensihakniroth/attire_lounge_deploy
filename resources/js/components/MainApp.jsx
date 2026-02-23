@@ -51,8 +51,8 @@ const lazyWithRetry = (componentImport) =>
 
 const HomePage = lazyWithRetry(() => import('./pages/HomePage.jsx'));
 const CollectionsPage = lazyWithRetry(() => import('./pages/CollectionsPage.jsx'));
-const ProductListPage = lazyWithRetry(() => import('./pages/ProductListPage.jsx'));
-const ProductDetailPage = lazyWithRetry(() => import('./pages/ProductDetailPage.jsx'));
+const ProductListPage = lazyWithRetry(() => import('./pages/ProductListPage'));
+const ProductDetailPage = lazyWithRetry(() => import('./pages/ProductDetailPage'));
 const LookbookPage = lazyWithRetry(() => import('./pages/LookbookPage.jsx'));
 const FashionShowPage = lazyWithRetry(() => import('./pages/FashionShowPage.jsx'));
 const ContactPage = lazyWithRetry(() => import('./pages/ContactPage.jsx'));

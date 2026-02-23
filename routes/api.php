@@ -7,6 +7,7 @@ use App\Http\Controllers\ImageUploadController;
 use App\Http\Controllers\NewsletterSubscriptionController;
 use App\Http\Controllers\AdminLoginController;
 use App\Http\Controllers\GiftRequestController;
+// use App\Http\Controllers\TempController; // Removed TempController import
 
 Route::prefix('v1')->group(function () {
     // Public Product routes (accessible to all)
@@ -36,6 +37,10 @@ Route::prefix('v1')->group(function () {
 
     // Admin Login Route (public, as authentication is done here)
     Route::post('/admin/login', [AdminLoginController::class, 'login']);
+
+    // TEMP ROUTE FOR DEBUGGING COLLECTIONS - REMOVED
+    // Route::get('/debug/collections', [TempController::class, 'listCollections']);
+    // Route::get('/debug/groom-products', [TempController::class, 'listGroomProducts']);
 
     // Admin-specific routes - protected by authentication middleware
     Route::middleware('auth:sanctum')->prefix('admin')->group(function () {

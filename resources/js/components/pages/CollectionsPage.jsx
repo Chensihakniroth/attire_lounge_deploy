@@ -59,7 +59,6 @@ const CollectionsPage = () => {
                      </div>
                 ) : (
                     <motion.div
-                        layout
                         className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"
                     >
                         {collectionsWithBrowseAll.map((collection, index) => (
@@ -69,7 +68,6 @@ const CollectionsPage = () => {
                                 className="block h-full"
                             >
                                 <motion.div
-                                    layout
                                     initial={{ opacity: 0, y: 30 }}
                                     animate={{ opacity: 1, y: 0 }}
                                     transition={{ duration: 0.4, delay: index * 0.1, ease: 'easeOut' }}
@@ -83,7 +81,7 @@ const CollectionsPage = () => {
                                                     src={collection.image} 
                                                     alt={collection.title}
                                                     containerClassName="w-full h-full"
-                                                    className="w-full h-full transition-transform duration-700 group-hover:scale-105"
+                                                    className="w-full h-full transition-transform duration-700 group-hover:scale-105 will-change-transform"
                                                 />
                                                 <div className="absolute inset-0 bg-attire-accent/90 mix-blend-multiply opacity-90 transition-opacity duration-500" />
                                                 <div className="absolute inset-0 bg-black/20 group-hover:bg-black/10 transition-colors duration-500" />

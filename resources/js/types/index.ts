@@ -26,6 +26,12 @@ export interface Product {
     color?: string;
 }
 
+export interface Category {
+    id: number;
+    name: string;
+    slug: string;
+}
+
 export interface Collection {
     id: number;
     name: string;

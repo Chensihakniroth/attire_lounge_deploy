@@ -1,20 +1,16 @@
 import React from 'react';
-import { motion } from 'framer-motion';
 import { ArrowRight } from 'lucide-react';
 import OptimizedImage from '../../common/OptimizedImage.jsx';
 
 const CollectionCard = ({ collection }) => {
     return (
-        <motion.div
+        <div
             className="group relative h-[24rem] rounded-2xl overflow-hidden shadow-xl border border-white/5 bg-attire-dark"
         >
             {/* Background Image */}
             <div className="absolute inset-0">
-                <motion.div
-                    className="w-full h-full"
-                    initial={{ scale: 1 }}
-                    whileHover={{ scale: 1.05 }}
-                    transition={{ duration: 0.4, ease: 'easeOut' }}
+                <div
+                    className="w-full h-full transition-transform duration-700 ease-out group-hover:scale-105 will-change-transform"
                 >
                     <OptimizedImage
                         src={collection.image}
@@ -22,14 +18,14 @@ const CollectionCard = ({ collection }) => {
                         containerClassName="w-full h-full"
                         className="w-full h-full"
                     />
-                </motion.div>
+                </div>
                 {/* Gradient Overlays */}
-                <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent" />
-                <div className="absolute inset-0 bg-black/20 group-hover:bg-black/10 transition-colors duration-500" />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent pointer-events-none" />
+                <div className="absolute inset-0 bg-black/20 group-hover:bg-black/10 transition-colors duration-500 pointer-events-none" />
             </div>
 
             {/* Content Overlay */}
-            <div className="relative z-10 h-full flex flex-col items-center justify-center text-center p-8">
+            <div className="relative z-10 h-full flex flex-col items-center justify-center text-center p-8 pointer-events-none">
                 <h3 className="text-3xl font-serif text-white mb-3 transform group-hover:-translate-y-2 transition-transform duration-500">
                     {collection.title}
                 </h3>
@@ -43,12 +39,12 @@ const CollectionCard = ({ collection }) => {
             </div>
 
             {/* Item Count Badge */}
-            <div className="absolute top-4 right-4 z-20">
+            <div className="absolute top-4 right-4 z-20 pointer-events-none">
                 <span className="px-3 py-1 bg-black/40 backdrop-blur-md border border-white/10 rounded-full text-[10px] uppercase tracking-tighter text-white/80 font-medium">
                     {collection.itemsCount || 'New'} Collection
                 </span>
             </div>
-        </motion.div>
+        </div>
     );
 };
 

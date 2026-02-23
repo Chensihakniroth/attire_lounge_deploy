@@ -36,5 +36,14 @@ class CollectionSeeder extends Seeder
             'is_active' => true,
             'sort_order' => 3,
         ]);
+
+        // Add Office Collections
+        Collection::firstOrCreate(['slug' => 'office-collections'], [
+            'name' => 'Office Collections',
+            'description' => 'Sophisticated and comfortable attire for the modern workplace.',
+            'year' => 2024,
+            'is_active' => true,
+            'sort_order' => 4,
+        ]);
     }
 }
