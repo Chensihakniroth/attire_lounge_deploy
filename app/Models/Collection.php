@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use App\Enums\CollectionType;
 
 class Collection extends Model
 {
@@ -30,9 +31,27 @@ class Collection extends Model
         'end_date' => 'date',
     ];
 
+    /**
+     * Get the storage path from the Enum based on slug.
+     */
+    public function getStoragePath(): string
+    {
+        $type = CollectionType::tryFrom($this->slug);
+        return $type ? $type->getStoragePath() : '/uploads/collections/default/';
+    }
+
+    /**
+     * Get the preferred extension from the Enum based on slug.
+     */
+    public function getPreferredExtension(): string
+    {
+        $type = CollectionType::tryFrom($this->slug);
+        return $type ? $type->getPreferredExtension() : 'webp';
+    }
+
     public function products()
     {
-        return $this->hasMany(Product::class, 'collection', 'name');
+        return $this->hasMany(Product::class, 'collection_id');
     }
 
     public function getImageUrlAttribute()

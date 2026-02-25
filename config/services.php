@@ -35,4 +35,8 @@ return [
         ],
     ],
 
+    'minio' => [
+        'endpoint' => env('MINIO_ENDPOINT', 'https://bucket-production-4ca0.up.railway.app/product-assets'),
+    ],
+
 ];

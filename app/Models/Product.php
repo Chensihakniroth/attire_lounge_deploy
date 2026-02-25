@@ -35,43 +35,19 @@ class Product extends Model
 
     /**
      * Get the images attribute dynamically from MinIO.
-     * No need to store paths in the database! ✨
+     * Delegates logic to the Collection model to maintain SRP. ✨
      */
     public function getImagesAttribute()
     {
-        $endpoint = 'https://bucket-production-4ca0.up.railway.app/product-assets';
+        $endpoint = config('services.minio.endpoint');
         $slug = $this->slug;
-        $path = '/uploads/collections/default/'; // Default path
-
-        // Logic based on collection_id (mapping from your database)
-        // 1: Havana, 2: Mocha, 3: Groom, 4: Office -> /default/
-        // 5: Accessories -> /accessories/
-        // 6: Travel -> /Travel collections/
-
-        if ($this->collection_id == 5) {
-            $path = '/uploads/collections/accessories/';
-        } elseif ($this->collection_id == 6) {
-            $path = '/uploads/collections/Travel collections/';
-        }
-
-        // Determine primary extension. Havana, Mocha Mousse, and Office should use .jpg
-        $primaryExt = 'webp';
-        $secondaryExt = 'jpg';
         
-        // Use the collection name or ID to check. 
-        // Based on seeder: 2: Havana, 3: Mocha, 4: Office (if seeded in that order)
-        // Let's check by name/slug to be safer if possible, or just IDs if we trust them.
-        // The user says Havana, Office, Mocha Mousse.
-        if (in_array($this->collection_id, [1, 2, 3, 4])) {
-            // Check collection name via relationship
-            $collectionName = $this->collection ? $this->collection->name : '';
-            if (str_contains($collectionName, 'Havana') || 
-                str_contains($collectionName, 'Mocha') || 
-                str_contains($collectionName, 'Office')) {
-                $primaryExt = 'jpg';
-                $secondaryExt = 'webp';
-            }
-        }
+        $collection = $this->collection;
+        
+        // If no collection, default to standard settings
+        $path = $collection ? $collection->getStoragePath() : '/uploads/collections/default/';
+        $primaryExt = $collection ? $collection->getPreferredExtension() : 'webp';
+        $secondaryExt = ($primaryExt === 'webp') ? 'jpg' : 'webp';
 
         return [
             "{$endpoint}{$path}{$slug}.{$primaryExt}?v=new",
