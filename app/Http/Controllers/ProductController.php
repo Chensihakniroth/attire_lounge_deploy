@@ -3,77 +3,76 @@
 namespace App\Http\Controllers;
 
 use App\Models\Collection;
-use App\Models\Product;
+use App\Services\ProductService;
 use Illuminate\Http\Request;
-use App\Http\Controllers\Controller;
-use Illuminate\Support\Facades\Cache;
+use Illuminate\Http\JsonResponse;
 use App\Http\Resources\ProductResource;
 use App\Http\Resources\CollectionResource;
+use Illuminate\Support\Facades\Cache;
 
 class ProductController extends Controller
 {
-    public function index(Request $request)
+    protected $productService;
+
+    /**
+     * Inject the ProductService.
+     */
+    public function __construct(ProductService $productService)
     {
-        $cacheKey = 'products.' . md5(json_encode($request->all()));
-
-        return Cache::remember($cacheKey, 3600, function () use ($request) {
-            $query = Product::query()
-                ->filter([
-                    'category' => $request->category,
-                    'search' => $request->search
-                ])
-                ->sort($request->get('sort', 'newest'));
-
-            // Pagination
-            $perPage = $request->get('per_page', 12);
-            $products = $query->paginate($perPage);
-
-            return response()->json([
-                'success' => true,
-                'data' => ProductResource::collection($products->items()),
-                'meta' => [
-                    'total' => $products->total(),
-                    'per_page' => $products->perPage(),
-                    'current_page' => $products->currentPage(),
-                    'last_page' => $products->lastPage(),
-                ]
-            ]);
-        });
+        $this->productService = $productService;
     }
 
-    public function featured()
+    /**
+     * Get a listing of products.
+     */
+    public function index(Request $request): JsonResponse
     {
-        return Cache::remember('featured_products', 3600, function () {
-            $products = Product::where('featured', true)
-                ->where('in_stock', true)
-                ->orderBy('sort_order')
-                ->limit(8)
-                ->get();
+        $products = $this->productService->getPaginatedProducts($request->all());
 
-            return response()->json([
-                'success' => true,
-                'data' => ProductResource::collection($products)
-            ]);
-        });
+        return response()->json([
+            'success' => true,
+            'data' => ProductResource::collection($products->items()),
+            'meta' => [
+                'total' => $products->total(),
+                'per_page' => $products->perPage(),
+                'current_page' => $products->currentPage(),
+                'last_page' => $products->lastPage(),
+            ]
+        ]);
     }
 
-    public function categories()
+    /**
+     * Get featured products.
+     */
+    public function featured(): JsonResponse
     {
-        return Cache::remember('product_categories', 7200, function () {
-            $categories = Product::select('category')
-                ->distinct()
-                ->orderBy('category')
-                ->pluck('category');
+        $products = $this->productService->getFeaturedProducts();
 
-            return response()->json([
-                'success' => true,
-                'data' => $categories
-            ]);
-        });
+        return response()->json([
+            'success' => true,
+            'data' => ProductResource::collection($products)
+        ]);
     }
-    
-    public function collections()
+
+    /**
+     * Get all categories.
+     */
+    public function categories(): JsonResponse
     {
+        $categories = $this->productService->getProductCategories();
+
+        return response()->json([
+            'success' => true,
+            'data' => $categories
+        ]);
+    }
+
+    /**
+     * Get all collections.
+     */
+    public function collections(): JsonResponse
+    {
+        // For now, we'll keep collections simple or you can create a CollectionService too!
         return Cache::remember('product_collections', 7200, function () {
             $collections = Collection::active()
                 ->orderBy('sort_order')
@@ -86,20 +85,29 @@ class ProductController extends Controller
         });
     }
 
-    public function show($slug)
+    /**
+     * Get a specific product by slug.
+     */
+    public function show($slug): JsonResponse
     {
-        return Cache::remember("product.{$slug}", 3600, function () use ($slug) {
-            $product = Product::where('slug', $slug)->firstOrFail();
+        $product = $this->productService->getProductBySlug($slug);
 
-            return response()->json([
-                'success' => true,
-                'data' => new ProductResource($product)
-            ]);
-        });
+        if (!$product) {
+            return response()->json(['success' => false, 'message' => 'Product not found'], 404);
+        }
+
+        return response()->json([
+            'success' => true,
+            'data' => new ProductResource($product)
+        ]);
     }
 
-    public function search(Request $request)
+    /**
+     * Search products.
+     */
+    public function search(Request $request): JsonResponse
     {
         return $this->index($request);
     }
 }
+

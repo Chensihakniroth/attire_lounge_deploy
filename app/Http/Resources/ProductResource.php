@@ -9,8 +9,6 @@ class ProductResource extends JsonResource
 {
     /**
      * Transform the resource into an array.
-     *
-     * @return array<string, mixed>
      */
     public function toArray(Request $request): array
     {
@@ -18,20 +16,16 @@ class ProductResource extends JsonResource
             'id' => $this->id,
             'name' => $this->name,
             'slug' => $this->slug,
-            'description' => $this->when($request->routeIs('products.show'), $this->description),
-            'price' => number_format($this->price, 2),
-            'compare_price' => $this->compare_price ? number_format($this->compare_price, 2) : null,
-            'category' => $this->category,
-            'collection' => $this->collection,
-            'featured' => $this->featured,
-            'in_stock' => $this->in_stock,
-            'stock_quantity' => $this->when($request->routeIs('products.show'), $this->stock_quantity),
-            'images' => $this->images,
-            'sizes' => $this->when($request->routeIs('products.show'), $this->sizes),
-            'colors' => $this->when($request->routeIs('products.show'), $this->colors),
-            'fabric' => $this->when($request->routeIs('products.show'), $this->fabric),
-            'fit' => $this->when($request->routeIs('products.show'), $this->fit),
-            'discount_percent' => $this->discount_percent, // Uses the getDiscountPercentAttribute accessor
+            'description' => $this->description,
+            'price' => (float) $this->price,
+            'category' => $this->category ? $this->category->name : 'Uncategorized',
+            'collection' => $this->collection ? $this->collection->name : 'General',
+            'collection_slug' => $this->collection ? $this->collection->slug : null,
+            'featured' => (bool) $this->is_featured,
+            'is_new' => (bool) $this->is_new,
+            'in_stock' => $this->availability === 'In Stock',
+            'images' => $this->images, // Uses our smart dynamic accessor! ✨
+            'sizes' => $this->sizing,
         ];
     }
 }

@@ -3,7 +3,6 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Support\Facades\Storage;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 
@@ -11,98 +10,93 @@ class Product extends Model
 {
     use HasFactory, SoftDeletes;
 
+    // The actual table name is 'products'
+    protected $table = 'products';
+
     protected $fillable = [
         'name',
         'slug',
         'description',
         'price',
-        'compare_price',
-        'images',
-        'sizes',
-        'colors',
-        'category',
-        'collection',
-        'fabric',
-        'fit',
-        'featured',
-        'in_stock',
-        'stock_quantity',
-        'sort_order'
+        'category_id',
+        'collection_id',
+        'is_featured',
+        'is_new',
+        'availability',
+        'sizing'
     ];
 
     protected $casts = [
-        'images' => 'array',
-        'sizes' => 'array',
-        'colors' => 'array',
-        'featured' => 'boolean',
-        'in_stock' => 'boolean',
+        'sizing' => 'array',
+        'is_featured' => 'boolean',
+        'is_new' => 'boolean',
         'price' => 'decimal:2',
-        'compare_price' => 'decimal:2'
     ];
 
     /**
-     * Get the images attribute.
-     *
-     * @param  string  $value
-     * @return array
+     * Get the images attribute dynamically from MinIO.
+     * No need to store paths in the database! ✨
      */
-    public function getImagesAttribute($value)
+    public function getImagesAttribute()
     {
-        $imagePaths = json_decode($value, true) ?? [];
+        $endpoint = 'https://bucket-production-4ca0.up.railway.app/product-assets';
+        $slug = $this->slug;
+        $path = '/uploads/collections/default/'; // Default path
 
-        if (empty($imagePaths)) {
-            return [];
+        // Logic based on collection_id (mapping from your database)
+        // 1: Havana, 2: Mocha, 3: Groom, 4: Office -> /default/
+        // 5: Accessories -> /accessories/
+        // 6: Travel -> /Travel collections/
+
+        if ($this->collection_id == 5) {
+            $path = '/uploads/collections/accessories/';
+        } elseif ($this->collection_id == 6) {
+            $path = '/uploads/collections/Travel collections/';
         }
+
+        // Determine primary extension. Havana, Mocha Mousse, and Office should use .jpg
+        $primaryExt = 'webp';
+        $secondaryExt = 'jpg';
         
-        return array_map(fn($path) => Storage::disk('minio')->url($path), $imagePaths);
+        // Use the collection name or ID to check. 
+        // Based on seeder: 2: Havana, 3: Mocha, 4: Office (if seeded in that order)
+        // Let's check by name/slug to be safer if possible, or just IDs if we trust them.
+        // The user says Havana, Office, Mocha Mousse.
+        if (in_array($this->collection_id, [1, 2, 3, 4])) {
+            // Check collection name via relationship
+            $collectionName = $this->collection ? $this->collection->name : '';
+            if (str_contains($collectionName, 'Havana') || 
+                str_contains($collectionName, 'Mocha') || 
+                str_contains($collectionName, 'Office')) {
+                $primaryExt = 'jpg';
+                $secondaryExt = 'webp';
+            }
+        }
+
+        return [
+            "{$endpoint}{$path}{$slug}.{$primaryExt}?v=new",
+            "{$endpoint}{$path}{$slug}.{$secondaryExt}?v=new",
+        ];
     }
 
+    /**
+     * Relationships
+     */
+    public function category()
+    {
+        return $this->belongsTo(Category::class, 'category_id');
+    }
+
+    public function collection()
+    {
+        return $this->belongsTo(Collection::class, 'collection_id');
+    }
+
+    /**
+     * Scopes for featured products (keeping this one as it's simple)
+     */
     public function scopeFeatured($query)
     {
-        return $query->where('featured', true)->where('in_stock', true);
-    }
-
-    public function scopeInStock($query)
-    {
-        return $query->where('in_stock', true);
-    }
-
-    public function getDiscountPercentAttribute()
-    {
-        if ($this->compare_price && $this->compare_price > $this->price) {
-            return round((($this->compare_price - $this->price) / $this->compare_price) * 100);
-        }
-        return 0;
-    }
-
-    public function scopeFilter($query, array $filters)
-    {
-        if (isset($filters['category']) && $filters['category']) {
-            $query->where('category', $filters['category']);
-        }
-
-        if (isset($filters['search']) && $filters['search']) {
-            $query->where(function ($q) use ($filters) {
-                $q->where('name', 'like', '%' . $filters['search'] . '%')
-                  ->orWhere('description', 'like', '%' . $filters['search'] . '%');
-            });
-        }
-    }
-
-    public function scopeSort($query, $sort = 'newest')
-    {
-        switch ($sort) {
-            case 'price_low':
-                $query->orderBy('price');
-                break;
-            case 'price_high':
-                $query->orderByDesc('price');
-                break;
-            case 'featured':
-                $query->where('featured', true)->orderBy('sort_order');
-                break;
-            default:
-                $query->orderByDesc('created_at');
-        }
+        return $query->where('is_featured', true);
     }
 }

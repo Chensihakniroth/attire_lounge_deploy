@@ -7,6 +7,7 @@ import { Link, useLocation } from 'react-router-dom';
 import SectionIndicator from './SectionIndicator.jsx';
 import FashionShow from '../sections/FashionShow.jsx';
 import OptimizedImage from '../common/OptimizedImage.jsx';
+import SEO from '../common/SEO';
 
 import minioBaseUrl from '../../config.js';
 
@@ -186,7 +187,7 @@ const PhilosophySection = memo(forwardRef((props, ref) => (
             className="h-full w-full"
         >
             <OptimizedImage
-              src={`${minioBaseUrl}/uploads/collections/default/key.jpg`}
+              src={`${minioBaseUrl}/uploads/collections/default/key.jpg?v=new`}
               alt="Attire Lounge Interior"
               containerClassName="absolute inset-0 w-full h-full"
               className="w-full h-full"
@@ -201,10 +202,10 @@ const PhilosophySection = memo(forwardRef((props, ref) => (
 
 const CollectionsSection = memo(forwardRef((props, ref) => {
     const showcaseImages = [
-        `${minioBaseUrl}/uploads/collections/default/hvn1.jpg`,
-        `${minioBaseUrl}/uploads/collections/default/mm1.jpg`,
+        `${minioBaseUrl}/uploads/collections/default/hvn1.jpg?v=new`,
+        `${minioBaseUrl}/uploads/collections/default/mm1.jpg?v=new`,
         `${minioBaseUrl}/uploads/collections/default/g1.webp?v=new`,
-        `${minioBaseUrl}/uploads/collections/default/of1.jpg`
+        `${minioBaseUrl}/uploads/collections/default/of1.jpg?v=new`
     ];
     const [currentImageIndex, setCurrentImageIndex] = useState(0);
 
@@ -308,7 +309,7 @@ const ExperienceSection = memo(forwardRef(({ services }, ref) => (
     {/* Mobile Background Image (Absolute) */}
     <div className="absolute inset-0 z-0 lg:hidden">
         <OptimizedImage 
-            src={`${minioBaseUrl}/uploads/collections/default/both.jpg`} 
+            src={`${minioBaseUrl}/uploads/collections/default/both.jpg?v=new`} 
             alt="Experience Background Mobile" 
             containerClassName="w-full h-full"
             className="w-full h-full grayscale-[20%]"
@@ -322,7 +323,7 @@ const ExperienceSection = memo(forwardRef(({ services }, ref) => (
         {/* Left Side: Image (Desktop only) */}
         <div className="hidden lg:block relative h-full w-full overflow-hidden">
             <OptimizedImage 
-                src={`${minioBaseUrl}/uploads/collections/default/both.jpg`} 
+                src={`${minioBaseUrl}/uploads/collections/default/both.jpg?v=new`} 
                 alt="Attire Lounge Experience" 
                 containerClassName="absolute inset-0 w-full h-full"
                 className="w-full h-full"
@@ -384,7 +385,7 @@ const MembershipSection = memo(forwardRef((props, ref) => (
         {/* Mobile Background Image (Absolute) */}
         <div className="absolute inset-0 z-0 lg:hidden">
             <OptimizedImage 
-                src={`${minioBaseUrl}/uploads/collections/default/vc.jpg`} 
+                src={`${minioBaseUrl}/uploads/collections/default/vc.jpg?v=new`} 
                 alt="Membership Background Mobile" 
                 containerClassName="w-full h-full"
                 className="w-full h-full"
@@ -488,7 +489,7 @@ const MembershipSection = memo(forwardRef((props, ref) => (
                             {/* Visual Side (Right - Desktop only) */}
                             <div className="hidden lg:block relative col-span-7 h-full overflow-hidden">
                                 <OptimizedImage
-                                    src={`${minioBaseUrl}/uploads/collections/default/vc.jpg`}
+                                    src={`${minioBaseUrl}/uploads/collections/default/vc.jpg?v=new`}
                                     alt="Attire Club Membership"
                                     containerClassName="absolute inset-0 w-full h-full"
                                     className="w-full h-full"
@@ -512,7 +513,7 @@ const LookbookSection = memo(forwardRef((props, ref) => (
               className="w-full h-full will-change-transform"
           >
               <OptimizedImage 
-                  src={`${minioBaseUrl}/uploads/collections/default/as2.jpg`} 
+                  src={`${minioBaseUrl}/uploads/collections/default/as2.jpg?v=new`} 
                   alt="Lookbook Background" 
                   containerClassName="w-full h-full"
                   className="w-full h-full"
@@ -778,6 +779,10 @@ const HomePage = () => {
 
   return (
     <div className="snap-scroll-container bg-[#111111]">
+      <SEO 
+        title="Attire Lounge | Elite Bespoke Tailoring & Ready-to-Wear"
+        description="Discover the art of refined menswear in Phnom Penh. From Milan-certified styling to timeless bespoke collections, Attire Lounge is your destination for excellence."
+      />
       <SectionIndicator
         sections={sectionNames}
         activeSection={activeSection}

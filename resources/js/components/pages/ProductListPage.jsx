@@ -1,22 +1,26 @@
-import React, { useState, useMemo, useEffect, useRef, memo } from 'react';
+import React, { useState, useMemo, useEffect, useRef } from 'react';
 import { useLocation, Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { wrap } from "../../helpers/math.js";
-import { ChevronLeft, ChevronRight, Search, X, Filter, ChevronDown, Check, Star } from 'lucide-react';
-import { products as allProducts, collections as allCollections } from '../../data/products.js';
+import { ChevronLeft, ChevronRight, Search, X, ChevronDown, Check, Loader2 } from 'lucide-react';
 import ItemCard from './collections/ItemCard';
-import { useFavorites } from '../../context/FavoritesContext.jsx';
 import GrainOverlay from '../common/GrainOverlay.jsx';
+import SEO from '../common/SEO';
+import { useProducts } from '../../hooks/useProducts';
 
-// --- Styled Components ---
+const allCollections = [
+    { id: 1, title: 'Havana Collection', slug: 'havana-collection' },
+    { id: 2, title: 'Mocha Mousse', slug: 'mocha-mousse-25' },
+    { id: 3, title: 'Groom Collection', slug: 'groom-collection' },
+    { id: 4, title: 'Office Collections', slug: 'office-collections' },
+    { id: 5, title: 'Travel Collection', slug: 'travel-collection' },
+    { id: 6, title: 'Accessories', slug: 'accessories' },
+];
 
 const sortOptions = [
-    { value: 'category-asc', label: 'By Category' },
-    { value: 'popularity-desc', label: 'Most Popular' },
-    { value: 'createdAt-desc', label: 'Newest Arrivals' },
-    { value: 'price-asc', label: 'Price: Low to High' },
-    { value: 'price-desc', label: 'Price: High to Low' },
-    { value: 'name-asc', label: 'Name: A to Z' },
+    { value: 'newest', label: 'Newest Arrivals' },
+    { value: 'price_low', label: 'Price: Low to High' },
+    { value: 'price_high', label: 'Price: High to Low' },
+    { value: 'featured', label: 'Featured First' },
 ];
 
 const useQuery = () => {
@@ -28,97 +32,66 @@ const ProductListPage = () => {
     const location = useLocation();
     const collectionQuery = query.get('collection');
 
-    const [sortOrder, setSortOrder] = useState('category-asc');
-    const { favorites, toggleFavorite, isFavorited } = useFavorites();
-    
+    const [sortOrder, setSortOrder] = useState('newest');
     const [selectedCollections, setSelectedCollections] = useState(() => {
         return collectionQuery ? [collectionQuery] : [];
     });
 
-    const [currentPage, setCurrentPage] = useState(1);
-    const itemsPerPage = 16;
+    const productsPerPage = 12; // Number of products to load per batch
+    const [currentLoadedPage, setCurrentLoadedPage] = useState(1);
+    const [allLoadedProducts, setAllLoadedProducts] = useState([]);
+    const [hasMore, setHasMore] = useState(true);
+
+    const { data, isLoading, isFetching } = useProducts({
+        category: selectedCollections[0],
+        sort: sortOrder,
+        page: currentLoadedPage,
+        per_page: productsPerPage
+    });
+
+    const meta = data?.meta || { total: 0, last_page: 1 };
 
     useEffect(() => {
-        window.scrollTo({ top: 0, behavior: 'instant' });
-    }, []);
-
-    useEffect(() => {
-        setCurrentPage(1);
+        // Reset state when filters or sort order changes
+        // This MUST be before the data accumulation effect
+        setAllLoadedProducts([]);
+        setCurrentLoadedPage(1);
+        setHasMore(true);
+        
+        // Smooth scroll to top when changing filters (but not on load more)
+        if (currentLoadedPage === 1) {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
     }, [selectedCollections, sortOrder]);
 
-    const { pageTitle, filteredProducts } = useMemo(() => {
-        let products = allProducts.filter(p => !p.hidden);
-
-        if (selectedCollections.length > 0) {
-            products = products.filter(p => selectedCollections.includes(p.collectionSlug));
-        }
-
-        const currentCollectionDetails = allCollections.find(c => c.slug === selectedCollections[0]);
-        const pageTitle = selectedCollections.length === 1 && currentCollectionDetails
-            ? currentCollectionDetails.title
-            : "All Products";
-
-        const categoryPriority = {
-            'Ties': 1,
-            'Pocket Squares': 2,
-            'Cufflinks': 3,
-            'Tuxedos': 4,
-            'Business Suits': 5,
-            'Summer Suits': 6,
-            'Suits': 7
-        };
-
-        const [sortKey, sortDirection] = sortOrder.split('-');
-        products.sort((a, b) => {
-            if (sortKey === 'price') {
-                return sortDirection === 'asc' ? a.price - b.price : b.price - a.price;
-            }
-            if (sortKey === 'createdAt') {
-                return sortDirection === 'asc' ? new Date(a.createdAt) - new Date(b.createdAt) : new Date(b.createdAt) - new Date(a.createdAt);
-            }
-            if (sortKey === 'popularity') {
-                return sortDirection === 'asc' ? a.popularity - b.popularity : b.popularity - a.popularity;
-            }
-            if (sortKey === 'category') {
-                const priorityA = categoryPriority[a.category] || 99;
-                const priorityB = categoryPriority[b.category] || 99;
-                
-                if (priorityA !== priorityB) {
-                    return sortDirection === 'asc' ? priorityA - priorityB : priorityB - priorityA;
-                }
-                
-                const colA = a.collection || '';
-                const colB = b.collection || '';
-                if (colA !== colB) {
-                    return colA.localeCompare(colB);
-                }
-                
-                return a.name.localeCompare(b.name);
-            }
-            if (sortKey === 'name') {
-                return sortDirection === 'asc' 
-                    ? a.name.localeCompare(b.name) 
-                    : b.name.localeCompare(a.name);
-            }
-            return 0;
-        });
-
-        return { pageTitle, filteredProducts: products };
-    }, [sortOrder, selectedCollections]);
-
-    const handleLocalToggleFavorite = (id) => {
-        toggleFavorite(id);
-    };
-
     useEffect(() => {
-        const newCollectionQuery = new URLSearchParams(location.search).get('collection');
-        if (newCollectionQuery && !selectedCollections.includes(newCollectionQuery)) {
-            setSelectedCollections([newCollectionQuery]);
+        // Accumulate products when data arrives
+        if (data?.data && currentLoadedPage > 0) {
+            setAllLoadedProducts(prevProducts => {
+                // Only append if it's not already there (prevents duplicates)
+                const newProducts = data.data.filter(
+                    np => !prevProducts.some(p => p.id === np.id)
+                );
+                
+                // If it's the first page, we should ideally have a fresh list
+                // (The reset effect above handles this, but let's be safe)
+                if (currentLoadedPage === 1) return data.data;
+                
+                return [...prevProducts, ...newProducts];
+            });
+            setHasMore(meta.current_page < meta.last_page);
         }
-    }, [location.search]);
+    }, [data, currentLoadedPage]);
+
+    const pageTitle = useMemo(() => {
+        const currentCollectionDetails = allCollections.find(c => c.slug === selectedCollections[0]);
+        return selectedCollections.length === 1 && currentCollectionDetails
+            ? currentCollectionDetails.title
+            : "Elite Collections";
+    }, [selectedCollections]);
 
     const handleCollectionToggle = (slug) => {
-        setSelectedCollections(prev => prev.includes(slug) ? prev.filter(s => s !== slug) : [...prev, slug]);
+        setSelectedCollections(prev => prev.includes(slug) ? [] : [slug]);
     };
 
     const clearFilters = () => {
@@ -128,58 +101,31 @@ const ProductListPage = () => {
     const removeCollectionFilter = (slug) => {
         setSelectedCollections(prev => prev.filter(s => s !== slug));
     };
-    
-    const totalPages = Math.ceil(filteredProducts.length / itemsPerPage);
-    const paginatedProducts = filteredProducts.slice(
-        (currentPage - 1) * itemsPerPage,
-        currentPage * itemsPerPage
-    );
 
-    const handlePageChange = (newPage) => {
-        if (newPage >= 1 && newPage <= totalPages) {
-            setCurrentPage(newPage);
-            window.scrollTo({ top: 400, behavior: 'smooth' });
+    const handleLoadMore = () => {
+        if (hasMore && !isFetching) {
+            setCurrentLoadedPage(prevPage => prevPage + 1);
         }
-    };
-
-    const pageMotion = {
-        initial: { opacity: 0, y: 20 },
-        animate: { opacity: 1, y: 0, transition: { duration: 0.8, ease: [0.22, 1, 0.36, 1] } },
-        exit: { opacity: 0, y: -20, transition: { duration: 0.4, ease: [0.22, 1, 0.36, 1] } }
     };
 
     return (
         <motion.div 
             className="min-h-screen bg-attire-navy relative selection:bg-attire-accent selection:text-white"
-            initial="initial"
-            animate="animate"
-            exit="exit"
-            variants={pageMotion}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
         >
+            <SEO 
+                title={`${pageTitle} | Bespoke Menswear`}
+                description={`Explore our ${pageTitle}. Hand-crafted luxury garments designed for the modern gentleman.`}
+            />
             <GrainOverlay />
             
-            <style>
-                {`
-                    .no-scrollbar::-webkit-scrollbar {
-                        display: none;
-                    }
-                    .no-scrollbar {
-                        -ms-overflow-style: none;
-                        scrollbar-width: none;
-                    }
-                `}
-            </style>
-
             <header className="relative z-10 pt-32 pb-16 sm:pt-48 sm:pb-24 px-6 text-center">
-                <motion.div
-                    initial={{ opacity: 0, y: 30 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
-                    className="max-w-4xl mx-auto"
-                >
+                <div className="max-w-4xl mx-auto">
                     <div className="flex items-center justify-center gap-4 mb-8">
                         <div className="h-px w-8 bg-attire-accent/30" />
-                        <span className="text-attire-accent text-[10px] tracking-[0.6em] uppercase font-bold text-center">Collection</span>
+                        <span className="text-attire-accent text-[10px] tracking-[0.6em] uppercase font-bold">Collection</span>
                         <div className="h-px w-8 bg-attire-accent/30" />
                     </div>
 
@@ -194,12 +140,11 @@ const ProductListPage = () => {
                             Back to Gallery
                         </Link>
                     </div>
-                </motion.div>
+                </div>
             </header>
 
             <main className="relative z-10 max-w-screen-2xl mx-auto px-6 sm:px-12 lg:px-24 pb-32">
-                {/* Enhanced Controls Bar */}
-                <div className="z-40 sticky top-24 mb-20 pointer-events-auto">
+                <div className="z-40 sticky top-24 mb-20">
                     <Controls
                         sortOrder={sortOrder}
                         setSortOrder={setSortOrder}
@@ -210,284 +155,130 @@ const ProductListPage = () => {
                     />
                 </div>
                 
-                <AnimatePresence>
-                    {filteredProducts.length > 0 ? (
+                <AnimatePresence mode="wait">
+                    {isLoading && allLoadedProducts.length === 0 ? ( // Show initial loading spinner
+                        <motion.div 
+                            key="loading-initial"
+                            className="flex flex-col items-center justify-center py-32"
+                        >
+                            <Loader2 className="w-12 h-12 text-attire-accent animate-spin mb-4" />
+                            <p className="text-attire-silver/60 text-xs uppercase tracking-widest">Gathering Excellence...</p>
+                        </motion.div>
+                    ) : allLoadedProducts.length > 0 ? (
                         <motion.div
-                            key={currentPage + sortOrder + selectedCollections.join('')}
+                            key="results"
                             className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-8 lg:gap-12"
                             initial={{ opacity: 0, y: 20 }}
                             animate={{ opacity: 1, y: 0 }}
-                            exit={{ opacity: 0 }}
-                            transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
                         >
-                            {paginatedProducts.map((item) => (
-                                <ItemCard 
-                                    key={item.id} 
-                                    product={item} 
-                                />
+                            {allLoadedProducts.map((item) => (
+                                <ItemCard key={item.id} product={item} />
                             ))}
                         </motion.div>
-                    ) : (
+                    ) : ( // No products found after loading (or if filters result in nothing)
                         <motion.div 
-                            initial={{ opacity: 0 }} 
-                            animate={{ opacity: 1 }} 
+                            key="empty"
                             className="flex flex-col items-center justify-center py-32 text-center"
                         >
-                            <div className="w-20 h-20 bg-white/5 rounded-full flex items-center justify-center mb-6 border border-white/10">
-                                <Search size={32} className="text-attire-silver/50" />
-                            </div>
+                            <Search size={32} className="text-attire-silver/50 mb-6" />
                             <h3 className="text-2xl font-serif text-white mb-2">No items found</h3>
-                            <p className="text-attire-silver/60 text-sm">Try adjusting your filters to find what you're looking for.</p>
-                            <button 
-                                onClick={clearFilters}
-                                className="mt-8 text-[10px] uppercase tracking-[0.2em] font-bold text-attire-accent hover:text-white transition-colors underline underline-offset-8"
-                            >
-                                Reset Filters
-                            </button>
+                            <button onClick={clearFilters} className="mt-8 text-[10px] uppercase tracking-[0.2em] font-bold text-attire-accent">Reset Filters</button>
                         </motion.div>
                     )}
                 </AnimatePresence>
 
-                {/* Enhanced Pagination */}
-                {totalPages > 1 && (
-                    <div className="flex justify-center items-center gap-12 mt-32">
-                        <button
-                            onClick={() => handlePageChange(currentPage - 1)}
-                            disabled={currentPage === 1}
-                            className="group flex flex-col items-center gap-4 text-white/20 hover:text-white disabled:opacity-0 transition-all duration-700"
+                {hasMore && (
+                    <motion.div 
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: 0.5 }}
+                        className="flex justify-center mt-24"
+                    >
+                        <button 
+                            onClick={handleLoadMore} 
+                            disabled={isFetching}
+                            className="group flex items-center justify-center gap-3 px-8 py-4 bg-white text-black text-[11px] font-bold uppercase tracking-[0.5em] transition-all duration-700 relative overflow-hidden"
                         >
-                            <ChevronLeft size={24} strokeWidth={1} className="group-hover:-translate-x-4 transition-transform duration-700" />
-                            <span className="text-[8px] uppercase tracking-[0.4em] font-bold">Previous</span>
+                            <span className="relative z-10">{isFetching ? 'Loading More...' : 'Load More Products'}</span>
+                            {!isFetching && <ChevronDown size={18} className="relative z-10 group-hover:translate-y-1 transition-transform duration-500" />}
+                            <div className="absolute inset-0 bg-attire-accent translate-y-full group-hover:translate-y-0 transition-transform duration-700" />
                         </button>
-                        
-                        <div className="flex flex-col items-center gap-2">
-                             <div className="text-attire-accent font-serif italic text-xl">
-                                {currentPage.toString().padStart(2, '0')}
-                            </div>
-                            <div className="w-12 h-px bg-white/10" />
-                            <div className="text-white/20 text-[10px] font-bold">
-                                {totalPages.toString().padStart(2, '0')}
-                            </div>
-                        </div>
-
-                        <button
-                            onClick={() => handlePageChange(currentPage + 1)}
-                            disabled={currentPage === totalPages}
-                            className="group flex flex-col items-center gap-4 text-white/20 hover:text-white disabled:opacity-0 transition-all duration-700"
-                        >
-                            <ChevronRight size={24} strokeWidth={1} className="group-hover:translate-x-4 transition-transform duration-700" />
-                            <span className="text-[8px] uppercase tracking-[0.4em] font-bold">Next Page</span>
-                        </button>
-                    </div>
+                    </motion.div>
                 )}
             </main>
         </motion.div>
     );
 };
 
-const Controls = ({ 
-    sortOrder, 
-    setSortOrder, 
-    selectedCollections, 
-    handleCollectionToggle, 
-    clearFilters,
-    removeCollectionFilter
-}) => {
-    return (
-        <div className="w-full max-w-6xl mx-auto relative z-40">
-            <motion.div 
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.3, duration: 0.5 }}
-                className="relative z-50 bg-attire-navy/80 backdrop-blur-xl border border-white/20 rounded-full p-1 sm:p-1.5 flex items-center justify-between shadow-2xl"
-            >
-                <div className="flex items-center">
-                    <CollectionDropdown 
-                        selectedCollections={selectedCollections}
-                        handleCollectionToggle={handleCollectionToggle}
-                    />
-                </div>
+const Controls = ({ sortOrder, setSortOrder, selectedCollections, handleCollectionToggle, clearFilters, removeCollectionFilter }) => (
+    <div className="w-full max-w-6xl mx-auto relative">
+        <div className="bg-attire-navy/80 backdrop-blur-xl border border-white/20 rounded-full p-1.5 flex items-center justify-between">
+            <CollectionDropdown selectedCollections={selectedCollections} handleCollectionToggle={handleCollectionToggle} />
+            <FilterSortDropdown sortOrder={sortOrder} setSortOrder={setSortOrder} />
+        </div>
+        {selectedCollections.length > 0 && (
+            <div className="flex items-center flex-wrap gap-2 mt-6 px-6">
+                {selectedCollections.map(slug => (
+                    <FilterTag key={slug} onRemove={() => removeCollectionFilter(slug)}>
+                        {allCollections.find(c => c.slug === slug)?.title || slug}
+                    </FilterTag>
+                ))}
+                <button onClick={clearFilters} className="text-[9px] uppercase tracking-[0.2em] font-bold text-white bg-red-900 px-4 py-2 rounded-full">Clear All</button>
+            </div>
+        )}
+    </div>
+);
 
-                <div className="flex-shrink-0 border-l border-white/10 pl-1 sm:pl-2">
-                    <FilterSortDropdown 
-                        sortOrder={sortOrder} 
-                        setSortOrder={setSortOrder} 
-                    />
-                </div>
-            </motion.div>
-            
-            {/* Active Filters Display */}
-            <AnimatePresence>
-                {selectedCollections.length > 0 && (
-                    <motion.div 
-                        initial={{ opacity: 0, y: -10 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        exit={{ opacity: 0, y: -10 }}
-                        className="relative z-10 flex flex-col sm:flex-row sm:items-center flex-wrap gap-4 mt-6 px-6"
-                    >
-                        <div className="flex items-center flex-wrap gap-2">
-                            <span className="text-[9px] text-white uppercase tracking-[0.3em] font-bold mr-2">Filtering By:</span>
-                            {selectedCollections.map(slug => {
-                                const collection = allCollections.find(c => c.slug === slug);
-                                return (
-                                    <FilterTag key={slug} onRemove={() => removeCollectionFilter(slug)}>
-                                        {collection?.title || slug}
-                                    </FilterTag>
-                                );
-                            })}
-                        </div>
-                        <button
-                            onClick={clearFilters}
-                            className="text-[9px] uppercase tracking-[0.2em] font-bold text-white bg-red-900 border border-red-800 px-4 py-2 rounded-full sm:ml-auto transition-all duration-300 self-start sm:self-auto shadow-xl hover:bg-red-700"
-                        >
-                            Clear All
+const CollectionDropdown = ({ selectedCollections, handleCollectionToggle }) => {
+    const [isOpen, setIsOpen] = useState(false);
+    const dropdownRef = useRef(null);
+    const label = selectedCollections.length === 0 ? 'All Collections' : allCollections.find(c => c.slug === selectedCollections[0])?.title || 'Selected';
+
+    return (
+        <div ref={dropdownRef} className="relative">
+            <button onClick={() => setIsOpen(!isOpen)} className="px-6 py-2.5 text-[10px] font-bold uppercase tracking-[0.2em] text-white/60 hover:text-white flex items-center gap-2">
+                {label} <ChevronDown size={14} className={isOpen ? 'rotate-180' : ''} />
+            </button>
+            {isOpen && (
+                <div className="absolute left-0 mt-4 w-64 bg-[#050810] border border-white/10 rounded-2xl py-2 z-[300]">
+                    {allCollections.map(c => (
+                        <button key={c.id} onClick={() => { handleCollectionToggle(c.slug); setIsOpen(false); }} className={`w-full px-6 py-3 text-[10px] uppercase font-bold text-left ${selectedCollections.includes(c.slug) ? 'text-attire-accent' : 'text-white/40 hover:text-white'}`}>
+                            {c.title}
                         </button>
-                    </motion.div>
-                )}
-            </AnimatePresence>
+                    ))}
+                </div>
+            )}
         </div>
     );
 };
 
-const CollectionDropdown = ({
-    selectedCollections, 
-    handleCollectionToggle
-}) => {
+const FilterSortDropdown = ({ sortOrder, setSortOrder }) => {
     const [isOpen, setIsOpen] = useState(false);
-    const dropdownRef = useRef(null);
-
-    useEffect(() => {
-        const handleClickOutside = (event) => {
-            if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
-                setIsOpen(false);
-            }
-        };
-        document.addEventListener("mousedown", handleClickOutside);
-        return () => document.removeEventListener("mousedown", handleClickOutside);
-    }, []);
-
-    const selectedCount = selectedCollections.length;
-    const label = selectedCount === 0 
-        ? 'All Collections' 
-        : selectedCount === 1 
-            ? allCollections.find(c => c.slug === selectedCollections[0])?.title || '1 Collection'
-            : `${selectedCount} Collections`;
+    const label = sortOptions.find(opt => opt.value === sortOrder)?.label || 'Sort By';
 
     return (
-        <div ref={dropdownRef} className="relative">
-            <button
-                onClick={() => setIsOpen(!isOpen)}
-                className="flex items-center gap-2 px-4 sm:px-6 py-2 sm:py-2.5 bg-transparent hover:bg-white/5 rounded-full text-[9px] sm:text-[10px] font-bold uppercase tracking-[0.2em] text-white/60 hover:text-white transition-all focus:outline-none"
-            >
-                <span className="truncate max-w-[120px] sm:max-w-none">{label}</span>
-                <ChevronDown size={14} className={`text-white/20 transition-transform duration-500 shrink-0 ${isOpen ? 'rotate-180' : ''}`} />
+        <div className="relative">
+            <button onClick={() => setIsOpen(!isOpen)} className="px-6 py-2.5 text-[10px] font-bold uppercase tracking-[0.2em] text-white/60 hover:text-white flex items-center gap-2">
+                {label} <ChevronDown size={14} className={isOpen ? 'rotate-180' : ''} />
             </button>
-            <AnimatePresence>
-                {isOpen && (
-                    <motion.div
-                        initial={{ opacity: 0, y: 10, scale: 0.95 }}
-                        animate={{ opacity: 1, y: 0, scale: 1 }}
-                        exit={{ opacity: 0, y: 10, scale: 0.95 }}
-                        transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
-                        className="absolute left-0 mt-4 w-64 bg-[#050810] border border-white/10 rounded-2xl shadow-2xl overflow-hidden py-2 z-[300]"
-                    >
-                        {allCollections.map(collection => (
-                            <button
-                                key={collection.id}
-                                onClick={() => {
-                                    handleCollectionToggle(collection.slug);
-                                }}
-                                className={`w-full flex items-center justify-between px-6 py-3 text-[10px] font-bold uppercase tracking-widest text-left transition-colors ${
-                                    selectedCollections.includes(collection.slug)
-                                        ? 'bg-white/10 text-attire-accent' 
-                                        : 'text-white/40 hover:bg-white/5 hover:text-white'
-                                }`}
-                            >
-                                <span>{collection.title}</span>
-                                {selectedCollections.includes(collection.slug) && <Check size={12} />}
-                            </button>
-                        ))}
-                    </motion.div>
-                )}
-            </AnimatePresence>
+            {isOpen && (
+                <div className="absolute right-0 mt-4 w-56 bg-[#050810] border border-white/10 rounded-2xl py-2 z-[300]">
+                    {sortOptions.map(opt => (
+                        <button key={opt.value} onClick={() => { setSortOrder(opt.value); setIsOpen(false); }} className={`w-full px-6 py-3 text-[10px] uppercase font-bold text-left ${sortOrder === opt.value ? 'text-attire-accent' : 'text-white/40 hover:text-white'}`}>
+                            {opt.label}
+                        </button>
+                    ))}
+                </div>
+            )}
         </div>
     );
 };
 
 const FilterTag = ({ children, onRemove }) => (
-    <motion.div
-        layout
-        initial={{ opacity: 0, scale: 0.8 }}
-        animate={{ opacity: 1, scale: 1 }}
-        exit={{ opacity: 0, scale: 0.8 }}
-        className="flex items-center gap-3 bg-attire-dark border border-white/10 text-white rounded-full pl-4 pr-2 py-1.5 text-[10px] font-bold tracking-wide shadow-xl"
-    >
+    <div className="flex items-center gap-3 bg-attire-dark border border-white/10 text-white rounded-full pl-4 pr-2 py-1.5 text-[10px] font-bold">
         <span className="opacity-60">{children}</span>
-        <button onClick={onRemove} className="p-1 hover:bg-white/10 rounded-full transition-colors">
-            <X size={12} className="text-white/40" />
-        </button>
-    </motion.div>
+        <button onClick={onRemove} className="p-1 hover:bg-white/10 rounded-full"><X size={12} /></button>
+    </div>
 );
-
-const FilterSortDropdown = ({
-    sortOrder, 
-    setSortOrder
-}) => {
-    const [isOpen, setIsOpen] = useState(false);
-    const dropdownRef = useRef(null);
-
-    useEffect(() => {
-        const handleClickOutside = (event) => {
-            if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
-                setIsOpen(false);
-            }
-        };
-        document.addEventListener("mousedown", handleClickOutside);
-        return () => document.removeEventListener("mousedown", handleClickOutside);
-    }, []);
-
-    const selectedLabel = sortOptions.find(opt => opt.value === sortOrder)?.label || 'Sort By';
-
-    return (
-        <div ref={dropdownRef} className="static sm:relative">
-            <button
-                onClick={() => setIsOpen(!isOpen)}
-                className="flex items-center gap-2 px-3 sm:px-6 py-2 sm:py-2.5 bg-transparent hover:bg-white/5 rounded-full text-[9px] sm:text-[10px] font-bold uppercase tracking-[0.2em] text-white/60 hover:text-white transition-all focus:outline-none"
-            >
-                <span className="truncate max-w-[60px] sm:max-w-none">{selectedLabel}</span>
-                <ChevronDown size={14} className={`text-white/20 transition-transform duration-500 shrink-0 ${isOpen ? 'rotate-180' : ''}`} />
-            </button>
-            <AnimatePresence>
-                {isOpen && (
-                    <motion.div
-                        initial={{ opacity: 0, y: 10, scale: 0.95 }}
-                        animate={{ opacity: 1, y: 0, scale: 1 }}
-                        exit={{ opacity: 0, y: 10, scale: 0.95 }}
-                        transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
-                        className="absolute left-0 right-0 sm:left-auto sm:right-0 mt-4 sm:w-56 bg-[#050810] border border-white/10 rounded-2xl shadow-2xl overflow-hidden py-2 z-[300]"
-                    >
-                        {sortOptions.map(option => (
-                            <button
-                                key={option.value}
-                                onClick={() => {
-                                    setSortOrder(option.value);
-                                    setIsOpen(false);
-                                }}
-                                className={`w-full flex items-center justify-between px-6 py-3 text-[10px] font-bold uppercase tracking-widest text-left transition-colors ${
-                                    sortOrder === option.value 
-                                        ? 'bg-white/10 text-attire-accent' 
-                                        : 'text-white/40 hover:bg-white/5 hover:text-white'
-                                }`}
-                            >
-                                <span>{option.label}</span>
-                                {sortOrder === option.value && <Check size={12} />}
-                            </button>
-                        ))}
-                    </motion.div>
-                )}
-            </AnimatePresence>
-        </div>
-    );
-};
 
 export default ProductListPage;

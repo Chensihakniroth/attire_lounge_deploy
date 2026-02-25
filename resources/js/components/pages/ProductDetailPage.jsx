@@ -1,10 +1,11 @@
 import React, { useState, useEffect, useMemo, useRef, useLayoutEffect } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { motion, AnimatePresence, useMotionValue, useTransform, useScroll } from 'framer-motion';
-import { ChevronLeft, Heart, Plus, ArrowRight, ChevronUp } from 'lucide-react';
+import { ChevronLeft, Heart, Plus, ArrowRight, ChevronUp, Loader2 } from 'lucide-react';
 import OptimizedImage from '../common/OptimizedImage.jsx';
-import { products as allProducts } from '../../data/products.js';
 import { useFavorites } from '../../context/FavoritesContext.jsx';
+import { useProduct } from '../../hooks/useProducts';
+import SEO from '../common/SEO';
 
 const transitionBase = { duration: 1, ease: [0.22, 1, 0.36, 1] };
 const stagger = {
@@ -22,19 +23,18 @@ const slideUp = {
 };
 
 const ProductDetailPage = () => {
-    const { productId } = useParams();
+    const { productId } = useParams(); // This is the slug (e.g., 'g1')
     const navigate = useNavigate();
     const { favorites, toggleFavorite } = useFavorites();
     
     const leftPaneRef = useRef(null);
     const rightPaneRef = useRef(null);
-    const [activePane, setActivePane] = useState('right');
-    const [progressLeft, setProgressLeft] = useState(0);
-
     const [isReady, setIsReady] = useState(false);
 
+    // Fetch product data using our "Gold Standard" hook! ✨
+    const { data: product, isLoading, isError } = useProduct(productId);
+
     useEffect(() => {
-        // A short delay to ensure the page layout is stable before applying scroll-based animations.
         const timer = setTimeout(() => setIsReady(true), 100);
         return () => clearTimeout(timer);
     }, []);
@@ -43,23 +43,33 @@ const ProductDetailPage = () => {
     const scaleTransform = useTransform(scrollYProgress, [0, 1], [1, 1.1]);
     const scale = isReady ? scaleTransform : 1;
 
-    const product = useMemo(() => 
-        allProducts.find(p => p.id === productId), 
-    [productId]);
-
-
-
     useLayoutEffect(() => {
         window.scrollTo({ top: 0, behavior: 'instant' });
     }, [productId]);
-
-    if (!product) return null;
 
     const pageMotion = {
         initial: { opacity: 0 },
         animate: { opacity: 1, transition: { duration: 0.8, ease: [0.22, 1, 0.36, 1] } },
         exit: { opacity: 0, transition: { duration: 0.4, ease: [0.22, 1, 0.36, 1] } }
     };
+
+    if (isLoading) {
+        return (
+            <div className="min-h-screen bg-[#0a0a0a] flex flex-col items-center justify-center">
+                <Loader2 className="w-12 h-12 text-attire-accent animate-spin mb-4" />
+                <p className="text-attire-silver/60 text-xs uppercase tracking-widest">Unveiling Perfection...</p>
+            </div>
+        );
+    }
+
+    if (isError || !product) {
+        return (
+            <div className="min-h-screen bg-[#0a0a0a] flex flex-col items-center justify-center text-center px-6">
+                <h2 className="text-3xl font-serif text-white mb-4">Product Not Found</h2>
+                <button onClick={() => navigate('/products')} className="text-attire-accent uppercase tracking-widest text-xs border-b border-attire-accent pb-1">Back to Collections</button>
+            </div>
+        );
+    }
 
     return (
         <motion.div
@@ -69,6 +79,11 @@ const ProductDetailPage = () => {
             exit="exit"
             variants={pageMotion}
         >
+            <SEO 
+                title={`${product.name} | ${product.collection}`}
+                description={product.description || `Experience the ${product.name} from our ${product.collection}. Premium bespoke tailoring at Attire Lounge.`}
+                image={product.images[0]}
+            />
             
             <style>
                 {`
@@ -88,12 +103,12 @@ const ProductDetailPage = () => {
                 </button>
 
                 <button 
-                    onClick={() => toggleFavorite(product.id)}
+                    onClick={() => toggleFavorite(product.slug)}
                     className="w-12 h-12 rounded-full border border-white/5 flex items-center justify-center pointer-events-auto hover:border-white/20 transition-all duration-500 group backdrop-blur-md"
                 >
                     <Heart 
                         size={20} 
-                        className={`transition-all duration-500 ${favorites.includes(product.id) ? 'fill-attire-accent text-attire-accent' : 'text-white/40 group-hover:text-white'}`} 
+                        className={`transition-all duration-500 ${favorites.includes(product.slug) ? 'fill-attire-accent text-attire-accent' : 'text-white/40 group-hover:text-white'}`} 
                     />
                 </button>
             </div>
@@ -103,6 +118,7 @@ const ProductDetailPage = () => {
                 <motion.div style={{ scale }} className="absolute inset-0">
                     <OptimizedImage
                         src={product.images[0]}
+                        fallback={product.images.length > 1 ? product.images[1] : null}
                         alt={product.name}
                         objectFit="cover"
                         containerClassName="w-full h-full"
@@ -112,7 +128,6 @@ const ProductDetailPage = () => {
                 </motion.div>
                 <div className="absolute inset-0 bg-black/10" />
 
-                {/* Mobile Swipe Indicator */}
                 <motion.div 
                     initial={{ opacity: 0 }}
                     transition={{ duration: 0.5 }}
@@ -143,6 +158,7 @@ const ProductDetailPage = () => {
                     >
                         <OptimizedImage
                             src={product.images[0]}
+                            fallback={product.images.length > 1 ? product.images[1] : null}
                             alt={product.name}
                             objectFit="contain"
                             containerClassName="w-full min-h-screen"
@@ -151,16 +167,14 @@ const ProductDetailPage = () => {
                             priority={true}
                             loading="eager"
                         />
-                        {/* If there are more images, they could go here */}
                     </motion.div>
                 </section>
 
-                {/* RIGHT: CONTENT PANE (SCROLLS OVER IMAGE ON MOBILE) */}
+                {/* RIGHT: CONTENT PANE */}
                 <section 
                     ref={rightPaneRef}
                     className="w-full lg:w-[40%] xl:w-[35%] no-scrollbar lg:bg-[#0a0a0a] lg:border-l border-white/5 scroll-smooth"
                 >
-                    {/* Spacer for Mobile: Set to full screen so text starts completely hidden */}
                     <div className="h-screen lg:hidden pointer-events-none" />
 
                     <motion.div 
@@ -169,7 +183,6 @@ const ProductDetailPage = () => {
                         animate="animate"
                         className="p-8 md:p-12 lg:p-16 xl:p-20 pt-16 lg:pt-32 space-y-12 bg-[#0a0a0a] lg:bg-transparent rounded-t-[40px] lg:rounded-none shadow-[0_-40px_80px_rgba(0,0,0,0.8)] lg:shadow-none"
                     >
-                        {/* 1. BRANDING */}
                         <div className="space-y-6">
                             <motion.div variants={slideUp} className="flex flex-col gap-2">
                                 <span className="text-[10px] font-bold uppercase tracking-[0.6em] text-attire-accent">
@@ -190,11 +203,10 @@ const ProductDetailPage = () => {
                             </div>
                         </div>
 
-                        {/* 2. TECHNICAL SPECIFICATIONS GRID */}
                         <motion.div variants={slideUp} className="grid grid-cols-2 gap-px bg-white/5 border border-white/5 overflow-hidden rounded-sm">
                             {[
                                 { label: 'Fabric', value: product.fabric || 'Premium Wool Blend' },
-                                { label: 'Color', value: product.color || 'Signature Hue' },
+                                { label: 'Status', value: product.in_stock ? 'Available' : 'Consult Stylist' },
                                 { label: 'Silhouette', value: 'Modern Tailored' },
                                 { label: 'Details', value: 'Hand-Finished' }
                             ].map((spec) => (
@@ -205,26 +217,27 @@ const ProductDetailPage = () => {
                             ))}
                         </motion.div>
 
-                        {/* 3. THE NARRATIVE */}
                         <div className="space-y-8">
                             <motion.div variants={slideUp} className="h-px w-full bg-gradient-to-r from-white/10 via-white/5 to-transparent" />
                             
                             <motion.div variants={slideUp} className="space-y-6">
                                 <p className="text-base xl:text-lg text-attire-silver/70 leading-relaxed font-light font-serif italic">
-                                    {product.detailed_description || product.description || "An exceptional piece of tailoring, merging classic heritage with a contemporary silhouette."}
+                                    {product.description || "An exceptional piece of tailoring, merging classic heritage with a contemporary silhouette."}
                                 </p>
                             </motion.div>
 
-                            <motion.div variants={slideUp} className="space-y-4">
-                                <h4 className="text-[10px] uppercase tracking-[0.4em] font-bold text-white/40">Availability</h4>
-                                <p className="text-xs text-white/60 font-light leading-relaxed">
-                                    Available in {product.available_colors || 'Consult Stylist'}. 
-                                    Each piece is meticulously inspected by our Milan-certified styling team before delivery.
-                                </p>
-                            </motion.div>
+                            {product.sizes && (
+                                <motion.div variants={slideUp} className="space-y-4">
+                                    <h4 className="text-[10px] uppercase tracking-[0.4em] font-bold text-white/40">Available Sizes</h4>
+                                    <div className="flex flex-wrap gap-2">
+                                        {Array.isArray(product.sizes) ? product.sizes.map(size => (
+                                            <span key={size} className="px-3 py-1 border border-white/10 text-[10px] text-white/60">{size}</span>
+                                        )) : <span className="text-xs text-white/60 italic">Consult Stylist for sizing</span>}
+                                    </div>
+                                </motion.div>
+                            )}
                         </div>
 
-                        {/* 4. CALL TO ACTION */}
                         <motion.div variants={slideUp} className="pt-8 pb-32">
                             <button className="group w-full py-7 bg-white text-black text-[11px] font-bold uppercase tracking-[0.5em] transition-all duration-700 flex items-center justify-center gap-4 relative overflow-hidden">
                                 <span className="relative z-10">Request Appointment</span>
@@ -237,11 +250,8 @@ const ProductDetailPage = () => {
                         </motion.div>
                     </motion.div>
                 </section>
-
-
             </main>
 
-            {/* Subtle Texture Layer */}
             <div className="fixed inset-0 pointer-events-none z-[200] opacity-[0.02] mix-blend-overlay">
                 <svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
                     <filter id="noise"><feTurbulence type="fractalNoise" baseFrequency="0.65" numOctaves="3" /></filter>

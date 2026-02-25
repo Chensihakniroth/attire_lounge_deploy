@@ -5,6 +5,7 @@ import { AnimatePresence, motion } from 'framer-motion';
 import Lenis from 'lenis';
 import usePullToRefresh from '../hooks/usePullToRefresh';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { HelmetProvider } from 'react-helmet-async';
 
 // Initialize QueryClient
 const queryClient = new QueryClient({
@@ -331,15 +332,17 @@ function MainApp() {
     });
     
     return (
-        <QueryClientProvider client={queryClient}>
-            <Router>
-                <LenisScroll />
-                {/* ScrollToTop removed as it conflicts with exit animations, handled in onExitComplete */}
-                <Suspense fallback={<LoadingSpinner />}>
-                    <AnimatedRoutes />
-                </Suspense>
-            </Router>
-        </QueryClientProvider>
+        <HelmetProvider>
+            <QueryClientProvider client={queryClient}>
+                <Router>
+                    <LenisScroll />
+                    {/* ScrollToTop removed as it conflicts with exit animations, handled in onExitComplete */}
+                    <Suspense fallback={<LoadingSpinner />}>
+                        <AnimatedRoutes />
+                    </Suspense>
+                </Router>
+            </QueryClientProvider>
+        </HelmetProvider>
     );
 }
 

@@ -42,7 +42,7 @@ const CollectionsPage = () => {
         slug: 'products',
         title: 'Browse All',
         description: 'Explore our entire range of products.',
-        image: `${minioBaseUrl}/uploads/collections/default/of3.jpg`,
+        image: `${minioBaseUrl}/uploads/collections/default/of3.jpg?v=new`,
         itemsCount: 'All'
     };
 

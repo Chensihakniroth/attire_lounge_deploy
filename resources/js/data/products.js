@@ -254,14 +254,14 @@ export const collections = [
       "slug": "havana-collection",
       "title": "Havana Collection",
       "description": "Inspired by the vibrant, relaxed energy of Cuba.",
-      "image": `${minioBaseUrl}/uploads/collections/default/hvn1.jpg`
+      "image": `${minioBaseUrl}/uploads/collections/default/hvn1.jpg?v=new`
     },
     {
       "id": 2,
       "slug": "mocha-mousse-25",
       "title": "Mocha Mousse '25",
       "description": "Rich, earthy tones meet modern, sharp silhouettes.",
-      "image": `${minioBaseUrl}/uploads/collections/default/mm1.jpg`
+      "image": `${minioBaseUrl}/uploads/collections/default/mm1.jpg?v=new`
     },
     {
       "id": 3,
@@ -272,16 +272,23 @@ export const collections = [
     },
     {
       "id": 4,
+      "slug": "office-collections",
+      "title": "Office Collections",
+      "description": "Sharp, professional attire for the modern workplace.",
+      "image": `${minioBaseUrl}/uploads/collections/default/of1.jpg?v=new`
+    },
+    {
+      "id": 5,
+      "slug": "travel-collection",
+      "title": "Travel Collection",
+      "description": "Discover suits designed for the modern traveler.",
+      "image": `${minioBaseUrl}/uploads/collections/Travel%20collections/t0.webp`
+    },
+    {
+      "id": 6,
       "slug": "accessories",
       "title": "Accessories",
       "description": "The finishing touches that define your style.",
       "image": `${minioBaseUrl}/uploads/collections/accessories/cuff.JPG`
-    },
-    {
-      "id": 5,
-      "slug": "traveling-collection",
-      "title": "Traveling Collection",
-      "description": "Discover suits designed for the modern traveler.",
-      "image": `${minioBaseUrl}/uploads/collections/Travel%20collections/t0.webp`
     }
 ];

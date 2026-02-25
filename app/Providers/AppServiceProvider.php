@@ -15,6 +15,11 @@ class AppServiceProvider extends ServiceProvider
             \App\Repositories\Interfaces\AppointmentRepositoryInterface::class,
             \App\Repositories\Eloquent\AppointmentRepository::class
         );
+
+        $this->app->bind(
+            \App\Repositories\Interfaces\ProductRepositoryInterface::class,
+            \App\Repositories\Eloquent\ProductRepository::class
+        );
     }
 
     /**

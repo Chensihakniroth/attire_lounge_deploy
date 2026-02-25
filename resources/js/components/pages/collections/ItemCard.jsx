@@ -14,17 +14,19 @@ const itemVariants = {
 const ItemCard = memo(({ product }) => {
     const navigate = useNavigate();
     const imageUrl = product.images && product.images.length > 0 ? product.images[0] : '/path/to/default/image.jpg';
+    const fallbackUrl = product.images && product.images.length > 1 ? product.images[1] : null;
 
     return (
         <motion.div
             className="text-left cursor-pointer group"
-            onClick={() => navigate(`/product/${product.id}`)}
+            onClick={() => navigate(`/product/${product.slug}`)}
             variants={itemVariants}
             transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
         >
             <div className="relative overflow-hidden aspect-[3/4] rounded-sm bg-white/5">
                 <OptimizedImage 
                     src={imageUrl} 
+                    fallback={fallbackUrl}
                     alt={product.name} 
                     className="w-full h-full object-cover" 
                 />
