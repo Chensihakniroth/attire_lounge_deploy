@@ -8,6 +8,7 @@ use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 use App\Http\Resources\ProductResource;
 use App\Http\Resources\CollectionResource;
+use App\DTOs\ProductFilterDTO;
 use Illuminate\Support\Facades\Cache;
 
 class ProductController extends Controller
@@ -27,7 +28,8 @@ class ProductController extends Controller
      */
     public function index(Request $request): JsonResponse
     {
-        $products = $this->productService->getPaginatedProducts($request->all());
+        $dto = ProductFilterDTO::fromRequest($request);
+        $products = $this->productService->getPaginatedProducts($dto);
 
         return response()->json([
             'success' => true,

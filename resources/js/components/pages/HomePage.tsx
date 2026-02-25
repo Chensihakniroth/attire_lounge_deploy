@@ -1,7 +1,7 @@
-// resources/js/components/pages/HomePage.jsx - V6 (Final Polish with Glass Effects)
-import React, { useEffect, useRef, useState, useCallback, forwardRef, memo } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { Users, Scissors, Coffee, ArrowRight, Gem, Feather, Palette, ChevronDown, CheckCircle, BookOpen, Camera, Sparkles, Play, Gift, Wine, Crown, CreditCard } from 'lucide-react';
+// resources/js/components/pages/HomePage.tsx - V6 (Final Polish with Glass Effects)
+import React, { useEffect, useRef, useState, useCallback, forwardRef, memo, ReactElement } from 'react';
+import { motion, AnimatePresence, Variants } from 'framer-motion';
+import { Users, Scissors, Coffee, ArrowRight, BookOpen, Camera, Sparkles, Play, Gift, Wine, Crown, CreditCard } from 'lucide-react';
 import Footer from '../layouts/Footer.jsx';
 import { Link, useLocation } from 'react-router-dom';
 import SectionIndicator from './SectionIndicator.jsx';
@@ -11,8 +11,33 @@ import SEO from '../common/SEO';
 
 import minioBaseUrl from '../../config.js';
 
+interface Service {
+  name: string;
+  description: string;
+  icon: ReactElement;
+}
+
+interface LookbookFeature {
+  title: string;
+  description: string;
+  icon: ReactElement;
+}
+
+interface Tip {
+  title: string;
+  image: string;
+  link: string;
+  description: string;
+}
+
+interface HomePageData {
+  services: Service[];
+  lookbookFeatures: LookbookFeature[];
+  tipsAndTricks: Tip[];
+}
+
 // --- Data Store for Homepage Sections ---
-const homePageData = {
+const homePageData: HomePageData = {
   services: [
     { name: "Milan-Certified Styling", description: "Receive a free, expert styling consultation from our Milan-certified team to discover the perfect look for you.", icon: <Users size={32} className="text-[#f5a81c]" /> },
     { name: "The Perfect Fit", description: "We offer diverse sizes and provide complimentary in-house alterations to ensure your garments fit impeccably.", icon: <Scissors size={32} className="text-[#f5a81c]" /> },
@@ -58,18 +83,22 @@ const homePageData = {
 };
 
 // --- Animation Variants ---
-const containerVariants = {
+const containerVariants: Variants = {
   hidden: {},
   visible: { transition: { staggerChildren: 0.2, delayChildren: 0.2 } }
 };
-const itemVariants = {
+const itemVariants: Variants = {
   hidden: { opacity: 0, y: 30 },
   visible: { opacity: 1, y: 0, transition: { duration: 0.4, ease: 'easeOut' } }
 };
 
 // --- Section Components (Memoized for performance) ---
 
-const HeroSection = memo(forwardRef(({ scrollToSection }, ref) => (
+interface HeroSectionProps {
+  scrollToSection: (index: number) => void;
+}
+
+const HeroSection = memo(forwardRef<HTMLElement, HeroSectionProps>(({ scrollToSection }, ref) => (
   <section className="relative snap-section overflow-hidden min-h-screen h-screen" ref={ref}>
     <div className="absolute inset-0 w-full h-full overflow-hidden">
       <video 
@@ -136,7 +165,7 @@ const HeroSection = memo(forwardRef(({ scrollToSection }, ref) => (
   </section>
 )));
 
-const PhilosophySection = memo(forwardRef((props, ref) => (
+const PhilosophySection = memo(forwardRef<HTMLElement>((_props, ref) => (
     <section className="relative snap-section min-h-screen h-screen grid grid-cols-1 lg:grid-cols-2 items-center bg-[#0d3542] overflow-hidden" ref={ref}>
       {/* Ambient Light */}
       <div className="absolute top-0 left-0 w-[400px] h-[400px] bg-[#f5a81c]/5 rounded-full blur-[120px] pointer-events-none" />
@@ -200,7 +229,7 @@ const PhilosophySection = memo(forwardRef((props, ref) => (
     </section>
 )));
 
-const CollectionsSection = memo(forwardRef((props, ref) => {
+const CollectionsSection = memo(forwardRef<HTMLElement>((_props, ref) => {
     const showcaseImages = [
         `${minioBaseUrl}/uploads/collections/default/hvn1.jpg?v=new`,
         `${minioBaseUrl}/uploads/collections/default/mm1.jpg?v=new`,
@@ -214,7 +243,7 @@ const CollectionsSection = memo(forwardRef((props, ref) => {
             setCurrentImageIndex((prev) => (prev + 1) % showcaseImages.length);
         }, 3000);
         return () => clearInterval(interval);
-    }, []);
+    }, [showcaseImages.length]);
 
     return (
         <section className="relative snap-section min-h-screen h-screen flex items-center bg-[#0d3542] overflow-hidden" ref={ref}>
@@ -304,7 +333,11 @@ const CollectionsSection = memo(forwardRef((props, ref) => {
     );
 }));
 
-const ExperienceSection = memo(forwardRef(({ services }, ref) => (
+interface ExperienceSectionProps {
+  services: Service[];
+}
+
+const ExperienceSection = memo(forwardRef<HTMLElement, ExperienceSectionProps>(({ services }, ref) => (
   <section className="relative snap-section min-h-screen h-screen flex items-center bg-[#0d3542] overflow-hidden" ref={ref}>
     {/* Mobile Background Image (Absolute) */}
     <div className="absolute inset-0 z-0 lg:hidden">
@@ -360,7 +393,7 @@ const ExperienceSection = memo(forwardRef(({ services }, ref) => (
                             <div className="shrink-0 mt-1">
                                 {/* Minimal Icon: Simple circle, subtle interaction */}
                                 <div className="p-3 rounded-full bg-white/5 text-[#f5a81c] group-hover:bg-[#f5a81c] group-hover:text-white transition-all duration-500 ease-out">
-                                    {React.cloneElement(service.icon, { size: 20, className: "current-color" })}
+                                    {React.cloneElement(service.icon, { size: 20, className: "current-color" } as any)}
                                 </div>
                             </div>
                             <div>
@@ -380,7 +413,7 @@ const ExperienceSection = memo(forwardRef(({ services }, ref) => (
 
 
 
-const MembershipSection = memo(forwardRef((props, ref) => (
+const MembershipSection = memo(forwardRef<HTMLElement>((_props, ref) => (
     <section className="relative snap-section min-h-screen h-screen flex items-center bg-[#0d3542] overflow-hidden" ref={ref}>
         {/* Mobile Background Image (Absolute) */}
         <div className="absolute inset-0 z-0 lg:hidden">
@@ -501,7 +534,8 @@ const MembershipSection = memo(forwardRef((props, ref) => (
                         </div>
                     </section>
                 )));
-const LookbookSection = memo(forwardRef((props, ref) => (
+
+const LookbookSection = memo(forwardRef<HTMLElement>((_props, ref) => (
   <section className="relative snap-section min-h-screen h-screen w-full overflow-hidden flex items-center justify-center" ref={ref}>
       {/* Single Cinematic Background Image */}
       <div className="absolute inset-0 z-0">
@@ -549,7 +583,11 @@ const LookbookSection = memo(forwardRef((props, ref) => (
   </section>
 )));
 
-const TipsAndTricksSection = memo(forwardRef(({ tipsAndTricks }, ref) => {
+interface TipsAndTricksSectionProps {
+  tipsAndTricks: Tip[];
+}
+
+const TipsAndTricksSection = memo(forwardRef<HTMLElement, TipsAndTricksSectionProps>(({ tipsAndTricks }, ref) => {
   const [hoveredIndex, setHoveredIndex] = useState(1); // Center card active by default
 
   return (
@@ -644,7 +682,7 @@ const TipsAndTricksSection = memo(forwardRef(({ tipsAndTricks }, ref) => {
 }));
 
 
-const FooterSection = memo(forwardRef((props, ref) => (
+const FooterSection = memo(forwardRef<HTMLElement>((_props, ref) => (
   <section className="relative snap-section !h-auto !min-h-screen !overflow-visible bg-black" ref={ref}>
     <div className="w-full">
       <Footer />
@@ -656,38 +694,39 @@ const FooterSection = memo(forwardRef((props, ref) => (
 
 // --- Main Homepage Component ---
 
-const HomePage = () => {
-  const [activeSection, setActiveSection] = useState(0);
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
+const HomePage: React.FC = () => {
+  const [activeSection, setActiveSection] = useState<number>(0);
+  const [isMenuOpen, setIsMenuOpen] = useState<boolean>(false);
   const location = useLocation();
 
-  const sectionsRef = useRef([]);
+  const sectionsRef = useRef<(HTMLElement | null)[]>([]);
 
   useEffect(() => {
     sectionsRef.current = sectionsRef.current.slice(0, 9); // 9 sections total (including footer)
-    const handleMenuStateChange = (e) => {
+    const handleMenuStateChange = (e: any) => {
       if (e.detail && e.detail.isMenuOpen !== undefined) setIsMenuOpen(e.detail.isMenuOpen);
     };
     window.addEventListener('menuStateChange', handleMenuStateChange);
     return () => window.removeEventListener('menuStateChange', handleMenuStateChange);
   }, []);
 
-  const scrollToSection = useCallback((index) => {
-    if (sectionsRef.current[index]) {
+  const scrollToSection = useCallback((index: number) => {
+    const target = sectionsRef.current[index];
+    if (target) {
        if (window.lenis) {
-           window.lenis.scrollTo(sectionsRef.current[index], { duration: 1.0 });
+           window.lenis.scrollTo(target, { duration: 1.0 });
        } else {
-           sectionsRef.current[index].scrollIntoView({ behavior: 'smooth' });
+           target.scrollIntoView({ behavior: 'smooth' });
        }
     }
   }, []);
 
   // --- Smooth JS Snap Logic (Replaces CSS Snap) ---
   useEffect(() => {
-    let scrollTimeout;
+    let scrollTimeout: number;
     const handleScroll = () => {
-        clearTimeout(scrollTimeout);
-        scrollTimeout = setTimeout(() => {
+        window.clearTimeout(scrollTimeout);
+        scrollTimeout = window.setTimeout(() => {
             // Disable snapping on mobile (width < 768) or if menu is open or lenis isn't ready
             if (!window.lenis || isMenuOpen || window.innerWidth < 768) return;
 
@@ -709,17 +748,13 @@ const HomePage = () => {
 
             if (closestIndex !== -1) {
                 const targetSection = sectionsRef.current[closestIndex];
+                if (!targetSection) return;
+                
                 const dist = Math.abs(targetSection.offsetTop - scrollY);
                 const isTallSection = targetSection.offsetHeight > viewportHeight + 50;
 
                 // If we are very close (already snapped), do nothing to avoid jitter
                 if (dist < 5) return;
-
-                // Logic:
-                // 1. If it's a standard section (100vh), ALWAYS snap to it if we are closer to it than another.
-                // 2. If it's a TALL section:
-                //    - Only snap to top if we are near the top (e.g. < 30% into it).
-                //    - If we are deep inside, allow free scroll.
 
                 if (!isTallSection) {
                     window.lenis.scrollTo(targetSection, { duration: 0.6 });
@@ -743,7 +778,7 @@ const HomePage = () => {
       (entries) => {
         entries.forEach((entry) => {
           if (entry.isIntersecting) {
-            const index = sectionsRef.current.indexOf(entry.target);
+            const index = sectionsRef.current.indexOf(entry.target as HTMLElement);
             if (index !== -1) {
               setActiveSection(index);
             }

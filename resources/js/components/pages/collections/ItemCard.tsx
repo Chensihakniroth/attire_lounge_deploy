@@ -1,9 +1,10 @@
 import React, { memo } from 'react';
-import { motion } from 'framer-motion';
+import { motion, Variants } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import OptimizedImage from '../../common/OptimizedImage.jsx';
+import { Product } from '../../../types';
 
-const itemVariants = {
+const itemVariants: Variants = {
     hidden: { y: 20, opacity: 0 },
     visible: {
       y: 0,
@@ -11,7 +12,11 @@ const itemVariants = {
     }
 };
 
-const ItemCard = memo(({ product }) => {
+interface ItemCardProps {
+    product: Product;
+}
+
+const ItemCard: React.FC<ItemCardProps> = memo(({ product }) => {
     const navigate = useNavigate();
     const imageUrl = product.images && product.images.length > 0 ? product.images[0] : '/path/to/default/image.jpg';
     const fallbackUrl = product.images && product.images.length > 1 ? product.images[1] : null;

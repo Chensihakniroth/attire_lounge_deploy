@@ -9,6 +9,7 @@ use Illuminate\Support\Collection;
 
 use App\Models\Category;
 use App\Models\Collection as ProductCollection; // Use alias to avoid confusion with Illuminate\Support\Collection
+use App\DTOs\ProductFilterDTO;
 
 class ProductService
 {
@@ -25,11 +26,11 @@ class ProductService
     /**
      * Get paginated products with caching.
      */
-    public function getPaginatedProducts(array $requestData): LengthAwarePaginator
+    public function getPaginatedProducts(ProductFilterDTO $dto): LengthAwarePaginator
     {
-        // Add category_id or collection_id to requestData if category slug is provided
-        if (isset($requestData['category'])) {
-            $slug = $requestData['category'];
+        // Resolve slug to IDs if necessary
+        if ($dto->categorySlug) {
+            $slug = $dto->categorySlug;
 
             // 1. Try Collection lookup first (prioritize for UI)
             $collectionId = Cache::remember("collection_id.{$slug}", 3600, function () use ($slug) {
@@ -38,9 +39,7 @@ class ProductService
             });
 
             if ($collectionId) {
-                $requestData['collection_id'] = $collectionId;
-                // Clear category to avoid filtering by both
-                unset($requestData['category']);
+                $dto = $dto->with(['collectionId' => $collectionId, 'categorySlug' => null]);
             } else {
                 // 2. Try Category lookup if Collection fails
                 $categoryId = Cache::remember("category_id.{$slug}", 3600, function () use ($slug) {
@@ -49,27 +48,15 @@ class ProductService
                 });
 
                 if ($categoryId) {
-                    $requestData['category_id'] = $categoryId;
-                    unset($requestData['category']);
-                } else {
-                    // If neither exist, remove filter
-                    unset($requestData['category']);
+                    $dto = $dto->with(['categoryId' => $categoryId, 'categorySlug' => null]);
                 }
             }
         }
 
-        $cacheKey = 'products.' . md5(json_encode($requestData));
+        $cacheKey = 'products.' . md5(serialize($dto));
 
-        return Cache::remember($cacheKey, 3600, function () use ($requestData) {
-            $filters = [
-                'category_id' => $requestData['category_id'] ?? null,
-                'collection_id' => $requestData['collection_id'] ?? null,
-                'search' => $requestData['search'] ?? null
-            ];
-            $sort = $requestData['sort'] ?? 'newest';
-            $perPage = (int)($requestData['per_page'] ?? 12);
-
-            return $this->productRepository->getPaginated($filters, $sort, $perPage);
+        return Cache::remember($cacheKey, 3600, function () use ($dto) {
+            return $this->productRepository->getPaginated($dto);
         });
     }
 

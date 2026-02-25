@@ -1,13 +1,20 @@
 import React, { useState, useMemo, useEffect, useRef } from 'react';
 import { useLocation, Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ChevronLeft, ChevronRight, Search, X, ChevronDown, Check, Loader2 } from 'lucide-react';
+import { ChevronLeft, Search, X, ChevronDown, Loader2 } from 'lucide-react';
 import ItemCard from './collections/ItemCard';
 import GrainOverlay from '../common/GrainOverlay.jsx';
 import SEO from '../common/SEO';
 import { useProducts } from '../../hooks/useProducts';
+import { Product } from '../../types';
 
-const allCollections = [
+interface CollectionOption {
+    id: number;
+    title: string;
+    slug: string;
+}
+
+const allCollections: CollectionOption[] = [
     { id: 1, title: 'Havana Collection', slug: 'havana-collection' },
     { id: 2, title: 'Mocha Mousse', slug: 'mocha-mousse-25' },
     { id: 3, title: 'Groom Collection', slug: 'groom-collection' },
@@ -16,7 +23,12 @@ const allCollections = [
     { id: 6, title: 'Accessories', slug: 'accessories' },
 ];
 
-const sortOptions = [
+interface SortOption {
+    value: string;
+    label: string;
+}
+
+const sortOptions: SortOption[] = [
     { value: 'newest', label: 'Newest Arrivals' },
     { value: 'price_low', label: 'Price: Low to High' },
     { value: 'price_high', label: 'Price: High to Low' },
@@ -27,20 +39,19 @@ const useQuery = () => {
     return new URLSearchParams(useLocation().search);
 };
 
-const ProductListPage = () => {
+const ProductListPage: React.FC = () => {
     const query = useQuery();
-    const location = useLocation();
     const collectionQuery = query.get('collection');
 
-    const [sortOrder, setSortOrder] = useState('newest');
-    const [selectedCollections, setSelectedCollections] = useState(() => {
+    const [sortOrder, setSortOrder] = useState<string>('newest');
+    const [selectedCollections, setSelectedCollections] = useState<string[]>(() => {
         return collectionQuery ? [collectionQuery] : [];
     });
 
     const productsPerPage = 12; // Number of products to load per batch
-    const [currentLoadedPage, setCurrentLoadedPage] = useState(1);
-    const [allLoadedProducts, setAllLoadedProducts] = useState([]);
-    const [hasMore, setHasMore] = useState(true);
+    const [currentLoadedPage, setCurrentLoadedPage] = useState<number>(1);
+    const [allLoadedProducts, setAllLoadedProducts] = useState<Product[]>([]);
+    const [hasMore, setHasMore] = useState<boolean>(true);
 
     const { data, isLoading, isFetching } = useProducts({
         category: selectedCollections[0],
@@ -49,39 +60,33 @@ const ProductListPage = () => {
         per_page: productsPerPage
     });
 
-    const meta = data?.meta || { total: 0, last_page: 1 };
+    const meta = data?.meta || { total: 0, last_page: 1, current_page: 1 };
 
     useEffect(() => {
         // Reset state when filters or sort order changes
-        // This MUST be before the data accumulation effect
         setAllLoadedProducts([]);
         setCurrentLoadedPage(1);
         setHasMore(true);
         
-        // Smooth scroll to top when changing filters (but not on load more)
         if (currentLoadedPage === 1) {
             window.scrollTo({ top: 0, behavior: 'smooth' });
         }
     }, [selectedCollections, sortOrder]);
 
     useEffect(() => {
-        // Accumulate products when data arrives
         if (data?.data && currentLoadedPage > 0) {
             setAllLoadedProducts(prevProducts => {
-                // Only append if it's not already there (prevents duplicates)
                 const newProducts = data.data.filter(
                     np => !prevProducts.some(p => p.id === np.id)
                 );
                 
-                // If it's the first page, we should ideally have a fresh list
-                // (The reset effect above handles this, but let's be safe)
                 if (currentLoadedPage === 1) return data.data;
                 
                 return [...prevProducts, ...newProducts];
             });
             setHasMore(meta.current_page < meta.last_page);
         }
-    }, [data, currentLoadedPage]);
+    }, [data, currentLoadedPage, meta.current_page, meta.last_page]);
 
     const pageTitle = useMemo(() => {
         const currentCollectionDetails = allCollections.find(c => c.slug === selectedCollections[0]);
@@ -90,7 +95,7 @@ const ProductListPage = () => {
             : "Elite Collections";
     }, [selectedCollections]);
 
-    const handleCollectionToggle = (slug) => {
+    const handleCollectionToggle = (slug: string) => {
         setSelectedCollections(prev => prev.includes(slug) ? [] : [slug]);
     };
 
@@ -98,7 +103,7 @@ const ProductListPage = () => {
         setSelectedCollections([]);
     };
 
-    const removeCollectionFilter = (slug) => {
+    const removeCollectionFilter = (slug: string) => {
         setSelectedCollections(prev => prev.filter(s => s !== slug));
     };
 
@@ -156,7 +161,7 @@ const ProductListPage = () => {
                 </div>
                 
                 <AnimatePresence mode="wait">
-                    {isLoading && allLoadedProducts.length === 0 ? ( // Show initial loading spinner
+                    {isLoading && allLoadedProducts.length === 0 ? (
                         <motion.div 
                             key="loading-initial"
                             className="flex flex-col items-center justify-center py-32"
@@ -175,7 +180,7 @@ const ProductListPage = () => {
                                 <ItemCard key={item.id} product={item} />
                             ))}
                         </motion.div>
-                    ) : ( // No products found after loading (or if filters result in nothing)
+                    ) : (
                         <motion.div 
                             key="empty"
                             className="flex flex-col items-center justify-center py-32 text-center"
@@ -210,7 +215,16 @@ const ProductListPage = () => {
     );
 };
 
-const Controls = ({ sortOrder, setSortOrder, selectedCollections, handleCollectionToggle, clearFilters, removeCollectionFilter }) => (
+interface ControlsProps {
+    sortOrder: string;
+    setSortOrder: (order: string) => void;
+    selectedCollections: string[];
+    handleCollectionToggle: (slug: string) => void;
+    clearFilters: () => void;
+    removeCollectionFilter: (slug: string) => void;
+}
+
+const Controls: React.FC<ControlsProps> = ({ sortOrder, setSortOrder, selectedCollections, handleCollectionToggle, clearFilters, removeCollectionFilter }) => (
     <div className="w-full max-w-6xl mx-auto relative">
         <div className="bg-attire-navy/80 backdrop-blur-xl border border-white/20 rounded-full p-1.5 flex items-center justify-between">
             <CollectionDropdown selectedCollections={selectedCollections} handleCollectionToggle={handleCollectionToggle} />
@@ -229,9 +243,14 @@ const Controls = ({ sortOrder, setSortOrder, selectedCollections, handleCollecti
     </div>
 );
 
-const CollectionDropdown = ({ selectedCollections, handleCollectionToggle }) => {
+interface DropdownProps {
+    selectedCollections: string[];
+    handleCollectionToggle: (slug: string) => void;
+}
+
+const CollectionDropdown: React.FC<DropdownProps> = ({ selectedCollections, handleCollectionToggle }) => {
     const [isOpen, setIsOpen] = useState(false);
-    const dropdownRef = useRef(null);
+    const dropdownRef = useRef<HTMLDivElement>(null);
     const label = selectedCollections.length === 0 ? 'All Collections' : allCollections.find(c => c.slug === selectedCollections[0])?.title || 'Selected';
 
     return (
@@ -252,7 +271,12 @@ const CollectionDropdown = ({ selectedCollections, handleCollectionToggle }) => 
     );
 };
 
-const FilterSortDropdown = ({ sortOrder, setSortOrder }) => {
+interface SortDropdownProps {
+    sortOrder: string;
+    setSortOrder: (order: string) => void;
+}
+
+const FilterSortDropdown: React.FC<SortDropdownProps> = ({ sortOrder, setSortOrder }) => {
     const [isOpen, setIsOpen] = useState(false);
     const label = sortOptions.find(opt => opt.value === sortOrder)?.label || 'Sort By';
 
@@ -274,7 +298,12 @@ const FilterSortDropdown = ({ sortOrder, setSortOrder }) => {
     );
 };
 
-const FilterTag = ({ children, onRemove }) => (
+interface FilterTagProps {
+    children: React.ReactNode;
+    onRemove: () => void;
+}
+
+const FilterTag: React.FC<FilterTagProps> = ({ children, onRemove }) => (
     <div className="flex items-center gap-3 bg-attire-dark border border-white/10 text-white rounded-full pl-4 pr-2 py-1.5 text-[10px] font-bold">
         <span className="opacity-60">{children}</span>
         <button onClick={onRemove} className="p-1 hover:bg-white/10 rounded-full"><X size={12} /></button>

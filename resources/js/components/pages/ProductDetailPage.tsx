@@ -1,14 +1,14 @@
-import React, { useState, useEffect, useMemo, useRef, useLayoutEffect } from 'react';
-import { useParams, useNavigate, Link } from 'react-router-dom';
-import { motion, AnimatePresence, useMotionValue, useTransform, useScroll } from 'framer-motion';
-import { ChevronLeft, Heart, Plus, ArrowRight, ChevronUp, Loader2 } from 'lucide-react';
+import React, { useState, useEffect, useRef, useLayoutEffect } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
+import { motion, useTransform, useScroll, Variants } from 'framer-motion';
+import { ChevronLeft, Heart, ArrowRight, ChevronUp, Loader2 } from 'lucide-react';
 import OptimizedImage from '../common/OptimizedImage.jsx';
 import { useFavorites } from '../../context/FavoritesContext.jsx';
 import { useProduct } from '../../hooks/useProducts';
 import SEO from '../common/SEO';
 
 const transitionBase = { duration: 1, ease: [0.22, 1, 0.36, 1] };
-const stagger = {
+const stagger: Variants = {
     animate: {
         transition: {
             staggerChildren: 0.1
@@ -16,23 +16,23 @@ const stagger = {
     }
 };
 
-const slideUp = {
+const slideUp: Variants = {
     initial: { opacity: 0, y: 30 },
     animate: { opacity: 1, y: 0, transition: transitionBase },
     exit: { opacity: 0, y: 20 }
 };
 
-const ProductDetailPage = () => {
-    const { productId } = useParams(); // This is the slug (e.g., 'g1')
+const ProductDetailPage: React.FC = () => {
+    const { productId } = useParams<{ productId: string }>(); // This is the slug (e.g., 'g1')
     const navigate = useNavigate();
     const { favorites, toggleFavorite } = useFavorites();
     
-    const leftPaneRef = useRef(null);
-    const rightPaneRef = useRef(null);
-    const [isReady, setIsReady] = useState(false);
+    const leftPaneRef = useRef<HTMLDivElement>(null);
+    const rightPaneRef = useRef<HTMLDivElement>(null);
+    const [isReady, setIsReady] = useState<boolean>(false);
 
     // Fetch product data using our "Gold Standard" hook! ✨
-    const { data: product, isLoading, isError } = useProduct(productId);
+    const { data: product, isLoading, isError } = useProduct(productId || '');
 
     useEffect(() => {
         const timer = setTimeout(() => setIsReady(true), 100);
@@ -47,7 +47,7 @@ const ProductDetailPage = () => {
         window.scrollTo({ top: 0, behavior: 'instant' });
     }, [productId]);
 
-    const pageMotion = {
+    const pageMotion: Variants = {
         initial: { opacity: 0 },
         animate: { opacity: 1, transition: { duration: 0.8, ease: [0.22, 1, 0.36, 1] } },
         exit: { opacity: 0, transition: { duration: 0.4, ease: [0.22, 1, 0.36, 1] } }
@@ -103,12 +103,12 @@ const ProductDetailPage = () => {
                 </button>
 
                 <button 
-                    onClick={() => toggleFavorite(product.slug)}
+                    onClick={() => toggleFavorite(product.slug || '')}
                     className="w-12 h-12 rounded-full border border-white/5 flex items-center justify-center pointer-events-auto hover:border-white/20 transition-all duration-500 group backdrop-blur-md"
                 >
                     <Heart 
                         size={20} 
-                        className={`transition-all duration-500 ${favorites.includes(product.slug) ? 'fill-attire-accent text-attire-accent' : 'text-white/40 group-hover:text-white'}`} 
+                        className={`transition-all duration-500 ${favorites.includes(product.slug || '') ? 'fill-attire-accent text-attire-accent' : 'text-white/40 group-hover:text-white'}`} 
                     />
                 </button>
             </div>

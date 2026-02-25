@@ -6,6 +6,7 @@ use App\Models\Product;
 use App\Repositories\Interfaces\ProductRepositoryInterface;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Collection;
+use App\DTOs\ProductFilterDTO;
 
 class ProductRepository implements ProductRepositoryInterface
 {
@@ -22,25 +23,25 @@ class ProductRepository implements ProductRepositoryInterface
     /**
      * Get paginated products with filters and sorting.
      */
-    public function getPaginated(array $filters, string $sort, int $perPage): LengthAwarePaginator
+    public function getPaginated(ProductFilterDTO $dto): LengthAwarePaginator
     {
         $query = $this->model->query();
 
         // Apply filters
-        if (isset($filters['category_id'])) {
-            $query->where('category_id', $filters['category_id']);
+        if ($dto->categoryId) {
+            $query->where('category_id', $dto->categoryId);
         }
 
-        if (isset($filters['collection_id'])) {
-            $query->where('collection_id', $filters['collection_id']);
+        if ($dto->collectionId) {
+            $query->where('collection_id', $dto->collectionId);
         }
 
-        if (isset($filters['search'])) {
-            $query->where('name', 'like', '%' . $filters['search'] . '%');
+        if ($dto->search) {
+            $query->where('name', 'like', '%' . $dto->search . '%');
         }
 
         // Apply sorting
-        switch ($sort) {
+        switch ($dto->sort) {
             case 'price_low':
                 $query->orderBy('price');
                 break;
@@ -54,7 +55,7 @@ class ProductRepository implements ProductRepositoryInterface
                 $query->orderByDesc('created_at');
         }
 
-        return $query->paginate($perPage);
+        return $query->paginate($dto->perPage, ['*'], 'page', $dto->page);
     }
 
     /**

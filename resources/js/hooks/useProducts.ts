@@ -1,38 +1,16 @@
 import { useQuery } from '@tanstack/react-query';
 import axios from 'axios';
+import { Product, PaginatedResponse } from '../types';
 
 // Base API URL with versioning
 const API_BASE = '/api/v1';
 
-interface Product {
-    id: number;
-    name: string;
-    slug: string;
-    description: string;
-    price: number;
-    images: string[];
-    category: string;
-    collection: string;
-    collection_slug: string;
-    featured: boolean;
-    is_new: boolean;
-    in_stock: boolean;
-    sizes: string[] | string;
-}
-
-interface ProductResponse {
+interface ProductApiResponse extends PaginatedResponse<Product> {
     success: boolean;
-    data: Product[];
-    meta: {
-        total: number;
-        per_page: number;
-        current_page: number;
-        last_page: number;
-    };
 }
 
-export const useProducts = (filters = {}) => {
-    return useQuery<ProductResponse>({
+export const useProducts = (filters: Record<string, any> = {}) => {
+    return useQuery<ProductApiResponse>({
         queryKey: ['products', filters],
         queryFn: async () => {
             const { data } = await axios.get(`${API_BASE}/products`, { params: filters });

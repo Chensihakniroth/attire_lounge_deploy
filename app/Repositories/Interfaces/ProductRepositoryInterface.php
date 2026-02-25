@@ -5,13 +5,14 @@ namespace App\Repositories\Interfaces;
 use App\Models\Product;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Collection;
+use App\DTOs\ProductFilterDTO;
 
 interface ProductRepositoryInterface
 {
     /**
      * Get paginated products with filters and sorting.
      */
-    public function getPaginated(array $filters, string $sort, int $perPage): LengthAwarePaginator;
+    public function getPaginated(ProductFilterDTO $dto): LengthAwarePaginator;
 
     /**
      * Get featured products.

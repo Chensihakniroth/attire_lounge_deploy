@@ -1,7 +1,7 @@
-// resources/jsx/components/MainApp.jsx
-import React, { Suspense, lazy, useEffect } from 'react';
+// resources/jsx/components/MainApp.tsx
+import React, { Suspense, lazy, useEffect, ReactNode } from 'react';
 import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
-import { AnimatePresence, motion } from 'framer-motion';
+import { AnimatePresence, motion, Variants } from 'framer-motion';
 import Lenis from 'lenis';
 import usePullToRefresh from '../hooks/usePullToRefresh';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
@@ -23,11 +23,15 @@ import Navigation from './layouts/Navigation.jsx';
 import LoadingSpinner from './common/LoadingSpinner.jsx';
 import Footer from './layouts/Footer.jsx';
 
-// ScrollToTop is handled via AnimatePresence onExitComplete
-// import ScrollToTop from './common/ScrollToTop.jsx';
+// Declare global for Lenis
+declare global {
+    interface Window {
+        lenis: Lenis | null;
+    }
+}
 
 // Pages that you have created
-const lazyWithRetry = (componentImport) =>
+const lazyWithRetry = (componentImport: () => Promise<any>) =>
     lazy(async () => {
         const pageHasAlreadyBeenForceRefreshed = JSON.parse(
             window.localStorage.getItem('page-has-been-force-refreshed') || 'false'
@@ -39,21 +43,17 @@ const lazyWithRetry = (componentImport) =>
             return component;
         } catch (error) {
             if (!pageHasAlreadyBeenForceRefreshed) {
-                // Personal preference: wait a bit before refreshing
                 window.localStorage.setItem('page-has-been-force-refreshed', 'true');
                 return window.location.reload();
             }
-
-            // The page has already been reloaded and still fails, so let's throw an error
-            // to be caught by the ErrorBoundary
             throw error;
         }
     });
 
-const HomePage = lazyWithRetry(() => import('./pages/HomePage.jsx'));
+const HomePage = lazyWithRetry(() => import('./pages/HomePage.tsx'));
 const CollectionsPage = lazyWithRetry(() => import('./pages/CollectionsPage.jsx'));
-const ProductListPage = lazyWithRetry(() => import('./pages/ProductListPage.jsx'));
-const ProductDetailPage = lazyWithRetry(() => import('./pages/ProductDetailPage.jsx'));
+const ProductListPage = lazyWithRetry(() => import('./pages/ProductListPage.tsx'));
+const ProductDetailPage = lazyWithRetry(() => import('./pages/ProductDetailPage.tsx'));
 const LookbookPage = lazyWithRetry(() => import('./pages/LookbookPage.jsx'));
 const FashionShowPage = lazyWithRetry(() => import('./pages/FashionShowPage.jsx'));
 const ContactPage = lazyWithRetry(() => import('./pages/ContactPage.jsx'));
@@ -73,7 +73,7 @@ const ReturnPolicyPage = lazyWithRetry(() => import('./pages/ReturnPolicyPage.js
 
 
 // Simple placeholder for non-existent pages
-const Placeholder = ({ title }) => (
+const Placeholder: React.FC<{ title: string }> = ({ title }) => (
     <div className="min-h-screen pt-24 px-6">
         <div className="max-w-4xl mx-auto">
             <h1 className="text-2xl font-serif mb-4">{title}</h1>
@@ -83,7 +83,7 @@ const Placeholder = ({ title }) => (
 );
 
 // Animation Variants
-const pageVariants = {
+const pageVariants: Variants = {
     initial: {
         opacity: 0,
         y: 10
@@ -106,8 +106,15 @@ const pageVariants = {
     }
 };
 
+interface LayoutProps {
+    children: ReactNode;
+    includeHeader?: boolean;
+    includeFooter?: boolean;
+    includePadding?: boolean;
+}
+
 // Layout wrapper component - ALWAYS includes Footer (except for HomePage)
-const Layout = ({ children, includeHeader = true, includeFooter = true, includePadding = true }) => {
+const Layout: React.FC<LayoutProps> = ({ children, includeHeader = true, includeFooter = true, includePadding = true }) => {
     return (
         <motion.div
             initial="initial"
@@ -125,7 +132,7 @@ const Layout = ({ children, includeHeader = true, includeFooter = true, includeP
     );
 };
 
-const LenisScroll = () => {
+const LenisScroll: React.FC = () => {
     const location = useLocation();
 
     useEffect(() => {
@@ -150,8 +157,8 @@ const LenisScroll = () => {
 
             window.lenis = lenis;
 
-            let rafId;
-            function raf(time) {
+            let rafId: number;
+            function raf(time: number) {
                 lenis.raf(time);
                 rafId = requestAnimationFrame(raf);
             }
@@ -164,12 +171,12 @@ const LenisScroll = () => {
                 window.lenis = null;
             };
         }
-    }, [location.pathname.startsWith('/admin')]); // Only re-run when moving to/from admin
+    }, [location.pathname]); // Re-run when location changes
 
     return null;
 };
 
-const AnimatedRoutes = () => {
+const AnimatedRoutes: React.FC = () => {
     const location = useLocation();
 
     const handleExitComplete = () => {
