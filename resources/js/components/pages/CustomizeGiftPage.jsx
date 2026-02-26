@@ -256,7 +256,7 @@ ${note ? `Note: "${note}"` : ''}
                             The perfect gift for gentlemen
                         </h1>
                         <p className="text-lg text-attire-silver max-w-2xl mx-auto font-light leading-relaxed">
-                            Craft a bespoke gift box with our finest accessories. <br/>A gesture of timeless elegance.
+                            Craft a curated gift box with our finest accessories. <br/>A gesture of timeless elegance.
                         </p>
                     </motion.div>
                 </div>

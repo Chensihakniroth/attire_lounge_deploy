@@ -92,7 +92,7 @@ const ProductDetailPage: React.FC = () => {
         >
             <SEO 
                 title={`${product.name} | ${product.collection}`}
-                description={product.description || `Experience the ${product.name} from our ${product.collection}. Premium bespoke tailoring at Attire Lounge.`}
+                description={product.description || `Experience the ${product.name} from our ${product.collection}. Premium styling excellence at Attire Lounge.`}
                 image={product.images[0]}
             />
             

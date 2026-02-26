@@ -11,11 +11,11 @@ interface SEOProps {
 }
 
 const SEO: React.FC<SEOProps> = ({
-  title = "Attire Lounge | Elite Bespoke Tailoring",
-  description = "Experience the finest bespoke tailoring at Attire Lounge. Luxury suits, custom shirts, and artisanal craftsmanship for the modern gentleman.",
-  keywords = "tailoring, bespoke suits, custom fashion, Attire Lounge, luxury menswear",
+  title = "Attire Lounge | cambodia Styling House",
+  description = "Attire Lounge is Phnom Penh's premier Styling House, offering Milan-certified expert styling, curated luxury menswear collections, and personalized fashion consulting for the modern gentleman.",
+  keywords = "styling house, curated menswear, luxury fashion, Attire Lounge, modern gentleman, Phnom Penh styling, menswear consulting",
   image = "/images/og-image.jpg",
-  url = "https://attire-lounge.com",
+  url = "https://www.attireloungeofficial.com/",
   type = "website"
 }) => {
   const siteTitle = title.includes("Attire Lounge") ? title : `${title} | Attire Lounge`;
@@ -41,6 +41,7 @@ const SEO: React.FC<SEOProps> = ({
       <meta name="twitter:image" content={image} />
 
       <link rel="canonical" href={url} />
+      <link rel="icon" type="image/png" href="https://bucket-production-4ca0.up.railway.app/product-assets/uploads/asset/ALO.png" />
     </Helmet>
   );
 };

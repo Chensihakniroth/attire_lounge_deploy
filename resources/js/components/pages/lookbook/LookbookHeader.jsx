@@ -21,7 +21,7 @@ const LookbookHeader = memo(() => {
                 </h1>
                 
                 <p className="text-sm md:text-base text-attire-silver/60 max-w-xl mx-auto leading-relaxed font-light tracking-wide">
-                    A definitive visual catalog of bespoke excellence. Explore the intersection of traditional craftsmanship and contemporary silhouette.
+                    A definitive visual catalog of styling excellence. Explore the intersection of traditional craftsmanship and contemporary silhouette.
                 </p>
             </motion.div>
         </div>

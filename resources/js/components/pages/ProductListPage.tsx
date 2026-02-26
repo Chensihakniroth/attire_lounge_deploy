@@ -127,8 +127,8 @@ const ProductListPage: React.FC = () => {
             exit={{ opacity: 0 }}
         >
             <SEO 
-                title={`${pageTitle} | Bespoke Menswear`}
-                description={`Explore our ${pageTitle}. Hand-crafted luxury garments designed for the modern gentleman.`}
+                title={`${pageTitle} | Elite Styling House`}
+                description={`Explore our ${pageTitle}. Expertly curated luxury styles designed for the modern gentleman.`}
             />
             <GrainOverlay />
             

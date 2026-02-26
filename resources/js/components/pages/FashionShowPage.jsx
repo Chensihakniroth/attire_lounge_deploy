@@ -237,7 +237,7 @@ const FashionShowPage = () => {
                 </h3>
                 
                 <p className="text-white/40 text-sm font-light leading-relaxed mb-16 max-w-xs">
-                  Experience the pinnacle of bespoke tailoring. Join us for a private consultation in our Phnom Penh atelier.
+                  Experience the pinnacle of styling excellence. Join us for a private consultation in our Phnom Penh atelier.
                 </p>
 
                 <a 
