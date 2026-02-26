@@ -55,7 +55,7 @@ const ProductListPage: React.FC = () => {
     const [hasMore, setHasMore] = useState<boolean>(true);
 
     const { data, isLoading, isFetching } = useProducts({
-        category: selectedCollections[0],
+        category: selectedCollections.join(','),
         sort: sortOrder,
         search: debouncedSearch,
         page: currentLoadedPage,
@@ -91,11 +91,17 @@ const ProductListPage: React.FC = () => {
         const currentCollectionDetails = allCollections.find(c => c.slug === selectedCollections[0]);
         return selectedCollections.length === 1 && currentCollectionDetails
             ? currentCollectionDetails.title
-            : "Elite Collections";
+            : selectedCollections.length > 1 
+                ? "Multiple Collections" 
+                : "Elite Collections";
     }, [selectedCollections]);
 
     const handleCollectionToggle = (slug: string) => {
-        setSelectedCollections(prev => prev.includes(slug) ? [] : [slug]);
+        setSelectedCollections(prev => 
+            prev.includes(slug) 
+                ? prev.filter(s => s !== slug) 
+                : [...prev, slug]
+        );
     };
 
     const clearFilters = () => {
@@ -292,7 +298,7 @@ const Controls: React.FC<ControlsProps> = ({ sortOrder, setSortOrder, searchQuer
 const CollectionDropdown: React.FC<{ selectedCollections: string[]; handleCollectionToggle: (slug: string) => void }> = ({ selectedCollections, handleCollectionToggle }) => {
     const [isOpen, setIsOpen] = useState(false);
     const dropdownRef = useRef<HTMLDivElement>(null);
-    const label = selectedCollections.length === 0 ? 'Collections' : allCollections.find(c => c.slug === selectedCollections[0])?.title || 'Selected';
+    const label = 'Collections';
 
     useEffect(() => {
         const handleClickOutside = (event: MouseEvent) => {
@@ -326,7 +332,7 @@ const CollectionDropdown: React.FC<{ selectedCollections: string[]; handleCollec
                             {allCollections.map(c => (
                                 <button 
                                     key={c.id} 
-                                    onClick={() => { handleCollectionToggle(c.slug); setIsOpen(false); }} 
+                                    onClick={() => { handleCollectionToggle(c.slug); }} 
                                     className={`w-full px-5 py-3.5 text-[10px] uppercase tracking-[0.1em] font-bold text-left rounded-lg transition-all duration-300 ${selectedCollections.includes(c.slug) ? 'bg-attire-accent text-black' : 'text-white/40 hover:text-white hover:bg-white/5'}`}
                                 >
                                     {c.title}
@@ -343,7 +349,7 @@ const CollectionDropdown: React.FC<{ selectedCollections: string[]; handleCollec
 const FilterSortDropdown: React.FC<{ sortOrder: string; setSortOrder: (order: string) => void }> = ({ sortOrder, setSortOrder }) => {
     const [isOpen, setIsOpen] = useState(false);
     const dropdownRef = useRef<HTMLDivElement>(null);
-    const label = sortOptions.find(opt => opt.value === sortOrder)?.label || 'Sort By';
+    const label = 'Sorting';
 
     useEffect(() => {
         const handleClickOutside = (event: MouseEvent) => {

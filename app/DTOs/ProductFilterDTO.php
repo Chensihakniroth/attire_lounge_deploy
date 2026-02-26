@@ -7,9 +7,9 @@ use Illuminate\Http\Request;
 readonly class ProductFilterDTO
 {
     public function __construct(
-        public ?string $categorySlug = null,
-        public ?int $categoryId = null,
-        public ?int $collectionId = null,
+        public array $categorySlugs = [],
+        public array $categoryIds = [],
+        public array $collectionIds = [],
         public ?string $search = null,
         public string $sort = 'newest',
         public int $perPage = 12,
@@ -21,8 +21,11 @@ readonly class ProductFilterDTO
      */
     public static function fromRequest(Request $request): self
     {
+        $category = $request->query('category');
+        $categorySlugs = $category ? explode(',', $category) : [];
+
         return new self(
-            categorySlug: $request->query('category'),
+            categorySlugs: $categorySlugs,
             search: $request->query('search'),
             sort: $request->query('sort', 'newest'),
             perPage: (int) $request->query('per_page', 12),
@@ -36,9 +39,9 @@ readonly class ProductFilterDTO
     public function with(array $properties): self
     {
         return new self(
-            categorySlug: array_key_exists('categorySlug', $properties) ? $properties['categorySlug'] : $this->categorySlug,
-            categoryId: array_key_exists('categoryId', $properties) ? $properties['categoryId'] : $this->categoryId,
-            collectionId: array_key_exists('collectionId', $properties) ? $properties['collectionId'] : $this->collectionId,
+            categorySlugs: array_key_exists('categorySlugs', $properties) ? $properties['categorySlugs'] : $this->categorySlugs,
+            categoryIds: array_key_exists('categoryIds', $properties) ? $properties['categoryIds'] : $this->categoryIds,
+            collectionIds: array_key_exists('collectionIds', $properties) ? $properties['collectionIds'] : $this->collectionIds,
             search: array_key_exists('search', $properties) ? $properties['search'] : $this->search,
             sort: array_key_exists('sort', $properties) ? $properties['sort'] : $this->sort,
             perPage: array_key_exists('perPage', $properties) ? $properties['perPage'] : $this->perPage,

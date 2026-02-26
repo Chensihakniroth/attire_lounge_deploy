@@ -28,12 +28,20 @@ class ProductRepository implements ProductRepositoryInterface
         $query = $this->model->query();
 
         // Apply filters
-        if ($dto->categoryId) {
-            $query->where('category_id', $dto->categoryId);
-        }
-
-        if ($dto->collectionId) {
-            $query->where('collection_id', $dto->collectionId);
+        if (!empty($dto->categoryIds) || !empty($dto->collectionIds)) {
+            $query->where(function($q) use ($dto) {
+                if (!empty($dto->categoryIds)) {
+                    $q->whereIn('category_id', $dto->categoryIds);
+                }
+                
+                if (!empty($dto->collectionIds)) {
+                    if (!empty($dto->categoryIds)) {
+                        $q->orWhereIn('collection_id', $dto->collectionIds);
+                    } else {
+                        $q->whereIn('collection_id', $dto->collectionIds);
+                    }
+                }
+            });
         }
 
         if ($dto->search) {
