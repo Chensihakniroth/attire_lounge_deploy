@@ -14,6 +14,7 @@ readonly class ProductFilterDTO
         public string $sort = 'newest',
         public int $perPage = 12,
         public int $page = 1,
+        public bool $includeHidden = false,
     ) {}
 
     /**
@@ -30,6 +31,7 @@ readonly class ProductFilterDTO
             sort: $request->query('sort', 'newest'),
             perPage: (int) $request->query('per_page', 12),
             page: (int) $request->query('page', 1),
+            includeHidden: $request->boolean('include_hidden', false),
         );
     }
 
@@ -46,6 +48,7 @@ readonly class ProductFilterDTO
             sort: array_key_exists('sort', $properties) ? $properties['sort'] : $this->sort,
             perPage: array_key_exists('perPage', $properties) ? $properties['perPage'] : $this->perPage,
             page: array_key_exists('page', $properties) ? $properties['page'] : $this->page,
+            includeHidden: array_key_exists('includeHidden', $properties) ? $properties['includeHidden'] : $this->includeHidden,
         );
     }
 }

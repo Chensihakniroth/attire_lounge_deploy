@@ -7,6 +7,7 @@ use App\Http\Controllers\ImageUploadController;
 use App\Http\Controllers\NewsletterSubscriptionController;
 use App\Http\Controllers\AdminLoginController;
 use App\Http\Controllers\GiftRequestController;
+use App\Http\Controllers\AdminController;
 
 Route::prefix('v1')->group(function () {
     // Public Product routes (accessible to all)
@@ -39,6 +40,9 @@ Route::prefix('v1')->group(function () {
 
     // Admin-specific routes - protected by authentication middleware
     Route::middleware('auth:sanctum')->prefix('admin')->group(function () {
+        // Overview stats
+        Route::get('/stats', [AdminController::class, 'stats']);
+
         // Appointments management (admin only)
         Route::get('/appointments', [AppointmentController::class, 'index']);
         Route::patch('/appointments/{appointment}/status', [AppointmentController::class, 'updateStatus']);
@@ -51,5 +55,9 @@ Route::prefix('v1')->group(function () {
 
         // Gift Item Stock Management (admin only)
         Route::post('/gift-items/toggle-stock', [\App\Http\Controllers\GiftItemStockController::class, 'toggle']);
+
+        // Product management (admin only)
+        Route::put('/products/{id}', [ProductController::class, 'update']);
+        Route::delete('/products/{id}', [ProductController::class, 'destroy']);
     });
 });

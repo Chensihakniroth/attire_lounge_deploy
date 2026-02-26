@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { Calendar, Gift, ImageIcon, ArrowRight, Clock, AlertTriangle, User, TrendingUp } from 'lucide-react';
+import { Calendar, Gift, ImageIcon, ArrowRight, Clock, AlertTriangle, User, TrendingUp, Package } from 'lucide-react';
 import ErrorBoundary from '../../common/ErrorBoundary.jsx';
 import Skeleton from '../../common/Skeleton.jsx';
 import { motion } from 'framer-motion';
@@ -94,13 +94,15 @@ const AdminDashboard = () => {
         giftRequests,
         giftRequestsLoading,
         fetchGiftRequests,
-        stats
+        stats,
+        fetchStats
     } = useAdmin();
 
     useEffect(() => {
         fetchAppointments();
         fetchGiftRequests();
-    }, [fetchAppointments, fetchGiftRequests]);
+        fetchStats();
+    }, [fetchAppointments, fetchGiftRequests, fetchStats]);
 
     const recentAppointments = appointments.slice(0, 5);
     const isLoading = (appointmentsLoading && appointments.length === 0) || (giftRequestsLoading && giftRequests.length === 0);
@@ -126,7 +128,7 @@ const AdminDashboard = () => {
                 <motion.div variants={cardVariants} className="flex items-end justify-between">
                     <div>
                         <h1 className="text-4xl font-serif text-white mb-2">Dashboard</h1>
-                        <p className="text-attire-silver">Overview of your boutique's performance.</p>
+                        <p className="text-attire-silver">Overview of your styling house's performance.</p>
                     </div>
                     <div className="hidden md:block text-right">
                         <p className="text-xs font-semibold text-attire-accent uppercase tracking-widest mb-1">Current Date</p>
@@ -135,45 +137,86 @@ const AdminDashboard = () => {
                 </motion.div>
 
                 <motion.div 
-                    className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
+                    className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6"
                     variants={containerVariants}
                 >
                     <StatCard icon={<Calendar />} title="Total Appointments" value={stats.appointments} link="/admin/appointments" loading={isLoading} />
                     <StatCard icon={<Gift />} title="Gift Requests" value={stats.gifts} link="/admin/customize-gift" loading={isLoading} />
-                    <StatCard icon={<TrendingUp />} title="Total Activity" value={stats.appointments + stats.gifts} loading={isLoading} />
+                    <StatCard icon={<Package />} title="Total Products" value={stats.products} loading={isLoading} />
+                    <StatCard icon={<TrendingUp />} title="Collections" value={stats.collections} loading={isLoading} />
                 </motion.div>
 
-                <motion.div variants={cardVariants} className="bg-black/20 backdrop-blur-xl p-8 rounded-3xl shadow-xl border border-white/10">
-                    <div className="flex items-center justify-between mb-6">
-                        <h2 className="text-xl font-serif text-white">Recent Activity</h2>
-                        <Link to="/admin/appointments" className="text-xs font-semibold text-attire-accent hover:text-white transition-colors uppercase tracking-wider">View All</Link>
-                    </div>
-                    
-                    {isLoading ? (
-                        <RecentActivitySkeleton />
-                    ) : recentAppointments.length > 0 ? (
-                        <motion.ul 
-                            className="space-y-2"
-                            initial="hidden"
-                            animate="visible"
-                            variants={containerVariants}
-                        >
-                            {recentAppointments.map(app => (
-                                <RecentActivityItem key={app.id} item={app} />
-                            ))}
-                        </motion.ul>
-                    ) : (
-                        <div className="text-center py-12">
-                            <div className="w-16 h-16 bg-white/5 rounded-full flex items-center justify-center mx-auto mb-4 border border-white/5">
-                                <Clock className="text-attire-silver/30" />
-                            </div>
-                            <p className="text-attire-silver/60">No recent activity recorded.</p>
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                    <motion.div variants={cardVariants} className="lg:col-span-2 bg-black/20 backdrop-blur-xl p-8 rounded-3xl shadow-xl border border-white/10">
+                        <div className="flex items-center justify-between mb-6">
+                            <h2 className="text-xl font-serif text-white">Recent Activity</h2>
+                            <Link to="/admin/appointments" className="text-xs font-semibold text-attire-accent hover:text-white transition-colors uppercase tracking-wider">View All</Link>
                         </div>
-                    )}
-                </motion.div>
+                        
+                        {isLoading ? (
+                            <RecentActivitySkeleton />
+                        ) : recentAppointments.length > 0 ? (
+                            <motion.ul 
+                                className="space-y-2"
+                                initial="hidden"
+                                animate="visible"
+                                variants={containerVariants}
+                            >
+                                {recentAppointments.map(app => (
+                                    <RecentActivityItem key={app.id} item={app} />
+                                ))}
+                            </motion.ul>
+                        ) : (
+                            <div className="text-center py-12">
+                                <div className="w-16 h-16 bg-white/5 rounded-full flex items-center justify-center mx-auto mb-4 border border-white/5">
+                                    <Clock className="text-attire-silver/30" />
+                                </div>
+                                <p className="text-attire-silver/60">No recent activity recorded.</p>
+                            </div>
+                        )}
+                    </motion.div>
+
+                    <motion.div variants={cardVariants} className="bg-black/20 backdrop-blur-xl p-8 rounded-3xl shadow-xl border border-white/10 flex flex-col justify-between">
+                        <div>
+                            <h2 className="text-xl font-serif text-white mb-6">Quick Actions</h2>
+                            <div className="space-y-4">
+                                <QuickAction icon={<ImageIcon />} title="Upload New Assets" description="Add photos to your gallery" link="/admin/inventory" />
+                                <QuickAction icon={<User />} title="Review Subscribers" description={`${stats.subscribers} active newsletters`} />
+                                <div className="pt-6 border-t border-white/5">
+                                    <p className="text-[10px] font-bold text-attire-silver/40 uppercase tracking-[0.2em] mb-4">Pending Tasks</p>
+                                    <div className="flex items-center justify-between p-3 bg-yellow-400/5 rounded-xl border border-yellow-400/10">
+                                        <div className="flex items-center gap-3">
+                                            <AlertTriangle size={14} className="text-yellow-400" />
+                                            <span className="text-xs text-white">{stats.pending_appointments} Appointments</span>
+                                        </div>
+                                        <span className="text-[10px] font-bold text-yellow-400">Action Required</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </motion.div>
+                </div>
             </motion.div>
         </ErrorBoundary>
     );
+};
+
+const QuickAction = ({ icon, title, description, link }) => {
+    const content = (
+        <div className="flex items-center gap-4 p-4 bg-white/5 rounded-2xl border border-white/5 hover:border-attire-accent/30 hover:bg-white/10 transition-all duration-300 group">
+            <div className="h-10 w-10 flex items-center justify-center bg-black/20 rounded-xl border border-white/5 group-hover:border-attire-accent/20 transition-colors">
+                {React.cloneElement(icon, { size: 18, className: "text-attire-silver group-hover:text-attire-accent transition-colors" })}
+            </div>
+            <div className="flex-grow">
+                <p className="text-xs font-bold text-white uppercase tracking-wider">{title}</p>
+                <p className="text-[10px] text-attire-silver/60">{description}</p>
+            </div>
+            <ArrowRight size={14} className="text-white/20 group-hover:text-attire-accent group-hover:translate-x-1 transition-all" />
+        </div>
+    );
+
+    if (link) return <Link to={link}>{content}</Link>;
+    return <div>{content}</div>;
 };
 
 export default AdminDashboard;

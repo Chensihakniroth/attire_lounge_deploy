@@ -24,6 +24,8 @@ const allCollections: CollectionOption[] = [
     { id: 4, title: 'Office Collections', slug: 'office-collections' },
     { id: 5, title: 'Travel Collection', slug: 'travel-collection' },
     { id: 6, title: 'Accessories', slug: 'accessories' },
+    { id: 7, title: 'Shades of Elegance', slug: 'shades-of-elegance' },
+    { id: 8, title: 'Street Sartorial', slug: 'street-sartorial' },
 ];
 
 const sortOptions: SortOption[] = [

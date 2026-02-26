@@ -17,7 +17,26 @@ export const AdminProvider = ({ children }) => {
     const [giftRequestsLoading, setGiftRequestsLoading] = useState(false);
 
     // Global Stats (derived or fetched)
-    const [stats, setStats] = useState({ appointments: 0, gifts: 0 });
+    const [stats, setStats] = useState({ 
+        appointments: 0, 
+        gifts: 0, 
+        products: 0, 
+        collections: 0, 
+        subscribers: 0,
+        pending_appointments: 0,
+        pending_gifts: 0
+    });
+
+    const fetchStats = useCallback(async () => {
+        try {
+            const response = await axios.get('/api/v1/admin/stats');
+            if (response.data.success) {
+                setStats(response.data.data);
+            }
+        } catch (err) {
+            console.error('Error fetching stats:', err);
+        }
+    }, []);
 
     // --- Appointments Logic ---
     const fetchAppointments = useCallback(async (forceRefresh = false) => {
@@ -34,19 +53,19 @@ export const AdminProvider = ({ children }) => {
             // Assuming backend already sorts, but we can ensure consistency here if needed
             setAppointments(response.data);
             setAppointmentsLoaded(true);
-            updateStats({ appointments: response.data.length });
+            fetchStats(); // Refresh stats when data changes
         } catch (err) {
             console.error('Error fetching appointments:', err);
         } finally {
             setAppointmentsLoading(false);
         }
-    }, [appointmentsLoaded]);
+    }, [appointmentsLoaded, fetchStats]);
 
     const fetchAppointmentsBackground = async () => {
         try {
             const response = await axios.get('/api/v1/admin/appointments');
             setAppointments(response.data);
-            updateStats({ appointments: response.data.length });
+            fetchStats();
         } catch (err) {
             console.error('Error refreshing appointments:', err);
         }
@@ -59,7 +78,7 @@ export const AdminProvider = ({ children }) => {
 
         try {
             await axios.patch(`/api/v1/admin/appointments/${id}/status`, { status });
-            // Optionally update with server response
+            fetchStats(); // Refresh stats
         } catch (err) {
             console.error('Failed to update status:', err);
             setAppointments(previous); // Revert
@@ -72,6 +91,7 @@ export const AdminProvider = ({ children }) => {
         setAppointments(prev => prev.filter(app => app.status !== 'done'));
         try {
             await axios.post('/api/v1/admin/appointments/clear-completed');
+            fetchStats();
         } catch (err) {
             setAppointments(previous);
             throw err;
@@ -90,19 +110,19 @@ export const AdminProvider = ({ children }) => {
             const response = await axios.get('/api/v1/gift-requests');
             setGiftRequests(response.data);
             setGiftRequestsLoaded(true);
-            updateStats({ gifts: response.data.length });
+            fetchStats();
         } catch (err) {
             console.error('Error fetching gift requests:', err);
         } finally {
             setGiftRequestsLoading(false);
         }
-    }, [giftRequestsLoaded]);
+    }, [giftRequestsLoaded, fetchStats]);
 
     const fetchGiftRequestsBackground = async () => {
         try {
             const response = await axios.get('/api/v1/gift-requests');
             setGiftRequests(response.data);
-            updateStats({ gifts: response.data.length });
+            fetchStats();
         } catch (err) {
             console.error('Error refreshing gift requests:', err);
         }
@@ -113,6 +133,7 @@ export const AdminProvider = ({ children }) => {
         setGiftRequests(prev => prev.map(req => req.id === id ? { ...req, status } : req));
         try {
             await axios.patch(`/api/v1/gift-requests/${id}/status`, { status });
+            fetchStats();
         } catch (err) {
             setGiftRequests(previous);
             throw err;
@@ -124,6 +145,7 @@ export const AdminProvider = ({ children }) => {
         setGiftRequests(prev => prev.filter(req => req.id !== id));
         try {
             await axios.delete(`/api/v1/gift-requests/${id}`);
+            fetchStats();
         } catch (err) {
             setGiftRequests(previous);
             throw err;
@@ -149,7 +171,8 @@ export const AdminProvider = ({ children }) => {
             updateGiftRequestStatus,
             deleteGiftRequest,
 
-            stats
+            stats,
+            fetchStats
         }}>
             {children}
         </AdminContext.Provider>

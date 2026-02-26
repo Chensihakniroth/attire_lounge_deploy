@@ -27,6 +27,11 @@ class ProductRepository implements ProductRepositoryInterface
     {
         $query = $this->model->query();
 
+        // Apply visibility filter
+        if (!$dto->includeHidden) {
+            $query->where('is_visible', true);
+        }
+
         // Apply filters
         if (!empty($dto->categoryIds) || !empty($dto->collectionIds)) {
             $query->where(function($q) use ($dto) {
@@ -94,5 +99,40 @@ class ProductRepository implements ProductRepositoryInterface
     public function findBySlug(string $slug): ?Product
     {
         return $this->model->where('slug', $slug)->first();
+    }
+
+    /**
+     * Find a product by its ID.
+     */
+    public function findById(int $id): ?Product
+    {
+        return $this->model->find($id);
+    }
+
+    /**
+     * Update an existing product.
+     */
+    public function update(int $id, array $data): ?Product
+    {
+        $product = $this->findById($id);
+        if (!$product) {
+            return null;
+        }
+
+        $product->update($data);
+        return $product;
+    }
+
+    /**
+     * Delete a product.
+     */
+    public function delete(int $id): bool
+    {
+        $product = $this->findById($id);
+        if (!$product) {
+            return false;
+        }
+
+        return $product->delete();
     }
 }

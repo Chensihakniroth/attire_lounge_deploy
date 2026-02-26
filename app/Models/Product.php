@@ -22,6 +22,7 @@ class Product extends Model
         'collection_id',
         'is_featured',
         'is_new',
+        'is_visible',
         'availability',
         'sizing'
     ];
@@ -30,6 +31,7 @@ class Product extends Model
         'sizing' => 'array',
         'is_featured' => 'boolean',
         'is_new' => 'boolean',
+        'is_visible' => 'boolean',
         'price' => 'decimal:2',
     ];
 
@@ -49,9 +51,19 @@ class Product extends Model
         $primaryExt = $collection ? $collection->getPreferredExtension() : 'webp';
         $secondaryExt = ($primaryExt === 'webp') ? 'jpg' : 'webp';
 
+        // Custom logic for numbered image files in specific collections
+        $fileName = $slug;
+        if ($collection) {
+            if ($collection->slug === 'shades-of-elegance') {
+                $fileName = str_replace('shades-', '', $slug);
+            } elseif ($collection->slug === 'street-sartorial') {
+                $fileName = str_replace('street-', '', $slug);
+            }
+        }
+
         return [
-            "{$endpoint}{$path}{$slug}.{$primaryExt}?v=new",
-            "{$endpoint}{$path}{$slug}.{$secondaryExt}?v=new",
+            "{$endpoint}{$path}{$fileName}.{$primaryExt}?v=new",
+            "{$endpoint}{$path}{$fileName}.{$secondaryExt}?v=new",
         ];
     }
 

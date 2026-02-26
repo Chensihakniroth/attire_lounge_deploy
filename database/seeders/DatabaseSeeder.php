@@ -23,8 +23,8 @@ class DatabaseSeeder extends Seeder
         );
 
         $this->call(AdminSeeder::class);
-        $this->call(ProductsSeeder::class);
         $this->call(CollectionSeeder::class);
+        $this->call(ProductsSeeder::class);
         $this->call(AppointmentSeeder::class);
     }
 }

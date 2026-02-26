@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { NavLink, useNavigate, Outlet, useLocation } from 'react-router-dom';
-import { LayoutDashboard, Calendar, Gift, LogOut, Menu, X, Package } from 'lucide-react';
+import { LayoutDashboard, Calendar, Gift, LogOut, Menu, X, Package, ShoppingBag } from 'lucide-react';
 import { ThemeProvider } from './ThemeContext';
 import { AdminProvider } from './AdminContext';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -39,8 +39,9 @@ const Sidebar = ({ isOpen, setOpen }) => {
     const navItems = [
         { name: 'Dashboard', to: '/admin', icon: LayoutDashboard },
         { name: 'Appointments', to: '/admin/appointments', icon: Calendar },
+        { name: 'Products', to: '/admin/products', icon: ShoppingBag },
         { name: 'Gift Requests', to: '/admin/customize-gift', icon: Gift },
-        { name: 'Inventory', to: '/admin/inventory', icon: Package },
+        { name: 'Gift Inventory', to: '/admin/inventory', icon: Package },
     ];
 
     const SidebarContent = () => (

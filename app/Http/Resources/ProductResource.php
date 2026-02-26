@@ -23,6 +23,7 @@ class ProductResource extends JsonResource
             'collection_slug' => $this->collection ? $this->collection->slug : null,
             'featured' => (bool) $this->is_featured,
             'is_new' => (bool) $this->is_new,
+            'is_visible' => (bool) $this->is_visible,
             'in_stock' => $this->availability === 'In Stock',
             'images' => $this->images, // Uses our smart dynamic accessor! ✨
             'sizes' => $this->sizing,

@@ -111,5 +111,49 @@ class ProductController extends Controller
     {
         return $this->index($request);
     }
+
+    /**
+     * Update a product (Admin only).
+     */
+    public function update(Request $request, $id): JsonResponse
+    {
+        $validated = $request->validate([
+            'name' => 'sometimes|string|max:255',
+            'price' => 'sometimes|numeric',
+            'description' => 'sometimes|string',
+            'availability' => 'sometimes|string',
+            'is_featured' => 'sometimes|boolean',
+            'is_new' => 'sometimes|boolean',
+            'is_visible' => 'sometimes|boolean',
+        ]);
+
+        $product = $this->productService->updateProduct($id, $validated);
+
+        if (!$product) {
+            return response()->json(['success' => false, 'message' => 'Product not found'], 404);
+        }
+
+        return response()->json([
+            'success' => true,
+            'data' => new ProductResource($product)
+        ]);
+    }
+
+    /**
+     * Delete a product (Admin only).
+     */
+    public function destroy($id): JsonResponse
+    {
+        $deleted = $this->productService->deleteProduct($id);
+
+        if (!$deleted) {
+            return response()->json(['success' => false, 'message' => 'Product not found or could not be deleted'], 404);
+        }
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Product deleted successfully'
+        ]);
+    }
 }
 

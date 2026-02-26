@@ -28,4 +28,19 @@ interface ProductRepositoryInterface
      * Find a product by its slug.
      */
     public function findBySlug(string $slug): ?Product;
+
+    /**
+     * Find a product by its ID.
+     */
+    public function findById(int $id): ?Product;
+
+    /**
+     * Update an existing product.
+     */
+    public function update(int $id, array $data): ?Product;
+
+    /**
+     * Delete a product.
+     */
+    public function delete(int $id): bool;
 }
