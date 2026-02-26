@@ -1,14 +1,17 @@
 import React, { useState, useMemo, useEffect, useRef } from 'react';
 import { useLocation, Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ChevronLeft, Search, X, ChevronDown, Loader2 } from 'lucide-react';
+import { ChevronLeft, Search, X, ChevronDown, Loader2, SlidersHorizontal, Search as SearchIcon } from 'lucide-react';
 import ItemCard from './collections/ItemCard';
 import GrainOverlay from '../common/GrainOverlay.jsx';
 import SEO from '../common/SEO';
 import { useProducts } from '../../hooks/useProducts';
 import { Product } from '../../types';
+import useDebounce from '../../hooks/useDebounce';
 
 interface CollectionOption {
+// ... existing interface ...
+// (Note: I'll keep the rest of the file structure but focus on the changes)
     id: number;
     title: string;
     slug: string;
@@ -22,11 +25,6 @@ const allCollections: CollectionOption[] = [
     { id: 5, title: 'Travel Collection', slug: 'travel-collection' },
     { id: 6, title: 'Accessories', slug: 'accessories' },
 ];
-
-interface SortOption {
-    value: string;
-    label: string;
-}
 
 const sortOptions: SortOption[] = [
     { value: 'newest', label: 'Newest Arrivals' },
@@ -44,11 +42,14 @@ const ProductListPage: React.FC = () => {
     const collectionQuery = query.get('collection');
 
     const [sortOrder, setSortOrder] = useState<string>('newest');
+    const [searchQuery, setSearchQuery] = useState<string>('');
+    const debouncedSearch = useDebounce(searchQuery, 500);
+
     const [selectedCollections, setSelectedCollections] = useState<string[]>(() => {
         return collectionQuery ? [collectionQuery] : [];
     });
 
-    const productsPerPage = 12; // Number of products to load per batch
+    const productsPerPage = 12; 
     const [currentLoadedPage, setCurrentLoadedPage] = useState<number>(1);
     const [allLoadedProducts, setAllLoadedProducts] = useState<Product[]>([]);
     const [hasMore, setHasMore] = useState<boolean>(true);
@@ -56,6 +57,7 @@ const ProductListPage: React.FC = () => {
     const { data, isLoading, isFetching } = useProducts({
         category: selectedCollections[0],
         sort: sortOrder,
+        search: debouncedSearch,
         page: currentLoadedPage,
         per_page: productsPerPage
     });
@@ -63,15 +65,12 @@ const ProductListPage: React.FC = () => {
     const meta = data?.meta || { total: 0, last_page: 1, current_page: 1 };
 
     useEffect(() => {
-        // Reset state when filters or sort order changes
         setAllLoadedProducts([]);
         setCurrentLoadedPage(1);
         setHasMore(true);
         
-        if (currentLoadedPage === 1) {
-            window.scrollTo({ top: 0, behavior: 'smooth' });
-        }
-    }, [selectedCollections, sortOrder]);
+
+    }, [selectedCollections, sortOrder, debouncedSearch]);
 
     useEffect(() => {
         if (data?.data && currentLoadedPage > 0) {
@@ -101,6 +100,7 @@ const ProductListPage: React.FC = () => {
 
     const clearFilters = () => {
         setSelectedCollections([]);
+        setSearchQuery('');
     };
 
     const removeCollectionFilter = (slug: string) => {
@@ -149,10 +149,12 @@ const ProductListPage: React.FC = () => {
             </header>
 
             <main className="relative z-10 max-w-screen-2xl mx-auto px-6 sm:px-12 lg:px-24 pb-32">
-                <div className="z-40 sticky top-24 mb-20">
+                <div className="z-50 mb-20 relative">
                     <Controls
                         sortOrder={sortOrder}
                         setSortOrder={setSortOrder}
+                        searchQuery={searchQuery}
+                        setSearchQuery={setSearchQuery}
                         selectedCollections={selectedCollections}
                         handleCollectionToggle={handleCollectionToggle}
                         clearFilters={clearFilters}
@@ -218,82 +220,172 @@ const ProductListPage: React.FC = () => {
 interface ControlsProps {
     sortOrder: string;
     setSortOrder: (order: string) => void;
+    searchQuery: string;
+    setSearchQuery: (query: string) => void;
     selectedCollections: string[];
     handleCollectionToggle: (slug: string) => void;
     clearFilters: () => void;
     removeCollectionFilter: (slug: string) => void;
 }
 
-const Controls: React.FC<ControlsProps> = ({ sortOrder, setSortOrder, selectedCollections, handleCollectionToggle, clearFilters, removeCollectionFilter }) => (
-    <div className="w-full max-w-6xl mx-auto relative">
-        <div className="bg-attire-navy/80 backdrop-blur-xl border border-white/20 rounded-full p-1.5 flex items-center justify-between">
-            <CollectionDropdown selectedCollections={selectedCollections} handleCollectionToggle={handleCollectionToggle} />
-            <FilterSortDropdown sortOrder={sortOrder} setSortOrder={setSortOrder} />
-        </div>
-        {selectedCollections.length > 0 && (
-            <div className="flex items-center flex-wrap gap-2 mt-6 px-6">
-                {selectedCollections.map(slug => (
-                    <FilterTag key={slug} onRemove={() => removeCollectionFilter(slug)}>
-                        {allCollections.find(c => c.slug === slug)?.title || slug}
-                    </FilterTag>
-                ))}
-                <button onClick={clearFilters} className="text-[9px] uppercase tracking-[0.2em] font-bold text-white bg-red-900 px-4 py-2 rounded-full">Clear All</button>
+const Controls: React.FC<ControlsProps> = ({ sortOrder, setSortOrder, searchQuery, setSearchQuery, selectedCollections, handleCollectionToggle, clearFilters, removeCollectionFilter }) => (
+    <div className="w-full max-w-6xl mx-auto space-y-6">
+        <div className="relative group z-[999]">
+            {/* Background & Glow Container - This clips the glow! */}
+            <div className="absolute inset-0 bg-white/[0.03] border border-white/10 rounded-2xl backdrop-blur-sm transition-all duration-500 overflow-hidden pointer-events-none" />
+            
+            {/* Content Container - No overflow-hidden here, so dropdowns can fly free! */}
+            <div className="relative flex flex-col md:flex-row items-center gap-4 p-2 md:p-3 z-10">
+                {/* Search Input */}
+                <div className="relative w-full md:flex-grow group/search">
+                    <SearchIcon size={18} className="absolute left-5 top-1/2 -translate-y-1/2 text-white/30 group-focus-within/search:text-attire-accent transition-colors duration-500" />
+                    <input 
+                        type="text"
+                        value={searchQuery}
+                        onChange={(e) => setSearchQuery(e.target.value)}
+                        placeholder="Search our masterpiece..."
+                        className="w-full bg-white/[0.05] border border-transparent focus:border-white/10 focus:bg-white/[0.08] text-white text-[11px] uppercase tracking-[0.2em] font-medium py-4 pl-14 pr-6 rounded-xl outline-none transition-all duration-500 placeholder:text-white/20"
+                    />
+                </div>
+
+                {/* Dropdowns Container */}
+                <div className="flex items-center gap-2 w-full md:w-auto">
+                    <CollectionDropdown selectedCollections={selectedCollections} handleCollectionToggle={handleCollectionToggle} />
+                    <div className="h-8 w-px bg-white/10 hidden md:block" />
+                    <FilterSortDropdown sortOrder={sortOrder} setSortOrder={setSortOrder} />
+                </div>
             </div>
-        )}
+        </div>
+
+        {/* Active Filters */}
+        <AnimatePresence>
+            {(selectedCollections.length > 0 || searchQuery) && (
+                <motion.div 
+                    initial={{ opacity: 0, y: -10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -10 }}
+                    className="flex items-center flex-wrap gap-3 px-2"
+                >
+                    <span className="text-[9px] uppercase tracking-[0.3em] font-bold text-white/20 mr-2">Refining by:</span>
+                    {searchQuery && (
+                        <FilterTag onRemove={() => setSearchQuery('')}>
+                            Search: {searchQuery}
+                        </FilterTag>
+                    )}
+                    {selectedCollections.map(slug => (
+                        <FilterTag key={slug} onRemove={() => removeCollectionFilter(slug)}>
+                            {allCollections.find(c => c.slug === slug)?.title || slug}
+                        </FilterTag>
+                    ))}
+                    <button 
+                        onClick={clearFilters}
+                        className="text-[9px] uppercase tracking-[0.3em] font-bold text-attire-accent hover:text-white transition-colors duration-300 ml-2"
+                    >
+                        Reset All
+                    </button>
+                </motion.div>
+            )}
+        </AnimatePresence>
     </div>
 );
 
-interface DropdownProps {
-    selectedCollections: string[];
-    handleCollectionToggle: (slug: string) => void;
-}
-
-const CollectionDropdown: React.FC<DropdownProps> = ({ selectedCollections, handleCollectionToggle }) => {
+const CollectionDropdown: React.FC<{ selectedCollections: string[]; handleCollectionToggle: (slug: string) => void }> = ({ selectedCollections, handleCollectionToggle }) => {
     const [isOpen, setIsOpen] = useState(false);
     const dropdownRef = useRef<HTMLDivElement>(null);
-    const label = selectedCollections.length === 0 ? 'All Collections' : allCollections.find(c => c.slug === selectedCollections[0])?.title || 'Selected';
+    const label = selectedCollections.length === 0 ? 'Collections' : allCollections.find(c => c.slug === selectedCollections[0])?.title || 'Selected';
+
+    useEffect(() => {
+        const handleClickOutside = (event: MouseEvent) => {
+            if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+                setIsOpen(false);
+            }
+        };
+        document.addEventListener('mousedown', handleClickOutside);
+        return () => document.removeEventListener('mousedown', handleClickOutside);
+    }, []);
 
     return (
-        <div ref={dropdownRef} className="relative">
-            <button onClick={() => setIsOpen(!isOpen)} className="px-6 py-2.5 text-[10px] font-bold uppercase tracking-[0.2em] text-white/60 hover:text-white flex items-center gap-2">
-                {label} <ChevronDown size={14} className={isOpen ? 'rotate-180' : ''} />
+        <div ref={dropdownRef} className="relative w-full md:w-auto">
+            <button 
+                onClick={() => setIsOpen(!isOpen)} 
+                className={`w-full md:w-auto px-6 py-4 text-[10px] font-bold uppercase tracking-[0.2em] transition-all duration-500 flex items-center justify-between md:justify-start gap-3 rounded-xl ${isOpen ? 'bg-white/10 text-white' : 'text-white/40 hover:text-white hover:bg-white/5'}`}
+            >
+                <SlidersHorizontal size={14} className={selectedCollections.length > 0 ? 'text-attire-accent' : ''} />
+                <span className="truncate max-w-[120px]">{label}</span>
+                <ChevronDown size={14} className={`transition-transform duration-500 ${isOpen ? 'rotate-180' : ''}`} />
             </button>
-            {isOpen && (
-                <div className="absolute left-0 mt-4 w-64 bg-[#050810] border border-white/10 rounded-2xl py-2 z-[300]">
-                    {allCollections.map(c => (
-                        <button key={c.id} onClick={() => { handleCollectionToggle(c.slug); setIsOpen(false); }} className={`w-full px-6 py-3 text-[10px] uppercase font-bold text-left ${selectedCollections.includes(c.slug) ? 'text-attire-accent' : 'text-white/40 hover:text-white'}`}>
-                            {c.title}
-                        </button>
-                    ))}
-                </div>
-            )}
+            <AnimatePresence>
+                {isOpen && (
+                    <motion.div 
+                        initial={{ opacity: 0, y: 10, scale: 0.95 }}
+                        animate={{ opacity: 1, y: 0, scale: 1 }}
+                        exit={{ opacity: 0, y: 10, scale: 0.95 }}
+                        className="absolute left-0 mt-3 w-full md:w-72 bg-[#0a0a0a] border border-white/10 rounded-2xl p-2 z-[300] shadow-2xl backdrop-blur-xl"
+                    >
+                        <div className="grid grid-cols-1 gap-1">
+                            {allCollections.map(c => (
+                                <button 
+                                    key={c.id} 
+                                    onClick={() => { handleCollectionToggle(c.slug); setIsOpen(false); }} 
+                                    className={`w-full px-5 py-3.5 text-[10px] uppercase tracking-[0.1em] font-bold text-left rounded-lg transition-all duration-300 ${selectedCollections.includes(c.slug) ? 'bg-attire-accent text-black' : 'text-white/40 hover:text-white hover:bg-white/5'}`}
+                                >
+                                    {c.title}
+                                </button>
+                            ))}
+                        </div>
+                    </motion.div>
+                )}
+            </AnimatePresence>
         </div>
     );
 };
 
-interface SortDropdownProps {
-    sortOrder: string;
-    setSortOrder: (order: string) => void;
-}
-
-const FilterSortDropdown: React.FC<SortDropdownProps> = ({ sortOrder, setSortOrder }) => {
+const FilterSortDropdown: React.FC<{ sortOrder: string; setSortOrder: (order: string) => void }> = ({ sortOrder, setSortOrder }) => {
     const [isOpen, setIsOpen] = useState(false);
+    const dropdownRef = useRef<HTMLDivElement>(null);
     const label = sortOptions.find(opt => opt.value === sortOrder)?.label || 'Sort By';
 
+    useEffect(() => {
+        const handleClickOutside = (event: MouseEvent) => {
+            if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+                setIsOpen(false);
+            }
+        };
+        document.addEventListener('mousedown', handleClickOutside);
+        return () => document.removeEventListener('mousedown', handleClickOutside);
+    }, []);
+
     return (
-        <div className="relative">
-            <button onClick={() => setIsOpen(!isOpen)} className="px-6 py-2.5 text-[10px] font-bold uppercase tracking-[0.2em] text-white/60 hover:text-white flex items-center gap-2">
-                {label} <ChevronDown size={14} className={isOpen ? 'rotate-180' : ''} />
+        <div ref={dropdownRef} className="relative w-full md:w-auto">
+            <button 
+                onClick={() => setIsOpen(!isOpen)} 
+                className={`w-full md:w-auto px-6 py-4 text-[10px] font-bold uppercase tracking-[0.2em] transition-all duration-500 flex items-center justify-between md:justify-start gap-3 rounded-xl ${isOpen ? 'bg-white/10 text-white' : 'text-white/40 hover:text-white hover:bg-white/5'}`}
+            >
+                <span className="truncate max-w-[120px]">{label}</span>
+                <ChevronDown size={14} className={`transition-transform duration-500 ${isOpen ? 'rotate-180' : ''}`} />
             </button>
-            {isOpen && (
-                <div className="absolute right-0 mt-4 w-56 bg-[#050810] border border-white/10 rounded-2xl py-2 z-[300]">
-                    {sortOptions.map(opt => (
-                        <button key={opt.value} onClick={() => { setSortOrder(opt.value); setIsOpen(false); }} className={`w-full px-6 py-3 text-[10px] uppercase font-bold text-left ${sortOrder === opt.value ? 'text-attire-accent' : 'text-white/40 hover:text-white'}`}>
-                            {opt.label}
-                        </button>
-                    ))}
-                </div>
-            )}
+            <AnimatePresence>
+                {isOpen && (
+                    <motion.div 
+                        initial={{ opacity: 0, y: 10, scale: 0.95 }}
+                        animate={{ opacity: 1, y: 0, scale: 1 }}
+                        exit={{ opacity: 0, y: 10, scale: 0.95 }}
+                        className="absolute right-0 mt-3 w-full md:w-64 bg-[#0a0a0a] border border-white/10 rounded-2xl p-2 z-[300] shadow-2xl backdrop-blur-xl"
+                    >
+                        <div className="grid grid-cols-1 gap-1">
+                            {sortOptions.map(opt => (
+                                <button 
+                                    key={opt.value} 
+                                    onClick={() => { setSortOrder(opt.value); setIsOpen(false); }} 
+                                    className={`w-full px-5 py-3.5 text-[10px] uppercase tracking-[0.1em] font-bold text-left rounded-lg transition-all duration-300 ${sortOrder === opt.value ? 'bg-attire-accent text-black' : 'text-white/40 hover:text-white hover:bg-white/5'}`}
+                                >
+                                    {opt.label}
+                                </button>
+                            ))}
+                        </div>
+                    </motion.div>
+                )}
+            </AnimatePresence>
         </div>
     );
 };
@@ -304,10 +396,19 @@ interface FilterTagProps {
 }
 
 const FilterTag: React.FC<FilterTagProps> = ({ children, onRemove }) => (
-    <div className="flex items-center gap-3 bg-attire-dark border border-white/10 text-white rounded-full pl-4 pr-2 py-1.5 text-[10px] font-bold">
-        <span className="opacity-60">{children}</span>
-        <button onClick={onRemove} className="p-1 hover:bg-white/10 rounded-full"><X size={12} /></button>
-    </div>
+    <motion.div 
+        initial={{ scale: 0.8, opacity: 0 }}
+        animate={{ scale: 1, opacity: 1 }}
+        className="flex items-center gap-2 bg-white/5 border border-white/10 text-white rounded-lg pl-4 pr-2 py-2 text-[9px] font-bold uppercase tracking-widest group hover:border-white/20 transition-all duration-300"
+    >
+        <span className="opacity-60 group-hover:opacity-100 transition-opacity">{children}</span>
+        <button 
+            onClick={onRemove} 
+            className="p-1 hover:bg-white/10 rounded-md transition-colors text-white/30 hover:text-white"
+        >
+            <X size={12} />
+        </button>
+    </motion.div>
 );
 
 export default ProductListPage;

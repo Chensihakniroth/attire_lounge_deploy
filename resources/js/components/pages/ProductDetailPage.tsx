@@ -35,6 +35,17 @@ const ProductDetailPage: React.FC = () => {
     const { data: product, isLoading, isError } = useProduct(productId || '');
 
     useEffect(() => {
+        console.log("========================================");
+        console.log("Attire Lounge Debugger! (ﾉ´ヮ`)ﾉ*:･ﾟ✧");
+        console.log("Page: Product Detail");
+        console.log("Product Slug from URL:", productId);
+        console.log("Loading State:", isLoading);
+        console.log("Error State:", isError);
+        console.log("Fetched Product Data:", product);
+        console.log("========================================");
+    }, [productId, product, isLoading, isError]);
+
+    useEffect(() => {
         const timer = setTimeout(() => setIsReady(true), 100);
         return () => clearTimeout(timer);
     }, []);

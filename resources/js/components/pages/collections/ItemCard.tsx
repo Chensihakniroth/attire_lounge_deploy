@@ -21,14 +21,24 @@ const ItemCard: React.FC<ItemCardProps> = memo(({ product }) => {
     const imageUrl = product.images && product.images.length > 0 ? product.images[0] : '/path/to/default/image.jpg';
     const fallbackUrl = product.images && product.images.length > 1 ? product.images[1] : null;
 
+    const hasSlug = !!product.slug && product.slug !== 'undefined';
+
+    const handleProductClick = () => {
+        if (hasSlug) {
+            navigate(`/product/${product.slug}`);
+        } else {
+            console.error("This product has an invalid slug and cannot be viewed:", product);
+        }
+    };
+
     return (
         <motion.div
-            className="text-left cursor-pointer group"
-            onClick={() => navigate(`/product/${product.slug}`)}
+            className={`text-left group ${hasSlug ? 'cursor-pointer' : 'cursor-not-allowed'}`}
+            onClick={handleProductClick}
             variants={itemVariants}
             transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
         >
-            <div className="relative overflow-hidden aspect-[3/4] rounded-sm bg-white/5">
+            <div className={`relative overflow-hidden aspect-[3/4] rounded-sm bg-white/5 ${!hasSlug ? 'opacity-50' : ''}`}>
                 <OptimizedImage 
                     src={imageUrl} 
                     fallback={fallbackUrl}
