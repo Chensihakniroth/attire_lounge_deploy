@@ -18,6 +18,7 @@ class Product extends Model
         'slug',
         'description',
         'price',
+        'images',
         'category_id',
         'collection_id',
         'is_featured',
@@ -32,6 +33,7 @@ class Product extends Model
 
     protected $casts = [
         'sizing' => 'array',
+        'images' => 'array',
         'is_featured' => 'boolean',
         'is_new' => 'boolean',
         'is_visible' => 'boolean',
@@ -42,8 +44,17 @@ class Product extends Model
      * Get the images attribute dynamically from MinIO.
      * Delegates logic to the Collection model to maintain SRP. ✨
      */
-    public function getImagesAttribute()
+    public function getImagesAttribute($value)
     {
+        // Since 'images' is cast to an array, $value will already be an array if it exists. ✨
+        $images = $this->getRawOriginal('images');
+        if ($images) {
+            $decoded = json_decode($images, true);
+            if (is_array($decoded) && !empty($decoded)) {
+                return $decoded;
+            }
+        }
+
         $endpoint = config('services.minio.endpoint');
         $slug = $this->slug;
         

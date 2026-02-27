@@ -29,7 +29,7 @@ class ProductRepository implements ProductRepositoryInterface
             ->with(['category', 'collection']) // Eager load relationships ✨
             ->select([ // Only select necessary columns
                 'id', 'name', 'slug', 'description', 'price', 
-                'category_id', 'collection_id', 'is_featured', 
+                'images', 'category_id', 'collection_id', 'is_featured', 
                 'is_new', 'is_visible', 'availability',
                 'fabric', 'silhouette', 'details', 'sizing'
             ]);
@@ -122,12 +122,16 @@ class ProductRepository implements ProductRepositoryInterface
      */
     public function create(array $data): Product
     {
-        if (!isset($data['slug'])) {
+        // If a slug is provided, use it. Otherwise, create one from the name.
+        if (!isset($data['slug']) || empty($data['slug'])) {
             $data['slug'] = \Illuminate\Support\Str::slug($data['name']);
-            
-            // Ensure uniqueness
+        }
+
+        // Ensure the final slug is unique
+        if ($this->model->where('slug', $data['slug'])->exists()) {
             $originalSlug = $data['slug'];
             $count = 1;
+            // Loop until a unique slug is found
             while ($this->model->where('slug', $data['slug'])->exists()) {
                 $data['slug'] = $originalSlug . '-' . $count++;
             }

@@ -193,7 +193,11 @@ const ProductManager = () => {
         ));
 
         try {
-            const response = await axios.put(`/api/v1/admin/products/${product.id}`, { is_visible: nextStatus });
+            const token = localStorage.getItem('admin_token') || sessionStorage.getItem('admin_token');
+            const response = await axios.put(`/api/v1/admin/products/${product.id}`, 
+                { is_visible: nextStatus },
+                { headers: { 'Authorization': `Bearer ${token}` } }
+            );
             if (!response.data.success) throw new Error('Failed to update');
         } catch (error) {
             console.error('Failed to toggle visibility:', error);
@@ -206,7 +210,10 @@ const ProductManager = () => {
         if (window.confirm('Are you sure you want to permanently delete this product?')) {
             setAllProducts(prev => prev.filter(p => p.id !== id));
             try {
-                await axios.delete(`/api/v1/admin/products/${id}`);
+                const token = localStorage.getItem('admin_token') || sessionStorage.getItem('admin_token');
+                await axios.delete(`/api/v1/admin/products/${id}`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
             } catch (error) {
                 console.error('Failed to delete product:', error);
                 fetchData(true);

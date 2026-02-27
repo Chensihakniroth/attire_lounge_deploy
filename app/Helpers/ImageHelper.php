@@ -77,10 +77,11 @@ class ImageHelper
      * 
      * @param \Illuminate\Http\UploadedFile $file
      * @param int $maxWidth
+     * @param string $format 'webp' or 'jpg'
      * @param int $quality
      * @return \Intervention\Image\EncodedImage
      */
-    public static function autoCompress($file, $maxWidth = 1920, $quality = 80)
+    public static function autoCompress($file, $maxWidth = 1920, $format = 'webp', $quality = 80)
     {
         $imageManager = self::getImageManager();
         $image = $imageManager->read($file->getPathname());
@@ -90,9 +91,11 @@ class ImageHelper
             $image->scale(width: $maxWidth);
         }
 
-        // Convert to WebP for best compression-to-quality ratio
-        // 80 quality is usually indistinguishable from original for most users
-        // but significantly reduces file size.
+        // Convert to requested format ✨
+        if (strtolower($format) === 'jpg' || strtolower($format) === 'jpeg') {
+            return $image->toJpeg($quality);
+        }
+        
         return $image->toWebp($quality);
     }
 }

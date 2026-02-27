@@ -13,21 +13,46 @@ class ImageUploadController extends Controller
     {
         $request->validate([
             'image' => 'required|image|mimes:jpeg,png,jpg,gif,svg,webp|max:10240',
+            'collection_id' => 'nullable|exists:collections,id',
         ]);
 
         $file = $request->file('image');
         
-        // Auto compress the image
-        $compressedImage = ImageHelper::autoCompress($file);
+        // Determine storage path
+        $path = 'uploads/asset/'; // Default fallback
+        if ($request->collection_id) {
+            $collection = \App\Models\Collection::find($request->collection_id);
+            if ($collection) {
+                $path = ltrim($collection->getStoragePath(), '/');
+            }
+        }
         
-        // Generate a unique filename with .webp extension
-        $filename = Str::random(40) . '.webp';
-        $path = 'uploads/' . $filename;
+        // Determine format based on original file 
+        $extension = strtolower($file->getClientOriginalExtension());
+        $format = ($extension === 'jpg' || $extension === 'jpeg') ? 'jpg' : 'webp';
+        
+        // Auto compress the image using the detected format ✨
+        $compressedImage = ImageHelper::autoCompress($file, 1920, $format, 80);
+        
+        // Use original filename (sanitized) + format extension
+        $originalName = pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME);
+        $safeName = Str::slug($originalName);
+        $filename = $safeName . '-' . Str::random(5) . '.' . $format; 
+        $fullPath = $path . $filename;
+
+        \Illuminate\Support\Facades\Log::info("Uploading image to MinIO", [
+            'collection_id' => $request->collection_id,
+            'target_path' => $path,
+            'filename' => $filename
+        ]);
 
         // Store to MinIO
-        Storage::disk('minio')->put($path, $compressedImage);
+        Storage::disk('minio')->put($fullPath, $compressedImage);
 
-        return response()->json(['url' => Storage::disk('minio')->url($path)], 201);
+        return response()->json([
+            'url' => Storage::disk('minio')->url($fullPath),
+            'filename' => pathinfo($filename, PATHINFO_FILENAME)
+        ], 201);
     }
 
     public function listImages()

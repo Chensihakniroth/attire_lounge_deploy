@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, Check, Loader, AlertCircle, RefreshCw, Eye, EyeOff, ChevronLeft, ChevronDown } from 'lucide-react';
+import { X, Check, Loader, AlertCircle, RefreshCw, Eye, EyeOff, ChevronLeft, ChevronDown, Plus, Trash2, ImageIcon } from 'lucide-react';
 import axios from 'axios';
 import { useAdmin } from './AdminContext';
 
@@ -63,6 +63,7 @@ const ProductEditor = ({ isNew = false }) => {
     const [product, setProduct] = useState(null);
     const [formData, setFormData] = useState({
         name: '',
+        slug: '',
         price: '',
         description: '',
         availability: 'In Stock',
@@ -80,26 +81,97 @@ const ProductEditor = ({ isNew = false }) => {
 
     const [categories, setCategories] = useState([]);
     const [collections, setCollections] = useState([]);
+    const [uploading, setUploading] = useState(false);
 
     useEffect(() => {
         setIsEditing(true);
         return () => setIsEditing(false);
     }, [setIsEditing]);
 
+    const handleImageUpload = async (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+
+        // Visual organization is key! 
+        if (!formData.collection_id) {
+            if (!window.confirm("No collection selected. The image will be uploaded to the general assets folder. Continue?")) {
+                return;
+            }
+        }
+
+        setUploading(true);
+        const formDataUpload = new FormData();
+        formDataUpload.append('image', file);
+        if (formData.collection_id) {
+            formDataUpload.append('collection_id', formData.collection_id);
+        }
+
+        try {
+            const response = await axios.post('/api/v1/admin/upload-image', formDataUpload, {
+                headers: { 'Content-Type': 'multipart/form-data' }
+            });
+            
+            if (response.data.url) {
+                console.log("========================================");
+                console.log("MinIO Upload Successful! (ﾉ´ヮ`)ﾉ*:･ﾟ✧");
+                console.log("Public URL:", response.data.url);
+                console.log("Suggested Slug:", response.data.filename);
+                console.log("========================================");
+                
+                setFormData(prev => {
+                    const newData = { ...prev };
+                    newData.images = [...prev.images, response.data.url];
+                    
+                    // If slug is empty, helpfully fill it from the image name! ✨
+                    if (!newData.slug && isNew) {
+                        newData.slug = response.data.filename;
+                    }
+                    
+                    return newData;
+                });
+            }
+        } catch (err) {
+            console.error("========================================");
+            console.error("MinIO Upload Failed! (｡>﹏<｡)");
+            console.error("Error Detail:", err.response?.data || err.message);
+            console.error("========================================");
+            setError('Failed to upload image. Please try again.');
+        } finally {
+            setUploading(false);
+        }
+    };
+
+    const handleRemoveImage = (indexToRemove) => {
+        setFormData(prev => ({
+            ...prev,
+            images: prev.images.filter((_, index) => index !== indexToRemove)
+        }));
+    };
+
     useEffect(() => {
         const fetchMetadata = async () => {
             try {
+                console.log("Fetching metadata for dropdowns...");
                 const [catsRes, collsRes] = await Promise.all([
                     axios.get('/api/v1/products/categories'),
                     axios.get('/api/v1/products/collections')
                 ]);
                 
-                if (catsRes.data.success) {
-                    setCategories(catsRes.data.data.map(c => typeof c === 'string' ? { name: c, id: c } : c));
+                console.log("Raw Categories Response:", catsRes.data);
+                console.log("Raw Collections Response:", collsRes.data);
+
+                if (catsRes.data && catsRes.data.success) {
+                    const data = catsRes.data.data || [];
+                    const formatted = data.map(c => {
+                        if (typeof c === 'object') return { name: c.name, id: c.id };
+                        return { name: c, id: c };
+                    });
+                    setCategories(formatted);
                 }
                 
-                if (collsRes.data.success) {
-                    setCollections(collsRes.data.data);
+                if (collsRes.data && collsRes.data.success) {
+                    const data = collsRes.data.data || [];
+                    setCollections(data.map(c => ({ name: c.name, id: c.id })));
                 }
             } catch (err) {
                 console.error('Failed to fetch metadata:', err);
@@ -117,6 +189,7 @@ const ProductEditor = ({ isNew = false }) => {
                         setProduct(p);
                         setFormData({
                             name: p.name,
+                            slug: p.slug || '',
                             price: p.price,
                             description: p.description || '',
                             availability: p.availability || (p.in_stock ? 'In Stock' : 'Out of Stock'),
@@ -192,7 +265,7 @@ const ProductEditor = ({ isNew = false }) => {
                         <div>
                             <h2 className="text-2xl font-serif text-gray-900 dark:text-white">{isNew ? 'New Masterpiece' : 'Edit Product'}</h2>
                             <p className="text-gray-400 dark:text-attire-silver text-[10px] uppercase tracking-widest mt-1 opacity-50">
-                                {isNew ? 'Creating in repository' : product?.slug}
+                                {isNew ? 'Creating in repository' : formData.slug}
                             </p>
                         </div>
                     </div>
@@ -236,6 +309,20 @@ const ProductEditor = ({ isNew = false }) => {
                             />
                         </div>
                         <div className="space-y-3">
+                            <label className="text-[10px] font-bold text-gray-400 dark:text-attire-silver/50 uppercase tracking-[0.2em] ml-1">Product Slug</label>
+                            <input 
+                                type="text" 
+                                value={formData.slug}
+                                onChange={e => setFormData({...formData, slug: e.target.value})}
+                                className="w-full bg-black/5 dark:bg-white/5 border border-black/5 dark:border-white/10 rounded-2xl py-5 px-6 text-gray-900 dark:text-white focus:border-attire-accent outline-none transition-all placeholder:text-gray-300 dark:placeholder:text-white/10 font-mono"
+                                placeholder="unique-product-identifier"
+                                required
+                            />
+                        </div>
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
+                        <div className="space-y-3">
                             <label className="text-[10px] font-bold text-gray-400 dark:text-attire-silver/50 uppercase tracking-[0.2em] ml-1">Price ($)</label>
                             <input 
                                 type="number" 
@@ -247,25 +334,17 @@ const ProductEditor = ({ isNew = false }) => {
                                 required
                             />
                         </div>
-                    </div>
-
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
                         <div className="space-y-3">
-                            <label className="text-[10px] font-bold text-gray-400 dark:text-attire-silver/50 uppercase tracking-[0.2em] ml-1">Category</label>
+                            <label className="text-[10px] font-bold text-gray-400 dark:text-attire-silver/50 uppercase tracking-[0.2em] ml-1">Availability</label>
                             <CustomDropdown 
-                                selected={formData.category_id}
-                                options={categories}
-                                onChange={val => setFormData({...formData, category_id: val})}
-                                label="Select Category"
-                            />
-                        </div>
-                        <div className="space-y-3">
-                            <label className="text-[10px] font-bold text-gray-400 dark:text-attire-silver/50 uppercase tracking-[0.2em] ml-1">Collection</label>
-                            <CustomDropdown 
-                                selected={formData.collection_id}
-                                options={collections}
-                                onChange={val => setFormData({...formData, collection_id: val})}
-                                label="Select Collection"
+                                selected={formData.availability}
+                                options={[
+                                    { name: 'In Stock', slug: 'In Stock' },
+                                    { name: 'Low Stock', slug: 'Low Stock' },
+                                    { name: 'Out of Stock', slug: 'Out of Stock' }
+                                ]}
+                                onChange={val => setFormData({...formData, availability: val})}
+                                icon={RefreshCw}
                             />
                         </div>
                     </div>
@@ -279,6 +358,100 @@ const ProductEditor = ({ isNew = false }) => {
                             className="w-full bg-black/5 dark:bg-white/5 border border-black/5 dark:border-white/10 rounded-2xl py-5 px-6 text-gray-900 dark:text-white focus:border-attire-accent outline-none transition-all resize-none text-sm leading-relaxed"
                             placeholder="Describe the silhouette and essence..."
                         />
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
+                        <div className="space-y-3">
+                            <label className="text-[10px] font-bold text-gray-400 dark:text-attire-silver/50 uppercase tracking-[0.2em] ml-1">Category</label>
+                            <CustomDropdown 
+                                selected={formData.category_id}
+                                options={categories}
+                                onChange={val => setFormData({...formData, category_id: val})}
+                                icon={ImageIcon}
+                                label="Select a Category"
+                            />
+                        </div>
+                        <div className="space-y-3">
+                            <label className="text-[10px] font-bold text-gray-400 dark:text-attire-silver/50 uppercase tracking-[0.2em] ml-1">Collection</label>
+                            <CustomDropdown 
+                                selected={formData.collection_id}
+                                options={collections}
+                                onChange={val => setFormData({...formData, collection_id: val})}
+                                icon={ImageIcon}
+                                label="Select a Collection"
+                            />
+                        </div>
+                    </div>
+
+                    <div className="space-y-6">
+                        <div className="flex items-center justify-between ml-1">
+                            <label className="text-[10px] font-bold text-gray-400 dark:text-attire-silver/50 uppercase tracking-[0.2em]">Product Imagery</label>
+                            <span className="text-[9px] text-gray-400 dark:text-attire-silver/30 font-bold uppercase tracking-widest">{formData.images.length} Images Added</span>
+                        </div>
+                        
+                        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
+                            {/* Upload Button */}
+                            <label className={`aspect-square rounded-2xl border-2 border-dashed border-black/10 dark:border-white/10 flex flex-col items-center justify-center cursor-pointer hover:border-attire-accent/50 hover:bg-black/5 dark:hover:bg-white/5 transition-all group ${uploading ? 'pointer-events-none opacity-50' : ''}`}>
+                                <input 
+                                    type="file" 
+                                    className="hidden" 
+                                    accept="image/*"
+                                    onChange={handleImageUpload}
+                                />
+                                <div className="w-10 h-10 rounded-full bg-black/5 dark:bg-white/5 flex items-center justify-center mb-2 group-hover:scale-110 transition-transform">
+                                    <Plus size={20} className="text-gray-400 dark:text-attire-silver" />
+                                </div>
+                                <span className="text-[10px] font-bold uppercase tracking-widest text-gray-400 dark:text-attire-silver/40 group-hover:text-attire-accent transition-colors">Add Photo</span>
+                            </label>
+
+                            {/* Image Previews & Loading States */}
+                            <AnimatePresence mode="popLayout">
+                                {uploading && (
+                                    <motion.div 
+                                        key="uploading-placeholder"
+                                        initial={{ opacity: 0, scale: 0.8 }}
+                                        animate={{ opacity: 1, scale: 1 }}
+                                        exit={{ opacity: 0, scale: 0.8 }}
+                                        className="aspect-square rounded-2xl border border-attire-accent/30 bg-attire-accent/5 flex flex-col items-center justify-center gap-2"
+                                    >
+                                        <Loader className="animate-spin text-attire-accent" size={24} />
+                                        <span className="text-[8px] font-bold uppercase tracking-widest text-attire-accent">Uploading...</span>
+                                    </motion.div>
+                                )}
+                                {formData.images.map((url, idx) => (
+                                    <motion.div 
+                                        key={url}
+                                        layout
+                                        initial={{ opacity: 0, scale: 0.8 }}
+                                        animate={{ opacity: 1, scale: 1 }}
+                                        exit={{ opacity: 0, scale: 0.8 }}
+                                        className="aspect-square rounded-2xl overflow-hidden border border-black/5 dark:border-white/10 relative group"
+                                    >
+                                        <img src={url} alt="" className="w-full h-full object-cover" />
+                                        <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                                            <button 
+                                                type="button"
+                                                onClick={() => handleRemoveImage(idx)}
+                                                className="w-10 h-10 rounded-full bg-red-500 text-white flex items-center justify-center hover:scale-110 transition-transform shadow-xl"
+                                            >
+                                                <Trash2 size={18} />
+                                            </button>
+                                        </div>
+                                        {idx === 0 && (
+                                            <div className="absolute top-2 left-2 px-2 py-0.5 bg-attire-accent text-black text-[8px] font-black uppercase tracking-widest rounded-md shadow-lg">
+                                                Cover
+                                            </div>
+                                        )}
+                                    </motion.div>
+                                ))}
+                            </AnimatePresence>
+                        </div>
+                        {formData.images.length === 0 && !uploading && (
+                            <div className="flex items-center gap-3 p-4 bg-black/5 dark:bg-white/5 rounded-2xl border border-black/5 dark:border-white/5 opacity-50">
+                                <ImageIcon size={16} className="text-gray-400 dark:text-attire-silver" />
+                                <p className="text-[10px] font-bold uppercase tracking-widest text-gray-400 dark:text-attire-silver/40 italic">Visual presence builds desire. Please add at least one masterpiece photo.</p>
+                            </div>
+                        )}
                     </div>
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
@@ -481,3 +654,5 @@ const ProductEditor = ({ isNew = false }) => {
 };
 
 export default ProductEditor;
+
+

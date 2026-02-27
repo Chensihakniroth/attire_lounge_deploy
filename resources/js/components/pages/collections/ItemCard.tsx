@@ -44,6 +44,7 @@ const ItemCard: React.FC<ItemCardProps> = memo(({ product }) => {
                     fallback={fallbackUrl}
                     alt={product.name} 
                     className="w-full h-full object-cover" 
+                    containerClassName="w-full h-full"
                 />
             </div>
         </motion.div>

@@ -74,17 +74,16 @@ class ProductController extends Controller
      */
     public function collections(): JsonResponse
     {
-        // For now, we'll keep collections simple or you can create a CollectionService too!
-        return Cache::remember('product_collections', 7200, function () {
-            $collections = Collection::active()
+        $collections = Cache::remember('product_collections', 7200, function () {
+            return Collection::active()
                 ->orderBy('sort_order')
                 ->get();
-
-            return response()->json([
-                'success' => true,
-                'data' => CollectionResource::collection($collections)
-            ]);
         });
+
+        return response()->json([
+            'success' => true,
+            'data' => CollectionResource::collection($collections)
+        ]);
     }
 
     /**
@@ -119,6 +118,7 @@ class ProductController extends Controller
     {
         $validated = $request->validate([
             'name' => 'required|string|max:255',
+            'slug' => 'required|string|unique:products,slug',
             'price' => 'required|numeric',
             'description' => 'nullable|string',
             'availability' => 'nullable|string',
@@ -149,6 +149,7 @@ class ProductController extends Controller
     {
         $validated = $request->validate([
             'name' => 'sometimes|string|max:255',
+            'slug' => 'sometimes|string|unique:products,slug,' . $id,
             'price' => 'sometimes|numeric',
             'description' => 'sometimes|string',
             'availability' => 'sometimes|string',
