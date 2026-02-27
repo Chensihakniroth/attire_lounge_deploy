@@ -60,5 +60,9 @@ Route::prefix('v1')->group(function () {
         Route::post('/products', [ProductController::class, 'store']);
         Route::put('/products/{id}', [ProductController::class, 'update']);
         Route::delete('/products/{id}', [ProductController::class, 'destroy']);
+
+        // Collection management (admin only)
+        Route::post('/collections', [ProductController::class, 'storeCollection']);
+        Route::delete('/collections/{id}', [ProductController::class, 'destroyCollection']);
     });
 });

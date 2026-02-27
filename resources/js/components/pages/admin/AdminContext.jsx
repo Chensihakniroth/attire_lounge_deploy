@@ -28,6 +28,9 @@ export const AdminProvider = ({ children }) => {
     });
 
     const [isEditing, setIsEditing] = useState(false);
+    const [showCollections, setShowCollections] = useState(false);
+    const [collections, setCollections] = useState([]);
+    const [collectionsLoading, setCollectionsLoading] = useState(false);
 
     const fetchStats = useCallback(async () => {
         try {
@@ -37,6 +40,20 @@ export const AdminProvider = ({ children }) => {
             }
         } catch (err) {
             console.error('Error fetching stats:', err);
+        }
+    }, []);
+
+    const fetchCollections = useCallback(async () => {
+        setCollectionsLoading(true);
+        try {
+            const response = await axios.get('/api/v1/products/collections');
+            if (response.data.success) {
+                setCollections(response.data.data);
+            }
+        } catch (err) {
+            console.error('Error fetching collections:', err);
+        } finally {
+            setCollectionsLoading(false);
         }
     }, []);
 
@@ -176,8 +193,14 @@ export const AdminProvider = ({ children }) => {
             stats,
             fetchStats,
 
+            collections,
+            collectionsLoading,
+            fetchCollections,
+
             isEditing,
-            setIsEditing
+            setIsEditing,
+            showCollections,
+            setShowCollections
         }}>
             {children}
         </AdminContext.Provider>

@@ -5,28 +5,9 @@ import { ChevronLeft, Search, X, ChevronDown, Loader2, SlidersHorizontal, Search
 import ItemCard from './collections/ItemCard';
 import GrainOverlay from '../common/GrainOverlay.jsx';
 import SEO from '../common/SEO';
-import { useProducts } from '../../hooks/useProducts';
+import { useProducts, useCollections } from '../../hooks/useProducts';
 import { Product } from '../../types';
 import useDebounce from '../../hooks/useDebounce';
-
-interface CollectionOption {
-// ... existing interface ...
-// (Note: I'll keep the rest of the file structure but focus on the changes)
-    id: number;
-    title: string;
-    slug: string;
-}
-
-const allCollections: CollectionOption[] = [
-    { id: 1, title: 'Havana Collection', slug: 'havana-collection' },
-    { id: 2, title: 'Mocha Mousse', slug: 'mocha-mousse-25' },
-    { id: 3, title: 'Groom Collection', slug: 'groom-collection' },
-    { id: 4, title: 'Office Collections', slug: 'office-collections' },
-    { id: 5, title: 'Travel Collection', slug: 'travel-collection' },
-    { id: 6, title: 'Accessories', slug: 'accessories' },
-    { id: 7, title: 'Shades of Elegance', slug: 'shades-of-elegance' },
-    { id: 8, title: 'Street Sartorial', slug: 'street-sartorial' },
-];
 
 const sortOptions: SortOption[] = [
     { value: 'newest', label: 'Newest Arrivals' },
@@ -42,6 +23,9 @@ const useQuery = () => {
 const ProductListPage: React.FC = () => {
     const query = useQuery();
     const collectionQuery = query.get('collection');
+    const { data: collectionsData } = useCollections();
+    
+    const collections = useMemo(() => collectionsData || [], [collectionsData]);
 
     const [sortOrder, setSortOrder] = useState<string>('newest');
     const [searchQuery, setSearchQuery] = useState<string>('');
@@ -70,8 +54,6 @@ const ProductListPage: React.FC = () => {
         setAllLoadedProducts([]);
         setCurrentLoadedPage(1);
         setHasMore(true);
-        
-
     }, [selectedCollections, sortOrder, debouncedSearch]);
 
     useEffect(() => {
@@ -90,13 +72,13 @@ const ProductListPage: React.FC = () => {
     }, [data, currentLoadedPage, meta.current_page, meta.last_page]);
 
     const pageTitle = useMemo(() => {
-        const currentCollectionDetails = allCollections.find(c => c.slug === selectedCollections[0]);
+        const currentCollectionDetails = collections.find(c => c.slug === selectedCollections[0]);
         return selectedCollections.length === 1 && currentCollectionDetails
-            ? currentCollectionDetails.title
+            ? currentCollectionDetails.name || currentCollectionDetails.title
             : selectedCollections.length > 1 
                 ? "Multiple Collections" 
                 : "Elite Collections";
-    }, [selectedCollections]);
+    }, [selectedCollections, collections]);
 
     const handleCollectionToggle = (slug: string) => {
         setSelectedCollections(prev => 
@@ -169,6 +151,7 @@ const ProductListPage: React.FC = () => {
                         searchQuery={searchQuery}
                         setSearchQuery={setSearchQuery}
                         selectedCollections={selectedCollections}
+                        collections={collections}
                         handleCollectionToggle={handleCollectionToggle}
                         clearFilters={clearFilters}
                         removeCollectionFilter={removeCollectionFilter}
@@ -236,16 +219,17 @@ interface ControlsProps {
     searchQuery: string;
     setSearchQuery: (query: string) => void;
     selectedCollections: string[];
+    collections: any[];
     handleCollectionToggle: (slug: string) => void;
     clearFilters: () => void;
     removeCollectionFilter: (slug: string) => void;
 }
 
-const Controls: React.FC<ControlsProps> = ({ sortOrder, setSortOrder, searchQuery, setSearchQuery, selectedCollections, handleCollectionToggle, clearFilters, removeCollectionFilter }) => (
+const Controls: React.FC<ControlsProps> = ({ sortOrder, setSortOrder, searchQuery, setSearchQuery, selectedCollections, collections, handleCollectionToggle, clearFilters, removeCollectionFilter }) => (
     <div className="w-full max-w-6xl mx-auto space-y-6">
         <div className="relative group z-[999]">
-            {/* Background & Glow Container - This clips the glow! */}
-            <div className="absolute inset-0 bg-white/[0.03] border border-white/10 rounded-2xl backdrop-blur-sm transition-all duration-500 overflow-hidden pointer-events-none" />
+            {/* Background Container - Refined to remove white glow ✨ */}
+            <div className="absolute inset-0 bg-black/40 border border-white/5 rounded-2xl backdrop-blur-md transition-all duration-500 pointer-events-none" />
             
             {/* Content Container - No overflow-hidden here, so dropdowns can fly free! */}
             <div className="relative flex flex-col md:flex-row items-center gap-4 p-2 md:p-3 z-10">
@@ -262,8 +246,8 @@ const Controls: React.FC<ControlsProps> = ({ sortOrder, setSortOrder, searchQuer
                 </div>
 
                 {/* Dropdowns Container */}
-                <div className="flex items-center gap-2 w-full md:w-auto">
-                    <CollectionDropdown selectedCollections={selectedCollections} handleCollectionToggle={handleCollectionToggle} />
+                <div className="flex flex-col sm:flex-row items-center gap-2 w-full md:w-auto md:min-w-[400px]">
+                    <CollectionDropdown collections={collections} selectedCollections={selectedCollections} handleCollectionToggle={handleCollectionToggle} />
                     <div className="h-8 w-px bg-white/10 hidden md:block" />
                     <FilterSortDropdown sortOrder={sortOrder} setSortOrder={setSortOrder} />
                 </div>
@@ -287,7 +271,7 @@ const Controls: React.FC<ControlsProps> = ({ sortOrder, setSortOrder, searchQuer
                     )}
                     {selectedCollections.map(slug => (
                         <FilterTag key={slug} onRemove={() => removeCollectionFilter(slug)}>
-                            {allCollections.find(c => c.slug === slug)?.title || slug}
+                            {collections.find(c => c.slug === slug)?.name || slug}
                         </FilterTag>
                     ))}
                     <button 
@@ -302,7 +286,7 @@ const Controls: React.FC<ControlsProps> = ({ sortOrder, setSortOrder, searchQuer
     </div>
 );
 
-const CollectionDropdown: React.FC<{ selectedCollections: string[]; handleCollectionToggle: (slug: string) => void }> = ({ selectedCollections, handleCollectionToggle }) => {
+const CollectionDropdown: React.FC<{ collections: any[]; selectedCollections: string[]; handleCollectionToggle: (slug: string) => void }> = ({ collections, selectedCollections, handleCollectionToggle }) => {
     const [isOpen, setIsOpen] = useState(false);
     const dropdownRef = useRef<HTMLDivElement>(null);
     const label = 'Collections';
@@ -318,14 +302,16 @@ const CollectionDropdown: React.FC<{ selectedCollections: string[]; handleCollec
     }, []);
 
     return (
-        <div ref={dropdownRef} className="relative w-full md:w-auto">
+        <div ref={dropdownRef} className="w-full md:flex-1">
             <button 
                 onClick={() => setIsOpen(!isOpen)} 
-                className={`w-full md:w-auto px-6 py-4 text-[10px] font-bold uppercase tracking-[0.2em] transition-all duration-500 flex items-center justify-between md:justify-start gap-3 rounded-xl ${isOpen ? 'bg-white/10 text-white' : 'text-white/40 hover:text-white hover:bg-white/5'}`}
+                className={`w-full px-6 py-4 text-[10px] font-bold uppercase tracking-[0.2em] transition-all duration-500 flex items-center justify-between gap-3 rounded-xl ${isOpen ? 'bg-white/10 text-white' : 'text-white/40 hover:text-white hover:bg-white/5'}`}
             >
-                <SlidersHorizontal size={14} className={selectedCollections.length > 0 ? 'text-attire-accent' : ''} />
-                <span className="truncate max-w-[120px]">{label}</span>
-                <ChevronDown size={14} className={`transition-transform duration-500 ${isOpen ? 'rotate-180' : ''}`} />
+                <div className="flex items-center gap-3 truncate">
+                    <SlidersHorizontal size={14} className={selectedCollections.length > 0 ? 'text-attire-accent' : ''} />
+                    <span className="truncate">{label}</span>
+                </div>
+                <ChevronDown size={14} className={`flex-shrink-0 transition-transform duration-500 ${isOpen ? 'rotate-180' : ''}`} />
             </button>
             <AnimatePresence>
                 {isOpen && (
@@ -333,16 +319,16 @@ const CollectionDropdown: React.FC<{ selectedCollections: string[]; handleCollec
                         initial={{ opacity: 0, y: 10, scale: 0.95 }}
                         animate={{ opacity: 1, y: 0, scale: 1 }}
                         exit={{ opacity: 0, y: 10, scale: 0.95 }}
-                        className="absolute left-0 mt-3 w-full md:w-72 bg-[#0a0a0a] border border-white/10 rounded-2xl p-2 z-[300] shadow-2xl backdrop-blur-xl"
+                        className="absolute left-0 right-0 mt-3 bg-attire-navy border border-white/10 rounded-2xl p-6 z-[300] shadow-[0_20px_50px_rgba(0,0,0,0.5)] backdrop-blur-xl"
                     >
-                        <div className="grid grid-cols-1 gap-1">
-                            {allCollections.map(c => (
+                        <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3">
+                            {collections.map(c => (
                                 <button 
                                     key={c.id} 
                                     onClick={() => { handleCollectionToggle(c.slug); }} 
-                                    className={`w-full px-5 py-3.5 text-[10px] uppercase tracking-[0.1em] font-bold text-left rounded-lg transition-all duration-300 ${selectedCollections.includes(c.slug) ? 'bg-attire-accent text-black' : 'text-white/40 hover:text-white hover:bg-white/5'}`}
+                                    className={`w-full px-5 py-4 text-[10px] uppercase tracking-[0.1em] font-bold text-left rounded-xl transition-all duration-300 border ${selectedCollections.includes(c.slug) ? 'bg-attire-accent border-attire-accent text-black' : 'text-white/40 border-white/5 hover:text-white hover:bg-white/5 hover:border-white/10'}`}
                                 >
-                                    {c.title}
+                                    {c.name}
                                 </button>
                             ))}
                         </div>
@@ -369,13 +355,13 @@ const FilterSortDropdown: React.FC<{ sortOrder: string; setSortOrder: (order: st
     }, []);
 
     return (
-        <div ref={dropdownRef} className="relative w-full md:w-auto">
+        <div ref={dropdownRef} className="w-full md:flex-1">
             <button 
                 onClick={() => setIsOpen(!isOpen)} 
-                className={`w-full md:w-auto px-6 py-4 text-[10px] font-bold uppercase tracking-[0.2em] transition-all duration-500 flex items-center justify-between md:justify-start gap-3 rounded-xl ${isOpen ? 'bg-white/10 text-white' : 'text-white/40 hover:text-white hover:bg-white/5'}`}
+                className={`w-full px-6 py-4 text-[10px] font-bold uppercase tracking-[0.2em] transition-all duration-500 flex items-center justify-between gap-3 rounded-xl ${isOpen ? 'bg-white/10 text-white' : 'text-white/40 hover:text-white hover:bg-white/5'}`}
             >
-                <span className="truncate max-w-[120px]">{label}</span>
-                <ChevronDown size={14} className={`transition-transform duration-500 ${isOpen ? 'rotate-180' : ''}`} />
+                <span className="truncate">{label}</span>
+                <ChevronDown size={14} className={`flex-shrink-0 transition-transform duration-500 ${isOpen ? 'rotate-180' : ''}`} />
             </button>
             <AnimatePresence>
                 {isOpen && (
@@ -383,7 +369,7 @@ const FilterSortDropdown: React.FC<{ sortOrder: string; setSortOrder: (order: st
                         initial={{ opacity: 0, y: 10, scale: 0.95 }}
                         animate={{ opacity: 1, y: 0, scale: 1 }}
                         exit={{ opacity: 0, y: 10, scale: 0.95 }}
-                        className="absolute right-0 mt-3 w-full md:w-64 bg-[#0a0a0a] border border-white/10 rounded-2xl p-2 z-[300] shadow-2xl backdrop-blur-xl"
+                        className="absolute left-0 right-0 md:left-auto md:right-0 mt-3 w-full md:w-64 bg-attire-navy border border-white/10 rounded-2xl p-2 z-[300] shadow-[0_20px_50px_rgba(0,0,0,0.5)] backdrop-blur-xl"
                     >
                         <div className="grid grid-cols-1 gap-1">
                             {sortOptions.map(opt => (

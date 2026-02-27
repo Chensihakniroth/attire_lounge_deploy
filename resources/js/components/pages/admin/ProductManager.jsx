@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback, useMemo, memo } from 'react';
-import { ShoppingBag, Search, Filter, Loader, Edit2, Trash2, ExternalLink, Plus, Check, X, Star, Tag, Save, AlertCircle, Eye, EyeOff, RefreshCw, ChevronDown } from 'lucide-react';
+import { ShoppingBag, Search, Filter, Loader, Edit2, Trash2, ExternalLink, Plus, FolderPlus, Check, X, Star, Tag, Save, AlertCircle, Eye, EyeOff, RefreshCw, ChevronDown } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import OptimizedImage from '../../common/OptimizedImage.jsx';
@@ -98,10 +98,9 @@ const CustomDropdown = ({ selected, options, onChange, label, icon: Icon = Filte
 };
 
 const ProductManager = () => {
-    const { setIsEditing } = useAdmin();
+    const { setIsEditing, showCollections, setShowCollections, collections, fetchCollections } = useAdmin();
     const navigate = useNavigate();
     const [allProducts, setAllProducts] = useState([]);
-    const [collections, setCollections] = useState([]);
     const [loading, setLoading] = useState(true);
     const [isFiltering, setIsFiltering] = useState(false);
     const [searchTerm, setSearchTerm] = useState('');
@@ -118,29 +117,25 @@ const ProductManager = () => {
     const fetchData = useCallback(async (isSilent = false) => {
         if (!isSilent) setLoading(true);
         try {
-            const [productsRes, collectionsRes] = await Promise.all([
-                axios.get('/api/v1/products', { 
-                    params: { 
-                        per_page: 1000,
-                        include_hidden: true
-                    } 
-                }),
-                axios.get('/api/v1/products/collections')
-            ]);
+            const productsRes = await axios.get('/api/v1/products', { 
+                params: { 
+                    per_page: 1000,
+                    include_hidden: true
+                } 
+            });
             
             if (productsRes.data.success) {
                 setAllProducts(productsRes.data.data);
             }
             
-            if (collectionsRes.data.success) {
-                setCollections(collectionsRes.data.data);
-            }
+            // Also refresh global collections if needed ✨
+            fetchCollections();
         } catch (error) {
             console.error('Failed to fetch product data:', error);
         } finally {
             setLoading(false);
         }
-    }, []);
+    }, [fetchCollections]);
 
     useEffect(() => {
         fetchData();
@@ -278,6 +273,12 @@ const ProductManager = () => {
                     >
                         <RefreshCw size={14} className={loading ? 'animate-spin' : ''} />
                         Sync
+                    </button>
+                    <button 
+                        onClick={() => setShowCollections(true)}
+                        className="flex items-center gap-2 px-6 py-3 bg-white/5 dark:bg-white/5 text-gray-900 dark:text-white text-xs font-bold uppercase tracking-widest rounded-xl hover:bg-black/10 dark:hover:bg-white/10 transition-all border border-black/5 dark:border-white/10"
+                    >
+                        <FolderPlus size={16} /> Manage Collections
                     </button>
                     <button 
                         onClick={() => navigate('/admin/products/new')}

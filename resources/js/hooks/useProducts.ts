@@ -39,3 +39,13 @@ export const useFeaturedProducts = () => {
         },
     });
 };
+
+export const useCollections = () => {
+    return useQuery<any[]>({
+        queryKey: ['collections'],
+        queryFn: async () => {
+            const { data } = await axios.get(`${API_BASE}/products/collections`);
+            return data.data;
+        },
+    });
+};

@@ -112,6 +112,63 @@ class ProductController extends Controller
     }
 
     /**
+     * Store a new collection (Admin only).
+     */
+    public function storeCollection(Request $request): JsonResponse
+    {
+        $validated = $request->validate([
+            'name' => 'required|string|max:255',
+            'slug' => 'required|string|unique:collections,slug',
+            'description' => 'nullable|string',
+            'season' => 'nullable|string|max:255',
+            'year' => 'nullable|integer',
+            'is_active' => 'nullable|boolean',
+            'sort_order' => 'nullable|integer',
+        ]);
+
+        // Provide defaults for missing required fields if necessary ✨
+        if (!isset($validated['year'])) {
+            $validated['year'] = date('Y');
+        }
+
+        $collection = Collection::create($validated);
+        Cache::forget('product_collections');
+
+        return response()->json([
+            'success' => true,
+            'data' => new CollectionResource($collection)
+        ]);
+    }
+
+    /**
+     * Delete a collection (Admin only).
+     */
+    public function destroyCollection($id): JsonResponse
+    {
+        $collection = Collection::find($id);
+        
+        if (!$collection) {
+            return response()->json(['success' => false, 'message' => 'Collection not found'], 404);
+        }
+
+        // Safety check: Don't delete collections that have products! ✨
+        if ($collection->products()->count() > 0) {
+            return response()->json([
+                'success' => false, 
+                'message' => 'Cannot delete a collection that still contains masterpieces. Please move or delete the products first.'
+            ], 422);
+        }
+
+        $collection->delete();
+        Cache::forget('product_collections');
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Collection deleted successfully'
+        ]);
+    }
+
+    /**
      * Store a new product (Admin only).
      */
     public function store(Request $request): JsonResponse

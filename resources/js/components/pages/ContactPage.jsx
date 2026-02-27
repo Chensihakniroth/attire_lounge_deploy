@@ -1,10 +1,9 @@
 // resources/js/components/pages/ContactPage.jsx - OFFICIAL ATTIRING LOUNGE CONTACT PAGE (UPDATED for Consolidated UI)
-import React, { useState, Fragment } from 'react';
+import React, { useState, useEffect, Fragment } from 'react';
 import { Listbox, Transition } from '@headlessui/react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Mail, Phone, MapPin, Clock, Send, CheckCircle, Instagram, Facebook, ChevronDown, Check } from 'lucide-react';
 import { useFavorites } from '../../context/FavoritesContext';
-import { products } from '../../data/products';
 import axios from 'axios';
 import OptimizedImage from '../common/OptimizedImage.jsx';
 
@@ -200,8 +199,35 @@ const FavoritesSelector = ({ favoriteProducts, selectedFavorites, onSelectionCha
 
 const ContactPage = () => {
     const { favorites } = useFavorites();
-    const favoriteProducts = products.filter(p => favorites.includes(p.id));
+    const [allProducts, setAllProducts] = useState([]);
+    const [loadingProducts, setLoadingProducts] = useState(true);
+    
+    // Improved filtering to match against BOTH slug and id! ✨
+    const favoriteProducts = allProducts.filter(p => 
+        favorites.some(fav => 
+            String(fav) === String(p.slug) || 
+            String(fav) === String(p.id)
+        )
+    );
     const [selectedFavorites, setSelectedFavorites] = useState([]);
+
+    useEffect(() => {
+        const fetchProducts = async () => {
+            try {
+                const response = await axios.get('/api/v1/products', { 
+                    params: { per_page: 1000, include_hidden: true } 
+                });
+                if (response.data.success) {
+                    setAllProducts(response.data.data);
+                }
+            } catch (error) {
+                console.error("Failed to fetch products for favorites:", error);
+            } finally {
+                setLoadingProducts(false);
+            }
+        };
+        fetchProducts();
+    }, []);
 
     const [formData, setFormData] = useState({
         name: '',
@@ -287,7 +313,7 @@ const ContactPage = () => {
 
             try {
                 let favoriteItems = selectedFavorites.map(favId => {
-                    const product = products.find(p => p.id === favId);
+                    const product = allProducts.find(p => p.id === favId);
                     return product ? { 
                         image: product.images[0] || null, 
                         name: product.name 
