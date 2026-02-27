@@ -64,7 +64,14 @@ const LookbookPage = () => {
     }, [totalPages]);
 
     return (
-        <div className="min-h-screen bg-attire-navy relative overflow-x-hidden selection:bg-attire-accent selection:text-white">
+        <div 
+            className="min-h-screen bg-attire-navy relative overflow-x-hidden selection:bg-attire-accent selection:text-white"
+            style={{ 
+                willChange: 'transform',
+                transform: 'translateZ(0)',
+                WebkitBackfaceVisibility: 'hidden'
+            }}
+        >
             <style>
                 {`
                     /* Hide scrollbar for Chrome, Safari and Opera */
@@ -80,7 +87,11 @@ const LookbookPage = () => {
 
                     .no-scrollbar::-webkit-scrollbar { display: none; }
                     .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
-                    .will-change-transform { will-change: transform; }
+                    .will-change-transform { 
+                        will-change: transform; 
+                        transform: translateZ(0);
+                        -webkit-backface-visibility: hidden;
+                    }
                 `}
             </style>
 
