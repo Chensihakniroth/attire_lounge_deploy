@@ -41,6 +41,36 @@ class Product extends Model
     ];
 
     /**
+     * Boot the model.
+     */
+    protected static function booted()
+    {
+        static::deleting(function ($product) {
+            // When a product is deleted (or soft-deleted), we should consider 
+            // cleaning up the images in MinIO to keep our storage tidy! ✨
+            $images = $product->getRawOriginal('images');
+            if ($images) {
+                $urls = json_decode($images, true);
+                if (is_array($urls)) {
+                    $endpoint = config('services.minio.endpoint');
+                    foreach ($urls as $url) {
+                        // Extract the path from the full MinIO URL
+                        // e.g., https://endpoint/bucket/path/file.webp -> path/file.webp
+                        $path = str_replace($endpoint . '/', '', $url);
+                        // Strip query parameters if present (like ?v=new)
+                        $path = explode('?', $path)[0];
+
+                        if (\Illuminate\Support\Facades\Storage::disk('minio')->exists($path)) {
+                            \Illuminate\Support\Facades\Log::info("Deleting image from MinIO: " . $path);
+                            \Illuminate\Support\Facades\Storage::disk('minio')->delete($path);
+                        }
+                    }
+                }
+            }
+        });
+    }
+
+    /**
      * Get the images attribute dynamically from MinIO.
      * Delegates logic to the Collection model to maintain SRP. ✨
      */

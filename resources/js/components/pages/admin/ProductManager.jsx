@@ -207,20 +207,43 @@ const ProductManager = () => {
     }, []);
 
     const handleDeleteProduct = useCallback(async (id) => {
-        if (window.confirm('Are you sure you want to permanently delete this product?')) {
+        if (window.confirm('Are you sure you want to permanently delete this product? This will also remove all associated images from MinIO.')) {
+            console.log("========================================");
+            console.log(`Initiating permanent deletion for Product ID: ${id} (ﾉ´ヮ\`)ﾉ*:･ﾟ✧`);
+            
+            // Optimistic update ✨
+            const deletedProduct = allProducts.find(p => p.id === id);
             setAllProducts(prev => prev.filter(p => p.id !== id));
+            
             try {
                 const token = localStorage.getItem('admin_token') || sessionStorage.getItem('admin_token');
-                await axios.delete(`/api/v1/admin/products/${id}`, {
+                const response = await axios.delete(`/api/v1/admin/products/${id}`, {
                     headers: { 'Authorization': `Bearer ${token}` }
                 });
+                
+                if (response.data.success) {
+                    console.log("Deletion Successful! (｡♥‿♥｡)");
+                    console.log("Response:", response.data.message);
+                    console.log("Images should now be cleared from MinIO. ✨");
+                } else {
+                    throw new Error(response.data.message || 'Unknown error');
+                }
             } catch (error) {
-                console.error('Failed to delete product:', error);
-                fetchData(true);
-                alert('Failed to delete product.');
+                console.error("========================================");
+                console.error("Deletion Failed! (｡>﹏<｡)");
+                console.error("Error Detail:", error.response?.data || error.message);
+                console.error("========================================");
+                
+                // Rollback optimistic update
+                if (deletedProduct) {
+                    setAllProducts(prev => [...prev, deletedProduct]);
+                }
+                alert('Failed to delete product: ' + (error.response?.data?.message || error.message));
+            } finally {
+                console.log("========================================");
             }
         }
-    }, [fetchData]);
+    }, [allProducts, fetchData]);
 
     const gridClasses = {
         large: "grid-cols-1 md:grid-cols-2 xl:grid-cols-3",

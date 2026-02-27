@@ -113,7 +113,8 @@ class ProductService
         $product = $this->productRepository->findById($id);
         if ($product) {
             $this->clearProductCache($product);
-            return $this->productRepository->delete($id);
+            // We use forceDelete to ensure the deleting event fires for permanent cleanup! ✨
+            return $product->forceDelete();
         }
         return false;
     }
