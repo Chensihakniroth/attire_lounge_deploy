@@ -223,18 +223,18 @@ const ProductManager = () => {
 
     return (
         <div className="space-y-8 pb-20">
-            <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-6 pb-6 border-b border-white/10">
+            <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-6 pb-6 border-b border-black/5 dark:border-white/10">
                 <div>
-                    <h1 className="text-4xl font-serif text-white mb-2">Product Library</h1>
-                    <p className="text-attire-silver text-sm">Manage styling house collections and products.</p>
+                    <h1 className="text-4xl font-serif text-gray-900 dark:text-white mb-2">Product Library</h1>
+                    <p className="text-gray-500 dark:text-attire-silver text-sm">Manage styling house collections and products.</p>
                 </div>
                 <div className="flex flex-wrap gap-3 items-center">
-                    <div className="flex bg-white/5 border border-white/10 p-1 rounded-xl mr-2">
+                    <div className="flex bg-black/5 dark:bg-white/5 border border-black/5 dark:border-white/10 p-1 rounded-xl mr-2">
                         {['large', 'medium', 'small'].map((size, idx) => (
                             <button 
                                 key={size}
                                 onClick={() => setGridSize(size)}
-                                className={`px-3 py-2 rounded-lg text-[10px] font-bold transition-all ${gridSize === size ? 'bg-white text-black' : 'text-attire-silver hover:text-white'}`}
+                                className={`px-3 py-2 rounded-lg text-[10px] font-bold transition-all ${gridSize === size ? 'bg-white dark:bg-white text-black' : 'text-gray-400 dark:text-attire-silver hover:text-gray-900 dark:hover:text-white'}`}
                             >
                                 {[3, 5, 7][idx]}
                             </button>
@@ -244,12 +244,15 @@ const ProductManager = () => {
                     <button 
                         onClick={() => fetchData(false)}
                         disabled={loading}
-                        className="flex items-center gap-2 px-6 py-3 bg-white/5 text-white text-xs font-bold uppercase tracking-widest rounded-xl hover:bg-white/10 transition-all border border-white/10 disabled:opacity-50"
+                        className="flex items-center gap-2 px-6 py-3 bg-black/5 dark:bg-white/5 text-gray-900 dark:text-white text-xs font-bold uppercase tracking-widest rounded-xl hover:bg-black/10 dark:hover:bg-white/10 transition-all border border-black/5 dark:border-white/10 disabled:opacity-50"
                     >
                         <RefreshCw size={14} className={loading ? 'animate-spin' : ''} />
                         Sync
                     </button>
-                    <button className="flex items-center gap-2 px-6 py-3 bg-attire-accent text-black text-xs font-bold uppercase tracking-widest rounded-xl hover:bg-white transition-all duration-300">
+                    <button 
+                        onClick={() => navigate('/admin/products/new')}
+                        className="flex items-center gap-2 px-6 py-3 bg-attire-accent text-black text-xs font-bold uppercase tracking-widest rounded-xl hover:bg-white dark:hover:bg-white transition-all duration-300"
+                    >
                         <Plus size={16} /> Add Product
                     </button>
                 </div>
@@ -257,13 +260,13 @@ const ProductManager = () => {
 
             <div className="flex flex-col md:flex-row gap-4">
                 <div className="relative flex-grow">
-                    <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-attire-silver/40" size={18} />
+                    <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 dark:text-attire-silver/40" size={18} />
                     <input 
                         type="text" 
                         placeholder="Quick search..." 
                         value={searchTerm}
                         onChange={(e) => setSearchTerm(e.target.value)}
-                        className="w-full bg-white/5 border border-white/10 rounded-2xl py-4 pl-12 pr-6 text-white text-sm focus:border-attire-accent/50 focus:bg-white/10 outline-none transition-all"
+                        className="w-full bg-black/5 dark:bg-white/5 border border-black/5 dark:border-white/10 rounded-2xl py-4 pl-12 pr-6 text-gray-900 dark:text-white text-sm focus:border-attire-accent/50 dark:focus:bg-white/10 outline-none transition-all"
                     />
                 </div>
                 <CustomDropdown 
@@ -286,11 +289,11 @@ const ProductManager = () => {
                                 initial={{ opacity: 0 }}
                                 animate={{ opacity: 1 }}
                                 exit={{ opacity: 0 }}
-                                className="absolute inset-0 z-30 bg-[#0a0a0a]/80 flex items-center justify-center rounded-3xl"
+                                className="absolute inset-0 z-30 bg-white/80 dark:bg-[#0a0a0a]/80 flex items-center justify-center rounded-3xl"
                             >
-                                <div className="bg-black/60 p-4 rounded-2xl border border-white/10 flex items-center gap-3">
+                                <div className="bg-white/60 dark:bg-black/60 p-4 rounded-2xl border border-black/5 dark:border-white/10 flex items-center gap-3 shadow-xl">
                                     <Loader className="animate-spin text-attire-accent" size={20} />
-                                    <span className="text-[10px] font-bold uppercase tracking-widest text-white">Refining Library...</span>
+                                    <span className="text-[10px] font-bold uppercase tracking-widest text-gray-900 dark:text-white">Refining Library...</span>
                                 </div>
                             </motion.div>
                         )}
@@ -322,10 +325,10 @@ const ProductManager = () => {
                                     initial={{ opacity: 0 }}
                                     animate={{ opacity: 1 }}
                                     exit={{ opacity: 0 }}
-                                    className="col-span-full text-center py-32 bg-black/20 rounded-3xl border border-white/5"
+                                    className="col-span-full text-center py-32 bg-black/5 dark:bg-black/20 rounded-3xl border border-black/5 dark:border-white/5"
                                 >
-                                    <ShoppingBag className="mx-auto text-attire-silver/20 mb-4" size={48} />
-                                    <p className="text-attire-silver/60">No products match your filters.</p>
+                                    <ShoppingBag className="mx-auto text-gray-300 dark:text-attire-silver/20 mb-4" size={48} />
+                                    <p className="text-gray-500 dark:text-attire-silver/60">No products match your filters.</p>
                                 </motion.div>
                             )}
                         </AnimatePresence>
@@ -340,9 +343,9 @@ const ProductManager = () => {
                         >
                             <button 
                                 onClick={handleLoadMore}
-                                className="group flex items-center gap-3 px-8 py-4 bg-white/5 hover:bg-white/10 border border-white/10 rounded-2xl transition-all duration-300"
+                                className="group flex items-center gap-3 px-8 py-4 bg-black/5 dark:bg-white/5 hover:bg-black/10 dark:hover:bg-white/10 border border-black/5 dark:border-white/10 rounded-2xl transition-all duration-300"
                             >
-                                <span className="text-[10px] font-bold uppercase tracking-[0.3em] text-white">Show More Products</span>
+                                <span className="text-[10px] font-bold uppercase tracking-[0.3em] text-gray-900 dark:text-white">Show More Products</span>
                                 <ChevronDown size={16} className="text-attire-accent group-hover:translate-y-1 transition-transform" />
                             </button>
                         </motion.div>
@@ -364,7 +367,7 @@ const ProductCard = memo(({ product, onEdit, onDelete, onToggleVisibility, size 
             initial="hidden"
             animate="visible"
             exit="exit"
-            className={`bg-black/20 backdrop-blur-xl border rounded-3xl overflow-hidden group transition-colors duration-500 ${!product.is_visible ? 'border-white/5 opacity-60 grayscale' : 'border-white/10 hover:border-attire-accent/30 shadow-2xl shadow-black/50'}`}
+            className={`bg-white dark:bg-black/20 backdrop-blur-xl border rounded-3xl overflow-hidden group transition-colors duration-500 ${!product.is_visible ? 'border-black/5 dark:border-white/5 opacity-60 grayscale' : 'border-black/5 dark:border-white/10 hover:border-attire-accent/30 shadow-2xl dark:shadow-black/50 shadow-gray-200'}`}
         >
             <div className="aspect-[4/3] relative overflow-hidden">
                 <OptimizedImage 
@@ -416,24 +419,24 @@ const ProductCard = memo(({ product, onEdit, onDelete, onToggleVisibility, size 
             </div>
             <div className={`${isSmall ? 'p-3' : 'p-6'}`}>
                 <div className="flex justify-between items-start mb-2 gap-2">
-                    <h3 className={`${isSmall ? 'text-xs' : 'text-lg'} font-serif group-hover:text-attire-accent transition-colors truncate ${!product.is_visible ? 'text-white/40' : 'text-white'}`}>{product.name}</h3>
-                    <span className={`font-mono ${isSmall ? 'text-[10px]' : 'text-sm'} font-medium ${!product.is_visible ? 'text-white/30' : 'text-attire-accent'}`}>${product.price}</span>
+                    <h3 className={`${isSmall ? 'text-xs' : 'text-lg'} font-serif group-hover:text-attire-accent transition-colors truncate ${!product.is_visible ? 'text-gray-400 dark:text-white/40' : 'text-gray-900 dark:text-white'}`}>{product.name}</h3>
+                    <span className={`font-mono ${isSmall ? 'text-[10px]' : 'text-sm'} font-medium ${!product.is_visible ? 'text-gray-300 dark:text-white/30' : 'text-attire-accent'}`}>${product.price}</span>
                 </div>
                 {!isSmall && (
                     <div className="flex items-center gap-2 mb-4">
-                        <Tag size={12} className={!product.is_visible ? 'text-white/20' : 'text-attire-accent'} />
-                        <span className={`text-[10px] uppercase tracking-[0.2em] font-bold ${!product.is_visible ? 'text-white/20' : 'text-attire-silver/60'}`}>{product.collection || 'Elite Collection'}</span>
+                        <Tag size={12} className={!product.is_visible ? 'text-gray-300 dark:text-white/20' : 'text-attire-accent'} />
+                        <span className={`text-[10px] uppercase tracking-[0.2em] font-bold ${!product.is_visible ? 'text-gray-300 dark:text-white/20' : 'text-gray-500 dark:text-attire-silver/60'}`}>{product.collection || 'Elite Collection'}</span>
                     </div>
                 )}
-                <div className={`flex items-center justify-between ${isSmall ? '' : 'pt-4 border-t border-white/5'}`}>
+                <div className={`flex items-center justify-between ${isSmall ? '' : 'pt-4 border-t border-black/5 dark:border-white/5'}`}>
                     <div className="flex items-center gap-2">
-                        <div className={`w-1.5 h-1.5 rounded-full ${!product.is_visible ? 'bg-white/10' : 'bg-green-500'}`} />
-                        <span className={`text-[9px] uppercase tracking-[0.2em] font-bold ${!product.is_visible ? 'text-white/20' : 'text-attire-silver/40'}`}>
+                        <div className={`w-1.5 h-1.5 rounded-full ${!product.is_visible ? 'bg-gray-200 dark:bg-white/10' : 'bg-green-500'}`} />
+                        <span className={`text-[9px] uppercase tracking-[0.2em] font-bold ${!product.is_visible ? 'text-gray-300 dark:text-white/20' : 'text-gray-400 dark:text-attire-silver/40'}`}>
                             {!product.is_visible ? 'Hidden' : product.availability}
                         </span>
                     </div>
                     {product.is_visible && !isSmall && (
-                        <a href={`/product/${product.slug}`} target="_blank" rel="noopener noreferrer" className="text-attire-silver/40 hover:text-white transition-colors p-1">
+                        <a href={`/product/${product.slug}`} target="_blank" rel="noopener noreferrer" className="text-gray-400 dark:text-attire-silver/40 hover:text-gray-900 dark:hover:text-white transition-colors p-1">
                             <ExternalLink size={14} />
                         </a>
                     )}
@@ -446,7 +449,7 @@ const ProductCard = memo(({ product, onEdit, onDelete, onToggleVisibility, size 
 const ProductSkeleton = ({ size }) => {
     const isSmall = size === 'small';
     return (
-        <div className={`bg-white/5 border border-white/5 rounded-3xl overflow-hidden p-0 ${isSmall ? 'h-[250px]' : 'h-[400px]'}`}>
+        <div className={`bg-black/5 dark:bg-white/5 border border-black/5 dark:border-white/5 rounded-3xl overflow-hidden p-0 ${isSmall ? 'h-[250px]' : 'h-[400px]'}`}>
             <Skeleton className="aspect-[4/3] rounded-none" />
             <div className={`${isSmall ? 'p-3' : 'p-6'} space-y-4`}>
                 <div className="flex justify-between">

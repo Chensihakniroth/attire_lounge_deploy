@@ -57,6 +57,7 @@ Route::prefix('v1')->group(function () {
         Route::post('/gift-items/toggle-stock', [\App\Http\Controllers\GiftItemStockController::class, 'toggle']);
 
         // Product management (admin only)
+        Route::post('/products', [ProductController::class, 'store']);
         Route::put('/products/{id}', [ProductController::class, 'update']);
         Route::delete('/products/{id}', [ProductController::class, 'destroy']);
     });

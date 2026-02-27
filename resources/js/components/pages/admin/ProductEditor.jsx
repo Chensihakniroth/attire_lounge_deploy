@@ -1,28 +1,28 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { motion } from 'framer-motion';
-import { X, Check, Loader, AlertCircle, RefreshCw, Eye, EyeOff, ChevronLeft } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { X, Check, Loader, AlertCircle, RefreshCw, Eye, EyeOff, ChevronLeft, ChevronDown } from 'lucide-react';
 import axios from 'axios';
 import { useAdmin } from './AdminContext';
 
-const CustomDropdown = ({ selected, options, onChange, icon: Icon = RefreshCw, className = "" }) => {
+const CustomDropdown = ({ selected, options, onChange, icon: Icon = RefreshCw, className = "", label = "Select Option" }) => {
     const [isOpen, setIsOpen] = useState(false);
-    const selectedItem = options.find(o => o.slug === selected || o.name === selected);
-    const displayName = selectedItem ? selectedItem.name : 'Select Option';
+    const selectedItem = options.find(o => o.slug === selected || o.name === selected || o.id === selected);
+    const displayName = selectedItem ? selectedItem.name : label;
 
     return (
         <div className={`relative ${className}`}>
             <button
                 type="button"
                 onClick={() => setIsOpen(!isOpen)}
-                className="w-full bg-white/5 border border-white/10 rounded-2xl py-5 px-6 text-white text-sm text-left focus:border-attire-accent outline-none transition-all cursor-pointer flex items-center justify-between group"
+                className="w-full bg-black/5 dark:bg-white/5 border border-black/5 dark:border-white/10 rounded-2xl py-5 px-6 text-gray-900 dark:text-white text-sm text-left focus:border-attire-accent outline-none transition-all cursor-pointer flex items-center justify-between group"
             >
                 <div className="flex items-center gap-3">
-                    <Icon className="text-attire-silver/40 group-hover:text-attire-accent transition-colors" size={18} />
+                    <Icon className="text-gray-400 dark:text-attire-silver/40 group-hover:text-attire-accent transition-colors" size={18} />
                     <span className="truncate">{displayName}</span>
                 </div>
                 <div className={`transition-transform duration-300 ${isOpen ? 'rotate-180' : ''}`}>
-                    <Check size={16} className="text-attire-silver/20" />
+                    <ChevronDown size={16} className="text-gray-300 dark:text-attire-silver/20" />
                 </div>
             </button>
 
@@ -32,15 +32,15 @@ const CustomDropdown = ({ selected, options, onChange, icon: Icon = RefreshCw, c
                     <motion.div
                         initial={{ opacity: 0, y: 10, scale: 0.95 }}
                         animate={{ opacity: 1, y: 0, scale: 1 }}
-                        className="absolute top-full left-0 right-0 mt-2 z-[70] bg-[#0d0d0d] border border-white/10 rounded-2xl overflow-hidden shadow-2xl backdrop-blur-xl"
+                        className="absolute top-full left-0 right-0 mt-2 z-[70] bg-white dark:bg-[#0d0d0d] border border-black/5 dark:border-white/10 rounded-2xl overflow-hidden shadow-2xl backdrop-blur-xl"
                     >
                         <div className="max-h-60 overflow-y-auto p-2 attire-scrollbar">
                             {options.map((opt, idx) => (
                                 <button
-                                    key={opt.slug || opt.name}
+                                    key={opt.id || opt.slug || opt.name}
                                     type="button"
-                                    onClick={() => { onChange(opt.slug || opt.name); setIsOpen(false); }}
-                                    className={`w-full text-left px-4 py-3 rounded-xl text-xs font-bold uppercase tracking-widest transition-all ${idx > 0 ? 'mt-1' : ''} ${selected === (opt.slug || opt.name) ? 'bg-attire-accent text-black' : 'text-attire-silver hover:bg-white/5 hover:text-white'}`}
+                                    onClick={() => { onChange(opt.id || opt.slug || opt.name); setIsOpen(false); }}
+                                    className={`w-full text-left px-4 py-3 rounded-xl text-xs font-bold uppercase tracking-widest transition-all ${idx > 0 ? 'mt-1' : ''} ${(selected === opt.id || selected === opt.slug || selected === opt.name) ? 'bg-attire-accent text-black' : 'text-gray-500 dark:text-attire-silver hover:bg-black/5 dark:hover:bg-white/5 hover:text-gray-900 dark:hover:text-white'}`}
                                 >
                                     {opt.name}
                                 </button>
@@ -53,15 +53,33 @@ const CustomDropdown = ({ selected, options, onChange, icon: Icon = RefreshCw, c
     );
 };
 
-const ProductEditor = () => {
+const ProductEditor = ({ isNew = false }) => {
     const { productId } = useParams();
     const navigate = useNavigate();
     const { setIsEditing } = useAdmin();
-    const [loading, setLoading] = useState(true);
+    const [loading, setLoading] = useState(!isNew);
     const [saving, setSaving] = useState(false);
     const [error, setError] = useState(null);
     const [product, setProduct] = useState(null);
-    const [formData, setFormData] = useState(null);
+    const [formData, setFormData] = useState({
+        name: '',
+        price: '',
+        description: '',
+        availability: 'In Stock',
+        is_featured: false,
+        is_new: true,
+        is_visible: true,
+        fabric: '',
+        silhouette: '',
+        details: '',
+        sizing: [],
+        category_id: '',
+        collection_id: '',
+        images: []
+    });
+
+    const [categories, setCategories] = useState([]);
+    const [collections, setCollections] = useState([]);
 
     useEffect(() => {
         setIsEditing(true);
@@ -69,43 +87,77 @@ const ProductEditor = () => {
     }, [setIsEditing]);
 
     useEffect(() => {
-        const fetchProduct = async () => {
+        const fetchMetadata = async () => {
             try {
-                const response = await axios.get(`/api/v1/products/${productId}`);
-                if (response.data.success) {
-                    const p = response.data.data;
-                    setProduct(p);
-                    setFormData({
-                        name: p.name,
-                        price: p.price,
-                        description: p.description || '',
-                        availability: p.in_stock ? 'In Stock' : 'Out of Stock',
-                        is_featured: p.featured,
-                        is_new: p.is_new,
-                        is_visible: p.is_visible,
-                        fabric: p.fabric || '',
-                        silhouette: p.silhouette || '',
-                        details: p.details || '',
-                        sizing: Array.isArray(p.sizes) ? p.sizes : [],
-                    });
+                const [catsRes, collsRes] = await Promise.all([
+                    axios.get('/api/v1/products/categories'),
+                    axios.get('/api/v1/products/collections')
+                ]);
+                
+                if (catsRes.data.success) {
+                    setCategories(catsRes.data.data.map(c => typeof c === 'string' ? { name: c, id: c } : c));
+                }
+                
+                if (collsRes.data.success) {
+                    setCollections(collsRes.data.data);
                 }
             } catch (err) {
-                console.error('Failed to fetch product:', err);
-                setError('Failed to load product details.');
-            } finally {
-                setLoading(false);
+                console.error('Failed to fetch metadata:', err);
             }
         };
 
-        fetchProduct();
-    }, [productId]);
+        fetchMetadata();
+
+        if (!isNew && productId) {
+            const fetchProduct = async () => {
+                try {
+                    const response = await axios.get(`/api/v1/products/${productId}`);
+                    if (response.data.success) {
+                        const p = response.data.data;
+                        setProduct(p);
+                        setFormData({
+                            name: p.name,
+                            price: p.price,
+                            description: p.description || '',
+                            availability: p.availability || (p.in_stock ? 'In Stock' : 'Out of Stock'),
+                            is_featured: p.featured,
+                            is_new: p.is_new,
+                            is_visible: p.is_visible,
+                            fabric: p.fabric || '',
+                            silhouette: p.silhouette || '',
+                            details: p.details || '',
+                            sizing: Array.isArray(p.sizes) ? p.sizes : [],
+                            category_id: p.category_id || '',
+                            collection_id: p.collection_id || '',
+                            images: Array.isArray(p.images) ? p.images : []
+                        });
+                    }
+                } catch (err) {
+                    console.error('Failed to fetch product:', err);
+                    setError('Failed to load product details.');
+                } finally {
+                    setLoading(false);
+                }
+            };
+            fetchProduct();
+        }
+    }, [productId, isNew]);
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+        
+        if (!formData.category_id) {
+            setError("Please select a category for this masterpiece.");
+            return;
+        }
+
         setSaving(true);
         setError(null);
         try {
-            const response = await axios.put(`/api/v1/admin/products/${product.id}`, formData);
+            const url = isNew ? '/api/v1/admin/products' : `/api/v1/admin/products/${product.id}`;
+            const method = isNew ? 'post' : 'put';
+            
+            const response = await axios[method](url, formData);
             if (response.data.success) {
                 navigate('/admin/products');
             }
@@ -119,35 +171,35 @@ const ProductEditor = () => {
 
     if (loading) {
         return (
-            <div className="min-h-screen bg-[#050505] flex flex-col items-center justify-center">
+            <div className="min-h-screen bg-gray-50 dark:bg-[#050505] flex flex-col items-center justify-center">
                 <Loader className="animate-spin text-attire-accent mb-4" size={32} />
-                <p className="text-attire-silver text-xs uppercase tracking-widest">Loading Masterpiece...</p>
+                <p className="text-gray-500 dark:text-attire-silver text-xs uppercase tracking-widest">Preparing Canvas...</p>
             </div>
         );
     }
 
-    if (!formData) return null;
-
     return (
-        <div className="min-h-screen bg-[#050505] flex flex-col">
-            <div className="sticky top-0 z-20 bg-[#0a0a0a]/80 backdrop-blur-xl border-b border-white/5">
+        <div className="min-h-screen bg-gray-50 dark:bg-[#050505] flex flex-col transition-colors duration-300">
+            <div className="sticky top-0 z-20 bg-white/80 dark:bg-[#0a0a0a]/80 backdrop-blur-xl border-b border-black/5 dark:border-white/5">
                 <div className="max-w-4xl mx-auto px-6 h-24 flex justify-between items-center">
                     <div className="flex items-center gap-6">
                         <button 
                             onClick={() => navigate('/admin/products')}
-                            className="p-3 hover:bg-white/5 rounded-full transition-all text-white/40 hover:text-white"
+                            className="p-3 hover:bg-black/5 dark:hover:bg-white/5 rounded-full transition-all text-gray-400 dark:text-white/40 hover:text-gray-900 dark:hover:text-white"
                         >
                             <ChevronLeft size={24} />
                         </button>
                         <div>
-                            <h2 className="text-2xl font-serif text-white">Edit Product</h2>
-                            <p className="text-attire-silver text-[10px] uppercase tracking-widest mt-1 opacity-50">{product.slug}</p>
+                            <h2 className="text-2xl font-serif text-gray-900 dark:text-white">{isNew ? 'New Masterpiece' : 'Edit Product'}</h2>
+                            <p className="text-gray-400 dark:text-attire-silver text-[10px] uppercase tracking-widest mt-1 opacity-50">
+                                {isNew ? 'Creating in repository' : product?.slug}
+                            </p>
                         </div>
                     </div>
                     <div className="flex items-center gap-4">
                         <button 
                             onClick={() => navigate('/admin/products')}
-                            className="p-3 hover:bg-white/5 rounded-full transition-all text-white/40 hover:text-white"
+                            className="p-3 hover:bg-black/5 dark:hover:bg-white/5 rounded-full transition-all text-gray-400 dark:text-white/40 hover:text-gray-900 dark:hover:text-white"
                         >
                             <X size={24} />
                         </button>
@@ -157,92 +209,119 @@ const ProductEditor = () => {
 
             <div className="flex-grow w-full max-w-4xl mx-auto px-6 py-12">
                 <form onSubmit={handleSubmit} className="space-y-12">
-                    {error && (
-                        <motion.div 
-                            initial={{ opacity: 0, x: -10 }}
-                            animate={{ opacity: 1, x: 0 }}
-                            className="p-4 bg-red-500/10 border border-red-500/20 rounded-2xl flex items-center gap-3 text-red-400 text-sm"
-                        >
-                            <AlertCircle size={18} />
-                            <span>{error}</span>
-                        </motion.div>
-                    )}
+                    <AnimatePresence>
+                        {error && (
+                            <motion.div 
+                                initial={{ opacity: 0, x: -10 }}
+                                animate={{ opacity: 1, x: 0 }}
+                                exit={{ opacity: 0, x: 10 }}
+                                className="p-4 bg-red-500/10 border border-red-500/20 rounded-2xl flex items-center gap-3 text-red-600 dark:text-red-400 text-sm"
+                            >
+                                <AlertCircle size={18} />
+                                <span>{error}</span>
+                            </motion.div>
+                        )}
+                    </AnimatePresence>
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
                         <div className="space-y-3">
-                            <label className="text-[10px] font-bold text-attire-silver/50 uppercase tracking-[0.2em] ml-1">Product Name</label>
+                            <label className="text-[10px] font-bold text-gray-400 dark:text-attire-silver/50 uppercase tracking-[0.2em] ml-1">Product Name</label>
                             <input 
                                 type="text" 
                                 value={formData.name}
                                 onChange={e => setFormData({...formData, name: e.target.value})}
-                                className="w-full bg-white/5 border border-white/10 rounded-2xl py-5 px-6 text-white focus:border-attire-accent outline-none transition-all placeholder:text-white/10"
+                                className="w-full bg-black/5 dark:bg-white/5 border border-black/5 dark:border-white/10 rounded-2xl py-5 px-6 text-gray-900 dark:text-white focus:border-attire-accent outline-none transition-all placeholder:text-gray-300 dark:placeholder:text-white/10"
+                                placeholder="Enter masterpiece name"
                                 required
                             />
                         </div>
                         <div className="space-y-3">
-                            <label className="text-[10px] font-bold text-attire-silver/50 uppercase tracking-[0.2em] ml-1">Price ($)</label>
+                            <label className="text-[10px] font-bold text-gray-400 dark:text-attire-silver/50 uppercase tracking-[0.2em] ml-1">Price ($)</label>
                             <input 
                                 type="number" 
                                 step="0.01"
                                 value={formData.price}
                                 onChange={e => setFormData({...formData, price: e.target.value})}
-                                className="w-full bg-white/5 border border-white/10 rounded-2xl py-5 px-6 text-white focus:border-attire-accent outline-none transition-all font-mono"
+                                className="w-full bg-black/5 dark:bg-white/5 border border-black/5 dark:border-white/10 rounded-2xl py-5 px-6 text-gray-900 dark:text-white focus:border-attire-accent outline-none transition-all font-mono"
+                                placeholder="0.00"
                                 required
                             />
                         </div>
                     </div>
 
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
+                        <div className="space-y-3">
+                            <label className="text-[10px] font-bold text-gray-400 dark:text-attire-silver/50 uppercase tracking-[0.2em] ml-1">Category</label>
+                            <CustomDropdown 
+                                selected={formData.category_id}
+                                options={categories}
+                                onChange={val => setFormData({...formData, category_id: val})}
+                                label="Select Category"
+                            />
+                        </div>
+                        <div className="space-y-3">
+                            <label className="text-[10px] font-bold text-gray-400 dark:text-attire-silver/50 uppercase tracking-[0.2em] ml-1">Collection</label>
+                            <CustomDropdown 
+                                selected={formData.collection_id}
+                                options={collections}
+                                onChange={val => setFormData({...formData, collection_id: val})}
+                                label="Select Collection"
+                            />
+                        </div>
+                    </div>
+
                     <div className="space-y-3">
-                        <label className="text-[10px] font-bold text-attire-silver/50 uppercase tracking-[0.2em] ml-1">Description</label>
+                        <label className="text-[10px] font-bold text-gray-400 dark:text-attire-silver/50 uppercase tracking-[0.2em] ml-1">Description</label>
                         <textarea 
                             value={formData.description}
                             onChange={e => setFormData({...formData, description: e.target.value})}
                             rows={5}
-                            className="w-full bg-white/5 border border-white/10 rounded-2xl py-5 px-6 text-white focus:border-attire-accent outline-none transition-all resize-none text-sm leading-relaxed"
+                            className="w-full bg-black/5 dark:bg-white/5 border border-black/5 dark:border-white/10 rounded-2xl py-5 px-6 text-gray-900 dark:text-white focus:border-attire-accent outline-none transition-all resize-none text-sm leading-relaxed"
+                            placeholder="Describe the silhouette and essence..."
                         />
                     </div>
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
                         <div className="space-y-3">
-                            <label className="text-[10px] font-bold text-attire-silver/50 uppercase tracking-[0.2em] ml-1">Fabric</label>
+                            <label className="text-[10px] font-bold text-gray-400 dark:text-attire-silver/50 uppercase tracking-[0.2em] ml-1">Fabric</label>
                             <input 
                                 type="text" 
                                 value={formData.fabric}
                                 onChange={e => setFormData({...formData, fabric: e.target.value})}
                                 placeholder="e.g., Premium Wool Blend"
-                                className="w-full bg-white/5 border border-white/10 rounded-2xl py-5 px-6 text-white focus:border-attire-accent outline-none transition-all placeholder:text-white/10"
+                                className="w-full bg-black/5 dark:bg-white/5 border border-black/5 dark:border-white/10 rounded-2xl py-5 px-6 text-gray-900 dark:text-white focus:border-attire-accent outline-none transition-all placeholder:text-gray-300 dark:placeholder:text-white/10"
                             />
                         </div>
                         <div className="space-y-3">
-                            <label className="text-[10px] font-bold text-attire-silver/50 uppercase tracking-[0.2em] ml-1">Silhouette</label>
+                            <label className="text-[10px] font-bold text-gray-400 dark:text-attire-silver/50 uppercase tracking-[0.2em] ml-1">Silhouette</label>
                             <input 
                                 type="text" 
                                 value={formData.silhouette}
                                 onChange={e => setFormData({...formData, silhouette: e.target.value})}
                                 placeholder="e.g., Modern Tailored"
-                                className="w-full bg-white/5 border border-white/10 rounded-2xl py-5 px-6 text-white focus:border-attire-accent outline-none transition-all placeholder:text-white/10"
+                                className="w-full bg-black/5 dark:bg-white/5 border border-black/5 dark:border-white/10 rounded-2xl py-5 px-6 text-gray-900 dark:text-white focus:border-attire-accent outline-none transition-all placeholder:text-gray-300 dark:placeholder:text-white/10"
                             />
                         </div>
                     </div>
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
                         <div className="space-y-3">
-                            <label className="text-[10px] font-bold text-attire-silver/50 uppercase tracking-[0.2em] ml-1">Details</label>
+                            <label className="text-[10px] font-bold text-gray-400 dark:text-attire-silver/50 uppercase tracking-[0.2em] ml-1">Details</label>
                             <input 
                                 type="text" 
                                 value={formData.details}
                                 onChange={e => setFormData({...formData, details: e.target.value})}
                                 placeholder="e.g., Hand-Finished"
-                                className="w-full bg-white/5 border border-white/10 rounded-2xl py-5 px-6 text-white focus:border-attire-accent outline-none transition-all placeholder:text-white/10"
+                                className="w-full bg-black/5 dark:bg-white/5 border border-black/5 dark:border-white/10 rounded-2xl py-5 px-6 text-gray-900 dark:text-white focus:border-attire-accent outline-none transition-all placeholder:text-gray-300 dark:placeholder:text-white/10"
                             />
                         </div>
                         <div className="space-y-4">
-                            <label className="text-[10px] font-bold text-attire-silver/50 uppercase tracking-[0.2em] ml-1">Available Sizes</label>
+                            <label className="text-[10px] font-bold text-gray-400 dark:text-attire-silver/50 uppercase tracking-[0.2em] ml-1">Available Sizes</label>
                             
                             <div className="space-y-6">
                                 {/* Alpha Sizes */}
                                 <div className="space-y-2">
-                                    <p className="text-[8px] uppercase tracking-widest text-white/20 font-bold ml-1">Alpha</p>
+                                    <p className="text-[8px] uppercase tracking-widest text-gray-300 dark:text-white/20 font-bold ml-1">Alpha</p>
                                     <div className="flex flex-wrap gap-2">
                                         {['XS', 'S', 'M', 'L', 'XL', 'XXL', 'One Size'].map(size => {
                                             const isSelected = formData.sizing.includes(size);
@@ -256,7 +335,7 @@ const ProductEditor = () => {
                                                             : [...formData.sizing, size];
                                                         setFormData({ ...formData, sizing: newSizing });
                                                     }}
-                                                    className={`px-4 py-2 rounded-xl text-[10px] font-bold transition-all border ${isSelected ? 'bg-attire-accent border-attire-accent text-black' : 'bg-white/5 border-white/10 text-attire-silver hover:text-white hover:bg-white/10'}`}
+                                                    className={`px-4 py-2 rounded-xl text-[10px] font-bold transition-all border ${isSelected ? 'bg-attire-accent border-attire-accent text-black' : 'bg-black/5 dark:bg-white/5 border-black/5 dark:border-white/10 text-gray-500 dark:text-attire-silver hover:text-gray-900 dark:hover:text-white hover:bg-black/10 dark:hover:bg-white/10'}`}
                                                 >
                                                     {size}
                                                 </button>
@@ -267,7 +346,7 @@ const ProductEditor = () => {
 
                                 {/* Numeric/Suit Sizes */}
                                 <div className="space-y-2">
-                                    <p className="text-[8px] uppercase tracking-widest text-white/20 font-bold ml-1">Suits / Jackets</p>
+                                    <p className="text-[8px] uppercase tracking-widest text-gray-300 dark:text-white/20 font-bold ml-1">Suits / Jackets</p>
                                     <div className="flex flex-wrap gap-2">
                                         {['44', '46', '48', '50', '52', '54', '56', '58', '40R', '42R', '44R'].map(size => {
                                             const isSelected = formData.sizing.includes(size);
@@ -281,7 +360,7 @@ const ProductEditor = () => {
                                                             : [...formData.sizing, size].sort();
                                                         setFormData({ ...formData, sizing: newSizing });
                                                     }}
-                                                    className={`px-4 py-2 rounded-xl text-[10px] font-bold transition-all border ${isSelected ? 'bg-attire-accent border-attire-accent text-black' : 'bg-white/5 border-white/10 text-attire-silver hover:text-white hover:bg-white/10'}`}
+                                                    className={`px-4 py-2 rounded-xl text-[10px] font-bold transition-all border ${isSelected ? 'bg-attire-accent border-attire-accent text-black' : 'bg-black/5 dark:bg-white/5 border-black/5 dark:border-white/10 text-gray-500 dark:text-attire-silver hover:text-gray-900 dark:hover:text-white hover:bg-black/10 dark:hover:bg-white/10'}`}
                                                 >
                                                     {size}
                                                 </button>
@@ -292,7 +371,7 @@ const ProductEditor = () => {
 
                                 {/* Waist Sizes */}
                                 <div className="space-y-2">
-                                    <p className="text-[8px] uppercase tracking-widest text-white/20 font-bold ml-1">Trousers / Waist</p>
+                                    <p className="text-[8px] uppercase tracking-widest text-gray-300 dark:text-white/20 font-bold ml-1">Trousers / Waist</p>
                                     <div className="flex flex-wrap gap-2">
                                         {['28', '30', '32', '34', '36', '38'].map(size => {
                                             const isSelected = formData.sizing.includes(size);
@@ -306,7 +385,7 @@ const ProductEditor = () => {
                                                             : [...formData.sizing, size].sort();
                                                         setFormData({ ...formData, sizing: newSizing });
                                                     }}
-                                                    className={`px-4 py-2 rounded-xl text-[10px] font-bold transition-all border ${isSelected ? 'bg-attire-accent border-attire-accent text-black' : 'bg-white/5 border-white/10 text-attire-silver hover:text-white hover:bg-white/10'}`}
+                                                    className={`px-4 py-2 rounded-xl text-[10px] font-bold transition-all border ${isSelected ? 'bg-attire-accent border-attire-accent text-black' : 'bg-black/5 dark:bg-white/5 border-black/5 dark:border-white/10 text-gray-500 dark:text-attire-silver hover:text-gray-900 dark:hover:text-white hover:bg-black/10 dark:hover:bg-white/10'}`}
                                                 >
                                                     {size}
                                                 </button>
@@ -320,7 +399,7 @@ const ProductEditor = () => {
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
                         <div className="space-y-3">
-                            <label className="text-[10px] font-bold text-attire-silver/50 uppercase tracking-[0.2em] ml-1">Availability</label>
+                            <label className="text-[10px] font-bold text-gray-400 dark:text-attire-silver/50 uppercase tracking-[0.2em] ml-1">Availability</label>
                             <CustomDropdown 
                                 selected={formData.availability}
                                 options={[
@@ -333,23 +412,23 @@ const ProductEditor = () => {
                             />
                         </div>
                         
-                        <div className="grid grid-cols-2 gap-6 bg-white/[0.03] p-6 rounded-2xl border border-white/5">
+                        <div className="grid grid-cols-2 gap-6 bg-black/[0.03] dark:bg-white/[0.03] p-6 rounded-2xl border border-black/5 dark:border-white/5">
                             <div className="flex flex-col items-center gap-3">
-                                <label className="text-[9px] font-bold text-attire-silver/40 uppercase tracking-widest">Featured</label>
+                                <label className="text-[9px] font-bold text-gray-400 dark:text-attire-silver/40 uppercase tracking-widest">Featured</label>
                                 <button 
                                     type="button"
                                     onClick={() => setFormData({...formData, is_featured: !formData.is_featured})}
-                                    className={`w-12 h-7 rounded-full transition-all duration-300 relative ${formData.is_featured ? 'bg-attire-accent' : 'bg-white/10'}`}
+                                    className={`w-12 h-7 rounded-full transition-all duration-300 relative ${formData.is_featured ? 'bg-attire-accent' : 'bg-black/10 dark:bg-white/10'}`}
                                 >
                                     <div className={`absolute top-1 w-5 h-5 bg-white rounded-full transition-all duration-300 shadow-lg ${formData.is_featured ? 'left-6' : 'left-1'}`} />
                                 </button>
                             </div>
                             <div className="flex flex-col items-center gap-3">
-                                <label className="text-[9px] font-bold text-attire-silver/40 uppercase tracking-widest">New Arrival</label>
+                                <label className="text-[9px] font-bold text-gray-400 dark:text-attire-silver/40 uppercase tracking-widest">New Arrival</label>
                                 <button 
                                     type="button"
                                     onClick={() => setFormData({...formData, is_new: !formData.is_new})}
-                                    className={`w-12 h-7 rounded-full transition-all duration-300 relative ${formData.is_new ? 'bg-blue-500' : 'bg-white/10'}`}
+                                    className={`w-12 h-7 rounded-full transition-all duration-300 relative ${formData.is_new ? 'bg-blue-500' : 'bg-black/10 dark:bg-white/10'}`}
                                 >
                                     <div className={`absolute top-1 w-5 h-5 bg-white rounded-full transition-all duration-300 shadow-lg ${formData.is_new ? 'left-6' : 'left-1'}`} />
                                 </button>
@@ -357,13 +436,13 @@ const ProductEditor = () => {
                         </div>
                     </div>
 
-                    <div className="p-8 bg-white/[0.02] rounded-3xl border border-white/5 flex items-center justify-between">
+                    <div className="p-8 bg-black/[0.02] dark:bg-white/[0.02] rounded-3xl border border-black/5 dark:border-white/5 flex items-center justify-between">
                         <div>
-                            <p className="text-sm font-bold text-white uppercase tracking-wider">Store Visibility</p>
-                            <p className="text-[10px] text-attire-silver/60 mt-1 uppercase tracking-widest">Toggle visibility in public store</p>
+                            <p className="text-sm font-bold text-gray-900 dark:text-white uppercase tracking-wider">Store Visibility</p>
+                            <p className="text-[10px] text-gray-400 dark:text-attire-silver/60 mt-1 uppercase tracking-widest">Toggle visibility in public store</p>
                         </div>
                         <div className="flex items-center gap-6">
-                            <span className={`text-[10px] font-bold uppercase tracking-[0.2em] ${formData.is_visible ? 'text-green-400' : 'text-red-400'}`}>
+                            <span className={`text-[10px] font-bold uppercase tracking-[0.2em] ${formData.is_visible ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}`}>
                                 {formData.is_visible ? 'Visible' : 'Hidden'}
                             </span>
                             <button 
@@ -372,27 +451,27 @@ const ProductEditor = () => {
                                 className={`w-20 h-10 rounded-full transition-all duration-500 relative flex items-center px-2 ${formData.is_visible ? 'bg-green-500/20 border border-green-500/30' : 'bg-red-500/20 border border-red-500/30'}`}
                             >
                                 <div className={`w-7 h-7 rounded-full flex items-center justify-center transition-all duration-500 shadow-xl ${formData.is_visible ? 'translate-x-9 bg-green-500' : 'translate-x-0 bg-red-500'}`}>
-                                    {formData.is_visible ? <Eye size={14} className="text-white" /> : <EyeOff size={14} className="text-white" />}
+                                    {formData.is_visible ? <Check size={14} className="text-white" /> : <X size={14} className="text-white" />}
                                 </div>
                             </button>
                         </div>
                     </div>
 
-                    <div className="pt-12 pb-24 border-t border-white/5 flex gap-6">
+                    <div className="pt-12 pb-24 border-t border-black/5 dark:border-white/5 flex gap-6">
                         <button 
                             type="button"
                             onClick={() => navigate('/admin/products')}
-                            className="flex-grow py-6 border border-white/10 rounded-2xl text-[11px] font-bold uppercase tracking-[0.4em] text-white/40 hover:text-white hover:bg-white/5 transition-all"
+                            className="flex-grow py-6 border border-black/5 dark:border-white/10 rounded-2xl text-[11px] font-bold uppercase tracking-[0.4em] text-gray-400 dark:text-white/40 hover:text-gray-900 dark:hover:text-white hover:bg-black/5 dark:hover:bg-white/5 transition-all"
                         >
                             Cancel
                         </button>
                         <button 
                             type="submit"
                             disabled={saving}
-                            className="flex-grow py-6 bg-white text-black rounded-2xl text-[11px] font-bold uppercase tracking-[0.4em] hover:bg-attire-accent transition-all flex items-center justify-center gap-4 shadow-2xl shadow-white/5"
+                            className="flex-grow py-6 bg-gray-900 dark:bg-white text-white dark:text-black rounded-2xl text-[11px] font-bold uppercase tracking-[0.4em] hover:bg-attire-accent dark:hover:bg-attire-accent transition-all flex items-center justify-center gap-4 shadow-2xl shadow-black/5"
                         >
                             {saving ? <Loader className="animate-spin" size={18} /> : <Check size={18} />}
-                            {saving ? 'Processing...' : 'Commit Changes'}
+                            {saving ? 'Processing...' : (isNew ? 'Create Masterpiece' : 'Commit Changes')}
                         </button>
                     </div>
                 </form>

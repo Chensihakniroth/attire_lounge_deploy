@@ -1,30 +1,31 @@
 import React, { useState, useEffect } from 'react';
 import { NavLink, useNavigate, Outlet, useLocation } from 'react-router-dom';
-import { LayoutDashboard, Calendar, Gift, LogOut, Menu, X, Package, ShoppingBag, ChevronLeft, ChevronRight } from 'lucide-react';
-import { ThemeProvider } from './ThemeContext';
+import { LayoutDashboard, Calendar, Gift, LogOut, Menu, X, Package, ShoppingBag, ChevronLeft, ChevronRight, Sun, Moon } from 'lucide-react';
+import { ThemeProvider, useTheme } from './ThemeContext';
 import { AdminProvider, useAdmin } from './AdminContext';
 import { motion, AnimatePresence } from 'framer-motion';
 
 const NavItem = ({ item, isCollapsed }) => {
-// ... existing NavItem ...
-// (I will use a more precise replacement for the layout structure)
-
     return (
-        <motion.div whileHover={{ x: isCollapsed ? 0 : 5 }} whileTap={{ scale: 0.95 }}>
+        <motion.div 
+            whileHover={{ x: isCollapsed ? 0 : 4, scale: 1.02 }} 
+            whileTap={{ scale: 0.98 }}
+            transition={{ type: "spring", stiffness: 400, damping: 17 }}
+        >
             <NavLink
                 to={item.to}
                 end={item.to === '/admin'}
                 className={({ isActive }) =>
-                    `flex items-center px-4 py-3 text-sm font-medium rounded-lg transition-colors ${
+                    `flex items-center px-4 py-3 text-sm font-bold uppercase tracking-widest rounded-xl transition-all duration-300 ${
                         isActive
-                            ? 'bg-white/10 text-attire-accent'
-                            : 'text-gray-400 hover:bg-white/5 hover:text-white'
+                            ? 'bg-black dark:bg-white/10 text-white dark:text-attire-accent shadow-lg shadow-black/5 dark:shadow-none'
+                            : 'text-gray-500 dark:text-gray-400 hover:bg-black/5 dark:hover:bg-white/5 hover:text-gray-900 dark:hover:text-white'
                     } ${isCollapsed ? 'justify-center px-2' : ''}`
                 }
                 title={isCollapsed ? item.name : ''}
             >
-                <item.icon className={`w-5 h-5 ${isCollapsed ? '' : 'mr-3'}`} />
-                {!isCollapsed && <span>{item.name}</span>}
+                <item.icon className={`w-5 h-5 ${isCollapsed ? '' : 'mr-3'} transition-transform duration-300 group-hover:scale-110`} />
+                {!isCollapsed && <span className="text-[11px]">{item.name}</span>}
             </NavLink>
         </motion.div>
     );
@@ -48,30 +49,50 @@ const Sidebar = ({ isOpen, setOpen, isMobile = false }) => {
         { name: 'Gift Inventory', to: '/admin/inventory', icon: Package },
     ];
 
-    const SidebarContent = () => (
-        <div className={`flex flex-col w-full bg-[#0a0a0a] border-r border-white/5 flex-shrink-0 h-full overflow-hidden`}>
-            <div className="h-16 flex items-center justify-between px-6 border-b border-white/5">
-                <h1 className="text-sm font-bold tracking-[0.3em] text-white uppercase">Attire Lounge</h1>
-                {isMobile && (
-                    <button onClick={() => setOpen(false)} className="text-gray-400 hover:text-white lg:hidden">
-                        <X size={20} />
+    const SidebarContent = () => {
+        const { isDarkMode, toggleDarkMode } = useTheme();
+        
+        return (
+            <div className={`flex flex-col w-full bg-white dark:bg-[#0a0a0a] border-r border-black/5 dark:border-white/5 flex-shrink-0 h-full overflow-hidden transition-colors duration-300`}>
+                <div className="h-16 flex items-center justify-between px-6 border-b border-black/5 dark:border-white/5">
+                    <h1 className="text-sm font-bold tracking-[0.3em] text-gray-900 dark:text-white uppercase">Attire Lounge</h1>
+                    {isMobile && (
+                        <button onClick={() => setOpen(false)} className="text-gray-400 hover:text-gray-900 dark:hover:text-white lg:hidden">
+                            <X size={20} />
+                        </button>
+                    )}
+                </div>
+                <nav className="flex-grow p-4 space-y-2 mt-4">
+                    {navItems.map(item => <NavItem key={item.name} item={item} isCollapsed={false} />)}
+                </nav>
+                <div className="p-4 border-t border-black/5 dark:border-white/5 space-y-2">
+                    <button
+                        onClick={toggleDarkMode}
+                        className="w-full flex items-center px-4 py-3 text-sm font-medium text-gray-500 dark:text-gray-400 rounded-lg hover:bg-black/5 dark:hover:bg-white/5 hover:text-gray-900 dark:hover:text-white transition-colors"
+                    >
+                        {isDarkMode ? (
+                            <>
+                                <Sun className="w-5 h-5 mr-3" />
+                                <span>Light Mode</span>
+                            </>
+                        ) : (
+                            <>
+                                <Moon className="w-5 h-5 mr-3" />
+                                <span>Dark Mode</span>
+                            </>
+                        )}
                     </button>
-                )}
+                    <button
+                        onClick={handleLogout}
+                        className="w-full flex items-center px-4 py-3 text-sm font-medium text-gray-500 dark:text-gray-400 rounded-lg hover:bg-red-500/10 hover:text-red-400 transition-colors"
+                    >
+                        <LogOut className="w-5 h-5 mr-3" />
+                        <span>Logout</span>
+                    </button>
+                </div>
             </div>
-            <nav className="flex-grow p-4 space-y-2 mt-4">
-                {navItems.map(item => <NavItem key={item.name} item={item} isCollapsed={false} />)}
-            </nav>
-            <div className="p-4 border-t border-white/5">
-                <button
-                    onClick={handleLogout}
-                    className="w-full flex items-center px-4 py-3 text-sm font-medium text-gray-400 rounded-lg hover:bg-red-500/10 hover:text-red-400 transition-colors"
-                >
-                    <LogOut className="w-5 h-5 mr-3" />
-                    <span>Logout</span>
-                </button>
-            </div>
-        </div>
-    );
+        );
+    };
 
     if (isMobile) {
         return (
@@ -136,16 +157,12 @@ const AdminLayoutContent = ({ isSidebarVisible, setSidebarVisible, isMobileOpen,
         };
 
         window.addEventListener('resize', handleResize);
-        const adminRoot = document.getElementById('admin-root');
-        if (adminRoot) {
-            adminRoot.classList.add('dark');
-        }
-
+        
         return () => window.removeEventListener('resize', handleResize);
     }, []);
 
     return (
-        <div id="admin-root" className="flex h-screen bg-[#050505] font-sans text-white selection:bg-attire-accent selection:text-black">
+        <div id="admin-root" className="flex h-screen bg-gray-50 dark:bg-[#050505] font-sans text-gray-900 dark:text-white selection:bg-attire-accent selection:text-black transition-colors duration-300">
             {/* Desktop Sidebar with Motion */}
             <AnimatePresence initial={false}>
                 {!isEditing && isDesktop && isSidebarVisible && (
@@ -154,7 +171,7 @@ const AdminLayoutContent = ({ isSidebarVisible, setSidebarVisible, isMobileOpen,
                         animate={{ width: 256, opacity: 1 }}
                         exit={{ width: 0, opacity: 0 }}
                         transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
-                        className="hidden lg:block overflow-hidden h-full flex-shrink-0 bg-[#0a0a0a]"
+                        className="hidden lg:block overflow-hidden h-full flex-shrink-0 bg-white dark:bg-[#0a0a0a]"
                     >
                         <Sidebar isOpen={isMobileOpen} setOpen={setMobileOpen} />
                     </motion.div>
@@ -166,7 +183,7 @@ const AdminLayoutContent = ({ isSidebarVisible, setSidebarVisible, isMobileOpen,
             
             <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
                 {!isEditing && (
-                    <header className="h-16 bg-[#0a0a0a]/80 backdrop-blur-md border-b border-white/5 flex items-center px-6 justify-between flex-shrink-0 z-20">
+                    <header className="h-16 bg-white/80 dark:bg-[#0a0a0a]/80 backdrop-blur-md border-b border-black/5 dark:border-white/5 flex items-center px-6 justify-between flex-shrink-0 z-20 transition-colors duration-300">
                         <div className="flex items-center gap-4">
                             <button 
                                 onClick={() => {
@@ -176,19 +193,19 @@ const AdminLayoutContent = ({ isSidebarVisible, setSidebarVisible, isMobileOpen,
                                         setSidebarVisible(!isSidebarVisible);
                                     }
                                 }} 
-                                className="p-2 hover:bg-white/5 rounded-xl text-attire-silver hover:text-white transition-all active:scale-95"
+                                className="p-2 hover:bg-black/5 dark:hover:bg-white/5 rounded-xl text-gray-500 dark:text-attire-silver hover:text-gray-900 dark:hover:text-white transition-all active:scale-95"
                             >
                                 <Menu size={20} />
                             </button>
-                            <div className="h-4 w-px bg-white/10 mx-2 hidden lg:block" />
-                            <h1 className="text-xs font-bold uppercase tracking-[0.2em] text-attire-silver/60 hidden sm:block">
-                                Styling House <span className="text-white/20 mx-2">/</span> <span className="text-white uppercase">Admin</span>
+                            <div className="h-4 w-px bg-black/10 dark:bg-white/10 mx-2 hidden lg:block" />
+                            <h1 className="text-xs font-bold uppercase tracking-[0.2em] text-gray-400 dark:text-attire-silver/60 hidden sm:block">
+                                Styling House <span className="text-black/20 dark:text-white/20 mx-2">/</span> <span className="text-gray-900 dark:text-white uppercase">Admin</span>
                             </h1>
                         </div>
                         
                         <div className="flex items-center gap-4">
                             <div className="text-right hidden md:block">
-                                <p className="text-[10px] font-bold text-white uppercase tracking-wider leading-none mb-1">Administrator</p>
+                                <p className="text-[10px] font-bold text-gray-900 dark:text-white uppercase tracking-wider leading-none mb-1">Administrator</p>
                                 <p className="text-[9px] text-attire-accent uppercase tracking-[0.2em]">Master Access</p>
                             </div>
                             <div className="w-8 h-8 rounded-full bg-attire-accent/10 border border-attire-accent/20 flex items-center justify-center">

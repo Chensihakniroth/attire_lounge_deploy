@@ -1,6 +1,7 @@
 // tailwind.config.js - UPDATED WITH NEW VISUALLY-MATCHED COLORS
 /** @type {import('tailwindcss').Config} */
 module.exports = {
+  darkMode: 'class',
   content: [
     "./resources/**/*.blade.php",
     "./resources/**/*.js",

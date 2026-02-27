@@ -35,6 +35,11 @@ interface ProductRepositoryInterface
     public function findById(int $id): ?Product;
 
     /**
+     * Create a new product.
+     */
+    public function create(array $data): Product;
+
+    /**
      * Update an existing product.
      */
     public function update(int $id, array $data): ?Product;

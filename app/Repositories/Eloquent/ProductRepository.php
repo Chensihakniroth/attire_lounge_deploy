@@ -94,14 +94,11 @@ class ProductRepository implements ProductRepositoryInterface
     }
 
     /**
-     * Get distinct categories.
+     * Get all categories.
      */
     public function getCategories(): Collection
     {
-        return $this->model->select('category')
-            ->distinct()
-            ->orderBy('category')
-            ->pluck('category');
+        return \App\Models\Category::orderBy('name')->get();
     }
 
     /**
@@ -118,6 +115,25 @@ class ProductRepository implements ProductRepositoryInterface
     public function findById(int $id): ?Product
     {
         return $this->model->find($id);
+    }
+
+    /**
+     * Create a new product.
+     */
+    public function create(array $data): Product
+    {
+        if (!isset($data['slug'])) {
+            $data['slug'] = \Illuminate\Support\Str::slug($data['name']);
+            
+            // Ensure uniqueness
+            $originalSlug = $data['slug'];
+            $count = 1;
+            while ($this->model->where('slug', $data['slug'])->exists()) {
+                $data['slug'] = $originalSlug . '-' . $count++;
+            }
+        }
+        
+        return $this->model->create($data);
     }
 
     /**

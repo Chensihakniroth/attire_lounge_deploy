@@ -53,7 +53,7 @@ const InventoryManager = () => {
 
     const renderSection = (title, items) => (
         <section className="space-y-4">
-            <h2 className="text-xl font-serif text-white border-b border-white/10 pb-2">{title}</h2>
+            <h2 className="text-xl font-serif text-gray-900 dark:text-white border-b border-black/5 dark:border-white/10 pb-2">{title}</h2>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
                 {items.map(item => {
                     const isOutOfStock = outOfStockItems.includes(item.id);
@@ -66,11 +66,11 @@ const InventoryManager = () => {
                             className={`p-4 rounded-2xl border transition-all duration-300 cursor-pointer group hover:scale-[1.02] active:scale-[0.98] ${
                                 isOutOfStock 
                                     ? 'bg-red-500/5 border-red-500/20 hover:border-red-500/40' 
-                                    : 'bg-black/20 border-white/10 hover:border-attire-accent/30'
+                                    : 'bg-white dark:bg-black/20 border-black/5 dark:border-white/10 hover:border-attire-accent/30 shadow-sm dark:shadow-none'
                             } ${isUpdating ? 'opacity-70 pointer-events-none' : ''}`}
                         >
                             <div className="flex items-center gap-4">
-                                <div className="h-16 w-16 rounded-xl overflow-hidden border border-white/10 flex-shrink-0">
+                                <div className="h-16 w-16 rounded-xl overflow-hidden border border-black/5 dark:border-white/10 flex-shrink-0">
                                     <OptimizedImage 
                                         src={item.image} 
                                         alt={item.name} 
@@ -79,14 +79,14 @@ const InventoryManager = () => {
                                     />
                                 </div>
                                 <div className="flex-grow min-w-0">
-                                    <h3 className="text-sm font-medium text-white truncate group-hover:text-attire-accent transition-colors">{item.name}</h3>
-                                    <p className="text-xs text-attire-silver">{item.color || 'Default'}</p>
+                                    <h3 className="text-sm font-medium text-gray-900 dark:text-white truncate group-hover:text-attire-accent transition-colors">{item.name}</h3>
+                                    <p className="text-xs text-gray-500 dark:text-attire-silver">{item.color || 'Default'}</p>
                                 </div>
                                 <div
                                     className={`flex-shrink-0 p-2 rounded-full transition-colors ${
                                         isOutOfStock 
-                                            ? 'bg-red-500/20 text-red-400 group-hover:bg-red-500/30' 
-                                            : 'bg-green-500/20 text-green-400 group-hover:bg-green-500/30'
+                                            ? 'bg-red-500/20 text-red-600 dark:text-red-400 group-hover:bg-red-500/30' 
+                                            : 'bg-green-500/20 text-green-600 dark:text-green-400 group-hover:bg-green-500/30'
                                     }`}
                                 >
                                     {isUpdating ? <Loader className="animate-spin" size={20} /> : (isOutOfStock ? <XCircle size={20} /> : <CheckCircle size={20} />)}
@@ -116,9 +116,9 @@ const InventoryManager = () => {
 
     return (
         <div className="space-y-8 pb-20">
-            <div className="pb-4 border-b border-white/10">
-                <h1 className="text-4xl font-serif text-white mb-2">Inventory</h1>
-                <p className="text-attire-silver text-sm uppercase tracking-widest">Manage gift item availability</p>
+            <div className="pb-4 border-b border-black/5 dark:border-white/10">
+                <h1 className="text-4xl font-serif text-gray-900 dark:text-white mb-2">Inventory</h1>
+                <p className="text-gray-500 dark:text-attire-silver text-sm uppercase tracking-widest">Manage gift item availability</p>
             </div>
 
             <div className="space-y-12">

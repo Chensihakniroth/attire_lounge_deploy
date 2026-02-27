@@ -82,6 +82,18 @@ class ProductService
     }
 
     /**
+     * Create a new product and clear cache.
+     */
+    public function createProduct(array $data)
+    {
+        $product = $this->productRepository->create($data);
+        if ($product) {
+            $this->clearProductCache($product);
+        }
+        return $product;
+    }
+
+    /**
      * Update an existing product and clear cache.
      */
     public function updateProduct(int $id, array $data)

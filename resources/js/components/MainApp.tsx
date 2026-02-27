@@ -262,6 +262,7 @@ const AnimatedRoutes: React.FC = () => {
                         <Route path="/admin" element={<AdminDashboard />} />
                         <Route path="/admin/appointments" element={<AppointmentManager />} />
                         <Route path="/admin/products" element={<ProductManager />} />
+                        <Route path="/admin/products/new" element={<ProductEditor isNew={true} />} />
                         <Route path="/admin/products/:productId/edit" element={<ProductEditor />} />
                         <Route path="/admin/customize-gift" element={<CustomizeGiftManager />} />
                         <Route path="/admin/inventory" element={<InventoryManager />} />

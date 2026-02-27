@@ -15,9 +15,9 @@ const GiftRequestCard = ({ request, onUpdate, onDelete }) => {
     };
 
     const statusConfig = {
-        Pending: { label: 'Pending', color: 'text-yellow-400', bg: 'bg-yellow-400/10', border: 'border-yellow-400/20' },
-        Completed: { label: 'Completed', color: 'text-green-400', bg: 'bg-green-400/10', border: 'border-green-400/20' },
-        Cancelled: { label: 'Cancelled', color: 'text-red-400', bg: 'bg-red-400/10', border: 'border-red-400/20' },
+        Pending: { label: 'Pending', color: 'text-yellow-600 dark:text-yellow-400', bg: 'bg-yellow-400/10', border: 'border-yellow-400/20' },
+        Completed: { label: 'Completed', color: 'text-green-600 dark:text-green-400', bg: 'bg-green-400/10', border: 'border-green-400/20' },
+        Cancelled: { label: 'Cancelled', color: 'text-red-600 dark:text-red-400', bg: 'bg-red-400/10', border: 'border-red-400/20' },
     };
     
     const status = statusConfig[request.status] || statusConfig.Pending;
@@ -27,16 +27,16 @@ const GiftRequestCard = ({ request, onUpdate, onDelete }) => {
             layout="position"
             initial={{ opacity: 0, y: 15 }}
             animate={{ opacity: 1, y: 0 }}
-            className="group p-6 rounded-3xl backdrop-blur-xl bg-black/20 border border-white/10 shadow-lg transition-all duration-300 hover:bg-black/30 hover:border-attire-accent/30"
+            className="group p-6 rounded-3xl backdrop-blur-xl bg-white dark:bg-black/20 border border-black/5 dark:border-white/10 shadow-lg dark:shadow-none transition-all duration-300 hover:bg-gray-50 dark:hover:bg-black/30 hover:border-black/10 dark:hover:border-attire-accent/30"
         >
-            <div className="flex justify-between items-start pb-4 mb-4 border-b border-white/5">
+            <div className="flex justify-between items-start pb-4 mb-4 border-b border-black/5 dark:border-white/5">
                 <div className="flex items-center gap-4">
-                    <div className="h-12 w-12 rounded-full bg-white/5 flex items-center justify-center border border-white/5 group-hover:border-attire-accent/30 transition-colors">
-                        <User className="w-5 h-5 text-attire-silver group-hover:text-attire-accent transition-colors" />
+                    <div className="h-12 w-12 rounded-full bg-black/5 dark:bg-white/5 flex items-center justify-center border border-black/5 dark:border-white/5 group-hover:border-attire-accent/30 transition-colors">
+                        <User className="w-5 h-5 text-gray-400 dark:text-attire-silver group-hover:text-attire-accent transition-colors" />
                     </div>
                     <div>
-                        <h3 className="text-lg font-serif text-white">{request.name}</h3>
-                        <div className="flex items-center gap-3 text-xs text-attire-silver/60 mt-1">
+                        <h3 className="text-lg font-serif text-gray-900 dark:text-white">{request.name}</h3>
+                        <div className="flex items-center gap-3 text-xs text-gray-500 dark:text-attire-silver/60 mt-1">
                             {request.email && <span className="truncate max-w-[150px]">{request.email} • </span>}
                             <span>{request.phone}</span>
                         </div>
@@ -47,15 +47,15 @@ const GiftRequestCard = ({ request, onUpdate, onDelete }) => {
                 </span>
             </div>
 
-            <div className="mt-4 p-4 bg-white/5 rounded-2xl border border-white/5">
-                <pre className="whitespace-pre-wrap font-sans text-sm text-attire-cream/90 leading-relaxed pl-4 border-l-2 border-white/10">{request.preferences}</pre>
+            <div className="mt-4 p-4 bg-black/5 dark:bg-white/5 rounded-2xl border border-black/5 dark:border-white/5">
+                <pre className="whitespace-pre-wrap font-sans text-sm text-gray-700 dark:text-attire-cream/90 leading-relaxed pl-4 border-l-2 border-black/10 dark:border-white/10">{request.preferences}</pre>
             </div>
 
             {request.selected_items && request.selected_items.length > 0 && (
                 <div className="mt-4 flex gap-3 overflow-x-auto pb-2 scrollbar-hide">
                     {request.selected_items.map((item, index) => (
                         <div key={index} className="flex-shrink-0">
-                            <div className="h-16 w-16 rounded-xl overflow-hidden border border-white/10">
+                            <div className="h-16 w-16 rounded-xl overflow-hidden border border-black/5 dark:border-white/10">
                                 <OptimizedImage src={item.image} alt="" className="w-full h-full object-cover" />
                             </div>
                         </div>
@@ -66,15 +66,15 @@ const GiftRequestCard = ({ request, onUpdate, onDelete }) => {
             <div className="mt-6 flex justify-end gap-3">
                 {request.status === 'Pending' ? (
                     <>
-                        <button onClick={() => handleUpdate('Completed')} disabled={isUpdating} className="px-4 py-2 text-xs font-bold uppercase tracking-widest text-green-400 bg-green-400/10 border border-green-400/20 rounded-xl hover:bg-green-400/20 transition-all flex items-center gap-2">
+                        <button onClick={() => handleUpdate('Completed')} disabled={isUpdating} className="px-4 py-2 text-xs font-bold uppercase tracking-widest text-green-600 dark:text-green-400 bg-green-400/10 border border-green-400/20 rounded-xl hover:bg-green-400/20 transition-all flex items-center gap-2" title="Mark as Completed">
                             <CheckCircle size={14} /> Complete
                         </button>
-                        <button onClick={() => handleUpdate('Cancelled')} disabled={isUpdating} className="px-4 py-2 text-xs font-bold uppercase tracking-widest text-red-400 bg-red-400/10 border border-red-400/20 rounded-xl hover:bg-red-400/20 transition-all flex items-center gap-2">
+                        <button onClick={() => handleUpdate('Cancelled')} disabled={isUpdating} className="px-4 py-2 text-xs font-bold uppercase tracking-widest text-red-600 dark:text-red-400 bg-red-400/10 border border-red-400/20 rounded-xl hover:bg-red-400/20 transition-all flex items-center gap-2" title="Mark as Cancelled">
                             <XCircle size={14} /> Cancel
                         </button>
                     </>
                 ) : (
-                    <button onClick={() => onDelete(request.id)} disabled={isUpdating} className="px-4 py-2 text-xs font-bold uppercase tracking-widest text-attire-silver hover:text-red-400 bg-white/5 border border-white/10 rounded-xl transition-all">
+                    <button onClick={() => onDelete(request.id)} disabled={isUpdating} className="px-4 py-2 text-xs font-bold uppercase tracking-widest text-gray-400 dark:text-attire-silver hover:text-red-600 dark:hover:text-red-400 bg-black/5 dark:bg-white/5 border border-black/5 dark:border-white/10 rounded-xl transition-all" title="Delete record">
                         <Trash2 size={14} />
                     </button>
                 )}
@@ -84,8 +84,8 @@ const GiftRequestCard = ({ request, onUpdate, onDelete }) => {
 };
 
 const GiftSkeleton = () => (
-    <div className="p-6 rounded-3xl bg-white/5 border border-white/5 space-y-6">
-        <div className="flex items-center justify-between border-b border-white/5 pb-4">
+    <div className="p-6 rounded-3xl bg-white dark:bg-white/5 border border-black/5 dark:border-white/5 shadow-lg dark:shadow-none space-y-6">
+        <div className="flex items-center justify-between border-b border-black/5 dark:border-white/5 pb-4">
             <div className="flex items-center gap-4">
                 <Skeleton className="h-12 w-12 rounded-full" />
                 <div className="space-y-2">
@@ -136,15 +136,15 @@ const CustomizeGiftManager = () => {
 
     return (
         <div className="space-y-8 pb-20">
-            <div className="pb-4 border-b border-white/10">
-                <h1 className="text-4xl font-serif text-white mb-2">Gift Management</h1>
-                <p className="text-attire-silver text-sm uppercase tracking-widest">Custom gift box inquiries</p>
+            <div className="pb-4 border-b border-black/5 dark:border-white/10">
+                <h1 className="text-4xl font-serif text-gray-900 dark:text-white mb-2">Gift Management</h1>
+                <p className="text-gray-500 dark:text-attire-silver text-sm uppercase tracking-widest">Custom gift box inquiries</p>
             </div>
 
             {giftRequests.length === 0 ? (
-                <div className="text-center py-20 bg-black/20 rounded-3xl border border-white/5">
-                    <Gift className="mx-auto text-attire-silver/20 mb-4" size={48} />
-                    <p className="text-attire-silver/60 uppercase tracking-widest text-xs">No gift requests found.</p>
+                <div className="text-center py-20 bg-black/5 dark:bg-black/20 rounded-3xl border border-black/5 dark:border-white/5">
+                    <Gift className="mx-auto text-gray-300 dark:text-attire-silver/20 mb-4" size={48} />
+                    <p className="text-gray-500 dark:text-attire-silver/60 uppercase tracking-widest text-xs">No gift requests found.</p>
                 </div>
             ) : (
                 <div className="space-y-8">
@@ -165,9 +165,9 @@ const CustomizeGiftManager = () => {
                         <div className="flex justify-center mt-12">
                             <button 
                                 onClick={() => setVisibleRows(v => v + 6)}
-                                className="group flex items-center gap-3 px-8 py-4 bg-white/5 hover:bg-white/10 border border-white/10 rounded-2xl transition-all"
+                                className="group flex items-center gap-3 px-8 py-4 bg-black/5 dark:bg-white/5 hover:bg-black/10 dark:hover:bg-white/10 border border-black/5 dark:border-white/10 rounded-2xl transition-all"
                             >
-                                <span className="text-[10px] font-bold uppercase tracking-[0.3em] text-white">View More Requests</span>
+                                <span className="text-[10px] font-bold uppercase tracking-[0.3em] text-gray-900 dark:text-white">View More Requests</span>
                                 <ChevronDown size={16} className="text-attire-accent group-hover:translate-y-1 transition-transform" />
                             </button>
                         </div>
