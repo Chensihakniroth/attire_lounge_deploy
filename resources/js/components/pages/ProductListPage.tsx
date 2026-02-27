@@ -124,6 +124,11 @@ const ProductListPage: React.FC = () => {
     return (
         <motion.div 
             className="min-h-screen bg-attire-navy relative selection:bg-attire-accent selection:text-white"
+            style={{ 
+                willChange: 'transform',
+                transform: 'translateZ(0)',
+                WebkitBackfaceVisibility: 'hidden'
+            }}
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}

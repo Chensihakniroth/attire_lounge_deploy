@@ -11,7 +11,11 @@ import React, { memo } from 'react';
 const GrainOverlay = memo(({ opacity = 0.015, zIndex = 'z-50' }) => (
   <div 
     className={`fixed inset-0 pointer-events-none ${zIndex} mix-blend-overlay`}
-    style={{ opacity }}
+    style={{ 
+        opacity,
+        willChange: 'transform',
+        transform: 'translateZ(0)'
+    }}
   >
     <svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg" className="w-full h-full">
       <filter id="noiseFilter">
