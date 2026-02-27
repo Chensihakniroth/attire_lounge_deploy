@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Lock, Mail, Loader, ShieldCheck, ArrowRight, Check } from 'lucide-react';
+import { Lock, Mail, Loader, ShieldCheck, ArrowRight, Check, RefreshCw, AlertTriangle } from 'lucide-react';
 import { motion } from 'framer-motion';
 import axios from 'axios';
 import minioBaseUrl from '../../../config';
@@ -12,6 +12,8 @@ const AdminLogin = () => {
     const [error, setError] = useState('');
     const [loading, setLoading] = useState(false);
     const navigate = useNavigate();
+
+    const logoUrl = "https://bucket-production-4ca0.up.railway.app/product-assets/uploads/asset/ALO.png";
 
     useEffect(() => {
         const token = localStorage.getItem('admin_token');
@@ -46,132 +48,174 @@ const AdminLogin = () => {
     };
 
     return (
-        <div className="relative min-h-screen flex items-center justify-center font-sans overflow-hidden bg-attire-navy">
-            {/* Background Decorations - Softened to match other pages */}
-            <div className="fixed top-0 left-0 w-full h-screen overflow-hidden pointer-events-none z-0">
-                <div className="absolute top-[-10%] right-[-5%] w-[600px] h-[600px] bg-attire-accent/[0.03] rounded-full blur-[160px]" />
-                <div className="absolute bottom-[-10%] left-[-10%] w-[500px] h-[500px] bg-blue-900/[0.05] rounded-full blur-[140px]" />
+        <div className="relative min-h-screen flex font-sans overflow-hidden bg-[#050505] text-white selection:bg-attire-accent selection:text-black">
+            {/* Left Column: Visual Branding */}
+            <div className="hidden lg:flex lg:w-1/2 relative overflow-hidden bg-black border-r border-white/5">
+                <motion.div 
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 0.4 }}
+                    transition={{ duration: 2 }}
+                    className="absolute inset-0 z-0"
+                >
+                    <video 
+                        autoPlay 
+                        loop 
+                        muted 
+                        playsInline
+                        className="w-full h-full object-cover grayscale brightness-50 contrast-125"
+                    >
+                        <source src={`${minioBaseUrl}/uploads/asset/hero-background1.mp4`} type="video/mp4" />
+                    </video>
+                    <div className="absolute inset-0 bg-gradient-to-r from-black via-transparent to-black/20" />
+                </motion.div>
+
+                {/* Branding Content */}
+                <div className="relative z-10 flex flex-col justify-between p-16 w-full">
+                    <motion.div
+                        initial={{ opacity: 0, x: -20 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        transition={{ delay: 0.5, duration: 0.8 }}
+                    >
+                        <h1 className="text-6xl font-serif leading-tight tracking-tighter mt-12">
+                            Attire Lounge <br />
+                            <span className="text-white/30 italic font-light">Styling House</span>
+                        </h1>
+                    </motion.div>
+
+                    <motion.div
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: 0.8, duration: 0.8 }}
+                        className="space-y-6"
+                    >
+                        <div className="h-px w-24 bg-attire-accent/40" />
+                        <p className="text-sm text-attire-silver/60 max-w-sm leading-relaxed tracking-wide font-light">
+                            Secured administrative access for curated excellence. 
+                            Manage collections, appointments, and styling house operations from your master console.
+                        </p>
+                        <div className="flex items-center gap-4 text-[9px] font-bold uppercase tracking-[0.3em] text-white/20">
+                            <span>Phnom Penh</span>
+                            <div className="w-1 h-1 bg-white/10 rounded-full" />
+                            <span>Encrypted Session</span>
+                        </div>
+                    </motion.div>
+                </div>
             </div>
 
-            <motion.video 
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 0.4 }}
-                transition={{ duration: 1.5 }}
-                autoPlay 
-                loop 
-                muted 
-                playsInline
-                className="absolute top-0 left-0 w-full h-full object-cover z-0 grayscale contrast-125"
-            >
-                <source src={`${minioBaseUrl}/uploads/asset/hero-background1.mp4`} type="video/mp4" />
-            </motion.video>
-            
-            <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-black/40 to-black/80 z-10"></div>
+            {/* Right Column: Clean Login Form */}
+            <div className="flex-1 flex items-center justify-center p-8 bg-[#050505] relative">
+                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-attire-accent/[0.03] blur-[120px] rounded-full pointer-events-none" />
 
-            <motion.div 
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.8, ease: 'easeOut' }}
-                className="relative z-20 w-full max-w-md px-6"
-            >
-                <div className="bg-black/20 backdrop-blur-2xl p-10 md:p-12 rounded-[2.5rem] shadow-2xl border border-white/10">
-                    <div className="text-center mb-10">
-                        <div className="w-16 h-16 bg-attire-accent/20 rounded-2xl flex items-center justify-center mx-auto mb-6 border border-attire-accent/30 rotate-3 group hover:rotate-0 transition-transform duration-500">
-                            <ShieldCheck className="text-attire-accent" size={32} />
+                <motion.div 
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
+                    className="w-full max-w-[400px] relative z-10"
+                >
+                    {/* Centered Logo & Header */}
+                    <div className="text-center mb-12 flex flex-col items-center">
+                        <motion.div
+                            initial={{ scale: 0.8, opacity: 0 }}
+                            animate={{ scale: 1, opacity: 1 }}
+                            transition={{ delay: 0.3, duration: 0.8 }}
+                            className="mb-8"
+                        >
+                            <img 
+                                src={logoUrl} 
+                                alt="Attire Lounge Logo" 
+                                className="w-24 h-auto object-contain brightness-110 drop-shadow-[0_0_15px_rgba(255,255,255,0.1)]"
+                            />
+                        </motion.div>
+                        
+                        <h3 className="text-2xl font-serif text-white mb-2 tracking-tight">Master Console</h3>
+                        <div className="flex items-center justify-center gap-3">
+                            <div className="h-px w-4 bg-attire-accent/30" />
+                            <p className="text-[10px] text-attire-silver/40 uppercase tracking-[0.4em] font-bold">Authorized Only</p>
+                            <div className="h-px w-4 bg-attire-accent/30" />
                         </div>
-                        <h1 className="text-3xl font-serif text-white tracking-wider mb-2">Admin Portal</h1>
-                        <p className="text-attire-silver/60 text-sm uppercase tracking-widest font-medium">Access Restricted</p>
                     </div>
 
-                    <form onSubmit={handleLogin} className="space-y-6">
-                        <div className="space-y-2">
-                            <label className="block text-xs font-semibold text-attire-silver uppercase tracking-widest ml-1" htmlFor="email">
-                                Email Address
-                            </label>
-                            <div className="relative group">
-                                <Mail className="absolute left-4 top-1/2 -translate-y-1/2 text-white/20 group-focus-within:text-attire-accent transition-colors" size={18} />
-                                <input
-                                    type="email"
-                                    id="email"
-                                    value={email}
-                                    onChange={(e) => setEmail(e.target.value)}
-                                    className="pl-12 pr-4 py-4 bg-black/40 border border-white/10 rounded-2xl w-full text-white placeholder-white/10 focus:outline-none focus:border-attire-accent/50 focus:ring-1 focus:ring-attire-accent/30 transition-all"
-                                    placeholder="admin@attirelounge.com"
-                                    required
-                                />
-                            </div>
+                    <form onSubmit={handleLogin} className="space-y-8">
+                        <div className="space-y-3">
+                            <label className="text-[10px] font-bold text-attire-silver/30 uppercase tracking-[0.2em] ml-1">Identity</label>
+                            <input
+                                type="email"
+                                value={email}
+                                onChange={(e) => setEmail(e.target.value)}
+                                className="w-full bg-white/[0.03] border border-white/5 rounded-xl py-4 px-5 text-white text-sm outline-none transition-all duration-500 focus:bg-white/[0.06] focus:border-white/10 placeholder:text-white/5"
+                                placeholder="Admin Email"
+                                required
+                            />
                         </div>
 
-                        <div className="space-y-2">
-                            <label className="block text-xs font-semibold text-attire-silver uppercase tracking-widest ml-1" htmlFor="password">
-                                Password
-                            </label>
-                            <div className="relative group">
-                                <Lock className="absolute left-4 top-1/2 -translate-y-1/2 text-white/20 group-focus-within:text-attire-accent transition-colors" size={18} />
-                                <input
-                                    type="password"
-                                    id="password"
-                                    value={password}
-                                    onChange={(e) => setPassword(e.target.value)}
-                                    className="pl-12 pr-4 py-4 bg-black/40 border border-white/10 rounded-2xl w-full text-white placeholder-white/10 focus:outline-none focus:border-attire-accent/50 focus:ring-1 focus:ring-attire-accent/30 transition-all"
-                                    placeholder="••••••••"
-                                    required
-                                />
-                            </div>
+                        <div className="space-y-3">
+                            <label className="text-[10px] font-bold text-attire-silver/30 uppercase tracking-[0.2em] ml-1">Access Key</label>
+                            <input
+                                type="password"
+                                value={password}
+                                onChange={(e) => setPassword(e.target.value)}
+                                className="w-full bg-white/[0.03] border border-white/5 rounded-xl py-4 px-5 text-white text-sm outline-none transition-all duration-500 focus:bg-white/[0.06] focus:border-white/10 placeholder:text-white/5"
+                                placeholder="••••••••"
+                                required
+                            />
                         </div>
 
-                        <div className="flex items-center px-1">
-                            <label className="flex items-center cursor-pointer group">
+                        <div className="flex items-center justify-between px-1">
+                            <label className="flex items-center cursor-pointer group w-fit">
                                 <input
                                     type="checkbox"
                                     checked={rememberMe}
                                     onChange={(e) => setRememberMe(e.target.checked)}
                                     className="hidden"
                                 />
-                                <div className={`w-5 h-5 rounded-md border border-white/10 flex items-center justify-center transition-all ${rememberMe ? 'bg-attire-accent border-attire-accent' : 'bg-black/40 group-hover:bg-black/60'}`}>
-                                    {rememberMe && <Check size={14} className="text-black stroke-[4]" />}
+                                <div className={`w-4 h-4 rounded-md border transition-all duration-500 flex items-center justify-center ${rememberMe ? 'bg-attire-accent border-attire-accent' : 'bg-white/5 border-white/10 group-hover:border-white/20'}`}>
+                                    {rememberMe && <Check size={10} className="text-black stroke-[4]" />}
                                 </div>
-                                <span className="ml-3 text-sm text-attire-silver/80 group-hover:text-white transition-colors font-medium">Keep me signed in</span>
+                                <span className="ml-3 text-[11px] text-attire-silver/50 group-hover:text-white transition-colors duration-500 tracking-wide font-medium">Persist Session</span>
                             </label>
                         </div>
 
                         {error && (
                             <motion.div 
-                                initial={{ opacity: 0, x: -10 }}
-                                animate={{ opacity: 1, x: 0 }}
-                                className="bg-red-500/10 border border-red-500/20 rounded-xl p-3 text-center"
+                                initial={{ opacity: 0 }}
+                                animate={{ opacity: 1 }}
+                                className="flex items-center gap-3 p-4 bg-red-500/5 border border-red-500/10 rounded-xl"
                             >
-                                <p className="text-red-400 text-xs font-medium">{error}</p>
+                                <AlertTriangle size={14} className="text-red-400 shrink-0" />
+                                <p className="text-red-400 text-[10px] font-bold uppercase tracking-wider">{error}</p>
                             </motion.div>
                         )}
 
                         <button
                             type="submit"
-                            className="group relative w-full h-14 bg-attire-accent text-black font-bold rounded-full overflow-hidden transition-all hover:bg-white disabled:opacity-50 disabled:cursor-not-allowed"
                             disabled={loading}
+                            className="group relative w-full h-[60px] bg-white text-black font-black uppercase tracking-[0.4em] text-[10px] rounded-xl overflow-hidden transition-all duration-700 hover:bg-attire-accent disabled:opacity-50"
                         >
-                            <span className="relative z-10 flex items-center justify-center gap-2">
+                            <span className="relative z-10 flex items-center justify-center gap-3">
                                 {loading ? (
                                     <>
-                                        <Loader className="animate-spin" size={20} />
-                                        Verifying...
+                                        <RefreshCw className="animate-spin" size={16} />
+                                        Verifying
                                     </>
                                 ) : (
                                     <>
-                                        Authorize Session
-                                        <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+                                        Authorize Access
+                                        <ArrowRight className="w-4 h-4 group-hover:translate-x-2 transition-transform duration-700" />
                                     </>
                                 )}
                             </span>
+                            <div className="absolute inset-0 bg-attire-accent translate-y-full group-hover:translate-y-0 transition-transform duration-700" />
                         </button>
                     </form>
-                </div>
-                
-                <p className="mt-8 text-center text-attire-silver/30 text-[10px] uppercase tracking-[0.2em]">
-                    Attire Lounge Official &copy; 2026<br/>
-                    Encrypted Administrative Access
-                </p>
-            </motion.div>
+
+                    {/* Minimal Footer */}
+                    <div className="mt-20 pt-8 border-t border-white/5 text-center lg:text-left">
+                        <p className="text-attire-silver/20 text-[8px] font-bold uppercase tracking-[0.5em]">
+                            Admin Unit v2.4.0 &copy; 2026
+                        </p>
+                    </div>
+                </motion.div>
+            </div>
         </div>
     );
 };

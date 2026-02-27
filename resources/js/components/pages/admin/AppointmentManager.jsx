@@ -1,10 +1,11 @@
-import React, { useState, useEffect, useContext } from 'react';
-import { User, Mail, Phone, Calendar, Clock, MessageSquare, AlertTriangle, Loader, Check, X, Trash2 } from 'lucide-react';
-import { ThemeContext } from './ThemeContext';
+import React, { useState, useEffect, useCallback, useMemo, memo } from 'react';
+import { User, Mail, Phone, Calendar, Clock, MessageSquare, AlertTriangle, Loader, Check, X, Trash2, ChevronDown } from 'lucide-react';
 import { useAdmin } from './AdminContext';
 import OptimizedImage from '../../common/OptimizedImage.jsx';
+import Skeleton from '../../common/Skeleton.jsx';
+import { motion, AnimatePresence } from 'framer-motion';
 
-const AppointmentRow = ({ appointment, onUpdateStatus, colors }) => {
+const AppointmentRow = ({ appointment, onUpdateStatus }) => {
     const statusConfig = {
         pending: { label: 'Pending', color: 'text-yellow-400', bg: 'bg-yellow-400/10', border: 'border-yellow-400/20' },
         done: { label: 'Completed', color: 'text-green-400', bg: 'bg-green-400/10', border: 'border-green-400/20' },
@@ -24,7 +25,12 @@ const AppointmentRow = ({ appointment, onUpdateStatus, colors }) => {
     };
 
     return (
-        <div className={`p-6 rounded-3xl backdrop-blur-xl bg-black/20 border border-white/10 shadow-lg transition-all duration-300 hover:bg-black/30 hover:border-white/20 group`}>
+        <motion.div 
+            layout="position"
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            className={`p-6 rounded-3xl backdrop-blur-xl bg-black/20 border border-white/10 shadow-lg transition-all duration-300 hover:bg-black/30 hover:border-white/20 group`}
+        >
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-4 mb-4 border-b border-white/5">
                 <div className="flex items-center gap-4">
                     <div className="h-12 w-12 rounded-full bg-white/5 flex items-center justify-center border border-white/5">
@@ -114,12 +120,36 @@ const AppointmentRow = ({ appointment, onUpdateStatus, colors }) => {
                     <X className="w-4 h-4" /> Cancel
                 </button>
             </div>
-        </div>
+        </motion.div>
     );
 };
 
+const AppointmentSkeleton = () => (
+    <div className="p-6 rounded-3xl bg-white/5 border border-white/5 shadow-lg space-y-6">
+        <div className="flex items-center justify-between pb-4 border-b border-white/5">
+            <div className="flex items-center gap-4">
+                <Skeleton className="h-12 w-12 rounded-full" />
+                <div className="space-y-2">
+                    <Skeleton className="h-5 w-32" />
+                    <Skeleton className="h-3 w-20" />
+                </div>
+            </div>
+            <Skeleton className="h-6 w-24 rounded-full" />
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-12 gap-6">
+            <div className="md:col-span-4 space-y-3">
+                <Skeleton className="h-4 w-full" />
+                <Skeleton className="h-4 w-2/3" />
+                <Skeleton className="h-4 w-3/4 pt-3" />
+            </div>
+            <div className="md:col-span-8">
+                <Skeleton className="h-24 w-full rounded-2xl" />
+            </div>
+        </div>
+    </div>
+);
+
 const AppointmentManager = () => {
-    const { colors } = useContext(ThemeContext);
     const { 
         appointments, 
         appointmentsLoading, 
@@ -128,8 +158,10 @@ const AppointmentManager = () => {
         clearCompletedAppointments 
     } = useAdmin();
 
+    const [visibleCount, setVisibleRows] = useState(5);
+
     useEffect(() => {
-        fetchAppointments(); // Use context fetcher which handles caching
+        fetchAppointments();
         const intervalId = setInterval(() => fetchAppointments(false), 60000); 
         return () => clearInterval(intervalId);
     }, [fetchAppointments]);
@@ -138,79 +170,88 @@ const AppointmentManager = () => {
         try {
             await updateAppointmentStatus(id, status);
         } catch (err) {
-            alert('Failed to update status. Please try again.');
+            alert('Failed to update status.');
         }
     };
 
     const handleClearCompleted = async () => {
-        if (window.confirm('Are you sure you want to clear all "done" appointments? This action cannot be undone.')) {
+        if (window.confirm('Are you sure you want to clear completed appointments?')) {
             try {
                 await clearCompletedAppointments();
             } catch (err) {
-                alert('Failed to clear completed appointments. Please try again.');
+                alert('Failed to clear completed appointments.');
             }
         }
     };
 
-    const renderContent = () => {
-        if (appointmentsLoading && appointments.length === 0) {
-            return <div className="flex justify-center items-center h-64"><Loader className="animate-spin text-attire-accent" size={48} /></div>;
-        }
+    const visibleAppointments = useMemo(() => {
+        return appointments.slice(0, visibleCount);
+    }, [appointments, visibleCount]);
 
-        if (appointments.length === 0 && !appointmentsLoading) {
-             return (
-                <div className="text-center py-20 bg-black/20 rounded-3xl border border-white/5">
-                    <div className="w-16 h-16 bg-white/5 rounded-full flex items-center justify-center mx-auto mb-4">
-                        <Calendar className="text-attire-silver/30" />
-                    </div>
-                    <p className="text-attire-silver/60">No pending appointments.</p>
-                </div>
-             );
-        }
-
-        return (
-            <div className="space-y-6">
-                {appointments.map(app => {
-                    let imageUrls = [];
-                    try {
-                        if (typeof app.favorite_item_image_url === 'string') {
-                            const parsed = JSON.parse(app.favorite_item_image_url);
-                            imageUrls = Array.isArray(parsed) ? parsed : [];
-                        } else if (Array.isArray(app.favorite_item_image_url)) {
-                            imageUrls = app.favorite_item_image_url;
-                        }
-                    } catch (e) {}
-                    const appointmentWithImages = { ...app, favorite_item_image_url: imageUrls };
-                    
-                    return (
-                        <AppointmentRow 
-                            key={app.id} 
-                            appointment={appointmentWithImages} 
-                            onUpdateStatus={handleUpdateStatus} 
-                            colors={colors} 
-                        />
-                    );
-                })}
-            </div>
-        );
-    };
+    const hasMore = appointments.length > visibleCount;
 
     return (
-        <div className="space-y-8">
+        <div className="space-y-8 pb-20">
             <div className="flex justify-between items-end pb-4 border-b border-white/10">
                 <div>
                     <h1 className="text-4xl font-serif text-white mb-2">Appointments</h1>
-                    <p className="text-attire-silver text-sm">Manage styling consultations and visits.</p>
+                    <p className="text-attire-silver text-sm uppercase tracking-widest">Client consults & visits</p>
                 </div>
                 <button
                     onClick={handleClearCompleted}
-                    className="flex items-center px-5 py-2.5 text-xs font-bold uppercase tracking-widest text-attire-silver hover:text-red-400 bg-white/5 hover:bg-red-500/10 border border-white/10 hover:border-red-500/30 rounded-xl transition-all duration-300 group"
+                    className="flex items-center px-5 py-2.5 text-xs font-bold uppercase tracking-widest text-attire-silver hover:text-red-400 bg-white/5 hover:bg-red-500/10 border border-white/10 hover:border-red-500/30 rounded-xl transition-all duration-300"
                 >
-                    <Trash2 className="w-4 h-4 mr-2 opacity-50 group-hover:opacity-100 transition-opacity" />
+                    <Trash2 className="w-4 h-4 mr-2" />
                     Clear History
                 </button>
             </div>
-            {renderContent()}
+
+            {appointmentsLoading && appointments.length === 0 ? (
+                <div className="space-y-6">
+                    {[...Array(3)].map((_, i) => <AppointmentSkeleton key={i} />)}
+                </div>
+            ) : appointments.length === 0 ? (
+                <div className="text-center py-20 bg-black/20 rounded-3xl border border-white/5">
+                    <Calendar className="mx-auto text-attire-silver/20 mb-4" size={48} />
+                    <p className="text-attire-silver/60 uppercase tracking-widest text-xs">No active appointments.</p>
+                </div>
+            ) : (
+                <div className="space-y-6">
+                    <AnimatePresence mode="popLayout">
+                        {visibleAppointments.map(app => {
+                            let imageUrls = [];
+                            try {
+                                if (typeof app.favorite_item_image_url === 'string') {
+                                    const parsed = JSON.parse(app.favorite_item_image_url);
+                                    imageUrls = Array.isArray(parsed) ? parsed : [];
+                                } else if (Array.isArray(app.favorite_item_image_url)) {
+                                    imageUrls = app.favorite_item_image_url;
+                                }
+                            } catch (e) {}
+                            
+                            return (
+                                <AppointmentRow 
+                                    key={app.id} 
+                                    appointment={{ ...app, favorite_item_image_url: imageUrls }} 
+                                    onUpdateStatus={handleUpdateStatus} 
+                                />
+                            );
+                        })}
+                    </AnimatePresence>
+
+                    {hasMore && (
+                        <div className="flex justify-center mt-12">
+                            <button 
+                                onClick={() => setVisibleRows(v => v + 5)}
+                                className="group flex items-center gap-3 px-8 py-4 bg-white/5 hover:bg-white/10 border border-white/10 rounded-2xl transition-all"
+                            >
+                                <span className="text-[10px] font-bold uppercase tracking-[0.3em] text-white">Load More History</span>
+                                <ChevronDown size={16} className="text-attire-accent group-hover:translate-y-1 transition-transform" />
+                            </button>
+                        </div>
+                    )}
+                </div>
+            )}
         </div>
     );
 };

@@ -27,6 +27,8 @@ export const AdminProvider = ({ children }) => {
         pending_gifts: 0
     });
 
+    const [isEditing, setIsEditing] = useState(false);
+
     const fetchStats = useCallback(async () => {
         try {
             const response = await axios.get('/api/v1/admin/stats');
@@ -172,7 +174,10 @@ export const AdminProvider = ({ children }) => {
             deleteGiftRequest,
 
             stats,
-            fetchStats
+            fetchStats,
+
+            isEditing,
+            setIsEditing
         }}>
             {children}
         </AdminContext.Provider>

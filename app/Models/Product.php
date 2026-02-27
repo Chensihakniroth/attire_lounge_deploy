@@ -24,7 +24,10 @@ class Product extends Model
         'is_new',
         'is_visible',
         'availability',
-        'sizing'
+        'sizing',
+        'fabric',
+        'silhouette',
+        'details'
     ];
 
     protected $casts = [

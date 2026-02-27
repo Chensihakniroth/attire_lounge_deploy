@@ -31,30 +31,11 @@ class ProductService
     {
         // Resolve slugs to IDs if necessary
         if (!empty($dto->categorySlugs)) {
-            $collectionIds = [];
-            $categoryIds = [];
-
-            foreach ($dto->categorySlugs as $slug) {
-                // 1. Try Collection lookup first (prioritize for UI)
-                $collectionId = Cache::remember("collection_id.{$slug}", 3600, function () use ($slug) {
-                    $collection = ProductCollection::where('slug', $slug)->first();
-                    return $collection ? $collection->id : null;
-                });
-
-                if ($collectionId) {
-                    $collectionIds[] = $collectionId;
-                } else {
-                    // 2. Try Category lookup if Collection fails
-                    $categoryId = Cache::remember("category_id.{$slug}", 3600, function () use ($slug) {
-                        $category = Category::where('slug', $slug)->first();
-                        return $category ? $category->id : null;
-                    });
-
-                    if ($categoryId) {
-                        $categoryIds[] = $categoryId;
-                    }
-                }
-            }
+            $slugs = $dto->categorySlugs;
+            
+            // Fetch all collections and categories in two efficient queries ✨
+            $collectionIds = ProductCollection::whereIn('slug', $slugs)->pluck('id')->toArray();
+            $categoryIds = Category::whereIn('slug', $slugs)->pluck('id')->toArray();
 
             $dto = $dto->with([
                 'collectionIds' => $collectionIds,

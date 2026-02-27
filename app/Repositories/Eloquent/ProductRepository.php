@@ -25,7 +25,14 @@ class ProductRepository implements ProductRepositoryInterface
      */
     public function getPaginated(ProductFilterDTO $dto): LengthAwarePaginator
     {
-        $query = $this->model->query();
+        $query = $this->model->query()
+            ->with(['category', 'collection']) // Eager load relationships ✨
+            ->select([ // Only select necessary columns
+                'id', 'name', 'slug', 'description', 'price', 
+                'category_id', 'collection_id', 'is_featured', 
+                'is_new', 'is_visible', 'availability',
+                'fabric', 'silhouette', 'details', 'sizing'
+            ]);
 
         // Apply visibility filter
         if (!$dto->includeHidden) {

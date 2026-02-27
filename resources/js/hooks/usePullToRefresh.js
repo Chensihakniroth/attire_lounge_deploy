@@ -23,7 +23,23 @@ const usePullToRefresh = (callback, threshold = 100) => {
       currentTouchY.current = e.touches[0].clientY;
       const pullDelta = currentTouchY.current - initialTouchY.current;
 
-      if (getScrollPosition() <= 5 && pullDelta > 0) { // Using a small epsilon for "at top"
+      // Determine if we can pull: 
+      // 1. Global scroll must be at top
+      // 2. No parent container of the touch target should be scrolled down
+      let canPull = getScrollPosition() <= 5;
+      
+      if (canPull && pullDelta > 0) {
+        let el = e.target;
+        while (el && el !== document.body) {
+          if (el.scrollTop > 5) {
+            canPull = false;
+            break;
+          }
+          el = el.parentElement;
+        }
+      }
+
+      if (canPull && pullDelta > 0) {
         e.preventDefault(); // Prevent native scroll
         pulling.current = true;
       } else {

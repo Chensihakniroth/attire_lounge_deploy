@@ -125,6 +125,10 @@ class ProductController extends Controller
             'is_featured' => 'sometimes|boolean',
             'is_new' => 'sometimes|boolean',
             'is_visible' => 'sometimes|boolean',
+            'fabric' => 'sometimes|nullable|string|max:255',
+            'silhouette' => 'sometimes|nullable|string|max:255',
+            'details' => 'sometimes|nullable|string|max:255',
+            'sizing' => 'sometimes|nullable|array',
         ]);
 
         $product = $this->productService->updateProduct($id, $validated);

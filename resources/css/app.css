@@ -37,6 +37,26 @@
         display: none;
     }
 
+    /* Custom thin scrollbar for dropdowns and small areas */
+    .attire-scrollbar::-webkit-scrollbar {
+        width: 4px;
+    }
+
+    .attire-scrollbar::-webkit-scrollbar-track {
+        background: rgba(255, 255, 255, 0.05);
+        border-radius: 10px;
+    }
+
+    .attire-scrollbar::-webkit-scrollbar-thumb {
+        background: rgba(245, 168, 28, 0.2);
+        border-radius: 10px;
+        transition: background 0.3s;
+    }
+
+    .attire-scrollbar::-webkit-scrollbar-thumb:hover {
+        background: rgba(245, 168, 28, 0.5);
+    }
+
     h1, h2, h3, h4, h5, h6 {
         font-family: 'Playfair Display', serif;
     }

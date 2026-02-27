@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { Calendar, Gift, ImageIcon, ArrowRight, Clock, AlertTriangle, User, TrendingUp, Package } from 'lucide-react';
+import { Calendar, Gift, ImageIcon, ArrowRight, Clock, AlertTriangle, User, TrendingUp, Package, ShoppingBag } from 'lucide-react';
 import ErrorBoundary from '../../common/ErrorBoundary.jsx';
 import Skeleton from '../../common/Skeleton.jsx';
 import { motion } from 'framer-motion';
@@ -14,10 +14,12 @@ const cardVariants = {
 const StatCard = ({ icon, title, value, link, loading }) => {
     if (loading) {
         return (
-            <div className="bg-black/20 p-6 rounded-3xl shadow-sm border border-white/5">
-                <Skeleton className="h-12 w-12 rounded-full" />
-                <Skeleton className="h-8 w-1/4 mt-4" />
-                <Skeleton className="h-4 w-1/2 mt-1" />
+            <div className="bg-black/20 p-8 rounded-[2rem] shadow-sm border border-white/5 space-y-4">
+                <Skeleton className="h-14 w-14 rounded-2xl" />
+                <div className="space-y-2">
+                    <Skeleton className="h-10 w-1/2" />
+                    <Skeleton className="h-4 w-3/4" />
+                </div>
             </div>
         );
     }
@@ -25,7 +27,7 @@ const StatCard = ({ icon, title, value, link, loading }) => {
     return (
         <motion.div 
             variants={cardVariants} 
-            className="group relative bg-black/20 backdrop-blur-xl p-8 rounded-3xl shadow-xl border border-white/10 
+            className="group relative bg-black/20 backdrop-blur-xl p-8 rounded-[2rem] shadow-xl border border-white/10 
                        hover:border-attire-accent/30 hover:bg-black/30 transition-all duration-300"
         >
             <div className="flex justify-between items-start">
@@ -42,7 +44,7 @@ const StatCard = ({ icon, title, value, link, loading }) => {
                 <p className="text-4xl font-serif text-white tracking-tight">
                     {value}
                 </p>
-                <p className="text-xs font-semibold text-attire-silver/60 mt-2 uppercase tracking-widest">{title}</p>
+                <p className="text-[10px] font-bold text-attire-silver/40 mt-2 uppercase tracking-[0.2em]">{title}</p>
             </div>
         </motion.div>
     );
@@ -61,29 +63,15 @@ const RecentActivityItem = ({ item }) => (
                 <User className="h-5 w-5 text-attire-silver group-hover:text-attire-accent transition-colors" />
             </div>
             <div>
-                <p className="font-medium text-white group-hover:text-attire-accent transition-colors">{item.name}</p>
-                <p className="text-xs text-attire-silver/60">{item.service}</p>
+                <p className="font-medium text-white group-hover:text-attire-accent transition-colors text-sm">{item.name}</p>
+                <p className="text-[10px] uppercase tracking-wider text-attire-silver/40">{item.service}</p>
             </div>
         </div>
-        <div className="text-xs text-attire-silver/50 flex items-center bg-black/20 px-3 py-1 rounded-full border border-white/5">
-            <Clock size={12} className="mr-2" />
+        <div className="text-[10px] text-attire-silver/50 flex items-center bg-black/20 px-3 py-1 rounded-full border border-white/5">
+            <Clock size={10} className="mr-2" />
             <span>{new Date(item.created_at).toLocaleDateString()}</span>
         </div>
     </motion.li>
-);
-
-const RecentActivitySkeleton = () => (
-    <div className="space-y-4">
-        {[...Array(5)].map((_, i) => (
-            <div key={i} className="flex items-center space-x-4">
-                <Skeleton className="h-10 w-10 rounded-full" />
-                <div className="flex-1 space-y-2">
-                    <Skeleton className="h-4 w-3/4" />
-                    <Skeleton className="h-4 w-1/2" />
-                </div>
-            </div>
-        ))}
-    </div>
 );
 
 const AdminDashboard = () => {
@@ -120,7 +108,7 @@ const AdminDashboard = () => {
     return (
         <ErrorBoundary>
             <motion.div 
-                className="space-y-10"
+                className="space-y-10 pb-24"
                 initial="hidden"
                 animate="visible"
                 variants={containerVariants}
@@ -128,11 +116,11 @@ const AdminDashboard = () => {
                 <motion.div variants={cardVariants} className="flex items-end justify-between">
                     <div>
                         <h1 className="text-4xl font-serif text-white mb-2">Dashboard</h1>
-                        <p className="text-attire-silver">Overview of your styling house's performance.</p>
+                        <p className="text-attire-silver text-sm uppercase tracking-widest">Performance Overview</p>
                     </div>
                     <div className="hidden md:block text-right">
-                        <p className="text-xs font-semibold text-attire-accent uppercase tracking-widest mb-1">Current Date</p>
-                        <p className="text-white font-mono text-sm">{new Date().toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</p>
+                        <p className="text-[9px] font-bold text-attire-accent uppercase tracking-widest mb-1">Active Session</p>
+                        <p className="text-white font-mono text-xs opacity-40">{new Date().toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</p>
                     </div>
                 </motion.div>
 
@@ -140,21 +128,23 @@ const AdminDashboard = () => {
                     className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6"
                     variants={containerVariants}
                 >
-                    <StatCard icon={<Calendar />} title="Total Appointments" value={stats.appointments} link="/admin/appointments" loading={isLoading} />
+                    <StatCard icon={<Calendar />} title="Appointments" value={stats.appointments} link="/admin/appointments" loading={isLoading} />
                     <StatCard icon={<Gift />} title="Gift Requests" value={stats.gifts} link="/admin/customize-gift" loading={isLoading} />
-                    <StatCard icon={<Package />} title="Total Products" value={stats.products} loading={isLoading} />
-                    <StatCard icon={<TrendingUp />} title="Collections" value={stats.collections} loading={isLoading} />
+                    <StatCard icon={<ShoppingBag />} title="Total Products" value={stats.products} link="/admin/products" loading={isLoading} />
+                    <StatCard icon={<TrendingUp />} title="Subscribers" value={stats.subscribers} loading={isLoading} />
                 </motion.div>
 
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                    <motion.div variants={cardVariants} className="lg:col-span-2 bg-black/20 backdrop-blur-xl p-8 rounded-3xl shadow-xl border border-white/10">
+                    <motion.div variants={cardVariants} className="lg:col-span-2 bg-black/20 backdrop-blur-xl p-6 md:p-8 rounded-[2rem] shadow-xl border border-white/10">
                         <div className="flex items-center justify-between mb-6">
                             <h2 className="text-xl font-serif text-white">Recent Activity</h2>
-                            <Link to="/admin/appointments" className="text-xs font-semibold text-attire-accent hover:text-white transition-colors uppercase tracking-wider">View All</Link>
+                            <Link to="/admin/appointments" className="text-[10px] font-bold text-attire-accent hover:text-white transition-colors uppercase tracking-[0.2em]">View All</Link>
                         </div>
                         
                         {isLoading ? (
-                            <RecentActivitySkeleton />
+                            <div className="space-y-4">
+                                {[...Array(5)].map((_, i) => <Skeleton key={i} className="h-12 w-full" />)}
+                            </div>
                         ) : recentAppointments.length > 0 ? (
                             <motion.ul 
                                 className="space-y-2"
@@ -171,26 +161,25 @@ const AdminDashboard = () => {
                                 <div className="w-16 h-16 bg-white/5 rounded-full flex items-center justify-center mx-auto mb-4 border border-white/5">
                                     <Clock className="text-attire-silver/30" />
                                 </div>
-                                <p className="text-attire-silver/60">No recent activity recorded.</p>
+                                <p className="text-attire-silver/60 text-xs uppercase tracking-widest">No recent activity.</p>
                             </div>
                         )}
                     </motion.div>
 
-                    <motion.div variants={cardVariants} className="bg-black/20 backdrop-blur-xl p-8 rounded-3xl shadow-xl border border-white/10 flex flex-col justify-between">
-                        <div>
-                            <h2 className="text-xl font-serif text-white mb-6">Quick Actions</h2>
-                            <div className="space-y-4">
-                                <QuickAction icon={<ImageIcon />} title="Upload New Assets" description="Add photos to your gallery" link="/admin/inventory" />
-                                <QuickAction icon={<User />} title="Review Subscribers" description={`${stats.subscribers} active newsletters`} />
-                                <div className="pt-6 border-t border-white/5">
-                                    <p className="text-[10px] font-bold text-attire-silver/40 uppercase tracking-[0.2em] mb-4">Pending Tasks</p>
-                                    <div className="flex items-center justify-between p-3 bg-yellow-400/5 rounded-xl border border-yellow-400/10">
-                                        <div className="flex items-center gap-3">
-                                            <AlertTriangle size={14} className="text-yellow-400" />
-                                            <span className="text-xs text-white">{stats.pending_appointments} Appointments</span>
-                                        </div>
-                                        <span className="text-[10px] font-bold text-yellow-400">Action Required</span>
+                    <motion.div variants={cardVariants} className="bg-black/20 backdrop-blur-xl p-8 rounded-[2rem] shadow-xl border border-white/10 flex flex-col">
+                        <h2 className="text-xl font-serif text-white mb-6">Quick Actions</h2>
+                        <div className="space-y-4 flex-grow">
+                            <QuickAction icon={<ImageIcon />} title="Gallery" description="Upload assets" link="/admin/inventory" />
+                            <QuickAction icon={<User />} title="Clients" description="Newsletter list" />
+                            
+                            <div className="mt-8 pt-8 border-t border-white/5">
+                                <p className="text-[9px] font-bold text-attire-silver/30 uppercase tracking-[0.2em] mb-4">Urgent Attention</p>
+                                <div className="flex items-center justify-between p-4 bg-yellow-400/5 rounded-2xl border border-yellow-400/10">
+                                    <div className="flex items-center gap-3">
+                                        <AlertTriangle size={14} className="text-yellow-400" />
+                                        <span className="text-[10px] font-bold text-white uppercase tracking-wider">{stats.pending_appointments} New Consults</span>
                                     </div>
+                                    <span className="text-[8px] font-black uppercase bg-yellow-400 text-black px-2 py-0.5 rounded">Action</span>
                                 </div>
                             </div>
                         </div>
@@ -208,10 +197,10 @@ const QuickAction = ({ icon, title, description, link }) => {
                 {React.cloneElement(icon, { size: 18, className: "text-attire-silver group-hover:text-attire-accent transition-colors" })}
             </div>
             <div className="flex-grow">
-                <p className="text-xs font-bold text-white uppercase tracking-wider">{title}</p>
-                <p className="text-[10px] text-attire-silver/60">{description}</p>
+                <p className="text-[10px] font-bold text-white uppercase tracking-wider">{title}</p>
+                <p className="text-[9px] text-attire-silver/40 uppercase tracking-widest">{description}</p>
             </div>
-            <ArrowRight size={14} className="text-white/20 group-hover:text-attire-accent group-hover:translate-x-1 transition-all" />
+            <ArrowRight size={12} className="text-white/20 group-hover:text-attire-accent group-hover:translate-x-1 transition-all" />
         </div>
     );
 

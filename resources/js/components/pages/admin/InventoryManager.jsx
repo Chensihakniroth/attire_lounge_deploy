@@ -3,6 +3,8 @@ import { Package, AlertTriangle, CheckCircle, XCircle, Loader } from 'lucide-rea
 import giftOptions from '../../../data/giftOptions';
 import api from '../../../api';
 import OptimizedImage from '../../common/OptimizedImage.jsx';
+import Skeleton from '../../common/Skeleton.jsx';
+import { motion } from 'framer-motion';
 
 const InventoryManager = () => {
     const [outOfStockItems, setOutOfStockItems] = useState([]);
@@ -57,7 +59,8 @@ const InventoryManager = () => {
                     const isOutOfStock = outOfStockItems.includes(item.id);
                     const isUpdating = updatingItems.has(item.id);
                     return (
-                        <div 
+                        <motion.div 
+                            layout="position"
                             key={item.id}
                             onClick={() => toggleStock(item.id)}
                             className={`p-4 rounded-2xl border transition-all duration-300 cursor-pointer group hover:scale-[1.02] active:scale-[0.98] ${
@@ -89,16 +92,7 @@ const InventoryManager = () => {
                                     {isUpdating ? <Loader className="animate-spin" size={20} /> : (isOutOfStock ? <XCircle size={20} /> : <CheckCircle size={20} />)}
                                 </div>
                             </div>
-                            <div className="mt-3 flex items-center justify-between">
-                                <span className={`text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded transition-colors ${
-                                    isOutOfStock 
-                                        ? 'bg-red-500/20 text-red-400' 
-                                        : 'bg-green-500/20 text-green-400'
-                                }`}>
-                                    {isOutOfStock ? 'Out of Stock' : 'In Stock'}
-                                </span>
-                            </div>
-                        </div>
+                        </motion.div>
                     );
                 })}
             </div>
@@ -107,27 +101,24 @@ const InventoryManager = () => {
 
     if (loading) {
         return (
-            <div className="flex justify-center items-center h-64">
-                <Loader className="animate-spin text-attire-accent" size={48} />
+            <div className="space-y-12">
+                {[1, 2].map(i => (
+                    <div key={i} className="space-y-4">
+                        <Skeleton className="h-8 w-48" />
+                        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                            {[...Array(4)].map((_, j) => <Skeleton key={j} className="h-24 w-full rounded-2xl" />)}
+                        </div>
+                    </div>
+                ))}
             </div>
         );
     }
 
     return (
-        <div className="space-y-8">
+        <div className="space-y-8 pb-20">
             <div className="pb-4 border-b border-white/10">
-                <h1 className="text-4xl font-serif text-white mb-2">Inventory Management</h1>
-                <p className="text-attire-silver text-sm">Toggle product availability for the Custom Gift Box curate page.</p>
-            </div>
-
-            <div className="bg-blue-500/10 border border-blue-500/20 rounded-2xl p-4 flex items-start gap-4 mb-8">
-                <Package className="text-blue-400 flex-shrink-0 mt-1" size={20} />
-                <div>
-                    <h4 className="text-sm font-bold text-blue-400 uppercase tracking-wider">Sync Active</h4>
-                    <p className="text-xs text-attire-silver leading-relaxed">
-                        Changes made here are saved to the backend and will immediately affect all users visiting the Customize Gift Page.
-                    </p>
-                </div>
+                <h1 className="text-4xl font-serif text-white mb-2">Inventory</h1>
+                <p className="text-attire-silver text-sm uppercase tracking-widest">Manage gift item availability</p>
             </div>
 
             <div className="space-y-12">

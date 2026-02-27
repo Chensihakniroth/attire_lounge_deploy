@@ -218,8 +218,8 @@ const ProductDetailPage: React.FC = () => {
                             {[
                                 { label: 'Fabric', value: product.fabric || 'Premium Wool Blend' },
                                 { label: 'Status', value: product.in_stock ? 'Available' : 'Consult Stylist' },
-                                { label: 'Silhouette', value: 'Modern Tailored' },
-                                { label: 'Details', value: 'Hand-Finished' }
+                                { label: 'Silhouette', value: product.silhouette || 'Modern Tailored' },
+                                { label: 'Details', value: product.details || 'Hand-Finished' }
                             ].map((spec) => (
                                 <div key={spec.label} className="bg-[#0a0a0a] p-5 space-y-1">
                                     <span className="text-[8px] uppercase tracking-[0.2em] text-white/30 font-bold">{spec.label}</span>

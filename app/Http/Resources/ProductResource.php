@@ -25,6 +25,9 @@ class ProductResource extends JsonResource
             'is_new' => (bool) $this->is_new,
             'is_visible' => (bool) $this->is_visible,
             'in_stock' => $this->availability === 'In Stock',
+            'fabric' => $this->fabric,
+            'silhouette' => $this->silhouette,
+            'details' => $this->details,
             'images' => $this->images, // Uses our smart dynamic accessor! ✨
             'sizes' => $this->sizing,
         ];
