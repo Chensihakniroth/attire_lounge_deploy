@@ -60,6 +60,10 @@ class ProductRepository implements ProductRepositoryInterface
             $query->where('name', 'like', '%' . $dto->search . '%');
         }
 
+        if (!empty($dto->slugs)) {
+            $query->whereIn('slug', $dto->slugs);
+        }
+
         // Apply sorting
         switch ($dto->sort) {
             case 'price_low':

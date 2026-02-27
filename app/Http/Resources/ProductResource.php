@@ -25,6 +25,7 @@ class ProductResource extends JsonResource
             'is_new' => (bool) $this->is_new,
             'is_visible' => (bool) $this->is_visible,
             'in_stock' => $this->availability === 'In Stock',
+            'availability' => $this->availability,
             'fabric' => $this->fabric,
             'silhouette' => $this->silhouette,
             'details' => $this->details,

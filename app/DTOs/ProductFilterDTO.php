@@ -10,6 +10,7 @@ readonly class ProductFilterDTO
         public array $categorySlugs = [],
         public array $categoryIds = [],
         public array $collectionIds = [],
+        public array $slugs = [],
         public ?string $search = null,
         public string $sort = 'newest',
         public int $perPage = 12,
@@ -24,9 +25,13 @@ readonly class ProductFilterDTO
     {
         $category = $request->query('category');
         $categorySlugs = $category ? explode(',', $category) : [];
+        
+        $slugsParam = $request->query('slugs');
+        $slugs = $slugsParam ? explode(',', $slugsParam) : [];
 
         return new self(
             categorySlugs: $categorySlugs,
+            slugs: $slugs,
             search: $request->query('search'),
             sort: $request->query('sort', 'newest'),
             perPage: (int) $request->query('per_page', 12),
@@ -44,6 +49,7 @@ readonly class ProductFilterDTO
             categorySlugs: array_key_exists('categorySlugs', $properties) ? $properties['categorySlugs'] : $this->categorySlugs,
             categoryIds: array_key_exists('categoryIds', $properties) ? $properties['categoryIds'] : $this->categoryIds,
             collectionIds: array_key_exists('collectionIds', $properties) ? $properties['collectionIds'] : $this->collectionIds,
+            slugs: array_key_exists('slugs', $properties) ? $properties['slugs'] : $this->slugs,
             search: array_key_exists('search', $properties) ? $properties['search'] : $this->search,
             sort: array_key_exists('sort', $properties) ? $properties['sort'] : $this->sort,
             perPage: array_key_exists('perPage', $properties) ? $properties['perPage'] : $this->perPage,

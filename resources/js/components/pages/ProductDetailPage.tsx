@@ -205,6 +205,14 @@ const ProductDetailPage: React.FC = () => {
                             </motion.div>
                             
                             <div className="space-y-4">
+                                {product.is_new && (
+                                    <motion.span 
+                                        variants={slideUp}
+                                        className="inline-block px-3 py-1 bg-blue-500/10 border border-blue-500/20 text-blue-400 text-[9px] uppercase tracking-[0.3em] font-bold rounded-full mb-2"
+                                    >
+                                        New Arrival
+                                    </motion.span>
+                                )}
                                 <motion.h1 
                                     variants={slideUp}
                                     className="text-5xl xl:text-7xl font-serif text-white leading-none tracking-tighter italic"
@@ -217,7 +225,7 @@ const ProductDetailPage: React.FC = () => {
                         <motion.div variants={slideUp} className="grid grid-cols-2 gap-px bg-white/5 border border-white/5 overflow-hidden rounded-sm">
                             {[
                                 { label: 'Fabric', value: product.fabric || 'Premium Wool Blend' },
-                                { label: 'Status', value: product.in_stock ? 'Available' : 'Consult Stylist' },
+                                { label: 'Status', value: product.availability || (product.in_stock ? 'In Stock' : 'Out of Stock') },
                                 { label: 'Silhouette', value: product.silhouette || 'Modern Tailored' },
                                 { label: 'Details', value: product.details || 'Hand-Finished' }
                             ].map((spec) => (
@@ -237,20 +245,23 @@ const ProductDetailPage: React.FC = () => {
                                 </p>
                             </motion.div>
 
-                            {product.sizes && (
+                            {Array.isArray(product.sizes) && product.sizes.length > 0 && (
                                 <motion.div variants={slideUp} className="space-y-4">
                                     <h4 className="text-[10px] uppercase tracking-[0.4em] font-bold text-white/40">Available Sizes</h4>
                                     <div className="flex flex-wrap gap-2">
-                                        {Array.isArray(product.sizes) ? product.sizes.map(size => (
+                                        {product.sizes.map(size => (
                                             <span key={size} className="px-3 py-1 border border-white/10 text-[10px] text-white/60">{size}</span>
-                                        )) : <span className="text-xs text-white/60 italic">Consult Stylist for sizing</span>}
+                                        ))}
                                     </div>
                                 </motion.div>
                             )}
                         </div>
 
                         <motion.div variants={slideUp} className="pt-8 pb-32">
-                            <button className="group w-full py-7 bg-white text-black text-[11px] font-bold uppercase tracking-[0.5em] transition-all duration-700 flex items-center justify-center gap-4 relative overflow-hidden">
+                            <button 
+                                onClick={() => navigate('/contact')}
+                                className="group w-full py-7 bg-white text-black text-[11px] font-bold uppercase tracking-[0.5em] transition-all duration-700 flex items-center justify-center gap-4 relative overflow-hidden"
+                            >
                                 <span className="relative z-10">Request Appointment</span>
                                 <ArrowRight size={18} className="relative z-10 group-hover:translate-x-2 transition-transform duration-500" />
                                 <div className="absolute inset-0 bg-attire-accent translate-y-full group-hover:translate-y-0 transition-transform duration-700" />

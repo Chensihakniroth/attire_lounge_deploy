@@ -21,10 +21,7 @@ export const FavoritesProvider: React.FC<FavoritesProviderProps> = ({ children }
         try {
             const localData = localStorage.getItem('attire-lounge-favorites');
             if (localData) {
-                const parsedData: (number | string)[] = JSON.parse(localData);
-                // Filter out any IDs that don't exist in the current product list
-                const validIds = parsedData.filter(id => products.some((p: any) => p.id === id));
-                return validIds;
+                return JSON.parse(localData);
             }
             return [];
         } catch (error) {
@@ -64,12 +61,17 @@ export const FavoritesProvider: React.FC<FavoritesProviderProps> = ({ children }
         }
     };
 
+    const clearFavorites = () => {
+        setFavorites([]);
+    };
+
     const value: FavoritesContextType = {
         favorites,
         addFavorite,
         removeFavorite,
         isFavorited,
-        toggleFavorite
+        toggleFavorite,
+        clearFavorites
     };
 
     return (

@@ -238,25 +238,82 @@ const ProductEditor = () => {
                         </div>
                         <div className="space-y-4">
                             <label className="text-[10px] font-bold text-attire-silver/50 uppercase tracking-[0.2em] ml-1">Available Sizes</label>
-                            <div className="flex flex-wrap gap-2">
-                                {['44', '46', '48', '50', '52', '54', '56'].map(size => {
-                                    const isSelected = formData.sizing.includes(size);
-                                    return (
-                                        <button
-                                            key={size}
-                                            type="button"
-                                            onClick={() => {
-                                                const newSizing = isSelected
-                                                    ? formData.sizing.filter(s => s !== size)
-                                                    : [...formData.sizing, size].sort();
-                                                setFormData({ ...formData, sizing: newSizing });
-                                            }}
-                                            className={`px-5 py-2.5 rounded-xl text-[10px] font-bold transition-all border ${isSelected ? 'bg-attire-accent border-attire-accent text-black' : 'bg-white/5 border-white/10 text-attire-silver hover:text-white hover:bg-white/10'}`}
-                                        >
-                                            {size}
-                                        </button>
-                                    );
-                                })}
+                            
+                            <div className="space-y-6">
+                                {/* Alpha Sizes */}
+                                <div className="space-y-2">
+                                    <p className="text-[8px] uppercase tracking-widest text-white/20 font-bold ml-1">Alpha</p>
+                                    <div className="flex flex-wrap gap-2">
+                                        {['XS', 'S', 'M', 'L', 'XL', 'XXL', 'One Size'].map(size => {
+                                            const isSelected = formData.sizing.includes(size);
+                                            return (
+                                                <button
+                                                    key={size}
+                                                    type="button"
+                                                    onClick={() => {
+                                                        const newSizing = isSelected
+                                                            ? formData.sizing.filter(s => s !== size)
+                                                            : [...formData.sizing, size];
+                                                        setFormData({ ...formData, sizing: newSizing });
+                                                    }}
+                                                    className={`px-4 py-2 rounded-xl text-[10px] font-bold transition-all border ${isSelected ? 'bg-attire-accent border-attire-accent text-black' : 'bg-white/5 border-white/10 text-attire-silver hover:text-white hover:bg-white/10'}`}
+                                                >
+                                                    {size}
+                                                </button>
+                                            );
+                                        })}
+                                    </div>
+                                </div>
+
+                                {/* Numeric/Suit Sizes */}
+                                <div className="space-y-2">
+                                    <p className="text-[8px] uppercase tracking-widest text-white/20 font-bold ml-1">Suits / Jackets</p>
+                                    <div className="flex flex-wrap gap-2">
+                                        {['44', '46', '48', '50', '52', '54', '56', '58', '40R', '42R', '44R'].map(size => {
+                                            const isSelected = formData.sizing.includes(size);
+                                            return (
+                                                <button
+                                                    key={size}
+                                                    type="button"
+                                                    onClick={() => {
+                                                        const newSizing = isSelected
+                                                            ? formData.sizing.filter(s => s !== size)
+                                                            : [...formData.sizing, size].sort();
+                                                        setFormData({ ...formData, sizing: newSizing });
+                                                    }}
+                                                    className={`px-4 py-2 rounded-xl text-[10px] font-bold transition-all border ${isSelected ? 'bg-attire-accent border-attire-accent text-black' : 'bg-white/5 border-white/10 text-attire-silver hover:text-white hover:bg-white/10'}`}
+                                                >
+                                                    {size}
+                                                </button>
+                                            );
+                                        })}
+                                    </div>
+                                </div>
+
+                                {/* Waist Sizes */}
+                                <div className="space-y-2">
+                                    <p className="text-[8px] uppercase tracking-widest text-white/20 font-bold ml-1">Trousers / Waist</p>
+                                    <div className="flex flex-wrap gap-2">
+                                        {['28', '30', '32', '34', '36', '38'].map(size => {
+                                            const isSelected = formData.sizing.includes(size);
+                                            return (
+                                                <button
+                                                    key={size}
+                                                    type="button"
+                                                    onClick={() => {
+                                                        const newSizing = isSelected
+                                                            ? formData.sizing.filter(s => s !== size)
+                                                            : [...formData.sizing, size].sort();
+                                                        setFormData({ ...formData, sizing: newSizing });
+                                                    }}
+                                                    className={`px-4 py-2 rounded-xl text-[10px] font-bold transition-all border ${isSelected ? 'bg-attire-accent border-attire-accent text-black' : 'bg-white/5 border-white/10 text-attire-silver hover:text-white hover:bg-white/10'}`}
+                                                >
+                                                    {size}
+                                                </button>
+                                            );
+                                        })}
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>

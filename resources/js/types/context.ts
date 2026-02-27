@@ -4,4 +4,5 @@ export interface FavoritesContextType {
     removeFavorite: (productId: number | string) => void;
     isFavorited: (productId: number | string) => boolean;
     toggleFavorite: (productId: number | string) => void;
+    clearFavorites: () => void;
 }
