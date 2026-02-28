@@ -1,5 +1,5 @@
-// resources/js/components/pages/CustomizeGiftPage.jsx - ATELIER OVERHAUL (FIXED CONTRAST)
-import React, { useState, useEffect, useMemo } from 'react';
+// resources/js/components/pages/CustomizeGiftPage.jsx - ATELIER OVERHAUL (SMOOTH ANCHORED SCROLL)
+import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { motion, AnimatePresence, useScroll, useSpring } from 'framer-motion';
 import { 
     Send, Check, User, Mail, Phone, ArrowRight, Loader, 
@@ -124,6 +124,7 @@ const CustomInput = ({ label, icon: Icon, error, ...props }) => (
 // --- Main Atelier View ---
 
 const CustomizeGiftPage = () => {
+    const contentRef = useRef(null);
     const [step, setStep] = useState(1);
     const [formData, setFormData] = useState({
         name: '', sender_age: '', email: '', phone: '',
@@ -136,6 +137,18 @@ const CustomizeGiftPage = () => {
     const [submissionStatus, setSubmissionStatus] = useState({ state: 'idle' });
     const [formErrors, setFormErrors] = useState({});
     const [outOfStockItems, setOutOfStockItems] = useState([]);
+
+    // Smooth anchored scroll logic 💖
+    useEffect(() => {
+        if (contentRef.current && step > 1) {
+            const timer = setTimeout(() => {
+                const yOffset = -120; // Breathing room for the header
+                const elementTop = contentRef.current.getBoundingClientRect().top + window.pageYOffset;
+                window.scrollTo({ top: elementTop + yOffset, behavior: 'smooth' });
+            }, 50);
+            return () => clearTimeout(timer);
+        }
+    }, [step]);
 
     useEffect(() => {
         const fetchOutOfStock = async () => {
@@ -235,13 +248,12 @@ const CustomizeGiftPage = () => {
                     </motion.p>
                 </header>
 
-                <StepIndicator currentStep={step} />
+                {step < 4 && <StepIndicator currentStep={step} />}
 
-                {/* Main Content Layout */}
-                <div className="grid grid-cols-1 lg:grid-cols-12 gap-16 items-start">
-                    
-                    {/* Interaction Area */}
-                    <div className="lg:col-span-7 xl:col-span-8">
+                {/* Main Content Layout with stable height & scroll ref 💖 */}
+                <div ref={contentRef} className="grid grid-cols-1 lg:grid-cols-12 gap-16 items-start min-h-[120vh] pb-32">
+
+                    {/* Interaction Area */}                    <div className="lg:col-span-7 xl:col-span-8">
                         <AnimatePresence mode="wait">
                             <motion.div
                                 key={step}
@@ -355,7 +367,7 @@ const CustomizeGiftPage = () => {
                                                 <ClipboardCheck className="text-attire-accent" size={32} />
                                             </div>
                                             <div>
-                                                <h2 className="text-3xl font-serif">Confirm Manifest</h2>
+                                                <h2 className="text-3xl font-serif text-white">Confirm Manifest</h2>
                                                 <p className="text-[10px] font-black uppercase tracking-[0.4em] text-white/60 mt-1">Review your private request</p>
                                             </div>
                                         </div>
@@ -385,7 +397,7 @@ const CustomizeGiftPage = () => {
                                                 value={note}
                                                 onChange={e => setNote(e.target.value)}
                                                 placeholder="Write a message of elegance..."
-                                                className="w-full bg-black/40 border border-white/10 rounded-2xl p-6 text-sm italic outline-none focus:border-attire-accent/30 transition-all resize-none"
+                                                className="w-full bg-black/40 border border-white/10 rounded-2xl p-6 text-sm italic outline-none focus:border-attire-accent/30 transition-all resize-none text-white placeholder-white/20"
                                                 rows={4}
                                             />
                                         </div>

@@ -159,6 +159,7 @@ const FavoritesSelector = ({ favoriteProducts, selectedFavorites, onSelectionCha
 // --- Main Page Component ---
 
 const ContactPage = () => {
+    const contentRef = React.useRef(null);
     const { favorites } = useFavorites();
     const [allProducts, setAllProducts] = useState([]);
     const [loadingProducts, setLoadingProducts] = useState(true);
@@ -183,6 +184,15 @@ const ContactPage = () => {
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [errors, setErrors] = useState({});
     const [generatedMessage, setGeneratedMessage] = useState('');
+
+    // Scroll to the content box when manifest is ready 💖
+    useEffect(() => {
+        if (generatedMessage && contentRef.current) {
+            const yOffset = -120;
+            const y = contentRef.current.getBoundingClientRect().top + window.pageYOffset + yOffset;
+            window.scrollTo({ top: y, behavior: 'smooth' });
+        }
+    }, [generatedMessage]);
 
     const appointmentTypes = [
         { value: 'sartorial', label: 'Sartorial Consultation' },
@@ -265,7 +275,7 @@ const ContactPage = () => {
                     </motion.div>
                 </header>
 
-                <div className="grid grid-cols-1 lg:grid-cols-12 gap-16 items-start">
+                <div ref={contentRef} className="grid grid-cols-1 lg:grid-cols-12 gap-16 items-start min-h-[1000px] pb-32">
                     
                     {/* Information Sidebar */}
                     <div className="lg:col-span-4 space-y-12 order-2 lg:order-1">
