@@ -62,6 +62,7 @@ const FavoritesPage = lazyWithRetry(() => import('./pages/FavoritesPage.jsx'));
 const AdminDashboard = lazyWithRetry(() => import('./pages/admin/AdminDashboard.jsx'));
 const AdminLogin = lazyWithRetry(() => import('./pages/admin/AdminLogin.jsx'));
 const PrivateRoute = lazyWithRetry(() => import('./pages/admin/PrivateRoute.jsx'));
+import { AdminProvider } from './pages/admin/AdminContext'; // Import AdminProvider
 
 const AdminLayout = lazyWithRetry(() => import('./pages/admin/AdminLayout.jsx'));
 const AppointmentManager = lazyWithRetry(() => import('./pages/admin/AppointmentManager.jsx'));
@@ -347,11 +348,13 @@ function MainApp() {
         <HelmetProvider>
             <QueryClientProvider client={queryClient}>
                 <Router>
-                    <LenisScroll />
-                    {/* ScrollToTop removed as it conflicts with exit animations, handled in onExitComplete */}
-                    <Suspense fallback={<LoadingSpinner />}>
-                        <AnimatedRoutes />
-                    </Suspense>
+                    <AdminProvider> {/* <-- AdminProvider goes here */}
+                        <LenisScroll />
+                        {/* ScrollToTop removed as it conflicts with exit animations, handled in onExitComplete */}
+                        <Suspense fallback={<LoadingSpinner />}>
+                            <AnimatedRoutes />
+                        </Suspense>
+                    </AdminProvider>
                 </Router>
             </QueryClientProvider>
         </HelmetProvider>

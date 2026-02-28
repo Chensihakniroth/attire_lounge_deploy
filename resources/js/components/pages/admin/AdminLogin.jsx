@@ -4,6 +4,7 @@ import { Lock, Mail, Loader, ShieldCheck, ArrowRight, Check, RefreshCw, AlertTri
 import { motion } from 'framer-motion';
 import axios from 'axios';
 import minioBaseUrl from '../../../config';
+import { useAdmin } from './AdminContext'; // Import useAdmin
 
 const AdminLogin = () => {
     const [email, setEmail] = useState('');
@@ -12,13 +13,15 @@ const AdminLogin = () => {
     const [error, setError] = useState('');
     const [loading, setLoading] = useState(false);
     const navigate = useNavigate();
+    const { setUserData } = useAdmin(); // Use setUserData from context
 
     const logoUrl = "https://bucket-production-4ca0.up.railway.app/product-assets/uploads/asset/ALO.png";
 
     useEffect(() => {
         const token = localStorage.getItem('admin_token');
-        if (token) {
-            sessionStorage.setItem('isAdmin', 'true');
+        const storedRoles = sessionStorage.getItem('user_roles');
+        if (token && storedRoles) { // Check for token and roles to confirm admin session
+            sessionStorage.setItem('isAdmin', 'true'); // Keep for now for compatibility
             navigate('/admin');
         }
     }, [navigate]);
@@ -30,13 +33,15 @@ const AdminLogin = () => {
 
         try {
             const response = await axios.post('/api/v1/admin/login', { email, password });
-            const { token } = response.data;
+            const { token, user } = response.data; // Destructure user data
+            
             if (rememberMe) {
                 localStorage.setItem('admin_token', token);
             } else {
                 sessionStorage.setItem('admin_token', token);
             }
-            sessionStorage.setItem('isAdmin', 'true');
+            sessionStorage.setItem('isAdmin', 'true'); // Keep for now for compatibility
+            setUserData(user); // Set user data (roles/permissions) in context
             navigate('/admin');
         } catch (err) {
             console.error('Login error:', err);

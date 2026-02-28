@@ -15,6 +15,14 @@ interface AppointmentRepositoryInterface
     public function all(): Collection;
 
     /**
+     * Get paginated appointments sorted by latest.
+     *
+     * @param int $perPage
+     * @return \Illuminate\Pagination\LengthAwarePaginator
+     */
+    public function getPaginated(int $perPage = 15);
+
+    /**
      * Create a new appointment.
      *
      * @param array $data

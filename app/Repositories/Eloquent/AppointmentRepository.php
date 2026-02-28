@@ -27,6 +27,14 @@ class AppointmentRepository implements AppointmentRepositoryInterface
     }
 
     /**
+     * Get paginated appointments sorted by latest.
+     */
+    public function getPaginated(int $perPage = 15)
+    {
+        return $this->model->orderBy('created_at', 'desc')->paginate($perPage);
+    }
+
+    /**
      * Create a new appointment.
      */
     public function create(array $data): Appointment

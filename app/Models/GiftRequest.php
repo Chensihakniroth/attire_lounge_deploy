@@ -4,10 +4,11 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use App\Traits\Auditable; // Import the Auditable trait
 
 class GiftRequest extends Model
 {
-    use HasFactory;
+    use HasFactory, Auditable; // Use the Auditable trait
 
     protected $fillable = [
         'name',

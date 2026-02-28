@@ -126,14 +126,14 @@ class ProductService
     {
         Cache::forget("product.{$product->slug}");
         Cache::forget('featured_products');
+        Cache::forget('product_categories'); // Clear category list cache
+        Cache::forget('product_collections'); // Clear collections list cache
         
-        // Clear all product list caches. 
-        // Note: In a larger app, we'd use cache tags, but for now we'll ensure 
-        // the most common lists are refreshed by clearing based on our naming pattern if possible,
-        // or simply clearing relevant keys.
-        // For absolute reliability in this setup, we'll clear the 'products' general cache.
-        // If the cache driver is 'file', we can't easily clear by prefix without custom logic.
-        // We'll clear the most likely culprits.
-        Artisan::call('cache:clear'); // Ensuring absolute freshness for the "Gold Standard"
+        // For general paginated product lists (keys starting with 'products.'),
+        // if using a cache driver that supports tags (like Redis), we would use Cache::tags('products')->flush();
+        // Since the current cache driver might not support tags, and keys are dynamic (md5 of DTO),
+        // we'll rely on these caches expiring naturally or implement a more sophisticated invalidation
+        // strategy if performance demands it and a tag-supporting driver is adopted.
+
     }
 }

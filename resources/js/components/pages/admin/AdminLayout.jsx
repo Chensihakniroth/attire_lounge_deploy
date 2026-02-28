@@ -134,16 +134,14 @@ const AdminLayout = () => {
 
     return (
         <ThemeProvider>
-            <AdminProvider>
-                <AdminLayoutContent 
-                    isSidebarVisible={isSidebarVisible} 
-                    setSidebarVisible={setSidebarVisible} 
-                    isMobileOpen={isMobileOpen} 
-                    setMobileOpen={setMobileOpen} 
-                    isDesktop={isDesktop} 
-                    setIsDesktop={setIsDesktop} 
-                />
-            </AdminProvider>
+            <AdminLayoutContent 
+                isSidebarVisible={isSidebarVisible} 
+                setSidebarVisible={setSidebarVisible} 
+                isMobileOpen={isMobileOpen} 
+                setMobileOpen={setMobileOpen} 
+                isDesktop={isDesktop} 
+                setIsDesktop={setIsDesktop} 
+            />
         </ThemeProvider>
     );
 };

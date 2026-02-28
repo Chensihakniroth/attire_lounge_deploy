@@ -52,11 +52,11 @@ class AppointmentService
     }
 
     /**
-     * Get all appointments sorted by latest.
+     * Get all appointments sorted by latest (paginated).
      */
-    public function getAllAppointments()
+    public function getAllAppointments(int $perPage = 15)
     {
-        return $this->appointmentRepository->all();
+        return $this->appointmentRepository->getPaginated($perPage);
     }
 
     /**

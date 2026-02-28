@@ -1,4 +1,4 @@
-import React, { createContext, useState, useContext, useCallback } from 'react';
+import React, { createContext, useState, useContext, useCallback, useEffect } from 'react';
 import axios from 'axios';
 
 const AdminContext = createContext();
@@ -6,13 +6,54 @@ const AdminContext = createContext();
 export const useAdmin = () => useContext(AdminContext);
 
 export const AdminProvider = ({ children }) => {
+    // State for user roles and permissions
+    const [userRoles, setUserRoles] = useState([]);
+    const [userPermissions, setUserPermissions] = useState([]);
+
+    // Function to set user data after login
+    const setUserData = useCallback((user) => {
+        const roles = user?.roles || [];
+        const permissions = user?.permissions || [];
+        setUserRoles(roles);
+        setUserPermissions(permissions);
+        sessionStorage.setItem('user_roles', JSON.stringify(roles));
+        sessionStorage.setItem('user_permissions', JSON.stringify(permissions));
+    }, []);
+
+    // Load user data from session storage on mount
+    useEffect(() => {
+        const storedRoles = sessionStorage.getItem('user_roles');
+        const storedPermissions = sessionStorage.getItem('user_permissions');
+        if (storedRoles) {
+            setUserRoles(JSON.parse(storedRoles));
+        }
+        if (storedPermissions) {
+            setUserPermissions(JSON.parse(storedPermissions));
+        }
+    }, []);
+
+    // Helper to check if user has a specific permission
+    const hasPermission = useCallback((permission) => {
+        return userPermissions.includes(permission);
+    }, [userPermissions]);
+
     // State for Appointments
     const [appointments, setAppointments] = useState([]);
+    const [appointmentsPagination, setAppointmentsPagination] = useState({
+        currentPage: 1,
+        lastPage: 1,
+        total: 0
+    });
     const [appointmentsLoaded, setAppointmentsLoaded] = useState(false);
     const [appointmentsLoading, setAppointmentsLoading] = useState(false);
 
     // State for Gift Requests
     const [giftRequests, setGiftRequests] = useState([]);
+    const [giftRequestsPagination, setGiftRequestsPagination] = useState({
+        currentPage: 1,
+        lastPage: 1,
+        total: 0
+    });
     const [giftRequestsLoaded, setGiftRequestsLoaded] = useState(false);
     const [giftRequestsLoading, setGiftRequestsLoading] = useState(false);
 
@@ -58,21 +99,39 @@ export const AdminProvider = ({ children }) => {
     }, []);
 
     // --- Appointments Logic ---
-    const fetchAppointments = useCallback(async (forceRefresh = false) => {
-        // If we already have data and aren't forcing a refresh, just return (or fetch in background)
-        if (appointmentsLoaded && !forceRefresh) {
-            // Background update (stale-while-revalidate)
+    const fetchAppointments = useCallback(async (page = 1, forceRefresh = false) => {
+        // If we already have data and aren't forcing a refresh, just return (unless it's a new page)
+        if (appointmentsLoaded && !forceRefresh && page === 1) {
+            // Background update (stale-while-revalidate) for page 1
             fetchAppointmentsBackground();
             return;
         }
 
         setAppointmentsLoading(true);
         try {
-            const response = await axios.get('/api/v1/admin/appointments');
-            // Assuming backend already sorts, but we can ensure consistency here if needed
-            setAppointments(response.data);
+            const response = await axios.get(`/api/v1/admin/appointments?page=${page}`);
+            const { data, current_page, last_page, total } = response.data;
+            
+            if (page === 1) {
+                setAppointments(data);
+            } else {
+                setAppointments(prev => {
+                    // Filter out duplicates just in case
+                    const newIds = new Set(data.map(a => a.id));
+                    return [...prev.filter(a => !newIds.has(a.id)), ...data];
+                });
+            }
+
+            setAppointmentsPagination({
+                currentPage: current_page,
+                lastPage: last_page,
+                total: total
+            });
             setAppointmentsLoaded(true);
-            fetchStats(); // Refresh stats when data changes
+            
+            if (page === 1) {
+                fetchStats(); // Refresh stats when data changes
+            }
         } catch (err) {
             console.error('Error fetching appointments:', err);
         } finally {
@@ -82,11 +141,38 @@ export const AdminProvider = ({ children }) => {
 
     const fetchAppointmentsBackground = async () => {
         try {
-            const response = await axios.get('/api/v1/admin/appointments');
-            setAppointments(response.data);
+            const response = await axios.get('/api/v1/admin/appointments?page=1');
+            const { data, current_page, last_page, total } = response.data;
+            
+            // Only update if it's page 1
+            setAppointments(prev => {
+                // Keep existing items that are NOT in the new page 1, then prepend/replace page 1
+                // Actually, simpler to just replace page 1 items and keep the rest? 
+                // For simplicity in background refresh, let's just update the first page's worth of data 
+                // or just replace everything if we want to be strict, but that kills infinite scroll state.
+                // Best approach for "stale-while-revalidate" with pagination is tricky.
+                // Let's just update the items that match IDs or prepend new ones.
+                
+                // Simple strategy: Replace the first N items where N is page size.
+                // Or easier: Just setAppointments(data) if we assume user is at top. 
+                // But let's be safe:
+                return data; // Reset to page 1 to ensure freshness on dashboard load
+            });
+
+             setAppointmentsPagination({
+                currentPage: current_page,
+                lastPage: last_page,
+                total: total
+            });
             fetchStats();
         } catch (err) {
             console.error('Error refreshing appointments:', err);
+        }
+    };
+
+    const loadMoreAppointments = async () => {
+        if (appointmentsPagination.currentPage < appointmentsPagination.lastPage) {
+            await fetchAppointments(appointmentsPagination.currentPage + 1);
         }
     };
 
@@ -110,6 +196,8 @@ export const AdminProvider = ({ children }) => {
         setAppointments(prev => prev.filter(app => app.status !== 'done'));
         try {
             await axios.post('/api/v1/admin/appointments/clear-completed');
+            // Reset pagination as we've deleted items
+            fetchAppointments(1, true);
             fetchStats();
         } catch (err) {
             setAppointments(previous);
@@ -118,20 +206,48 @@ export const AdminProvider = ({ children }) => {
     };
 
     // --- Gift Requests Logic ---
-    const fetchGiftRequests = useCallback(async (forceRefresh = false) => {
-        if (giftRequestsLoaded && !forceRefresh) {
+    const fetchGiftRequests = useCallback(async (page = 1, forceRefresh = false) => {
+        if (giftRequestsLoaded && !forceRefresh && page === 1) {
             fetchGiftRequestsBackground();
             return;
         }
 
         setGiftRequestsLoading(true);
         try {
-            const response = await axios.get('/api/v1/gift-requests');
-            setGiftRequests(response.data);
+            const response = await axios.get(`/api/v1/gift-requests?page=${page}`);
+            let data, meta;
+
+            // Handle both pagination object and plain array (fallback)
+            if (Array.isArray(response.data)) {
+                data = response.data;
+                meta = { current_page: 1, last_page: 1, total: data.length };
+            } else if (response.data && response.data.data) {
+                data = response.data.data;
+                meta = { 
+                    current_page: response.data.current_page, 
+                    last_page: response.data.last_page, 
+                    total: response.data.total 
+                };
+            } else {
+                data = [];
+                meta = { current_page: 1, last_page: 1, total: 0 };
+            }
+            
+            if (page === 1) {
+                setGiftRequests(data);
+            } else {
+                setGiftRequests(prev => {
+                     const newIds = new Set(data.map(r => r.id));
+                     return [...prev.filter(r => !newIds.has(r.id)), ...data];
+                });
+            }
+
+            setGiftRequestsPagination(meta);
             setGiftRequestsLoaded(true);
-            fetchStats();
+            if (page === 1) fetchStats();
         } catch (err) {
             console.error('Error fetching gift requests:', err);
+            setGiftRequests([]); // Ensure state is valid on error
         } finally {
             setGiftRequestsLoading(false);
         }
@@ -139,11 +255,34 @@ export const AdminProvider = ({ children }) => {
 
     const fetchGiftRequestsBackground = async () => {
         try {
-            const response = await axios.get('/api/v1/gift-requests');
-            setGiftRequests(response.data);
+            const response = await axios.get('/api/v1/gift-requests?page=1');
+            let data;
+             if (Array.isArray(response.data)) {
+                data = response.data;
+            } else if (response.data && response.data.data) {
+                data = response.data.data;
+            } else {
+                data = [];
+            }
+            
+            setGiftRequests(prev => {
+                // Simplified refresh logic: just update if needed or replace top.
+                // For accurate pagination state, resetting to page 1 data on refresh is safest
+                return data;
+            });
+            // We can also update pagination here if needed, but background refresh usually doesn't change page count drastically
+            if (response.data && response.data.total) {
+                 setGiftRequestsPagination(prev => ({ ...prev, total: response.data.total }));
+            }
             fetchStats();
         } catch (err) {
             console.error('Error refreshing gift requests:', err);
+        }
+    };
+
+    const loadMoreGiftRequests = async () => {
+        if (giftRequestsPagination.currentPage < giftRequestsPagination.lastPage) {
+            await fetchGiftRequests(giftRequestsPagination.currentPage + 1);
         }
     };
 
@@ -181,12 +320,16 @@ export const AdminProvider = ({ children }) => {
             appointments,
             appointmentsLoading,
             fetchAppointments,
+            loadMoreAppointments,
+            appointmentsPagination,
             updateAppointmentStatus,
             clearCompletedAppointments,
             
             giftRequests,
             giftRequestsLoading,
             fetchGiftRequests,
+            loadMoreGiftRequests,
+            giftRequestsPagination,
             updateGiftRequestStatus,
             deleteGiftRequest,
 
@@ -200,7 +343,12 @@ export const AdminProvider = ({ children }) => {
             isEditing,
             setIsEditing,
             showCollections,
-            setShowCollections
+            setShowCollections,
+
+            userRoles,
+            userPermissions,
+            setUserData,
+            hasPermission
         }}>
             {children}
         </AdminContext.Provider>

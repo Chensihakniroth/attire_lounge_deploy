@@ -23,11 +23,9 @@ Route::prefix('v1')->group(function () {
     // Public Appointments route (for users to store appointments)
     Route::post('/appointments', [AppointmentController::class, 'store']);
 
-    // Gift Requests
+    // Gift Requests (Public routes for viewing and submitting)
     Route::get('/gift-requests', [GiftRequestController::class, 'index']);
     Route::post('/gift-requests', [GiftRequestController::class, 'store']);
-    Route::patch('/gift-requests/{giftRequest}/status', [GiftRequestController::class, 'updateStatus']);
-    Route::delete('/gift-requests/{giftRequest}', [GiftRequestController::class, 'destroy']);
 
     // Gift Item Stock (public access for fetching status)
     Route::get('/gift-items/out-of-stock', [\App\Http\Controllers\GiftItemStockController::class, 'index']);
@@ -36,33 +34,35 @@ Route::prefix('v1')->group(function () {
     Route::post('/newsletter-subscriptions', [NewsletterSubscriptionController::class, 'store']);
 
     // Admin Login Route (public, as authentication is done here)
-    Route::post('/admin/login', [AdminLoginController::class, 'login']);
+    Route::post('/admin/login', [AdminLoginController::class, 'login'])->middleware('throttle:5,1');
 
     // Admin-specific routes - protected by authentication middleware
-    Route::middleware('auth:sanctum')->prefix('admin')->group(function () {
-        // Overview stats
+    Route::middleware(['auth:sanctum', 'role:admin|super-admin'])->prefix('admin')->group(function () {
+        // Admin
         Route::get('/stats', [AdminController::class, 'stats']);
 
-        // Appointments management (admin only)
+        // Appointments
         Route::get('/appointments', [AppointmentController::class, 'index']);
         Route::patch('/appointments/{appointment}/status', [AppointmentController::class, 'updateStatus']);
-        Route::post('/appointments/clear-completed', [AppointmentController::class, 'clearCompleted']);
+        Route::delete('/appointments/completed', [AppointmentController::class, 'clearCompleted']);
 
-        // Image Upload and management (admin only)
-        Route::post('/upload-image', [ImageUploadController::class, 'upload']);
-        Route::get('/images', [ImageUploadController::class, 'listImages']);
-        Route::post('/delete-image', [ImageUploadController::class, 'deleteImage']);
+        // Gift Requests
+        Route::patch('/gift-requests/{giftRequest}/status', [GiftRequestController::class, 'updateStatus']);
+        Route::delete('/gift-requests/{giftRequest}', [GiftRequestController::class, 'destroy']);
 
-        // Gift Item Stock Management (admin only)
-        Route::post('/gift-items/toggle-stock', [\App\Http\Controllers\GiftItemStockController::class, 'toggle']);
-
-        // Product management (admin only)
+        // Products
         Route::post('/products', [ProductController::class, 'store']);
         Route::put('/products/{id}', [ProductController::class, 'update']);
+        Route::patch('/products/{id}', [ProductController::class, 'update']);
         Route::delete('/products/{id}', [ProductController::class, 'destroy']);
 
-        // Collection management (admin only)
+        // Collections
         Route::post('/collections', [ProductController::class, 'storeCollection']);
         Route::delete('/collections/{id}', [ProductController::class, 'destroyCollection']);
+        
+        // Image Uploads
+        Route::post('/images/upload', [ImageUploadController::class, 'upload']);
+        Route::get('/images', [ImageUploadController::class, 'listImages']);
+        Route::post('/images/delete', [ImageUploadController::class, 'deleteImage']);
     });
 });

@@ -3,9 +3,12 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use App\Traits\Auditable; // Import the Auditable trait
 
 class Appointment extends Model
 {
+    use Auditable; // Use the Auditable trait
+
     protected $fillable = [
         'name',
         'email',

@@ -153,7 +153,9 @@ const AppointmentManager = () => {
     const { 
         appointments, 
         appointmentsLoading, 
-        fetchAppointments, 
+        fetchAppointments,
+        loadMoreAppointments,
+        appointmentsPagination,
         updateAppointmentStatus, 
         clearCompletedAppointments 
     } = useAdmin();
@@ -161,8 +163,8 @@ const AppointmentManager = () => {
     const [visibleCount, setVisibleRows] = useState(5);
 
     useEffect(() => {
-        fetchAppointments();
-        const intervalId = setInterval(() => fetchAppointments(false), 60000); 
+        fetchAppointments(1);
+        const intervalId = setInterval(() => fetchAppointments(1, false), 60000); 
         return () => clearInterval(intervalId);
     }, [fetchAppointments]);
 
@@ -185,10 +187,24 @@ const AppointmentManager = () => {
     };
 
     const visibleAppointments = useMemo(() => {
+        // If we have fewer appointments than visibleCount, we show what we have.
+        // But if we have more, we slice.
         return appointments.slice(0, visibleCount);
     }, [appointments, visibleCount]);
 
-    const hasMore = appointments.length > visibleCount;
+    // Check if there are more items to show (either locally or on server)
+    const hasMore = visibleCount < appointments.length || appointmentsPagination.currentPage < appointmentsPagination.lastPage;
+
+    const handleLoadMore = async () => {
+        // If we have more local items to show, just increase the count
+        if (visibleCount < appointments.length) {
+             setVisibleRows(v => v + 5);
+        } else {
+            // We need to fetch from server
+            await loadMoreAppointments();
+            setVisibleRows(v => v + 5);
+        }
+    };
 
     return (
         <div className="space-y-8 pb-20">
@@ -242,7 +258,7 @@ const AppointmentManager = () => {
                     {hasMore && (
                         <div className="flex justify-center mt-12">
                             <button 
-                                onClick={() => setVisibleRows(v => v + 5)}
+                                onClick={handleLoadMore}
                                 className="group flex items-center gap-3 px-8 py-4 bg-black/5 dark:bg-white/5 hover:bg-black/10 dark:hover:bg-white/10 border border-black/5 dark:border-white/10 rounded-2xl transition-all"
                             >
                                 <span className="text-[10px] font-bold uppercase tracking-[0.3em] text-gray-900 dark:text-white">Load More History</span>

@@ -7,7 +7,7 @@ import { Link, useLocation } from 'react-router-dom';
 import SectionIndicator from './SectionIndicator.jsx';
 import FashionShow from '../sections/FashionShow.jsx';
 import OptimizedImage from '../common/OptimizedImage.jsx';
-import SEO from '../common/SEO';
+import SEO from '../common/SEO';1
 
 import minioBaseUrl from '../../config.js';
 
@@ -101,13 +101,13 @@ interface HeroSectionProps {
 const HeroSection = memo(forwardRef<HTMLElement, HeroSectionProps>(({ scrollToSection }, ref) => (
   <section className="relative snap-section overflow-hidden min-h-screen h-screen" ref={ref}>
     <div className="absolute inset-0 w-full h-full overflow-hidden">
-      <video 
-        autoPlay 
-        muted 
-        loop 
-        playsInline 
-        preload="metadata" 
-        className="absolute w-full h-full object-cover" 
+      <video
+        autoPlay
+        muted
+        loop
+        playsInline
+        preload="metadata"
+        className="absolute w-full h-full object-cover"
         style={{ objectPosition: 'center 20%' }}
       >
         <source src={`${minioBaseUrl}/uploads/asset/hero-background1.mp4`} type="video/mp4" />
@@ -116,26 +116,26 @@ const HeroSection = memo(forwardRef<HTMLElement, HeroSectionProps>(({ scrollToSe
       <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-transparent to-black/80" />
     </div>
 
-    <motion.div 
-      initial={{ opacity: 0, y: 20 }} 
-      animate={{ opacity: 1, y: 0 }} 
-      transition={{ duration: 1.2, ease: "easeOut" }} 
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 1.2, ease: "easeOut" }}
       className="relative z-10 h-full flex flex-col items-center justify-center px-4"
     >
       {/* Logo */}
-      <OptimizedImage 
-        src={`${minioBaseUrl}/uploads/asset/AL_logo.png`} 
-        alt="Attire Lounge" 
+      <OptimizedImage
+        src={`${minioBaseUrl}/uploads/asset/AL_logo.png`}
+        alt="Attire Lounge"
         containerClassName="h-auto w-full max-w-[240px] md:max-w-md"
-        className="drop-shadow-2xl mb-6" 
+        className="drop-shadow-2xl mb-6"
         bgClassName="bg-transparent"
         priority={true}
-        loading="eager" 
+        loading="eager"
         objectFit="contain"
       />
-      
+
       {/* Minimal Tagline */}
-      <motion.p 
+      <motion.p
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ delay: 0.8, duration: 1 }}
@@ -154,7 +154,7 @@ const HeroSection = memo(forwardRef<HTMLElement, HeroSectionProps>(({ scrollToSe
       >
         <span className="text-[10px] tracking-[0.3em] text-white/50 uppercase group-hover:text-white transition-colors duration-500">Discover</span>
         <div className="w-[1px] h-16 bg-white/10 overflow-hidden rounded-full">
-          <motion.div 
+          <motion.div
             className="w-full h-1/2 bg-gradient-to-b from-transparent to-[#f5a81c]"
             animate={{ y: ["-100%", "100%"] }}
             transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
@@ -199,7 +199,7 @@ const PhilosophySection = memo(forwardRef<HTMLElement>((_props, ref) => (
               <span className="relative z-10 font-semibold text-sm">Make Appointment</span>
               <ArrowRight className="absolute right-5 top-1/2 -translate-y-1/2 w-5 h-5 opacity-0 group-hover:opacity-100 group-hover:translate-x-0 -translate-x-4 transition-all duration-300" />
             </Link>
-            
+
             <Link to="/lookbook" className="text-xs uppercase tracking-[0.2em] text-white/40 hover:text-white transition-colors duration-300 border-b border-white/5 hover:border-white/20 pb-1">
                 Explore Lookbook
             </Link>
@@ -209,7 +209,7 @@ const PhilosophySection = memo(forwardRef<HTMLElement>((_props, ref) => (
 
       {/* Right side - Image */}
       <div className="relative w-full h-full overflow-hidden order-1 lg:order-2 hidden md:block">
-        <motion.div 
+        <motion.div
             initial={{ scale: 1.3 }}
             whileInView={{ scale: 1.25 }}
             transition={{ duration: 1.5, ease: "easeOut" }}
@@ -248,10 +248,10 @@ const CollectionsSection = memo(forwardRef<HTMLElement>((_props, ref) => {
     return (
         <section className="relative snap-section min-h-screen h-screen flex items-center bg-[#0d3542] overflow-hidden" ref={ref}>
             <div className="relative z-10 w-full max-w-[1800px] mx-auto px-6 lg:px-20 flex flex-col lg:grid lg:grid-cols-12 gap-12 lg:gap-0 items-center justify-center h-full py-20 lg:py-0">
-                
+
                 {/* Visual - Left on Desktop, Top on Mobile (Columns 1-6) */}
                 <div className="w-full lg:col-span-6 relative h-[45vh] md:h-[55vh] lg:h-[80vh] flex items-center justify-center z-10 order-1">
-                    <motion.div 
+                    <motion.div
                         initial={{ opacity: 0, x: -100 }}
                         whileInView={{ opacity: 1, x: 0 }}
                         transition={{ duration: 1.2, ease: "easeOut" }}
@@ -276,9 +276,9 @@ const CollectionsSection = memo(forwardRef<HTMLElement>((_props, ref) => {
                                     />
                                     {/* News Overlay */}
                                     <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent opacity-80" />
-                                    
+
                                         <div className="overflow-hidden">
-                                            <motion.h3 
+                                            <motion.h3
                                                 initial={{ y: "100%" }}
                                                 animate={{ y: 0 }}
                                                 className="text-lg md:text-xl lg:text-2xl font-serif text-white uppercase tracking-[0.2em]"
@@ -309,13 +309,13 @@ const CollectionsSection = memo(forwardRef<HTMLElement>((_props, ref) => {
                     </motion.div>
 
                     <motion.h2 variants={itemVariants} className="font-serif text-5xl md:text-7xl lg:text-8xl text-white mb-6 lg:mb-10 leading-[0.8] tracking-tighter">
-                        CURATED <br/> 
+                        CURATED <br/>
                         <span className="text-[#f5a81c] italic">ELEGANCE</span>
                     </motion.h2>
 
                     <motion.div variants={itemVariants} className="max-w-md mx-auto lg:mx-0 mb-8 lg:mb-12">
                         <p className="text-[#E5E7EB] text-xs md:text-sm lg:text-base leading-relaxed font-light mb-6">
-                            From the sharp precision of our Office line to the timeless allure of our Groom collections. 
+                            From the sharp precision of our Office line to the timeless allure of our Groom collections.
                             Discover a versatile range of ready-to-wear pieces crafted for every chapter of the modern gentleman's life.
                         </p>
                     </motion.div>
@@ -341,9 +341,9 @@ const ExperienceSection = memo(forwardRef<HTMLElement, ExperienceSectionProps>((
   <section className="relative snap-section min-h-screen h-screen flex items-center bg-[#0d3542] overflow-hidden" ref={ref}>
     {/* Mobile Background Image (Absolute) */}
     <div className="absolute inset-0 z-0 lg:hidden">
-        <OptimizedImage 
-            src={`${minioBaseUrl}/uploads/collections/default/both.jpg?v=new`} 
-            alt="Experience Background Mobile" 
+        <OptimizedImage
+            src={`${minioBaseUrl}/uploads/collections/default/both.jpg?v=new`}
+            alt="Experience Background Mobile"
             containerClassName="w-full h-full"
             className="w-full h-full grayscale-[20%]"
             style={{ objectPosition: 'center' }}
@@ -355,9 +355,9 @@ const ExperienceSection = memo(forwardRef<HTMLElement, ExperienceSectionProps>((
     <div className="relative z-10 w-full h-full grid grid-cols-1 lg:grid-cols-2">
         {/* Left Side: Image (Desktop only) */}
         <div className="hidden lg:block relative h-full w-full overflow-hidden">
-            <OptimizedImage 
-                src={`${minioBaseUrl}/uploads/collections/default/both.jpg?v=new`} 
-                alt="Attire Lounge Experience" 
+            <OptimizedImage
+                src={`${minioBaseUrl}/uploads/collections/default/both.jpg?v=new`}
+                alt="Attire Lounge Experience"
                 containerClassName="absolute inset-0 w-full h-full"
                 className="w-full h-full"
             />
@@ -417,9 +417,9 @@ const MembershipSection = memo(forwardRef<HTMLElement>((_props, ref) => (
     <section className="relative snap-section min-h-screen h-screen flex items-center bg-[#0d3542] overflow-hidden" ref={ref}>
         {/* Mobile Background Image (Absolute) */}
         <div className="absolute inset-0 z-0 lg:hidden">
-            <OptimizedImage 
-                src={`${minioBaseUrl}/uploads/collections/default/vc.jpg?v=new`} 
-                alt="Membership Background Mobile" 
+            <OptimizedImage
+                src={`${minioBaseUrl}/uploads/collections/default/vc.jpg?v=new`}
+                alt="Membership Background Mobile"
                 containerClassName="w-full h-full"
                 className="w-full h-full"
             />
@@ -442,7 +442,7 @@ const MembershipSection = memo(forwardRef<HTMLElement>((_props, ref) => (
                         <Crown className="text-[#f5a81c] w-6 h-6" />
                         <span className="text-[#f5a81c] tracking-[0.3em] uppercase text-xs font-semibold">Exclusive Access</span>
                     </motion.div>
-                    
+
                     <motion.h2 variants={itemVariants} className="font-serif text-4xl md:text-5xl text-white mb-6 leading-tight">
                         The Attire <br/><span className="italic text-[#E5E7EB]">Club</span>
                     </motion.h2>
@@ -518,7 +518,7 @@ const MembershipSection = memo(forwardRef<HTMLElement>((_props, ref) => (
                     </motion.div>
                                     </motion.div>
                             </div>
-                
+
                             {/* Visual Side (Right - Desktop only) */}
                             <div className="hidden lg:block relative col-span-7 h-full overflow-hidden">
                                 <OptimizedImage
@@ -546,9 +546,9 @@ const LookbookSection = memo(forwardRef<HTMLElement>((_props, ref) => (
               transition={{ duration: 2.5, ease: "easeOut" }}
               className="w-full h-full will-change-transform"
           >
-              <OptimizedImage 
-                  src={`${minioBaseUrl}/uploads/collections/default/as2.jpg?v=new`} 
-                  alt="Lookbook Background" 
+              <OptimizedImage
+                  src={`${minioBaseUrl}/uploads/collections/default/as2.jpg?v=new`}
+                  alt="Lookbook Background"
                   containerClassName="w-full h-full"
                   className="w-full h-full"
               />
@@ -571,7 +571,7 @@ const LookbookSection = memo(forwardRef<HTMLElement>((_props, ref) => (
                   Lookbook <br/>
                   <span className="italic text-transparent bg-clip-text bg-gradient-to-r from-[#FAF8F3] to-white opacity-80">Archives</span>
               </h2>
-              
+
               <Link to="/lookbook" className="group relative inline-flex flex-col items-center gap-4">
                   <div className="w-20 h-20 rounded-full border border-white/20 flex items-center justify-center group-hover:bg-white group-hover:border-white transition-all duration-500">
                       <ArrowRight className="text-white group-hover:text-black transition-colors duration-300" size={28} />
@@ -643,7 +643,7 @@ const TipsAndTricksSection = memo(forwardRef<HTMLElement, TipsAndTricksSectionPr
 
                     {/* Content Container */}
                     <div className="absolute inset-0 p-6 md:p-8 flex flex-col justify-end">
-                        
+
                         <div className="relative z-10 flex justify-between items-end">
                             {/* Main Content */}
                             <div className={`transition-all duration-500 ${isHovered ? 'w-full md:w-3/4 translate-y-0 opacity-100' : 'translate-y-4 opacity-100 md:opacity-0'}`}>
@@ -652,7 +652,7 @@ const TipsAndTricksSection = memo(forwardRef<HTMLElement, TipsAndTricksSectionPr
                                         0{i + 1}
                                     </span>
                                 </div>
-                                
+
                                 <h3 className={`font-serif text-xl md:text-3xl text-white mb-3 leading-tight`}>
                                     {tip.title}
                                 </h3>
@@ -661,7 +661,7 @@ const TipsAndTricksSection = memo(forwardRef<HTMLElement, TipsAndTricksSectionPr
                                     <p className="text-[#E5E7EB]/80 text-sm md:text-base font-light mb-6 line-clamp-2 md:line-clamp-none">
                                         {tip.description}
                                     </p>
-                                    
+
                                     <a href={tip.link} target="_blank" rel="noreferrer" className="inline-flex items-center gap-3 text-white uppercase tracking-widest text-[10px] md:text-xs font-semibold group/btn hover:text-[#f5a81c] transition-colors">
                                         <div className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center backdrop-blur-sm border border-white/10 group-hover/btn:bg-[#f5a81c] group-hover/btn:border-[#f5a81c] group-hover/btn:text-white transition-all">
                                             <Play size={14} fill="currentColor" className="ml-0.5" />
@@ -749,7 +749,7 @@ const HomePage: React.FC = () => {
             if (closestIndex !== -1) {
                 const targetSection = sectionsRef.current[closestIndex];
                 if (!targetSection) return;
-                
+
                 const dist = Math.abs(targetSection.offsetTop - scrollY);
                 const isTallSection = targetSection.offsetHeight > viewportHeight + 50;
 
@@ -814,7 +814,7 @@ const HomePage: React.FC = () => {
 
   return (
     <div className="snap-scroll-container bg-[#111111]">
-      <SEO 
+      <SEO
         title="Attire Lounge | Elite Styling House & Ready-to-Wear"
         description="Attire Lounge is Phnom Penh's premier Styling House, offering Milan-certified expert styling, curated luxury menswear collections, and personalized fashion consulting for the modern gentleman."
       />

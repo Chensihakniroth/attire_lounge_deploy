@@ -20,6 +20,11 @@ class AppServiceProvider extends ServiceProvider
             \App\Repositories\Interfaces\ProductRepositoryInterface::class,
             \App\Repositories\Eloquent\ProductRepository::class
         );
+
+        $this->app->bind(
+            \App\Repositories\Interfaces\GiftRequestRepositoryInterface::class,
+            \App\Repositories\Eloquent\GiftRequestRepository::class
+        );
     }
 
     /**

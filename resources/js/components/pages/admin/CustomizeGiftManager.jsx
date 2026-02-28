@@ -108,6 +108,8 @@ const CustomizeGiftManager = () => {
         giftRequests, 
         giftRequestsLoading, 
         fetchGiftRequests, 
+        loadMoreGiftRequests,
+        giftRequestsPagination,
         updateGiftRequestStatus, 
         deleteGiftRequest 
     } = useAdmin();
@@ -115,33 +117,40 @@ const CustomizeGiftManager = () => {
     const [visibleCount, setVisibleRows] = useState(6);
 
     useEffect(() => {
-        fetchGiftRequests();
-        const intervalId = setInterval(() => fetchGiftRequests(false), 60000); 
+        fetchGiftRequests(1);
+        const intervalId = setInterval(() => fetchGiftRequests(1, false), 60000); 
         return () => clearInterval(intervalId);
     }, [fetchGiftRequests]);
 
     const visibleRequests = useMemo(() => {
-        return giftRequests.slice(0, visibleCount);
+        return (giftRequests || []).slice(0, visibleCount);
     }, [giftRequests, visibleCount]);
 
-    const hasMore = giftRequests.length > visibleCount;
+    const hasMore = visibleCount < giftRequests.length || giftRequestsPagination.currentPage < giftRequestsPagination.lastPage;
 
-    if (giftRequestsLoading && giftRequests.length === 0) {
-        return (
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                {[...Array(4)].map((_, i) => <GiftSkeleton key={i} />)}
-            </div>
-        );
-    }
+    const handleLoadMore = async () => {
+        if (visibleCount < giftRequests.length) {
+            setVisibleRows(v => v + 6);
+        } else {
+            await loadMoreGiftRequests();
+            setVisibleRows(v => v + 6);
+        }
+    };
 
     return (
         <div className="space-y-8 pb-20">
-            <div className="pb-4 border-b border-black/5 dark:border-white/10">
-                <h1 className="text-4xl font-serif text-gray-900 dark:text-white mb-2">Gift Management</h1>
-                <p className="text-gray-500 dark:text-attire-silver text-sm uppercase tracking-widest">Custom gift box inquiries</p>
+            <div className="flex justify-between items-end pb-4 border-b border-black/5 dark:border-white/10">
+                <div>
+                    <h1 className="text-4xl font-serif text-gray-900 dark:text-white mb-2">Gift Management</h1>
+                    <p className="text-gray-500 dark:text-attire-silver text-sm uppercase tracking-widest">Custom gift box inquiries</p>
+                </div>
             </div>
 
-            {giftRequests.length === 0 ? (
+            {giftRequestsLoading && giftRequests.length === 0 ? (
+                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    {[...Array(4)].map((_, i) => <Skeleton key={i} className="h-64 w-full rounded-3xl" />)}
+                </div>
+            ) : giftRequests.length === 0 ? (
                 <div className="text-center py-20 bg-black/5 dark:bg-black/20 rounded-3xl border border-black/5 dark:border-white/5">
                     <Gift className="mx-auto text-gray-300 dark:text-attire-silver/20 mb-4" size={48} />
                     <p className="text-gray-500 dark:text-attire-silver/60 uppercase tracking-widest text-xs">No gift requests found.</p>
@@ -164,7 +173,7 @@ const CustomizeGiftManager = () => {
                     {hasMore && (
                         <div className="flex justify-center mt-12">
                             <button 
-                                onClick={() => setVisibleRows(v => v + 6)}
+                                onClick={handleLoadMore}
                                 className="group flex items-center gap-3 px-8 py-4 bg-black/5 dark:bg-white/5 hover:bg-black/10 dark:hover:bg-white/10 border border-black/5 dark:border-white/10 rounded-2xl transition-all"
                             >
                                 <span className="text-[10px] font-bold uppercase tracking-[0.3em] text-gray-900 dark:text-white">View More Requests</span>

@@ -3,16 +3,24 @@
 namespace App\Http\Controllers;
 
 use App\Models\GiftRequest;
+use App\Services\GiftRequestService;
 use Illuminate\Http\Request;
 
 class GiftRequestController extends Controller
 {
+    protected $giftRequestService;
+
+    public function __construct(GiftRequestService $giftRequestService)
+    {
+        $this->giftRequestService = $giftRequestService;
+    }
+
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
-        return response()->json(GiftRequest::orderBy('created_at', 'desc')->get());
+        return response()->json($this->giftRequestService->getAllGiftRequests());
     }
 
     /**
@@ -28,7 +36,7 @@ class GiftRequestController extends Controller
             'selected_items' => 'nullable|array',
         ]);
 
-        $giftRequest = GiftRequest::create($validated);
+        $giftRequest = $this->giftRequestService->createGiftRequest($validated);
 
         return response()->json($giftRequest, 201);
     }
@@ -42,7 +50,7 @@ class GiftRequestController extends Controller
             'status' => 'required|string|in:Pending,Reviewed,Completed,Cancelled',
         ]);
 
-        $giftRequest->update(['status' => $validated['status']]);
+        $this->giftRequestService->updateStatus($giftRequest, $validated['status']);
 
         return response()->json($giftRequest);
     }
@@ -52,7 +60,7 @@ class GiftRequestController extends Controller
      */
     public function destroy(GiftRequest $giftRequest)
     {
-        $giftRequest->delete();
+        $this->giftRequestService->deleteGiftRequest($giftRequest);
 
         return response()->json(null, 204);
     }
