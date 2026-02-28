@@ -1,3 +1,4 @@
+// resources/js/components/pages/CustomizeGiftPage.jsx - ATELIER OVERHAUL (FIXED CONTRAST)
 import React, { useState, useEffect, useMemo } from 'react';
 import { motion, AnimatePresence, useScroll, useSpring } from 'framer-motion';
 import { 
@@ -31,18 +32,18 @@ const StepIndicator = ({ currentStep }) => {
                     <div key={i} className="flex flex-col items-center z-10">
                         <motion.div 
                             className={`w-2 h-2 rounded-full mb-3 transition-all duration-700 ${
-                                currentStep >= i + 1 ? 'bg-attire-accent scale-150 shadow-[0_0_10px_rgba(212,168,76,0.5)]' : 'bg-white/10'
+                                currentStep >= i + 1 ? 'bg-attire-accent scale-150 shadow-[0_0_10px_rgba(212,168,76,0.5)]' : 'bg-white/30'
                             }`}
                         />
                         <span className={`text-[9px] uppercase tracking-[0.3em] font-black transition-colors duration-500 ${
-                            currentStep === i + 1 ? 'text-white' : 'text-white/20'
+                            currentStep === i + 1 ? 'text-white' : 'text-white/40'
                         }`}>
                             {s}
                         </span>
                     </div>
                 ))}
                 {/* Connector Line */}
-                <div className="absolute top-1 left-4 right-4 h-px bg-white/5 -z-10">
+                <div className="absolute top-1 left-4 right-4 h-px bg-white/10 -z-10">
                     <motion.div 
                         className="h-full bg-attire-accent/40"
                         initial={{ width: "0%" }}
@@ -107,14 +108,14 @@ const SelectionCard = ({ item, isSelected, onSelect, isOutOfStock }) => {
 
 const CustomInput = ({ label, icon: Icon, error, ...props }) => (
     <div className="space-y-2">
-        <label className="text-[10px] font-black text-white/20 uppercase tracking-[0.3em] ml-1">{label}</label>
+        <label className="text-[10px] font-black text-white/60 uppercase tracking-[0.3em] ml-1">{label}</label>
         <div className="relative group">
-            <div className="absolute inset-y-0 left-0 pl-6 flex items-center pointer-events-none text-white/10 group-focus-within:text-attire-accent transition-colors">
+            <div className="absolute inset-y-0 left-0 pl-6 flex items-center pointer-events-none text-white/40 group-focus-within:text-attire-accent transition-colors">
                 <Icon size={16} />
             </div>
             <input 
                 {...props}
-                className={`w-full bg-white/[0.02] border ${error ? 'border-red-500/30' : 'border-white/5'} hover:border-white/10 focus:border-attire-accent/50 focus:bg-white/[0.05] rounded-2xl py-5 pl-14 pr-6 text-white text-sm outline-none transition-all duration-500`}
+                className={`w-full bg-white/[0.02] border ${error ? 'border-red-500/30' : 'border-white/10'} hover:border-white/20 focus:border-attire-accent/50 focus:bg-white/[0.05] rounded-2xl py-5 pl-14 pr-6 text-white text-sm outline-none transition-all duration-500`}
             />
         </div>
     </div>
@@ -197,7 +198,7 @@ const CustomizeGiftPage = () => {
     }
 
     return (
-        <div className="min-h-screen bg-[#05080d] text-white selection:bg-attire-accent selection:text-black">
+        <div className="min-h-screen bg-attire-navy text-white selection:bg-attire-accent selection:text-black">
             {/* Immersive Background */}
             <div className="fixed inset-0 z-0 pointer-events-none">
                 <div className="absolute top-[-10%] right-[-10%] w-[50%] h-[50%] bg-attire-accent/5 blur-[120px] rounded-full" />
@@ -211,16 +212,16 @@ const CustomizeGiftPage = () => {
                     <motion.div 
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
-                        className="inline-flex items-center gap-4 px-6 py-2 rounded-full border border-white/5 bg-white/[0.02] mb-10"
+                        className="inline-flex items-center gap-4 px-6 py-2 rounded-full border border-white/10 bg-white/[0.02] mb-10"
                     >
                         <Sparkles size={14} className="text-attire-accent" />
-                        <span className="text-[10px] font-black uppercase tracking-[0.4em] text-attire-silver">Exclusive Atelier Service</span>
+                        <span className="text-[10px] font-black uppercase tracking-[0.4em] text-white/80">Exclusive Atelier Service</span>
                     </motion.div>
                     <motion.h1 
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ delay: 0.1 }}
-                        className="text-6xl md:text-8xl font-serif font-light mb-8 leading-none"
+                        className="text-6xl md:text-8xl font-serif font-light text-white mb-8 leading-none"
                     >
                         The Art <br/> of Gifting
                     </motion.h1>
@@ -228,7 +229,7 @@ const CustomizeGiftPage = () => {
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
                         transition={{ delay: 0.2 }}
-                        className="text-attire-silver/50 font-light tracking-wide text-lg"
+                        className="text-white/80 font-light tracking-wide text-lg"
                     >
                         Tailor a masterpiece for those who appreciate the finer things.
                     </motion.p>
@@ -254,7 +255,7 @@ const CustomizeGiftPage = () => {
                                         <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
                                             <section className="space-y-8">
                                                 <div className="flex items-center gap-4">
-                                                    <span className="text-3xl font-serif text-white/10">01</span>
+                                                    <span className="text-3xl font-serif text-white/30">01</span>
                                                     <h3 className="text-sm font-black uppercase tracking-[0.3em] text-attire-accent">The Sender</h3>
                                                 </div>
                                                 <div className="space-y-6">
@@ -267,19 +268,19 @@ const CustomizeGiftPage = () => {
                                             </section>
                                             <section className="space-y-8">
                                                 <div className="flex items-center gap-4">
-                                                    <span className="text-3xl font-serif text-white/10">02</span>
-                                                    <h3 className="text-sm font-black uppercase tracking-[0.3em] text-white/40">The Recipient</h3>
+                                                    <span className="text-3xl font-serif text-white/30">02</span>
+                                                    <h3 className="text-sm font-black uppercase tracking-[0.3em] text-white/60">The Recipient</h3>
                                                 </div>
                                                 <div className="space-y-6">
                                                     <CustomInput label="Recipient Name" icon={Heart} placeholder="Their name" value={formData.recipient_name} onChange={e => setFormData({...formData, recipient_name: e.target.value})} error={formErrors.recipient_name} />
                                                     <div className="space-y-2">
-                                                        <label className="text-[10px] font-black text-white/20 uppercase tracking-[0.3em] ml-1">Title</label>
+                                                        <label className="text-[10px] font-black text-white/60 uppercase tracking-[0.3em] ml-1">Title</label>
                                                         <div className="flex gap-4">
                                                             {['Mr', 'Mrs', 'Ms'].map(t => (
                                                                 <button 
                                                                     key={t}
                                                                     onClick={() => setFormData({...formData, recipient_title: t})}
-                                                                    className={`flex-grow py-4 rounded-2xl text-[10px] font-bold uppercase tracking-widest border transition-all duration-500 ${formData.recipient_title === t ? 'bg-white text-black border-white' : 'border-white/5 text-white/40 hover:border-white/20'}`}
+                                                                    className={`flex-grow py-4 rounded-2xl text-[10px] font-bold uppercase tracking-widest border transition-all duration-500 ${formData.recipient_title === t ? 'bg-white text-black border-white' : 'border-white/10 text-white/60 hover:border-white/30 hover:text-white'}`}
                                                                 >
                                                                     {t}.
                                                                 </button>
@@ -302,9 +303,9 @@ const CustomizeGiftPage = () => {
                                 {step === 2 && (
                                     <div className="space-y-24 pb-20">
                                         <div className="space-y-12">
-                                            <div className="flex items-center justify-between border-b border-white/5 pb-8">
+                                            <div className="flex items-center justify-between border-b border-white/10 pb-8">
                                                 <h3 className="text-2xl font-serif">I. Select Neckwear</h3>
-                                                <span className="text-[10px] font-black uppercase tracking-[0.3em] text-white/20">{selectedTie ? 'Selected' : 'Awaiting Choice'}</span>
+                                                <span className="text-[10px] font-black uppercase tracking-[0.3em] text-white/40">{selectedTie ? 'Selected' : 'Awaiting Choice'}</span>
                                             </div>
                                             <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
                                                 {giftOptions.ties.map(t => <SelectionCard key={t.id} item={t} isSelected={selectedTie?.id === t.id} onSelect={() => setSelectedTie(t)} isOutOfStock={outOfStockItems.includes(t.id)} />)}
@@ -312,9 +313,9 @@ const CustomizeGiftPage = () => {
                                         </div>
 
                                         <div className="space-y-12">
-                                            <div className="flex items-center justify-between border-b border-white/5 pb-8">
+                                            <div className="flex items-center justify-between border-b border-white/10 pb-8">
                                                 <h3 className="text-2xl font-serif">II. Select Pocket Square</h3>
-                                                <span className="text-[10px] font-black uppercase tracking-[0.3em] text-white/20">{selectedPocketSquare ? 'Selected' : 'Awaiting Choice'}</span>
+                                                <span className="text-[10px] font-black uppercase tracking-[0.3em] text-white/40">{selectedPocketSquare ? 'Selected' : 'Awaiting Choice'}</span>
                                             </div>
                                             <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
                                                 {giftOptions.pocketSquares.map(p => <SelectionCard key={p.id} item={p} isSelected={selectedPocketSquare?.id === p.id} onSelect={() => setSelectedPocketSquare(p)} isOutOfStock={outOfStockItems.includes(p.id)} />)}
@@ -323,9 +324,9 @@ const CustomizeGiftPage = () => {
 
                                         {availableBoxes.length > 0 && (
                                             <div className="space-y-12">
-                                                <div className="flex items-center justify-between border-b border-white/5 pb-8">
+                                                <div className="flex items-center justify-between border-b border-white/10 pb-8">
                                                     <h3 className="text-2xl font-serif">III. Select Presentation</h3>
-                                                    <span className="text-[10px] font-black uppercase tracking-[0.3em] text-white/20">{selectedBox ? 'Selected' : 'Awaiting Choice'}</span>
+                                                    <span className="text-[10px] font-black uppercase tracking-[0.3em] text-white/40">{selectedBox ? 'Selected' : 'Awaiting Choice'}</span>
                                                 </div>
                                                 <div className="grid grid-cols-2 md:grid-cols-3 gap-8">
                                                     {availableBoxes.map(b => <SelectionCard key={b.id} item={b} isSelected={selectedBox?.id === b.id} onSelect={() => setSelectedBox(b)} isOutOfStock={outOfStockItems.includes(b.id)} />)}
@@ -346,7 +347,7 @@ const CustomizeGiftPage = () => {
                                 )}
 
                                 {step === 3 && (
-                                    <div className="space-y-12 bg-white/[0.02] border border-white/5 p-12 rounded-[2.5rem] backdrop-blur-3xl relative overflow-hidden">
+                                    <div className="space-y-12 bg-white/[0.02] border border-white/10 p-12 rounded-[2.5rem] backdrop-blur-3xl relative overflow-hidden">
                                         <div className="absolute top-0 right-0 w-32 h-32 bg-attire-accent/10 blur-3xl rounded-full translate-x-1/2 -translate-y-1/2" />
                                         
                                         <div className="flex items-center gap-6 mb-12">
@@ -355,36 +356,36 @@ const CustomizeGiftPage = () => {
                                             </div>
                                             <div>
                                                 <h2 className="text-3xl font-serif">Confirm Manifest</h2>
-                                                <p className="text-[10px] font-black uppercase tracking-[0.4em] text-white/40 mt-1">Review your private request</p>
+                                                <p className="text-[10px] font-black uppercase tracking-[0.4em] text-white/60 mt-1">Review your private request</p>
                                             </div>
                                         </div>
 
-                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-12 border-y border-white/5 py-12">
+                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-12 border-y border-white/10 py-12">
                                             <div className="space-y-6">
                                                 <p className="text-[10px] font-black uppercase tracking-[0.3em] text-attire-accent">Logistics</p>
                                                 <div className="space-y-4">
-                                                    <div className="flex justify-between"><span className="text-xs text-white/40">From:</span><span className="text-sm font-medium">{formData.name}</span></div>
-                                                    <div className="flex justify-between"><span className="text-xs text-white/40">For:</span><span className="text-sm font-medium">{formData.recipient_title}. {formData.recipient_name}</span></div>
-                                                    <div className="flex justify-between"><span className="text-xs text-white/40">Contact:</span><span className="text-sm font-medium">{formData.phone}</span></div>
+                                                    <div className="flex justify-between"><span className="text-xs text-white/60">From:</span><span className="text-sm font-medium">{formData.name}</span></div>
+                                                    <div className="flex justify-between"><span className="text-xs text-white/60">For:</span><span className="text-sm font-medium">{formData.recipient_title}. {formData.recipient_name}</span></div>
+                                                    <div className="flex justify-between"><span className="text-xs text-white/60">Contact:</span><span className="text-sm font-medium">{formData.phone}</span></div>
                                                 </div>
                                             </div>
                                             <div className="space-y-6">
-                                                <p className="text-[10px] font-black uppercase tracking-[0.3em] text-white/40">Selected Pieces</p>
+                                                <p className="text-[10px] font-black uppercase tracking-[0.3em] text-white/60">Selected Pieces</p>
                                                 <div className="space-y-4">
-                                                    <div className="flex justify-between"><span className="text-xs text-white/40">Neckwear:</span><span className="text-sm font-medium">{selectedTie?.name}</span></div>
-                                                    <div className="flex justify-between"><span className="text-xs text-white/40">Accent:</span><span className="text-sm font-medium">{selectedPocketSquare?.name}</span></div>
-                                                    <div className="flex justify-between"><span className="text-xs text-white/40">Vessel:</span><span className="text-sm font-medium">{selectedBox?.name}</span></div>
+                                                    <div className="flex justify-between"><span className="text-xs text-white/60">Neckwear:</span><span className="text-sm font-medium">{selectedTie?.name}</span></div>
+                                                    <div className="flex justify-between"><span className="text-xs text-white/60">Accent:</span><span className="text-sm font-medium">{selectedPocketSquare?.name}</span></div>
+                                                    <div className="flex justify-between"><span className="text-xs text-white/60">Vessel:</span><span className="text-sm font-medium">{selectedBox?.name}</span></div>
                                                 </div>
                                             </div>
                                         </div>
 
                                         <div className="space-y-4">
-                                            <label className="text-[10px] font-black uppercase tracking-[0.3em] text-white/40">Personal Note (Optional)</label>
+                                            <label className="text-[10px] font-black uppercase tracking-[0.3em] text-white/60">Personal Note (Optional)</label>
                                             <textarea 
                                                 value={note}
                                                 onChange={e => setNote(e.target.value)}
                                                 placeholder="Write a message of elegance..."
-                                                className="w-full bg-black/40 border border-white/5 rounded-2xl p-6 text-sm italic outline-none focus:border-attire-accent/30 transition-all resize-none"
+                                                className="w-full bg-black/40 border border-white/10 rounded-2xl p-6 text-sm italic outline-none focus:border-attire-accent/30 transition-all resize-none"
                                                 rows={4}
                                             />
                                         </div>
@@ -416,12 +417,12 @@ const CustomizeGiftPage = () => {
                                             <Check size={48} className="text-attire-accent" />
                                         </motion.div>
                                         <div className="space-y-4">
-                                            <h2 className="text-5xl font-serif">Manifest Staged</h2>
-                                            <p className="text-attire-silver/50 font-light max-w-md mx-auto">Thank you, {formData.name}. Our concierge will review your curation and contact you shortly.</p>
+                                            <h2 className="text-5xl font-serif text-white">Manifest Staged</h2>
+                                            <p className="text-white/80 font-light max-w-md mx-auto">Thank you, {formData.name}. Our concierge will review your curation and contact you shortly.</p>
                                         </div>
                                         <button 
                                             onClick={resetForm}
-                                            className="px-12 py-5 rounded-full border border-white/10 hover:bg-white hover:text-black transition-all duration-700 text-[10px] font-black uppercase tracking-[0.4em]"
+                                            className="px-12 py-5 rounded-full border border-white/20 hover:bg-white hover:text-black transition-all duration-700 text-[10px] font-black uppercase tracking-[0.4em]"
                                         >
                                             New Curation
                                         </button>
@@ -433,10 +434,10 @@ const CustomizeGiftPage = () => {
 
                     {/* Live Preview Sidebar */}
                     <div className="lg:col-span-5 xl:col-span-4 sticky top-40 space-y-8 hidden lg:block">
-                        <div className="bg-white/[0.02] border border-white/5 p-10 rounded-[2.5rem] backdrop-blur-3xl space-y-10">
-                            <div className="flex items-center justify-between border-b border-white/5 pb-8">
+                        <div className="bg-white/[0.02] border border-white/10 p-10 rounded-[2.5rem] backdrop-blur-3xl space-y-10">
+                            <div className="flex items-center justify-between border-b border-white/10 pb-8">
                                 <h4 className="text-[11px] font-black uppercase tracking-[0.4em] text-attire-accent">Your Curation</h4>
-                                <ShoppingBag size={16} className="text-white/20" />
+                                <ShoppingBag size={16} className="text-white/40" />
                             </div>
 
                             <div className="space-y-10">
@@ -445,21 +446,21 @@ const CustomizeGiftPage = () => {
                                 <PreviewItem label="The Presentation" item={selectedBox} />
                             </div>
 
-                            <div className="pt-10 border-t border-white/5 flex justify-between items-end">
+                            <div className="pt-10 border-t border-white/10 flex justify-between items-end">
                                 <div>
-                                    <p className="text-[9px] font-black uppercase tracking-[0.3em] text-white/20 mb-2">Total Estimate</p>
+                                    <p className="text-[9px] font-black uppercase tracking-[0.3em] text-white/40 mb-2">Total Estimate</p>
                                     <span className="text-4xl font-mono text-white tracking-tighter">${totalPrice.toFixed(2)}</span>
                                 </div>
                                 <div className="text-right">
                                     <p className="text-[9px] font-black uppercase tracking-[0.3em] text-attire-accent">Concierge Fee</p>
-                                    <span className="text-[10px] text-white/40 font-bold uppercase tracking-widest italic">Complimentary</span>
+                                    <span className="text-[10px] text-white/60 font-bold uppercase tracking-widest italic">Complimentary</span>
                                 </div>
                             </div>
                         </div>
 
-                        <div className="flex items-center gap-4 p-6 bg-white/[0.01] rounded-3xl border border-white/5 border-dashed opacity-40">
+                        <div className="flex items-center gap-4 p-6 bg-white/[0.01] rounded-3xl border border-white/10 border-dashed opacity-60">
                             <Info size={16} className="text-attire-accent shrink-0" />
-                            <p className="text-[9px] font-medium uppercase tracking-widest leading-loose">Items are curated specifically for your request. Final availability confirmed upon contact.</p>
+                            <p className="text-[9px] font-medium uppercase tracking-widest leading-loose text-white/80">Items are curated specifically for your request. Final availability confirmed upon contact.</p>
                         </div>
                     </div>
 
@@ -475,11 +476,11 @@ const PreviewItem = ({ label, item }) => (
             {item && <img src={item.image} className="w-full h-full object-cover" />}
         </div>
         <div className="space-y-1">
-            <p className="text-[9px] font-black uppercase tracking-[0.3em] text-white/20">{label}</p>
-            <p className={`text-sm font-serif transition-colors duration-500 ${item ? 'text-white' : 'text-white/10 italic'}`}>
+            <p className="text-[9px] font-black uppercase tracking-[0.3em] text-white/40">{label}</p>
+            <p className={`text-sm font-serif transition-colors duration-500 ${item ? 'text-white' : 'text-white/20 italic'}`}>
                 {item ? item.name : 'Awaiting Selection...'}
             </p>
-            {item && <p className="text-[10px] font-mono text-attire-accent">${item.price}</p>}
+            {item && <p className="text-[10px] font-mono text-attire-accent font-bold">${item.price}</p>}
         </div>
     </div>
 );
