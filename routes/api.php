@@ -7,6 +7,7 @@ use App\Http\Controllers\ImageUploadController;
 use App\Http\Controllers\NewsletterSubscriptionController;
 use App\Http\Controllers\AdminLoginController;
 use App\Http\Controllers\GiftRequestController;
+use App\Http\Controllers\GiftItemStockController;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\ActivityController;
 use App\Http\Controllers\UserController;
@@ -66,6 +67,9 @@ Route::prefix('v1')->group(function () {
         // Gift Requests
         Route::patch('/gift-requests/{giftRequest}/status', [GiftRequestController::class, 'updateStatus']);
         Route::delete('/gift-requests/{giftRequest}', [GiftRequestController::class, 'destroy']);
+
+        // Gift Item Stock Management
+        Route::post('/gift-items/toggle-stock', [GiftItemStockController::class, 'toggle']);
 
         // Products
         Route::post('/products', [ProductController::class, 'store']);

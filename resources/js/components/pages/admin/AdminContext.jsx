@@ -195,7 +195,7 @@ export const AdminProvider = ({ children }) => {
         const previous = [...appointments];
         setAppointments(prev => prev.filter(app => app.status !== 'done'));
         try {
-            await axios.post('/api/v1/admin/appointments/clear-completed');
+            await axios.delete('/api/v1/admin/appointments/completed');
             // Reset pagination as we've deleted items
             fetchAppointments(1, true);
             fetchStats();
@@ -290,7 +290,7 @@ export const AdminProvider = ({ children }) => {
         const previous = [...giftRequests];
         setGiftRequests(prev => prev.map(req => req.id === id ? { ...req, status } : req));
         try {
-            await axios.patch(`/api/v1/gift-requests/${id}/status`, { status });
+            await axios.patch(`/api/v1/admin/gift-requests/${id}/status`, { status });
             fetchStats();
         } catch (err) {
             setGiftRequests(previous);
@@ -302,7 +302,7 @@ export const AdminProvider = ({ children }) => {
         const previous = [...giftRequests];
         setGiftRequests(prev => prev.filter(req => req.id !== id));
         try {
-            await axios.delete(`/api/v1/gift-requests/${id}`);
+            await axios.delete(`/api/v1/admin/gift-requests/${id}`);
             fetchStats();
         } catch (err) {
             setGiftRequests(previous);

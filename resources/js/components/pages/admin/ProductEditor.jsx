@@ -107,7 +107,7 @@ const ProductEditor = ({ isNew = false }) => {
         }
 
         try {
-            const response = await axios.post('/api/v1/admin/upload-image', formDataUpload, {
+            const response = await axios.post('/api/v1/admin/images/upload', formDataUpload, {
                 headers: { 'Content-Type': 'multipart/form-data' }
             });
             

@@ -5,15 +5,9 @@ import api from '../../api';
 import Skeleton from '../common/Skeleton.jsx';
 import giftOptions from '../../data/giftOptions';
 
-const SectionHeader = ({ number, title, subtitle }) => (
+const SectionHeader = ({ title }) => (
     <div className="text-center mb-12">
-        <div className="inline-block relative">
-            <p className="text-8xl font-black font-serif text-white/5">{number}</p>
-            <div className="absolute inset-0 flex flex-col items-center justify-center">
-                <h2 className="text-3xl font-serif text-white">{title}</h2>
-                <p className="text-xs uppercase tracking-[0.2em] text-attire-silver/50 mt-1">{subtitle}</p>
-            </div>
-        </div>
+        <h2 className="text-3xl font-serif text-white">{title}</h2>
     </div>
 );
 
@@ -293,7 +287,7 @@ ${note ? `Note: "${note}"` : ''}
 
 const Step1ContactInfo = ({ formData, setFormData, formErrors, setStep, validate }) => (
     <div className="bg-[#0a0f1a] rounded-3xl border border-white/10 p-8 md:p-10 shadow-2xl max-w-4xl mx-auto">
-        <SectionHeader number="01" title="Contact Information" subtitle="Who is sending and receiving this gift?" />
+        <SectionHeader title="Contact Information" />
         <form onSubmit={(e) => { e.preventDefault(); if(validate()) setStep(2); }} className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-6">
             <div className="space-y-6">
                 <h3 className="text-lg font-semibold text-attire-accent border-b border-attire-accent/20 pb-2">Sender Details</h3>
@@ -327,7 +321,7 @@ const Step1ContactInfo = ({ formData, setFormData, formErrors, setStep, validate
 
 const Step2ItemSelection = ({ selectedTie, setSelectedTie, selectedPocketSquare, setSelectedPocketSquare, selectedBox, setSelectedBox, note, setNote, outOfStockItems, availableBoxes }) => (
     <div>
-        <SectionHeader number="02" title="Curate the Box" subtitle="Select the perfect combination of accessories" />
+        <SectionHeader title="Curate the Box" />
         <div className="space-y-16">
             <section>
                 <h3 className="text-xl font-serif text-white uppercase tracking-widest text-center mb-8">Select a Tie</h3>
@@ -361,7 +355,7 @@ const Step2ItemSelection = ({ selectedTie, setSelectedTie, selectedPocketSquare,
 
 const Step3Summary = ({ formData, selectedTie, selectedPocketSquare, selectedBox, totalPrice, handleFinalize, submissionStatus }) => (
     <div className="bg-[#0a0f1a] rounded-3xl border border-white/10 p-8 md:p-10 shadow-2xl max-w-2xl mx-auto">
-        <SectionHeader number="03" title="Final Summary" subtitle="Review your curated gift box" />
+        <SectionHeader title="Final Summary" />
         <div className="space-y-4 mb-8">
             <div className="flex justify-between items-start pb-4 border-b border-white/5"><span className="text-sm text-attire-silver">From</span><span className="text-sm text-white font-medium text-right">{formData.name}</span></div>
             <div className="flex justify-between items-start pb-4 border-b border-white/5"><span className="text-sm text-attire-silver">To</span><span className="text-sm text-white font-medium text-right">{formData.recipient_title}. {formData.recipient_name}</span></div>

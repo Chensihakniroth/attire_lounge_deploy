@@ -144,8 +144,8 @@ class UserController extends Controller
         return response()->json([
             'success' => true,
             'data' => [
-                'roles' => Role::all(),
-                'permissions' => Permission::all(),
+                'roles' => Role::where('guard_name', 'sanctum')->get(),
+                'permissions' => Permission::where('guard_name', 'sanctum')->get(),
             ],
         ]);
     }

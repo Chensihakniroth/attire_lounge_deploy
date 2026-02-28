@@ -7,6 +7,8 @@ use Illuminate\Database\Seeder;
 use Spatie\Permission\Models\Role;
 use Spatie\Permission\Models\Permission;
 use App\Models\User;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
 
 class PermissionSeeder extends Seeder
 {
@@ -18,7 +20,18 @@ class PermissionSeeder extends Seeder
         // Reset cached roles and permissions
         app()[\Spatie\Permission\PermissionRegistrar::class]->forgetCachedPermissions();
 
-        // Create permissions
+        // Truncate the tables
+        Schema::disableForeignKeyConstraints();
+        DB::table('role_has_permissions')->truncate();
+        DB::table('model_has_roles')->truncate();
+        DB::table('model_has_permissions')->truncate();
+        DB::table('roles')->truncate();
+        DB::table('permissions')->truncate();
+        Schema::enableForeignKeyConstraints();
+
+        $guards = ['web', 'sanctum'];
+        
+        // Create permissions for both guards
         $permissions = [
             'view-dashboard',
             'manage-products',
@@ -31,24 +44,26 @@ class PermissionSeeder extends Seeder
             'manage-users', // For super-admin
         ];
 
-        foreach ($permissions as $permission) {
-            Permission::findOrCreate($permission);
+        foreach ($guards as $guard) {
+            foreach ($permissions as $permission) {
+                Permission::findOrCreate($permission, $guard);
+            }
+
+            // Create roles for each guard
+            $adminRole = Role::findOrCreate('admin', $guard);
+            $superAdminRole = Role::findOrCreate('super-admin', $guard);
+            $productManagerRole = Role::findOrCreate('product-manager', $guard);
+            $appointmentManagerRole = Role::findOrCreate('appointment-manager', $guard);
+            $giftManagerRole = Role::findOrCreate('gift-manager', $guard);
+
+            // Assign permissions to roles
+            $adminRole->givePermissionTo(Permission::where('guard_name', $guard)->get());
+            $superAdminRole->givePermissionTo(Permission::where('guard_name', $guard)->get());
+            $productManagerRole->givePermissionTo(Permission::whereIn('name', ['view-dashboard', 'manage-products', 'manage-images', 'view-reports'])->where('guard_name', $guard)->get());
+            $appointmentManagerRole->givePermissionTo(Permission::whereIn('name', ['view-dashboard', 'manage-appointments', 'view-reports'])->where('guard_name', $guard)->get());
+            $giftManagerRole->givePermissionTo(Permission::whereIn('name', ['view-dashboard', 'manage-gift-requests', 'view-reports'])->where('guard_name', $guard)->get());
         }
-
-        // Create roles and assign permissions
-        $superAdminRole = Role::findOrCreate('super-admin');
-        $productManagerRole = Role::findOrCreate('product-manager');
-        $appointmentManagerRole = Role::findOrCreate('appointment-manager');
-        $giftManagerRole = Role::findOrCreate('gift-manager');
-
-        // Assign all permissions to super-admin
-        $superAdminRole->givePermissionTo(Permission::all());
-
-        // Assign specific permissions to other roles
-        $productManagerRole->givePermissionTo(['view-dashboard', 'manage-products', 'manage-images', 'view-reports']);
-        $appointmentManagerRole->givePermissionTo(['view-dashboard', 'manage-appointments', 'view-reports']);
-        $giftManagerRole->givePermissionTo(['view-dashboard', 'manage-gift-requests', 'view-reports']);
-
+        
         // Assign super-admin role to existing user (assuming ID 1 is the main admin)
         $adminUser = User::where('email', 'admin@example.com')->first(); // Or use a specific admin email
         if ($adminUser) {
@@ -63,7 +78,6 @@ class PermissionSeeder extends Seeder
                 [
                     'name' => 'Super Admin',
                     'password' => bcrypt('password'), // Change this to a strong password in production
-                    'role' => null, // Spatie will manage roles
                 ]
             );
             $adminUser->assignRole('super-admin');
@@ -72,9 +86,9 @@ class PermissionSeeder extends Seeder
         // Assign a default 'admin' role to any existing users that might have been
         // created without explicit roles, assuming they are general admins.
         // This is a migration step from the old 'role' column to Spatie roles.
-        User::where('role', 'admin')->get()->each(function ($user) use ($superAdminRole) {
+        User::where('role', 'admin')->get()->each(function ($user) {
             if (!$user->hasRole('super-admin')) { // Avoid assigning twice if already super-admin
-                $user->assignRole($superAdminRole);
+                $user->assignRole('super-admin');
             }
             $user->role = null; // Clear old role column
             $user->save();
