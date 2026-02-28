@@ -34,7 +34,7 @@ class GiftRequestController extends Controller
             'email' => 'nullable|email|max:255',
             'phone' => 'required|string|max:255',
             'recipient_name' => 'required|string|max:255',
-            'recipient_title' => 'required|string|in:Mr,Mrs',
+            'recipient_title' => 'required|string|in:Mr,Mrs,Ms,Dr',
             'recipient_phone' => 'nullable|string|max:255',
             'recipient_email' => 'nullable|email|max:255',
             'preferences' => 'nullable|string',
