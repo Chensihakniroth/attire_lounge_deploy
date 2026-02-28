@@ -12,8 +12,13 @@ class GiftRequest extends Model
 
     protected $fillable = [
         'name',
+        'sender_age',
         'email',
         'phone',
+        'recipient_name',
+        'recipient_title',
+        'recipient_phone',
+        'recipient_email',
         'preferences',
         'status',
         'selected_items',

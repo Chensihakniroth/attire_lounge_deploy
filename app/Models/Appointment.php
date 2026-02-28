@@ -2,11 +2,13 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use App\Traits\Auditable; // Import the Auditable trait
 
 class Appointment extends Model
 {
+    use HasFactory;
     use Auditable; // Use the Auditable trait
 
     protected $fillable = [
@@ -16,7 +18,6 @@ class Appointment extends Model
         'service',
         'date',
         'time',
-        'appointment_type',
         'message',
         'favorite_item_image_url',
         'status',

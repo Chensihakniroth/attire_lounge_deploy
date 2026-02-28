@@ -319,7 +319,7 @@ const CollectionDropdown: React.FC<{ collections: any[]; selectedCollections: st
                         initial={{ opacity: 0, y: 10, scale: 0.95 }}
                         animate={{ opacity: 1, y: 0, scale: 1 }}
                         exit={{ opacity: 0, y: 10, scale: 0.95 }}
-                        className="absolute left-0 right-0 mt-3 bg-attire-navy border border-white/10 rounded-2xl p-6 z-[300] shadow-[0_20px_50px_rgba(0,0,0,0.5)] backdrop-blur-xl"
+                        className="absolute left-0 right-0 mt-3 bg-attire-navy border border-white/10 rounded-2xl p-6 z-[300] backdrop-blur-xl"
                     >
                         <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3">
                             {collections.map(c => (
@@ -369,7 +369,7 @@ const FilterSortDropdown: React.FC<{ sortOrder: string; setSortOrder: (order: st
                         initial={{ opacity: 0, y: 10, scale: 0.95 }}
                         animate={{ opacity: 1, y: 0, scale: 1 }}
                         exit={{ opacity: 0, y: 10, scale: 0.95 }}
-                        className="absolute left-0 right-0 md:left-auto md:right-0 mt-3 w-full md:w-64 bg-attire-navy border border-white/10 rounded-2xl p-2 z-[300] shadow-[0_20px_50px_rgba(0,0,0,0.5)] backdrop-blur-xl"
+                        className="absolute left-0 right-0 md:left-auto md:right-0 mt-3 w-full md:w-64 bg-attire-navy border border-white/10 rounded-2xl p-2 z-[300] backdrop-blur-xl"
                     >
                         <div className="grid grid-cols-1 gap-1">
                             {sortOptions.map(opt => (

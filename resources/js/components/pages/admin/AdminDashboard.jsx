@@ -50,6 +50,79 @@ const StatCard = ({ icon, title, value, link, loading }) => {
     );
 };
 
+const SimpleTrendChart = ({ data }) => {
+    if (!data || data.length === 0) return null;
+
+    const maxVal = Math.max(...data.map(d => d.appointments + d.gifts), 1);
+    const height = 150;
+    const width = 600;
+    const padding = 40;
+    
+    const points = data.map((d, i) => {
+        const x = (i / (data.length - 1)) * (width - padding * 2) + padding;
+        const y = height - ((d.appointments / maxVal) * (height - padding * 2) + padding);
+        return { x, y };
+    });
+
+    const pathData = `M ${points.map(p => `${p.x},${p.y}`).join(' L ')}`;
+
+    return (
+        <div className="mt-8">
+            <div className="flex items-center justify-between mb-6">
+                <p className="text-[10px] font-bold text-gray-400 dark:text-attire-silver/30 uppercase tracking-[0.2em]">6-Month Growth Trend</p>
+                <div className="flex gap-4">
+                    <div className="flex items-center gap-2">
+                        <div className="w-2 h-2 rounded-full bg-attire-accent" />
+                        <span className="text-[8px] uppercase font-bold text-gray-400">Consultations</span>
+                    </div>
+                </div>
+            </div>
+            <div className="relative h-[150px] w-full">
+                <svg viewBox={`0 0 ${width} ${height}`} className="w-full h-full overflow-visible">
+                    <defs>
+                        <linearGradient id="gradient" x1="0%" y1="0%" x2="0%" y2="100%">
+                            <stop offset="0%" stopColor="var(--attire-accent)" stopOpacity="0.2" />
+                            <stop offset="100%" stopColor="var(--attire-accent)" stopOpacity="0" />
+                        </linearGradient>
+                    </defs>
+                    <path
+                        d={`${pathData} L ${points[points.length - 1].x},${height} L ${points[0].x},${height} Z`}
+                        fill="url(#gradient)"
+                        className="transition-all duration-1000"
+                    />
+                    <motion.path
+                        d={pathData}
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="3"
+                        className="text-attire-accent"
+                        initial={{ pathLength: 0 }}
+                        animate={{ pathLength: 1 }}
+                        transition={{ duration: 1.5, ease: "easeInOut" }}
+                    />
+                    {points.map((p, i) => (
+                        <motion.circle
+                            key={i}
+                            cx={p.x}
+                            cy={p.y}
+                            r="4"
+                            className="fill-white dark:fill-black stroke-attire-accent stroke-[2]"
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            transition={{ delay: i * 0.1 + 0.5 }}
+                        />
+                    ))}
+                </svg>
+                <div className="flex justify-between mt-4 px-[20px]">
+                    {data.map((d, i) => (
+                        <span key={i} className="text-[9px] font-mono text-gray-400 dark:text-attire-silver/30 uppercase">{d.name}</span>
+                    ))}
+                </div>
+            </div>
+        </div>
+    );
+};
+
 const RecentActivityItem = ({ item }) => (
     <motion.li 
         initial={{ opacity: 0, x: -20 }}
@@ -131,8 +204,14 @@ const AdminDashboard = () => {
                     <StatCard icon={<Calendar />} title="Appointments" value={stats.appointments} link="/admin/appointments" loading={isLoading} />
                     <StatCard icon={<Gift />} title="Gift Requests" value={stats.gifts} link="/admin/customize-gift" loading={isLoading} />
                     <StatCard icon={<ShoppingBag />} title="Total Products" value={stats.products} link="/admin/products" loading={isLoading} />
-                    <StatCard icon={<TrendingUp />} title="Subscribers" value={stats.subscribers} loading={isLoading} />
+                    <StatCard icon={<TrendingUp />} title="Subscribers" value={stats.subscribers} link="/admin/newsletter" loading={isLoading} />
                 </motion.div>
+
+                {stats.trends && (
+                    <motion.div variants={cardVariants} className="bg-white dark:bg-black/20 backdrop-blur-xl p-8 rounded-[2rem] shadow-xl border border-black/5 dark:border-white/10">
+                        <SimpleTrendChart data={stats.trends} />
+                    </motion.div>
+                )}
 
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
                     <motion.div variants={cardVariants} className="lg:col-span-2 bg-white dark:bg-black/20 backdrop-blur-xl p-6 md:p-8 rounded-[2rem] shadow-xl border border-black/5 dark:border-white/10">

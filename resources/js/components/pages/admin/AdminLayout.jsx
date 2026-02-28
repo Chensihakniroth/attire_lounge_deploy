@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { NavLink, useNavigate, Outlet, useLocation } from 'react-router-dom';
-import { LayoutDashboard, Calendar, Gift, LogOut, Menu, X, Package, ShoppingBag, ChevronLeft, ChevronRight, Sun, Moon, Trash2, AlertCircle, Check, Loader } from 'lucide-react';
+import { LayoutDashboard, Calendar, Gift, LogOut, Menu, X, Package, ShoppingBag, ChevronLeft, ChevronRight, Sun, Moon, Trash2, AlertCircle, Check, Loader, History, Users, Mail, Search } from 'lucide-react';
 import { ThemeProvider, useTheme } from './ThemeContext';
 import { AdminProvider, useAdmin } from './AdminContext';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -32,6 +32,88 @@ const NavItem = ({ item, isCollapsed }) => {
     );
 };
 
+const GlobalSearch = () => {
+    const [query, setQuery] = useState('');
+    const [results, setResults] = useState([]);
+    const [isOpen, setIsOpen] = useState(false);
+    const [loading, setLoading] = useState(false);
+    const navigate = useNavigate();
+
+    const handleSearch = useCallback(async (val) => {
+        if (val.length < 2) {
+            setResults([]);
+            return;
+        }
+        setLoading(true);
+        try {
+            const token = localStorage.getItem('admin_token') || sessionStorage.getItem('admin_token');
+            // Reusing public search but could be expanded for admin
+            const response = await axios.get(`/api/v1/search?q=${val}`, {
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+            setResults(response.data.data.slice(0, 5));
+        } catch (error) {
+            console.error('Search error:', error);
+        } finally {
+            setLoading(false);
+        }
+    }, []);
+
+    useEffect(() => {
+        const timer = setTimeout(() => handleSearch(query), 300);
+        return () => clearTimeout(timer);
+    }, [query, handleSearch]);
+
+    return (
+        <div className="relative w-full max-w-md hidden md:block">
+            <div className={`flex items-center gap-3 bg-black/[0.03] dark:bg-white/[0.03] border ${isOpen ? 'border-attire-accent' : 'border-black/5 dark:border-white/5'} rounded-2xl px-5 py-2.5 transition-all`}>
+                <Search size={16} className={isOpen ? 'text-attire-accent' : 'text-gray-400'} />
+                <input 
+                    type="text" 
+                    placeholder="Search anything..." 
+                    className="bg-transparent border-none outline-none text-[11px] font-bold uppercase tracking-widest w-full text-gray-900 dark:text-white placeholder:text-gray-400"
+                    onFocus={() => setIsOpen(true)}
+                    onBlur={() => setTimeout(() => setIsOpen(false), 200)}
+                    value={query}
+                    onChange={(e) => setQuery(e.target.value)}
+                />
+                {loading && <Loader size={12} className="animate-spin text-attire-accent" />}
+            </div>
+
+            <AnimatePresence>
+                {isOpen && results.length > 0 && (
+                    <motion.div 
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: 10 }}
+                        className="absolute top-full left-0 right-0 mt-3 bg-white dark:bg-[#0d0d0d] border border-black/5 dark:border-white/10 rounded-2xl shadow-2xl overflow-hidden z-[100] p-2"
+                    >
+                        {results.map((item) => (
+                            <button
+                                key={item.id}
+                                onClick={() => {
+                                    navigate(`/admin/products/${item.id}/edit`);
+                                    setIsOpen(false);
+                                    setQuery('');
+                                }}
+                                className="w-full flex items-center gap-4 p-3 hover:bg-black/5 dark:hover:bg-white/5 rounded-xl transition-all text-left"
+                            >
+                                <div className="h-10 w-10 rounded-lg bg-black/5 overflow-hidden flex-shrink-0">
+                                    <img src={item.images[0]} alt="" className="w-full h-full object-cover" />
+                                </div>
+                                <div>
+                                    <p className="text-[10px] font-bold uppercase tracking-wider text-gray-900 dark:text-white">{item.name}</p>
+                                    <p className="text-[8px] text-gray-400 uppercase tracking-widest">{item.category?.name || 'Product'}</p>
+                                </div>
+                            </button>
+                        ))}
+                    </motion.div>
+                )}
+            </AnimatePresence>
+        </div>
+    );
+};
+
 const Sidebar = ({ isOpen, setOpen, isMobile = false }) => {
     const navigate = useNavigate();
 
@@ -48,6 +130,9 @@ const Sidebar = ({ isOpen, setOpen, isMobile = false }) => {
         { name: 'Products', to: '/admin/products', icon: ShoppingBag },
         { name: 'Gift Requests', to: '/admin/customize-gift', icon: Gift },
         { name: 'Gift Inventory', to: '/admin/inventory', icon: Package },
+        { name: 'Newsletter', to: '/admin/newsletter', icon: Mail },
+        { name: 'Audit Logs', to: '/admin/audit-logs', icon: History },
+        { name: 'Team Access', to: '/admin/users', icon: Users },
     ];
 
     const SidebarContent = () => {
@@ -209,9 +294,7 @@ const AdminLayoutContent = ({ isSidebarVisible, setSidebarVisible, isMobileOpen,
                                 <Menu size={20} />
                             </button>
                             <div className="h-4 w-px bg-black/10 dark:bg-white/10 mx-2 hidden lg:block" />
-                            <h1 className="text-xs font-bold uppercase tracking-[0.2em] text-gray-400 dark:text-attire-silver/60 hidden sm:block">
-                                Styling House <span className="text-black/20 dark:text-white/20 mx-2">/</span> <span className="text-gray-900 dark:text-white uppercase">Admin</span>
-                            </h1>
+                            <GlobalSearch />
                         </div>
                         
                         <div className="flex items-center gap-4">

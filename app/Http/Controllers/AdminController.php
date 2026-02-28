@@ -8,8 +8,10 @@ use App\Models\GiftRequest;
 use App\Models\Product;
 use App\Models\NewsletterSubscription;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Support\Facades\Auth; // Import Auth facade
-use Illuminate\Support\Facades\Log;   // Import Log facade
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
+use Carbon\Carbon;
+use Illuminate\Support\Facades\DB;
 
 class AdminController extends Controller
 {
@@ -26,8 +28,27 @@ class AdminController extends Controller
                 'roles' => $user->getRoleNames()->toArray(),
                 'permissions' => $user->getAllPermissions()->pluck('name')->toArray(),
             ]);
-        } else {
-            Log::warning('No authenticated user found for AdminController::stats.');
+        }
+
+        // Get monthly trends for the last 6 months
+        $trends = [];
+        for ($i = 5; $i >= 0; $i--) {
+            $month = Carbon::now()->subMonths($i);
+            $monthName = $month->format('M');
+            
+            $appointmentCount = Appointment::whereYear('created_at', $month->year)
+                ->whereMonth('created_at', $month->month)
+                ->count();
+                
+            $giftCount = GiftRequest::whereYear('created_at', $month->year)
+                ->whereMonth('created_at', $month->month)
+                ->count();
+
+            $trends[] = [
+                'name' => $monthName,
+                'appointments' => $appointmentCount,
+                'gifts' => $giftCount,
+            ];
         }
 
         return response()->json([
@@ -40,6 +61,7 @@ class AdminController extends Controller
                 'subscribers' => NewsletterSubscription::count(),
                 'pending_appointments' => Appointment::where('status', 'pending')->count(),
                 'pending_gifts' => GiftRequest::where('status', 'Pending')->count(),
+                'trends' => $trends,
             ]
         ]);
     }

@@ -8,6 +8,8 @@ use App\Http\Controllers\NewsletterSubscriptionController;
 use App\Http\Controllers\AdminLoginController;
 use App\Http\Controllers\GiftRequestController;
 use App\Http\Controllers\AdminController;
+use App\Http\Controllers\ActivityController;
+use App\Http\Controllers\UserController;
 
 Route::prefix('v1')->group(function () {
     // Public Product routes (accessible to all)
@@ -38,6 +40,21 @@ Route::prefix('v1')->group(function () {
 
     // Admin-specific routes - protected by authentication middleware
     Route::middleware(['auth:sanctum', 'role:admin|super-admin'])->prefix('admin')->group(function () {
+        // Users & Roles
+        Route::get('/users', [UserController::class, 'index']);
+        Route::post('/users', [UserController::class, 'store']);
+        Route::put('/users/{user}', [UserController::class, 'update']);
+        Route::delete('/users/{user}', [UserController::class, 'destroy']);
+        Route::get('/roles-permissions', [UserController::class, 'rolesAndPermissions']);
+
+        // Newsletter Management
+        Route::get('/newsletter-subscriptions', [NewsletterSubscriptionController::class, 'index']);
+        Route::delete('/newsletter-subscriptions/{subscriber}', [NewsletterSubscriptionController::class, 'destroy']);
+
+        // Audit Logs
+        Route::get('/activities', [ActivityController::class, 'index']);
+        Route::get('/activities/{activity}', [ActivityController::class, 'show']);
+
         // Admin
         Route::get('/stats', [AdminController::class, 'stats']);
 

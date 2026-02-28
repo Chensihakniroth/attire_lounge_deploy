@@ -28,5 +28,6 @@ class DatabaseSeeder extends Seeder
         $this->call(CollectionSeeder::class);
         $this->call(ProductsSeeder::class);
         $this->call(AppointmentSeeder::class);
+        $this->call(TestGiftRequestAndAppointmentSeeder::class);
     }
 }

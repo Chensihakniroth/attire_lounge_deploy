@@ -30,8 +30,13 @@ class GiftRequestController extends Controller
     {
         $validated = $request->validate([
             'name' => 'required|string|max:255',
+            'sender_age' => 'nullable|string|max:255',
             'email' => 'nullable|email|max:255',
             'phone' => 'required|string|max:255',
+            'recipient_name' => 'required|string|max:255',
+            'recipient_title' => 'required|string|in:Mr,Mrs',
+            'recipient_phone' => 'nullable|string|max:255',
+            'recipient_email' => 'nullable|email|max:255',
             'preferences' => 'nullable|string',
             'selected_items' => 'nullable|array',
         ]);

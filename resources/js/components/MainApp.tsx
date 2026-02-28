@@ -65,6 +65,9 @@ const PrivateRoute = lazyWithRetry(() => import('./pages/admin/PrivateRoute.jsx'
 import { AdminProvider } from './pages/admin/AdminContext'; // Import AdminProvider
 
 const AdminLayout = lazyWithRetry(() => import('./pages/admin/AdminLayout.jsx'));
+const AuditLog = lazyWithRetry(() => import('./pages/admin/AuditLog.jsx'));
+const NewsletterManager = lazyWithRetry(() => import('./pages/admin/NewsletterManager.jsx'));
+const UserManager = lazyWithRetry(() => import('./pages/admin/UserManager.jsx'));
 const AppointmentManager = lazyWithRetry(() => import('./pages/admin/AppointmentManager.jsx'));
 const CustomizeGiftManager = lazyWithRetry(() => import('./pages/admin/CustomizeGiftManager.jsx'));
 const ProductManager = lazyWithRetry(() => import('./pages/admin/ProductManager.jsx'));
@@ -267,6 +270,9 @@ const AnimatedRoutes: React.FC = () => {
                         <Route path="/admin/products/:productId/edit" element={<ProductEditor />} />
                         <Route path="/admin/customize-gift" element={<CustomizeGiftManager />} />
                         <Route path="/admin/inventory" element={<InventoryManager />} />
+                        <Route path="/admin/audit-logs" element={<AuditLog />} />
+                        <Route path="/admin/newsletter" element={<NewsletterManager />} />
+                        <Route path="/admin/users" element={<UserManager />} />
                     </Route>
                 </Route>
 
