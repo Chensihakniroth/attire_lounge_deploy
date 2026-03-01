@@ -1,3 +1,4 @@
+// resources/js/components/pages/lookbook/LookbookHeader.jsx - CINEMATIC HEADER
 import React, { memo } from 'react';
 import { motion } from 'framer-motion';
 
@@ -10,17 +11,17 @@ const LookbookHeader = memo(() => {
                 transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
                 className="max-w-4xl mx-auto text-center"
             >
-                <div className="flex items-center justify-center gap-4 mb-8">
-                    <div className="h-px w-8 bg-attire-accent/30" />
-                    <span className="text-attire-accent text-[10px] tracking-[0.6em] uppercase font-bold">Archives</span>
-                    <div className="h-px w-8 bg-attire-accent/30" />
+                <div className="flex items-center justify-center gap-6 mb-10">
+                    <div className="h-px w-12 bg-attire-accent/40" />
+                    <span className="text-attire-accent text-[10px] font-black uppercase tracking-[0.6em]">Visual Archives</span>
+                    <div className="h-px w-12 bg-attire-accent/40" />
                 </div>
                 
-                <h1 className="font-serif text-6xl md:text-8xl lg:text-[7rem] font-light text-white mb-10 leading-[0.85] tracking-tighter italic">
-                    Sartorial <br /> <span className="text-attire-silver/40">Lookbook</span>
+                <h1 className="font-serif text-6xl md:text-8xl lg:text-[7rem] font-light text-white mb-12 leading-[0.85] tracking-tighter italic">
+                    Sartorial <br /> <span className="text-white/30 drop-shadow-2xl">Lookbook</span>
                 </h1>
                 
-                <p className="text-sm md:text-base text-attire-silver/60 max-w-xl mx-auto leading-relaxed font-light tracking-wide">
+                <p className="text-sm md:text-lg text-white/70 max-w-xl mx-auto leading-relaxed font-light tracking-widest">
                     A definitive visual catalog of styling excellence. Explore the intersection of traditional craftsmanship and contemporary silhouette.
                 </p>
             </motion.div>
