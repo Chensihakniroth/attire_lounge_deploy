@@ -1,16 +1,25 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { ChevronRight } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { isSafari } from '../../helpers/browserUtils';
 
 const PolicyLayout = ({ title, lastUpdated, children }) => {
+    const [isSafariBrowser, setIsSafariBrowser] = useState(false);
+
+    useEffect(() => {
+        setIsSafariBrowser(isSafari());
+    }, []);
+
     return (
         <div className="min-h-screen bg-attire-navy relative overflow-hidden">
             {/* Ambient Background */}
-            <div className="fixed inset-0 pointer-events-none">
-                <div className="absolute top-0 right-0 w-[800px] h-[800px] bg-attire-accent/5 rounded-full blur-[150px] -translate-y-1/2 translate-x-1/2" />
-                <div className="absolute bottom-0 left-0 w-[600px] h-[600px] bg-blue-900/10 rounded-full blur-[120px] translate-y-1/2 -translate-x-1/2" />
-            </div>
+            {!isSafariBrowser && (
+                <div className="fixed inset-0 pointer-events-none">
+                    <div className="absolute top-0 right-0 w-[800px] h-[800px] bg-attire-accent/5 rounded-full blur-[150px] -translate-y-1/2 translate-x-1/2" />
+                    <div className="absolute bottom-0 left-0 w-[600px] h-[600px] bg-blue-900/10 rounded-full blur-[120px] translate-y-1/2 -translate-x-1/2" />
+                </div>
+            )}
 
             <div className="relative z-10 pt-32 pb-24 px-4 sm:px-6 lg:px-8">
                 <div className="max-w-4xl mx-auto">

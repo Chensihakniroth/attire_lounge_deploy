@@ -8,6 +8,7 @@ import SectionIndicator from './SectionIndicator.jsx';
 import FashionShow from '../sections/FashionShow.jsx';
 import OptimizedImage from '../common/OptimizedImage.jsx';
 import SEO from '../common/SEO';1
+import { isSafari } from '../../helpers/browserUtils.js';
 
 import minioBaseUrl from '../../config.js';
 
@@ -165,10 +166,17 @@ const HeroSection = memo(forwardRef<HTMLElement, HeroSectionProps>(({ scrollToSe
   </section>
 )));
 
-const PhilosophySection = memo(forwardRef<HTMLElement>((_props, ref) => (
+const PhilosophySection = memo(forwardRef<HTMLElement>((_props, ref) => {
+    const [isSafariBrowser, setIsSafariBrowser] = useState(false);
+
+    useEffect(() => {
+        setIsSafariBrowser(isSafari());
+    }, []);
+
+    return (
     <section className="relative snap-section min-h-screen h-screen grid grid-cols-1 lg:grid-cols-2 items-center bg-[#0d3542] overflow-hidden" ref={ref}>
       {/* Ambient Light */}
-      <div className="absolute top-0 left-0 w-[400px] h-[400px] bg-[#f5a81c]/5 rounded-full blur-[120px] pointer-events-none" />
+      {!isSafariBrowser && <div className="absolute top-0 left-0 w-[400px] h-[400px] bg-[#f5a81c]/5 rounded-full blur-[120px] pointer-events-none" />}
 
       {/* Left side - Text Content */}
       <div className="relative z-10 flex flex-col justify-center text-[#FAF8F3] p-8 md:p-16 lg:p-24 h-full order-2 lg:order-1">
@@ -227,7 +235,8 @@ const PhilosophySection = memo(forwardRef<HTMLElement>((_props, ref) => (
         <div className="absolute inset-0 bg-gradient-to-r from-[#0d3542] via-[#0d3542]/10 to-transparent" />
       </div>
     </section>
-)));
+    );
+}));
 
 const CollectionsSection = memo(forwardRef<HTMLElement>((_props, ref) => {
     const showcaseImages = [

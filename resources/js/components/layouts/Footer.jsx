@@ -8,6 +8,7 @@ import {
 import { motion } from 'framer-motion';
 import api from '../../api';
 import minioBaseUrl from '../../config.js'; // Ensure correct import path
+import { isSafari } from '../../helpers/browserUtils.js';
 
 const Footer = () => {
   const [phoneNumber, setPhoneNumber] = useState('');
@@ -15,6 +16,11 @@ const Footer = () => {
   const [errorMessage, setErrorMessage] = useState('');
   const [adminClickCount, setAdminClickCount] = useState(0);
   const navigate = useNavigate();
+  const [isSafariBrowser, setIsSafariBrowser] = useState(false);
+
+  useEffect(() => {
+      setIsSafariBrowser(isSafari());
+  }, []);
 
   useEffect(() => {
     if (adminClickCount > 0) {
@@ -65,8 +71,12 @@ const Footer = () => {
   return (
     <footer className="bg-black text-white border-t border-white/5 relative overflow-hidden font-light">
       {/* Decorative Background Elements */}
-      <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-attire-navy/20 rounded-full blur-[150px] pointer-events-none -translate-y-1/2 translate-x-1/2" />
-      <div className="absolute bottom-0 left-0 w-[400px] h-[400px] bg-attire-accent/5 rounded-full blur-[120px] pointer-events-none translate-y-1/2 -translate-x-1/2" />
+      {!isSafariBrowser && (
+        <>
+          <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-attire-navy/20 rounded-full blur-[150px] pointer-events-none -translate-y-1/2 translate-x-1/2" />
+          <div className="absolute bottom-0 left-0 w-[400px] h-[400px] bg-attire-accent/5 rounded-full blur-[120px] pointer-events-none translate-y-1/2 -translate-x-1/2" />
+        </>
+      )}
 
       {/* Main Footer Content */}
       <div className="relative z-10 max-w-screen-2xl mx-auto px-6 pt-20 pb-12">

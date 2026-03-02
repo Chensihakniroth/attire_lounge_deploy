@@ -5,6 +5,7 @@ import { ThemeProvider, useTheme } from './ThemeContext';
 import { AdminProvider, useAdmin } from './AdminContext';
 import { motion, AnimatePresence } from 'framer-motion';
 import axios from 'axios';
+import { isSafari } from '../../../helpers/browserUtils';
 
 const NavItem = ({ item, isCollapsed }) => {
     return (
@@ -234,6 +235,11 @@ const AdminLayout = () => {
 const AdminLayoutContent = ({ isSidebarVisible, setSidebarVisible, isMobileOpen, setMobileOpen, isDesktop, setIsDesktop }) => {
     const { isEditing, showCollections, setShowCollections, collections, fetchCollections } = useAdmin();
     const location = useLocation();
+    const [isSafariBrowser, setIsSafariBrowser] = useState(false);
+
+    useEffect(() => {
+        setIsSafariBrowser(isSafari());
+    }, []);
 
     useEffect(() => {
         const handleResize = () => {
@@ -311,7 +317,7 @@ const AdminLayoutContent = ({ isSidebarVisible, setSidebarVisible, isMobileOpen,
 
                 <main className={`flex-1 overflow-y-auto relative ${isEditing || showCollections ? 'p-0' : 'p-6 md:p-10'}`}>
                     {/* Background decoration - only show when not editing for cleaner focus */}
-                    {!isEditing && !showCollections && (
+                    {!isSafariBrowser && !isEditing && !showCollections && (
                         <div className="absolute top-0 left-0 w-full h-full pointer-events-none opacity-20 overflow-hidden">
                             <div className="absolute -top-24 -left-24 w-96 h-96 bg-attire-accent/10 blur-[120px] rounded-full" />
                             <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-white/[0.02] blur-[150px] rounded-full" />

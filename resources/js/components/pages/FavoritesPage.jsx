@@ -7,9 +7,15 @@ import { ChevronLeft, Heart, ArrowRight, Loader2, Trash2 } from 'lucide-react';
 import { useProducts } from '../../hooks/useProducts';
 import SEO from '../common/SEO';
 import GrainOverlay from '../common/GrainOverlay.jsx';
+import { isSafari } from '../../helpers/browserUtils.js';
 
 const FavoritesPage = () => {
     const { favorites, toggleFavorite, clearFavorites } = useFavorites();
+    const [isSafariBrowser, setIsSafariBrowser] = useState(false);
+
+    useEffect(() => {
+        setIsSafariBrowser(isSafari());
+    }, []);
     
     // Fetch real data from DB for these slugs
     const { data, isLoading } = useProducts({
@@ -151,7 +157,7 @@ const FavoritesPage = () => {
                             className="flex flex-col items-center justify-center py-32 text-center"
                         >
                             <div className="relative mb-12">
-                                <div className="absolute inset-0 bg-attire-accent/10 blur-[80px] rounded-full" />
+                                {!isSafariBrowser && <div className="absolute inset-0 bg-attire-accent/10 blur-[80px] rounded-full" />}
                                 <div className="relative w-32 h-32 bg-white/[0.03] backdrop-blur-md rounded-full flex items-center justify-center border border-white/10 shadow-2xl">
                                     <Heart size={48} className="text-white/10" strokeWidth={1} />
                                 </div>

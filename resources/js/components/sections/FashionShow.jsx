@@ -1,8 +1,9 @@
-import React, { memo, forwardRef } from 'react';
+import React, { memo, forwardRef, useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { ArrowRight, ExternalLink } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import OptimizedImage from '../common/OptimizedImage.jsx';
+import { isSafari } from '../../helpers/browserUtils.js';
 
 const containerVariants = {
   hidden: {},
@@ -15,16 +16,24 @@ const itemVariants = {
 };
 
 const FashionShow = memo(forwardRef((props, ref) => {
+  const [isSafariBrowser, setIsSafariBrowser] = useState(false);
+
+  useEffect(() => {
+      setIsSafariBrowser(isSafari());
+  }, []);
+  
   return (
     <section 
       className="relative snap-section min-h-screen w-full bg-attire-navy overflow-hidden flex items-center" 
       ref={ref}
     >
       {/* Dynamic Background Color Layer */}
-      <div className="absolute inset-0 z-0">
-        <div className="absolute inset-0 bg-attire-navy" />
-        <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-white/5 rounded-full blur-[120px] -translate-y-1/2 translate-x-1/2" />
-      </div>
+      {!isSafariBrowser && (
+        <div className="absolute inset-0 z-0">
+          <div className="absolute inset-0 bg-attire-navy" />
+          <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-white/5 rounded-full blur-[120px] -translate-y-1/2 translate-x-1/2" />
+        </div>
+      )}
 
       <div className="container mx-auto px-6 md:px-12 lg:px-20 relative z-10 py-20 lg:py-0">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-20 items-center">
