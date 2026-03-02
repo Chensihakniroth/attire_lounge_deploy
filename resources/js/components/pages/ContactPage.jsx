@@ -11,6 +11,7 @@ import {
 import { useFavorites } from '../../context/FavoritesContext';
 import axios from 'axios';
 import OptimizedImage from '../common/OptimizedImage.jsx';
+import { isSafari } from '../../helpers/browserUtils.js';
 
 // --- Premium Animation Constants ---
 const fadeUp = {
@@ -164,6 +165,11 @@ const ContactPage = () => {
     const [allProducts, setAllProducts] = useState([]);
     const [loadingProducts, setLoadingProducts] = useState(true);
     const [selectedFavorites, setSelectedFavorites] = useState([]);
+    const [isSafariBrowser, setIsSafariBrowser] = useState(false);
+
+    useEffect(() => {
+        setIsSafariBrowser(isSafari());
+    }, []);
     
     const favoriteProducts = allProducts.filter(p => 
         favorites.some(fav => String(fav) === String(p.slug) || String(fav) === String(p.id))
@@ -252,11 +258,13 @@ const ContactPage = () => {
 
     return (
         <div className="min-h-screen bg-attire-navy relative selection:bg-attire-accent selection:text-black">
-            {/* Ambient Background */}
-            <div className="fixed inset-0 z-0 pointer-events-none opacity-20">
-                <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-attire-accent/10 blur-[120px] rounded-full" />
-                <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-white/5 blur-[120px] rounded-full" />
-            </div>
+            {/* Ambient Background - Disabled on Safari for performance */}
+            {!isSafariBrowser && (
+                <div className="fixed inset-0 z-0 pointer-events-none opacity-20">
+                    <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-attire-accent/10 blur-[120px] rounded-full" />
+                    <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-white/5 blur-[120px] rounded-full" />
+                </div>
+            )}
 
             <div className="relative z-10 max-w-[1400px] mx-auto px-6 py-28 sm:py-40">
                 {/* Atelier Header */}

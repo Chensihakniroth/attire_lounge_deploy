@@ -21,6 +21,7 @@ const queryClient = new QueryClient({
 // Components
 import Navigation from './layouts/Navigation.jsx';
 import LoadingSpinner from './common/LoadingSpinner.jsx';
+import AdminLoadingSpinner from './common/AdminLoadingSpinner.jsx'; // Import the new admin spinner
 import Footer from './layouts/Footer.jsx';
 
 // Declare global for Lenis
@@ -29,14 +30,22 @@ declare global {
         lenis: Lenis | null;
     }
 }
+const AppSuspense = () => {
+    const location = useLocation();
+    const isAdminRoute = location.pathname.startsWith('/admin');
 
+    return (
+        <Suspense fallback={isAdminRoute ? <AdminLoadingSpinner /> : <LoadingSpinner />}>
+            <AnimatedRoutes />
+        </Suspense>
+    );
+};
 // Pages that you have created
 const lazyWithRetry = (componentImport: () => Promise<any>) =>
     lazy(async () => {
         const pageHasAlreadyBeenForceRefreshed = JSON.parse(
             window.localStorage.getItem('page-has-been-force-refreshed') || 'false'
         );
-
         try {
             const component = await componentImport();
             window.localStorage.setItem('page-has-been-force-refreshed', 'false');
@@ -356,7 +365,7 @@ function MainApp() {
     usePullToRefresh(() => {
         window.location.reload();
     });
-    
+
     return (
         <HelmetProvider>
             <QueryClientProvider client={queryClient}>
@@ -365,9 +374,7 @@ function MainApp() {
                         <GlobalStyles />
                         <LenisScroll />
                         {/* ScrollToTop removed as it conflicts with exit animations, handled in onExitComplete */}
-                        <Suspense fallback={<LoadingSpinner />}>
-                            <AnimatedRoutes />
-                        </Suspense>
+                        <AppSuspense />
                     </AdminProvider>
                 </Router>
             </QueryClientProvider>
