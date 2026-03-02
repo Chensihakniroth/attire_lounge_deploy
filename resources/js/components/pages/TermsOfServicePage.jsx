@@ -26,7 +26,7 @@ const InfoSection = ({ icon: Icon, title, children, highlighted = false }) => (
             </div>
             <h3 className={`!m-0 text-xl font-serif ${highlighted ? 'text-attire-accent' : 'text-white'}`}>{title}</h3>
         </div>
-        <div className="prose-p:text-attire-silver/80">
+        <div className="prose-p:text-attire-silver/80 prose-ul:list-disc prose-ul:pl-5 prose-li:text-attire-silver/80">
             {children}
         </div>
     </motion.div>

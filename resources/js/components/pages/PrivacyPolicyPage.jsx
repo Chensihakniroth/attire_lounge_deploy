@@ -17,7 +17,7 @@ const InfoSection = ({ icon: Icon, title, children }) => (
             </div>
             <h3 className="!m-0 text-xl font-serif text-white">{title}</h3>
         </div>
-        <div className="prose-p:text-attire-silver/80 prose-ul:list-none prose-ul:p-0 prose-li:flex prose-li:items-start prose-li:gap-3 prose-li:mb-2">
+        <div className="prose-p:text-attire-silver/80 prose-ul:list-disc prose-ul:pl-5 prose-li:text-attire-silver/80">
             {children}
         </div>
     </motion.div>
@@ -25,8 +25,7 @@ const InfoSection = ({ icon: Icon, title, children }) => (
 
 const CustomListItem = ({ children }) => (
     <li>
-        <CheckCircle className="w-4 h-4 text-attire-accent mt-1 shrink-0" />
-        <span>{children}</span>
+        {children}
     </li>
 );
 
