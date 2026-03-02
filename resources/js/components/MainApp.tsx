@@ -345,6 +345,13 @@ const AnimatedRoutes: React.FC = () => {
     );
 };
 
+const GlobalStyles = () => (
+    <style dangerouslySetInnerHTML={{ __html: `
+        *::-webkit-scrollbar { display: none !important; }
+        * { -ms-overflow-style: none !important; scrollbar-width: none !important; }
+    `}} />
+);
+
 function MainApp() {
     usePullToRefresh(() => {
         window.location.reload();
@@ -355,6 +362,7 @@ function MainApp() {
             <QueryClientProvider client={queryClient}>
                 <Router>
                     <AdminProvider> {/* <-- AdminProvider goes here */}
+                        <GlobalStyles />
                         <LenisScroll />
                         {/* ScrollToTop removed as it conflicts with exit animations, handled in onExitComplete */}
                         <Suspense fallback={<LoadingSpinner />}>

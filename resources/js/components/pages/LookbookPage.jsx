@@ -79,11 +79,6 @@ const LookbookPage = () => {
                 description="A curated visual journey through our finest sartorial collections. Hand-crafted elegance for the modern gentleman."
             />
             
-            <style dangerouslySetInnerHTML={{ __html: `
-                *::-webkit-scrollbar { display: none !important; }
-                * { -ms-overflow-style: none !important; scrollbar-width: none !important; }
-            `}} />
-            
             <div className="relative z-10">
                 <LookbookHeader />
 

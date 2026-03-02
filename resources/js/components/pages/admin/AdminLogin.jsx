@@ -1,13 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Lock, Mail, Loader, ShieldCheck, ArrowRight, Check, RefreshCw, AlertTriangle } from 'lucide-react';
+import { Lock, User as UserIcon, Loader, ShieldCheck, ArrowRight, Check, RefreshCw, AlertTriangle } from 'lucide-react';
 import { motion } from 'framer-motion';
 import axios from 'axios';
 import minioBaseUrl from '../../../config';
 import { useAdmin } from './AdminContext'; // Import useAdmin
 
 const AdminLogin = () => {
-    const [email, setEmail] = useState('');
+    const [login, setLogin] = useState('');
     const [password, setPassword] = useState('');
     const [rememberMe, setRememberMe] = useState(false);
     const [error, setError] = useState('');
@@ -32,7 +32,7 @@ const AdminLogin = () => {
         setLoading(true);
 
         try {
-            const response = await axios.post('/api/v1/admin/login', { email, password });
+            const response = await axios.post('/api/v1/admin/login', { login, password });
             const { token, user } = response.data; // Destructure user data
             
             if (rememberMe) {
@@ -144,11 +144,11 @@ const AdminLogin = () => {
                         <div className="space-y-3">
                             <label className="text-[10px] font-bold text-attire-silver/30 uppercase tracking-[0.2em] ml-1">Identity</label>
                             <input
-                                type="email"
-                                value={email}
-                                onChange={(e) => setEmail(e.target.value)}
+                                type="text"
+                                value={login}
+                                onChange={(e) => setLogin(e.target.value)}
                                 className="w-full bg-white/[0.03] border border-white/5 rounded-xl py-4 px-5 text-white text-sm outline-none transition-all duration-500 focus:bg-white/[0.06] focus:border-white/10 placeholder:text-white/5"
-                                placeholder="Admin Email"
+                                placeholder="Username or Email"
                                 required
                             />
                         </div>

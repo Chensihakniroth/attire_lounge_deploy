@@ -1,11 +1,10 @@
-// resources/js/components/pages/lookbook/LookbookFilter.jsx - ATELIER SOLID UTILITY BAR (UNIFIED WIDTH DROPDOWNS)
-import React, { memo, Fragment } from 'react';
+// resources/js/components/pages/lookbook/LookbookFilter.jsx - ATELIER SOLID UTILITY BAR (FIXED TRAILING DROPLET ANIMATION)
+import React, { memo, Fragment, useState } from 'react';
 import { Menu, Transition } from '@headlessui/react';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { 
     ChevronDown, Check, LayoutGrid, Grid, Square, 
     ArrowDownAZ, ArrowUpAZ, Clock, ListFilter,
-    Layers, MousePointer2
 } from 'lucide-react';
 import { LOOKBOOK_CATEGORIES } from '../../../data/lookbook.js';
 
@@ -30,9 +29,21 @@ const LookbookFilter = memo(({
         { id: 'small', icon: Grid, label: 'Archive' },
     ];
 
+    const [leavingDroplets, setLeavingDroplets] = useState([]);
+
+    const handleGridChange = (newGridId) => {
+        if (newGridId !== currentGrid) {
+            setLeavingDroplets(prev => [...prev, { id: Date.now(), gridId: currentGrid }]);
+            onGridChange(newGridId);
+        }
+    };
+    
+    const removeDroplet = (dropletId) => {
+        setLeavingDroplets(prev => prev.filter(d => d.id !== dropletId));
+    };
+
     return (
         <div className="relative z-40 sticky top-24 max-w-[1400px] mx-auto px-6 mb-32 pointer-events-auto">
-            {/* The Bar Container */}
             <motion.div 
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
@@ -40,7 +51,7 @@ const LookbookFilter = memo(({
             >
                 <div className="relative flex flex-col md:flex-row items-stretch md:items-center bg-[#0a0f1a] border border-white/10 rounded-[2.5rem] md:rounded-full shadow-[0_30px_60px_-15px_rgba(0,0,0,0.9)]">
                     
-                    {/* 1. COLLECTION SELECTOR */}
+                    {/* 1. COLLECTION SELECTOR (Unchanged) */}
                     <div className="flex-1 border-b md:border-b-0 md:border-r border-white/5 relative">
                         <Menu as="div" className="h-full w-full">
                             <Menu.Button as={motion.button}
@@ -58,7 +69,7 @@ const LookbookFilter = memo(({
                             </Menu.Button>
 
                             <Transition as={Fragment} enter="transition duration-300 ease-out" enterFrom="opacity-0 translate-y-2" enterTo="opacity-100 translate-y-0" leave="transition duration-200 ease-in" leaveFrom="opacity-100 translate-y-0" leaveTo="opacity-0 translate-y-2">
-                                <Menu.Items className="absolute left-0 right-0 mt-4 origin-top rounded-[2.5rem] bg-[#0a0f1a] border border-white/10 shadow-[0_40px_80px_rgba(0,0,0,0.9)] overflow-hidden py-4 p-2 z-[100]">
+                                <Menu.Items className="absolute left-0 right-0 mt-4 origin-top rounded-xl bg-[#0a0f1a] border border-white/10 shadow-[0_40px_80px_rgba(0,0,0,0.9)] overflow-hidden py-4 p-2 z-[100]">
                                     {LOOKBOOK_CATEGORIES.map((c) => (
                                         <Menu.Item key={c.id}>
                                             {({ active }) => (
@@ -74,26 +85,50 @@ const LookbookFilter = memo(({
                         </Menu>
                     </div>
 
-                    {/* 2. GRID SWITCHER */}
+                    {/* 2. GRID SWITCHER (Corrected Trail Animation) */}
                     <div className="flex-none flex items-center justify-center px-10 py-6 md:py-0">
                         <div className="flex items-center gap-1 bg-white/5 p-1.5 rounded-full border border-white/10">
                             {gridOptions.map((opt) => (
                                 <button
                                     key={opt.id}
-                                    onClick={() => onGridChange(opt.id)}
-                                    className={`relative p-3.5 rounded-full transition-all duration-700 group/grid ${currentGrid === opt.id ? 'bg-white text-black shadow-xl scale-110' : 'text-white/30 hover:text-white'}`}
+                                    onClick={() => handleGridChange(opt.id)}
+                                    className={`relative p-3.5 rounded-full group/grid ${currentGrid === opt.id ? 'text-black' : 'text-white/30 hover:text-white'}`}
                                     title={`${opt.label} View`}
                                 >
-                                    <opt.icon size={16} />
+                                    {/* Background animations MUST come before the icon now */}
+                                    <AnimatePresence>
+                                        {leavingDroplets.map(droplet => 
+                                            droplet.gridId === opt.id && (
+                                                <motion.div
+                                                    key={droplet.id}
+                                                    className="absolute inset-0 bg-white rounded-full"
+                                                    initial={{ scale: 1, opacity: 0.6 }}
+                                                    exit={{ scale: [1, 1.3, 0], opacity: [0.6, 0.4, 0] }}
+                                                    transition={{ duration: 0.4, ease: "circOut" }}
+                                                    onAnimationComplete={() => removeDroplet(droplet.id)}
+                                                />
+                                            )
+                                        )}
+                                    </AnimatePresence>
+
                                     {currentGrid === opt.id && (
-                                        <motion.div layoutId="activeGrid" className="absolute inset-0 bg-white rounded-full -z-10" />
+                                        <motion.div 
+                                            layoutId="activeGrid" 
+                                            className="absolute inset-0 bg-white rounded-full"
+                                            transition={{ type: 'spring', stiffness: 380, damping: 35 }}
+                                        />
                                     )}
+
+                                    {/* Icon is now wrapped in a relative div to ensure it's on top */}
+                                    <div className="relative">
+                                        <opt.icon size={16} />
+                                    </div>
                                 </button>
                             ))}
                         </div>
                     </div>
 
-                    {/* 3. SORT SELECTOR */}
+                    {/* 3. SORT SELECTOR (Unchanged) */}
                     <div className="flex-1 border-t md:border-t-0 md:border-l border-white/5 relative">
                         <Menu as="div" className="h-full w-full">
                             <Menu.Button as={motion.button}
@@ -111,7 +146,7 @@ const LookbookFilter = memo(({
                             </Menu.Button>
 
                             <Transition as={Fragment} enter="transition duration-300 ease-out" enterFrom="opacity-0 translate-y-2" enterTo="opacity-100 translate-y-0" leave="transition duration-200 ease-in" leaveFrom="opacity-100 translate-y-0" leaveTo="opacity-0 translate-y-2">
-                                <Menu.Items className="absolute left-0 right-0 mt-4 origin-top rounded-[2.5rem] bg-[#0a0f1a] border border-white/10 shadow-[0_40px_80px_rgba(0,0,0,0.9)] overflow-hidden py-4 p-2 z-[100]">
+                                <Menu.Items className="absolute left-0 right-0 mt-4 origin-top rounded-xl bg-[#0a0f1a] border border-white/10 shadow-[0_40px_80px_rgba(0,0,0,0.9)] overflow-hidden py-4 p-2 z-[100]">
                                     {sortOptions.map((s) => (
                                         <Menu.Item key={s.id}>
                                             {({ active }) => (
