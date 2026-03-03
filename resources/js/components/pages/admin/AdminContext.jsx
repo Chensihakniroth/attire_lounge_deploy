@@ -6,30 +6,32 @@ const AdminContext = createContext();
 export const useAdmin = () => useContext(AdminContext);
 
 export const AdminProvider = ({ children }) => {
-    // State for user roles and permissions
+    // State for user details
+    const [user, setUser] = useState(null);
     const [userRoles, setUserRoles] = useState([]);
     const [userPermissions, setUserPermissions] = useState([]);
 
     // Function to set user data after login
-    const setUserData = useCallback((user) => {
-        const roles = user?.roles || [];
-        const permissions = user?.permissions || [];
+    const setUserData = useCallback((userData) => {
+        const roles = userData?.roles || [];
+        const permissions = userData?.permissions || [];
+        setUser(userData);
         setUserRoles(roles);
         setUserPermissions(permissions);
+        sessionStorage.setItem('admin_user', JSON.stringify(userData));
         sessionStorage.setItem('user_roles', JSON.stringify(roles));
         sessionStorage.setItem('user_permissions', JSON.stringify(permissions));
     }, []);
 
     // Load user data from session storage on mount
     useEffect(() => {
+        const storedUser = sessionStorage.getItem('admin_user');
         const storedRoles = sessionStorage.getItem('user_roles');
         const storedPermissions = sessionStorage.getItem('user_permissions');
-        if (storedRoles) {
-            setUserRoles(JSON.parse(storedRoles));
-        }
-        if (storedPermissions) {
-            setUserPermissions(JSON.parse(storedPermissions));
-        }
+        
+        if (storedUser) setUser(JSON.parse(storedUser));
+        if (storedRoles) setUserRoles(JSON.parse(storedRoles));
+        if (storedPermissions) setUserPermissions(JSON.parse(storedPermissions));
     }, []);
 
     // Helper to check if user has a specific permission
@@ -346,6 +348,7 @@ export const AdminProvider = ({ children }) => {
             showCollections,
             setShowCollections,
 
+            user,
             userRoles,
             userPermissions,
             setUserData,

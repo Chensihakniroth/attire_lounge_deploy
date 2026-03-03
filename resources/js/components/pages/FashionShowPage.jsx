@@ -87,9 +87,9 @@ const ActGallery = memo(({ act, title, description, images, isRight = false }) =
           <button 
             onClick={() => handleScroll('left')}
             disabled={currentX >= 0}
-            className="p-4 rounded-full bg-white/5 backdrop-blur-xl border border-white/10 text-white/40 hover:text-attire-accent hover:border-attire-accent/40 hover:bg-white/10 transition-all disabled:opacity-0 disabled:pointer-events-none group-hover:translate-x-2 lg:group-hover:translate-x-0"
+            className="p-4 text-white/20 hover:text-attire-accent transition-all disabled:opacity-0 disabled:pointer-events-none group-hover:translate-x-2 lg:group-hover:translate-x-0 hover:scale-125"
           >
-            <ChevronLeft size={24} strokeWidth={1} />
+            <ChevronLeft size={48} strokeWidth={0.5} />
           </button>
         </div>
 
@@ -97,9 +97,9 @@ const ActGallery = memo(({ act, title, description, images, isRight = false }) =
           <button 
             onClick={() => handleScroll('right')}
             disabled={currentX <= constraints.left}
-            className="p-4 rounded-full bg-white/5 backdrop-blur-xl border border-white/10 text-white/40 hover:text-attire-accent hover:border-attire-accent/40 hover:bg-white/10 transition-all disabled:opacity-0 disabled:pointer-events-none group-hover:-translate-x-2 lg:group-hover:-translate-x-0"
+            className="p-4 text-white/20 hover:text-attire-accent transition-all disabled:opacity-0 disabled:pointer-events-none group-hover:-translate-x-2 lg:group-hover:-translate-x-0 hover:scale-125"
           >
-            <ChevronRight size={24} strokeWidth={1} />
+            <ChevronRight size={48} strokeWidth={0.5} />
           </button>
         </div>
 

@@ -68,6 +68,13 @@ class UserController extends Controller
      */
     public function update(Request $request, User $user): JsonResponse
     {
+        if ($user->email === 'admin@alo.com') {
+            return response()->json([
+                'success' => false,
+                'message' => 'The root super-admin account cannot be modified, honey. (｡>﹏<｡)',
+            ], 403);
+        }
+
         $request->validate([
             'name' => 'required|string|max:255',
             'email' => ['required', 'string', 'email', 'max:255', Rule::unique('users')->ignore($user->id)],
@@ -109,6 +116,13 @@ class UserController extends Controller
      */
     public function destroy(User $user, Request $request): JsonResponse
     {
+        if ($user->email === 'admin@alo.com') {
+            return response()->json([
+                'success' => false,
+                'message' => 'The root super-admin account cannot be deleted, sweetie! (｡>﹏<｡)',
+            ], 403);
+        }
+
         if ($user->hasRole('super-admin') && User::role('super-admin')->count() <= 1) {
             return response()->json([
                 'success' => false,
@@ -147,6 +161,58 @@ class UserController extends Controller
                 'roles' => Role::where('guard_name', 'sanctum')->get(),
                 'permissions' => Permission::where('guard_name', 'sanctum')->get(),
             ],
+        ]);
+    }
+
+    /**
+     * Update the authenticated user's profile.
+     */
+    public function updateProfile(Request $request): JsonResponse
+    {
+        $user = $request->user();
+
+        if ($user->email === 'admin@alo.com') {
+            return response()->json([
+                'message' => 'The root super-admin account is locked for safety, honey! (｡♥‿♥｡)'
+            ], 403);
+        }
+
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'email' => ['required', 'string', 'email', 'max:255', Rule::unique('users')->ignore($user->id)],
+            'current_password' => 'required',
+            'password' => 'nullable|string|min:8|confirmed',
+        ]);
+
+        if (!Hash::check($request->current_password, $user->password)) {
+            return response()->json([
+                'message' => 'The provided password does not match your current password, honey. (｡•́︿•̀｡)'
+            ], 422);
+        }
+
+        $user->name = $request->name;
+        $user->email = $request->email;
+        
+        if ($request->filled('password')) {
+            $user->password = Hash::make($request->password);
+        }
+
+        $user->save();
+
+        Activity::create([
+            'user_id' => $user->id,
+            'action' => 'updated',
+            'model_type' => User::class,
+            'model_id' => $user->id,
+            'details' => "User updated their own profile: {$user->email}",
+            'ip_address' => $request->ip(),
+            'user_agent' => $request->header('User-Agent'),
+        ]);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Profile updated successfully!',
+            'data' => $user
         ]);
     }
 }

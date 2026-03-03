@@ -77,6 +77,7 @@ const AdminLayout = lazyWithRetry(() => import('./pages/admin/AdminLayout.jsx'))
 const AuditLog = lazyWithRetry(() => import('./pages/admin/AuditLog.jsx'));
 const NewsletterManager = lazyWithRetry(() => import('./pages/admin/NewsletterManager.jsx'));
 const UserManager = lazyWithRetry(() => import('./pages/admin/UserManager.jsx'));
+const ProfileEditor = lazyWithRetry(() => import('./pages/admin/ProfileEditor.jsx'));
 const CustomerProfileManager = lazyWithRetry(() => import('./pages/admin/CustomerProfileManager.jsx'));
 const CustomerProfileDetail = lazyWithRetry(() => import('./pages/admin/CustomerProfileDetail.jsx'));
 const AppointmentManager = lazyWithRetry(() => import('./pages/admin/AppointmentManager.jsx'));
@@ -282,8 +283,9 @@ const AnimatedRoutes: React.FC = () => {
                         <Route path="/admin/customize-gift" element={<CustomizeGiftManager />} />
                         <Route path="/admin/inventory" element={<InventoryManager />} />
                         <Route path="/admin/audit-logs" element={<AuditLog />} />
-                        <Route path="/admin/newsletter" element={<NewsletterManager />} />
+                        <Route path="/admin/audit-logs" element={<AuditLog />} />
                         <Route path="/admin/users" element={<UserManager />} />
+                        <Route path="/admin/profile" element={<ProfileEditor />} />
                         <Route path="/admin/customer-profiles" element={<CustomerProfileManager />} />
                         <Route path="/admin/customer-profiles/:id" element={<CustomerProfileDetail />} />
                     </Route>

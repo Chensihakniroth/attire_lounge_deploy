@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { NavLink, useNavigate, Outlet, useLocation } from 'react-router-dom';
-import { LayoutDashboard, Calendar, Gift, LogOut, Menu, X, Package, ShoppingBag, ChevronLeft, ChevronRight, Sun, Moon, Trash2, AlertCircle, Check, Loader, History, Users, Mail, Search } from 'lucide-react';
+import { LayoutDashboard, Calendar, Gift, LogOut, Menu, X, Package, ShoppingBag, ChevronLeft, ChevronRight, Sun, Moon, Trash2, AlertCircle, Check, Loader, History, Users, Mail, Search, UserCircle } from 'lucide-react';
 import { ThemeProvider, useTheme } from './ThemeContext';
 import { AdminProvider, useAdmin } from './AdminContext';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -116,6 +116,7 @@ const GlobalSearch = () => {
 
 const SidebarContent = ({ setOpen, isMobile }) => {
     const { isDarkMode, toggleDarkMode } = useTheme();
+    const { userRoles } = useAdmin();
     const navigate = useNavigate();
 
     const handleLogout = () => {
@@ -127,15 +128,29 @@ const SidebarContent = ({ setOpen, isMobile }) => {
 
     const navItems = [
         { name: 'Dashboard', to: '/admin', icon: LayoutDashboard },
+        { name: 'My Profile', to: '/admin/profile', icon: UserCircle },
         { name: 'Customer Profiles', to: '/admin/customer-profiles', icon: Users },
         { name: 'Appointments', to: '/admin/appointments', icon: Calendar },
         { name: 'Products', to: '/admin/products', icon: ShoppingBag },
         { name: 'Gift Requests', to: '/admin/customize-gift', icon: Gift },
         { name: 'Gift Inventory', to: '/admin/inventory', icon: Package },
         { name: 'Newsletter', to: '/admin/newsletter', icon: Mail },
-        { name: 'Audit Logs', to: '/admin/audit-logs', icon: History },
-        { name: 'Team Access', to: '/admin/users', icon: Users },
+        { 
+            name: 'Audit Logs', 
+            to: '/admin/audit-logs', 
+            icon: History,
+            restricted: true 
+        },
+        { 
+            name: 'Team Access', 
+            to: '/admin/users', 
+            icon: Users,
+            restricted: true 
+        },
     ];
+
+    const isSuperAdmin = userRoles.includes('super-admin');
+    const filteredNavItems = navItems.filter(item => !item.restricted || isSuperAdmin);
 
     return (
         <div className="flex flex-col w-[280px] bg-white dark:bg-[#0a0a0a] border-r border-black/5 dark:border-white/5 flex-shrink-0 h-full overflow-hidden transition-colors duration-300 font-sans">
@@ -148,7 +163,7 @@ const SidebarContent = ({ setOpen, isMobile }) => {
                 )}
             </div>
             <nav className="flex-grow p-4 space-y-2 mt-4 overflow-y-auto attire-scrollbar">
-                {navItems.map(item => <NavItem key={item.name} item={item} isCollapsed={false} />)}
+                {filteredNavItems.map(item => <NavItem key={item.name} item={item} isCollapsed={false} />)}
             </nav>
             <div className="p-4 border-t border-black/5 dark:border-white/5 space-y-2">
                 <button

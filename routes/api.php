@@ -41,57 +41,70 @@ Route::prefix('v1')->group(function () {
     Route::post('/admin/login', [AdminLoginController::class, 'login'])->middleware('throttle:5,1');
 
     // Admin-specific routes - protected by authentication middleware
-    Route::middleware(['auth:sanctum', 'role:admin|super-admin'])->prefix('admin')->group(function () {
-        // Users & Roles
-        Route::get('/users', [UserController::class, 'index']);
-        Route::post('/users', [UserController::class, 'store']);
-        Route::put('/users/{user}', [UserController::class, 'update']);
-        Route::delete('/users/{user}', [UserController::class, 'destroy']);
-        Route::get('/roles-permissions', [UserController::class, 'rolesAndPermissions']);
-
-        // Newsletter Management
-        Route::get('/newsletter-subscriptions', [NewsletterSubscriptionController::class, 'index']);
-        Route::delete('/newsletter-subscriptions/{subscriber}', [NewsletterSubscriptionController::class, 'destroy']);
-
-        // Audit Logs
-        Route::get('/activities', [ActivityController::class, 'index']);
-        Route::get('/activities/{activity}', [ActivityController::class, 'show']);
-
-        // Admin
-        Route::get('/stats', [AdminController::class, 'stats']);
-
-        // Appointments
-        Route::get('/appointments', [AppointmentController::class, 'index']);
-        Route::patch('/appointments/{appointment}/status', [AppointmentController::class, 'updateStatus']);
-        Route::delete('/appointments/completed', [AppointmentController::class, 'clearCompleted']);
-
-        // Gift Requests
-        Route::patch('/gift-requests/{giftRequest}/status', [GiftRequestController::class, 'updateStatus']);
-        Route::delete('/gift-requests/{giftRequest}', [GiftRequestController::class, 'destroy']);
-
-        // Gift Item Stock Management
-        Route::post('/gift-items/toggle-stock', [GiftItemStockController::class, 'toggle']);
-
-        // Products
-        Route::post('/products', [ProductController::class, 'store']);
-        Route::put('/products/{id}', [ProductController::class, 'update']);
-        Route::patch('/products/{id}', [ProductController::class, 'update']);
-        Route::delete('/products/{id}', [ProductController::class, 'destroy']);
-
-        // Collections
-        Route::post('/collections', [ProductController::class, 'storeCollection']);
-        Route::delete('/collections/{id}', [ProductController::class, 'destroyCollection']);
+    Route::middleware(['auth:sanctum'])->prefix('admin')->group(function () {
         
-        // Image Uploads
-        Route::post('/images/upload', [ImageUploadController::class, 'upload']);
-        Route::get('/images', [ImageUploadController::class, 'listImages']);
-        Route::post('/images/delete', [ImageUploadController::class, 'deleteImage']);
+        // User Profile Management (Self-service)
+        Route::get('/user', function (Illuminate\Http\Request $request) {
+            return $request->user();
+        });
+        Route::put('/user/profile', [UserController::class, 'updateProfile']);
 
-        // Customer Profiles
-        Route::get('/customer-profiles', [CustomerProfileController::class, 'index']);
-        Route::post('/customer-profiles', [CustomerProfileController::class, 'store']);
-        Route::get('/customer-profiles/{id}', [CustomerProfileController::class, 'show']);
-        Route::put('/customer-profiles/{id}', [CustomerProfileController::class, 'update']);
-        Route::delete('/customer-profiles/{id}', [CustomerProfileController::class, 'destroy']);
+        // Restricted to Admin & Super Admin
+        Route::middleware(['role:admin|super-admin'])->group(function () {
+            // Admin Dashboard Stats
+            Route::get('/stats', [AdminController::class, 'stats']);
+
+            // Newsletter Management
+            Route::get('/newsletter-subscriptions', [NewsletterSubscriptionController::class, 'index']);
+            Route::delete('/newsletter-subscriptions/{subscriber}', [NewsletterSubscriptionController::class, 'destroy']);
+
+            // Appointments
+            Route::get('/appointments', [AppointmentController::class, 'index']);
+            Route::patch('/appointments/{appointment}/status', [AppointmentController::class, 'updateStatus']);
+            Route::delete('/appointments/completed', [AppointmentController::class, 'clearCompleted']);
+
+            // Gift Requests
+            Route::patch('/gift-requests/{giftRequest}/status', [GiftRequestController::class, 'updateStatus']);
+            Route::delete('/gift-requests/{giftRequest}', [GiftRequestController::class, 'destroy']);
+
+            // Gift Item Stock Management
+            Route::post('/gift-items/toggle-stock', [GiftItemStockController::class, 'toggle']);
+
+            // Products
+            Route::post('/products', [ProductController::class, 'store']);
+            Route::put('/products/{id}', [ProductController::class, 'update']);
+            Route::patch('/products/{id}', [ProductController::class, 'update']);
+            Route::delete('/products/{id}', [ProductController::class, 'destroy']);
+
+            // Collections
+            Route::post('/collections', [ProductController::class, 'storeCollection']);
+            Route::delete('/collections/{id}', [ProductController::class, 'destroyCollection']);
+            
+            // Image Uploads
+            Route::post('/images/upload', [ImageUploadController::class, 'upload']);
+            Route::get('/images', [ImageUploadController::class, 'listImages']);
+            Route::post('/images/delete', [ImageUploadController::class, 'deleteImage']);
+
+            // Customer Profiles
+            Route::get('/customer-profiles', [CustomerProfileController::class, 'index']);
+            Route::post('/customer-profiles', [CustomerProfileController::class, 'store']);
+            Route::get('/customer-profiles/{id}', [CustomerProfileController::class, 'show']);
+            Route::put('/customer-profiles/{id}', [CustomerProfileController::class, 'update']);
+            Route::delete('/customer-profiles/{id}', [CustomerProfileController::class, 'destroy']);
+
+            // Restricted strictly to Super Admin ONLY
+            Route::middleware(['role:super-admin'])->group(function () {
+                // Users & Roles (Team Access)
+                Route::get('/users', [UserController::class, 'index']);
+                Route::post('/users', [UserController::class, 'store']);
+                Route::put('/users/{user}', [UserController::class, 'update']);
+                Route::delete('/users/{user}', [UserController::class, 'destroy']);
+                Route::get('/roles-permissions', [UserController::class, 'rolesAndPermissions']);
+
+                // Audit Logs
+                Route::get('/activities', [ActivityController::class, 'index']);
+                Route::get('/activities/{activity}', [ActivityController::class, 'show']);
+            });
+        });
     });
 });

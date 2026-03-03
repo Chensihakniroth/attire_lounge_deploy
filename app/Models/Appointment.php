@@ -18,6 +18,7 @@ class Appointment extends Model
         'service',
         'date',
         'time',
+        'appointment_type',
         'message',
         'favorite_item_image_url',
         'status',
