@@ -10,6 +10,7 @@ use App\Http\Controllers\GiftRequestController;
 use App\Http\Controllers\GiftItemStockController;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\ActivityController;
+use App\Http\Controllers\CustomerProfileController;
 use App\Http\Controllers\UserController;
 
 Route::prefix('v1')->group(function () {
@@ -85,5 +86,12 @@ Route::prefix('v1')->group(function () {
         Route::post('/images/upload', [ImageUploadController::class, 'upload']);
         Route::get('/images', [ImageUploadController::class, 'listImages']);
         Route::post('/images/delete', [ImageUploadController::class, 'deleteImage']);
+
+        // Customer Profiles
+        Route::get('/customer-profiles', [CustomerProfileController::class, 'index']);
+        Route::post('/customer-profiles', [CustomerProfileController::class, 'store']);
+        Route::get('/customer-profiles/{id}', [CustomerProfileController::class, 'show']);
+        Route::put('/customer-profiles/{id}', [CustomerProfileController::class, 'update']);
+        Route::delete('/customer-profiles/{id}', [CustomerProfileController::class, 'destroy']);
     });
 });

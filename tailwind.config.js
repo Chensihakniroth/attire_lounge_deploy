@@ -28,6 +28,7 @@ module.exports = {
       fontFamily: {
         'serif': ['Playfair Display', 'serif'],
         'sans': ['Inter', 'sans-serif'],
+        'open-sans': ['Open Sans', 'sans-serif'],
         'khmer': ['Bayon', 'sans-serif'],
       },
       animation: {

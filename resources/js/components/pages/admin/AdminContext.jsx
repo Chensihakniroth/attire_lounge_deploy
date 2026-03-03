@@ -61,6 +61,7 @@ export const AdminProvider = ({ children }) => {
     const [stats, setStats] = useState({ 
         appointments: 0, 
         gifts: 0, 
+        total_customers: 0,
         products: 0, 
         collections: 0, 
         subscribers: 0,

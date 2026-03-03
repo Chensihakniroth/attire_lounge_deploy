@@ -60,6 +60,11 @@
     h1, h2, h3, h4, h5, h6 {
         font-family: 'Playfair Display', serif;
     }
+
+    /* Admin Panel Force Inter */
+    #admin-root, #admin-root h1, #admin-root h2, #admin-root h3, #admin-root h4, #admin-root h5, #admin-root h6, #admin-root span, #admin-root p, #admin-root button, #admin-root input, #admin-root select, #admin-root textarea {
+        font-family: 'Inter', sans-serif !important;
+    }
 }
 
 @layer components {

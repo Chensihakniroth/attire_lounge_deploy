@@ -25,6 +25,11 @@ class AppServiceProvider extends ServiceProvider
             \App\Repositories\Interfaces\GiftRequestRepositoryInterface::class,
             \App\Repositories\Eloquent\GiftRequestRepository::class
         );
+
+        $this->app->bind(
+            \App\Repositories\Interfaces\CustomerProfileRepositoryInterface::class,
+            \App\Repositories\Eloquent\CustomerProfileRepository::class
+        );
     }
 
     /**

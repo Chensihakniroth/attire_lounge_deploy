@@ -26,8 +26,8 @@ const NavItem = ({ item, isCollapsed }) => {
                 }
                 title={isCollapsed ? item.name : ''}
             >
-                <item.icon className={`w-5 h-5 ${isCollapsed ? '' : 'mr-3'} transition-transform duration-300 group-hover:scale-110`} />
-                {!isCollapsed && <span className="text-[11px]">{item.name}</span>}
+                <item.icon className={`w-5 h-5 ${isCollapsed ? '' : 'mr-3'} transition-transform duration-300 group-hover:scale-110 flex-shrink-0`} />
+                {!isCollapsed && <span className="text-[11px] whitespace-nowrap overflow-hidden">{item.name}</span>}
             </NavLink>
         </motion.div>
     );
@@ -48,7 +48,6 @@ const GlobalSearch = () => {
         setLoading(true);
         try {
             const token = localStorage.getItem('admin_token') || sessionStorage.getItem('admin_token');
-            // Reusing public search but could be expanded for admin
             const response = await axios.get(`/api/v1/search?q=${val}`, {
                 headers: { 'Authorization': `Bearer ${token}` }
             });
@@ -66,12 +65,12 @@ const GlobalSearch = () => {
     }, [query, handleSearch]);
 
     return (
-        <div className="relative w-full max-w-md hidden md:block">
+        <div className="relative w-full max-w-md hidden md:block font-sans">
             <div className={`flex items-center gap-3 bg-black/[0.03] dark:bg-white/[0.03] border ${isOpen ? 'border-attire-accent' : 'border-black/5 dark:border-white/5'} rounded-2xl px-5 py-2.5 transition-all`}>
                 <Search size={16} className={isOpen ? 'text-attire-accent' : 'text-gray-400'} />
                 <input 
                     type="text" 
-                    placeholder="Search anything..." 
+                    placeholder="Search identity..." 
                     className="bg-transparent border-none outline-none text-[11px] font-bold uppercase tracking-widest w-full text-gray-900 dark:text-white placeholder:text-gray-400"
                     onFocus={() => setIsOpen(true)}
                     onBlur={() => setTimeout(() => setIsOpen(false), 200)}
@@ -115,7 +114,8 @@ const GlobalSearch = () => {
     );
 };
 
-const Sidebar = ({ isOpen, setOpen, isMobile = false }) => {
+const SidebarContent = ({ setOpen, isMobile }) => {
+    const { isDarkMode, toggleDarkMode } = useTheme();
     const navigate = useNavigate();
 
     const handleLogout = () => {
@@ -127,6 +127,7 @@ const Sidebar = ({ isOpen, setOpen, isMobile = false }) => {
 
     const navItems = [
         { name: 'Dashboard', to: '/admin', icon: LayoutDashboard },
+        { name: 'Customer Profiles', to: '/admin/customer-profiles', icon: Users },
         { name: 'Appointments', to: '/admin/appointments', icon: Calendar },
         { name: 'Products', to: '/admin/products', icon: ShoppingBag },
         { name: 'Gift Requests', to: '/admin/customize-gift', icon: Gift },
@@ -136,68 +137,66 @@ const Sidebar = ({ isOpen, setOpen, isMobile = false }) => {
         { name: 'Team Access', to: '/admin/users', icon: Users },
     ];
 
-    const SidebarContent = () => {
-        const { isDarkMode, toggleDarkMode } = useTheme();
-        
-        return (
-            <div className={`flex flex-col w-full bg-white dark:bg-[#0a0a0a] border-r border-black/5 dark:border-white/5 flex-shrink-0 h-full overflow-hidden transition-colors duration-300`}>
-                <div className="h-16 flex items-center justify-between px-6 border-b border-black/5 dark:border-white/5">
-                    <h1 className="text-sm font-bold tracking-[0.3em] text-gray-900 dark:text-white uppercase">Attire Lounge Official</h1>
-                    {isMobile && (
-                        <button onClick={() => setOpen(false)} className="text-gray-400 hover:text-gray-900 dark:hover:text-white lg:hidden">
-                            <X size={20} />
-                        </button>
-                    )}
-                </div>
-                <nav className="flex-grow p-4 space-y-2 mt-4">
-                    {navItems.map(item => <NavItem key={item.name} item={item} isCollapsed={false} />)}
-                </nav>
-                <div className="p-4 border-t border-black/5 dark:border-white/5 space-y-2">
-                    <button
-                        onClick={toggleDarkMode}
-                        className="w-full flex items-center px-4 py-3 text-sm font-medium text-gray-500 dark:text-gray-400 rounded-lg hover:bg-black/5 dark:hover:bg-white/5 hover:text-gray-900 dark:hover:text-white transition-colors"
-                    >
-                        {isDarkMode ? (
-                            <>
-                                <Sun className="w-5 h-5 mr-3" />
-                                <span>Light Mode</span>
-                            </>
-                        ) : (
-                            <>
-                                <Moon className="w-5 h-5 mr-3" />
-                                <span>Dark Mode</span>
-                            </>
-                        )}
+    return (
+        <div className="flex flex-col w-[280px] bg-white dark:bg-[#0a0a0a] border-r border-black/5 dark:border-white/5 flex-shrink-0 h-full overflow-hidden transition-colors duration-300 font-sans">
+            <div className="h-16 flex items-center justify-between px-6 border-b border-black/5 dark:border-white/5">
+                <h1 className="text-sm font-bold tracking-[0.3em] text-gray-900 dark:text-white uppercase whitespace-nowrap overflow-hidden">Attire Lounge</h1>
+                {isMobile && (
+                    <button onClick={() => setOpen(false)} className="text-gray-400 hover:text-gray-900 dark:hover:text-white lg:hidden">
+                        <X size={20} />
                     </button>
-                    <button
-                        onClick={handleLogout}
-                        className="w-full flex items-center px-4 py-3 text-sm font-medium text-gray-500 dark:text-gray-400 rounded-lg hover:bg-red-500/10 hover:text-red-400 transition-colors"
-                    >
-                        <LogOut className="w-5 h-5 mr-3" />
-                        <span>Logout</span>
-                    </button>
-                </div>
+                )}
             </div>
-        );
-    };
+            <nav className="flex-grow p-4 space-y-2 mt-4 overflow-y-auto attire-scrollbar">
+                {navItems.map(item => <NavItem key={item.name} item={item} isCollapsed={false} />)}
+            </nav>
+            <div className="p-4 border-t border-black/5 dark:border-white/5 space-y-2">
+                <button
+                    onClick={toggleDarkMode}
+                    className="w-full flex items-center px-4 py-3 text-sm font-bold uppercase tracking-widest text-gray-500 dark:text-gray-400 rounded-lg hover:bg-black/5 dark:hover:bg-white/5 hover:text-gray-900 dark:hover:text-white transition-colors"
+                >
+                    {isDarkMode ? (
+                        <>
+                            <Sun className="w-5 h-5 mr-3 flex-shrink-0" />
+                            <span className="text-[10px] whitespace-nowrap overflow-hidden">Light Mode</span>
+                        </>
+                    ) : (
+                        <>
+                            <Moon className="w-5 h-5 mr-3 flex-shrink-0" />
+                            <span className="text-[10px] whitespace-nowrap overflow-hidden">Dark Mode</span>
+                        </>
+                    )}
+                </button>
+                <button
+                    onClick={handleLogout}
+                    className="w-full flex items-center px-4 py-3 text-sm font-bold uppercase tracking-widest text-gray-500 dark:text-gray-400 rounded-lg hover:bg-red-500/10 hover:text-red-400 transition-colors"
+                >
+                    <LogOut className="w-5 h-5 mr-3 flex-shrink-0" />
+                    <span className="text-[10px] whitespace-nowrap overflow-hidden">Logout</span>
+                </button>
+            </div>
+        </div>
+    );
+};
 
+const Sidebar = ({ isOpen, setOpen, isMobile = false }) => {
     if (isMobile) {
         return (
             <AnimatePresence>
                 {isOpen && (
                     <>
                         <motion.div 
-                            className={`fixed inset-y-0 left-0 z-[100] transform lg:hidden`}
+                            className="fixed inset-y-0 left-0 z-[100] transform lg:hidden"
                             initial={{ x: '-100%' }}
                             animate={{ x: 0 }}
                             exit={{ x: '-100%' }}
                             transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
                         >
-                            <SidebarContent />
+                            <SidebarContent setOpen={setOpen} isMobile={true} />
                         </motion.div>
 
                         <motion.div
-                            className={`fixed inset-0 bg-black/60 backdrop-blur-sm z-[90] lg:hidden`}
+                            className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[90] lg:hidden"
                             initial={{ opacity: 0 }}
                             animate={{ opacity: 1 }}
                             exit={{ opacity: 0 }}
@@ -209,14 +208,21 @@ const Sidebar = ({ isOpen, setOpen, isMobile = false }) => {
         );
     }
 
-    return <SidebarContent />;
+    return <SidebarContent setOpen={setOpen} isMobile={false} />;
 };
 
 const AdminLayout = () => {
-    const [isSidebarVisible, setSidebarVisible] = useState(true);
+    const [isSidebarVisible, setSidebarVisible] = useState(false);
     const [isMobileOpen, setMobileOpen] = useState(false);
     const [isDesktop, setIsDesktop] = useState(window.innerWidth >= 1024);
-    const location = useLocation();
+
+    useEffect(() => {
+        const handleResize = () => {
+            setIsDesktop(window.innerWidth >= 1024);
+        };
+        window.addEventListener('resize', handleResize);
+        return () => window.removeEventListener('resize', handleResize);
+    }, []);
 
     return (
         <ThemeProvider>
@@ -226,29 +232,18 @@ const AdminLayout = () => {
                 isMobileOpen={isMobileOpen} 
                 setMobileOpen={setMobileOpen} 
                 isDesktop={isDesktop} 
-                setIsDesktop={setIsDesktop} 
             />
         </ThemeProvider>
     );
 };
 
-const AdminLayoutContent = ({ isSidebarVisible, setSidebarVisible, isMobileOpen, setMobileOpen, isDesktop, setIsDesktop }) => {
+const AdminLayoutContent = ({ isSidebarVisible, setSidebarVisible, isMobileOpen, setMobileOpen, isDesktop }) => {
     const { isEditing, showCollections, setShowCollections, collections, fetchCollections } = useAdmin();
     const location = useLocation();
     const [isSafariBrowser, setIsSafariBrowser] = useState(false);
 
     useEffect(() => {
         setIsSafariBrowser(isSafari());
-    }, []);
-
-    useEffect(() => {
-        const handleResize = () => {
-            setIsDesktop(window.innerWidth >= 1024);
-        };
-
-        window.addEventListener('resize', handleResize);
-        
-        return () => window.removeEventListener('resize', handleResize);
     }, []);
 
     return (
@@ -265,17 +260,26 @@ const AdminLayoutContent = ({ isSidebarVisible, setSidebarVisible, isMobileOpen,
             </AnimatePresence>
 
             {/* Desktop Sidebar with Motion */}
-            <AnimatePresence initial={false}>
-// ... (Note: This replacement handles the rendering, I will add the component definition next) ...
-                {!isEditing && !showCollections && isDesktop && isSidebarVisible && (
+            <AnimatePresence mode="wait">
+                {isDesktop && isSidebarVisible && !isEditing && !showCollections && (
                     <motion.div
+                        key="admin-sidebar"
                         initial={{ width: 0, opacity: 0 }}
-                        animate={{ width: 256, opacity: 1 }}
+                        animate={{ width: 280, opacity: 1 }}
                         exit={{ width: 0, opacity: 0 }}
-                        transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
+                        transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
                         className="hidden lg:block overflow-hidden h-full flex-shrink-0 bg-white dark:bg-[#0a0a0a]"
                     >
-                        <Sidebar isOpen={isMobileOpen} setOpen={setMobileOpen} />
+                        {/* Fading inner container to prevent text folding */}
+                        <motion.div
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            exit={{ opacity: 0 }}
+                            transition={{ duration: 0.2 }}
+                            className="h-full"
+                        >
+                            <Sidebar isOpen={isMobileOpen} setOpen={setMobileOpen} />
+                        </motion.div>
                     </motion.div>
                 )}
             </AnimatePresence>
@@ -316,7 +320,7 @@ const AdminLayoutContent = ({ isSidebarVisible, setSidebarVisible, isMobileOpen,
                 )}
 
                 <main className={`flex-1 overflow-y-auto relative ${isEditing || showCollections ? 'p-0' : 'p-6 md:p-10'}`}>
-                    {/* Background decoration - only show when not editing for cleaner focus */}
+                    {/* Background decoration */}
                     {!isSafariBrowser && !isEditing && !showCollections && (
                         <div className="absolute top-0 left-0 w-full h-full pointer-events-none opacity-20 overflow-hidden">
                             <div className="absolute -top-24 -left-24 w-96 h-96 bg-attire-accent/10 blur-[120px] rounded-full" />
@@ -325,17 +329,7 @@ const AdminLayoutContent = ({ isSidebarVisible, setSidebarVisible, isMobileOpen,
                     )}
 
                     <div className={`relative z-10 ${isEditing ? 'max-w-none' : 'max-w-7xl mx-auto'}`}>
-                        <AnimatePresence mode="wait">
-                            <motion.div
-                                key={location.pathname}
-                                initial={{ opacity: 0, y: 10 }}
-                                animate={{ opacity: 1, y: 0 }}
-                                exit={{ opacity: 0, y: -10 }}
-                                transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
-                            >
-                                <Outlet />
-                            </motion.div>
-                        </AnimatePresence>
+                        <Outlet />
                     </div>
                 </main>
             </div>
@@ -355,7 +349,6 @@ const CollectionManagerModal = ({ collections, onClose, onRefresh }) => {
     const handleNameChange = (e) => {
         const val = e.target.value;
         setName(val);
-        // Auto-generate slug ✨
         setSlug(val.toLowerCase().replace(/ /g, '-').replace(/[^\w-]/g, ''));
     };
 
@@ -377,12 +370,11 @@ const CollectionManagerModal = ({ collections, onClose, onRefresh }) => {
             });
 
             if (response.data.success) {
-                console.log("Collection Created Successfully! (ﾉ´ヮ\`)ﾉ*:･ﾟ✧");
                 setName('');
                 setSlug('');
                 setDescription('');
                 onRefresh();
-                setActiveTab('manage'); // Show the list after adding
+                setActiveTab('manage');
             }
         } catch (err) {
             console.error("Failed to create collection:", err);
@@ -401,7 +393,6 @@ const CollectionManagerModal = ({ collections, onClose, onRefresh }) => {
                 });
 
                 if (response.data.success) {
-                    console.log("Collection Deleted! (｡♥‿♥｡)");
                     onRefresh();
                 }
             } catch (err) {
@@ -425,26 +416,26 @@ const CollectionManagerModal = ({ collections, onClose, onRefresh }) => {
                 initial={{ opacity: 0, scale: 0.95, y: 20 }}
                 animate={{ opacity: 1, scale: 1, y: 0 }}
                 exit={{ opacity: 0, scale: 0.95, y: 20 }}
-                className="relative w-full max-w-xl bg-[#0d0d0d] border border-white/10 rounded-3xl overflow-hidden shadow-[0_30px_100px_rgba(0,0,0,0.8)] z-[10000]"
+                className="relative w-full max-w-xl bg-white dark:bg-[#0d0d0d] border border-black/5 dark:border-white/10 rounded-3xl overflow-hidden shadow-[0_30px_100px_rgba(0,0,0,0.8)] z-[10000] font-sans"
             >
-                <div className="p-8 border-b border-white/5">
+                <div className="p-8 border-b border-black/5 dark:border-white/5 bg-black/[0.02] dark:bg-white/[0.02]">
                     <div className="flex justify-between items-center mb-6">
-                        <h2 className="text-2xl font-serif text-white">Collections</h2>
-                        <button onClick={onClose} className="p-2 hover:bg-white/5 rounded-full text-white/40 hover:text-white transition-all">
+                        <h2 className="text-2xl font-serif text-gray-900 dark:text-white">Collections</h2>
+                        <button onClick={onClose} className="p-2 hover:bg-black/5 dark:hover:bg-white/5 rounded-full text-gray-400 hover:text-gray-900 dark:hover:text-white transition-all">
                             <X size={20} />
                         </button>
                     </div>
 
-                    <div className="flex gap-2 p-1 bg-white/5 rounded-xl w-fit">
+                    <div className="flex gap-2 p-1 bg-black/5 dark:bg-white/5 rounded-xl w-fit">
                         <button 
                             onClick={() => setActiveTab('manage')}
-                            className={`px-6 py-2 rounded-lg text-[10px] font-bold uppercase tracking-widest transition-all ${activeTab === 'manage' ? 'bg-white text-black' : 'text-white/40 hover:text-white'}`}
+                            className={`px-6 py-2 rounded-lg text-[10px] font-bold uppercase tracking-widest transition-all ${activeTab === 'manage' ? 'bg-white dark:bg-white text-black' : 'text-gray-400 hover:text-gray-900 dark:hover:text-white'}`}
                         >
                             Existing
                         </button>
                         <button 
                             onClick={() => setActiveTab('add')}
-                            className={`px-6 py-2 rounded-lg text-[10px] font-bold uppercase tracking-widest transition-all ${activeTab === 'add' ? 'bg-white text-black' : 'text-white/40 hover:text-white'}`}
+                            className={`px-6 py-2 rounded-lg text-[10px] font-bold uppercase tracking-widest transition-all ${activeTab === 'add' ? 'bg-white dark:bg-white text-black' : 'text-gray-400 hover:text-gray-900 dark:hover:text-white'}`}
                         >
                             Add New
                         </button>
@@ -456,10 +447,10 @@ const CollectionManagerModal = ({ collections, onClose, onRefresh }) => {
                         <div className="space-y-3">
                             {collections.length > 0 ? (
                                 collections.map(col => (
-                                    <div key={col.id} className="flex items-center justify-between p-4 bg-white/5 border border-white/5 rounded-2xl group hover:border-white/10 transition-all">
+                                    <div key={col.id} className="flex items-center justify-between p-4 bg-black/[0.02] dark:bg-white/5 border border-black/5 dark:border-white/5 rounded-2xl group hover:border-attire-accent/30 transition-all">
                                         <div>
-                                            <p className="text-sm font-bold text-white uppercase tracking-wider">{col.name}</p>
-                                            <p className="text-[10px] text-white/30 font-mono mt-1">{col.slug}</p>
+                                            <p className="text-sm font-bold text-gray-900 dark:text-white uppercase tracking-wider">{col.name}</p>
+                                            <p className="text-[10px] text-gray-400 dark:text-white/30 font-mono mt-1">{col.slug}</p>
                                         </div>
                                         <button 
                                             onClick={() => handleDeleteCollection(col.id, col.name)}
@@ -470,7 +461,7 @@ const CollectionManagerModal = ({ collections, onClose, onRefresh }) => {
                                     </div>
                                 ))
                             ) : (
-                                <p className="text-center py-12 text-white/30 text-xs uppercase tracking-widest italic">No custom collections found.</p>
+                                <p className="text-center py-12 text-gray-400 dark:text-white/30 text-xs uppercase tracking-widest italic">No custom collections found.</p>
                             )}
                         </div>
                     ) : (
@@ -484,48 +475,48 @@ const CollectionManagerModal = ({ collections, onClose, onRefresh }) => {
 
                             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                                 <div className="md:col-span-2 space-y-2">
-                                    <label className="text-[10px] font-bold text-attire-silver/50 uppercase tracking-widest ml-1">Collection Name</label>
+                                    <label className="text-[10px] font-bold text-gray-400 dark:text-attire-silver/50 uppercase tracking-widest ml-1">Collection Name</label>
                                     <input 
                                         type="text" 
                                         required
                                         value={name}
                                         onChange={handleNameChange}
-                                        className="w-full bg-white/5 border border-white/10 rounded-2xl py-4 px-6 text-white text-sm focus:border-attire-accent outline-none transition-all"
+                                        className="w-full bg-black/5 dark:bg-white/5 border border-black/5 dark:border-white/10 rounded-2xl py-4 px-6 text-gray-900 dark:text-white text-sm focus:border-attire-accent outline-none transition-all"
                                         placeholder="e.g. Autumn / Winter 25"
                                     />
                                 </div>
                                 <div className="space-y-2">
-                                    <label className="text-[10px] font-bold text-attire-silver/50 uppercase tracking-widest ml-1">Year</label>
+                                    <label className="text-[10px] font-bold text-gray-400 dark:text-attire-silver/50 uppercase tracking-widest ml-1">Year</label>
                                     <input 
                                         type="number" 
                                         required
                                         value={year}
                                         onChange={e => setYear(e.target.value)}
-                                        className="w-full bg-white/5 border border-white/10 rounded-2xl py-4 px-6 text-white text-sm focus:border-attire-accent outline-none transition-all font-mono"
+                                        className="w-full bg-black/5 dark:bg-white/5 border border-black/5 dark:border-white/10 rounded-2xl py-4 px-6 text-gray-900 dark:text-white text-sm focus:border-attire-accent outline-none transition-all font-mono"
                                         placeholder="2025"
                                     />
                                 </div>
                             </div>
 
                             <div className="space-y-2">
-                                <label className="text-[10px] font-bold text-attire-silver/50 uppercase tracking-widest ml-1">Collection Slug</label>
+                                <label className="text-[10px] font-bold text-gray-400 dark:text-attire-silver/50 uppercase tracking-widest ml-1">Collection Slug</label>
                                 <input 
                                     type="text" 
                                     required
                                     value={slug}
                                     onChange={e => setSlug(e.target.value)}
-                                    className="w-full bg-white/5 border border-white/10 rounded-2xl py-4 px-6 text-white/50 text-sm focus:border-attire-accent outline-none transition-all font-mono"
+                                    className="w-full bg-black/5 dark:bg-white/5 border border-black/5 dark:border-white/10 rounded-2xl py-4 px-6 text-gray-900 dark:text-white/50 text-sm focus:border-attire-accent outline-none transition-all font-mono"
                                     placeholder="unique-slug-identifier"
                                 />
                             </div>
 
                             <div className="space-y-2">
-                                <label className="text-[10px] font-bold text-attire-silver/50 uppercase tracking-widest ml-1">Description</label>
+                                <label className="text-[10px] font-bold text-gray-400 dark:text-attire-silver/50 uppercase tracking-widest ml-1">Description</label>
                                 <textarea 
                                     rows={3}
                                     value={description}
                                     onChange={e => setDescription(e.target.value)}
-                                    className="w-full bg-white/5 border border-white/10 rounded-2xl py-4 px-6 text-white text-sm focus:border-attire-accent outline-none transition-all resize-none"
+                                    className="w-full bg-black/5 dark:bg-white/5 border border-black/5 dark:border-white/10 rounded-2xl py-4 px-6 text-gray-900 dark:text-white text-sm focus:border-attire-accent outline-none transition-all resize-none"
                                     placeholder="Describe the essence of this collection..."
                                 />
                             </div>
@@ -534,14 +525,14 @@ const CollectionManagerModal = ({ collections, onClose, onRefresh }) => {
                                 <button 
                                     type="button"
                                     onClick={onClose}
-                                    className="flex-grow py-4 border border-white/10 rounded-2xl text-[11px] font-bold uppercase tracking-[0.3em] text-white/40 hover:text-white hover:bg-white/5 transition-all"
+                                    className="flex-grow py-4 border border-black/5 dark:border-white/10 rounded-2xl text-[11px] font-bold uppercase tracking-[0.3em] text-gray-400 hover:text-gray-900 dark:hover:text-white transition-all"
                                 >
                                     Cancel
                                 </button>
                                 <button 
                                     type="submit"
                                     disabled={saving}
-                                    className="flex-grow py-4 bg-white text-black rounded-2xl text-[11px] font-bold uppercase tracking-[0.3em] hover:bg-attire-accent transition-all flex items-center justify-center gap-3 disabled:opacity-50"
+                                    className="flex-grow py-4 bg-black dark:bg-white text-white dark:text-black rounded-2xl text-[11px] font-bold uppercase tracking-[0.3em] hover:bg-attire-accent transition-all flex items-center justify-center gap-3 disabled:opacity-50"
                                 >
                                     {saving ? <Loader className="animate-spin" size={14} /> : <Check size={14} />}
                                     {saving ? 'Creating...' : 'Create Collection'}

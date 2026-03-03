@@ -7,6 +7,7 @@ use App\Models\Collection;
 use App\Models\GiftRequest;
 use App\Models\Product;
 use App\Models\NewsletterSubscription;
+use App\Models\CustomerProfile;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
@@ -56,6 +57,7 @@ class AdminController extends Controller
             'data' => [
                 'appointments' => Appointment::count(),
                 'gifts' => GiftRequest::count(),
+                'total_customers' => CustomerProfile::count(),
                 'products' => Product::count(),
                 'collections' => Collection::count(),
                 'subscribers' => NewsletterSubscription::count(),
