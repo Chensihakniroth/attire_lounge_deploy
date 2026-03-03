@@ -23,9 +23,24 @@ class CustomerProfileRepository implements CustomerProfileRepositoryInterface
         return $this->model->orderBy('created_at', 'desc')->get();
     }
 
-    public function getPaginated(int $perPage = 15)
+    public function getPaginated(int $perPage = 15, array $filters = [])
     {
-        return $this->model->orderBy('created_at', 'desc')->paginate($perPage);
+        $query = $this->model->newQuery();
+
+        if (isset($filters['search']) && !empty($filters['search'])) {
+            $search = $filters['search'];
+            $query->where(function ($q) use ($search) {
+                $q->where('name', 'like', "%{$search}%")
+                  ->orWhere('phone', 'like', "%{$search}%")
+                  ->orWhere('nationality', 'like', "%{$search}%");
+            });
+        }
+
+        if (isset($filters['status']) && !empty($filters['status']) && $filters['status'] !== 'All') {
+            $query->where('client_status', $filters['status']);
+        }
+
+        return $query->orderBy('created_at', 'desc')->paginate($perPage);
     }
 
     public function create(array $data): CustomerProfile

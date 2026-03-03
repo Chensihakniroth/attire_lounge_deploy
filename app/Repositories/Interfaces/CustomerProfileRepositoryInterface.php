@@ -18,9 +18,10 @@ interface CustomerProfileRepositoryInterface
      * Get paginated customer profiles.
      *
      * @param int $perPage
+     * @param array $filters
      * @return \Illuminate\Pagination\LengthAwarePaginator
      */
-    public function getPaginated(int $perPage = 15);
+    public function getPaginated(int $perPage = 15, array $filters = []);
 
     /**
      * Create a new customer profile.

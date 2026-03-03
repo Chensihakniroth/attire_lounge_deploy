@@ -15,9 +15,10 @@ class CustomerProfileController extends Controller
         $this->customerProfileService = $customerProfileService;
     }
 
-    public function index(): JsonResponse
+    public function index(Request $request): JsonResponse
     {
-        $customerProfiles = $this->customerProfileService->getAllCustomerProfiles();
+        $filters = $request->only(['search', 'status', 'per_page']);
+        $customerProfiles = $this->customerProfileService->getAllCustomerProfiles($filters);
         return response()->json($customerProfiles);
     }
 

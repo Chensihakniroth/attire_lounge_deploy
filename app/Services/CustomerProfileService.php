@@ -19,9 +19,10 @@ class CustomerProfileService
         $this->customerProfileRepository = $customerProfileRepository;
     }
 
-    public function getAllCustomerProfiles(int $perPage = 15)
+    public function getAllCustomerProfiles(array $filters = [])
     {
-        return $this->customerProfileRepository->getPaginated($perPage);
+        $perPage = $filters['per_page'] ?? 15;
+        return $this->customerProfileRepository->getPaginated($perPage, $filters);
     }
 
     public function createCustomerProfile(array $data): CustomerProfile

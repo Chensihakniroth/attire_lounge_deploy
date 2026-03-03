@@ -19,17 +19,17 @@ class ActivityController extends Controller
         $query = Activity::with('user')->latest();
 
         // Optional filtering by action
-        if ($request->has('action')) {
+        if ($request->filled('action')) {
             $query->where('action', $request->action);
         }
 
         // Optional filtering by user
-        if ($request->has('user_id')) {
+        if ($request->filled('user_id')) {
             $query->where('user_id', $request->user_id);
         }
 
         // Optional filtering by model type
-        if ($request->has('model_type')) {
+        if ($request->filled('model_type')) {
             $query->where('model_type', $request->model_type);
         }
 

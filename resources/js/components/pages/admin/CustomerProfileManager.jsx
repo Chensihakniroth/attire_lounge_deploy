@@ -3,7 +3,7 @@ import { createPortal } from 'react-dom';
 import { Link } from 'react-router-dom';
 import { 
     User, Trash2, Plus, Edit, X, Check, Loader, AlertCircle, 
-    ChevronDown, ChevronRight, UserCheck, Share2, Search, Filter, Eye, Globe, Phone, PlusCircle,
+    ChevronDown, ChevronRight, ChevronLeft, UserCheck, Share2, Search, Filter, Eye, Globe, Phone, PlusCircle,
     UserPlus, ShieldCheck, Users, Briefcase
 } from 'lucide-react';
 import axios from 'axios';
@@ -25,7 +25,7 @@ const CustomDropdown = ({ label, selected, options, onChange, icon: Icon }) => {
                 className="w-full bg-black/5 dark:bg-white/5 border border-black/5 dark:border-white/10 rounded-2xl py-4 px-6 text-gray-900 dark:text-white text-sm text-left focus:border-attire-accent outline-none transition-all cursor-pointer flex items-center justify-between group"
             >
                 <div className="flex items-center gap-3">
-                    {Icon && <Icon className="text-gray-400 dark:text-white/20 group-hover:text-attire-accent transition-colors" size={16} />}
+                    {Icon && <Icon className="text-white/20 group-hover:text-attire-accent transition-colors" size={16} />}
                     <span className="truncate">{displayName}</span>
                 </div>
                 <div className={`transition-transform duration-300 ${isOpen ? 'rotate-180' : ''}`}>
@@ -55,7 +55,7 @@ const CustomDropdown = ({ label, selected, options, onChange, icon: Icon }) => {
                                         className={`w-full text-left px-4 py-3 rounded-xl text-xs font-bold uppercase tracking-widest transition-all mb-1 last:mb-0 ${
                                             selected === opt.value 
                                                 ? 'bg-attire-accent text-black' 
-                                                : 'text-gray-500 dark:text-white/40 hover:bg-black/5 dark:hover:bg-white/5 hover:text-gray-900 dark:hover:text-white'
+                                                : 'text-gray-500 dark:text-white/40 hover:bg-white/5 hover:text-white'
                                         }`}
                                     >
                                         {opt.label}
@@ -138,6 +138,12 @@ const CustomerProfileManager = () => {
     const [error, setError] = useState(null);
     const [searchQuery, setSearchQuery] = useState('');
     const [filterStatus, setFilterStatus] = useState('All');
+    const [pagination, setPagination] = useState({
+        current_page: 1,
+        last_page: 1,
+        total: 0,
+        per_page: 15
+    });
     
     const [formData, setFormData] = useState({
         date: '',
@@ -162,22 +168,45 @@ const CustomerProfileManager = () => {
     const PANTS_SIZES = ['28', '29', '30', '31', '32', '33', '34', '36', '38', '40', '42'];
     const SHOES_SIZES = ['39', '40', '41', '42', '43', '44', '45'];
 
-    const fetchData = useCallback(async () => {
+    const fetchData = useCallback(async (page = 1) => {
         setLoading(true);
         try {
             const token = localStorage.getItem('admin_token') || sessionStorage.getItem('admin_token');
-            const res = await axios.get('/api/v1/admin/customer-profiles', { headers: { 'Authorization': `Bearer ${token}` } });
+            const res = await axios.get('/api/v1/admin/customer-profiles', { 
+                params: {
+                    page,
+                    search: searchQuery,
+                    status: filterStatus,
+                    per_page: pagination.per_page
+                },
+                headers: { 'Authorization': `Bearer ${token}` } 
+            });
             setProfiles(res.data.data);
+            setPagination({
+                current_page: res.data.current_page,
+                last_page: res.data.last_page,
+                total: res.data.total,
+                per_page: res.data.per_page
+            });
         } catch (error) {
             console.error('Error fetching customer profiles:', error);
         } finally {
             setLoading(false);
         }
-    }, []);
+    }, [searchQuery, filterStatus, pagination.per_page]);
 
     useEffect(() => {
-        fetchData();
-    }, [fetchData]);
+        const timer = setTimeout(() => {
+            fetchData(1);
+        }, 300);
+        return () => clearTimeout(timer);
+    }, [searchQuery, filterStatus]);
+
+    const handlePageChange = (newPage) => {
+        if (newPage >= 1 && newPage <= pagination.last_page) {
+            fetchData(newPage);
+        }
+    };
 
     const handleOpenModal = (profile = null) => {
         setError(null);
@@ -246,7 +275,7 @@ const CustomerProfileManager = () => {
                 });
             }
             setShowModal(false);
-            fetchData();
+            fetchData(pagination.current_page);
         } catch (error) {
             console.error('Error saving profile:', error);
             setError(error.response?.data?.message || 'Failed to save profile.');
@@ -262,23 +291,12 @@ const CustomerProfileManager = () => {
             await axios.delete(`/api/v1/admin/customer-profiles/${id}`, {
                 headers: { 'Authorization': `Bearer ${token}` }
             });
-            fetchData();
+            fetchData(pagination.current_page);
         } catch (error) {
             console.error('Error deleting profile:', error);
             alert(error.response?.data?.message || 'Failed to delete profile.');
         }
     };
-
-    const filteredProfiles = profiles.filter(p => {
-        const matchesSearch = 
-            p.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
-            (p.phone && p.phone.includes(searchQuery)) ||
-            (p.nationality && p.nationality.toLowerCase().includes(searchQuery.toLowerCase()));
-        
-        const matchesFilter = filterStatus === 'All' || p.client_status === filterStatus;
-        
-        return matchesSearch && matchesFilter;
-    });
 
     const SizeToggleGroup = ({ label, field, sizes }) => (
         <div className="space-y-4 bg-black/[0.02] dark:bg-white/[0.02] p-6 rounded-[2rem] border border-black/5 dark:border-white/5">
@@ -365,8 +383,8 @@ const CustomerProfileManager = () => {
                                             ))}
                                         </tr>
                                     ))
-                                ) : filteredProfiles.length > 0 ? (
-                                    filteredProfiles.map(profile => (
+                                ) : profiles.length > 0 ? (
+                                    profiles.map(profile => (
                                         <tr key={profile.id} className="group hover:bg-black/[0.01] dark:hover:bg-white/[0.01] transition-colors border-b border-black/5 dark:border-white/5 last:border-0">
                                             <td className="px-8 py-6">
                                                 <div className="flex items-center gap-4">
@@ -399,7 +417,7 @@ const CustomerProfileManager = () => {
                                             <td className="px-8 py-6">
                                                 <span className={`px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-widest border ${
                                                     profile.client_status === 'VIP' ? 'bg-attire-accent/10 text-attire-accent border-attire-accent/20' : 
-                                                    profile.client_status === 'Returning' ? 'bg-blue-500/10 text-blue-400 border border-blue-500/20' : 
+                                                    profile.client_status === 'Returning' ? 'bg-blue-500/10 text-blue-400 border-blue-500/20' : 
                                                     'bg-gray-500/10 text-gray-400 border border-gray-500/20'
                                                 }`}>
                                                     {profile.client_status}
@@ -445,6 +463,33 @@ const CustomerProfileManager = () => {
                             </tbody>
                         </table>
                     </div>
+
+                    {pagination.last_page > 1 && (
+                        <div className="px-8 py-6 border-t border-black/5 dark:border-white/5 bg-black/[0.01] dark:bg-white/[0.01] flex items-center justify-between">
+                            <p className="text-[10px] font-bold text-gray-400 dark:text-attire-silver/40 uppercase tracking-widest">
+                                Total: {pagination.total} clients
+                            </p>
+                            <div className="flex items-center gap-2">
+                                <button
+                                    onClick={() => handlePageChange(pagination.current_page - 1)}
+                                    disabled={pagination.current_page === 1}
+                                    className="p-2 border border-black/5 dark:border-white/10 rounded-xl disabled:opacity-30 hover:bg-black/5 dark:hover:bg-white/5 transition-all"
+                                >
+                                    <ChevronLeft size={16} />
+                                </button>
+                                <span className="text-[10px] font-bold text-gray-900 dark:text-white uppercase tracking-[0.2em] px-4">
+                                    Page {pagination.current_page} of {pagination.last_page}
+                                </span>
+                                <button
+                                    onClick={() => handlePageChange(pagination.current_page + 1)}
+                                    disabled={pagination.current_page === pagination.last_page}
+                                    className="p-2 border border-black/5 dark:border-white/10 rounded-xl disabled:opacity-30 hover:bg-black/5 dark:hover:bg-white/5 transition-all"
+                                >
+                                    <ChevronRight size={16} />
+                                </button>
+                            </div>
+                        </div>
+                    )}
                 </div>
 
                 {createPortal(
