@@ -1,10 +1,11 @@
 import React, { useEffect, useRef, useState, useMemo, memo } from 'react';
 import { motion } from 'framer-motion';
-import { ExternalLink, ArrowRight, MapPin, Calendar, Users, Star } from 'lucide-react';
+import { ExternalLink, ArrowRight, MapPin, Calendar, Users, Star, ChevronLeft, ChevronRight } from 'lucide-react';
 import minioBaseUrl from '../../config.js';
 import Skeleton from '../common/Skeleton.jsx';
 import OptimizedImage from '../common/OptimizedImage.jsx';
 import GrainOverlay from '../common/GrainOverlay.jsx';
+import { useAnimation } from 'framer-motion';
 
 const fadeUp = {
   hidden: { opacity: 0, y: 30 },
@@ -15,7 +16,9 @@ const fallback = "https://images.unsplash.com/photo-1594932224030-940af6602380?q
 
 const ActGallery = memo(({ act, title, description, images, isRight = false }) => {
   const containerRef = useRef(null);
+  const controls = useAnimation();
   const [constraints, setConstraints] = useState({ left: 0, right: 0 });
+  const [currentX, setCurrentX] = useState(0);
 
   useEffect(() => {
     if (containerRef.current) {
@@ -33,6 +36,22 @@ const ActGallery = memo(({ act, title, description, images, isRight = false }) =
       };
     }
   }, [images]);
+
+  const handleScroll = (direction) => {
+    if (!containerRef.current) return;
+    
+    // Calculate card width + gap
+    const card = containerRef.current.children[0];
+    const scrollAmount = card.offsetWidth + 24; 
+    
+    let nextX = direction === 'left' ? currentX + scrollAmount : currentX - scrollAmount;
+    
+    // Clamp to constraints
+    nextX = Math.max(constraints.left, Math.min(0, nextX));
+    
+    setCurrentX(nextX);
+    controls.start({ x: nextX, transition: { duration: 0.8, ease: [0.22, 1, 0.36, 1] } });
+  };
 
   return (
     <section className="py-24 lg:py-40 container mx-auto px-8 lg:px-32 overflow-hidden">
@@ -62,34 +81,64 @@ const ActGallery = memo(({ act, title, description, images, isRight = false }) =
         </div>
       </div>
       
-      <div className="relative overflow-hidden cursor-grab active:cursor-grabbing">
-        <motion.div 
-          ref={containerRef}
-          drag="x"
-          dragConstraints={constraints}
-          dragElastic={0.1}
-          dragTransition={{ 
-            power: 0.1, 
-            timeConstant: 400 
-          }}
-          whileDrag={{ scale: 0.998 }}
-          className="flex gap-6 pb-12 will-change-transform"
-          style={{ touchAction: 'none' }}
-        >
-          {images.map((src, i) => (
-            <div 
-              key={i} 
-              className="flex-none w-[220px] md:w-[280px] lg:w-[340px] aspect-[3/4.2] rounded-[1px] shadow-xl border border-white/5 select-none overflow-hidden"
-            >
-              <OptimizedImage src={src} alt={`${act} - Walk ${i + 1}`} fallback={fallback} />
-            </div>
-          ))}
-          <div className="flex-none w-px md:w-32" />
-        </motion.div>
+      <div className="relative group overflow-visible">
+        {/* Navigation Arrows ✨ */}
+        <div className="absolute inset-y-0 -left-4 lg:-left-12 z-20 flex items-center">
+          <button 
+            onClick={() => handleScroll('left')}
+            disabled={currentX >= 0}
+            className="p-4 rounded-full bg-white/5 backdrop-blur-xl border border-white/10 text-white/40 hover:text-attire-accent hover:border-attire-accent/40 hover:bg-white/10 transition-all disabled:opacity-0 disabled:pointer-events-none group-hover:translate-x-2 lg:group-hover:translate-x-0"
+          >
+            <ChevronLeft size={24} strokeWidth={1} />
+          </button>
+        </div>
+
+        <div className="absolute inset-y-0 -right-4 lg:-right-12 z-20 flex items-center">
+          <button 
+            onClick={() => handleScroll('right')}
+            disabled={currentX <= constraints.left}
+            className="p-4 rounded-full bg-white/5 backdrop-blur-xl border border-white/10 text-white/40 hover:text-attire-accent hover:border-attire-accent/40 hover:bg-white/10 transition-all disabled:opacity-0 disabled:pointer-events-none group-hover:-translate-x-2 lg:group-hover:-translate-x-0"
+          >
+            <ChevronRight size={24} strokeWidth={1} />
+          </button>
+        </div>
+
+        <div className="relative overflow-hidden cursor-grab active:cursor-grabbing">
+          <motion.div 
+            ref={containerRef}
+            drag="x"
+            animate={controls}
+            dragConstraints={constraints}
+            dragElastic={0.1}
+            onDragStart={() => controls.stop()}
+            onDragEnd={(e, info) => {
+              // Keep our internal currentX state in sync with drag
+              const transform = new WebKitCSSMatrix(window.getComputedStyle(containerRef.current).transform);
+              setCurrentX(transform.m41);
+            }}
+            dragTransition={{ 
+              power: 0.1, 
+              timeConstant: 400 
+            }}
+            whileDrag={{ scale: 0.998 }}
+            className="flex gap-6 pb-12 will-change-transform"
+            style={{ touchAction: 'none' }}
+          >
+            {images.map((src, i) => (
+              <div 
+                key={i} 
+                className="flex-none w-[220px] md:w-[280px] lg:w-[340px] aspect-[3/4.2] rounded-[1px] shadow-xl border border-white/5 select-none overflow-hidden hover:border-white/20 transition-colors"
+              >
+                <OptimizedImage src={src} alt={`${act} - Walk ${i + 1}`} fallback={fallback} />
+              </div>
+            ))}
+            <div className="flex-none w-px md:w-32" />
+          </motion.div>
+        </div>
         
-        <div className="flex items-center justify-center gap-4 opacity-20">
+        <div className="flex items-center justify-center gap-4 opacity-20 mt-4">
           <div className="h-px w-16 bg-gradient-to-r from-transparent to-white" />
-          <span className="text-[8px] uppercase tracking-[0.5em] font-bold">Slide to Reveal</span>
+          <span className="text-[8px] uppercase tracking-[0.5em] font-bold italic">Explore Act</span>
           <div className="h-px w-16 bg-gradient-to-l from-transparent to-white" />
         </div>
       </div>

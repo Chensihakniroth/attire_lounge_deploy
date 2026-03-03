@@ -45,10 +45,15 @@ class AdminController extends Controller
                 ->whereMonth('created_at', $month->month)
                 ->count();
 
+            $customerCount = CustomerProfile::whereYear('created_at', $month->year)
+                ->whereMonth('created_at', $month->month)
+                ->count();
+
             $trends[] = [
                 'name' => $monthName,
                 'appointments' => $appointmentCount,
                 'gifts' => $giftCount,
+                'customers' => $customerCount,
             ];
         }
 
