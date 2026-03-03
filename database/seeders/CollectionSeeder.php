@@ -9,7 +9,7 @@ class CollectionSeeder extends Seeder
 {
     /**
      * Run the database seeds.
-     * Updated to match the existing database state for Attire Lounge Styling House.
+     * Updated to match the existing database state for Attire Lounge Official Styling House.
      */
     public function run(): void
     {

@@ -186,7 +186,7 @@ const Navigation = () => {
                                 className="flex flex-col items-center"
                             >
                                 <span className={`font-serif text-lg md:text-xl font-medium tracking-[0.2em] uppercase ${navTextColor} group-hover:text-attire-accent transition-colors`}>
-                                    Attire Lounge
+                                    Attire Lounge Official
                                 </span>
                             </motion.div>
                         </Link>

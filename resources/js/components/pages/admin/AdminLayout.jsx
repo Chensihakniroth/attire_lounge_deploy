@@ -142,7 +142,7 @@ const Sidebar = ({ isOpen, setOpen, isMobile = false }) => {
         return (
             <div className={`flex flex-col w-full bg-white dark:bg-[#0a0a0a] border-r border-black/5 dark:border-white/5 flex-shrink-0 h-full overflow-hidden transition-colors duration-300`}>
                 <div className="h-16 flex items-center justify-between px-6 border-b border-black/5 dark:border-white/5">
-                    <h1 className="text-sm font-bold tracking-[0.3em] text-gray-900 dark:text-white uppercase">Attire Lounge</h1>
+                    <h1 className="text-sm font-bold tracking-[0.3em] text-gray-900 dark:text-white uppercase">Attire Lounge Official</h1>
                     {isMobile && (
                         <button onClick={() => setOpen(false)} className="text-gray-400 hover:text-gray-900 dark:hover:text-white lg:hidden">
                             <X size={20} />

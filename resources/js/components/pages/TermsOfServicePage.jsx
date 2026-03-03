@@ -41,7 +41,7 @@ const TermsOfServicePage = () => {
                 animate={{ opacity: 1 }}
                 transition={{ delay: 0.2, duration: 0.8 }}
             >
-                Welcome to Attire Lounge. By accessing our website, you agree to comply with and be bound by the following terms and conditions of use.
+                Welcome to Attire Lounge Official. By accessing our website, you agree to comply with and be bound by the following terms and conditions of use.
             </motion.p>
             
             <div className="space-y-8">
@@ -59,7 +59,7 @@ const TermsOfServicePage = () => {
                 </div>
 
                 <InfoSection icon={Copyright} title="Copyright">
-                    <p>All content published on this website (images, texts, graphics, logos) is the property of Attire Lounge and/or its content creators, protected by international copyright laws.</p>
+                    <p>All content published on this website (images, texts, graphics, logos) is the property of Attire Lounge Official and/or its content creators, protected by international copyright laws.</p>
                 </InfoSection>
 
                 <InfoSection icon={MessageCircle} title="Communications">

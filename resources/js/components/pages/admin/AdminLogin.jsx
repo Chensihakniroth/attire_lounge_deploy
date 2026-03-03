@@ -88,7 +88,7 @@ const AdminLogin = () => {
                         transition={{ delay: 0.5, duration: 0.8 }}
                     >
                         <h1 className="text-6xl font-serif leading-tight tracking-tighter mt-12">
-                            Attire Lounge <br />
+                            Attire Lounge Official <br />
                             <span className="text-white/30 italic font-light">Styling House</span>
                         </h1>
                     </motion.div>
@@ -133,7 +133,7 @@ const AdminLogin = () => {
                         >
                             <img 
                                 src={logoUrl} 
-                                alt="Attire Lounge Logo" 
+                                alt="Attire Lounge Official Logo" 
                                 className="w-24 h-auto object-contain brightness-110 drop-shadow-[0_0_15px_rgba(255,255,255,0.1)]"
                             />
                         </motion.div>

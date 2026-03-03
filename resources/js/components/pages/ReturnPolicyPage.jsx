@@ -47,7 +47,7 @@ const ReturnPolicyPage = () => {
                 animate={{ opacity: 1 }}
                 transition={{ delay: 0.2, duration: 0.8 }}
             >
-                We want you to be completely satisfied with your Attire Lounge purchase. Please review our detailed return policy below.
+                We want you to be completely satisfied with your Attire Lounge Official purchase. Please review our detailed return policy below.
             </motion.p>
             
             <div className="grid md:grid-cols-2 gap-8 mb-8">

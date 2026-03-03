@@ -11,14 +11,14 @@ interface SEOProps {
 }
 
 const SEO: React.FC<SEOProps> = ({
-  title = "Attire Lounge | cambodia Styling House",
-  description = "Attire Lounge is Phnom Penh's premier Styling House, offering Milan-certified expert styling, curated luxury menswear collections, and personalized fashion consulting for the modern gentleman.",
-  keywords = "styling house, curated menswear, luxury fashion, Attire Lounge, modern gentleman, Phnom Penh styling, menswear consulting",
+  title = "Attire Lounge Official | cambodia Styling House",
+  description = "Attire Lounge Official is Phnom Penh's premier Styling House, offering Milan-certified expert styling, curated luxury menswear collections, and personalized fashion consulting for the modern gentleman.",
+  keywords = "styling house, curated menswear, luxury fashion, Attire Lounge Official, modern gentleman, Phnom Penh styling, menswear consulting",
   image = "/images/og-image.jpg",
   url = "https://www.attireloungeofficial.com/",
   type = "website"
 }) => {
-  const siteTitle = title.includes("Attire Lounge") ? title : `${title} | Attire Lounge`;
+  const siteTitle = title.includes("Attire Lounge Official") ? title : `${title} | Attire Lounge Official`;
 
   return (
     <Helmet>

@@ -24,7 +24,7 @@ const ProductListPage: React.FC = () => {
     const query = useQuery();
     const collectionQuery = query.get('collection');
     const { data: collectionsData } = useCollections();
-    
+
     const collections = useMemo(() => collectionsData || [], [collectionsData]);
 
     const [sortOrder, setSortOrder] = useState<string>('newest');
@@ -35,7 +35,7 @@ const ProductListPage: React.FC = () => {
         return collectionQuery ? [collectionQuery] : [];
     });
 
-    const productsPerPage = 12; 
+    const productsPerPage = 12;
     const [currentLoadedPage, setCurrentLoadedPage] = useState<number>(1);
     const [allLoadedProducts, setAllLoadedProducts] = useState<Product[]>([]);
     const [hasMore, setHasMore] = useState<boolean>(true);
@@ -62,9 +62,9 @@ const ProductListPage: React.FC = () => {
                 const newProducts = data.data.filter(
                     np => !prevProducts.some(p => p.id === np.id)
                 );
-                
+
                 if (currentLoadedPage === 1) return data.data;
-                
+
                 return [...prevProducts, ...newProducts];
             });
             setHasMore(meta.current_page < meta.last_page);
@@ -75,15 +75,15 @@ const ProductListPage: React.FC = () => {
         const currentCollectionDetails = collections.find(c => c.slug === selectedCollections[0]);
         return selectedCollections.length === 1 && currentCollectionDetails
             ? currentCollectionDetails.name || currentCollectionDetails.title
-            : selectedCollections.length > 1 
-                ? "Multiple Collections" 
-                : "Elite Collections";
+            : selectedCollections.length > 1
+                ? "Multiple Collections"
+                : "All Collections";
     }, [selectedCollections, collections]);
 
     const handleCollectionToggle = (slug: string) => {
-        setSelectedCollections(prev => 
-            prev.includes(slug) 
-                ? prev.filter(s => s !== slug) 
+        setSelectedCollections(prev =>
+            prev.includes(slug)
+                ? prev.filter(s => s !== slug)
                 : [...prev, slug]
         );
     };
@@ -104,9 +104,9 @@ const ProductListPage: React.FC = () => {
     };
 
     return (
-        <motion.div 
+        <motion.div
             className="min-h-screen bg-attire-navy relative selection:bg-attire-accent selection:text-white"
-            style={{ 
+            style={{
                 willChange: 'transform',
                 transform: 'translateZ(0)',
                 WebkitBackfaceVisibility: 'hidden'
@@ -115,12 +115,12 @@ const ProductListPage: React.FC = () => {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
         >
-            <SEO 
+            <SEO
                 title={`${pageTitle} | Elite Styling House`}
                 description={`Explore our ${pageTitle}. Expertly curated luxury styles designed for the modern gentleman.`}
             />
             <GrainOverlay />
-            
+
             <header className="relative z-10 pt-32 pb-16 sm:pt-48 sm:pb-24 px-6 text-center">
                 <div className="max-w-4xl mx-auto">
                     <div className="flex items-center justify-center gap-4 mb-8">
@@ -130,7 +130,7 @@ const ProductListPage: React.FC = () => {
                     </div>
 
                     <h1 className="font-serif text-6xl md:text-8xl lg:text-[7rem] font-light text-white mb-10 leading-[0.85] tracking-tighter italic">
-                        {pageTitle.split(' ')[0]} <br /> 
+                        {pageTitle.split(' ')[0]} <br />
                         <span className="text-attire-silver/40">{pageTitle.split(' ').slice(1).join(' ') || 'Essentials'}</span>
                     </h1>
 
@@ -157,10 +157,10 @@ const ProductListPage: React.FC = () => {
                         removeCollectionFilter={removeCollectionFilter}
                     />
                 </div>
-                
+
                 <AnimatePresence mode="wait">
                     {isLoading && allLoadedProducts.length === 0 ? (
-                        <motion.div 
+                        <motion.div
                             key="loading-initial"
                             className="flex flex-col items-center justify-center py-32"
                         >
@@ -179,7 +179,7 @@ const ProductListPage: React.FC = () => {
                             ))}
                         </motion.div>
                     ) : (
-                        <motion.div 
+                        <motion.div
                             key="empty"
                             className="flex flex-col items-center justify-center py-32 text-center"
                         >
@@ -191,14 +191,14 @@ const ProductListPage: React.FC = () => {
                 </AnimatePresence>
 
                 {hasMore && (
-                    <motion.div 
+                    <motion.div
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ delay: 0.5 }}
                         className="flex justify-center mt-24"
                     >
-                        <button 
-                            onClick={handleLoadMore} 
+                        <button
+                            onClick={handleLoadMore}
                             disabled={isFetching}
                             className="group flex items-center justify-center gap-3 px-8 py-4 bg-white text-black text-[11px] font-bold uppercase tracking-[0.5em] transition-all duration-700 relative overflow-hidden"
                         >
@@ -230,13 +230,13 @@ const Controls: React.FC<ControlsProps> = ({ sortOrder, setSortOrder, searchQuer
         <div className="relative group z-[999]">
             {/* Background Container - Refined to remove white glow ✨ */}
             <div className="absolute inset-0 bg-black/40 border border-white/5 rounded-2xl backdrop-blur-md transition-all duration-500 pointer-events-none" />
-            
+
             {/* Content Container - No overflow-hidden here, so dropdowns can fly free! */}
             <div className="relative flex flex-col md:flex-row items-center gap-4 p-2 md:p-3 z-10">
                 {/* Search Input */}
                 <div className="relative w-full md:flex-grow group/search">
                     <SearchIcon size={18} className="absolute left-5 top-1/2 -translate-y-1/2 text-white/30 group-focus-within/search:text-attire-accent transition-colors duration-500" />
-                    <input 
+                    <input
                         type="text"
                         value={searchQuery}
                         onChange={(e) => setSearchQuery(e.target.value)}
@@ -257,7 +257,7 @@ const Controls: React.FC<ControlsProps> = ({ sortOrder, setSortOrder, searchQuer
         {/* Active Filters */}
         <AnimatePresence>
             {(selectedCollections.length > 0 || searchQuery) && (
-                <motion.div 
+                <motion.div
                     initial={{ opacity: 0, y: -10 }}
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0, y: -10 }}
@@ -274,7 +274,7 @@ const Controls: React.FC<ControlsProps> = ({ sortOrder, setSortOrder, searchQuer
                             {collections.find(c => c.slug === slug)?.name || slug}
                         </FilterTag>
                     ))}
-                    <button 
+                    <button
                         onClick={clearFilters}
                         className="text-[9px] uppercase tracking-[0.3em] font-bold text-attire-accent hover:text-white transition-colors duration-300 ml-2"
                     >
@@ -303,8 +303,8 @@ const CollectionDropdown: React.FC<{ collections: any[]; selectedCollections: st
 
     return (
         <div ref={dropdownRef} className="w-full md:flex-1">
-            <button 
-                onClick={() => setIsOpen(!isOpen)} 
+            <button
+                onClick={() => setIsOpen(!isOpen)}
                 className={`w-full px-6 py-4 text-[10px] font-bold uppercase tracking-[0.2em] transition-all duration-500 flex items-center justify-between gap-3 rounded-xl ${isOpen ? 'bg-white/10 text-white' : 'text-white/40 hover:text-white hover:bg-white/5'}`}
             >
                 <div className="flex items-center gap-3 truncate">
@@ -315,7 +315,7 @@ const CollectionDropdown: React.FC<{ collections: any[]; selectedCollections: st
             </button>
             <AnimatePresence>
                 {isOpen && (
-                    <motion.div 
+                    <motion.div
                         initial={{ opacity: 0, y: 10, scale: 0.95 }}
                         animate={{ opacity: 1, y: 0, scale: 1 }}
                         exit={{ opacity: 0, y: 10, scale: 0.95 }}
@@ -323,9 +323,9 @@ const CollectionDropdown: React.FC<{ collections: any[]; selectedCollections: st
                     >
                         <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3">
                             {collections.map(c => (
-                                <button 
-                                    key={c.id} 
-                                    onClick={() => { handleCollectionToggle(c.slug); }} 
+                                <button
+                                    key={c.id}
+                                    onClick={() => { handleCollectionToggle(c.slug); }}
                                     className={`w-full px-5 py-4 text-[10px] uppercase tracking-[0.1em] font-bold text-left rounded-xl transition-all duration-300 border ${selectedCollections.includes(c.slug) ? 'bg-attire-accent border-attire-accent text-black' : 'text-white/40 border-white/5 hover:text-white hover:bg-white/5 hover:border-white/10'}`}
                                 >
                                     {c.name}
@@ -356,8 +356,8 @@ const FilterSortDropdown: React.FC<{ sortOrder: string; setSortOrder: (order: st
 
     return (
         <div ref={dropdownRef} className="w-full md:flex-1">
-            <button 
-                onClick={() => setIsOpen(!isOpen)} 
+            <button
+                onClick={() => setIsOpen(!isOpen)}
                 className={`w-full px-6 py-4 text-[10px] font-bold uppercase tracking-[0.2em] transition-all duration-500 flex items-center justify-between gap-3 rounded-xl ${isOpen ? 'bg-white/10 text-white' : 'text-white/40 hover:text-white hover:bg-white/5'}`}
             >
                 <span className="truncate">{label}</span>
@@ -365,7 +365,7 @@ const FilterSortDropdown: React.FC<{ sortOrder: string; setSortOrder: (order: st
             </button>
             <AnimatePresence>
                 {isOpen && (
-                    <motion.div 
+                    <motion.div
                         initial={{ opacity: 0, y: 10, scale: 0.95 }}
                         animate={{ opacity: 1, y: 0, scale: 1 }}
                         exit={{ opacity: 0, y: 10, scale: 0.95 }}
@@ -373,9 +373,9 @@ const FilterSortDropdown: React.FC<{ sortOrder: string; setSortOrder: (order: st
                     >
                         <div className="grid grid-cols-1 gap-1">
                             {sortOptions.map(opt => (
-                                <button 
-                                    key={opt.value} 
-                                    onClick={() => { setSortOrder(opt.value); setIsOpen(false); }} 
+                                <button
+                                    key={opt.value}
+                                    onClick={() => { setSortOrder(opt.value); setIsOpen(false); }}
                                     className={`w-full px-5 py-3.5 text-[10px] uppercase tracking-[0.1em] font-bold text-left rounded-lg transition-all duration-300 ${sortOrder === opt.value ? 'bg-attire-accent text-black' : 'text-white/40 hover:text-white hover:bg-white/5'}`}
                                 >
                                     {opt.label}
@@ -395,14 +395,14 @@ interface FilterTagProps {
 }
 
 const FilterTag: React.FC<FilterTagProps> = ({ children, onRemove }) => (
-    <motion.div 
+    <motion.div
         initial={{ scale: 0.8, opacity: 0 }}
         animate={{ scale: 1, opacity: 1 }}
         className="flex items-center gap-2 bg-white/5 border border-white/10 text-white rounded-lg pl-4 pr-2 py-2 text-[9px] font-bold uppercase tracking-widest group hover:border-white/20 transition-all duration-300"
     >
         <span className="opacity-60 group-hover:opacity-100 transition-opacity">{children}</span>
-        <button 
-            onClick={onRemove} 
+        <button
+            onClick={onRemove}
             className="p-1 hover:bg-white/10 rounded-md transition-colors text-white/30 hover:text-white"
         >
             <X size={12} />

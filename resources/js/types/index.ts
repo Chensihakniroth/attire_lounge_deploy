@@ -1,4 +1,4 @@
-// Common interfaces for Attire Lounge
+// Common interfaces for Attire Lounge Official
 
 export interface Product {
     id: number | string;

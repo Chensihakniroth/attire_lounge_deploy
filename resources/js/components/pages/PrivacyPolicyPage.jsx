@@ -38,7 +38,7 @@ const PrivacyPolicyPage = () => {
                 animate={{ opacity: 1 }}
                 transition={{ delay: 0.2, duration: 0.8 }}
             >
-                Your privacy is paramount. This policy outlines how we collect, use, and protect your personal information when you interact with Attire Lounge.
+                Your privacy is paramount. This policy outlines how we collect, use, and protect your personal information when you interact with Attire Lounge Official.
             </motion.p>
 
             <div className="space-y-8">

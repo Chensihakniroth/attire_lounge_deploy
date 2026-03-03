@@ -36,7 +36,7 @@ const ProductDetailPage: React.FC = () => {
 
     useEffect(() => {
         console.log("========================================");
-        console.log("Attire Lounge Debugger! (ﾉ´ヮ`)ﾉ*:･ﾟ✧");
+        console.log("Attire Lounge Official Debugger! (ﾉ´ヮ`)ﾉ*:･ﾟ✧");
         console.log("Page: Product Detail");
         console.log("Product Slug from URL:", productId);
         console.log("Loading State:", isLoading);
@@ -92,7 +92,7 @@ const ProductDetailPage: React.FC = () => {
         >
             <SEO 
                 title={`${product.name} | ${product.collection}`}
-                description={product.description || `Experience the ${product.name} from our ${product.collection}. Premium styling excellence at Attire Lounge.`}
+                description={product.description || `Experience the ${product.name} from our ${product.collection}. Premium styling excellence at Attire Lounge Official.`}
                 image={product.images[0]}
             />
             

@@ -126,7 +126,7 @@ const HeroSection = memo(forwardRef<HTMLElement, HeroSectionProps>(({ scrollToSe
       {/* Logo */}
       <OptimizedImage
         src={`${minioBaseUrl}/uploads/asset/AL_logo.png`}
-        alt="Attire Lounge"
+        alt="Attire Lounge Official"
         containerClassName="h-auto w-full max-w-[240px] md:max-w-md"
         className="drop-shadow-2xl mb-6"
         bgClassName="bg-transparent"
@@ -140,7 +140,7 @@ const HeroSection = memo(forwardRef<HTMLElement, HeroSectionProps>(({ scrollToSe
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ delay: 0.8, duration: 1 }}
-        className="text-[#E5E7EB]/80 text-[10px] md:text-xs tracking-[0.4em] uppercase font-light text-center mb-12"
+        className="text-[#E5E7EB]/90 text-xs md:text-sm tracking-[0.6em] uppercase font-light text-center mb-12"
       >
         Phnom Penh
       </motion.p>
@@ -153,7 +153,7 @@ const HeroSection = memo(forwardRef<HTMLElement, HeroSectionProps>(({ scrollToSe
         animate={{ opacity: 1 }}
         transition={{ delay: 1.5, duration: 1 }}
       >
-        <span className="text-[10px] tracking-[0.3em] text-white/50 uppercase group-hover:text-white transition-colors duration-500">Discover</span>
+        <span className="text-xs md:text-sm tracking-[0.5em] text-white/80 uppercase group-hover:text-white transition-colors duration-500">Discover</span>
         <div className="w-[1px] h-16 bg-white/10 overflow-hidden rounded-full">
           <motion.div
             className="w-full h-1/2 bg-gradient-to-b from-transparent to-[#f5a81c]"
@@ -225,7 +225,7 @@ const PhilosophySection = memo(forwardRef<HTMLElement>((_props, ref) => {
         >
             <OptimizedImage
               src={`${minioBaseUrl}/uploads/collections/default/key.jpg?v=new`}
-              alt="Attire Lounge Interior"
+              alt="Attire Lounge Official Interior"
               containerClassName="absolute inset-0 w-full h-full"
               className="w-full h-full"
               style={{ objectPosition: 'center 60%' }}
@@ -366,7 +366,7 @@ const ExperienceSection = memo(forwardRef<HTMLElement, ExperienceSectionProps>((
         <div className="hidden lg:block relative h-full w-full overflow-hidden">
             <OptimizedImage
                 src={`${minioBaseUrl}/uploads/collections/default/both.jpg?v=new`}
-                alt="Attire Lounge Experience"
+                alt="Attire Lounge Official Experience"
                 containerClassName="absolute inset-0 w-full h-full"
                 className="w-full h-full"
             />
@@ -824,8 +824,8 @@ const HomePage: React.FC = () => {
   return (
     <div className="snap-scroll-container bg-[#111111]">
       <SEO
-        title="Attire Lounge | Elite Styling House & Ready-to-Wear"
-        description="Attire Lounge is Phnom Penh's premier Styling House, offering Milan-certified expert styling, curated luxury menswear collections, and personalized fashion consulting for the modern gentleman."
+        title="Attire Lounge Official | Elite Styling House & Ready-to-Wear"
+        description="Attire Lounge Official is Phnom Penh's premier Styling House, offering Milan-certified expert styling, curated luxury menswear collections, and personalized fashion consulting for the modern gentleman."
       />
       <SectionIndicator
         sections={sectionNames}

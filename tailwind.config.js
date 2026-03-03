@@ -12,7 +12,7 @@ module.exports = {
   theme: {
     extend: {
       colors: {
-        // New Attire Lounge Palette
+        // New Attire Lounge Official Palette
         'attire': {
           'charcoal': '#333333',
           'stone': '#A0785A',    // Replaced with Havana/Tobacco Brown

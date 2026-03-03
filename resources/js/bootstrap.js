@@ -18,4 +18,4 @@ window.axios.interceptors.request.use(
 );
 
 // Simple console log for debugging
-console.log('Attire Lounge React App Initialized - MainApp.jsx structure');
+console.log('Attire Lounge Official React App Initialized - MainApp.jsx structure');

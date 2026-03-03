@@ -2,9 +2,9 @@
 import React, { useState, useEffect, Fragment } from 'react';
 import { Listbox, Transition } from '@headlessui/react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { 
-    Mail, Phone, MapPin, Clock, Send, CheckCircle, 
-    Instagram, Facebook, ChevronDown, Check, User, 
+import {
+    Mail, Phone, MapPin, Clock, Send, CheckCircle,
+    Instagram, Facebook, ChevronDown, Check, User,
     Calendar, Sparkles, ShieldCheck, ArrowRight, ArrowLeft,
     MessageSquare, Heart, Info, Loader
 } from 'lucide-react';
@@ -24,7 +24,7 @@ const fadeUp = {
 const InfoCard = ({ icon: Icon, title, details, action }) => {
     const Component = action ? motion.a : motion.div;
     return (
-        <Component 
+        <Component
             href={action}
             target={action?.startsWith('http') ? "_blank" : undefined}
             rel={action?.startsWith('http') ? "noopener noreferrer" : undefined}
@@ -59,9 +59,9 @@ const InputField = ({ label, icon: Icon, error, ...props }) => (
             )}
             <input
                 {...props}
-                className={`w-full ${Icon ? 'pl-14' : 'px-6'} pr-6 py-5 rounded-2xl border bg-white/[0.02] text-white placeholder-white/10 transition-all duration-500 
-                ${error 
-                    ? 'border-red-500/30 bg-red-500/5 focus:border-red-500' 
+                className={`w-full ${Icon ? 'pl-14' : 'px-6'} pr-6 py-5 rounded-2xl border bg-white/[0.02] text-white placeholder-white/10 transition-all duration-500
+                ${error
+                    ? 'border-red-500/30 bg-red-500/5 focus:border-red-500'
                     : 'border-white/10 hover:border-white/20 focus:border-attire-accent/50 focus:bg-white/[0.05]'
                 } outline-none text-sm [color-scheme:dark]`}
             />
@@ -124,21 +124,21 @@ const FavoritesSelector = ({ favoriteProducts, selectedFavorites, onSelectionCha
             </div>
             <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-4 p-6 rounded-3xl border border-white/10 bg-white/[0.01]">
                 {favoriteProducts.map(product => (
-                    <motion.div 
-                        key={product.id} 
+                    <motion.div
+                        key={product.id}
                         whileTap={{ scale: 0.95 }}
                         className={`relative cursor-pointer rounded-xl overflow-hidden border-2 transition-all duration-500 ${
                             selectedFavorites.includes(product.id) ? 'border-attire-accent shadow-[0_0_20px_rgba(212,168,76,0.15)]' : 'border-white/10 hover:border-white/30'
                         }`}
                         onClick={() => {
-                            onSelectionChange(selectedFavorites.includes(product.id) 
+                            onSelectionChange(selectedFavorites.includes(product.id)
                                 ? selectedFavorites.filter(id => id !== product.id)
                                 : [...selectedFavorites, product.id]);
                         }}
                     >
-                        <OptimizedImage 
-                            src={product.images[0]} 
-                            alt={product.name} 
+                        <OptimizedImage
+                            src={product.images[0]}
+                            alt={product.name}
                             containerClassName="w-full aspect-[3/4]"
                             className={`w-full h-full transition-all duration-1000 ${selectedFavorites.includes(product.id) ? 'scale-110 opacity-100' : 'opacity-70 group-hover:opacity-100'}`}
                         />
@@ -170,8 +170,8 @@ const ContactPage = () => {
     useEffect(() => {
         setIsSafariBrowser(isSafari());
     }, []);
-    
-    const favoriteProducts = allProducts.filter(p => 
+
+    const favoriteProducts = allProducts.filter(p =>
         favorites.some(fav => String(fav) === String(p.slug) || String(fav) === String(p.id))
     );
 
@@ -202,11 +202,9 @@ const ContactPage = () => {
 
     const appointmentTypes = [
         { value: 'sartorial', label: 'Sartorial Consultation' },
-        { value: 'groom', label: 'Wedding Styling' },
-        { value: 'office', label: 'Executive Wardrobe' },
-        { value: 'accessories', label: 'Bespoke Accessories' },
-        { value: 'membership', label: 'Attire Club Membership' },
-        { value: 'general', label: 'Private Inquiry' }
+        { value: 'groom', label: 'Groom Consultation' },
+        { value: 'office', label: 'Office Consultation' },
+        { value: 'accessories', label: 'Accessorized' }
     ];
 
     const timeSlots = [
@@ -272,26 +270,26 @@ const ContactPage = () => {
                     <motion.div initial="hidden" animate="visible" variants={fadeUp} className="space-y-8">
                         <div className="inline-flex items-center gap-4 px-6 py-2 rounded-full border border-white/10 bg-white/[0.02]">
                             <Sparkles size={14} className="text-attire-accent" />
-                            <span className="text-[10px] font-black uppercase tracking-[0.4em] text-white/80">Bespoke Consultations</span>
+                            <span className="text-[10px] font-black uppercase tracking-[0.4em] text-white/80">STYLING CONSULTANTS</span>
                         </div>
                         <h1 className="text-6xl md:text-8xl font-serif font-light text-white leading-tight">
-                            Studio <br/> Appointment
+                            styling <br/> Appointment
                         </h1>
                         <p className="text-white/80 font-light tracking-wide text-lg max-w-xl mx-auto">
-                            Step into our private styling house in Phnom Penh. Let our Milan-certified specialists refine your signature silhouette.
+                            Step into our private styling house in Phnom Penh. Let our certified-sytlist specialists refine your signature silhouette.
                         </p>
                     </motion.div>
                 </header>
 
                 <div ref={contentRef} className="grid grid-cols-1 lg:grid-cols-12 gap-16 items-start min-h-[1000px] pb-32">
-                    
+
                     {/* Information Sidebar */}
                     <div className="lg:col-span-4 space-y-12 order-2 lg:order-1">
                         <section className="space-y-10">
-                            <h3 className="text-[11px] font-black text-attire-accent uppercase tracking-[0.4em] ml-1">The Studio</h3>
+                            <h3 className="text-[11px] font-black text-attire-accent uppercase tracking-[0.4em] ml-1">Our store</h3>
                             <div className="space-y-6">
                                 <InfoCard icon={Phone} title="Direct Line" details={["(+855) 69-25-63-69"]} action="tel:+85569256369" />
-                                <InfoCard icon={Mail} title="Correspondence" details={["attireloungekh@gmail.com"]} action="mailto:attireloungekh@gmail.com" />
+                                <InfoCard icon={Mail} title="Email" details={["attireloungekh@gmail.com"]} action="mailto:attireloungekh@gmail.com" />
                                 <InfoCard icon={MapPin} title="Location" details={["10 E0, Street 03, Phnom Penh"]} action="https://maps.app.goo.gl/vZbPnCNMmmiKcR9g7" />
                                 <InfoCard icon={Clock} title="Availability" details={["Monday — Sunday", "10:00 AM — 07:00 PM"]} />
                             </div>
@@ -337,7 +335,7 @@ const ContactPage = () => {
                             ) : (
                                 <div className="bg-white/[0.02] border border-white/10 p-8 md:p-16 rounded-[3rem] backdrop-blur-3xl relative overflow-hidden">
                                     <div className="absolute top-0 right-0 w-64 h-64 bg-attire-accent/5 blur-[80px] rounded-full translate-x-1/2 -translate-y-1/2 pointer-events-none" />
-                                    
+
                                     <div className="flex items-center gap-6 mb-16">
                                         <div className="w-14 h-14 rounded-2xl bg-attire-accent/10 flex items-center justify-center border border-attire-accent/20">
                                             <Calendar className="text-attire-accent" size={24} />
