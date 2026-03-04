@@ -8,5 +8,4 @@ nixPkgs = ["php82Extensions.redis", "php82Extensions.pcntl", "php82Extensions.so
 cmds = ["composer install --no-dev", "npm install", "npm run build"]
 
 [processes]
-web = "php artisan migrate --force && php-fpm -D && nginx -g 'daemon off;'"
-reverb = "php artisan reverb:start --host=0.0.0.0 --port=8080 --no-interaction"
+web = "php artisan migrate --force && (php artisan reverb:start --host=0.0.0.0 --port=8080 &) && php-fpm -D && nginx -g 'daemon off;'"
