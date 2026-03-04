@@ -31,28 +31,37 @@ class ImageUploadController extends Controller
         $extension = strtolower($file->getClientOriginalExtension());
         $format = ($extension === 'jpg' || $extension === 'jpeg') ? 'jpg' : 'webp';
         
-        // Auto compress the image using the detected format ✨
-        $compressedImage = ImageHelper::autoCompress($file, 1920, $format, 80);
-        
-        // Use original filename (sanitized) + format extension
-        $originalName = pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME);
-        $safeName = Str::slug($originalName);
-        $filename = $safeName . '-' . Str::random(5) . '.' . $format; 
-        $fullPath = $path . $filename;
+        try {
+            // Auto compress the image using the detected format ✨
+            $compressedImage = ImageHelper::autoCompress($file, 1920, $format, 80);
+            
+            // Use original filename (sanitized) + format extension
+            $originalName = pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME);
+            $safeName = Str::slug($originalName);
+            $filename = $safeName . '-' . Str::random(5) . '.' . $format; 
+            $fullPath = $path . $filename;
 
-        \Illuminate\Support\Facades\Log::info("Uploading image to MinIO", [
-            'collection_id' => $request->collection_id,
-            'target_path' => $path,
-            'filename' => $filename
-        ]);
+            \Illuminate\Support\Facades\Log::info("Uploading image to MinIO", [
+                'collection_id' => $request->collection_id,
+                'target_path' => $path,
+                'filename' => $filename,
+                'disk' => 'minio'
+            ]);
 
-        // Store to MinIO
-        Storage::disk('minio')->put($fullPath, $compressedImage);
+            // Store to MinIO
+            Storage::disk('minio')->put($fullPath, (string) $compressedImage);
 
-        return response()->json([
-            'url' => Storage::disk('minio')->url($fullPath),
-            'filename' => pathinfo($filename, PATHINFO_FILENAME)
-        ], 201);
+            return response()->json([
+                'url' => Storage::disk('minio')->url($fullPath),
+                'filename' => pathinfo($filename, PATHINFO_FILENAME)
+            ], 201);
+        } catch (\Exception $e) {
+            \Illuminate\Support\Facades\Log::error("Image upload failed: " . $e->getMessage(), [
+                'exception' => $e,
+                'file' => $file->getClientOriginalName()
+            ]);
+            return response()->json(['message' => 'Server Error', 'error' => $e->getMessage()], 500);
+        }
     }
 
     public function listImages()
