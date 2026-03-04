@@ -124,16 +124,16 @@ class ProductService
      */
     private function clearProductCache($product)
     {
+        // Flush the entire cache to ensure all product lists are invalidated.
+        // This is a pragmatic approach because the paginated cache keys are dynamic (MD5 hash)
+        // and we are likely not using a cache driver that supports tagging (like Redis).
+        // If we were, we would use Cache::tags('products')->flush();
+        Cache::flush();
+
+        // The old individual cache clearing logic (can be kept for clarity but is redundant if flushing).
         Cache::forget("product.{$product->slug}");
         Cache::forget('featured_products');
-        Cache::forget('product_categories'); // Clear category list cache
-        Cache::forget('product_collections'); // Clear collections list cache
-        
-        // For general paginated product lists (keys starting with 'products.'),
-        // if using a cache driver that supports tags (like Redis), we would use Cache::tags('products')->flush();
-        // Since the current cache driver might not support tags, and keys are dynamic (md5 of DTO),
-        // we'll rely on these caches expiring naturally or implement a more sophisticated invalidation
-        // strategy if performance demands it and a tag-supporting driver is adopted.
-
+        Cache::forget('product_categories');
+        Cache::forget('product_collections');
     }
 }
