@@ -167,6 +167,19 @@ class ProductController extends Controller
     }
 
     /**
+     * Get all collections for admin management (Admin only).
+     */
+    public function adminCollections(): JsonResponse
+    {
+        $collections = Collection::orderBy('sort_order')->get();
+
+        return response()->json([
+            'success' => true,
+            'data' => CollectionResource::collection($collections)
+        ]);
+    }
+
+    /**
      * Store a new collection (Admin only).
      */
     public function storeCollection(Request $request): JsonResponse
@@ -177,7 +190,9 @@ class ProductController extends Controller
             'description' => 'nullable|string',
             'season' => 'nullable|string|max:255',
             'year' => 'nullable|integer',
+            'image' => 'nullable|string',
             'is_active' => 'nullable|boolean',
+            'is_new' => 'nullable|boolean',
             'sort_order' => 'nullable|integer',
         ]);
 
@@ -187,6 +202,38 @@ class ProductController extends Controller
         }
 
         $collection = Collection::create($validated);
+        Cache::forget('product_collections');
+
+        return response()->json([
+            'success' => true,
+            'data' => new CollectionResource($collection)
+        ]);
+    }
+
+    /**
+     * Update a collection (Admin only).
+     */
+    public function updateCollection(Request $request, $id): JsonResponse
+    {
+        $collection = Collection::find($id);
+        
+        if (!$collection) {
+            return response()->json(['success' => false, 'message' => 'Collection not found'], 404);
+        }
+
+        $validated = $request->validate([
+            'name' => 'sometimes|string|max:255',
+            'slug' => 'sometimes|string|unique:collections,slug,' . $id,
+            'description' => 'sometimes|nullable|string',
+            'season' => 'sometimes|nullable|string|max:255',
+            'year' => 'sometimes|integer',
+            'image' => 'sometimes|nullable|string',
+            'is_active' => 'sometimes|boolean',
+            'is_new' => 'sometimes|boolean',
+            'sort_order' => 'sometimes|integer',
+        ]);
+
+        $collection->update($validated);
         Cache::forget('product_collections');
 
         return response()->json([

@@ -19,6 +19,7 @@ class Collection extends Model
         'year',
         'image',
         'is_active',
+        'is_new',
         'start_date',
         'end_date',
         'sort_order',
@@ -26,6 +27,7 @@ class Collection extends Model
 
     protected $casts = [
         'is_active' => 'boolean',
+        'is_new' => 'boolean',
         'sort_order' => 'integer',
         'year' => 'integer',
         'start_date' => 'date',
@@ -57,10 +59,16 @@ class Collection extends Model
 
     public function getImageUrlAttribute()
     {
-        if ($this->image) {
-            return asset('storage/collections/' . $this->image);
+        if (!$this->image) {
+            return asset('images/collection-placeholder.jpg');
         }
-        return asset('images/collection-placeholder.jpg');
+
+        if (str_starts_with($this->image, 'http')) {
+            return $this->image;
+        }
+
+        // If it's a relative path from the bucket, use MinIO ✨
+        return \Illuminate\Support\Facades\Storage::disk('minio')->url(ltrim($this->image, '/'));
     }
 
     public function scopeActive($query)

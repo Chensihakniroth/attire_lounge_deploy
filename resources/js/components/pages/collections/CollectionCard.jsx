@@ -43,11 +43,13 @@ const CollectionCard = ({ collection }) => {
             </div>
 
             {/* Item Count Badge */}
-            <div className="absolute top-4 right-4 z-20">
-                <span className="px-3 py-1 bg-black/40 backdrop-blur-md border border-white/10 rounded-full text-[10px] uppercase tracking-tighter text-white/80 font-medium">
-                    {collection.itemsCount || 'New'} Collection
-                </span>
-            </div>
+            {(collection.is_new || collection.itemsCount) && (
+                <div className="absolute top-4 right-4 z-20">
+                    <span className="px-3 py-1 bg-black/40 backdrop-blur-md border border-white/10 rounded-full text-[10px] uppercase tracking-tighter text-white/80 font-medium">
+                        {collection.itemsCount || 'New'} Collection
+                    </span>
+                </div>
+            )}
         </motion.div>
     );
 };

@@ -78,7 +78,9 @@ Route::prefix('v1')->group(function () {
             Route::delete('/products/{id}', [ProductController::class, 'destroy']);
 
             // Collections
+            Route::get('/collections', [ProductController::class, 'adminCollections']);
             Route::post('/collections', [ProductController::class, 'storeCollection']);
+            Route::match(['put', 'patch'], '/collections/{id}', [ProductController::class, 'updateCollection']);
             Route::delete('/collections/{id}', [ProductController::class, 'destroyCollection']);
             
             // Image Uploads

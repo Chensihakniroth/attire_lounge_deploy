@@ -17,6 +17,7 @@ class CollectionSeeder extends Seeder
             'name' => 'Havana Collection',
             'description' => 'Lightweight fabrics and breezy silhouettes.',
             'year' => 2024,
+            'image' => '/uploads/collections/default/hvn1.jpg?v=new',
             'is_active' => true,
             'sort_order' => 1,
         ]);
@@ -25,6 +26,7 @@ class CollectionSeeder extends Seeder
             'name' => 'Mocha Mousse \'25',
             'description' => 'Breathable natural fabrics for sophisticated comfort.',
             'year' => 2025,
+            'image' => '/uploads/collections/default/mm1.jpg?v=new',
             'is_active' => true,
             'sort_order' => 2,
         ]);
@@ -33,6 +35,7 @@ class CollectionSeeder extends Seeder
             'name' => 'Groom Collection',
             'description' => 'Elegant tuxedos and formal wear for special occasions.',
             'year' => 2025,
+            'image' => '/uploads/collections/default/g1.webp?v=new',
             'is_active' => true,
             'sort_order' => 3,
         ]);
@@ -41,6 +44,7 @@ class CollectionSeeder extends Seeder
             'name' => 'Office Collections',
             'description' => 'Sophisticated and comfortable attire for the modern workplace.',
             'year' => 2024,
+            'image' => '/uploads/collections/default/of1.jpg?v=new',
             'is_active' => true,
             'sort_order' => 4,
         ]);
@@ -49,6 +53,7 @@ class CollectionSeeder extends Seeder
             'name' => 'Accessories Collection',
             'description' => 'Fine accessories to complete your look.',
             'year' => 2024,
+            'image' => '/uploads/collections/accessories/cuff.JPG',
             'is_active' => true,
             'sort_order' => 5,
         ]);
@@ -57,6 +62,7 @@ class CollectionSeeder extends Seeder
             'name' => 'Travel Collection',
             'description' => 'Stylish and durable essentials for the modern explorer.',
             'year' => 2024,
+            'image' => '/uploads/collections/Travel%20collections/t0.webp',
             'is_active' => true,
             'sort_order' => 6,
         ]);
@@ -65,6 +71,7 @@ class CollectionSeeder extends Seeder
             'name' => 'Shades of Elegance',
             'description' => 'A definitive visual catalog of styling excellence.',
             'year' => 2025,
+            'image' => '/uploads/shades1/1.webp',
             'is_active' => true,
             'sort_order' => 7,
         ]);
@@ -73,6 +80,7 @@ class CollectionSeeder extends Seeder
             'name' => 'Street Sartorial',
             'description' => 'Contemporary silhouettes meeting traditional craftsmanship.',
             'year' => 2025,
+            'image' => '/uploads/street1/1.webp',
             'is_active' => true,
             'sort_order' => 8,
         ]);

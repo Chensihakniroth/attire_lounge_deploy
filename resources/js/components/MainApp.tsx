@@ -83,6 +83,7 @@ const CustomerProfileDetail = lazyWithRetry(() => import('./pages/admin/Customer
 const AppointmentManager = lazyWithRetry(() => import('./pages/admin/AppointmentManager.jsx'));
 const CustomizeGiftManager = lazyWithRetry(() => import('./pages/admin/CustomizeGiftManager.jsx'));
 const ProductManager = lazyWithRetry(() => import('./pages/admin/ProductManager.jsx'));
+const CollectionManager = lazyWithRetry(() => import('./pages/admin/CollectionManager.jsx'));
 const ProductEditor = lazyWithRetry(() => import('./pages/admin/ProductEditor.jsx'));
 const BulkProductEditor = lazyWithRetry(() => import('./pages/admin/BulkProductEditor.jsx'));
 import InventoryManager from './pages/admin/InventoryManager.jsx';
@@ -279,6 +280,7 @@ const AnimatedRoutes: React.FC = () => {
                         <Route path="/admin" element={<AdminDashboard />} />
                         <Route path="/admin/appointments" element={<AppointmentManager />} />
                         <Route path="/admin/products" element={<ProductManager />} />
+                        <Route path="/admin/collections" element={<CollectionManager />} />
                         <Route path="/admin/products/bulk" element={<BulkProductEditor />} />
                         <Route path="/admin/products/new" element={<ProductEditor isNew={true} />} />
                         <Route path="/admin/products/:productId/edit" element={<ProductEditor />} />

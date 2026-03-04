@@ -2,11 +2,11 @@ import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import CollectionCard from './collections/CollectionCard';
-import { collections as mockCollections } from '../../data/products.js';
 import minioBaseUrl from '../../config.js';
 import LoadingSpinner from '../common/LoadingSpinner.jsx';
 import { ArrowRight } from 'lucide-react';
 import OptimizedImage from '../common/OptimizedImage.jsx';
+import axios from 'axios';
 
 const PageHeader = () => (
     <div className="relative text-center py-20 sm:py-32 px-6 z-10">
@@ -29,12 +29,29 @@ const PageHeader = () => (
 
 const CollectionsPage = () => {
     const [loadingCollections, setLoadingCollections] = useState(true);
+    const [collections, setCollections] = useState([]);
 
     useEffect(() => {
-        // Simulate API call
-        setTimeout(() => {
-            setLoadingCollections(false);
-        }, 600);
+        const fetchCollections = async () => {
+            try {
+                const response = await axios.get(`/api/v1/products/collections?t=${Date.now()}`);
+                if (response.data.success) {
+                    // Map backend property names to what the UI expects ✨
+                    const mapped = response.data.data.map(c => ({
+                        ...c,
+                        title: c.name,
+                        image: c.image_url,
+                        itemsCount: c.is_new ? 'New' : ''
+                    }));
+                    setCollections(mapped);
+                }
+            } catch (err) {
+                console.error('Failed to fetch collections:', err);
+            } finally {
+                setLoadingCollections(false);
+            }
+        };
+        fetchCollections();
     }, []);
 
     const browseAllCard = {
@@ -46,7 +63,7 @@ const CollectionsPage = () => {
         itemsCount: 'All'
     };
 
-    const collectionsWithBrowseAll = [...mockCollections, browseAllCard];
+    const collectionsWithBrowseAll = [...collections, browseAllCard];
 
     return (
         <div className="min-h-screen bg-attire-navy relative overflow-hidden">

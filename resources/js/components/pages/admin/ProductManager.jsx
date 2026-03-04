@@ -275,7 +275,7 @@ const ProductManager = () => {
                         Sync
                     </button>
                     <button 
-                        onClick={() => setShowCollections(true)}
+                        onClick={() => navigate('/admin/collections')}
                         className="flex items-center gap-2 px-6 py-3 bg-white/5 dark:bg-white/5 text-gray-900 dark:text-white text-xs font-bold uppercase tracking-widest rounded-xl hover:bg-black/10 dark:hover:bg-white/10 transition-all border border-black/5 dark:border-white/10"
                     >
                         <FolderPlus size={16} /> Manage Collections

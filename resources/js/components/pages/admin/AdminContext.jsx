@@ -90,7 +90,7 @@ export const AdminProvider = ({ children }) => {
     const fetchCollections = useCallback(async () => {
         setCollectionsLoading(true);
         try {
-            const response = await axios.get('/api/v1/products/collections');
+            const response = await axios.get('/api/v1/admin/collections');
             if (response.data.success) {
                 setCollections(response.data.data);
             }

@@ -23,6 +23,7 @@ class CollectionResource extends JsonResource
             'year' => $this->year,
             'image_url' => $this->image_url,
             'is_active' => $this->is_active,
+            'is_new' => $this->is_new,
             'start_date' => $this->start_date,
             'end_date' => $this->end_date,
         ];
