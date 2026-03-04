@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback, useMemo, memo } from 'react';
-import { ShoppingBag, Search, Filter, Loader, Edit2, Trash2, ExternalLink, Plus, FolderPlus, Check, X, Star, Tag, Save, AlertCircle, Eye, EyeOff, RefreshCw, ChevronDown } from 'lucide-react';
+import { ShoppingBag, Search, Filter, Loader, Edit2, Trash2, ExternalLink, Plus, FolderPlus, Check, X, Star, Tag, Save, AlertCircle, Eye, EyeOff, RefreshCw, ChevronDown, Sparkles } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import OptimizedImage from '../../common/OptimizedImage.jsx';
@@ -281,6 +281,12 @@ const ProductManager = () => {
                         <FolderPlus size={16} /> Manage Collections
                     </button>
                     <button 
+                        onClick={() => navigate('/admin/products/bulk')}
+                        className="flex items-center gap-2 px-6 py-3 bg-black/5 dark:bg-white/5 text-gray-900 dark:text-white text-xs font-bold uppercase tracking-widest rounded-xl hover:bg-black/10 dark:hover:bg-white/10 transition-all border border-black/5 dark:border-white/10"
+                    >
+                        <Sparkles size={16} className="text-attire-accent" /> Bulk Upload
+                    </button>
+                    <button 
                         onClick={() => navigate('/admin/products/new')}
                         className="flex items-center gap-2 px-6 py-3 bg-attire-accent text-black text-xs font-bold uppercase tracking-widest rounded-xl hover:bg-white dark:hover:bg-white transition-all duration-300"
                     >
@@ -387,11 +393,21 @@ const ProductManager = () => {
     );
 };
 
-const ProductCard = memo(({ product, onEdit, onDelete, onToggleVisibility, size }) => {
+const ProductCard = memo(React.forwardRef(({ product, onEdit, onDelete, onToggleVisibility, size }, ref) => {
     const isSmall = size === 'small';
+
+    // Debugging image URLs ✨
+    React.useEffect(() => {
+        if (product.images && product.images.length > 0) {
+            console.log(`🖼️ Rendering Product: ${product.name} | Image URL: ${product.images[0]}`);
+        } else {
+            console.warn(`⚠️ Product ${product.name} has no images!`);
+        }
+    }, [product]);
 
     return (
         <motion.div 
+            ref={ref}
             layout="position"
             transition={layoutTransition}
             variants={cardVariants}
@@ -475,7 +491,7 @@ const ProductCard = memo(({ product, onEdit, onDelete, onToggleVisibility, size 
             </div>
         </motion.div>
     );
-});
+}));
 
 const ProductSkeleton = ({ size }) => {
     const isSmall = size === 'small';

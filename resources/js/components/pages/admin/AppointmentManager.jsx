@@ -5,7 +5,7 @@ import OptimizedImage from '../../common/OptimizedImage.jsx';
 import Skeleton from '../../common/Skeleton.jsx';
 import { motion, AnimatePresence } from 'framer-motion';
 
-const AppointmentRow = ({ appointment, onUpdateStatus }) => {
+const AppointmentRow = memo(React.forwardRef(({ appointment, onUpdateStatus }, ref) => {
     const statusConfig = {
         pending: { label: 'Pending', color: 'text-yellow-600 dark:text-yellow-400', bg: 'bg-yellow-400/10', border: 'border-yellow-400/20' },
         done: { label: 'Completed', color: 'text-green-600 dark:text-green-400', bg: 'bg-green-400/10', border: 'border-green-400/20' },
@@ -26,9 +26,11 @@ const AppointmentRow = ({ appointment, onUpdateStatus }) => {
 
     return (
         <motion.div 
+            ref={ref}
             layout="position"
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, scale: 0.95 }}
             className={`p-6 rounded-3xl backdrop-blur-xl bg-white dark:bg-black/20 border border-black/5 dark:border-white/10 shadow-lg dark:shadow-none transition-all duration-300 hover:bg-gray-50 dark:hover:bg-black/30 hover:border-black/10 dark:hover:border-white/20 group`}
         >
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-4 mb-4 border-b border-black/5 dark:border-white/5">
@@ -122,7 +124,7 @@ const AppointmentRow = ({ appointment, onUpdateStatus }) => {
             </div>
         </motion.div>
     );
-};
+}));
 
 const AppointmentSkeleton = () => (
     <div className="p-6 rounded-3xl bg-white dark:bg-white/5 border border-black/5 dark:border-white/5 shadow-lg dark:shadow-none space-y-6">

@@ -61,7 +61,7 @@ return [
             'secret' => env('MINIO_SECRET_KEY'),
             'region' => env('MINIO_REGION', 'us-east-1'),
             'bucket' => env('MINIO_BUCKET', 'product-assets'),
-            'url' => env('MINIO_URL', 'https://bucket-production-4ca0.up.railway.app/product-assets'),
+            'url' => env('MINIO_ASSET_URL', env('MINIO_URL', 'https://bucket-production-4ca0.up.railway.app/product-assets')),
             'endpoint' => env('MINIO_ENDPOINT', 'https://bucket-production-4ca0.up.railway.app'),
             'use_path_style_endpoint' => true,
             'throw' => false,

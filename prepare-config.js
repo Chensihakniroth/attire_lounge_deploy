@@ -2,7 +2,7 @@ const fs = require('fs');
 
 const configFile = 'resources/js/config.js';
 const placeholder = 'MINIO_ENDPOINT_PLACEHOLDER';
-const endpoint = 'https://console-production-7d25.up.railway.app'; // Direct use of the provided endpoint
+const endpoint = 'https://bucket-production-4ca0.up.railway.app'; // Correct endpoint! (◕‿◕✿)
 
 fs.readFile(configFile, 'utf8', (err, data) => {
   if (err) {

@@ -77,18 +77,21 @@ class Product extends Model
      */
     public function getImagesAttribute($value)
     {
-        // Since 'images' is cast to an array, $value will already be an array if it exists. ✨
         $images = $this->getRawOriginal('images');
         if ($images) {
             $decoded = json_decode($images, true);
             if (is_array($decoded) && !empty($decoded)) {
-                return $decoded;
+                // Ensure each URL is full and correct ✨
+                return array_map(function($url) {
+                    if (str_starts_with($url, 'http')) {
+                        return $url;
+                    }
+                    return \Illuminate\Support\Facades\Storage::disk('minio')->url(ltrim($url, '/'));
+                }, $decoded);
             }
         }
 
-        $endpoint = config('services.minio.endpoint');
         $slug = $this->slug;
-        
         $collection = $this->collection;
         
         // If no collection, default to standard settings
@@ -106,9 +109,13 @@ class Product extends Model
             }
         }
 
+        $disk = \Illuminate\Support\Facades\Storage::disk('minio');
+        $primaryPath = ltrim($path, '/') . $fileName . '.' . $primaryExt;
+        $secondaryPath = ltrim($path, '/') . $fileName . '.' . $secondaryExt;
+
         return [
-            "{$endpoint}{$path}{$fileName}.{$primaryExt}?v=new",
-            "{$endpoint}{$path}{$fileName}.{$secondaryExt}?v=new",
+            $disk->url($primaryPath) . "?v=new",
+            $disk->url($secondaryPath) . "?v=new",
         ];
     }
 

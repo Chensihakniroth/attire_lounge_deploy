@@ -71,6 +71,7 @@ Route::prefix('v1')->group(function () {
             Route::post('/gift-items/toggle-stock', [GiftItemStockController::class, 'toggle']);
 
             // Products
+            Route::post('/products/bulk', [ProductController::class, 'bulkStore']);
             Route::post('/products', [ProductController::class, 'store']);
             Route::put('/products/{id}', [ProductController::class, 'update']);
             Route::patch('/products/{id}', [ProductController::class, 'update']);
