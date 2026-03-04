@@ -318,29 +318,45 @@ export const AdminProvider = ({ children }) => {
         setStats(prev => ({ ...prev, ...newStats }));
     };
 
-    // --- Real-time Listeners ---
+    // --- Smart Polling & Real-time Listeners ---
     useEffect(() => {
+        // 1. WebSocket Listener (if available) ✨
+        let channel = null;
         if (window.Echo) {
             console.log('AdminContext: Initializing Real-time Listeners... (｡♥‿♥｡)');
             
-            // Listen for appointment status updates
-            const channel = window.Echo.channel('appointments')
+            channel = window.Echo.channel('appointments')
                 .listen('.status.updated', (e) => {
-                    console.log('Real-time update received:', e);
+                    console.log('Real-time update received via WebSocket:', e);
                     if (e.appointment) {
                         setAppointments(prev => prev.map(app => 
                             app.id === e.appointment.id ? { ...app, ...e.appointment } : app
                         ));
-                        fetchStats(); // Keep stats in sync! ✨
+                        fetchStats();
                     }
                 });
+        }
 
-            return () => {
+        // 2. Smart Polling Fallback (every 30s) 🕒
+        // This ensures data stays fresh even if WebSockets fail!
+        const pollingInterval = setInterval(() => {
+            // Only poll if the tab is active/visible to save resources
+            if (document.visibilityState === 'visible') {
+                console.log('AdminContext: Performing Smart Polling Refresh... (◕‿◕✿)');
+                fetchStats();
+                fetchAppointmentsBackground();
+                fetchGiftRequestsBackground();
+            }
+        }, 30000); // 30 seconds
+
+        return () => {
+            if (channel) {
                 channel.stopListening('.status.updated');
                 window.Echo.leaveChannel('appointments');
-            };
-        }
-    }, [fetchStats]);
+            }
+            clearInterval(pollingInterval);
+        };
+    }, [fetchStats, fetchAppointmentsBackground, fetchGiftRequestsBackground]);
 
     return (
         <AdminContext.Provider value={{

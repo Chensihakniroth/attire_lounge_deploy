@@ -30,6 +30,7 @@ window.Pusher = Pusher;
 
 const reverbConfig = window.REVERB_CONFIG || {};
 
+/*
 window.Echo = new Echo({
     broadcaster: 'reverb',
     key: reverbConfig.key,
@@ -39,6 +40,7 @@ window.Echo = new Echo({
     forceTLS: (reverbConfig.scheme ?? 'https') === 'https',
     enabledTransports: ['ws', 'wss'],
 });
+*/
 
 // Simple console log for debugging
 console.log('Attire Lounge Official React App Initialized - Real-time Ready! (ﾉ´ヮ`)ﾉ*:･ﾟ✧');

@@ -12,7 +12,10 @@
     }
 
     # Proxy Reverb WebSockets 🚀
-    handle /app/* {
+    @websockets {
+        path /app/* /apps/*
+    }
+    handle @websockets {
         reverse_proxy 127.0.0.1:8081
     }
 
