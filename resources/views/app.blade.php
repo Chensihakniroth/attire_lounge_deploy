@@ -10,6 +10,14 @@
         <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Open+Sans:ital,wght@0,300..800;1,300..800&family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600&family=Bayon&family=Kantumruy+Pro:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400;1,500;1,600&display=swap" rel="stylesheet">
         <link rel="icon" type="image/png" href="https://bucket-production-4ca0.up.railway.app/product-assets/uploads/asset/ALO.png">
         <link href="{{ asset('/css/app.css') }}?v={{ time() }}" rel="stylesheet">
+        <script>
+            window.REVERB_CONFIG = {
+                key: "{{ env('VITE_REVERB_APP_KEY') }}",
+                host: "{{ env('VITE_REVERB_HOST') }}",
+                port: "{{ env('VITE_REVERB_PORT', 8080) }}",
+                scheme: "{{ env('VITE_REVERB_SCHEME', 'http') }}"
+            };
+        </script>
     </head>
     <body>
         <div id="app"></div>
