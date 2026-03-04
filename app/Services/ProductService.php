@@ -45,8 +45,13 @@ class ProductService
         }
 
         $cacheKey = 'products.' . md5(serialize($dto));
+        $tags = ['products'];
 
-        return Cache::remember($cacheKey, 3600, function () use ($dto) {
+        // Use cache tags if supported by the driver (e.g., Redis). 
+        // This allows us to clear all product lists at once! (ﾉ´ヮ`)ﾉ*:･ﾟ✧
+        $cache = Cache::supportsTags() ? Cache::tags($tags) : Cache::getFacadeRoot();
+
+        return $cache->remember($cacheKey, 3600, function () use ($dto) {
             return $this->productRepository->getPaginated($dto);
         });
     }
@@ -56,7 +61,9 @@ class ProductService
      */
     public function getFeaturedProducts(int $limit = 8): Collection
     {
-        return Cache::remember('featured_products', 3600, function () use ($limit) {
+        $cache = Cache::supportsTags() ? Cache::tags(['products', 'featured']) : Cache::getFacadeRoot();
+        
+        return $cache->remember('featured_products', 3600, function () use ($limit) {
             return $this->productRepository->getFeatured($limit);
         });
     }
@@ -66,7 +73,9 @@ class ProductService
      */
     public function getProductCategories(): Collection
     {
-        return Cache::remember('product_categories', 7200, function () {
+        $cache = Cache::supportsTags() ? Cache::tags(['products', 'metadata']) : Cache::getFacadeRoot();
+
+        return $cache->remember('product_categories', 7200, function () {
             return $this->productRepository->getCategories();
         });
     }
@@ -76,7 +85,9 @@ class ProductService
      */
     public function getProductBySlug(string $slug)
     {
-        return Cache::remember("product.{$slug}", 3600, function () use ($slug) {
+        $cache = Cache::supportsTags() ? Cache::tags(['products', "product.{$slug}"]) : Cache::getFacadeRoot();
+
+        return $cache->remember("product.{$slug}", 3600, function () use ($slug) {
             return $this->productRepository->findBySlug($slug);
         });
     }
@@ -124,13 +135,16 @@ class ProductService
      */
     private function clearProductCache($product)
     {
-        // Flush the entire cache to ensure all product lists are invalidated.
-        // This is a pragmatic approach because the paginated cache keys are dynamic (MD5 hash)
-        // and we are likely not using a cache driver that supports tagging (like Redis).
-        // If we were, we would use Cache::tags('products')->flush();
-        Cache::flush();
+        if (Cache::supportsTags()) {
+            // Redis magic! We only clear product-related items. (｡♥‿♥｡)
+            Cache::tags(['products'])->flush();
+        } else {
+            // Fallback for drivers that don't support tagging (like file or database).
+            // We'll clear the entire cache to be safe, just as we did before. ✨
+            Cache::flush();
+        }
 
-        // The old individual cache clearing logic (can be kept for clarity but is redundant if flushing).
+        // Individual item cleanup (still good practice)
         Cache::forget("product.{$product->slug}");
         Cache::forget('featured_products');
         Cache::forget('product_categories');

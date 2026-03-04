@@ -318,6 +318,30 @@ export const AdminProvider = ({ children }) => {
         setStats(prev => ({ ...prev, ...newStats }));
     };
 
+    // --- Real-time Listeners ---
+    useEffect(() => {
+        if (window.Echo) {
+            console.log('AdminContext: Initializing Real-time Listeners... (｡♥‿♥｡)');
+            
+            // Listen for appointment status updates
+            const channel = window.Echo.channel('appointments')
+                .listen('.status.updated', (e) => {
+                    console.log('Real-time update received:', e);
+                    if (e.appointment) {
+                        setAppointments(prev => prev.map(app => 
+                            app.id === e.appointment.id ? { ...app, ...e.appointment } : app
+                        ));
+                        fetchStats(); // Keep stats in sync! ✨
+                    }
+                });
+
+            return () => {
+                channel.stopListening('.status.updated');
+                window.Echo.leaveChannel('appointments');
+            };
+        }
+    }, [fetchStats]);
+
     return (
         <AdminContext.Provider value={{
             appointments,

@@ -7,6 +7,8 @@ use App\Repositories\Interfaces\AppointmentRepositoryInterface;
 use Illuminate\Support\Facades\Log;
 use Exception;
 
+use App\Events\AppointmentStatusUpdated;
+
 class AppointmentService
 {
     /**
@@ -68,7 +70,12 @@ class AppointmentService
      */
     public function updateStatus(Appointment $appointment, string $status): Appointment
     {
-        return $this->appointmentRepository->updateStatus($appointment, $status);
+        $appointment = $this->appointmentRepository->updateStatus($appointment, $status);
+        
+        // Broadcast the update for real-time magic! (ﾉ´ヮ`)ﾉ*:･ﾟ✧
+        broadcast(new AppointmentStatusUpdated($appointment));
+
+        return $appointment;
     }
 
     /**
