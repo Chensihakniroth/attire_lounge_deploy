@@ -8,4 +8,4 @@ nixPkgs = ["php82Extensions.redis", "php82Extensions.pcntl", "php82Extensions.so
 cmds = ["composer install --no-dev", "npm install", "npm run build"]
 
 [processes]
-web = "php artisan migrate --force && php artisan optimize && (php artisan reverb:start --host=127.0.0.1 --port=8081 2>&1 | tee /tmp/reverb.log &) && sleep 5 && cat /tmp/reverb.log && frankenphp run --config Caddyfile --adapter caddyfile"
+web = "php artisan migrate --force && php artisan optimize && frankenphp run --config Caddyfile --adapter caddyfile"

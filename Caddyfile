@@ -11,13 +11,5 @@
         output stdout
     }
 
-    # Proxy Reverb WebSockets 🚀
-    @websockets {
-        path /app/* /apps/*
-    }
-    handle @websockets {
-        reverse_proxy 127.0.0.1:8081
-    }
-
     php_server
 }
