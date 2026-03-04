@@ -2,7 +2,7 @@
 php = "8.2"
 
 [phases.setup]
-nixPkgs = ["php82Extensions.redis", "php82Extensions.pcntl", "php82Extensions.sockets", "php82Extensions.gd", "php82Extensions.bcmath"]
+nixPkgs = ["php82", "php82Extensions.redis", "php82Extensions.pcntl", "php82Extensions.sockets", "php82Extensions.gd", "php82Extensions.bcmath", "libwebp", "libjpeg", "libpng", "zlib"]
 
 [phases.build]
 cmds = ["composer install --no-dev", "npm install", "npm run build"]

@@ -7,6 +7,11 @@
     "license": "MIT",
     "require": {
         "php": "^8.2",
+        "ext-bcmath": "*",
+        "ext-gd": "*",
+        "ext-pcntl": "*",
+        "ext-redis": "*",
+        "ext-sockets": "*",
         "doctrine/dbal": "^4.4",
         "intervention/image": "^3.11",
         "laravel/framework": "^12.0",
