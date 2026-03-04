@@ -12,10 +12,10 @@
         <link href="{{ asset('/css/app.css') }}?v={{ time() }}" rel="stylesheet">
         <script>
             window.REVERB_CONFIG = {
-                key: "{{ env('VITE_REVERB_APP_KEY') }}",
-                host: "{{ env('VITE_REVERB_HOST') }}",
-                port: "{{ env('VITE_REVERB_PORT', 8080) }}",
-                scheme: "{{ env('VITE_REVERB_SCHEME', 'http') }}"
+                key: "{{ config('reverb.apps.apps.0.key') }}",
+                host: "{{ config('reverb.apps.apps.0.options.host') }}",
+                port: "{{ config('reverb.apps.apps.0.options.port', 443) }}",
+                scheme: "{{ config('reverb.apps.apps.0.options.scheme', 'https') }}"
             };
         </script>
     </head>
