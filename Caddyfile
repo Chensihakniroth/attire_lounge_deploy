@@ -1,6 +1,5 @@
 {
     frankenphp
-    order mercury before rewrite
 }
 
 :{$PORT} {
