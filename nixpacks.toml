@@ -8,4 +8,4 @@ nixPkgs = ["php82Extensions.redis", "php82Extensions.pcntl", "php82Extensions.so
 cmds = ["composer install --no-dev", "npm install", "npm run build"]
 
 [processes]
-web = "php artisan migrate --force && (php artisan reverb:start --host=0.0.0.0 --port=8080 &) && php-fpm -D && envsubst '$PORT' < nginx.template > /etc/nginx/conf.d/default.conf && nginx -g 'daemon off;'"
+web = "php artisan migrate --force && (php artisan reverb:start --host=0.0.0.0 --port=8080 &) && frankenphp run --config Caddyfile --adapter caddyfile"

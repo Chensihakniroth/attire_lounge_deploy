@@ -1,0 +1,16 @@
+{
+    frankenphp
+    order mercury before rewrite
+}
+
+:{$PORT} {
+    root * public
+    encode zstd gzip
+
+    # Proxy Reverb WebSockets 🚀
+    handle /app/* {
+        reverse_proxy localhost:8080
+    }
+
+    php_server
+}
