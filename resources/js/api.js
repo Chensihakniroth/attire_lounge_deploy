@@ -7,12 +7,12 @@ const CACHE_TTL = 15 * 60 * 1000; // 15 minutes
 // Helper to get data from cache
 const getCached = (key) => {
     try {
-        const item = localStorage.getItem(CACHE_PREFIX + key);
+        const item = sessionStorage.getItem(CACHE_PREFIX + key);
         if (!item) return null;
         
         const { value, timestamp } = JSON.parse(item);
         if (Date.now() - timestamp > CACHE_TTL) {
-            localStorage.removeItem(CACHE_PREFIX + key);
+            sessionStorage.removeItem(CACHE_PREFIX + key);
             return null;
         }
         return value;
@@ -25,7 +25,7 @@ const getCached = (key) => {
 const setCached = (key, value) => {
     try {
         const item = { value, timestamp: Date.now() };
-        localStorage.setItem(CACHE_PREFIX + key, JSON.stringify(item));
+        sessionStorage.setItem(CACHE_PREFIX + key, JSON.stringify(item));
     } catch (e) {
         console.warn('Failed to cache data', e);
     }

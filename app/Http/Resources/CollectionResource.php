@@ -21,6 +21,7 @@ class CollectionResource extends JsonResource
             'description' => $this->description,
             'season' => $this->season,
             'year' => $this->year,
+            'image' => $this->getRawOriginal('image'),
             'image_url' => $this->image_url,
             'is_active' => $this->is_active,
             'is_new' => $this->is_new,

@@ -37,12 +37,23 @@ const CollectionsPage = () => {
                 const response = await axios.get(`/api/v1/products/collections?t=${Date.now()}`);
                 if (response.data.success) {
                     // Map backend property names to what the UI expects ✨
-                    const mapped = response.data.data.map(c => ({
-                        ...c,
-                        title: c.name,
-                        image: c.image_url,
-                        itemsCount: c.is_new ? 'New' : ''
-                    }));
+                    // We ensure the image URL is full and correct, using minioBaseUrl as fallback if needed ◕‿◕✿
+                    const mapped = response.data.data.map(c => {
+                        let imageUrl = c.image_url;
+                        
+                        // Fallback logic: if image_url is missing or relative, we use the raw image path + minioBaseUrl
+                        if (!imageUrl || (!imageUrl.startsWith('http') && c.image)) {
+                            const path = c.image.startsWith('/') ? c.image : `/${c.image}`;
+                            imageUrl = `${minioBaseUrl}${path}`;
+                        }
+
+                        return {
+                            ...c,
+                            title: c.name,
+                            image: imageUrl,
+                            itemsCount: c.is_new ? 'New' : ''
+                        };
+                    });
                     setCollections(mapped);
                 }
             } catch (err) {

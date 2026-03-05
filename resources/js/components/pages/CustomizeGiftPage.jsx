@@ -25,7 +25,7 @@ const fadeUp = {
 // --- Refined Components ---
 
 const StepIndicator = ({ currentStep }) => {
-    const steps = ["Details", "Selection", "Review"];
+    const steps = ["Selection", "Details", "Review"];
     return (
         <div className="flex flex-col items-center mb-16">
             <div className="flex items-center gap-12 relative">
@@ -271,7 +271,61 @@ const CustomizeGiftPage = () => {
                                 transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
                             >
                                 {step === 1 && (
+                                    <div className="space-y-24 pb-20">
+                                        <div className="space-y-12">
+                                            <div className="flex items-center justify-between border-b border-white/10 pb-8">
+                                                <h3 className="text-2xl font-serif">I. Select Neckwear</h3>
+                                                <span className="text-[10px] font-black uppercase tracking-[0.3em] text-white/40">{selectedTie ? 'Selected' : 'Awaiting Choice'}</span>
+                                            </div>
+                                            <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+                                                {giftOptions.ties.map(t => <SelectionCard key={t.id} item={t} isSelected={selectedTie?.id === t.id} onSelect={() => setSelectedTie(t)} isOutOfStock={outOfStockItems.includes(t.id)} />)}
+                                            </div>
+                                        </div>
+
+                                        <div className="space-y-12">
+                                            <div className="flex items-center justify-between border-b border-white/10 pb-8">
+                                                <h3 className="text-2xl font-serif">II. Select Pocket Square</h3>
+                                                <span className="text-[10px] font-black uppercase tracking-[0.3em] text-white/40">{selectedPocketSquare ? 'Selected' : 'Awaiting Choice'}</span>
+                                            </div>
+                                            <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+                                                {giftOptions.pocketSquares.map(p => <SelectionCard key={p.id} item={p} isSelected={selectedPocketSquare?.id === p.id} onSelect={() => setSelectedPocketSquare(p)} isOutOfStock={outOfStockItems.includes(p.id)} />)}
+                                            </div>
+                                        </div>
+
+                                        {availableBoxes.length > 0 && (
+                                            <div className="space-y-12">
+                                                <div className="flex items-center justify-between border-b border-white/10 pb-8">
+                                                    <h3 className="text-2xl font-serif">III. Select Presentation</h3>
+                                                    <span className="text-[10px] font-black uppercase tracking-[0.3em] text-white/40">{selectedBox ? 'Selected' : 'Awaiting Choice'}</span>
+                                                </div>
+                                                <div className="grid grid-cols-2 md:grid-cols-3 gap-8">
+                                                    {availableBoxes.map(b => <SelectionCard key={b.id} item={b} isSelected={selectedBox?.id === b.id} onSelect={() => setSelectedBox(b)} isOutOfStock={outOfStockItems.includes(b.id)} />)}
+                                                </div>
+                                            </div>
+                                        )}
+                                        
+                                        <div className="pt-12">
+                                            <button 
+                                                onClick={() => setStep(2)}
+                                                disabled={!selectedTie || !selectedPocketSquare || !selectedBox}
+                                                className="w-full py-6 rounded-2xl bg-white text-black font-black text-[11px] uppercase tracking-[0.5em] disabled:opacity-20 disabled:grayscale transition-all duration-700 shadow-2xl group flex items-center justify-center gap-4"
+                                            >
+                                                Personalize Details
+                                                <ArrowRight size={16} className="group-hover:translate-x-2 transition-transform" />
+                                            </button>
+                                        </div>
+                                    </div>
+                                )}
+
+                                {step === 2 && (
                                     <div className="space-y-12">
+                                        <button 
+                                            onClick={() => setStep(1)}
+                                            className="flex items-center gap-2 text-[10px] font-black uppercase tracking-[0.3em] text-white/40 hover:text-attire-accent transition-colors mb-4"
+                                        >
+                                            <ArrowLeft size={14} />
+                                            Back to Selection
+                                        </button>
                                         <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
                                             <section className="space-y-8">
                                                 <div className="flex items-center gap-4">
@@ -311,58 +365,12 @@ const CustomizeGiftPage = () => {
                                             </section>
                                         </div>
                                         <button 
-                                            onClick={() => validateStep1() && setStep(2)}
-                                            className="w-full py-6 rounded-2xl bg-white text-black font-black text-[11px] uppercase tracking-[0.5em] hover:bg-attire-accent transition-all duration-700 shadow-2xl group flex items-center justify-center gap-4"
+                                            onClick={() => validateStep1() && setStep(3)}
+                                            className="w-full py-6 rounded-2xl bg-attire-accent text-black font-black text-[11px] uppercase tracking-[0.5em] hover:bg-white transition-all duration-700 shadow-2xl group flex items-center justify-center gap-4"
                                         >
-                                            Enter the Gallery
+                                            Review Curation
                                             <ArrowRight size={16} className="group-hover:translate-x-2 transition-transform" />
                                         </button>
-                                    </div>
-                                )}
-
-                                {step === 2 && (
-                                    <div className="space-y-24 pb-20">
-                                        <div className="space-y-12">
-                                            <div className="flex items-center justify-between border-b border-white/10 pb-8">
-                                                <h3 className="text-2xl font-serif">I. Select Neckwear</h3>
-                                                <span className="text-[10px] font-black uppercase tracking-[0.3em] text-white/40">{selectedTie ? 'Selected' : 'Awaiting Choice'}</span>
-                                            </div>
-                                            <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-                                                {giftOptions.ties.map(t => <SelectionCard key={t.id} item={t} isSelected={selectedTie?.id === t.id} onSelect={() => setSelectedTie(t)} isOutOfStock={outOfStockItems.includes(t.id)} />)}
-                                            </div>
-                                        </div>
-
-                                        <div className="space-y-12">
-                                            <div className="flex items-center justify-between border-b border-white/10 pb-8">
-                                                <h3 className="text-2xl font-serif">II. Select Pocket Square</h3>
-                                                <span className="text-[10px] font-black uppercase tracking-[0.3em] text-white/40">{selectedPocketSquare ? 'Selected' : 'Awaiting Choice'}</span>
-                                            </div>
-                                            <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-                                                {giftOptions.pocketSquares.map(p => <SelectionCard key={p.id} item={p} isSelected={selectedPocketSquare?.id === p.id} onSelect={() => setSelectedPocketSquare(p)} isOutOfStock={outOfStockItems.includes(p.id)} />)}
-                                            </div>
-                                        </div>
-
-                                        {availableBoxes.length > 0 && (
-                                            <div className="space-y-12">
-                                                <div className="flex items-center justify-between border-b border-white/10 pb-8">
-                                                    <h3 className="text-2xl font-serif">III. Select Presentation</h3>
-                                                    <span className="text-[10px] font-black uppercase tracking-[0.3em] text-white/40">{selectedBox ? 'Selected' : 'Awaiting Choice'}</span>
-                                                </div>
-                                                <div className="grid grid-cols-2 md:grid-cols-3 gap-8">
-                                                    {availableBoxes.map(b => <SelectionCard key={b.id} item={b} isSelected={selectedBox?.id === b.id} onSelect={() => setSelectedBox(b)} isOutOfStock={outOfStockItems.includes(b.id)} />)}
-                                                </div>
-                                            </div>
-                                        )}
-                                        
-                                        <div className="pt-12">
-                                            <button 
-                                                onClick={() => setStep(3)}
-                                                disabled={!selectedTie || !selectedPocketSquare || !selectedBox}
-                                                className="w-full py-6 rounded-2xl bg-attire-accent text-black font-black text-[11px] uppercase tracking-[0.5em] disabled:opacity-20 disabled:grayscale transition-all duration-700 shadow-2xl"
-                                            >
-                                                Finalize Curation
-                                            </button>
-                                        </div>
                                     </div>
                                 )}
 
@@ -370,6 +378,14 @@ const CustomizeGiftPage = () => {
                                     <div className="space-y-12 bg-white/[0.02] border border-white/10 p-12 rounded-[2.5rem] backdrop-blur-3xl relative overflow-hidden">
                                         <div className="absolute top-0 right-0 w-32 h-32 bg-attire-accent/10 blur-3xl rounded-full translate-x-1/2 -translate-y-1/2" />
                                         
+                                        <button 
+                                            onClick={() => setStep(2)}
+                                            className="flex items-center gap-2 text-[10px] font-black uppercase tracking-[0.3em] text-white/40 hover:text-attire-accent transition-colors mb-4 relative z-20"
+                                        >
+                                            <ArrowLeft size={14} />
+                                            Back to Details
+                                        </button>
+
                                         <div className="flex items-center gap-6 mb-12">
                                             <div className="w-16 h-16 rounded-2xl bg-attire-accent/10 flex items-center justify-center border border-attire-accent/20">
                                                 <ClipboardCheck className="text-attire-accent" size={32} />
