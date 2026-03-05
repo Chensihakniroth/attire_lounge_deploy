@@ -72,6 +72,7 @@ const AdminDashboard = lazyWithRetry(() => import('./pages/admin/AdminDashboard.
 const AdminLogin = lazyWithRetry(() => import('./pages/admin/AdminLogin.jsx'));
 const PrivateRoute = lazyWithRetry(() => import('./pages/admin/PrivateRoute.jsx'));
 import { AdminProvider } from './pages/admin/AdminContext'; // Import AdminProvider
+import { isSafari } from '../helpers/browserUtils.js';
 
 const AdminLayout = lazyWithRetry(() => import('./pages/admin/AdminLayout.jsx'));
 const AuditLog = lazyWithRetry(() => import('./pages/admin/AuditLog.jsx'));
@@ -156,6 +157,11 @@ const LenisScroll: React.FC = () => {
     const location = useLocation();
 
     useEffect(() => {
+        // Global Safari detection for CSS targeting
+        if (typeof document !== 'undefined') {
+            document.body.setAttribute('data-safari', isSafari().toString());
+        }
+
         // Disable Lenis on Admin routes
         if (location.pathname.startsWith('/admin')) {
             if (window.lenis) {
@@ -167,9 +173,10 @@ const LenisScroll: React.FC = () => {
 
         // Initialize Lenis if it doesn't exist
         if (!window.lenis) {
+            const isSafariBrowser = isSafari();
             const lenis = new Lenis({
-                lerp: 0.1, // More organic smoothing than fixed duration
-                wheelMultiplier: 1.1, // Increased for better responsiveness
+                lerp: isSafariBrowser ? 0.08 : 0.1, // Slightly slower lerp for Safari to reduce jank
+                wheelMultiplier: isSafariBrowser ? 1.0 : 1.1, // Lower multiplier for Safari
                 touchMultiplier: 1.5,
                 smoothWheel: true,
                 smoothTouch: false,

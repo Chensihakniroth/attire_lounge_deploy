@@ -138,11 +138,6 @@ const CustomizeGiftPage = () => {
     const [submissionStatus, setSubmissionStatus] = useState({ state: 'idle' });
     const [formErrors, setFormErrors] = useState({});
     const [outOfStockItems, setOutOfStockItems] = useState([]);
-    const [isSafariBrowser, setIsSafariBrowser] = useState(false);
-
-    useEffect(() => {
-        setIsSafariBrowser(isSafari());
-    }, []);
 
     // Smooth anchored scroll logic 💖
     useEffect(() => {
@@ -218,14 +213,12 @@ const CustomizeGiftPage = () => {
 
     return (
         <div className="min-h-screen bg-attire-navy text-white selection:bg-attire-accent selection:text-black">
-            {/* Immersive Background - Disabled on Safari for performance */}
-            {!isSafariBrowser && (
-                <div className="fixed inset-0 z-0 pointer-events-none">
-                    <div className="absolute top-[-10%] right-[-10%] w-[50%] h-[50%] bg-attire-accent/5 blur-[120px] rounded-full" />
-                    <div className="absolute bottom-[-10%] left-[-10%] w-[50%] h-[50%] bg-white/5 blur-[120px] rounded-full" />
-                    <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')] opacity-[0.03] mix-blend-overlay" />
-                </div>
-            )}
+            {/* Immersive Background - Filtered via CSS [data-safari="true"] */}
+            <div className="fixed inset-0 z-0 pointer-events-none">
+                <div className="absolute top-[-10%] right-[-10%] w-[50%] h-[50%] bg-attire-accent/5 blur-[120px] rounded-full" />
+                <div className="absolute bottom-[-10%] left-[-10%] w-[50%] h-[50%] bg-white/5 blur-[120px] rounded-full" />
+                <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')] opacity-[0.03] mix-blend-overlay" />
+            </div>
 
             <div className="relative z-10 max-w-[1400px] mx-auto px-6 py-28 sm:py-40">
                 {/* Header Section */}

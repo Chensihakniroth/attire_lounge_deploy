@@ -167,16 +167,10 @@ const HeroSection = memo(forwardRef<HTMLElement, HeroSectionProps>(({ scrollToSe
 )));
 
 const PhilosophySection = memo(forwardRef<HTMLElement>((_props, ref) => {
-    const [isSafariBrowser, setIsSafariBrowser] = useState(false);
-
-    useEffect(() => {
-        setIsSafariBrowser(isSafari());
-    }, []);
-
     return (
     <section className="relative snap-section min-h-screen h-screen grid grid-cols-1 lg:grid-cols-2 items-center bg-[#0d3542] overflow-hidden" ref={ref}>
-      {/* Ambient Light */}
-      {!isSafariBrowser && <div className="absolute top-0 left-0 w-[400px] h-[400px] bg-[#f5a81c]/5 rounded-full blur-[120px] pointer-events-none" />}
+      {/* Ambient Light - Filtered via CSS on Safari */}
+      <div className="absolute top-0 left-0 w-[400px] h-[400px] bg-[#f5a81c]/5 rounded-full blur-[120px] pointer-events-none" />
 
       {/* Left side - Text Content */}
       <div className="relative z-10 flex flex-col justify-center text-[#FAF8F3] p-8 md:p-16 lg:p-24 h-full order-2 lg:order-1">
@@ -199,7 +193,7 @@ const PhilosophySection = memo(forwardRef<HTMLElement>((_props, ref) => {
           </motion.h3>
 
           <motion.p variants={itemVariants} className="text-[#E5E7EB]/80 text-sm md:text-lg leading-relaxed mb-12 font-light border-l border-[#f5a81c]/30 pl-8">
-            Attire Lounge Official is Cambodia’s premier destination for refined ready-to-wear menswear. We curate timeless pieces and contemporary designs that embody elegance, empowering the modern gentleman to dress with confidence and distinction.
+           From the sharp precision of our Office line to the timeless allure of our Groom collections. Discover a versatile range of ready-to-wear pieces crafted for every chapter of the modern gentleman's life.
           </motion.p>
 
           <motion.div variants={itemVariants} className="flex flex-wrap gap-8 items-center">

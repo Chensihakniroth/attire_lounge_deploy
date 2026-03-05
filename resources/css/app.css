@@ -175,6 +175,38 @@
             0 4px 30px rgba(0, 0, 0, 0.1),
             inset 0 1px 0 rgba(255, 255, 255, 0.1) !important;
     }
+
+    /* === SAFARI OPTIMIZATIONS === */
+    /* Consolidate all Safari performance fixes here ✨ */
+    [data-safari="true"] .backdrop-blur-sm,
+    [data-safari="true"] .backdrop-blur-md,
+    [data-safari="true"] .backdrop-blur-lg,
+    [data-safari="true"] .backdrop-blur-xl,
+    [data-safari="true"] .backdrop-blur-2xl,
+    [data-safari="true"] .backdrop-blur-3xl {
+        backdrop-filter: none !important;
+        -webkit-backdrop-filter: none !important;
+        background-color: rgba(10, 10, 10, 0.8) !important; /* Solid fallback for glass */
+    }
+
+    [data-safari="true"] .mix-blend-overlay,
+    [data-safari="true"] .mix-blend-multiply,
+    [data-safari="true"] .mix-blend-screen {
+        mix-blend-mode: normal !important;
+    }
+
+    [data-safari="true"] .blur-\[120px\],
+    [data-safari="true"] .blur-3xl,
+    [data-safari="true"] .blur-2xl {
+        filter: none !important;
+        display: none !important; /* Usually these are ambient glows, hide them for performance */
+    }
+
+    [data-safari="true"] * {
+        -webkit-font-smoothing: antialiased;
+        -webkit-backface-visibility: hidden;
+        backface-visibility: hidden;
+    }
 }
 
 @layer utilities {
@@ -330,6 +362,7 @@
 
     /* Performance optimizations */
     transform: translate3d(0, 0, 0);
+    will-change: transform; /* Hint to the compositor ✨ */
     backface-visibility: hidden;
     -webkit-backface-visibility: hidden;
     perspective: 1000px;
@@ -339,6 +372,20 @@
 
     /* Prevent iOS rubber banding */
     -webkit-overflow-scrolling: touch;
+}
+
+/* === Safari 60FPS Force === */
+[data-safari="true"] .snap-section {
+    will-change: transform;
+    -webkit-transform: translateZ(0);
+    transform: translateZ(0);
+}
+
+/* Ensure background media doesn't cause paint lag */
+video, .optimized-image img {
+    will-change: transform;
+    -webkit-transform: translate3d(0, 0, 0);
+    transform: translate3d(0, 0, 0);
 }
 
 /* Make sure footer is visible */
