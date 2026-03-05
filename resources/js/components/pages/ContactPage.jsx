@@ -11,25 +11,20 @@ import {
 import { useFavorites } from '../../context/FavoritesContext';
 import axios from 'axios';
 import OptimizedImage from '../common/OptimizedImage.jsx';
-import { isSafari } from '../../helpers/browserUtils.js';
+
 
 // --- Premium Animation Constants ---
 const fadeUp = {
-    hidden: { opacity: 0, y: 30 },
-    visible: { opacity: 1, y: 0, transition: { duration: 0.8, ease: [0.22, 1, 0.36, 1] } }
+    hidden: { opacity: 0, y: 20 },
+    visible: { opacity: 1, y: 0, transition: { duration: 0.6, ease: [0.22, 1, 0.36, 1] } }
 };
 
 // --- Refined Components ---
 
 const InfoCard = ({ icon: Icon, title, details, action }) => {
-    const Component = action ? motion.a : motion.div;
     return (
-        <Component
-            href={action}
-            target={action?.startsWith('http') ? "_blank" : undefined}
-            rel={action?.startsWith('http') ? "noopener noreferrer" : undefined}
-            whileHover={{ y: -5 }}
-            className="flex items-start gap-6 group p-6 rounded-[2rem] bg-white/[0.02] border border-white/10 hover:border-attire-accent/30 transition-all duration-500 block w-full text-left"
+        <div
+            className="flex items-start gap-6 group p-6 rounded-[2rem] bg-white/[0.03] border border-white/10 hover:border-attire-accent/30 transition-all duration-500 block w-full text-left"
         >
             <div className="mt-1 flex-shrink-0 w-12 h-12 rounded-2xl bg-attire-accent/10 border border-attire-accent/20 flex items-center justify-center group-hover:bg-attire-accent group-hover:text-black transition-all duration-500">
                 <Icon size={20} className="text-attire-accent group-hover:text-black transition-colors" />
@@ -40,7 +35,7 @@ const InfoCard = ({ icon: Icon, title, details, action }) => {
                     {details.map((line, i) => <p key={i}>{line}</p>)}
                 </div>
             </div>
-        </Component>
+        </div>
     );
 };
 
@@ -59,20 +54,13 @@ const InputField = ({ label, icon: Icon, error, ...props }) => (
             )}
             <input
                 {...props}
-                className={`w-full ${Icon ? 'pl-14' : 'px-6'} pr-6 py-5 rounded-2xl border bg-white/[0.02] text-white placeholder-white/10 transition-all duration-500
+                className={`w-full ${Icon ? 'pl-14' : 'px-6'} pr-6 py-5 rounded-2xl border bg-white/[0.03] text-white placeholder-white/10 transition-all duration-500
                 ${error
                     ? 'border-red-500/30 bg-red-500/5 focus:border-red-500'
                     : 'border-white/10 hover:border-white/20 focus:border-attire-accent/50 focus:bg-white/[0.05]'
                 } outline-none text-sm [color-scheme:dark]`}
             />
         </div>
-        <AnimatePresence>
-            {error && (
-                <motion.p initial={{ opacity: 0, x: -5 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0 }} className="text-red-400 text-[10px] font-bold uppercase tracking-widest ml-1">
-                    {error}
-                </motion.p>
-            )}
-        </AnimatePresence>
     </div>
 );
 
@@ -83,7 +71,7 @@ const SelectField = ({ label, options, value, onChange, name }) => {
             <label className="block text-[10px] font-black text-white/60 uppercase tracking-[0.3em] ml-1">{label}</label>
             <Listbox value={value} onChange={val => onChange({ target: { name, value: val } })}>
                 <div className="relative">
-                    <Listbox.Button className="relative w-full cursor-default rounded-2xl border border-white/10 bg-white/[0.02] py-5 pl-6 pr-12 text-left text-white text-sm hover:border-white/20 focus:border-attire-accent/50 transition-all duration-500">
+                    <Listbox.Button className="relative w-full cursor-default rounded-2xl border border-white/10 bg-white/[0.03] py-5 pl-6 pr-12 text-left text-white text-sm hover:border-white/20 focus:border-attire-accent/50 transition-all duration-500">
                         <span className="block truncate font-medium">{selected?.label}</span>
                         <span className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-4">
                             <ChevronDown className="h-4 w-4 text-white/40" aria-hidden="true" />
@@ -124,9 +112,8 @@ const FavoritesSelector = ({ favoriteProducts, selectedFavorites, onSelectionCha
             </div>
             <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-4 p-6 rounded-3xl border border-white/10 bg-white/[0.01]">
                 {favoriteProducts.map(product => (
-                    <motion.div
+                    <div
                         key={product.id}
-                        whileTap={{ scale: 0.95 }}
                         className={`relative cursor-pointer rounded-xl overflow-hidden border-2 transition-all duration-500 ${
                             selectedFavorites.includes(product.id) ? 'border-attire-accent shadow-[0_0_20px_rgba(212,168,76,0.15)]' : 'border-white/10 hover:border-white/30'
                         }`}
@@ -150,7 +137,7 @@ const FavoritesSelector = ({ favoriteProducts, selectedFavorites, onSelectionCha
                         <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/90 p-2">
                             <p className="text-[8px] text-white text-center truncate font-black tracking-widest uppercase">{product.name}</p>
                         </div>
-                    </motion.div>
+                    </div>
                 ))}
             </div>
         </div>
@@ -165,11 +152,7 @@ const ContactPage = () => {
     const [allProducts, setAllProducts] = useState([]);
     const [loadingProducts, setLoadingProducts] = useState(true);
     const [selectedFavorites, setSelectedFavorites] = useState([]);
-    const [isSafariBrowser, setIsSafariBrowser] = useState(false);
-
-    useEffect(() => {
-        setIsSafariBrowser(isSafari());
-    }, []);
+    
 
     const favoriteProducts = allProducts.filter(p =>
         favorites.some(fav => String(fav) === String(p.slug) || String(fav) === String(p.id))
@@ -191,7 +174,6 @@ const ContactPage = () => {
     const [errors, setErrors] = useState({});
     const [generatedMessage, setGeneratedMessage] = useState('');
 
-    // Scroll to the content box when manifest is ready 💖
     useEffect(() => {
         if (generatedMessage && contentRef.current) {
             const yOffset = -120;
@@ -255,17 +237,10 @@ const ContactPage = () => {
     };
 
     return (
-        <div className="min-h-screen bg-attire-navy relative selection:bg-attire-accent selection:text-black">
-            {/* Ambient Background - Disabled on Safari for performance */}
-            {!isSafariBrowser && (
-                <div className="fixed inset-0 z-0 pointer-events-none opacity-20">
-                    <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-attire-accent/10 blur-[120px] rounded-full" />
-                    <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-white/5 blur-[120px] rounded-full" />
-                </div>
-            )}
+        <div className="min-h-screen bg-attire-navy relative selection:bg-attire-accent selection:text-black overflow-x-hidden">
+            {/* Ambient Background REMOVED FOR SILKY SMOOTH SCROLLING ヽ(>∀<☆)ノ */}
 
             <div className="relative z-10 max-w-[1400px] mx-auto px-6 py-28 sm:py-40">
-                {/* Atelier Header */}
                 <header className="max-w-3xl mx-auto text-center mb-24">
                     <motion.div initial="hidden" animate="visible" variants={fadeUp} className="space-y-8">
                         <div className="inline-flex items-center gap-4 px-6 py-2 rounded-full border border-white/10 bg-white/[0.02]">
@@ -283,7 +258,6 @@ const ContactPage = () => {
 
                 <div ref={contentRef} className="grid grid-cols-1 lg:grid-cols-12 gap-16 items-start min-h-[1000px] pb-32">
 
-                    {/* Information Sidebar */}
                     <div className="lg:col-span-4 space-y-12 order-2 lg:order-1">
                         <section className="space-y-10">
                             <h3 className="text-[11px] font-black text-attire-accent uppercase tracking-[0.4em] ml-1">Our store</h3>
@@ -318,11 +292,10 @@ const ContactPage = () => {
                         </div>
                     </div>
 
-                    {/* Interaction Main Area */}
                     <div className="lg:col-span-8 order-1 lg:order-2">
                         <AnimatePresence mode="wait">
                             {generatedMessage ? (
-                                <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} className="bg-white/[0.02] border border-white/10 p-12 md:p-20 rounded-[3rem] text-center backdrop-blur-3xl">
+                                <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} className="bg-white/[0.02] border border-white/10 p-12 md:p-20 rounded-[3rem] text-center">
                                     <div className="w-24 h-24 bg-green-500/10 rounded-full flex items-center justify-center mx-auto mb-10 border border-green-500/20">
                                         <CheckCircle size={48} className="text-green-400" />
                                     </div>
@@ -333,8 +306,8 @@ const ContactPage = () => {
                                     </button>
                                 </motion.div>
                             ) : (
-                                <div className="bg-white/[0.02] border border-white/10 p-8 md:p-16 rounded-[3rem] backdrop-blur-3xl relative overflow-hidden">
-                                    <div className="absolute top-0 right-0 w-64 h-64 bg-attire-accent/5 blur-[80px] rounded-full translate-x-1/2 -translate-y-1/2 pointer-events-none" />
+                                <div className="bg-white/[0.02] border border-white/10 p-8 md:p-16 rounded-[3rem] relative overflow-hidden">
+                                    <div className="absolute top-0 right-0 w-64 h-64 bg-attire-accent/5 blur-[40px] rounded-full translate-x-1/2 -translate-y-1/2 pointer-events-none" />
 
                                     <div className="flex items-center gap-6 mb-16">
                                         <div className="w-14 h-14 rounded-2xl bg-attire-accent/10 flex items-center justify-center border border-attire-accent/20">
@@ -377,9 +350,7 @@ const ContactPage = () => {
                                             />
                                         </div>
 
-                                        <motion.button
-                                            whileHover={{ scale: 1.01 }}
-                                            whileTap={{ scale: 0.98 }}
+                                        <button
                                             type="submit"
                                             disabled={isSubmitting}
                                             className="w-full py-6 rounded-2xl bg-white text-black font-black text-[11px] uppercase tracking-[0.6em] transition-all duration-700 flex items-center justify-center gap-4 hover:bg-attire-accent group shadow-2xl"
@@ -390,7 +361,7 @@ const ContactPage = () => {
                                                     <ArrowRight size={16} className="group-hover:translate-x-2 transition-transform duration-500" />
                                                 </>
                                             )}
-                                        </motion.button>
+                                        </button>
                                     </form>
                                 </div>
                             )}

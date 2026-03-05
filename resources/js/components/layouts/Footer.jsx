@@ -2,13 +2,13 @@ import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import {
   MapPin, Phone, Mail, Clock,
-  Instagram, Facebook, MessageSquare, Send,
+  Instagram, Facebook, Send,
   ArrowRight, Check, AlertTriangle, ChevronRight
 } from 'lucide-react';
 import { motion } from 'framer-motion';
 import api from '../../api';
-import minioBaseUrl from '../../config.js'; // Ensure correct import path
-import { isSafari } from '../../helpers/browserUtils.js';
+import minioBaseUrl from '../../config.js';
+
 
 const Footer = () => {
   const [phoneNumber, setPhoneNumber] = useState('');
@@ -16,11 +16,7 @@ const Footer = () => {
   const [errorMessage, setErrorMessage] = useState('');
   const [adminClickCount, setAdminClickCount] = useState(0);
   const navigate = useNavigate();
-  const [isSafariBrowser, setIsSafariBrowser] = useState(false);
-
-  useEffect(() => {
-      setIsSafariBrowser(isSafari());
-  }, []);
+  
 
   useEffect(() => {
     if (adminClickCount > 0) {
@@ -69,14 +65,12 @@ const Footer = () => {
   const currentYear = new Date().getFullYear();
 
   return (
-    <footer className="bg-black text-white border-t border-white/5 relative overflow-hidden font-light">
-      {/* Decorative Background Elements */}
-      {!isSafariBrowser && (
-        <>
-          <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-attire-navy/20 rounded-full blur-[150px] pointer-events-none -translate-y-1/2 translate-x-1/2" />
-          <div className="absolute bottom-0 left-0 w-[400px] h-[400px] bg-attire-accent/5 rounded-full blur-[120px] pointer-events-none translate-y-1/2 -translate-x-1/2" />
-        </>
-      )}
+    <footer 
+      className="bg-black text-white border-t border-white/5 relative overflow-hidden font-light transform-gpu"
+    >
+      {/* Decorative Background Elements - OPTIMIZED FOR IMAC ✨ */}
+      <div className="absolute top-0 right-0 w-[400px] h-[400px] bg-attire-navy/10 rounded-full blur-[60px] pointer-events-none -translate-y-1/2 translate-x-1/2 transform-gpu" />
+      <div className="absolute bottom-0 left-0 w-[300px] h-[300px] bg-attire-accent/5 rounded-full blur-[40px] pointer-events-none translate-y-1/2 -translate-x-1/2 transform-gpu" />
 
       {/* Main Footer Content */}
       <div className="relative z-10 max-w-screen-2xl mx-auto px-6 pt-20 pb-12">
@@ -161,7 +155,7 @@ const Footer = () => {
                 {[
                   { name: 'Attire Club', path: '/#membership' },
                   { name: 'Lookbook', path: '/lookbook' },
-                  { name: 'Tips & Tricks', path: '/#tips-tricks' }, // Assuming anchor exists or will exist
+                  { name: 'Tips & Tricks', path: '/#tips-tricks' }, 
                   { name: 'Contact Us', path: '/contact' },
                   { name: 'Book Appointment', path: '/contact' },
                 ].map((item) => (
@@ -178,7 +172,7 @@ const Footer = () => {
 
           {/* Newsletter - Spans 3 columns */}
           <div className="lg:col-span-3 space-y-8">
-            <div className="bg-white/5 rounded-2xl p-6 border border-white/10 backdrop-blur-sm">
+            <div className="bg-white/5 rounded-2xl p-6 border border-white/10">
               <h3 className="text-lg font-serif text-white mb-2">The Gentleman's Digest</h3>
               <p className="text-attire-silver/70 text-xs mb-6 leading-relaxed">
                 Join our exclusive Telegram VIP group for early access to new drops, styling guides, and member-only privileges.
@@ -198,9 +192,7 @@ const Footer = () => {
                   />
                 </div>
 
-                <motion.button
-                  whileHover={{ scale: 1.01 }}
-                  whileTap={{ scale: 0.99 }}
+                <button
                   type="submit"
                   className={`w-full py-3 rounded-lg font-medium text-xs uppercase tracking-wider transition-all duration-300 flex items-center justify-center gap-2 ${
                     subscribeStatus === 'success' ? 'bg-green-500/20 text-green-400 border border-green-500/30' :
@@ -213,7 +205,7 @@ const Footer = () => {
                   {subscribeStatus === 'loading' && <span className="animate-pulse">Processing...</span>}
                   {subscribeStatus === 'success' && <><Check className="w-4 h-4" /> Joined</>}
                   {subscribeStatus === 'error' && <><AlertTriangle className="w-4 h-4" /> Failed</>}
-                </motion.button>
+                </button>
               </form>
                {errorMessage && <p className="text-red-400/80 text-[10px] mt-2 text-center">{errorMessage}</p>}
             </div>
@@ -223,18 +215,17 @@ const Footer = () => {
                 {[
                   { icon: Instagram, url: 'https://instagram.com/attireloungeofficial' },
                   { icon: Facebook, url: 'https://facebook.com/attireloungeofficial' },
-                  { icon: Send, url: 'https://t.me/attireloungeofficial' }, // Changed to Send (Telegram)
+                  { icon: Send, url: 'https://t.me/attireloungeofficial' }, 
                 ].map((social, idx) => (
-                  <motion.a
+                  <a
                     key={idx}
                     href={social.url}
                     target="_blank"
                     rel="noopener noreferrer"
-                    whileHover={{ y: -3 }}
                     className="w-10 h-10 flex items-center justify-center rounded-full border border-white/10 bg-white/5 hover:bg-attire-accent hover:border-attire-accent text-white/70 hover:text-white transition-all duration-300"
                   >
                     <social.icon className="w-4 h-4" />
-                  </motion.a>
+                  </a>
                 ))}
             </div>
           </div>

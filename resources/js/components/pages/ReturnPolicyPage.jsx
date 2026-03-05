@@ -1,19 +1,14 @@
 import React from 'react';
 import PolicyLayout from '../layouts/PolicyLayout';
-import { motion } from 'framer-motion';
 import { AlertTriangle, Clock, MapPin, CheckCircle, PackageX, Mail, Phone, ClipboardCheck } from 'lucide-react';
 
 const InfoSection = ({ icon: Icon, title, children, highlighted = false }) => (
-    <motion.div 
+    <div 
         className={`border rounded-3xl p-8 transition-all duration-300 ${
             highlighted 
                 ? 'bg-attire-accent/5 border-attire-accent/20' 
                 : 'bg-black/20 border-white/5 hover:border-white/10 hover:bg-black/30'
         }`}
-        initial={{ opacity: 0, y: 20 }}
-        whileInView={{ opacity: 1, y: 0 }}
-        viewport={{ once: true, amount: 0.2 }}
-        transition={{ duration: 0.6 }}
     >
         <div className="flex items-center gap-4 mb-6">
             <div className={`w-12 h-12 rounded-xl flex items-center justify-center border ${
@@ -28,7 +23,7 @@ const InfoSection = ({ icon: Icon, title, children, highlighted = false }) => (
         <div className="prose-p:text-attire-silver/80 prose-ul:list-disc prose-ul:pl-5 prose-li:text-attire-silver/80">
             {children}
         </div>
-    </motion.div>
+    </div>
 );
 
 const CustomListItem = ({ children, type = "check" }) => (
@@ -41,14 +36,9 @@ const CustomListItem = ({ children, type = "check" }) => (
 const ReturnPolicyPage = () => {
     return (
         <PolicyLayout title="Return Policy" lastUpdated="January 19, 2026">
-            <motion.p 
-                className="lead text-xl text-center text-white/70 mb-16 font-light"
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ delay: 0.2, duration: 0.8 }}
-            >
+            <p className="lead text-xl text-center text-white/70 mb-16 font-light">
                 We want you to be completely satisfied with your Attire Lounge Official purchase. Please review our detailed return policy below.
-            </motion.p>
+            </p>
             
             <div className="grid md:grid-cols-2 gap-8 mb-8">
                 {/* Local Purchases Card */}
@@ -76,13 +66,7 @@ const ReturnPolicyPage = () => {
                 </ul>
             </InfoSection>
             
-            <motion.div 
-                className="text-center p-10 bg-attire-accent/10 rounded-3xl border border-attire-accent/20 mt-8"
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true, amount: 0.2 }}
-                transition={{ duration: 0.6 }}
-            >
+            <div className="text-center p-10 bg-attire-accent/10 rounded-3xl border border-attire-accent/20 mt-8">
                 <h3 className="text-2xl font-serif mb-6">Start a Return</h3>
                 <p className="mb-8 max-w-lg mx-auto text-attire-silver/70">To initiate a return for an eligible order, please visit our store in Phnom Penh or contact our support team.</p>
                 
@@ -96,7 +80,7 @@ const ReturnPolicyPage = () => {
                         Call Us
                     </a>
                 </div>
-            </motion.div>
+            </div>
         </PolicyLayout>
     );
 };

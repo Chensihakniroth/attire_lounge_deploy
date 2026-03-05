@@ -7,8 +7,7 @@ import { Link, useLocation } from 'react-router-dom';
 import SectionIndicator from './SectionIndicator.jsx';
 import FashionShow from '../sections/FashionShow.jsx';
 import OptimizedImage from '../common/OptimizedImage.jsx';
-import SEO from '../common/SEO';1
-import { isSafari } from '../../helpers/browserUtils.js';
+import SEO from '../common/SEO';
 
 import minioBaseUrl from '../../config.js';
 
@@ -93,14 +92,14 @@ const itemVariants: Variants = {
   visible: { opacity: 1, y: 0, transition: { duration: 0.4, ease: 'easeOut' } }
 };
 
-// --- Section Components (Memoized for performance) ---
+// --- Section Components ---
 
 interface HeroSectionProps {
   scrollToSection: (index: number) => void;
 }
 
 const HeroSection = memo(forwardRef<HTMLElement, HeroSectionProps>(({ scrollToSection }, ref) => (
-  <section className="relative snap-section overflow-hidden min-h-screen h-screen" ref={ref}>
+  <section className="relative overflow-hidden min-h-screen h-screen" ref={ref}>
     <div className="absolute inset-0 w-full h-full overflow-hidden">
       <video
         autoPlay
@@ -108,12 +107,11 @@ const HeroSection = memo(forwardRef<HTMLElement, HeroSectionProps>(({ scrollToSe
         loop
         playsInline
         preload="metadata"
-        className="absolute w-full h-full object-cover"
+        className="absolute w-full h-full object-cover transform-gpu"
         style={{ objectPosition: 'center 20%' }}
       >
         <source src={`${minioBaseUrl}/uploads/asset/hero-background1.mp4`} type="video/mp4" />
       </video>
-      {/* Cleaner Gradient Overlay: Clearer center, darkened edges for focus */}
       <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-transparent to-black/80" />
     </div>
 
@@ -123,7 +121,6 @@ const HeroSection = memo(forwardRef<HTMLElement, HeroSectionProps>(({ scrollToSe
       transition={{ duration: 1.2, ease: "easeOut" }}
       className="relative z-10 h-full flex flex-col items-center justify-center px-4"
     >
-      {/* Logo */}
       <OptimizedImage
         src={`${minioBaseUrl}/uploads/asset/AL_logo.png`}
         alt="Attire Lounge Official"
@@ -135,7 +132,6 @@ const HeroSection = memo(forwardRef<HTMLElement, HeroSectionProps>(({ scrollToSe
         objectFit="contain"
       />
 
-      {/* Minimal Tagline */}
       <motion.p
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
@@ -145,7 +141,6 @@ const HeroSection = memo(forwardRef<HTMLElement, HeroSectionProps>(({ scrollToSe
         Phnom Penh
       </motion.p>
 
-      {/* Simplified Scroll Indicator */}
       <motion.div
         className="absolute bottom-12 flex flex-col items-center gap-4 cursor-pointer group mix-blend-screen"
         onClick={() => scrollToSection(1)}
@@ -168,11 +163,9 @@ const HeroSection = memo(forwardRef<HTMLElement, HeroSectionProps>(({ scrollToSe
 
 const PhilosophySection = memo(forwardRef<HTMLElement>((_props, ref) => {
     return (
-    <section className="relative snap-section min-h-screen h-screen grid grid-cols-1 lg:grid-cols-2 items-center bg-[#0d3542] overflow-hidden" ref={ref}>
-      {/* Ambient Light - Filtered via CSS on Safari */}
-      <div className="absolute top-0 left-0 w-[400px] h-[400px] bg-[#f5a81c]/5 rounded-full blur-[120px] pointer-events-none" />
+    <section className="relative min-h-screen h-screen grid grid-cols-1 lg:grid-cols-2 items-center bg-[#0d3542] overflow-hidden" ref={ref}>
+      <div className="absolute top-0 left-0 w-[400px] h-[400px] bg-[#f5a81c]/5 rounded-full blur-[60px] pointer-events-none transform-gpu" />
 
-      {/* Left side - Text Content */}
       <div className="relative z-10 flex flex-col justify-center text-[#FAF8F3] p-8 md:p-16 lg:p-24 h-full order-2 lg:order-1">
         <motion.div
             variants={containerVariants}
@@ -181,7 +174,6 @@ const PhilosophySection = memo(forwardRef<HTMLElement>((_props, ref) => {
             viewport={{ once: true, amount: 0.4 }}
             className="max-w-xl"
         >
-          {/* Section Indicator */}
           <motion.div variants={itemVariants} className="flex items-center gap-4 mb-8">
               <span className="text-[#f5a81c] font-serif text-lg italic">02</span>
               <div className="h-px w-8 bg-[#f5a81c]/50" />
@@ -209,11 +201,10 @@ const PhilosophySection = memo(forwardRef<HTMLElement>((_props, ref) => {
         </motion.div>
       </div>
 
-      {/* Right side - Image */}
       <div className="relative w-full h-full overflow-hidden order-1 lg:order-2 hidden md:block">
         <motion.div
-            initial={{ scale: 1.3 }}
-            whileInView={{ scale: 1.25 }}
+            initial={{ scale: 1.1 }}
+            whileInView={{ scale: 1.05 }}
             transition={{ duration: 1.5, ease: "easeOut" }}
             className="h-full w-full"
         >
@@ -249,26 +240,19 @@ const CollectionsSection = memo(forwardRef<HTMLElement>((_props, ref) => {
     }, [showcaseImages.length]);
 
     return (
-        <section className="relative snap-section min-h-screen h-screen flex items-center bg-[#0d3542] overflow-hidden" ref={ref}>
+        <section className="relative min-h-screen h-screen flex items-center bg-[#0d3542] overflow-hidden" ref={ref}>
             <div className="relative z-10 w-full max-w-[1800px] mx-auto px-6 lg:px-20 flex flex-col lg:grid lg:grid-cols-12 gap-12 lg:gap-0 items-center justify-center h-full py-20 lg:py-0">
 
-                {/* Visual - Left on Desktop, Top on Mobile (Columns 1-6) */}
                 <div className="w-full lg:col-span-6 relative h-[45vh] md:h-[55vh] lg:h-[80vh] flex items-center justify-center z-10 order-1">
-                    <motion.div
-                        initial={{ opacity: 0, x: -100 }}
-                        whileInView={{ opacity: 1, x: 0 }}
-                        transition={{ duration: 1.2, ease: "easeOut" }}
-                        className="relative w-full h-full max-w-[320px] md:max-w-md lg:max-w-lg aspect-[3/4]"
-                    >
-                        {/* Main Image Container */}
+                    <div className="relative w-full h-full max-w-[320px] md:max-w-md lg:max-w-lg aspect-[3/4]">
                         <div className="relative w-full h-full border border-white/5 overflow-hidden rounded-sm shadow-2xl">
-                            <AnimatePresence>
+                            <AnimatePresence mode="wait">
                                 <motion.div
                                     key={currentImageIndex}
-                                    initial={{ x: '100%' }}
-                                    animate={{ x: 0 }}
-                                    exit={{ x: '-100%' }}
-                                    transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
+                                    initial={{ opacity: 0 }}
+                                    animate={{ opacity: 1 }}
+                                    exit={{ opacity: 0 }}
+                                    transition={{ duration: 0.8 }}
                                     className="absolute inset-0 w-full h-full"
                                 >
                                     <OptimizedImage
@@ -277,25 +261,18 @@ const CollectionsSection = memo(forwardRef<HTMLElement>((_props, ref) => {
                                         containerClassName="w-full h-full"
                                         className="w-full h-full"
                                     />
-                                    {/* News Overlay */}
                                     <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent opacity-80" />
-
-                                        <div className="overflow-hidden">
-                                            <motion.h3
-                                                initial={{ y: "100%" }}
-                                                animate={{ y: 0 }}
-                                                className="text-lg md:text-xl lg:text-2xl font-serif text-white uppercase tracking-[0.2em]"
-                                            >
-                                                {['Havana Dispatch', 'Mocha Mousse', 'The Groom Edit', 'Office Journal'][currentImageIndex]}
-                                            </motion.h3>
-                                        </div>
+                                    <div className="absolute bottom-10 left-10 overflow-hidden">
+                                        <h3 className="text-lg md:text-xl lg:text-2xl font-serif text-white uppercase tracking-[0.2em]">
+                                            {['Havana Dispatch', 'Mocha Mousse', 'The Groom Edit', 'Office Journal'][currentImageIndex]}
+                                        </h3>
+                                    </div>
                                 </motion.div>
                             </AnimatePresence>
                         </div>
-                    </motion.div>
+                    </div>
                 </div>
 
-                {/* Editorial Story - Right on Desktop, Bottom on Mobile (Columns 8-12) */}
                 <motion.div
                     variants={containerVariants}
                     initial="hidden"
@@ -341,8 +318,7 @@ interface ExperienceSectionProps {
 }
 
 const ExperienceSection = memo(forwardRef<HTMLElement, ExperienceSectionProps>(({ services }, ref) => (
-  <section className="relative snap-section min-h-screen h-screen flex items-center bg-[#0d3542] overflow-hidden" ref={ref}>
-    {/* Mobile Background Image (Absolute) */}
+  <section className="relative min-h-screen h-screen flex items-center bg-[#0d3542] overflow-hidden" ref={ref}>
     <div className="absolute inset-0 z-0 lg:hidden">
         <OptimizedImage
             src={`${minioBaseUrl}/uploads/collections/default/both.jpg?v=new`}
@@ -354,20 +330,17 @@ const ExperienceSection = memo(forwardRef<HTMLElement, ExperienceSectionProps>((
         <div className="absolute inset-0 bg-black/70" />
     </div>
 
-    {/* Desktop 2-Column Layout */}
     <div className="relative z-10 w-full h-full grid grid-cols-1 lg:grid-cols-2">
-        {/* Left Side: Image (Desktop only) */}
         <div className="hidden lg:block relative h-full w-full overflow-hidden">
             <OptimizedImage
                 src={`${minioBaseUrl}/uploads/collections/default/both.jpg?v=new`}
                 alt="Attire Lounge Official Experience"
                 containerClassName="absolute inset-0 w-full h-full"
-                className="w-full h-full"
+                className="w-full h-full transform-gpu"
             />
             <div className="absolute inset-0 bg-gradient-to-r from-transparent via-[#0d3542]/10 to-[#0d3542]" />
         </div>
 
-        {/* Right Side: Content */}
         <div className="relative z-10 flex flex-col justify-center px-6 md:px-16 lg:px-24 py-12 h-full">
             <motion.div
                 variants={containerVariants}
@@ -376,7 +349,6 @@ const ExperienceSection = memo(forwardRef<HTMLElement, ExperienceSectionProps>((
                 viewport={{ once: true, amount: 0.2 }}
                 className="max-w-xl mx-auto lg:mx-0 w-full"
             >
-                {/* Header - Minimal */}
                 <motion.div variants={itemVariants} className="flex items-center gap-3 mb-6">
                     <span className="h-px w-6 bg-[#f5a81c]/50"></span>
                     <span className="text-[#f5a81c]/80 tracking-[0.2em] uppercase text-[10px] font-medium">Why Choose Us</span>
@@ -388,13 +360,11 @@ const ExperienceSection = memo(forwardRef<HTMLElement, ExperienceSectionProps>((
 
                 <div className="space-y-8">
                     {services.map((service, index) => (
-                        <motion.div
+                        <div
                             key={index}
-                            variants={itemVariants}
                             className="group flex gap-6 items-start pl-2"
                         >
                             <div className="shrink-0 mt-1">
-                                {/* Minimal Icon: Simple circle, subtle interaction */}
                                 <div className="p-3 rounded-full bg-white/5 text-[#f5a81c] group-hover:bg-[#f5a81c] group-hover:text-white transition-all duration-500 ease-out">
                                     {React.cloneElement(service.icon, { size: 20, className: "current-color" } as any)}
                                 </div>
@@ -405,7 +375,7 @@ const ExperienceSection = memo(forwardRef<HTMLElement, ExperienceSectionProps>((
                                     {service.description}
                                 </p>
                             </div>
-                        </motion.div>
+                        </div>
                     ))}
                 </div>
             </motion.div>
@@ -417,8 +387,7 @@ const ExperienceSection = memo(forwardRef<HTMLElement, ExperienceSectionProps>((
 
 
 const MembershipSection = memo(forwardRef<HTMLElement>((_props, ref) => (
-    <section className="relative snap-section min-h-screen h-screen flex items-center bg-[#0d3542] overflow-hidden" ref={ref}>
-        {/* Mobile Background Image (Absolute) */}
+    <section className="relative min-h-screen h-screen flex items-center bg-[#0d3542] overflow-hidden" ref={ref}>
         <div className="absolute inset-0 z-0 lg:hidden">
             <OptimizedImage
                 src={`${minioBaseUrl}/uploads/collections/default/vc.jpg?v=new`}
@@ -429,9 +398,7 @@ const MembershipSection = memo(forwardRef<HTMLElement>((_props, ref) => (
             <div className="absolute inset-0 bg-black/70" />
         </div>
 
-        {/* Desktop 2-Column Grid */}
         <div className="relative z-10 w-full h-full grid grid-cols-1 lg:grid-cols-12 items-center">
-            {/* Content Side (Left) */}
             <div className="relative z-10 col-span-1 lg:col-span-5 flex flex-col justify-center h-full px-6 md:px-12 lg:pl-20 lg:pr-4 py-8">
                 <motion.div
                     variants={containerVariants}
@@ -440,7 +407,6 @@ const MembershipSection = memo(forwardRef<HTMLElement>((_props, ref) => (
                     viewport={{ once: true, amount: 0.2 }}
                     className="w-full max-w-lg mx-auto lg:mx-0"
                 >
-                    {/* Header */}
                     <motion.div variants={itemVariants} className="flex items-center gap-3 mb-4">
                         <Crown className="text-[#f5a81c] w-6 h-6" />
                         <span className="text-[#f5a81c] tracking-[0.3em] uppercase text-xs font-semibold">Exclusive Access</span>
@@ -455,10 +421,8 @@ const MembershipSection = memo(forwardRef<HTMLElement>((_props, ref) => (
                         <span className="block mt-2 text-xs opacity-60">*Minimum spend of US$500 to qualify.</span>
                     </motion.p>
 
-                    {/* Benefits Grid */}
                     <div className="grid grid-cols-1 gap-4 mb-8">
-                        {/* Tier 1: Shopping Perks */}
-                        <motion.div variants={itemVariants} className="bg-white/5 border border-white/10 rounded-xl p-4 hover:bg-white/10 transition-colors">
+                        <div className="bg-white/5 border border-white/10 rounded-xl p-4 hover:bg-white/10 transition-colors">
                             <div className="flex items-center gap-3 mb-3">
                                 <div className="p-2 bg-[#f5a81c]/20 rounded-lg text-[#f5a81c]"><CreditCard size={18} /></div>
                                 <h4 className="text-white font-serif text-lg">Privileged Pricing</h4>
@@ -486,11 +450,10 @@ const MembershipSection = memo(forwardRef<HTMLElement>((_props, ref) => (
                                     <div className="bg-[#f5a81c] h-full w-full" />
                                 </div>
                             </div>
-                        </motion.div>
+                        </div>
 
                         <div className="grid grid-cols-2 gap-4">
-                             {/* Tier 2: Lifestyle */}
-                            <motion.div variants={itemVariants} className="bg-white/5 border border-white/10 rounded-xl p-4 hover:bg-white/10 transition-colors">
+                            <div className="bg-white/5 border border-white/10 rounded-xl p-4 hover:bg-white/10 transition-colors">
                                 <div className="flex items-center gap-2 mb-2">
                                     <Wine size={16} className="text-[#f5a81c]" />
                                     <h4 className="text-white font-serif text-base">Partners</h4>
@@ -499,10 +462,9 @@ const MembershipSection = memo(forwardRef<HTMLElement>((_props, ref) => (
                                     <li>• 10% @ CUFFEINE</li>
                                     <li>• 8% @ Kravat Bar</li>
                                 </ul>
-                            </motion.div>
+                            </div>
 
-                            {/* Tier 3: Seasonal */}
-                            <motion.div variants={itemVariants} className="bg-white/5 border border-white/10 rounded-xl p-4 hover:bg-white/10 transition-colors">
+                            <div className="bg-white/5 border border-white/10 rounded-xl p-4 hover:bg-white/10 transition-colors">
                                 <div className="flex items-center gap-2 mb-2">
                                     <Gift size={16} className="text-[#f5a81c]" />
                                     <h4 className="text-white font-serif text-base">Rewards</h4>
@@ -511,39 +473,36 @@ const MembershipSection = memo(forwardRef<HTMLElement>((_props, ref) => (
                                     <li>• Birthday Gifts</li>
                                     <li>• Event Access</li>
                                 </ul>
-                            </motion.div>
+                            </div>
                         </div>
                     </div>
 
-                     {/* Terms - Collapsible-ish look */}
-                    <motion.div variants={itemVariants} className="text-[10px] text-white/30 leading-snug max-w-md">
+                    <div className="text-[10px] text-white/30 leading-snug max-w-md">
                          <p>Terms apply. Card must be presented. Non-transferable. Lost card fee $10. Subject to change.</p>
-                    </motion.div>
-                                    </motion.div>
-                            </div>
+                    </div>
+                </motion.div>
+            </div>
 
-                            {/* Visual Side (Right - Desktop only) */}
-                            <div className="hidden lg:block relative col-span-7 h-full overflow-hidden">
-                                <OptimizedImage
-                                    src={`${minioBaseUrl}/uploads/collections/default/vc.jpg?v=new`}
-                                    alt="Attire Club Membership"
-                                    containerClassName="absolute inset-0 w-full h-full"
-                                    className="w-full h-full"
-                                    style={{ objectPosition: 'center' }}
-                                    loading="lazy"
-                                />
-                                <div className="absolute inset-0 bg-gradient-to-r from-[#0d3542] via-[#0d3542]/40 to-transparent w-2/3" />
-                            </div>
-                        </div>
-                    </section>
-                )));
+            <div className="hidden lg:block relative col-span-7 h-full overflow-hidden">
+                <OptimizedImage
+                    src={`${minioBaseUrl}/uploads/collections/default/vc.jpg?v=new`}
+                    alt="Attire Club Membership"
+                    containerClassName="absolute inset-0 w-full h-full"
+                    className="w-full h-full transform-gpu"
+                    style={{ objectPosition: 'center' }}
+                    loading="lazy"
+                />
+                <div className="absolute inset-0 bg-gradient-to-r from-[#0d3542] via-[#0d3542]/40 to-transparent w-2/3" />
+            </div>
+        </div>
+    </section>
+)));
 
 const LookbookSection = memo(forwardRef<HTMLElement>((_props, ref) => (
-  <section className="relative snap-section min-h-screen h-screen w-full overflow-hidden flex items-center justify-center" ref={ref}>
-      {/* Single Cinematic Background Image */}
+  <section className="relative min-h-screen h-screen w-full overflow-hidden flex items-center justify-center" ref={ref}>
       <div className="absolute inset-0 z-0">
           <motion.div
-              initial={{ scale: 1.1 }}
+              initial={{ scale: 1.05 }}
               whileInView={{ scale: 1 }}
               viewport={{ once: true }}
               transition={{ duration: 2.5, ease: "easeOut" }}
@@ -553,15 +512,13 @@ const LookbookSection = memo(forwardRef<HTMLElement>((_props, ref) => (
                   src={`${minioBaseUrl}/uploads/collections/default/as2.jpg?v=new`}
                   alt="Lookbook Background"
                   containerClassName="w-full h-full"
-                  className="w-full h-full"
+                  className="w-full h-full transform-gpu"
               />
           </motion.div>
-          {/* Overlays for Stylist Depth - Removed backdrop-blur for performance */}
           <div className="absolute inset-0 bg-black/70" />
           <div className="absolute inset-0 bg-gradient-to-b from-black via-transparent to-black" />
       </div>
 
-      {/* Centered Minimalist Content */}
       <div className="relative z-10 text-center px-6">
           <motion.div
               initial={{ opacity: 0, y: 30 }}
@@ -591,12 +548,11 @@ interface TipsAndTricksSectionProps {
 }
 
 const TipsAndTricksSection = memo(forwardRef<HTMLElement, TipsAndTricksSectionProps>(({ tipsAndTricks }, ref) => {
-  const [hoveredIndex, setHoveredIndex] = useState(1); // Center card active by default
+  const [hoveredIndex, setHoveredIndex] = useState(1);
 
   return (
-    <section className="relative snap-section bg-[#0d3542] min-h-screen h-screen overflow-hidden flex flex-col justify-center" ref={ref}>
+    <section className="relative bg-[#0d3542] min-h-screen h-screen overflow-hidden flex flex-col justify-center" ref={ref}>
       <div className="relative z-10 w-full h-full flex flex-col px-6 md:px-16 lg:px-24 py-16 md:py-20 lg:py-24">
-        {/* Header Area */}
         <motion.div
           variants={containerVariants}
           initial="hidden"
@@ -618,22 +574,16 @@ const TipsAndTricksSection = memo(forwardRef<HTMLElement, TipsAndTricksSectionPr
             </p>
         </motion.div>
 
-        {/* Accordion Gallery */}
         <div className="flex-1 flex flex-col md:flex-row gap-4 h-full min-h-0 w-full">
           {tipsAndTricks.map((tip, i) => {
             const isHovered = hoveredIndex === i;
             return (
-                <motion.div
+                <div
                   key={i}
-                  initial={{ opacity: 0, y: 20 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true }}
-                  transition={{ delay: i * 0.1, duration: 0.5 }}
                   onMouseEnter={() => setHoveredIndex(i)}
-                  onClick={() => setHoveredIndex(i)} // For mobile tap
-                  className={`relative overflow-hidden rounded-2xl cursor-pointer transition-all duration-700 ease-[cubic-bezier(0.25,1,0.5,1)] ${isHovered ? 'flex-[3] md:flex-[4]' : 'flex-[1]'} group`}
+                  onClick={() => setHoveredIndex(i)}
+                  className={`relative overflow-hidden rounded-2xl cursor-pointer transition-all duration-700 ease-[cubic-bezier(0.25,1,0.5,1)] ${isHovered ? 'flex-[3] md:flex-[4]' : 'flex-[1]'} group transform-gpu`}
                 >
-                    {/* Background Image */}
                     <OptimizedImage
                         src={tip.image}
                         alt={tip.title}
@@ -644,11 +594,8 @@ const TipsAndTricksSection = memo(forwardRef<HTMLElement, TipsAndTricksSectionPr
                     />
                     <div className={`absolute inset-0 bg-gradient-to-b from-black/10 via-transparent to-black/90 transition-opacity duration-500 ${isHovered ? 'opacity-90' : 'opacity-20'}`} />
 
-                    {/* Content Container */}
                     <div className="absolute inset-0 p-6 md:p-8 flex flex-col justify-end">
-
                         <div className="relative z-10 flex justify-between items-end">
-                            {/* Main Content */}
                             <div className={`transition-all duration-500 ${isHovered ? 'w-full md:w-3/4 translate-y-0 opacity-100' : 'translate-y-4 opacity-100 md:opacity-0'}`}>
                                 <div className="flex items-center gap-4 mb-3">
                                     <span className={`font-serif text-3xl md:text-5xl transition-colors duration-300 ${isHovered ? 'text-[#f5a81c]' : 'text-white/40'}`}>
@@ -675,7 +622,7 @@ const TipsAndTricksSection = memo(forwardRef<HTMLElement, TipsAndTricksSectionPr
                             </div>
                         </div>
                     </div>
-                </motion.div>
+                </div>
             );
           })}
         </div>
@@ -686,7 +633,7 @@ const TipsAndTricksSection = memo(forwardRef<HTMLElement, TipsAndTricksSectionPr
 
 
 const FooterSection = memo(forwardRef<HTMLElement>((_props, ref) => (
-  <section className="relative snap-section !h-auto !min-h-screen !overflow-visible bg-black" ref={ref}>
+  <section className="relative !h-auto !min-h-0 !overflow-visible bg-black" ref={ref}>
     <div className="w-full">
       <Footer />
     </div>
@@ -705,7 +652,7 @@ const HomePage: React.FC = () => {
   const sectionsRef = useRef<(HTMLElement | null)[]>([]);
 
   useEffect(() => {
-    sectionsRef.current = sectionsRef.current.slice(0, 9); // 9 sections total (including footer)
+    sectionsRef.current = sectionsRef.current.slice(0, 9);
     const handleMenuStateChange = (e: any) => {
       if (e.detail && e.detail.isMenuOpen !== undefined) setIsMenuOpen(e.detail.isMenuOpen);
     };
@@ -717,64 +664,12 @@ const HomePage: React.FC = () => {
     const target = sectionsRef.current[index];
     if (target) {
        if (window.lenis) {
-           window.lenis.scrollTo(target, { duration: 1.0 });
+           window.lenis.scrollTo(target, { duration: 1.2 });
        } else {
            target.scrollIntoView({ behavior: 'smooth' });
        }
     }
   }, []);
-
-  // --- Smooth JS Snap Logic (Replaces CSS Snap) ---
-  useEffect(() => {
-    let scrollTimeout: number;
-    const handleScroll = () => {
-        window.clearTimeout(scrollTimeout);
-        scrollTimeout = window.setTimeout(() => {
-            // Disable snapping on mobile (width < 768) or if menu is open or lenis isn't ready
-            if (!window.lenis || isMenuOpen || window.innerWidth < 768) return;
-
-            const scrollY = window.scrollY;
-            const viewportHeight = window.innerHeight;
-
-            let closestIndex = -1;
-            let minDistance = Infinity;
-
-            // Find closest section top
-            sectionsRef.current.forEach((section, index) => {
-                if (!section) return;
-                const distance = Math.abs(section.offsetTop - scrollY);
-                if (distance < minDistance) {
-                    minDistance = distance;
-                    closestIndex = index;
-                }
-            });
-
-            if (closestIndex !== -1) {
-                const targetSection = sectionsRef.current[closestIndex];
-                if (!targetSection) return;
-
-                const dist = Math.abs(targetSection.offsetTop - scrollY);
-                const isTallSection = targetSection.offsetHeight > viewportHeight + 50;
-
-                // If we are very close (already snapped), do nothing to avoid jitter
-                if (dist < 5) return;
-
-                if (!isTallSection) {
-                    window.lenis.scrollTo(targetSection, { duration: 0.6 });
-                } else {
-                    // Tall section logic
-                    const snapThreshold = viewportHeight * 0.3;
-                    if (dist < snapThreshold) {
-                         window.lenis.scrollTo(targetSection, { duration: 0.6 });
-                    }
-                }
-            }
-        }, 50); // 50ms debounce: Snappier start after scrolling stops
-    };
-
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, [isMenuOpen]);
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -790,9 +685,8 @@ const HomePage: React.FC = () => {
       },
       {
         root: null,
-        // Trigger when the section center is near the viewport center
-        rootMargin: '-50% 0px -50% 0px',
-        threshold: 0
+        rootMargin: '-20% 0px -20% 0px',
+        threshold: 0.1
       }
     );
 
@@ -807,16 +701,16 @@ const HomePage: React.FC = () => {
     if (location.hash === '#membership') {
       setTimeout(() => {
         scrollToSection(5);
-      }, 100); // Slight delay to ensure render
+      }, 300);
     }
   }, [location.hash, scrollToSection]);
 
   const { services, lookbookFeatures, tipsAndTricks } = homePageData;
 
-  const sectionNames = ['Home', 'Philosophy', 'Collections', 'Fashion Show', 'Experience', 'Membership', 'Lookbook', 'Tips & Tricks', 'Appointment and Contact'];
+  const sectionNames = ['Home', 'Philosophy', 'Collections', 'Fashion Show', 'Experience', 'Membership', 'Lookbook', 'Tips & Tricks', 'Contact'];
 
   return (
-    <div className="snap-scroll-container bg-[#111111]">
+    <div className="bg-[#111111] overflow-x-hidden">
       <SEO
         title="Attire Lounge Official | Elite Styling House & Ready-to-Wear"
         description="Attire Lounge Official is Phnom Penh's premier Styling House, offering Milan-certified expert styling, curated luxury menswear collections, and personalized fashion consulting for the modern gentleman."

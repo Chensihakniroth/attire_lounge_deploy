@@ -352,40 +352,19 @@
 }
 
 /* ============ ULTRA-SMOOTH SNAP SCROLL ============ */
-/* SINGLE DEFINITION - NO DUPLICATES */
 .snap-section {
-    /* Native snap disabled to allow JS/Lenis control */
     height: 100vh;
     min-height: 100vh;
     position: relative;
     overflow: hidden;
-
-    /* Performance optimizations */
-    transform: translate3d(0, 0, 0);
-    will-change: transform; /* Hint to the compositor ✨ */
-    backface-visibility: hidden;
-    -webkit-backface-visibility: hidden;
-    perspective: 1000px;
-    -webkit-perspective: 1000px;
-    -webkit-transform-style: preserve-3d;
-    transform-style: preserve-3d;
-
-    /* Prevent iOS rubber banding */
-    -webkit-overflow-scrolling: touch;
-}
-
-/* === Safari 60FPS Force === */
-[data-safari="true"] .snap-section {
-    will-change: transform;
-    -webkit-transform: translateZ(0);
-    transform: translateZ(0);
+    /* Clean background performance ✨ */
+    background-attachment: scroll;
 }
 
 /* Ensure background media doesn't cause paint lag */
 video, .optimized-image img {
-    will-change: transform;
-    -webkit-transform: translate3d(0, 0, 0);
-    transform: translate3d(0, 0, 0);
+    -webkit-transform: translateZ(0);
+    transform: translateZ(0);
 }
 
 /* Make sure footer is visible */

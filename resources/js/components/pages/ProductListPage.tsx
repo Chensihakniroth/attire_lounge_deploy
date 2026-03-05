@@ -1,13 +1,17 @@
 import React, { useState, useMemo, useEffect, useRef } from 'react';
 import { useLocation, Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ChevronLeft, Search, X, ChevronDown, Loader2, SlidersHorizontal, Search as SearchIcon } from 'lucide-react';
+import { ChevronLeft, Search, X, ChevronDown, Loader2, SlidersHorizontal, Search as SearchIcon, Camera } from 'lucide-react';
 import ItemCard from './collections/ItemCard';
-import GrainOverlay from '../common/GrainOverlay.jsx';
 import SEO from '../common/SEO';
 import { useProducts, useCollections } from '../../hooks/useProducts';
 import { Product } from '../../types';
 import useDebounce from '../../hooks/useDebounce';
+
+interface SortOption {
+    value: string;
+    label: string;
+}
 
 const sortOptions: SortOption[] = [
     { value: 'newest', label: 'Newest Arrivals' },
@@ -38,7 +42,10 @@ const ProductListPage: React.FC = () => {
     const productsPerPage = 12;
     const [currentLoadedPage, setCurrentLoadedPage] = useState<number>(1);
     const [allLoadedProducts, setAllLoadedProducts] = useState<Product[]>([]);
-    const [hasMore, setHasMore] = useState<boolean>(true);
+    
+    // Track unique keys for animation triggers ✨
+    const [displayKey, setDisplayKey] = useState<string>('initial');
+    const [isInitialLoading, setIsInitialLoading] = useState(true);
 
     const { data, isLoading, isFetching } = useProducts({
         category: selectedCollections.join(','),
@@ -51,25 +58,30 @@ const ProductListPage: React.FC = () => {
     const meta = data?.meta || { total: 0, last_page: 1, current_page: 1 };
 
     useEffect(() => {
-        setAllLoadedProducts([]);
+        const timer = setTimeout(() => setIsInitialLoading(false), 1000);
+        return () => clearTimeout(timer);
+    }, []);
+
+    useEffect(() => {
         setCurrentLoadedPage(1);
-        setHasMore(true);
     }, [selectedCollections, sortOrder, debouncedSearch]);
 
     useEffect(() => {
-        if (data?.data && currentLoadedPage > 0) {
-            setAllLoadedProducts(prevProducts => {
-                const newProducts = data.data.filter(
-                    np => !prevProducts.some(p => p.id === np.id)
-                );
-
-                if (currentLoadedPage === 1) return data.data;
-
-                return [...prevProducts, ...newProducts];
-            });
-            setHasMore(meta.current_page < meta.last_page);
+        if (data?.data) {
+            if (currentLoadedPage === 1) {
+                setAllLoadedProducts(data.data);
+                // Update the key ONLY when new data arrives to trigger fade-in ✨
+                setDisplayKey(`${sortOrder}-${selectedCollections.join(',')}-${debouncedSearch}`);
+            } else {
+                setAllLoadedProducts(prevProducts => {
+                    const newProducts = data.data.filter(
+                        np => !prevProducts.some(p => p.id === np.id)
+                    );
+                    return [...prevProducts, ...newProducts];
+                });
+            }
         }
-    }, [data, currentLoadedPage, meta.current_page, meta.last_page]);
+    }, [data, currentLoadedPage]);
 
     const pageTitle = useMemo(() => {
         const currentCollectionDetails = collections.find(c => c.slug === selectedCollections[0]);
@@ -98,28 +110,17 @@ const ProductListPage: React.FC = () => {
     };
 
     const handleLoadMore = () => {
-        if (hasMore && !isFetching) {
+        if (meta.current_page < meta.last_page && !isFetching) {
             setCurrentLoadedPage(prevPage => prevPage + 1);
         }
     };
 
     return (
-        <motion.div
-            className="min-h-screen bg-attire-navy relative selection:bg-attire-accent selection:text-white"
-            style={{
-                willChange: 'transform',
-                transform: 'translateZ(0)',
-                WebkitBackfaceVisibility: 'hidden'
-            }}
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-        >
+        <div className="min-h-screen bg-attire-navy relative selection:bg-attire-accent selection:text-white overflow-x-hidden">
             <SEO
                 title={`${pageTitle} | Elite Styling House`}
                 description={`Explore our ${pageTitle}. Expertly curated luxury styles designed for the modern gentleman.`}
             />
-            <GrainOverlay />
 
             <header className="relative z-10 pt-32 pb-16 sm:pt-48 sm:pb-24 px-6 text-center">
                 <div className="max-w-4xl mx-auto">
@@ -143,7 +144,7 @@ const ProductListPage: React.FC = () => {
                 </div>
             </header>
 
-            <main className="relative z-10 max-w-screen-2xl mx-auto px-6 sm:px-12 lg:px-24 pb-32">
+            <main className="relative z-10 max-w-[1800px] mx-auto px-6 sm:px-12 lg:px-20 pb-32">
                 <div className="z-50 mb-20 relative">
                     <Controls
                         sortOrder={sortOrder}
@@ -159,57 +160,69 @@ const ProductListPage: React.FC = () => {
                 </div>
 
                 <AnimatePresence mode="wait">
-                    {isLoading && allLoadedProducts.length === 0 ? (
-                        <motion.div
-                            key="loading-initial"
-                            className="flex flex-col items-center justify-center py-32"
+                    {isInitialLoading || (isLoading && allLoadedProducts.length === 0) ? (
+                        <motion.div 
+                            key="loader"
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            exit={{ opacity: 0 }}
+                            className="flex flex-col items-center justify-center py-48"
                         >
-                            <Loader2 className="w-12 h-12 text-attire-accent animate-spin mb-4" />
-                            <p className="text-attire-silver/60 text-xs uppercase tracking-widest">Gathering Excellence...</p>
-                        </motion.div>
-                    ) : allLoadedProducts.length > 0 ? (
-                        <motion.div
-                            key="results"
-                            className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-8 lg:gap-12"
-                            initial={{ opacity: 0, y: 20 }}
-                            animate={{ opacity: 1, y: 0 }}
-                        >
-                            {allLoadedProducts.map((item) => (
-                                <ItemCard key={item.id} product={item} />
-                            ))}
+                            <div className="relative mb-10">
+                                <motion.div 
+                                    animate={{ scale: [1, 1.1, 1], opacity: [0.3, 0.6, 0.3] }}
+                                    transition={{ duration: 2, repeat: Infinity }}
+                                    className="w-20 h-20 bg-attire-accent/10 rounded-full flex items-center justify-center border border-attire-accent/20"
+                                >
+                                    <Camera className="w-8 h-8 text-attire-accent" strokeWidth={1} />
+                                </motion.div>
+                                <Loader2 className="absolute inset-0 w-20 h-20 text-white/5 animate-spin" strokeWidth={0.5} />
+                            </div>
+                            <p className="text-white/60 text-[10px] uppercase tracking-[0.6em] font-black">Curating Selection</p>
                         </motion.div>
                     ) : (
                         <motion.div
-                            key="empty"
-                            className="flex flex-col items-center justify-center py-32 text-center"
+                            key={displayKey}
+                            initial={{ opacity: 0, y: 20 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            exit={{ opacity: 0, y: -10 }}
+                            transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
                         >
-                            <Search size={32} className="text-attire-silver/50 mb-6" />
-                            <h3 className="text-2xl font-serif text-white mb-2">No items found</h3>
-                            <button onClick={clearFilters} className="mt-8 text-[10px] uppercase tracking-[0.2em] font-bold text-attire-accent">Reset Filters</button>
+                            {allLoadedProducts.length > 0 ? (
+                                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-8 lg:gap-12">
+                                    {allLoadedProducts.map((item) => (
+                                        <ItemCard key={item.id} product={item} />
+                                    ))}
+                                </div>
+                            ) : (
+                                <div className="flex flex-col items-center justify-center py-32 text-center">
+                                    <Search size={32} className="text-attire-silver/50 mb-6" />
+                                    <h3 className="text-2xl font-serif text-white mb-2">No items found</h3>
+                                    <button onClick={clearFilters} className="mt-8 text-[10px] uppercase tracking-[0.2em] font-bold text-attire-accent">Reset Filters</button>
+                                </div>
+                            )}
                         </motion.div>
                     )}
                 </AnimatePresence>
 
-                {hasMore && (
-                    <motion.div
-                        initial={{ opacity: 0, y: 20 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ delay: 0.5 }}
-                        className="flex justify-center mt-24"
-                    >
-                        <button
+                {meta.current_page < meta.last_page && (
+                    <div className="flex flex-col items-center mt-32 space-y-10">
+                        <button 
                             onClick={handleLoadMore}
                             disabled={isFetching}
-                            className="group flex items-center justify-center gap-3 px-8 py-4 bg-white text-black text-[11px] font-bold uppercase tracking-[0.5em] transition-all duration-700 relative overflow-hidden"
+                            className="group relative px-16 py-7 rounded-2xl overflow-hidden transition-all duration-700 bg-white/[0.03] border border-white/10 hover:bg-white text-white hover:text-black"
                         >
-                            <span className="relative z-10">{isFetching ? 'Loading More...' : 'Load More Products'}</span>
-                            {!isFetching && <ChevronDown size={18} className="relative z-10 group-hover:translate-y-1 transition-transform duration-500" />}
-                            <div className="absolute inset-0 bg-attire-accent translate-y-full group-hover:translate-y-0 transition-transform duration-700" />
+                            <div className="relative flex items-center gap-6">
+                                <span className="text-[11px] tracking-[0.6em] uppercase font-black">
+                                    {isFetching ? 'Loading...' : 'Reveal More'}
+                                </span>
+                                <ChevronDown size={18} strokeWidth={3} />
+                            </div>
                         </button>
-                    </motion.div>
+                    </div>
                 )}
             </main>
-        </motion.div>
+        </div>
     );
 };
 
@@ -228,24 +241,23 @@ interface ControlsProps {
 const Controls: React.FC<ControlsProps> = ({ sortOrder, setSortOrder, searchQuery, setSearchQuery, selectedCollections, collections, handleCollectionToggle, clearFilters, removeCollectionFilter }) => (
     <div className="w-full max-w-6xl mx-auto space-y-6">
         <div className="relative group z-[999]">
-            {/* Background Container - Refined to remove white glow ✨ */}
-            <div className="absolute inset-0 bg-black/40 border border-white/5 rounded-2xl backdrop-blur-md transition-all duration-500 pointer-events-none" />
+            <div 
+                className="absolute inset-0 bg-white/[0.03] border border-white/10 rounded-2xl backdrop-blur-2xl transition-all duration-500 pointer-events-none" 
+                style={{ WebkitBackdropFilter: 'blur(16px) saturate(180%)' }} 
+            />
 
-            {/* Content Container - No overflow-hidden here, so dropdowns can fly free! */}
             <div className="relative flex flex-col md:flex-row items-center gap-4 p-2 md:p-3 z-10">
-                {/* Search Input */}
                 <div className="relative w-full md:flex-grow group/search">
                     <SearchIcon size={18} className="absolute left-5 top-1/2 -translate-y-1/2 text-white/30 group-focus-within/search:text-attire-accent transition-colors duration-500" />
                     <input
                         type="text"
                         value={searchQuery}
                         onChange={(e) => setSearchQuery(e.target.value)}
-                        placeholder="Search our masterpiece..."
+                        placeholder="Search masterpiece..."
                         className="w-full bg-white/[0.05] border border-transparent focus:border-white/10 focus:bg-white/[0.08] text-white text-[11px] uppercase tracking-[0.2em] font-medium py-4 pl-14 pr-6 rounded-xl outline-none transition-all duration-500 placeholder:text-white/20"
                     />
                 </div>
 
-                {/* Dropdowns Container */}
                 <div className="flex flex-col sm:flex-row items-center gap-2 w-full md:w-auto md:min-w-[400px]">
                     <CollectionDropdown collections={collections} selectedCollections={selectedCollections} handleCollectionToggle={handleCollectionToggle} />
                     <div className="h-8 w-px bg-white/10 hidden md:block" />
@@ -254,15 +266,9 @@ const Controls: React.FC<ControlsProps> = ({ sortOrder, setSortOrder, searchQuer
             </div>
         </div>
 
-        {/* Active Filters */}
-        <AnimatePresence>
+        <div className="flex items-center flex-wrap gap-3 px-2">
             {(selectedCollections.length > 0 || searchQuery) && (
-                <motion.div
-                    initial={{ opacity: 0, y: -10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: -10 }}
-                    className="flex items-center flex-wrap gap-3 px-2"
-                >
+                <>
                     <span className="text-[9px] uppercase tracking-[0.3em] font-bold text-white/20 mr-2">Refining by:</span>
                     {searchQuery && (
                         <FilterTag onRemove={() => setSearchQuery('')}>
@@ -280,9 +286,9 @@ const Controls: React.FC<ControlsProps> = ({ sortOrder, setSortOrder, searchQuer
                     >
                         Reset All
                     </button>
-                </motion.div>
+                </>
             )}
-        </AnimatePresence>
+        </div>
     </div>
 );
 
@@ -319,7 +325,7 @@ const CollectionDropdown: React.FC<{ collections: any[]; selectedCollections: st
                         initial={{ opacity: 0, y: 10, scale: 0.95 }}
                         animate={{ opacity: 1, y: 0, scale: 1 }}
                         exit={{ opacity: 0, y: 10, scale: 0.95 }}
-                        className="absolute left-0 right-0 mt-3 bg-attire-navy border border-white/10 rounded-2xl p-6 z-[300] backdrop-blur-xl"
+                        className="absolute left-0 right-0 mt-3 bg-[#0a0a0a] border border-white/10 rounded-2xl p-6 z-[300] backdrop-blur-2xl shadow-2xl"
                     >
                         <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3">
                             {collections.map(c => (
@@ -369,7 +375,7 @@ const FilterSortDropdown: React.FC<{ sortOrder: string; setSortOrder: (order: st
                         initial={{ opacity: 0, y: 10, scale: 0.95 }}
                         animate={{ opacity: 1, y: 0, scale: 1 }}
                         exit={{ opacity: 0, y: 10, scale: 0.95 }}
-                        className="absolute left-0 right-0 md:left-auto md:right-0 mt-3 w-full md:w-64 bg-attire-navy border border-white/10 rounded-2xl p-2 z-[300] backdrop-blur-xl"
+                        className="absolute left-0 right-0 md:left-auto md:right-0 mt-3 w-full md:w-64 bg-[#0a0a0a] border border-white/10 rounded-2xl p-2 z-[300] backdrop-blur-2xl shadow-2xl"
                     >
                         <div className="grid grid-cols-1 gap-1">
                             {sortOptions.map(opt => (
@@ -395,11 +401,7 @@ interface FilterTagProps {
 }
 
 const FilterTag: React.FC<FilterTagProps> = ({ children, onRemove }) => (
-    <motion.div
-        initial={{ scale: 0.8, opacity: 0 }}
-        animate={{ scale: 1, opacity: 1 }}
-        className="flex items-center gap-2 bg-white/5 border border-white/10 text-white rounded-lg pl-4 pr-2 py-2 text-[9px] font-bold uppercase tracking-widest group hover:border-white/20 transition-all duration-300"
-    >
+    <div className="flex items-center gap-2 bg-white/5 border border-white/10 text-white rounded-lg pl-4 pr-2 py-2 text-[9px] font-bold uppercase tracking-widest group hover:border-white/20 transition-all duration-300">
         <span className="opacity-60 group-hover:opacity-100 transition-opacity">{children}</span>
         <button
             onClick={onRemove}
@@ -407,7 +409,7 @@ const FilterTag: React.FC<FilterTagProps> = ({ children, onRemove }) => (
         >
             <X size={12} />
         </button>
-    </motion.div>
+    </div>
 );
 
 export default ProductListPage;

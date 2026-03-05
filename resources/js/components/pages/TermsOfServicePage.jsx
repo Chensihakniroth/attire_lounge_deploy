@@ -1,20 +1,15 @@
 import React from 'react';
 import PolicyLayout from '../layouts/PolicyLayout';
 import { Link } from 'react-router-dom';
-import { motion } from 'framer-motion';
 import { FileText, Shield, Copyright, MessageCircle, Gavel, Users, KeyRound } from 'lucide-react';
 
 const InfoSection = ({ icon: Icon, title, children, highlighted = false }) => (
-    <motion.div 
+    <div 
         className={`border rounded-3xl p-8 transition-all duration-300 ${
             highlighted 
                 ? 'bg-attire-accent/5 border-attire-accent/20' 
                 : 'bg-black/20 border-white/5 hover:border-white/10 hover:bg-black/30'
         }`}
-        initial={{ opacity: 0, y: 20 }}
-        whileInView={{ opacity: 1, y: 0 }}
-        viewport={{ once: true, amount: 0.2 }}
-        transition={{ duration: 0.6 }}
     >
         <div className="flex items-center gap-4 mb-6">
             <div className={`w-12 h-12 rounded-xl flex items-center justify-center border ${
@@ -29,20 +24,15 @@ const InfoSection = ({ icon: Icon, title, children, highlighted = false }) => (
         <div className="prose-p:text-attire-silver/80 prose-ul:list-disc prose-ul:pl-5 prose-li:text-attire-silver/80">
             {children}
         </div>
-    </motion.div>
+    </div>
 );
 
 const TermsOfServicePage = () => {
     return (
         <PolicyLayout title="Terms of Service" lastUpdated="January 19, 2026">
-            <motion.p 
-                className="lead text-xl text-center text-white/70 mb-16 font-light"
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ delay: 0.2, duration: 0.8 }}
-            >
+            <p className="lead text-xl text-center text-white/70 mb-16 font-light">
                 Welcome to Attire Lounge Official. By accessing our website, you agree to comply with and be bound by the following terms and conditions of use.
-            </motion.p>
+            </p>
             
             <div className="space-y-8">
                 <div className="grid md:grid-cols-2 gap-8">

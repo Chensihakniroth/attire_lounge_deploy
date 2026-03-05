@@ -1,16 +1,9 @@
 import React from 'react';
 import PolicyLayout from '../layouts/PolicyLayout';
-import { motion } from 'framer-motion';
 import { FileText, Database, Share2, Shield, Mail, Phone, CheckCircle } from 'lucide-react';
 
 const InfoSection = ({ icon: Icon, title, children }) => (
-    <motion.div 
-        className="bg-black/20 backdrop-blur-sm border border-white/5 rounded-3xl p-8 transition-all duration-300 hover:border-white/10 hover:bg-black/30"
-        initial={{ opacity: 0, y: 20 }}
-        whileInView={{ opacity: 1, y: 0 }}
-        viewport={{ once: true, amount: 0.2 }}
-        transition={{ duration: 0.6 }}
-    >
+    <div className="bg-[#0a0f1a] border border-white/5 rounded-3xl p-8 transition-all duration-300 hover:border-white/10 hover:bg-black/30">
         <div className="flex items-center gap-4 mb-6">
             <div className="w-12 h-12 bg-attire-accent/10 rounded-xl flex items-center justify-center border border-attire-accent/20">
                 <Icon className="w-6 h-6 text-attire-accent" />
@@ -20,7 +13,7 @@ const InfoSection = ({ icon: Icon, title, children }) => (
         <div className="prose-p:text-attire-silver/80 prose-ul:list-disc prose-ul:pl-5 prose-li:text-attire-silver/80">
             {children}
         </div>
-    </motion.div>
+    </div>
 );
 
 const CustomListItem = ({ children }) => (
@@ -32,14 +25,9 @@ const CustomListItem = ({ children }) => (
 const PrivacyPolicyPage = () => {
     return (
         <PolicyLayout title="Privacy Policy" lastUpdated="January 19, 2026">
-            <motion.p 
-                className="lead text-xl text-center text-white/70 mb-16 font-light"
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ delay: 0.2, duration: 0.8 }}
-            >
+            <p className="lead text-xl text-center text-white/70 mb-16 font-light">
                 Your privacy is paramount. This policy outlines how we collect, use, and protect your personal information when you interact with Attire Lounge Official.
-            </motion.p>
+            </p>
 
             <div className="space-y-8">
                 <InfoSection icon={Database} title="Information We Collect">

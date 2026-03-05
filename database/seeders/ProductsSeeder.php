@@ -29,6 +29,7 @@ class ProductsSeeder extends Seeder
                     'is_featured' => $i !== 3,
                     'availability' => 'In Stock',
                     'sizing' => $this->getGroomSizing($i),
+                    'images' => null, // Calculated by model logic ✨
                 ]);
             }
         }
@@ -58,6 +59,7 @@ class ProductsSeeder extends Seeder
                     'is_featured' => $data['is_featured'],
                     'availability' => 'In Stock',
                     'sizing' => $slug === 'hvn0' ? ['S', 'M', 'L', 'XL'] : ($slug === 'hvn3' ? ['30', '32', '34', '36'] : ['XS', 'S', 'M', 'L']),
+                    'images' => null, // Calculated by model logic ✨
                 ]);
             }
         }
@@ -85,6 +87,7 @@ class ProductsSeeder extends Seeder
                     'is_featured' => $data['is_featured'],
                     'availability' => 'In Stock',
                     'sizing' => $slug === 'mm1' ? ['48', '50', '52'] : ($slug === 'mm3' ? ['S', 'M', 'L'] : ['XS', 'S', 'M', 'L', 'XL']),
+                    'images' => null, // Calculated by model logic ✨
                 ]);
             }
         }
@@ -110,6 +113,7 @@ class ProductsSeeder extends Seeder
                     'is_featured' => $data['is_featured'],
                     'availability' => 'In Stock',
                     'sizing' => $slug === 'of1' ? ['30', '32', '34', '36'] : ($slug === 'of3' ? ['One Size'] : ['S', 'M', 'L']),
+                    'images' => null, // Calculated by model logic ✨
                 ]);
             }
         }
@@ -135,6 +139,7 @@ class ProductsSeeder extends Seeder
                     'is_featured' => $slug === 'red69',
                     'availability' => 'In Stock',
                     'sizing' => ['One Size'],
+                    'images' => null, // Calculated by model logic ✨
                 ]);
             }
         }
@@ -153,6 +158,7 @@ class ProductsSeeder extends Seeder
                     'is_featured' => $i === 0,
                     'availability' => 'In Stock',
                     'sizing' => ['One Size'],
+                    'images' => null, // Calculated by model logic ✨
                 ]);
             }
         }
@@ -170,6 +176,7 @@ class ProductsSeeder extends Seeder
                     'is_featured' => $i <= 4,
                     'availability' => 'In Stock',
                     'sizing' => ['48', '50', '52', '54'],
+                    'images' => null, // Calculated by model logic ✨
                 ]);
             }
         }
@@ -187,6 +194,7 @@ class ProductsSeeder extends Seeder
                     'is_featured' => $i <= 3,
                     'availability' => 'In Stock',
                     'sizing' => ['S', 'M', 'L', 'XL'],
+                    'images' => null, // Calculated by model logic ✨
                 ]);
             }
         }

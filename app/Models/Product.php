@@ -87,29 +87,29 @@ class Product extends Model
                         return $url;
                     }
                     return \Illuminate\Support\Facades\Storage::disk('minio')->url(ltrim($url, '/'));
-                }, $decoded);
-            }
-        }
+                    }, $decoded);
+                    }
+                    }
 
-        $slug = $this->slug;
-        $collection = $this->collection;
-        
-        // If no collection, default to standard settings
-        $path = $collection ? $collection->getStoragePath() : '/uploads/collections/default/';
-        $primaryExt = $collection ? $collection->getPreferredExtension() : 'webp';
-        $secondaryExt = ($primaryExt === 'webp') ? 'jpg' : 'webp';
+                    $slug = $this->slug;
+                    $collection = $this->collection;
 
-        // Custom logic for numbered image files in specific collections
-        $fileName = $slug;
-        if ($collection) {
-            if ($collection->slug === 'shades-of-elegance') {
-                $fileName = str_replace('shades-', '', $slug);
-            } elseif ($collection->slug === 'street-sartorial') {
-                $fileName = str_replace('street-', '', $slug);
-            }
-        }
+                    // If no collection, default to standard settings
+                    $path = $collection ? $collection->getStoragePath() : '/uploads/collections/default/';
+                    $primaryExt = $collection ? $collection->getPreferredExtension() : 'webp';
+                    $secondaryExt = ($primaryExt === 'webp') ? 'jpg' : 'webp';
 
-        $disk = \Illuminate\Support\Facades\Storage::disk('minio');
+                    // Custom logic for numbered image files in specific collections
+                    $fileName = $slug;
+                    if ($collection) {
+                    if ($collection->slug === 'shades-of-elegance') {
+                    $fileName = str_replace('shades-', '', $slug);
+                    } elseif ($collection->slug === 'street-sartorial') {
+                    $fileName = str_replace('street-', '', $slug);
+                    }
+                    }
+
+                    $disk = \Illuminate\Support\Facades\Storage::disk('minio');
         $primaryPath = ltrim($path, '/') . $fileName . '.' . $primaryExt;
         $secondaryPath = ltrim($path, '/') . $fileName . '.' . $secondaryExt;
 

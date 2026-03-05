@@ -1,11 +1,10 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { NavLink, useNavigate, Outlet, useLocation } from 'react-router-dom';
-import { LayoutDashboard, Calendar, Gift, LogOut, Menu, X, Package, ShoppingBag, ChevronLeft, ChevronRight, Sun, Moon, Trash2, AlertCircle, Check, Loader, History, Users, Mail, Search, UserCircle, LayoutGrid } from 'lucide-react';
+import { LayoutDashboard, Calendar, Gift, LogOut, Menu, X, Package, ShoppingBag, Sun, Moon, History, Users, Mail, Search, UserCircle, LayoutGrid } from 'lucide-react';
 import { ThemeProvider, useTheme } from './ThemeContext';
 import { AdminProvider, useAdmin } from './AdminContext';
 import { motion, AnimatePresence } from 'framer-motion';
 import axios from 'axios';
-import { isSafari } from '../../../helpers/browserUtils';
 
 const NavItem = ({ item, isCollapsed }) => {
     return (
@@ -77,7 +76,7 @@ const GlobalSearch = () => {
                     value={query}
                     onChange={(e) => setQuery(e.target.value)}
                 />
-                {loading && <Loader size={12} className="animate-spin text-attire-accent" />}
+                {loading && <div className="w-3 h-3 border-2 border-attire-accent border-t-transparent rounded-full animate-spin" />}
             </div>
 
             <AnimatePresence>
@@ -255,12 +254,6 @@ const AdminLayout = () => {
 
 const AdminLayoutContent = ({ isSidebarVisible, setSidebarVisible, isMobileOpen, setMobileOpen, isDesktop }) => {
     const { isEditing } = useAdmin();
-    const location = useLocation();
-    const [isSafariBrowser, setIsSafariBrowser] = useState(false);
-
-    useEffect(() => {
-        setIsSafariBrowser(isSafari());
-    }, []);
 
     return (
         <div id="admin-root" className="flex h-screen bg-gray-50 dark:bg-[#050505] font-sans text-gray-900 dark:text-white selection:bg-attire-accent selection:text-black transition-colors duration-300 relative">
@@ -275,7 +268,6 @@ const AdminLayoutContent = ({ isSidebarVisible, setSidebarVisible, isMobileOpen,
                         transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
                         className="hidden lg:block overflow-hidden h-full flex-shrink-0 bg-white dark:bg-[#0a0a0a]"
                     >
-                        {/* Fading inner container to prevent text folding */}
                         <motion.div
                             initial={{ opacity: 0 }}
                             animate={{ opacity: 1 }}
@@ -326,12 +318,10 @@ const AdminLayoutContent = ({ isSidebarVisible, setSidebarVisible, isMobileOpen,
 
                 <main className={`flex-1 overflow-y-auto relative ${isEditing ? 'p-0' : 'p-6 md:p-10'}`}>
                     {/* Background decoration */}
-                    {!isSafariBrowser && !isEditing && (
-                        <div className="absolute top-0 left-0 w-full h-full pointer-events-none opacity-20 overflow-hidden">
-                            <div className="absolute -top-24 -left-24 w-96 h-96 bg-attire-accent/10 blur-[120px] rounded-full" />
-                            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-white/[0.02] blur-[150px] rounded-full" />
-                        </div>
-                    )}
+                    <div className="absolute top-0 left-0 w-full h-full pointer-events-none opacity-20 overflow-hidden">
+                        <div className="absolute -top-24 -left-24 w-96 h-96 bg-attire-accent/10 blur-[120px] rounded-full" />
+                        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-white/[0.02] blur-[150px] rounded-full" />
+                    </div>
 
                     <div className={`relative z-10 ${isEditing ? 'max-w-none' : 'max-w-7xl mx-auto'}`}>
                         <Outlet />
@@ -341,7 +331,5 @@ const AdminLayoutContent = ({ isSidebarVisible, setSidebarVisible, isMobileOpen,
         </div>
     );
 };
-
-// Removed CollectionManagerModal ✨
 
 export default AdminLayout;

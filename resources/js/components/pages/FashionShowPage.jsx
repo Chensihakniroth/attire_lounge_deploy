@@ -4,7 +4,7 @@ import { ExternalLink, ArrowRight, MapPin, Calendar, Users, Star, ChevronLeft, C
 import minioBaseUrl from '../../config.js';
 import Skeleton from '../common/Skeleton.jsx';
 import OptimizedImage from '../common/OptimizedImage.jsx';
-import GrainOverlay from '../common/GrainOverlay.jsx';
+
 import { useAnimation } from 'framer-motion';
 
 const fadeUp = {
@@ -174,7 +174,7 @@ const FashionShowPage = () => {
 
   return (
     <div className="bg-[#0d3542] text-white min-h-screen selection:bg-attire-accent selection:text-white font-sans leading-relaxed overflow-x-hidden">
-      <GrainOverlay opacity={0.02} />
+      
       
       <section className="relative h-screen flex items-center justify-center text-center overflow-hidden">
         <div className="absolute inset-0 z-0">

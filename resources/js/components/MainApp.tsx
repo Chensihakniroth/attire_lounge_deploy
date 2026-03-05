@@ -11,9 +11,9 @@ import { HelmetProvider } from 'react-helmet-async';
 const queryClient = new QueryClient({
     defaultOptions: {
         queries: {
-            refetchOnWindowFocus: false, // Prevent refetching when window gains focus
-            retry: 1, // Retry failed requests once
-            staleTime: 5 * 60 * 1000, // Data is fresh for 5 minutes
+            refetchOnWindowFocus: false, 
+            retry: 1, 
+            staleTime: 5 * 60 * 1000, 
         },
     },
 });
@@ -21,7 +21,7 @@ const queryClient = new QueryClient({
 // Components
 import Navigation from './layouts/Navigation.jsx';
 import LoadingSpinner from './common/LoadingSpinner.jsx';
-import AdminLoadingSpinner from './common/AdminLoadingSpinner.jsx'; // Import the new admin spinner
+import AdminLoadingSpinner from './common/AdminLoadingSpinner.jsx'; 
 import Footer from './layouts/Footer.jsx';
 
 // Declare global for Lenis
@@ -40,7 +40,7 @@ const AppSuspense = () => {
         </Suspense>
     );
 };
-// Pages that you have created
+
 const lazyWithRetry = (componentImport: () => Promise<any>) =>
     lazy(async () => {
         const pageHasAlreadyBeenForceRefreshed = JSON.parse(
@@ -71,8 +71,8 @@ const FavoritesPage = lazyWithRetry(() => import('./pages/FavoritesPage.jsx'));
 const AdminDashboard = lazyWithRetry(() => import('./pages/admin/AdminDashboard.jsx'));
 const AdminLogin = lazyWithRetry(() => import('./pages/admin/AdminLogin.jsx'));
 const PrivateRoute = lazyWithRetry(() => import('./pages/admin/PrivateRoute.jsx'));
-import { AdminProvider } from './pages/admin/AdminContext'; // Import AdminProvider
-import { isSafari } from '../helpers/browserUtils.js';
+import { AdminProvider } from './pages/admin/AdminContext'; 
+
 
 const AdminLayout = lazyWithRetry(() => import('./pages/admin/AdminLayout.jsx'));
 const AuditLog = lazyWithRetry(() => import('./pages/admin/AuditLog.jsx'));
@@ -93,7 +93,6 @@ const TermsOfServicePage = lazyWithRetry(() => import('./pages/TermsOfServicePag
 const ReturnPolicyPage = lazyWithRetry(() => import('./pages/ReturnPolicyPage.jsx'));
 
 
-// Simple placeholder for non-existent pages
 const Placeholder: React.FC<{ title: string }> = ({ title }) => (
     <div className="min-h-screen pt-24 px-6">
         <div className="max-w-4xl mx-auto">
@@ -103,28 +102,10 @@ const Placeholder: React.FC<{ title: string }> = ({ title }) => (
     </div>
 );
 
-// Animation Variants
 const pageVariants: Variants = {
-    initial: {
-        opacity: 0,
-        y: 10
-    },
-    enter: {
-        opacity: 1,
-        y: 0,
-        transition: {
-            duration: 0.5,
-            ease: [0.22, 1, 0.36, 1]
-        }
-    },
-    exit: {
-        opacity: 0,
-        y: -10,
-        transition: {
-            duration: 0.4,
-            ease: [0.22, 1, 0.36, 1]
-        }
-    }
+    initial: { opacity: 0 },
+    enter: { opacity: 1, transition: { duration: 0.4, ease: [0.22, 1, 0.36, 1] } },
+    exit: { opacity: 0, transition: { duration: 0.3, ease: [0.22, 1, 0.36, 1] } }
 };
 
 interface LayoutProps {
@@ -134,7 +115,6 @@ interface LayoutProps {
     includePadding?: boolean;
 }
 
-// Layout wrapper component - ALWAYS includes Footer (except for HomePage)
 const Layout: React.FC<LayoutProps> = ({ children, includeHeader = true, includeFooter = true, includePadding = true }) => {
     return (
         <motion.div
@@ -157,12 +137,6 @@ const LenisScroll: React.FC = () => {
     const location = useLocation();
 
     useEffect(() => {
-        // Global Safari detection for CSS targeting
-        if (typeof document !== 'undefined') {
-            document.body.setAttribute('data-safari', isSafari().toString());
-        }
-
-        // Disable Lenis on Admin routes
         if (location.pathname.startsWith('/admin')) {
             if (window.lenis) {
                 window.lenis.destroy();
@@ -171,13 +145,11 @@ const LenisScroll: React.FC = () => {
             return;
         }
 
-        // Initialize Lenis if it doesn't exist
         if (!window.lenis) {
-            const isSafariBrowser = isSafari();
             const lenis = new Lenis({
-                lerp: isSafariBrowser ? 0.08 : 0.1, // Slightly slower lerp for Safari to reduce jank
-                wheelMultiplier: isSafariBrowser ? 1.0 : 1.1, // Lower multiplier for Safari
-                touchMultiplier: 1.5,
+                lerp: 0.08, // Optimized for Mac Inertial Scroll ✨
+                wheelMultiplier: 1.0, // Prevent overshooting on Magic Mouse
+                touchMultiplier: 1.2,
                 smoothWheel: true,
                 smoothTouch: false,
             });
@@ -198,7 +170,7 @@ const LenisScroll: React.FC = () => {
                 window.lenis = null;
             };
         }
-    }, [location.pathname]); // Re-run when location changes
+    }, [location.pathname]);
 
     return null;
 };
@@ -218,7 +190,6 @@ const AnimatedRoutes: React.FC = () => {
     return (
         <AnimatePresence mode="wait" onExitComplete={handleExitComplete}>
             <Routes location={location} key={location.pathname}>
-                {/* HomePage route - Footer is integrated INSIDE HomePage as section 4 */}
                 <Route path="/" element={
                     <motion.div
                         initial="initial"
@@ -231,56 +202,18 @@ const AnimatedRoutes: React.FC = () => {
                         <main className="flex-grow">
                             <HomePage />
                         </main>
-                        {/* Footer is now INSIDE HomePage as section 4 */}
                     </motion.div>
                 } />
 
-                {/* All other routes use Layout with Footer */}
-                <Route path="/collections" element={
-                    <Layout>
-                        <CollectionsPage />
-                    </Layout>
-                } />
-                <Route path="/products" element={
-                    <Layout>
-                        <ProductListPage />
-                    </Layout>
-                } />
-                <Route path="/products/:collectionSlug" element={
-                    <Layout>
-                        <ProductListPage />
-                    </Layout>
-                } />
-                <Route path="/product/:productId" element={
-                    <Layout includeHeader={false} includeFooter={false} includePadding={false}>
-                        <ProductDetailPage />
-                    </Layout>
-                } />
-                <Route path="/lookbook" element={
-                    <Layout>
-                        <LookbookPage />
-                    </Layout>
-                } />
-                <Route path="/fashion-show" element={
-                    <Layout includePadding={false}>
-                        <FashionShowPage />
-                    </Layout>
-                } />
-                <Route path="/contact" element={
-                    <Layout>
-                        <ContactPage />
-                    </Layout>
-                } />
-                <Route path="/customize-gift" element={
-                    <Layout>
-                        <CustomizeGiftPage />
-                    </Layout>
-                } />
-                <Route path="/favorites" element={
-                    <Layout>
-                        <FavoritesPage />
-                    </Layout>
-                } />
+                <Route path="/collections" element={<Layout><CollectionsPage /></Layout>} />
+                <Route path="/products" element={<Layout><ProductListPage /></Layout>} />
+                <Route path="/products/:collectionSlug" element={<Layout><ProductListPage /></Layout>} />
+                <Route path="/product/:productId" element={<Layout includeHeader={false} includeFooter={false} includePadding={false}><ProductDetailPage /></Layout>} />
+                <Route path="/lookbook" element={<Layout><LookbookPage /></Layout>} />
+                <Route path="/fashion-show" element={<Layout includePadding={false}><FashionShowPage /></Layout>} />
+                <Route path="/contact" element={<Layout><ContactPage /></Layout>} />
+                <Route path="/customize-gift" element={<Layout><CustomizeGiftPage /></Layout>} />
+                <Route path="/favorites" element={<Layout><FavoritesPage /></Layout>} />
 
                 <Route element={<PrivateRoute />}>
                     <Route element={<AdminLayout />}>
@@ -294,7 +227,6 @@ const AnimatedRoutes: React.FC = () => {
                         <Route path="/admin/customize-gift" element={<CustomizeGiftManager />} />
                         <Route path="/admin/inventory" element={<InventoryManager />} />
                         <Route path="/admin/audit-logs" element={<AuditLog />} />
-                        <Route path="/admin/audit-logs" element={<AuditLog />} />
                         <Route path="/admin/users" element={<UserManager />} />
                         <Route path="/admin/profile" element={<ProfileEditor />} />
                         <Route path="/admin/customer-profiles" element={<CustomerProfileManager />} />
@@ -302,70 +234,20 @@ const AnimatedRoutes: React.FC = () => {
                     </Route>
                 </Route>
 
-                <Route path="/admin/login" element={
-                    <Layout includeFooter={false} includePadding={false}>
-                        <AdminLogin />
-                    </Layout>
-                } />
+                <Route path="/admin/login" element={<Layout includeFooter={false} includePadding={false}><AdminLogin /></Layout>} />
 
-                {/* Simple placeholders - all with Footer */}
-                <Route path="/styling" element={
-                    <Layout>
-                        <Placeholder title="Styling" />
-                    </Layout>
-                } />
-                <Route path="/journal" element={
-                    <Layout>
-                        <Placeholder title="Journal" />
-                    </Layout>
-                } />
-                <Route path="/about" element={
-                    <Layout>
-                        <Placeholder title="About" />
-                    </Layout>
-                } />
-                <Route path="/shipping" element={
-                    <Layout>
-                        <Placeholder title="Shipping" />
-                    </Layout>
-                } />
-                <Route path="/privacy" element={
-                    <Layout>
-                        <PrivacyPolicyPage />
-                    </Layout>
-                } />
-                <Route path="/terms" element={
-                    <Layout>
-                        <TermsOfServicePage />
-                    </Layout>
-                } />
-                <Route path="/returns" element={
-                    <Layout>
-                        <ReturnPolicyPage />
-                    </Layout>
-                } />
-                <Route path="/appointment" element={
-                    <Layout>
-                        <Placeholder title="Appointment" />
-                    </Layout>
-                } />
-                <Route path="/membership" element={
-                    <Layout>
-                        <Placeholder title="Membership" />
-                    </Layout>
-                } />
-                <Route path="/faq" element={
-                    <Layout>
-                        <Placeholder title="FAQ" />
-                    </Layout>
-                } />
+                <Route path="/styling" element={<Layout><Placeholder title="Styling" /></Layout>} />
+                <Route path="/journal" element={<Layout><Placeholder title="Journal" /></Layout>} />
+                <Route path="/about" element={<Layout><Placeholder title="About" /></Layout>} />
+                <Route path="/shipping" element={<Layout><Placeholder title="Shipping" /></Layout>} />
+                <Route path="/privacy" element={<Layout><PrivacyPolicyPage /></Layout>} />
+                <Route path="/terms" element={<Layout><TermsOfServicePage /></Layout>} />
+                <Route path="/returns" element={<Layout><ReturnPolicyPage /></Layout>} />
+                <Route path="/appointment" element={<Layout><Placeholder title="Appointment" /></Layout>} />
+                <Route path="/membership" element={<Layout><Placeholder title="Membership" /></Layout>} />
+                <Route path="/faq" element={<Layout><Placeholder title="FAQ" /></Layout>} />
 
-                {/* 404 */}
-                <Route path="*" element={
-                    <Layout>
-                        <Placeholder title="Page Not Found" />
-                    </Layout>
-                } />
+                <Route path="*" element={<Layout><Placeholder title="Page Not Found" /></Layout>} />
             </Routes>
         </AnimatePresence>
     );
@@ -387,10 +269,9 @@ function MainApp() {
         <HelmetProvider>
             <QueryClientProvider client={queryClient}>
                 <Router>
-                    <AdminProvider> {/* <-- AdminProvider goes here */}
+                    <AdminProvider>
                         <GlobalStyles />
                         <LenisScroll />
-                        {/* ScrollToTop removed as it conflicts with exit animations, handled in onExitComplete */}
                         <AppSuspense />
                     </AdminProvider>
                 </Router>

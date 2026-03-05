@@ -1,4 +1,4 @@
-import React, { useMemo, useState, useEffect } from 'react';
+import React, { useMemo, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import { useFavorites } from '../../context/FavoritesContext.jsx';
@@ -6,16 +6,9 @@ import ItemCard from './collections/ItemCard.jsx';
 import { ChevronLeft, Heart, ArrowRight, Loader2, Trash2 } from 'lucide-react';
 import { useProducts } from '../../hooks/useProducts';
 import SEO from '../common/SEO';
-import GrainOverlay from '../common/GrainOverlay.jsx';
-import { isSafari } from '../../helpers/browserUtils.js';
 
 const FavoritesPage = () => {
     const { favorites, toggleFavorite, clearFavorites } = useFavorites();
-    const [isSafariBrowser, setIsSafariBrowser] = useState(false);
-
-    useEffect(() => {
-        setIsSafariBrowser(isSafari());
-    }, []);
     
     // Fetch real data from DB for these slugs
     const { data, isLoading } = useProducts({
@@ -25,7 +18,6 @@ const FavoritesPage = () => {
 
     const favoriteProducts = useMemo(() => {
         if (!data?.data) return [];
-        // Keep the order the user added them if possible
         return data.data;
     }, [data]);
     
@@ -64,7 +56,6 @@ const FavoritesPage = () => {
                 title="Your Favorites | Elite Styling House"
                 description="Your private collection of preferred pieces, selected for your next sartorial chapter."
             />
-            <GrainOverlay />
             
             {/* Header Section */}
             <header className="relative z-10 pt-32 pb-16 sm:pt-48 sm:pb-24 px-6 text-center">
@@ -157,7 +148,7 @@ const FavoritesPage = () => {
                             className="flex flex-col items-center justify-center py-32 text-center"
                         >
                             <div className="relative mb-12">
-                                {!isSafariBrowser && <div className="absolute inset-0 bg-attire-accent/10 blur-[80px] rounded-full" />}
+                                <div className="absolute inset-0 bg-attire-accent/10 blur-[80px] rounded-full" />
                                 <div className="relative w-32 h-32 bg-white/[0.03] backdrop-blur-md rounded-full flex items-center justify-center border border-white/10 shadow-2xl">
                                     <Heart size={48} className="text-white/10" strokeWidth={1} />
                                 </div>

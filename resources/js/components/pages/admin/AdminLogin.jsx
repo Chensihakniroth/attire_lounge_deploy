@@ -5,7 +5,7 @@ import { motion } from 'framer-motion';
 import axios from 'axios';
 import minioBaseUrl from '../../../config';
 import { useAdmin } from './AdminContext'; // Import useAdmin
-import { isSafari } from '../../../helpers/browserUtils.js';
+
 
 const AdminLogin = () => {
     const [login, setLogin] = useState('');
@@ -15,10 +15,10 @@ const AdminLogin = () => {
     const [loading, setLoading] = useState(false);
     const navigate = useNavigate();
     const { setUserData } = useAdmin(); // Use setUserData from context
-    const [isSafariBrowser, setIsSafariBrowser] = useState(false);
+    
 
     useEffect(() => {
-        setIsSafariBrowser(isSafari());
+        
     }, []);
 
     const logoUrl = "https://bucket-production-4ca0.up.railway.app/product-assets/uploads/asset/ALO.png";
@@ -115,7 +115,7 @@ const AdminLogin = () => {
 
             {/* Right Column: Clean Login Form */}
             <div className="flex-1 flex items-center justify-center p-8 bg-[#050505] relative">
-                {!isSafariBrowser && <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-attire-accent/[0.03] blur-[120px] rounded-full pointer-events-none" />}
+                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-attire-accent/[0.03] blur-[120px] rounded-full pointer-events-none" />
 
                 <motion.div 
                     initial={{ opacity: 0, y: 20 }}
