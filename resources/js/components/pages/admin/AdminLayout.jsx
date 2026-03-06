@@ -257,36 +257,35 @@ const AdminLayoutContent = ({ isSidebarVisible, setSidebarVisible, isMobileOpen,
 
     return (
         <div id="admin-root" className="flex h-screen bg-gray-50 dark:bg-[#050505] font-sans text-gray-900 dark:text-white selection:bg-attire-accent selection:text-black transition-colors duration-300 relative">
-            {/* Desktop Sidebar with Motion */}
-            <AnimatePresence mode="wait">
-                {isDesktop && isSidebarVisible && !isEditing && (
-                    <motion.div
-                        key="admin-sidebar"
-                        initial={{ width: 0, opacity: 0 }}
-                        animate={{ width: 280, opacity: 1 }}
-                        exit={{ width: 0, opacity: 0 }}
-                        transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
-                        className="hidden lg:block overflow-hidden h-full flex-shrink-0 bg-white dark:bg-[#0a0a0a]"
-                    >
-                        <motion.div
-                            initial={{ opacity: 0 }}
-                            animate={{ opacity: 1 }}
-                            exit={{ opacity: 0 }}
-                            transition={{ duration: 0.2 }}
-                            className="h-full"
-                        >
-                            <Sidebar isOpen={isMobileOpen} setOpen={setMobileOpen} />
-                        </motion.div>
-                    </motion.div>
-                )}
-            </AnimatePresence>
+            {/* Desktop Sidebar with Motion - Optimized for Safari */}
+            {isDesktop && !isEditing && (
+                <motion.div
+                    initial={false}
+                    animate={{ 
+                        width: isSidebarVisible ? 280 : 0,
+                        opacity: isSidebarVisible ? 1 : 0
+                    }}
+                    transition={{ 
+                        type: "spring",
+                        stiffness: 400,
+                        damping: 40,
+                        opacity: { duration: 0.2 }
+                    }}
+                    style={{ willChange: 'width, opacity', transform: 'translateZ(0)' }}
+                    className="hidden lg:block overflow-hidden h-full flex-shrink-0 bg-white dark:bg-[#0a0a0a]"
+                >
+                    <div className="w-[280px] h-full">
+                        <Sidebar isOpen={isMobileOpen} setOpen={setMobileOpen} />
+                    </div>
+                </motion.div>
+            )}
 
             {/* Mobile Sidebar Overlay */}
             {!isEditing && <Sidebar isMobile={true} isOpen={isMobileOpen} setOpen={setMobileOpen} />}
             
             <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
                 {!isEditing && (
-                    <header className="h-16 bg-white/80 dark:bg-[#0a0a0a]/80 backdrop-blur-md border-b border-black/5 dark:border-white/5 flex items-center px-6 justify-between flex-shrink-0 z-20 transition-colors duration-300">
+                    <header className="h-16 bg-white dark:bg-[#0a0a0a] border-b border-black/5 dark:border-white/5 flex items-center px-6 justify-between flex-shrink-0 z-20 transition-colors duration-300">
                         <div className="flex items-center gap-4">
                             <button 
                                 onClick={() => {

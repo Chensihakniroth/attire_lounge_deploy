@@ -234,7 +234,7 @@ const AnimatedRoutes: React.FC = () => {
                     </Route>
                 </Route>
 
-                <Route path="/admin/login" element={<Layout includeFooter={false} includePadding={false}><AdminLogin /></Layout>} />
+                <Route path="/admin/login" element={<Layout includeHeader={false} includeFooter={false} includePadding={false}><AdminLogin /></Layout>} />
 
                 <Route path="/styling" element={<Layout><Placeholder title="Styling" /></Layout>} />
                 <Route path="/journal" element={<Layout><Placeholder title="Journal" /></Layout>} />
