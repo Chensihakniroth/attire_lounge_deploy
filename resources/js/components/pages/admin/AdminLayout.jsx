@@ -120,9 +120,15 @@ const SidebarContent = ({ setOpen, isMobile }) => {
     const navigate = useNavigate();
 
     const handleLogout = () => {
-        sessionStorage.removeItem('isAdmin');
-        localStorage.removeItem('admin_token');
-        sessionStorage.removeItem('admin_token');
+        // Clear all storage
+        const storages = [sessionStorage, localStorage];
+        storages.forEach(storage => {
+            storage.removeItem('admin_token');
+            storage.removeItem('admin_user');
+            storage.removeItem('user_roles');
+            storage.removeItem('user_permissions');
+            storage.removeItem('isAdmin');
+        });
         navigate('/admin/login');
     };
 

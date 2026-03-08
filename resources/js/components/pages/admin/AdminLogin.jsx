@@ -24,8 +24,8 @@ const AdminLogin = () => {
     const logoUrl = "https://bucket-production-4ca0.up.railway.app/product-assets/uploads/asset/ALO.png";
 
     useEffect(() => {
-        const token = localStorage.getItem('admin_token');
-        const storedRoles = sessionStorage.getItem('user_roles');
+        const token = localStorage.getItem('admin_token') || sessionStorage.getItem('admin_token');
+        const storedRoles = localStorage.getItem('user_roles') || sessionStorage.getItem('user_roles');
         if (token && storedRoles) { // Check for token and roles to confirm admin session
             sessionStorage.setItem('isAdmin', 'true'); // Keep for now for compatibility
             navigate('/admin');
@@ -47,7 +47,7 @@ const AdminLogin = () => {
                 sessionStorage.setItem('admin_token', token);
             }
             sessionStorage.setItem('isAdmin', 'true'); // Keep for now for compatibility
-            setUserData(user); // Set user data (roles/permissions) in context
+            setUserData(user, rememberMe); // Pass rememberMe to persist data if checked
             navigate('/admin');
         } catch (err) {
             console.error('Login error:', err);
@@ -182,7 +182,7 @@ const AdminLogin = () => {
                                 <div className={`w-4 h-4 rounded-md border transition-all duration-500 flex items-center justify-center ${rememberMe ? 'bg-attire-accent border-attire-accent' : 'bg-white/5 border-white/10 group-hover:border-white/20'}`}>
                                     {rememberMe && <Check size={10} className="text-black stroke-[4]" />}
                                 </div>
-                                <span className="ml-3 text-[11px] text-attire-silver/50 group-hover:text-white transition-colors duration-500 tracking-wide font-medium">Persist Session</span>
+                                <span className="ml-3 text-[11px] text-attire-silver/50 group-hover:text-white transition-colors duration-500 tracking-wide font-medium">Remember Me</span>
                             </label>
                         </div>
 

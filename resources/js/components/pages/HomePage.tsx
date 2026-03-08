@@ -724,22 +724,32 @@ const HomePage: React.FC = () => {
     }
   }, []);
 
-  // --- Smooth JS Snap Logic (Replaces CSS Snap) ---
+  // --- Smooth JS Snap Logic (Optimized for Safari) ---
   useEffect(() => {
-    let scrollTimeout: number;
-    const handleScroll = () => {
-        window.clearTimeout(scrollTimeout);
-        scrollTimeout = window.setTimeout(() => {
-            // Disable snapping on mobile (width < 768) or if menu is open or lenis isn't ready
-            if (!window.lenis || isMenuOpen || window.innerWidth < 768) return;
+    if (!window.lenis || isMenuOpen || window.innerWidth < 1024) return; // Only desktop snap
 
-            const scrollY = window.scrollY;
+    let snapTimeout: number;
+    const isSafariBrowser = isSafari();
+
+    const onScroll = () => {
+        if (!window.lenis) return;
+        
+        window.clearTimeout(snapTimeout);
+        
+        // Wait longer on Safari to ensure the user has truly stopped scrolling
+        const delay = isSafariBrowser ? 150 : 100;
+
+        snapTimeout = window.setTimeout(() => {
+            // Re-verify conditions inside timeout
+            if (!window.lenis || isMenuOpen || window.innerWidth < 1024) return;
+
+            const scrollY = window.lenis.scroll;
             const viewportHeight = window.innerHeight;
 
             let closestIndex = -1;
             let minDistance = Infinity;
 
-            // Find closest section top
+            // Simple distance check for closest section
             sectionsRef.current.forEach((section, index) => {
                 if (!section) return;
                 const distance = Math.abs(section.offsetTop - scrollY);
@@ -753,27 +763,32 @@ const HomePage: React.FC = () => {
                 const targetSection = sectionsRef.current[closestIndex];
                 if (!targetSection) return;
 
-                const dist = Math.abs(targetSection.offsetTop - scrollY);
-                const isTallSection = targetSection.offsetHeight > viewportHeight + 50;
+                const distance = Math.abs(targetSection.offsetTop - scrollY);
+                
+                // If we're already very close, don't snap to avoid loop/jitter
+                if (distance < 10) return;
 
-                // If we are very close (already snapped), do nothing to avoid jitter
-                if (dist < 5) return;
-
-                if (!isTallSection) {
-                    window.lenis.scrollTo(targetSection, { duration: 0.6 });
-                } else {
-                    // Tall section logic
-                    const snapThreshold = viewportHeight * 0.3;
-                    if (dist < snapThreshold) {
-                         window.lenis.scrollTo(targetSection, { duration: 0.6 });
-                    }
+                // Only snap if we're within a reasonable threshold (30% of viewport)
+                const snapThreshold = viewportHeight * 0.35;
+                
+                if (distance < snapThreshold) {
+                    window.lenis.scrollTo(targetSection, { 
+                        duration: isSafariBrowser ? 1.0 : 0.8,
+                        easing: (t: number) => 1 - Math.pow(1 - t, 4), // Quartic out for smoother end
+                        lock: true // Temporarily lock scroll during snap
+                    });
                 }
             }
-        }, 50); // 50ms debounce: Snappier start after scrolling stops
+        }, delay);
     };
 
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
+    window.lenis.on('scroll', onScroll);
+    return () => {
+        if (window.lenis) {
+            window.lenis.off('scroll', onScroll);
+            window.clearTimeout(snapTimeout);
+        }
+    };
   }, [isMenuOpen]);
 
   useEffect(() => {

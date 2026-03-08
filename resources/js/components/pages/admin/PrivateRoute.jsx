@@ -10,16 +10,16 @@ const PrivateRoute = () => {
     // This handles page refreshes where context might be reset but token persists
     useEffect(() => {
         if (adminToken && userPermissions.length === 0 && userRoles.length === 0) {
-            // Attempt to re-fetch user data or simply reconstruct it from session storage
-            // For now, we'll assume setUserData can handle empty input if data not in storage.
-            // In a real app, you might have an /admin/user endpoint to get current user details
-            const storedRoles = sessionStorage.getItem('user_roles');
-            const storedPermissions = sessionStorage.getItem('user_permissions');
+            // Attempt to re-fetch user data or simply reconstruct it from storage
+            const storedRoles = sessionStorage.getItem('user_roles') || localStorage.getItem('user_roles');
+            const storedPermissions = sessionStorage.getItem('user_permissions') || localStorage.getItem('user_permissions');
+            const storedUser = sessionStorage.getItem('admin_user') || localStorage.getItem('admin_user');
+            
             if (storedRoles && storedPermissions) {
-                setUserData({
+                setUserData(storedUser ? JSON.parse(storedUser) : {
                     roles: JSON.parse(storedRoles),
                     permissions: JSON.parse(storedPermissions)
-                });
+                }, !!localStorage.getItem('admin_token'));
             }
         }
     }, [adminToken, userPermissions.length, userRoles.length, setUserData]);
@@ -31,11 +31,14 @@ const PrivateRoute = () => {
     // If not authenticated or no admin permissions, redirect to login
     if (!isAuthenticated || !hasAdminPermissions) {
         // Clear any lingering tokens/data if access is denied
-        sessionStorage.removeItem('admin_token');
-        localStorage.removeItem('admin_token');
-        sessionStorage.removeItem('user_roles');
-        sessionStorage.removeItem('user_permissions');
-        sessionStorage.removeItem('isAdmin'); // Clear old flag
+        const storages = [sessionStorage, localStorage];
+        storages.forEach(storage => {
+            storage.removeItem('admin_token');
+            storage.removeItem('admin_user');
+            storage.removeItem('user_roles');
+            storage.removeItem('user_permissions');
+            storage.removeItem('isAdmin');
+        });
         return <Navigate to="/admin/login" />;
     }
 

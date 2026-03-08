@@ -362,7 +362,7 @@
 
     /* Performance optimizations */
     transform: translate3d(0, 0, 0);
-    will-change: transform; /* Hint to the compositor ✨ */
+    /* will-change: transform; - Removed from global to avoid creating too many layers on Safari */
     backface-visibility: hidden;
     -webkit-backface-visibility: hidden;
     perspective: 1000px;
@@ -372,11 +372,15 @@
 
     /* Prevent iOS rubber banding */
     -webkit-overflow-scrolling: touch;
+
+    /* Modern browser optimization: improves render speed for long pages ✨ */
+    content-visibility: auto;
+    contain-intrinsic-size: 100vh;
 }
 
 /* === Safari 60FPS Force === */
 [data-safari="true"] .snap-section {
-    will-change: transform;
+    /* Only apply will-change to active layers or keep it simple */
     -webkit-transform: translateZ(0);
     transform: translateZ(0);
 }

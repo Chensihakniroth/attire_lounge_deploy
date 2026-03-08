@@ -12,22 +12,25 @@ export const AdminProvider = ({ children }) => {
     const [userPermissions, setUserPermissions] = useState([]);
 
     // Function to set user data after login
-    const setUserData = useCallback((userData) => {
+    const setUserData = useCallback((userData, persistent = false) => {
         const roles = userData?.roles || [];
         const permissions = userData?.permissions || [];
         setUser(userData);
         setUserRoles(roles);
         setUserPermissions(permissions);
-        sessionStorage.setItem('admin_user', JSON.stringify(userData));
-        sessionStorage.setItem('user_roles', JSON.stringify(roles));
-        sessionStorage.setItem('user_permissions', JSON.stringify(permissions));
+        
+        const storage = persistent ? localStorage : sessionStorage;
+        
+        storage.setItem('admin_user', JSON.stringify(userData));
+        storage.setItem('user_roles', JSON.stringify(roles));
+        storage.setItem('user_permissions', JSON.stringify(permissions));
     }, []);
 
     // Load user data from session storage on mount
     useEffect(() => {
-        const storedUser = sessionStorage.getItem('admin_user');
-        const storedRoles = sessionStorage.getItem('user_roles');
-        const storedPermissions = sessionStorage.getItem('user_permissions');
+        const storedUser = sessionStorage.getItem('admin_user') || localStorage.getItem('admin_user');
+        const storedRoles = sessionStorage.getItem('user_roles') || localStorage.getItem('user_roles');
+        const storedPermissions = sessionStorage.getItem('user_permissions') || localStorage.getItem('user_permissions');
         
         if (storedUser) setUser(JSON.parse(storedUser));
         if (storedRoles) setUserRoles(JSON.parse(storedRoles));

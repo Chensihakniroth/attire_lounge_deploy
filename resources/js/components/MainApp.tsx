@@ -21,7 +21,6 @@ const queryClient = new QueryClient({
 // Components
 import Navigation from './layouts/Navigation.jsx';
 import LoadingSpinner from './common/LoadingSpinner.jsx';
-import AdminLoadingSpinner from './common/AdminLoadingSpinner.jsx'; // Import the new admin spinner
 import Footer from './layouts/Footer.jsx';
 
 // Declare global for Lenis
@@ -31,11 +30,8 @@ declare global {
     }
 }
 const AppSuspense = () => {
-    const location = useLocation();
-    const isAdminRoute = location.pathname.startsWith('/admin');
-
     return (
-        <Suspense fallback={isAdminRoute ? <AdminLoadingSpinner /> : <LoadingSpinner />}>
+        <Suspense fallback={<LoadingSpinner />}>
             <AnimatedRoutes />
         </Suspense>
     );
@@ -68,26 +64,8 @@ const FashionShowPage = lazyWithRetry(() => import('./pages/FashionShowPage.jsx'
 const ContactPage = lazyWithRetry(() => import('./pages/ContactPage.jsx'));
 const CustomizeGiftPage = lazyWithRetry(() => import('./pages/CustomizeGiftPage.jsx'));
 const FavoritesPage = lazyWithRetry(() => import('./pages/FavoritesPage.jsx'));
-const AdminDashboard = lazyWithRetry(() => import('./pages/admin/AdminDashboard.jsx'));
-const AdminLogin = lazyWithRetry(() => import('./pages/admin/AdminLogin.jsx'));
-const PrivateRoute = lazyWithRetry(() => import('./pages/admin/PrivateRoute.jsx'));
-import { AdminProvider } from './pages/admin/AdminContext'; // Import AdminProvider
 import { isSafari } from '../helpers/browserUtils.js';
 
-const AdminLayout = lazyWithRetry(() => import('./pages/admin/AdminLayout.jsx'));
-const AuditLog = lazyWithRetry(() => import('./pages/admin/AuditLog.jsx'));
-const NewsletterManager = lazyWithRetry(() => import('./pages/admin/NewsletterManager.jsx'));
-const UserManager = lazyWithRetry(() => import('./pages/admin/UserManager.jsx'));
-const ProfileEditor = lazyWithRetry(() => import('./pages/admin/ProfileEditor.jsx'));
-const CustomerProfileManager = lazyWithRetry(() => import('./pages/admin/CustomerProfileManager.jsx'));
-const CustomerProfileDetail = lazyWithRetry(() => import('./pages/admin/CustomerProfileDetail.jsx'));
-const AppointmentManager = lazyWithRetry(() => import('./pages/admin/AppointmentManager.jsx'));
-const CustomizeGiftManager = lazyWithRetry(() => import('./pages/admin/CustomizeGiftManager.jsx'));
-const ProductManager = lazyWithRetry(() => import('./pages/admin/ProductManager.jsx'));
-const CollectionManager = lazyWithRetry(() => import('./pages/admin/CollectionManager.jsx'));
-const ProductEditor = lazyWithRetry(() => import('./pages/admin/ProductEditor.jsx'));
-const BulkProductEditor = lazyWithRetry(() => import('./pages/admin/BulkProductEditor.jsx'));
-import InventoryManager from './pages/admin/InventoryManager.jsx';
 const PrivacyPolicyPage = lazyWithRetry(() => import('./pages/PrivacyPolicyPage.jsx'));
 const TermsOfServicePage = lazyWithRetry(() => import('./pages/TermsOfServicePage.jsx'));
 const ReturnPolicyPage = lazyWithRetry(() => import('./pages/ReturnPolicyPage.jsx'));
@@ -154,36 +132,32 @@ const Layout: React.FC<LayoutProps> = ({ children, includeHeader = true, include
 };
 
 const LenisScroll: React.FC = () => {
-    const location = useLocation();
-
     useEffect(() => {
         // Global Safari detection for CSS targeting
         if (typeof document !== 'undefined') {
             document.body.setAttribute('data-safari', isSafari().toString());
         }
 
-        // Disable Lenis on Admin routes
-        if (location.pathname.startsWith('/admin')) {
-            if (window.lenis) {
-                window.lenis.destroy();
-                window.lenis = null;
-            }
-            return;
-        }
-
         // Initialize Lenis if it doesn't exist
         if (!window.lenis) {
             const isSafariBrowser = isSafari();
+            
+            // Lighter configuration for Safari to prevent choppiness
             const lenis = new Lenis({
-                lerp: isSafariBrowser ? 0.08 : 0.1, // Slightly slower lerp for Safari to reduce jank
-                wheelMultiplier: isSafariBrowser ? 1.0 : 1.1, // Lower multiplier for Safari
-                touchMultiplier: 1.5,
+                duration: isSafariBrowser ? 1.0 : 1.2,
+                easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)), // Exponential easing
+                orientation: 'vertical',
+                gestureOrientation: 'vertical',
                 smoothWheel: true,
-                smoothTouch: false,
+                wheelMultiplier: isSafariBrowser ? 0.8 : 1.0, // Reduced for Safari
+                touchMultiplier: 1.5,
+                infinite: false,
+                smoothTouch: false, // Essential for mobile performance
             });
 
             window.lenis = lenis;
 
+            // Optimized RAF loop
             let rafId: number;
             function raf(time: number) {
                 lenis.raf(time);
@@ -198,7 +172,7 @@ const LenisScroll: React.FC = () => {
                 window.lenis = null;
             };
         }
-    }, [location.pathname]); // Re-run when location changes
+    }, []);
 
     return null;
 };
@@ -282,32 +256,6 @@ const AnimatedRoutes: React.FC = () => {
                     </Layout>
                 } />
 
-                <Route element={<PrivateRoute />}>
-                    <Route element={<AdminLayout />}>
-                        <Route path="/admin" element={<AdminDashboard />} />
-                        <Route path="/admin/appointments" element={<AppointmentManager />} />
-                        <Route path="/admin/products" element={<ProductManager />} />
-                        <Route path="/admin/collections" element={<CollectionManager />} />
-                        <Route path="/admin/products/bulk" element={<BulkProductEditor />} />
-                        <Route path="/admin/products/new" element={<ProductEditor isNew={true} />} />
-                        <Route path="/admin/products/:productId/edit" element={<ProductEditor />} />
-                        <Route path="/admin/customize-gift" element={<CustomizeGiftManager />} />
-                        <Route path="/admin/inventory" element={<InventoryManager />} />
-                        <Route path="/admin/audit-logs" element={<AuditLog />} />
-                        <Route path="/admin/audit-logs" element={<AuditLog />} />
-                        <Route path="/admin/users" element={<UserManager />} />
-                        <Route path="/admin/profile" element={<ProfileEditor />} />
-                        <Route path="/admin/customer-profiles" element={<CustomerProfileManager />} />
-                        <Route path="/admin/customer-profiles/:id" element={<CustomerProfileDetail />} />
-                    </Route>
-                </Route>
-
-                <Route path="/admin/login" element={
-                    <Layout includeFooter={false} includePadding={false}>
-                        <AdminLogin />
-                    </Layout>
-                } />
-
                 {/* Simple placeholders - all with Footer */}
                 <Route path="/styling" element={
                     <Layout>
@@ -387,12 +335,10 @@ function MainApp() {
         <HelmetProvider>
             <QueryClientProvider client={queryClient}>
                 <Router>
-                    <AdminProvider> {/* <-- AdminProvider goes here */}
-                        <GlobalStyles />
-                        <LenisScroll />
-                        {/* ScrollToTop removed as it conflicts with exit animations, handled in onExitComplete */}
-                        <AppSuspense />
-                    </AdminProvider>
+                    <GlobalStyles />
+                    <LenisScroll />
+                    {/* ScrollToTop removed as it conflicts with exit animations, handled in onExitComplete */}
+                    <AppSuspense />
                 </Router>
             </QueryClientProvider>
         </HelmetProvider>
