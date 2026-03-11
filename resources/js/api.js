@@ -2,14 +2,14 @@ import axios from 'axios';
 
 // Cache configuration
 const CACHE_PREFIX = 'attire_cache_';
-const CACHE_TTL = 15 * 60 * 1000; // 15 minutes
+const CACHE_TTL = 30 * 60 * 1000; // 30 minutes
 
 // Helper to get data from cache
 const getCached = (key) => {
     try {
         const item = sessionStorage.getItem(CACHE_PREFIX + key);
         if (!item) return null;
-        
+
         const { value, timestamp } = JSON.parse(item);
         if (Date.now() - timestamp > CACHE_TTL) {
             sessionStorage.removeItem(CACHE_PREFIX + key);
@@ -38,7 +38,7 @@ const getData = (response) => response.data;
 const fetchWithCache = async (url, params = {}) => {
     const queryString = new URLSearchParams(params).toString();
     const cacheKey = `${url}?${queryString}`;
-    
+
     // Try cache first
     const cachedData = getCached(cacheKey);
     if (cachedData) {
@@ -48,7 +48,7 @@ const fetchWithCache = async (url, params = {}) => {
     // Fallback to network
     const response = await axios.get(url, { params });
     const data = getData(response);
-    
+
     // Save to cache
     setCached(cacheKey, data);
     return data;

@@ -1,6 +1,35 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { NavLink, useNavigate, Outlet, useLocation } from 'react-router-dom';
-import { LayoutDashboard, Calendar, Gift, LogOut, Menu, X, Package, ShoppingBag, ChevronLeft, ChevronRight, Sun, Moon, Trash2, AlertCircle, Check, Loader, History, Users, Mail, Search, UserCircle, LayoutGrid } from 'lucide-react';
+import {
+    NavLink,
+    useNavigate,
+    Outlet,
+    useLocation,
+    useOutlet,
+} from 'react-router-dom';
+import {
+    LayoutDashboard,
+    Calendar,
+    Gift,
+    LogOut,
+    Menu,
+    X,
+    Package,
+    ShoppingBag,
+    ChevronLeft,
+    ChevronRight,
+    Sun,
+    Moon,
+    Trash2,
+    AlertCircle,
+    Check,
+    Loader,
+    History,
+    Users,
+    Mail,
+    Search,
+    UserCircle,
+    LayoutGrid,
+} from 'lucide-react';
 import { ThemeProvider, useTheme } from './ThemeContext';
 import { AdminProvider, useAdmin } from './AdminContext';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -9,10 +38,10 @@ import { isSafari } from '../../../helpers/browserUtils';
 
 const NavItem = ({ item, isCollapsed }) => {
     return (
-        <motion.div 
-            whileHover={{ x: isCollapsed ? 0 : 4, scale: 1.02 }} 
+        <motion.div
+            whileHover={{ x: isCollapsed ? 0 : 4, scale: 1.02 }}
             whileTap={{ scale: 0.98 }}
-            transition={{ type: "spring", stiffness: 400, damping: 17 }}
+            transition={{ type: 'spring', stiffness: 400, damping: 17 }}
         >
             <NavLink
                 to={item.to}
@@ -26,8 +55,14 @@ const NavItem = ({ item, isCollapsed }) => {
                 }
                 title={isCollapsed ? item.name : ''}
             >
-                <item.icon className={`w-5 h-5 ${isCollapsed ? '' : 'mr-3'} transition-transform duration-300 group-hover:scale-110 flex-shrink-0`} />
-                {!isCollapsed && <span className="text-[11px] whitespace-nowrap overflow-hidden">{item.name}</span>}
+                <item.icon
+                    className={`w-5 h-5 ${isCollapsed ? '' : 'mr-3'} transition-transform duration-300 group-hover:scale-110 flex-shrink-0`}
+                />
+                {!isCollapsed && (
+                    <span className="text-[11px] whitespace-nowrap overflow-hidden">
+                        {item.name}
+                    </span>
+                )}
             </NavLink>
         </motion.div>
     );
@@ -47,9 +82,11 @@ const GlobalSearch = () => {
         }
         setLoading(true);
         try {
-            const token = localStorage.getItem('admin_token') || sessionStorage.getItem('admin_token');
+            const token =
+                localStorage.getItem('admin_token') ||
+                sessionStorage.getItem('admin_token');
             const response = await axios.get(`/api/v1/search?q=${val}`, {
-                headers: { 'Authorization': `Bearer ${token}` }
+                headers: { Authorization: `Bearer ${token}` },
             });
             setResults(response.data.data.slice(0, 5));
         } catch (error) {
@@ -66,23 +103,33 @@ const GlobalSearch = () => {
 
     return (
         <div className="relative w-full max-w-md hidden md:block font-sans">
-            <div className={`flex items-center gap-3 bg-black/[0.03] dark:bg-white/[0.03] border ${isOpen ? 'border-attire-accent' : 'border-black/5 dark:border-white/5'} rounded-2xl px-5 py-2.5 transition-all`}>
-                <Search size={16} className={isOpen ? 'text-attire-accent' : 'text-gray-400'} />
-                <input 
-                    type="text" 
-                    placeholder="Search identity..." 
+            <div
+                className={`flex items-center gap-3 bg-black/[0.03] dark:bg-white/[0.03] border ${isOpen ? 'border-attire-accent' : 'border-black/5 dark:border-white/5'} rounded-2xl px-5 py-2.5 transition-all`}
+            >
+                <Search
+                    size={16}
+                    className={isOpen ? 'text-attire-accent' : 'text-gray-400'}
+                />
+                <input
+                    type="text"
+                    placeholder="Search identity..."
                     className="bg-transparent border-none outline-none text-[11px] font-bold uppercase tracking-widest w-full text-gray-900 dark:text-white placeholder:text-gray-400"
                     onFocus={() => setIsOpen(true)}
                     onBlur={() => setTimeout(() => setIsOpen(false), 200)}
                     value={query}
                     onChange={(e) => setQuery(e.target.value)}
                 />
-                {loading && <Loader size={12} className="animate-spin text-attire-accent" />}
+                {loading && (
+                    <Loader
+                        size={12}
+                        className="animate-spin text-attire-accent"
+                    />
+                )}
             </div>
 
             <AnimatePresence>
                 {isOpen && results.length > 0 && (
-                    <motion.div 
+                    <motion.div
                         initial={{ opacity: 0, y: 10 }}
                         animate={{ opacity: 1, y: 0 }}
                         exit={{ opacity: 0, y: 10 }}
@@ -99,11 +146,19 @@ const GlobalSearch = () => {
                                 className="w-full flex items-center gap-4 p-3 hover:bg-black/5 dark:hover:bg-white/5 rounded-xl transition-all text-left"
                             >
                                 <div className="h-10 w-10 rounded-lg bg-black/5 overflow-hidden flex-shrink-0">
-                                    <img src={item.images[0]} alt="" className="w-full h-full object-cover" />
+                                    <img
+                                        src={item.images[0]}
+                                        alt=""
+                                        className="w-full h-full object-cover"
+                                    />
                                 </div>
                                 <div>
-                                    <p className="text-[10px] font-bold uppercase tracking-wider text-gray-900 dark:text-white">{item.name}</p>
-                                    <p className="text-[8px] text-gray-400 uppercase tracking-widest">{item.category?.name || 'Product'}</p>
+                                    <p className="text-[10px] font-bold uppercase tracking-wider text-gray-900 dark:text-white">
+                                        {item.name}
+                                    </p>
+                                    <p className="text-[8px] text-gray-400 uppercase tracking-widest">
+                                        {item.category?.name || 'Product'}
+                                    </p>
                                 </div>
                             </button>
                         ))}
@@ -122,7 +177,7 @@ const SidebarContent = ({ setOpen, isMobile }) => {
     const handleLogout = () => {
         // Clear all storage
         const storages = [sessionStorage, localStorage];
-        storages.forEach(storage => {
+        storages.forEach((storage) => {
             storage.removeItem('admin_token');
             storage.removeItem('admin_user');
             storage.removeItem('user_roles');
@@ -135,42 +190,55 @@ const SidebarContent = ({ setOpen, isMobile }) => {
     const navItems = [
         { name: 'Dashboard', to: '/admin', icon: LayoutDashboard },
         { name: 'My Profile', to: '/admin/profile', icon: UserCircle },
-        { name: 'Customer Profiles', to: '/admin/customer-profiles', icon: Users },
+        {
+            name: 'Customer Profiles',
+            to: '/admin/customer-profiles',
+            icon: Users,
+        },
         { name: 'Appointments', to: '/admin/appointments', icon: Calendar },
         { name: 'Collections', to: '/admin/collections', icon: LayoutGrid },
         { name: 'Products', to: '/admin/products', icon: ShoppingBag },
         { name: 'Gift Requests', to: '/admin/customize-gift', icon: Gift },
         { name: 'Gift Inventory', to: '/admin/inventory', icon: Package },
         { name: 'Newsletter', to: '/admin/newsletter', icon: Mail },
-        { 
-            name: 'Audit Logs', 
-            to: '/admin/audit-logs', 
+        {
+            name: 'Audit Logs',
+            to: '/admin/audit-logs',
             icon: History,
-            restricted: true 
+            restricted: true,
         },
-        { 
-            name: 'Team Access', 
-            to: '/admin/users', 
+        {
+            name: 'Team Access',
+            to: '/admin/users',
             icon: Users,
-            restricted: true 
+            restricted: true,
         },
     ];
 
     const isSuperAdmin = userRoles.includes('super-admin');
-    const filteredNavItems = navItems.filter(item => !item.restricted || isSuperAdmin);
+    const filteredNavItems = navItems.filter(
+        (item) => !item.restricted || isSuperAdmin
+    );
 
     return (
         <div className="flex flex-col w-[280px] bg-white dark:bg-[#0a0a0a] border-r border-black/5 dark:border-white/5 flex-shrink-0 h-full overflow-hidden transition-colors duration-300 font-sans">
             <div className="h-16 flex items-center justify-between px-6 border-b border-black/5 dark:border-white/5">
-                <h1 className="text-sm font-bold tracking-[0.3em] text-gray-900 dark:text-white uppercase whitespace-nowrap overflow-hidden">Attire Lounge</h1>
+                <h1 className="text-sm font-bold tracking-[0.3em] text-gray-900 dark:text-white uppercase whitespace-nowrap overflow-hidden">
+                    Attire Lounge
+                </h1>
                 {isMobile && (
-                    <button onClick={() => setOpen(false)} className="text-gray-400 hover:text-gray-900 dark:hover:text-white lg:hidden">
+                    <button
+                        onClick={() => setOpen(false)}
+                        className="text-gray-400 hover:text-gray-900 dark:hover:text-white lg:hidden"
+                    >
                         <X size={20} />
                     </button>
                 )}
             </div>
             <nav className="flex-grow p-4 space-y-2 mt-4 overflow-y-auto attire-scrollbar">
-                {filteredNavItems.map(item => <NavItem key={item.name} item={item} isCollapsed={false} />)}
+                {filteredNavItems.map((item) => (
+                    <NavItem key={item.name} item={item} isCollapsed={false} />
+                ))}
             </nav>
             <div className="p-4 border-t border-black/5 dark:border-white/5 space-y-2">
                 <button
@@ -180,12 +248,16 @@ const SidebarContent = ({ setOpen, isMobile }) => {
                     {isDarkMode ? (
                         <>
                             <Sun className="w-5 h-5 mr-3 flex-shrink-0" />
-                            <span className="text-[10px] whitespace-nowrap overflow-hidden">Light Mode</span>
+                            <span className="text-[10px] whitespace-nowrap overflow-hidden">
+                                Light Mode
+                            </span>
                         </>
                     ) : (
                         <>
                             <Moon className="w-5 h-5 mr-3 flex-shrink-0" />
-                            <span className="text-[10px] whitespace-nowrap overflow-hidden">Dark Mode</span>
+                            <span className="text-[10px] whitespace-nowrap overflow-hidden">
+                                Dark Mode
+                            </span>
                         </>
                     )}
                 </button>
@@ -194,7 +266,9 @@ const SidebarContent = ({ setOpen, isMobile }) => {
                     className="w-full flex items-center px-4 py-3 text-sm font-bold uppercase tracking-widest text-gray-500 dark:text-gray-400 rounded-lg hover:bg-red-500/10 hover:text-red-400 transition-colors"
                 >
                     <LogOut className="w-5 h-5 mr-3 flex-shrink-0" />
-                    <span className="text-[10px] whitespace-nowrap overflow-hidden">Logout</span>
+                    <span className="text-[10px] whitespace-nowrap overflow-hidden">
+                        Logout
+                    </span>
                 </button>
             </div>
         </div>
@@ -207,12 +281,15 @@ const Sidebar = ({ isOpen, setOpen, isMobile = false }) => {
             <AnimatePresence>
                 {isOpen && (
                     <>
-                        <motion.div 
+                        <motion.div
                             className="fixed inset-y-0 left-0 z-[100] transform lg:hidden"
                             initial={{ x: '-100%' }}
                             animate={{ x: 0 }}
                             exit={{ x: '-100%' }}
-                            transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
+                            transition={{
+                                duration: 0.4,
+                                ease: [0.22, 1, 0.36, 1],
+                            }}
                         >
                             <SidebarContent setOpen={setOpen} isMobile={true} />
                         </motion.div>
@@ -248,20 +325,27 @@ const AdminLayout = () => {
 
     return (
         <ThemeProvider>
-            <AdminLayoutContent 
-                isSidebarVisible={isSidebarVisible} 
-                setSidebarVisible={setSidebarVisible} 
-                isMobileOpen={isMobileOpen} 
-                setMobileOpen={setMobileOpen} 
-                isDesktop={isDesktop} 
+            <AdminLayoutContent
+                isSidebarVisible={isSidebarVisible}
+                setSidebarVisible={setSidebarVisible}
+                isMobileOpen={isMobileOpen}
+                setMobileOpen={setMobileOpen}
+                isDesktop={isDesktop}
             />
         </ThemeProvider>
     );
 };
 
-const AdminLayoutContent = ({ isSidebarVisible, setSidebarVisible, isMobileOpen, setMobileOpen, isDesktop }) => {
+const AdminLayoutContent = ({
+    isSidebarVisible,
+    setSidebarVisible,
+    isMobileOpen,
+    setMobileOpen,
+    isDesktop,
+}) => {
     const { isEditing } = useAdmin();
     const location = useLocation();
+    const currentOutlet = useOutlet();
     const [isSafariBrowser, setIsSafariBrowser] = useState(false);
 
     useEffect(() => {
@@ -269,7 +353,10 @@ const AdminLayoutContent = ({ isSidebarVisible, setSidebarVisible, isMobileOpen,
     }, []);
 
     return (
-        <div id="admin-root" className="flex h-screen bg-gray-50 dark:bg-[#050505] font-sans text-gray-900 dark:text-white selection:bg-attire-accent selection:text-black transition-colors duration-300 relative">
+        <div
+            id="admin-root"
+            className="flex h-screen bg-gray-50 dark:bg-[#050505] font-sans text-gray-900 dark:text-white selection:bg-attire-accent selection:text-black transition-colors duration-300 relative"
+        >
             {/* Desktop Sidebar with Motion */}
             <AnimatePresence mode="wait">
                 {isDesktop && isSidebarVisible && !isEditing && (
@@ -289,27 +376,36 @@ const AdminLayoutContent = ({ isSidebarVisible, setSidebarVisible, isMobileOpen,
                             transition={{ duration: 0.2 }}
                             className="h-full"
                         >
-                            <Sidebar isOpen={isMobileOpen} setOpen={setMobileOpen} />
+                            <Sidebar
+                                isOpen={isMobileOpen}
+                                setOpen={setMobileOpen}
+                            />
                         </motion.div>
                     </motion.div>
                 )}
             </AnimatePresence>
 
             {/* Mobile Sidebar Overlay */}
-            {!isEditing && <Sidebar isMobile={true} isOpen={isMobileOpen} setOpen={setMobileOpen} />}
-            
+            {!isEditing && (
+                <Sidebar
+                    isMobile={true}
+                    isOpen={isMobileOpen}
+                    setOpen={setMobileOpen}
+                />
+            )}
+
             <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
                 {!isEditing && (
                     <header className="h-16 bg-white/80 dark:bg-[#0a0a0a]/80 backdrop-blur-md border-b border-black/5 dark:border-white/5 flex items-center px-6 justify-between flex-shrink-0 z-20 transition-colors duration-300">
                         <div className="flex items-center gap-4">
-                            <button 
+                            <button
                                 onClick={() => {
                                     if (window.innerWidth < 1024) {
                                         setMobileOpen(true);
                                     } else {
                                         setSidebarVisible(!isSidebarVisible);
                                     }
-                                }} 
+                                }}
                                 className="p-2 hover:bg-black/5 dark:hover:bg-white/5 rounded-xl text-gray-500 dark:text-attire-silver hover:text-gray-900 dark:hover:text-white transition-all active:scale-95"
                             >
                                 <Menu size={20} />
@@ -317,20 +413,29 @@ const AdminLayoutContent = ({ isSidebarVisible, setSidebarVisible, isMobileOpen,
                             <div className="h-4 w-px bg-black/10 dark:bg-white/10 mx-2 hidden lg:block" />
                             <GlobalSearch />
                         </div>
-                        
+
                         <div className="flex items-center gap-4">
                             <div className="text-right hidden md:block">
-                                <p className="text-[10px] font-bold text-gray-900 dark:text-white uppercase tracking-wider leading-none mb-1">Administrator</p>
-                                <p className="text-[9px] text-attire-accent uppercase tracking-[0.2em]">Master Access</p>
+                                <p className="text-[10px] font-bold text-gray-900 dark:text-white uppercase tracking-wider leading-none mb-1">
+                                    Administrator
+                                </p>
+                                <p className="text-[9px] text-attire-accent uppercase tracking-[0.2em]">
+                                    Master Access
+                                </p>
                             </div>
                             <div className="w-8 h-8 rounded-full bg-attire-accent/10 border border-attire-accent/20 flex items-center justify-center">
-                                <ShoppingBag size={14} className="text-attire-accent" />
+                                <ShoppingBag
+                                    size={14}
+                                    className="text-attire-accent"
+                                />
                             </div>
                         </div>
                     </header>
                 )}
 
-                <main className={`flex-1 overflow-y-auto relative ${isEditing ? 'p-0' : 'p-6 md:p-10'}`}>
+                <main
+                    className={`flex-1 overflow-y-auto relative ${isEditing ? 'p-0' : 'p-6 md:p-10'}`}
+                >
                     {/* Background decoration */}
                     {!isSafariBrowser && !isEditing && (
                         <div className="absolute top-0 left-0 w-full h-full pointer-events-none opacity-20 overflow-hidden">
@@ -339,8 +444,23 @@ const AdminLayoutContent = ({ isSidebarVisible, setSidebarVisible, isMobileOpen,
                         </div>
                     )}
 
-                    <div className={`relative z-10 ${isEditing ? 'max-w-none' : 'max-w-7xl mx-auto'}`}>
-                        <Outlet />
+                    <div
+                        className={`relative z-10 w-full ${isEditing ? 'max-w-none' : 'max-w-7xl mx-auto'}`}
+                    >
+                        <AnimatePresence mode="wait">
+                            <motion.div
+                                key={location.pathname}
+                                initial={{ opacity: 0, y: 15 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                exit={{ opacity: 0, y: -15 }}
+                                transition={{
+                                    duration: 0.3,
+                                    ease: [0.22, 1, 0.36, 1],
+                                }}
+                            >
+                                {currentOutlet}
+                            </motion.div>
+                        </AnimatePresence>
                     </div>
                 </main>
             </div>

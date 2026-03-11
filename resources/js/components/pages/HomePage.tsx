@@ -108,6 +108,7 @@ const HeroSection = memo(forwardRef<HTMLElement, HeroSectionProps>(({ scrollToSe
         loop
         playsInline
         preload="metadata"
+        poster={`${minioBaseUrl}/uploads/asset/hero-background1.jpg`}
         className="absolute w-full h-full object-cover"
         style={{ objectPosition: 'center 20%' }}
       >
@@ -248,8 +249,13 @@ const CollectionsSection = memo(forwardRef<HTMLElement>((_props, ref) => {
         return () => clearInterval(interval);
     }, [showcaseImages.length]);
 
+    // Preload ONLY the next image for performance
+    const nextImageIndex = (currentImageIndex + 1) % showcaseImages.length;
+
     return (
         <section className="relative snap-section min-h-screen h-screen flex items-center bg-[#0d3542] overflow-hidden" ref={ref}>
+            {/* Native Preload hint for the next image */}
+            <link rel="preload" as="image" href={showcaseImages[nextImageIndex]} />
             <div className="relative z-10 w-full max-w-[1800px] mx-auto px-6 lg:px-20 flex flex-col lg:grid lg:grid-cols-12 gap-12 lg:gap-0 items-center justify-center h-full py-20 lg:py-0">
 
                 {/* Visual - Left on Desktop, Top on Mobile (Columns 1-6) */}
@@ -733,9 +739,9 @@ const HomePage: React.FC = () => {
 
     const onScroll = () => {
         if (!window.lenis) return;
-        
+
         window.clearTimeout(snapTimeout);
-        
+
         // Wait longer on Safari to ensure the user has truly stopped scrolling
         const delay = isSafariBrowser ? 150 : 100;
 
@@ -764,15 +770,15 @@ const HomePage: React.FC = () => {
                 if (!targetSection) return;
 
                 const distance = Math.abs(targetSection.offsetTop - scrollY);
-                
+
                 // If we're already very close, don't snap to avoid loop/jitter
                 if (distance < 10) return;
 
                 // Only snap if we're within a reasonable threshold (30% of viewport)
                 const snapThreshold = viewportHeight * 0.35;
-                
+
                 if (distance < snapThreshold) {
-                    window.lenis.scrollTo(targetSection, { 
+                    window.lenis.scrollTo(targetSection, {
                         duration: isSafariBrowser ? 1.0 : 0.8,
                         easing: (t: number) => 1 - Math.pow(1 - t, 4), // Quartic out for smoother end
                         lock: true // Temporarily lock scroll during snap

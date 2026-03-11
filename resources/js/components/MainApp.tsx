@@ -1,7 +1,7 @@
 // resources/jsx/components/MainApp.tsx
 import React, { Suspense, lazy, useEffect, ReactNode } from 'react';
 import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
-import { AnimatePresence, motion, Variants } from 'framer-motion';
+import { AnimatePresence, LazyMotion, domAnimation, m, motion, Variants } from 'framer-motion';
 import Lenis from 'lenis';
 import usePullToRefresh from '../hooks/usePullToRefresh';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
@@ -11,9 +11,10 @@ import { HelmetProvider } from 'react-helmet-async';
 const queryClient = new QueryClient({
     defaultOptions: {
         queries: {
-            refetchOnWindowFocus: false, // Prevent refetching when window gains focus
-            retry: 1, // Retry failed requests once
-            staleTime: 5 * 60 * 1000, // Data is fresh for 5 minutes
+            refetchOnWindowFocus: false,
+            retry: 1,
+            staleTime: 30 * 60 * 1000,  // Data is fresh for 30 minutes
+            gcTime: 60 * 60 * 1000,     // Keep unused data for 1 hour
         },
     },
 });
@@ -105,6 +106,8 @@ const pageVariants: Variants = {
     }
 };
 
+// NOTE: motion.* is replaced with m.* throughout this file to work with LazyMotion
+
 interface LayoutProps {
     children: ReactNode;
     includeHeader?: boolean;
@@ -141,7 +144,7 @@ const LenisScroll: React.FC = () => {
         // Initialize Lenis if it doesn't exist
         if (!window.lenis) {
             const isSafariBrowser = isSafari();
-            
+
             // Lighter configuration for Safari to prevent choppiness
             const lenis = new Lenis({
                 duration: isSafariBrowser ? 1.0 : 1.2,
@@ -152,7 +155,6 @@ const LenisScroll: React.FC = () => {
                 wheelMultiplier: isSafariBrowser ? 0.8 : 1.0, // Reduced for Safari
                 touchMultiplier: 1.5,
                 infinite: false,
-                smoothTouch: false, // Essential for mobile performance
             });
 
             window.lenis = lenis;
@@ -327,19 +329,23 @@ const GlobalStyles = () => (
 );
 
 function MainApp() {
+    // Invalidate React Query cache on pull-to-refresh instead of hard reload
     usePullToRefresh(() => {
-        window.location.reload();
+        queryClient.invalidateQueries();
+        window.scrollTo(0, 0);
     });
 
     return (
         <HelmetProvider>
             <QueryClientProvider client={queryClient}>
-                <Router>
-                    <GlobalStyles />
-                    <LenisScroll />
-                    {/* ScrollToTop removed as it conflicts with exit animations, handled in onExitComplete */}
-                    <AppSuspense />
-                </Router>
+                <LazyMotion features={domAnimation}>
+                    <Router>
+                        <GlobalStyles />
+                        <LenisScroll />
+                        {/* ScrollToTop removed as it conflicts with exit animations, handled in onExitComplete */}
+                        <AppSuspense />
+                    </Router>
+                </LazyMotion>
             </QueryClientProvider>
         </HelmetProvider>
     );
