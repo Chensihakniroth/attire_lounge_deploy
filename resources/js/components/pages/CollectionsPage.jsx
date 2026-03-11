@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
+import { useInView } from 'react-intersection-observer';
 import CollectionCard from './collections/CollectionCard';
 import minioBaseUrl from '../../config.js';
 import LoadingSpinner from '../common/LoadingSpinner.jsx';
-import { ArrowRight } from 'lucide-react';
+import { ArrowRight, Loader2 } from 'lucide-react';
 import OptimizedImage from '../common/OptimizedImage.jsx';
 import axios from 'axios';
 
@@ -13,15 +14,18 @@ const PageHeader = () => (
         <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, ease: "easeOut" }}
+            transition={{ duration: 0.8, ease: 'easeOut' }}
         >
-            <span className="text-attire-accent text-xs tracking-[0.3em] uppercase mb-4 inline-block">Discover</span>
+            <span className="text-attire-accent text-xs tracking-[0.3em] uppercase mb-4 inline-block">
+                Discover
+            </span>
             <h1 className="text-5xl md:text-7xl font-serif font-light text-white mb-6">
                 Our Collections
             </h1>
             <p className="text-lg text-attire-silver max-w-2xl mx-auto leading-relaxed font-light">
-                Curated ensembles where timeless elegance meets modern style. 
-                Each piece is designed to elevate your personal look with effortless sophistication.
+                Curated ensembles where timeless elegance meets modern style.
+                Each piece is designed to elevate your personal look with
+                effortless sophistication.
             </p>
         </motion.div>
     </div>
@@ -30,20 +34,33 @@ const PageHeader = () => (
 const CollectionsPage = () => {
     const [loadingCollections, setLoadingCollections] = useState(true);
     const [collections, setCollections] = useState([]);
+    const [itemsToShow, setItemsToShow] = useState(6);
+
+    const { ref: loadMoreRef, inView } = useInView({
+        threshold: 0,
+        rootMargin: '200px',
+    });
 
     useEffect(() => {
         const fetchCollections = async () => {
             try {
-                const response = await axios.get(`/api/v1/products/collections?t=${Date.now()}`);
+                const response = await axios.get(
+                    `/api/v1/products/collections?t=${Date.now()}`
+                );
                 if (response.data.success) {
                     // Map backend property names to what the UI expects ✨
                     // We ensure the image URL is full and correct, using minioBaseUrl as fallback if needed ◕‿◕✿
-                    const mapped = response.data.data.map(c => {
+                    const mapped = response.data.data.map((c) => {
                         let imageUrl = c.image_url;
-                        
+
                         // Fallback logic: if image_url is missing or relative, we use the raw image path + minioBaseUrl
-                        if (!imageUrl || (!imageUrl.startsWith('http') && c.image)) {
-                            const path = c.image.startsWith('/') ? c.image : `/${c.image}`;
+                        if (
+                            !imageUrl ||
+                            (!imageUrl.startsWith('http') && c.image)
+                        ) {
+                            const path = c.image.startsWith('/')
+                                ? c.image
+                                : `/${c.image}`;
                             imageUrl = `${minioBaseUrl}${path}`;
                         }
 
@@ -51,7 +68,7 @@ const CollectionsPage = () => {
                             ...c,
                             title: c.name,
                             image: imageUrl,
-                            itemsCount: c.is_new ? 'New' : ''
+                            itemsCount: c.is_new ? 'New' : '',
                         };
                     });
                     setCollections(mapped);
@@ -71,10 +88,22 @@ const CollectionsPage = () => {
         title: 'Browse All',
         description: 'Explore our entire range of products.',
         image: `${minioBaseUrl}/uploads/collections/default/of3.jpg?v=new`,
-        itemsCount: 'All'
+        itemsCount: 'All',
     };
 
     const collectionsWithBrowseAll = [...collections, browseAllCard];
+
+    // --- Infinite Scroll Logic ---
+    useEffect(() => {
+        if (inView && itemsToShow < collectionsWithBrowseAll.length) {
+            setItemsToShow((prev) =>
+                Math.min(prev + 6, collectionsWithBrowseAll.length)
+            );
+        }
+    }, [inView, collectionsWithBrowseAll.length]);
+
+    const visibleCollections = collectionsWithBrowseAll.slice(0, itemsToShow);
+    const hasMore = itemsToShow < collectionsWithBrowseAll.length;
 
     return (
         <div className="min-h-screen bg-attire-navy relative overflow-hidden">
@@ -82,17 +111,21 @@ const CollectionsPage = () => {
 
             <main className="relative z-10 max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-8 pb-24">
                 {loadingCollections ? (
-                     <div className="flex justify-center py-20">
+                    <div className="flex justify-center py-20">
                         <LoadingSpinner />
-                     </div>
+                    </div>
                 ) : (
                     <motion.div
                         layout
                         className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"
                     >
-                        {collectionsWithBrowseAll.map((collection, index) => (
-                            <Link 
-                                to={collection.id === 0 ? '/products' : `/products?collection=${collection.slug}`} 
+                        {visibleCollections.map((collection, index) => (
+                            <Link
+                                to={
+                                    collection.id === 0
+                                        ? '/products'
+                                        : `/products?collection=${collection.slug}`
+                                }
                                 key={collection.id}
                                 className="block h-full"
                             >
@@ -100,15 +133,19 @@ const CollectionsPage = () => {
                                     layout
                                     initial={{ opacity: 0, y: 30 }}
                                     animate={{ opacity: 1, y: 0 }}
-                                    transition={{ duration: 0.4, delay: index * 0.1, ease: 'easeOut' }}
+                                    transition={{
+                                        duration: 0.4,
+                                        delay: index * 0.1,
+                                        ease: 'easeOut',
+                                    }}
                                     className="h-full"
                                 >
                                     {collection.id === 0 ? (
                                         <div className="group relative h-[24rem] rounded-2xl overflow-hidden shadow-xl border border-white/5">
                                             {/* Background Image */}
                                             <div className="absolute inset-0">
-                                                <OptimizedImage 
-                                                    src={collection.image} 
+                                                <OptimizedImage
+                                                    src={collection.image}
                                                     alt={collection.title}
                                                     containerClassName="w-full h-full"
                                                     className="w-full h-full transition-transform duration-700 group-hover:scale-105"
@@ -127,16 +164,35 @@ const CollectionsPage = () => {
                                                 </p>
                                                 <span className="inline-flex items-center gap-2 text-white font-medium border-b border-white/30 pb-1 group-hover:border-white transition-colors">
                                                     View All Products
-                                                    <ArrowRight size={16} className="transform group-hover:translate-x-1 transition-transform" />
+                                                    <ArrowRight
+                                                        size={16}
+                                                        className="transform group-hover:translate-x-1 transition-transform"
+                                                    />
                                                 </span>
                                             </div>
                                         </div>
                                     ) : (
-                                        <CollectionCard collection={collection} />
+                                        <CollectionCard
+                                            collection={collection}
+                                        />
                                     )}
                                 </motion.div>
                             </Link>
                         ))}
+
+                        {hasMore && (
+                            <div
+                                ref={loadMoreRef}
+                                className="col-span-full flex justify-center py-12 pb-24"
+                            >
+                                <div className="flex items-center gap-4 opacity-50">
+                                    <Loader2 className="w-5 h-5 text-attire-accent animate-spin" />
+                                    <span className="text-[10px] tracking-[0.4em] uppercase font-bold text-white">
+                                        Loading More
+                                    </span>
+                                </div>
+                            </div>
+                        )}
                     </motion.div>
                 )}
             </main>
