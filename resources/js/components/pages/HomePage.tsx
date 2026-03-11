@@ -7,6 +7,7 @@ import { Link, useLocation } from 'react-router-dom';
 import SectionIndicator from './SectionIndicator.jsx';
 import FashionShow from '../sections/FashionShow.jsx';
 import OptimizedImage from '../common/OptimizedImage.jsx';
+import LiquidButton from '../common/LiquidButton.jsx';
 import SEO from '../common/SEO';1
 import { isSafari } from '../../helpers/browserUtils.js';
 
@@ -198,9 +199,11 @@ const PhilosophySection = memo(forwardRef<HTMLElement>((_props, ref) => {
           </motion.p>
 
           <motion.div variants={itemVariants} className="flex flex-wrap gap-8 items-center">
-            <Link to="/contact" className="group relative overflow-hidden bg-[#f5a81c] text-white px-10 py-4 rounded-full transition-all duration-300 hover:pr-14 shadow-lg shadow-[#f5a81c]/10">
-              <span className="relative z-10 font-semibold text-sm">Make Appointment</span>
-              <ArrowRight className="absolute right-5 top-1/2 -translate-y-1/2 w-5 h-5 opacity-0 group-hover:opacity-100 group-hover:translate-x-0 -translate-x-4 transition-all duration-300" />
+            <Link to="/contact">
+                <LiquidButton className="group relative overflow-hidden bg-[#f5a81c] text-white px-10 py-4 rounded-full shadow-lg shadow-[#f5a81c]/10 transition-all duration-300">
+                  <span className="relative z-10 font-semibold text-sm mr-2">Make Appointment</span>
+                  <ArrowRight className="w-5 h-5 opacity-80 group-hover:translate-x-1 transition-all duration-300" />
+                </LiquidButton>
             </Link>
 
             <Link to="/lookbook" className="text-xs uppercase tracking-[0.2em] text-white/40 hover:text-white transition-colors duration-300 border-b border-white/5 hover:border-white/20 pb-1">
@@ -330,10 +333,12 @@ const CollectionsSection = memo(forwardRef<HTMLElement>((_props, ref) => {
                     </motion.div>
 
                     <motion.div variants={itemVariants} className="flex justify-center lg:justify-start">
-                        <Link to="/collections" className="group flex items-center gap-6 lg:gap-8 py-3 lg:py-4 px-6 lg:px-8 border border-white/10 bg-white/5 hover:bg-white hover:text-black transition-all duration-500 rounded-sm">
-                            <span className="tracking-[0.3em] lg:tracking-[0.4em] text-[8px] md:text-[10px] font-bold uppercase whitespace-nowrap">Explore All Collections</span>
-                            <div className="w-px h-4 bg-current opacity-30" />
-                            <ArrowRight className="group-hover:translate-x-2 transition-transform duration-500" size={14} />
+                        <Link to="/collections">
+                            <LiquidButton glowColor="rgba(255,255,255,0.15)" className="group flex items-center gap-6 lg:gap-8 py-3 lg:py-4 px-6 lg:px-8 border border-white/10 bg-white/5 transition-all duration-500 rounded-sm">
+                                <span className="tracking-[0.3em] lg:tracking-[0.4em] text-[8px] md:text-[10px] font-bold uppercase whitespace-nowrap text-white">Explore All Collections</span>
+                                <div className="w-px h-4 bg-white opacity-30" />
+                                <ArrowRight className="text-white group-hover:translate-x-2 transition-transform duration-500" size={14} />
+                            </LiquidButton>
                         </Link>
                     </motion.div>
                 </motion.div>

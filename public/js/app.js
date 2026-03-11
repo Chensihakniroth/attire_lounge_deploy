@@ -6,14 +6,14 @@ import {
 } from "./chunk-UXBR4C6Z.js";
 import {
   Footer_default
-} from "./chunk-EXL72KEL.js";
+} from "./chunk-L3RK6ABU.js";
 import "./chunk-C24ENFZ7.js";
 import {
   isSafari
 } from "./chunk-OYA3TQ7M.js";
 import {
   LoadingSpinner_default
-} from "./chunk-YWGDKK57.js";
+} from "./chunk-WUXJHQPP.js";
 import {
   FavoritesProvider,
   useFavorites
@@ -48,8 +48,11 @@ import {
   Menu,
   X,
   domAnimation,
-  motion
-} from "./chunk-U7RN3RRQ.js";
+  motion,
+  useIsPresent,
+  useMotionValueEvent,
+  useScroll
+} from "./chunk-UTGCPR5S.js";
 import {
   __toESM,
   require_jsx_runtime,
@@ -57,11 +60,11 @@ import {
 } from "./chunk-NSQU67W3.js";
 
 // resources/js/app.jsx
-var import_react4 = __toESM(require_react());
+var import_react5 = __toESM(require_react());
 var import_client = __toESM(require_client());
 
 // resources/js/components/MainApp.tsx
-var import_react3 = __toESM(require_react());
+var import_react4 = __toESM(require_react());
 
 // node_modules/lenis/dist/lenis.mjs
 var version = "1.3.17";
@@ -1235,7 +1238,9 @@ var Navigation = () => {
   }, []);
   (0, import_react2.useEffect)(() => {
     const timer = setTimeout(() => {
-      window.dispatchEvent(new CustomEvent("menuStateChange", { detail: { isMenuOpen } }));
+      window.dispatchEvent(
+        new CustomEvent("menuStateChange", { detail: { isMenuOpen } })
+      );
     }, 50);
     return () => clearTimeout(timer);
   }, [isMenuOpen]);
@@ -1246,13 +1251,18 @@ var Navigation = () => {
     { name: "Customize Gift for Men", path: "/customize-gift", icon: Gift },
     { name: "Contact", path: "/contact", icon: Mail }
   ];
-  (0, import_react2.useEffect)(() => {
-    const handleScroll = () => {
-      setIsScrolled(window.scrollY > 50);
-    };
-    window.addEventListener("scroll", handleScroll, { passive: true });
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, []);
+  const { scrollY } = useScroll();
+  const [hidden, setHidden] = (0, import_react2.useState)(false);
+  useMotionValueEvent(scrollY, "change", (latest) => {
+    const previous = scrollY.getPrevious() ?? 0;
+    if (latest < 50 || latest < previous) {
+      setHidden(false);
+      setIsScrolled(latest > 50);
+    } else if (latest > 50 && latest > previous) {
+      setHidden(true);
+      setIsScrolled(true);
+    }
+  });
   (0, import_react2.useEffect)(() => {
     const handleEscape = (e) => {
       if (e.key === "Escape") setIsMenuOpen(false);
@@ -1260,42 +1270,32 @@ var Navigation = () => {
     document.addEventListener("keydown", handleEscape);
     return () => document.removeEventListener("keydown", handleEscape);
   }, []);
-  const isNavVisible = isHovered || isMenuOpen || isMobile && isScrolled;
-  const [showNav, setShowNav] = (0, import_react2.useState)(true);
-  (0, import_react2.useEffect)(() => {
-    let lastScrollY = window.scrollY;
-    const handleScrollVisibility = () => {
-      const currentScrollY = window.scrollY;
-      if (currentScrollY < 10 || currentScrollY < lastScrollY) {
-        setShowNav(true);
-      } else {
-        setShowNav(false);
-      }
-      lastScrollY = currentScrollY;
-    };
-    window.addEventListener("scroll", handleScrollVisibility, { passive: true });
-    return () => window.removeEventListener("scroll", handleScrollVisibility);
-  }, []);
-  const isVisible = isMenuOpen || isHovered || (isMobile ? showNav : isHovered || window.scrollY < 50);
+  const isVisible = isMenuOpen || isHovered || !hidden;
   const isTransparentNav = isHomePage && !isScrolled && !isMenuOpen;
   const navBackgroundClass = isTransparentNav ? "bg-transparent border-transparent" : "bg-black/20 backdrop-blur-xl border-b border-white/5 shadow-2xl";
   const navTextColor = "text-white";
   const navIconColor = "text-white transition-colors duration-300 hover:text-attire-accent";
   const navVariants = {
-    visible: { y: 0, opacity: 1 },
-    hidden: { y: 0, opacity: 0 }
-    // Kept at y: 0 to prevent sliding, just fade
+    visible: { y: "0%", opacity: 1 },
+    hidden: { y: "-100%", opacity: 0 }
   };
   const sidebarVariants = {
     open: { x: 0, transition: { duration: 0.5, ease: [0.22, 1, 0.36, 1] } },
-    closed: { x: "-100%", transition: { duration: 0.4, ease: [0.22, 1, 0.36, 1] } }
+    closed: {
+      x: "-100%",
+      transition: { duration: 0.4, ease: [0.22, 1, 0.36, 1] }
+    }
   };
   const listVariants = {
     open: { transition: { staggerChildren: 0.1, delayChildren: 0.3 } },
     closed: { transition: { staggerChildren: 0.05, staggerDirection: -1 } }
   };
   const itemVariants = {
-    open: { y: 0, opacity: 1, transition: { duration: 0.4, ease: "easeOut" } },
+    open: {
+      y: 0,
+      opacity: 1,
+      transition: { duration: 0.4, ease: "easeOut" }
+    },
     closed: { y: 20, opacity: 0, transition: { duration: 0.3 } }
   };
   if (isLookbookFilterOpen && isMobile || isAdminRoute) {
@@ -1329,19 +1329,32 @@ var Navigation = () => {
               children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Menu, { className: `w-6 h-6 ${navIconColor}` })
             }
           ),
-          /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Link, { to: "/", className: "absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 group", children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(
-            motion.div,
+          /* @__PURE__ */ (0, import_jsx_runtime.jsx)(
+            Link,
             {
-              animate: {
-                opacity: isTransparentNav ? 0 : 1,
-                y: isTransparentNav ? 10 : 0
-              },
-              initial: { opacity: 0, y: 10 },
-              transition: { duration: 0.4 },
-              className: "flex flex-col items-center",
-              children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { className: `font-serif text-lg md:text-xl font-medium tracking-[0.2em] uppercase ${navTextColor} group-hover:text-attire-accent transition-colors`, children: "Attire Lounge Official" })
+              to: "/",
+              className: "absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 group",
+              children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(
+                motion.div,
+                {
+                  animate: {
+                    opacity: isTransparentNav ? 0 : 1,
+                    y: isTransparentNav ? 10 : 0
+                  },
+                  initial: { opacity: 0, y: 10 },
+                  transition: { duration: 0.4 },
+                  className: "flex flex-col items-center",
+                  children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(
+                    "span",
+                    {
+                      className: `font-serif text-lg md:text-xl font-medium tracking-[0.2em] uppercase ${navTextColor} group-hover:text-attire-accent transition-colors`,
+                      children: "Attire Lounge Official"
+                    }
+                  )
+                }
+              )
             }
-          ) }),
+          ),
           /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { className: "flex items-center space-x-1 md:space-x-4", children: /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(
             Link,
             {
@@ -1390,21 +1403,35 @@ var Navigation = () => {
                 }
               )
             ] }),
-            /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { className: "flex-1 overflow-y-auto px-6 py-4", children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(motion.ul, { variants: listVariants, className: "space-y-2", children: navItems.map((item) => /* @__PURE__ */ (0, import_jsx_runtime.jsx)(motion.li, { variants: itemVariants, children: /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(
-              Link,
+            /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { className: "flex-1 overflow-y-auto px-6 py-4", children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(
+              motion.ul,
               {
-                to: item.path,
-                onClick: () => setIsMenuOpen(false),
-                className: "group flex items-center justify-between p-4 rounded-xl hover:bg-white/5 border border-transparent hover:border-white/5 transition-all duration-300",
-                children: [
-                  /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "flex items-center gap-5", children: [
-                    /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { className: "p-2 rounded-lg bg-white/5 text-white/50 group-hover:text-attire-accent group-hover:bg-attire-accent/10 transition-colors", children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(item.icon, { className: "w-5 h-5" }) }),
-                    /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { className: "font-serif text-lg text-white/80 group-hover:text-white tracking-wide transition-colors", children: item.name })
-                  ] }),
-                  /* @__PURE__ */ (0, import_jsx_runtime.jsx)(ChevronRight, { className: "w-4 h-4 text-white/20 group-hover:text-white group-hover:translate-x-1 transition-all" })
-                ]
+                variants: listVariants,
+                className: "space-y-2",
+                children: navItems.map((item) => /* @__PURE__ */ (0, import_jsx_runtime.jsx)(
+                  motion.li,
+                  {
+                    variants: itemVariants,
+                    children: /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(
+                      Link,
+                      {
+                        to: item.path,
+                        onClick: () => setIsMenuOpen(false),
+                        className: "group flex items-center justify-between p-4 rounded-xl hover:bg-white/5 border border-transparent hover:border-white/5 transition-all duration-300",
+                        children: [
+                          /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "flex items-center gap-5", children: [
+                            /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { className: "p-2 rounded-lg bg-white/5 text-white/50 group-hover:text-attire-accent group-hover:bg-attire-accent/10 transition-colors", children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(item.icon, { className: "w-5 h-5" }) }),
+                            /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { className: "font-serif text-lg text-white/80 group-hover:text-white tracking-wide transition-colors", children: item.name })
+                          ] }),
+                          /* @__PURE__ */ (0, import_jsx_runtime.jsx)(ChevronRight, { className: "w-4 h-4 text-white/20 group-hover:text-white group-hover:translate-x-1 transition-all" })
+                        ]
+                      }
+                    )
+                  },
+                  item.name
+                ))
               }
-            ) }, item.name)) }) }),
+            ) }),
             /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { className: "p-8 border-t border-white/5", children: /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "flex flex-col gap-4 text-center", children: [
               /* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", { className: "text-xs text-white/30 uppercase tracking-widest", children: "Attire Lounge Official" }),
               /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("p", { className: "text-[10px] text-white/20", children: [
@@ -1421,8 +1448,66 @@ var Navigation = () => {
 };
 var Navigation_default = Navigation;
 
-// resources/js/components/MainApp.tsx
+// resources/js/components/common/PageTransition.jsx
+var import_react3 = __toESM(require_react());
 var import_jsx_runtime2 = __toESM(require_jsx_runtime());
+var PageTransition = ({ children }) => {
+  const isPresent = useIsPresent();
+  return /* @__PURE__ */ (0, import_jsx_runtime2.jsxs)(import_jsx_runtime2.Fragment, { children: [
+    /* @__PURE__ */ (0, import_jsx_runtime2.jsx)(
+      motion.div,
+      {
+        initial: { opacity: 0 },
+        animate: { opacity: 1 },
+        exit: { opacity: 0 },
+        transition: { duration: 0.3, ease: "linear" },
+        className: "w-full flex-grow flex flex-col",
+        children
+      }
+    ),
+    /* @__PURE__ */ (0, import_jsx_runtime2.jsx)(
+      motion.div,
+      {
+        initial: { y: "100%" },
+        animate: { y: isPresent ? "100%" : "0%" },
+        exit: { y: "0%" },
+        transition: { duration: 0.4, ease: [0.22, 1, 0.36, 1] },
+        className: "fixed inset-0 z-[99999] bg-attire-navy flex flex-col items-center justify-center overflow-hidden",
+        style: { pointerEvents: isPresent ? "none" : "auto" },
+        children: /* @__PURE__ */ (0, import_jsx_runtime2.jsxs)(
+          motion.div,
+          {
+            initial: { opacity: 0 },
+            animate: { opacity: isPresent ? 0 : 1 },
+            transition: { delay: 0.1, duration: 0.2 },
+            className: "flex flex-col items-center",
+            children: [
+              /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("span", { className: "font-serif text-lg md:text-xl font-medium tracking-[0.2em] uppercase text-white/50", children: "Attire Lounge Official" }),
+              /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("div", { className: "w-12 h-px bg-attire-accent mt-4 opacity-50" })
+            ]
+          }
+        )
+      }
+    ),
+    /* @__PURE__ */ (0, import_jsx_runtime2.jsx)(
+      motion.div,
+      {
+        initial: { y: "0%" },
+        animate: { y: "-100%" },
+        transition: {
+          duration: 0.4,
+          ease: [0.22, 1, 0.36, 1],
+          delay: 0.05
+        },
+        className: "fixed inset-0 z-[99998] bg-attire-navy pointer-events-none"
+      }
+    )
+  ] });
+};
+var PageTransition_default = PageTransition;
+
+// resources/js/components/MainApp.tsx
+var import_jsx_runtime3 = __toESM(require_jsx_runtime());
 var queryClient = new QueryClient({
   defaultOptions: {
     queries: {
@@ -1436,9 +1521,9 @@ var queryClient = new QueryClient({
   }
 });
 var AppSuspense = () => {
-  return /* @__PURE__ */ (0, import_jsx_runtime2.jsx)(import_react3.Suspense, { fallback: /* @__PURE__ */ (0, import_jsx_runtime2.jsx)(LoadingSpinner_default, {}), children: /* @__PURE__ */ (0, import_jsx_runtime2.jsx)(AnimatedRoutes, {}) });
+  return /* @__PURE__ */ (0, import_jsx_runtime3.jsx)(import_react4.Suspense, { fallback: /* @__PURE__ */ (0, import_jsx_runtime3.jsx)(LoadingSpinner_default, {}), children: /* @__PURE__ */ (0, import_jsx_runtime3.jsx)(AnimatedRoutes, {}) });
 };
-var lazyWithRetry = (componentImport) => (0, import_react3.lazy)(async () => {
+var lazyWithRetry = (componentImport) => (0, import_react4.lazy)(async () => {
   const pageHasAlreadyBeenForceRefreshed = JSON.parse(
     window.localStorage.getItem("page-has-been-force-refreshed") || "false"
   );
@@ -1454,63 +1539,31 @@ var lazyWithRetry = (componentImport) => (0, import_react3.lazy)(async () => {
     throw error;
   }
 });
-var HomePage = lazyWithRetry(() => import("./HomePage-HT75HJII.js"));
-var CollectionsPage = lazyWithRetry(() => import("./CollectionsPage-ZPY4UGSD.js"));
-var ProductListPage = lazyWithRetry(() => import("./ProductListPage-ZQCPHTAF.js"));
-var ProductDetailPage = lazyWithRetry(() => import("./ProductDetailPage-OFHIYZQS.js"));
-var LookbookPage = lazyWithRetry(() => import("./LookbookPage-DORX3V7B.js"));
-var FashionShowPage = lazyWithRetry(() => import("./FashionShowPage-HQW7MR2A.js"));
-var ContactPage = lazyWithRetry(() => import("./ContactPage-4LT3NVD6.js"));
-var CustomizeGiftPage = lazyWithRetry(() => import("./CustomizeGiftPage-4B4IVX7Y.js"));
-var FavoritesPage = lazyWithRetry(() => import("./FavoritesPage-CHDUEN7R.js"));
-var PrivacyPolicyPage = lazyWithRetry(() => import("./PrivacyPolicyPage-FSB53M73.js"));
-var TermsOfServicePage = lazyWithRetry(() => import("./TermsOfServicePage-HNBXQG3L.js"));
-var ReturnPolicyPage = lazyWithRetry(() => import("./ReturnPolicyPage-3OT7OMWX.js"));
-var Placeholder = ({ title }) => /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("div", { className: "min-h-screen pt-24 px-6", children: /* @__PURE__ */ (0, import_jsx_runtime2.jsxs)("div", { className: "max-w-4xl mx-auto", children: [
-  /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("h1", { className: "text-2xl font-serif mb-4", children: title }),
-  /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("p", { className: "text-gray-600", children: "Coming soon" })
+var HomePage = lazyWithRetry(() => import("./HomePage-ULOMLFTT.js"));
+var CollectionsPage = lazyWithRetry(() => import("./CollectionsPage-EX2CP7SM.js"));
+var ProductListPage = lazyWithRetry(() => import("./ProductListPage-5KF2WNNR.js"));
+var ProductDetailPage = lazyWithRetry(() => import("./ProductDetailPage-GCANK74Z.js"));
+var LookbookPage = lazyWithRetry(() => import("./LookbookPage-YL2CILSR.js"));
+var FashionShowPage = lazyWithRetry(() => import("./FashionShowPage-BCVALZMR.js"));
+var ContactPage = lazyWithRetry(() => import("./ContactPage-YFL4OVDA.js"));
+var CustomizeGiftPage = lazyWithRetry(() => import("./CustomizeGiftPage-AHOEYDSP.js"));
+var FavoritesPage = lazyWithRetry(() => import("./FavoritesPage-ZVIK77LI.js"));
+var PrivacyPolicyPage = lazyWithRetry(() => import("./PrivacyPolicyPage-SQ7MHYLB.js"));
+var TermsOfServicePage = lazyWithRetry(() => import("./TermsOfServicePage-GECNAP7O.js"));
+var ReturnPolicyPage = lazyWithRetry(() => import("./ReturnPolicyPage-JNIIYRMJ.js"));
+var Placeholder = ({ title }) => /* @__PURE__ */ (0, import_jsx_runtime3.jsx)("div", { className: "min-h-screen pt-24 px-6", children: /* @__PURE__ */ (0, import_jsx_runtime3.jsxs)("div", { className: "max-w-4xl mx-auto", children: [
+  /* @__PURE__ */ (0, import_jsx_runtime3.jsx)("h1", { className: "text-2xl font-serif mb-4", children: title }),
+  /* @__PURE__ */ (0, import_jsx_runtime3.jsx)("p", { className: "text-gray-600", children: "Coming soon" })
 ] }) });
-var pageVariants = {
-  initial: {
-    opacity: 0,
-    y: 10
-  },
-  enter: {
-    opacity: 1,
-    y: 0,
-    transition: {
-      duration: 0.5,
-      ease: [0.22, 1, 0.36, 1]
-    }
-  },
-  exit: {
-    opacity: 0,
-    y: -10,
-    transition: {
-      duration: 0.4,
-      ease: [0.22, 1, 0.36, 1]
-    }
-  }
-};
 var Layout = ({ children, includeHeader = true, includeFooter = true, includePadding = true }) => {
-  return /* @__PURE__ */ (0, import_jsx_runtime2.jsxs)(
-    motion.div,
-    {
-      initial: "initial",
-      animate: "enter",
-      exit: "exit",
-      variants: pageVariants,
-      className: "min-h-screen flex flex-col",
-      children: [
-        includeHeader && /* @__PURE__ */ (0, import_jsx_runtime2.jsx)(Navigation_default, {}),
-        /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("main", { className: `flex-grow ${includePadding ? "pt-24 md:pt-0" : ""}`, children }),
-        includeFooter && /* @__PURE__ */ (0, import_jsx_runtime2.jsx)(Footer_default, {})
-      ]
-    }
-  );
+  return /* @__PURE__ */ (0, import_jsx_runtime3.jsx)(PageTransition_default, { children: /* @__PURE__ */ (0, import_jsx_runtime3.jsxs)("div", { className: "min-h-screen flex flex-col", children: [
+    includeHeader && /* @__PURE__ */ (0, import_jsx_runtime3.jsx)(Navigation_default, {}),
+    /* @__PURE__ */ (0, import_jsx_runtime3.jsx)("main", { className: `flex-grow ${includePadding ? "pt-24 md:pt-0" : ""}`, children }),
+    includeFooter && /* @__PURE__ */ (0, import_jsx_runtime3.jsx)(Footer_default, {})
+  ] }) });
 };
 var LenisScroll = () => {
-  (0, import_react3.useEffect)(() => {
+  (0, import_react4.useEffect)(() => {
     if (typeof document !== "undefined") {
       document.body.setAttribute("data-safari", isSafari().toString());
     }
@@ -1555,44 +1608,34 @@ var AnimatedRoutes = () => {
       }
     }
   };
-  return /* @__PURE__ */ (0, import_jsx_runtime2.jsx)(AnimatePresence, { mode: "wait", onExitComplete: handleExitComplete, children: /* @__PURE__ */ (0, import_jsx_runtime2.jsxs)(Routes, { location, children: [
-    /* @__PURE__ */ (0, import_jsx_runtime2.jsx)(Route, { path: "/", element: /* @__PURE__ */ (0, import_jsx_runtime2.jsxs)(
-      motion.div,
-      {
-        initial: "initial",
-        animate: "enter",
-        exit: "exit",
-        variants: pageVariants,
-        className: "min-h-screen flex flex-col",
-        children: [
-          /* @__PURE__ */ (0, import_jsx_runtime2.jsx)(Navigation_default, {}),
-          /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("main", { className: "flex-grow", children: /* @__PURE__ */ (0, import_jsx_runtime2.jsx)(HomePage, {}) })
-        ]
-      }
-    ) }),
-    /* @__PURE__ */ (0, import_jsx_runtime2.jsx)(Route, { path: "/collections", element: /* @__PURE__ */ (0, import_jsx_runtime2.jsx)(Layout, { children: /* @__PURE__ */ (0, import_jsx_runtime2.jsx)(CollectionsPage, {}) }) }),
-    /* @__PURE__ */ (0, import_jsx_runtime2.jsx)(Route, { path: "/products", element: /* @__PURE__ */ (0, import_jsx_runtime2.jsx)(Layout, { children: /* @__PURE__ */ (0, import_jsx_runtime2.jsx)(ProductListPage, {}) }) }),
-    /* @__PURE__ */ (0, import_jsx_runtime2.jsx)(Route, { path: "/products/:collectionSlug", element: /* @__PURE__ */ (0, import_jsx_runtime2.jsx)(Layout, { children: /* @__PURE__ */ (0, import_jsx_runtime2.jsx)(ProductListPage, {}) }) }),
-    /* @__PURE__ */ (0, import_jsx_runtime2.jsx)(Route, { path: "/product/:productId", element: /* @__PURE__ */ (0, import_jsx_runtime2.jsx)(Layout, { includeHeader: false, includeFooter: false, includePadding: false, children: /* @__PURE__ */ (0, import_jsx_runtime2.jsx)(ProductDetailPage, {}) }) }),
-    /* @__PURE__ */ (0, import_jsx_runtime2.jsx)(Route, { path: "/lookbook", element: /* @__PURE__ */ (0, import_jsx_runtime2.jsx)(Layout, { children: /* @__PURE__ */ (0, import_jsx_runtime2.jsx)(LookbookPage, {}) }) }),
-    /* @__PURE__ */ (0, import_jsx_runtime2.jsx)(Route, { path: "/fashion-show", element: /* @__PURE__ */ (0, import_jsx_runtime2.jsx)(Layout, { includePadding: false, children: /* @__PURE__ */ (0, import_jsx_runtime2.jsx)(FashionShowPage, {}) }) }),
-    /* @__PURE__ */ (0, import_jsx_runtime2.jsx)(Route, { path: "/contact", element: /* @__PURE__ */ (0, import_jsx_runtime2.jsx)(Layout, { children: /* @__PURE__ */ (0, import_jsx_runtime2.jsx)(ContactPage, {}) }) }),
-    /* @__PURE__ */ (0, import_jsx_runtime2.jsx)(Route, { path: "/customize-gift", element: /* @__PURE__ */ (0, import_jsx_runtime2.jsx)(Layout, { children: /* @__PURE__ */ (0, import_jsx_runtime2.jsx)(CustomizeGiftPage, {}) }) }),
-    /* @__PURE__ */ (0, import_jsx_runtime2.jsx)(Route, { path: "/favorites", element: /* @__PURE__ */ (0, import_jsx_runtime2.jsx)(Layout, { children: /* @__PURE__ */ (0, import_jsx_runtime2.jsx)(FavoritesPage, {}) }) }),
-    /* @__PURE__ */ (0, import_jsx_runtime2.jsx)(Route, { path: "/styling", element: /* @__PURE__ */ (0, import_jsx_runtime2.jsx)(Layout, { children: /* @__PURE__ */ (0, import_jsx_runtime2.jsx)(Placeholder, { title: "Styling" }) }) }),
-    /* @__PURE__ */ (0, import_jsx_runtime2.jsx)(Route, { path: "/journal", element: /* @__PURE__ */ (0, import_jsx_runtime2.jsx)(Layout, { children: /* @__PURE__ */ (0, import_jsx_runtime2.jsx)(Placeholder, { title: "Journal" }) }) }),
-    /* @__PURE__ */ (0, import_jsx_runtime2.jsx)(Route, { path: "/about", element: /* @__PURE__ */ (0, import_jsx_runtime2.jsx)(Layout, { children: /* @__PURE__ */ (0, import_jsx_runtime2.jsx)(Placeholder, { title: "About" }) }) }),
-    /* @__PURE__ */ (0, import_jsx_runtime2.jsx)(Route, { path: "/shipping", element: /* @__PURE__ */ (0, import_jsx_runtime2.jsx)(Layout, { children: /* @__PURE__ */ (0, import_jsx_runtime2.jsx)(Placeholder, { title: "Shipping" }) }) }),
-    /* @__PURE__ */ (0, import_jsx_runtime2.jsx)(Route, { path: "/privacy", element: /* @__PURE__ */ (0, import_jsx_runtime2.jsx)(Layout, { children: /* @__PURE__ */ (0, import_jsx_runtime2.jsx)(PrivacyPolicyPage, {}) }) }),
-    /* @__PURE__ */ (0, import_jsx_runtime2.jsx)(Route, { path: "/terms", element: /* @__PURE__ */ (0, import_jsx_runtime2.jsx)(Layout, { children: /* @__PURE__ */ (0, import_jsx_runtime2.jsx)(TermsOfServicePage, {}) }) }),
-    /* @__PURE__ */ (0, import_jsx_runtime2.jsx)(Route, { path: "/returns", element: /* @__PURE__ */ (0, import_jsx_runtime2.jsx)(Layout, { children: /* @__PURE__ */ (0, import_jsx_runtime2.jsx)(ReturnPolicyPage, {}) }) }),
-    /* @__PURE__ */ (0, import_jsx_runtime2.jsx)(Route, { path: "/appointment", element: /* @__PURE__ */ (0, import_jsx_runtime2.jsx)(Layout, { children: /* @__PURE__ */ (0, import_jsx_runtime2.jsx)(Placeholder, { title: "Appointment" }) }) }),
-    /* @__PURE__ */ (0, import_jsx_runtime2.jsx)(Route, { path: "/membership", element: /* @__PURE__ */ (0, import_jsx_runtime2.jsx)(Layout, { children: /* @__PURE__ */ (0, import_jsx_runtime2.jsx)(Placeholder, { title: "Membership" }) }) }),
-    /* @__PURE__ */ (0, import_jsx_runtime2.jsx)(Route, { path: "/faq", element: /* @__PURE__ */ (0, import_jsx_runtime2.jsx)(Layout, { children: /* @__PURE__ */ (0, import_jsx_runtime2.jsx)(Placeholder, { title: "FAQ" }) }) }),
-    /* @__PURE__ */ (0, import_jsx_runtime2.jsx)(Route, { path: "*", element: /* @__PURE__ */ (0, import_jsx_runtime2.jsx)(Layout, { children: /* @__PURE__ */ (0, import_jsx_runtime2.jsx)(Placeholder, { title: "Page Not Found" }) }) })
+  return /* @__PURE__ */ (0, import_jsx_runtime3.jsx)(AnimatePresence, { mode: "wait", onExitComplete: handleExitComplete, children: /* @__PURE__ */ (0, import_jsx_runtime3.jsxs)(Routes, { location, children: [
+    /* @__PURE__ */ (0, import_jsx_runtime3.jsx)(Route, { path: "/", element: /* @__PURE__ */ (0, import_jsx_runtime3.jsx)(PageTransition_default, { children: /* @__PURE__ */ (0, import_jsx_runtime3.jsxs)("div", { className: "min-h-screen flex flex-col", children: [
+      /* @__PURE__ */ (0, import_jsx_runtime3.jsx)(Navigation_default, {}),
+      /* @__PURE__ */ (0, import_jsx_runtime3.jsx)("main", { className: "flex-grow", children: /* @__PURE__ */ (0, import_jsx_runtime3.jsx)(HomePage, {}) })
+    ] }) }) }),
+    /* @__PURE__ */ (0, import_jsx_runtime3.jsx)(Route, { path: "/collections", element: /* @__PURE__ */ (0, import_jsx_runtime3.jsx)(Layout, { children: /* @__PURE__ */ (0, import_jsx_runtime3.jsx)(CollectionsPage, {}) }) }),
+    /* @__PURE__ */ (0, import_jsx_runtime3.jsx)(Route, { path: "/products", element: /* @__PURE__ */ (0, import_jsx_runtime3.jsx)(Layout, { children: /* @__PURE__ */ (0, import_jsx_runtime3.jsx)(ProductListPage, {}) }) }),
+    /* @__PURE__ */ (0, import_jsx_runtime3.jsx)(Route, { path: "/products/:collectionSlug", element: /* @__PURE__ */ (0, import_jsx_runtime3.jsx)(Layout, { children: /* @__PURE__ */ (0, import_jsx_runtime3.jsx)(ProductListPage, {}) }) }),
+    /* @__PURE__ */ (0, import_jsx_runtime3.jsx)(Route, { path: "/product/:productId", element: /* @__PURE__ */ (0, import_jsx_runtime3.jsx)(Layout, { includeHeader: false, includeFooter: false, includePadding: false, children: /* @__PURE__ */ (0, import_jsx_runtime3.jsx)(ProductDetailPage, {}) }) }),
+    /* @__PURE__ */ (0, import_jsx_runtime3.jsx)(Route, { path: "/lookbook", element: /* @__PURE__ */ (0, import_jsx_runtime3.jsx)(Layout, { children: /* @__PURE__ */ (0, import_jsx_runtime3.jsx)(LookbookPage, {}) }) }),
+    /* @__PURE__ */ (0, import_jsx_runtime3.jsx)(Route, { path: "/fashion-show", element: /* @__PURE__ */ (0, import_jsx_runtime3.jsx)(Layout, { includePadding: false, children: /* @__PURE__ */ (0, import_jsx_runtime3.jsx)(FashionShowPage, {}) }) }),
+    /* @__PURE__ */ (0, import_jsx_runtime3.jsx)(Route, { path: "/contact", element: /* @__PURE__ */ (0, import_jsx_runtime3.jsx)(Layout, { children: /* @__PURE__ */ (0, import_jsx_runtime3.jsx)(ContactPage, {}) }) }),
+    /* @__PURE__ */ (0, import_jsx_runtime3.jsx)(Route, { path: "/customize-gift", element: /* @__PURE__ */ (0, import_jsx_runtime3.jsx)(Layout, { children: /* @__PURE__ */ (0, import_jsx_runtime3.jsx)(CustomizeGiftPage, {}) }) }),
+    /* @__PURE__ */ (0, import_jsx_runtime3.jsx)(Route, { path: "/favorites", element: /* @__PURE__ */ (0, import_jsx_runtime3.jsx)(Layout, { children: /* @__PURE__ */ (0, import_jsx_runtime3.jsx)(FavoritesPage, {}) }) }),
+    /* @__PURE__ */ (0, import_jsx_runtime3.jsx)(Route, { path: "/styling", element: /* @__PURE__ */ (0, import_jsx_runtime3.jsx)(Layout, { children: /* @__PURE__ */ (0, import_jsx_runtime3.jsx)(Placeholder, { title: "Styling" }) }) }),
+    /* @__PURE__ */ (0, import_jsx_runtime3.jsx)(Route, { path: "/journal", element: /* @__PURE__ */ (0, import_jsx_runtime3.jsx)(Layout, { children: /* @__PURE__ */ (0, import_jsx_runtime3.jsx)(Placeholder, { title: "Journal" }) }) }),
+    /* @__PURE__ */ (0, import_jsx_runtime3.jsx)(Route, { path: "/about", element: /* @__PURE__ */ (0, import_jsx_runtime3.jsx)(Layout, { children: /* @__PURE__ */ (0, import_jsx_runtime3.jsx)(Placeholder, { title: "About" }) }) }),
+    /* @__PURE__ */ (0, import_jsx_runtime3.jsx)(Route, { path: "/shipping", element: /* @__PURE__ */ (0, import_jsx_runtime3.jsx)(Layout, { children: /* @__PURE__ */ (0, import_jsx_runtime3.jsx)(Placeholder, { title: "Shipping" }) }) }),
+    /* @__PURE__ */ (0, import_jsx_runtime3.jsx)(Route, { path: "/privacy", element: /* @__PURE__ */ (0, import_jsx_runtime3.jsx)(Layout, { children: /* @__PURE__ */ (0, import_jsx_runtime3.jsx)(PrivacyPolicyPage, {}) }) }),
+    /* @__PURE__ */ (0, import_jsx_runtime3.jsx)(Route, { path: "/terms", element: /* @__PURE__ */ (0, import_jsx_runtime3.jsx)(Layout, { children: /* @__PURE__ */ (0, import_jsx_runtime3.jsx)(TermsOfServicePage, {}) }) }),
+    /* @__PURE__ */ (0, import_jsx_runtime3.jsx)(Route, { path: "/returns", element: /* @__PURE__ */ (0, import_jsx_runtime3.jsx)(Layout, { children: /* @__PURE__ */ (0, import_jsx_runtime3.jsx)(ReturnPolicyPage, {}) }) }),
+    /* @__PURE__ */ (0, import_jsx_runtime3.jsx)(Route, { path: "/appointment", element: /* @__PURE__ */ (0, import_jsx_runtime3.jsx)(Layout, { children: /* @__PURE__ */ (0, import_jsx_runtime3.jsx)(Placeholder, { title: "Appointment" }) }) }),
+    /* @__PURE__ */ (0, import_jsx_runtime3.jsx)(Route, { path: "/membership", element: /* @__PURE__ */ (0, import_jsx_runtime3.jsx)(Layout, { children: /* @__PURE__ */ (0, import_jsx_runtime3.jsx)(Placeholder, { title: "Membership" }) }) }),
+    /* @__PURE__ */ (0, import_jsx_runtime3.jsx)(Route, { path: "/faq", element: /* @__PURE__ */ (0, import_jsx_runtime3.jsx)(Layout, { children: /* @__PURE__ */ (0, import_jsx_runtime3.jsx)(Placeholder, { title: "FAQ" }) }) }),
+    /* @__PURE__ */ (0, import_jsx_runtime3.jsx)(Route, { path: "*", element: /* @__PURE__ */ (0, import_jsx_runtime3.jsx)(Layout, { children: /* @__PURE__ */ (0, import_jsx_runtime3.jsx)(Placeholder, { title: "Page Not Found" }) }) })
   ] }, location.pathname) });
 };
-var GlobalStyles = () => /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("style", { dangerouslySetInnerHTML: { __html: `
+var GlobalStyles = () => /* @__PURE__ */ (0, import_jsx_runtime3.jsx)("style", { dangerouslySetInnerHTML: { __html: `
         *::-webkit-scrollbar { display: none !important; }
         * { -ms-overflow-style: none !important; scrollbar-width: none !important; }
     ` } });
@@ -1601,21 +1644,21 @@ function MainApp() {
     queryClient.invalidateQueries();
     window.scrollTo(0, 0);
   });
-  return /* @__PURE__ */ (0, import_jsx_runtime2.jsx)(HelmetProvider, { children: /* @__PURE__ */ (0, import_jsx_runtime2.jsx)(QueryClientProvider, { client: queryClient, children: /* @__PURE__ */ (0, import_jsx_runtime2.jsx)(LazyMotion, { features: domAnimation, children: /* @__PURE__ */ (0, import_jsx_runtime2.jsxs)(BrowserRouter, { children: [
-    /* @__PURE__ */ (0, import_jsx_runtime2.jsx)(GlobalStyles, {}),
-    /* @__PURE__ */ (0, import_jsx_runtime2.jsx)(LenisScroll, {}),
-    /* @__PURE__ */ (0, import_jsx_runtime2.jsx)(AppSuspense, {})
+  return /* @__PURE__ */ (0, import_jsx_runtime3.jsx)(HelmetProvider, { children: /* @__PURE__ */ (0, import_jsx_runtime3.jsx)(QueryClientProvider, { client: queryClient, children: /* @__PURE__ */ (0, import_jsx_runtime3.jsx)(LazyMotion, { features: domAnimation, children: /* @__PURE__ */ (0, import_jsx_runtime3.jsxs)(BrowserRouter, { future: { v7_startTransition: true, v7_relativeSplatPath: true }, children: [
+    /* @__PURE__ */ (0, import_jsx_runtime3.jsx)(GlobalStyles, {}),
+    /* @__PURE__ */ (0, import_jsx_runtime3.jsx)(LenisScroll, {}),
+    /* @__PURE__ */ (0, import_jsx_runtime3.jsx)(AppSuspense, {})
   ] }) }) }) });
 }
 var MainApp_default = MainApp;
 
 // resources/js/app.jsx
-var import_jsx_runtime3 = __toESM(require_jsx_runtime());
+var import_jsx_runtime4 = __toESM(require_jsx_runtime());
 var container = document.getElementById("app");
 if (container) {
   const root = import_client.default.createRoot(container);
   root.render(
-    /* @__PURE__ */ (0, import_jsx_runtime3.jsx)(import_react4.default.StrictMode, { children: /* @__PURE__ */ (0, import_jsx_runtime3.jsx)(ErrorBoundary_default, { children: /* @__PURE__ */ (0, import_jsx_runtime3.jsx)(FavoritesProvider, { children: /* @__PURE__ */ (0, import_jsx_runtime3.jsx)(MainApp_default, {}) }) }) })
+    /* @__PURE__ */ (0, import_jsx_runtime4.jsx)(import_react5.default.StrictMode, { children: /* @__PURE__ */ (0, import_jsx_runtime4.jsx)(ErrorBoundary_default, { children: /* @__PURE__ */ (0, import_jsx_runtime4.jsx)(FavoritesProvider, { children: /* @__PURE__ */ (0, import_jsx_runtime4.jsx)(MainApp_default, {}) }) }) })
   );
 } else {
   console.error("Root element not found");

@@ -23,6 +23,7 @@ const queryClient = new QueryClient({
 import Navigation from './layouts/Navigation.jsx';
 import LoadingSpinner from './common/LoadingSpinner.jsx';
 import Footer from './layouts/Footer.jsx';
+import PageTransition from './common/PageTransition.jsx';
 
 // Declare global for Lenis
 declare global {
@@ -82,29 +83,6 @@ const Placeholder: React.FC<{ title: string }> = ({ title }) => (
     </div>
 );
 
-// Animation Variants
-const pageVariants: Variants = {
-    initial: {
-        opacity: 0,
-        y: 10
-    },
-    enter: {
-        opacity: 1,
-        y: 0,
-        transition: {
-            duration: 0.5,
-            ease: [0.22, 1, 0.36, 1]
-        }
-    },
-    exit: {
-        opacity: 0,
-        y: -10,
-        transition: {
-            duration: 0.4,
-            ease: [0.22, 1, 0.36, 1]
-        }
-    }
-};
 
 // NOTE: motion.* is replaced with m.* throughout this file to work with LazyMotion
 
@@ -118,19 +96,15 @@ interface LayoutProps {
 // Layout wrapper component - ALWAYS includes Footer (except for HomePage)
 const Layout: React.FC<LayoutProps> = ({ children, includeHeader = true, includeFooter = true, includePadding = true }) => {
     return (
-        <motion.div
-            initial="initial"
-            animate="enter"
-            exit="exit"
-            variants={pageVariants}
-            className="min-h-screen flex flex-col"
-        >
-            {includeHeader && <Navigation />}
-            <main className={`flex-grow ${includePadding ? 'pt-24 md:pt-0' : ''}`}>
-                {children}
-            </main>
-            {includeFooter && <Footer />}
-        </motion.div>
+        <PageTransition>
+            <div className="min-h-screen flex flex-col">
+                {includeHeader && <Navigation />}
+                <main className={`flex-grow ${includePadding ? 'pt-24 md:pt-0' : ''}`}>
+                    {children}
+                </main>
+                {includeFooter && <Footer />}
+            </div>
+        </PageTransition>
     );
 };
 
@@ -196,19 +170,15 @@ const AnimatedRoutes: React.FC = () => {
             <Routes location={location} key={location.pathname}>
                 {/* HomePage route - Footer is integrated INSIDE HomePage as section 4 */}
                 <Route path="/" element={
-                    <motion.div
-                        initial="initial"
-                        animate="enter"
-                        exit="exit"
-                        variants={pageVariants}
-                        className="min-h-screen flex flex-col"
-                    >
-                        <Navigation />
-                        <main className="flex-grow">
-                            <HomePage />
-                        </main>
-                        {/* Footer is now INSIDE HomePage as section 4 */}
-                    </motion.div>
+                    <PageTransition>
+                        <div className="min-h-screen flex flex-col">
+                            <Navigation />
+                            <main className="flex-grow">
+                                <HomePage />
+                            </main>
+                            {/* Footer is now INSIDE HomePage as section 4 */}
+                        </div>
+                    </PageTransition>
                 } />
 
                 {/* All other routes use Layout with Footer */}
@@ -339,7 +309,7 @@ function MainApp() {
         <HelmetProvider>
             <QueryClientProvider client={queryClient}>
                 <LazyMotion features={domAnimation}>
-                    <Router>
+                    <Router future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
                         <GlobalStyles />
                         <LenisScroll />
                         {/* ScrollToTop removed as it conflicts with exit animations, handled in onExitComplete */}

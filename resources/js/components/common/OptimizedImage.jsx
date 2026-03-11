@@ -61,8 +61,10 @@ const OptimizedImage = ({
                 loading={priority ? 'eager' : 'lazy'}
                 fetchpriority={priority ? 'high' : 'auto'}
                 decoding="async"
-                className={`transition-opacity duration-700 ease-in-out ${
-                    isLoaded ? 'opacity-100' : 'opacity-0'
+                className={`transition-all duration-[1200ms] ease-[cubic-bezier(0.25,1,0.5,1)] ${
+                    isLoaded
+                        ? 'opacity-100 blur-0 scale-100'
+                        : 'opacity-0 blur-xl scale-105'
                 } ${
                     objectFit === 'contain'
                         ? 'max-w-full max-h-full w-auto h-auto object-contain'
@@ -73,6 +75,8 @@ const OptimizedImage = ({
                     // Prevent upscaling beyond natural resolution for "original resolution" feel
                     maxWidth: objectFit === 'contain' ? '100%' : 'none',
                     maxHeight: objectFit === 'contain' ? '100%' : 'none',
+                    willChange: 'transform, filter, opacity', // Performance hint for smooth blur
+                    ...style,
                 }}
                 {...props}
             />
