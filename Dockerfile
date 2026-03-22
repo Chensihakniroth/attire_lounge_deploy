@@ -15,7 +15,8 @@ RUN apk add --no-cache \
     curl \
     icu-dev \
     oniguruma-dev \
-    gettext
+    gettext \
+    linux-headers
 
 # Install PHP extensions
 RUN docker-php-ext-configure gd --with-freetype --with-jpeg --with-webp \
