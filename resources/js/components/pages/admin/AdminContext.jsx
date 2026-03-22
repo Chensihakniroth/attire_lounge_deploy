@@ -350,6 +350,10 @@ export const AdminProvider = ({ children }) => {
                     console.log('Real-time Gift Request Created:', e);
                     fetchStats();
                     fetchGiftRequestsBackground();
+                })
+                .listen('.collection.updated', (e) => {
+                    console.log('Real-time Collection Updated:', e);
+                    fetchCollections();
                 });
         }
 

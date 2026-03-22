@@ -203,6 +203,7 @@ class ProductController extends Controller
 
         $collection = Collection::create($validated);
         Cache::forget('product_collections');
+        broadcast(new \App\Events\CollectionUpdated());
 
         return response()->json([
             'success' => true,
@@ -235,6 +236,7 @@ class ProductController extends Controller
 
         $collection->update($validated);
         Cache::forget('product_collections');
+        broadcast(new \App\Events\CollectionUpdated());
 
         return response()->json([
             'success' => true,
@@ -263,6 +265,7 @@ class ProductController extends Controller
 
         $collection->delete();
         Cache::forget('product_collections');
+        broadcast(new \App\Events\CollectionUpdated());
 
         return response()->json([
             'success' => true,
