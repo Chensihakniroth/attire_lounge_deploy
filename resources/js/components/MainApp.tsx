@@ -45,6 +45,7 @@ const RealtimeUpdater: React.FC = () => {
 
             channel.listen('.collection.updated', handleUpdate);
             channel.listen('.product.updated', handleUpdate);
+            channel.listen('.stock.updated', handleUpdate);
             
             return () => {
                 window.Echo.leaveChannel('admin-notifications');

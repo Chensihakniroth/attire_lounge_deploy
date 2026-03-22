@@ -27,6 +27,8 @@ import Skeleton from '../common/Skeleton.jsx';
 import giftOptions from '../../data/giftOptions';
 import { isSafari } from '../../helpers/browserUtils.js';
 
+import { useQuery, useQueryClient } from '@tanstack/react-query';
+
 // --- Premium Animation Constants ---
 const springConfig = { damping: 25, stiffness: 120 };
 const staggerContainer = {
@@ -178,7 +180,12 @@ const CustomizeGiftPage = () => {
     const [note, setNote] = useState('');
     const [submissionStatus, setSubmissionStatus] = useState({ state: 'idle' });
     const [formErrors, setFormErrors] = useState({});
-    const [outOfStockItems, setOutOfStockItems] = useState([]);
+
+    // Use React Query for caching and real-time invalidation support
+    const { data: outOfStockItems = [] } = useQuery({
+        queryKey: ['outOfStockItems'],
+        queryFn: () => api.getOutOfStockItems()
+    });
 
     // Smooth anchored scroll logic 💖
     useEffect(() => {
@@ -208,18 +215,6 @@ const CustomizeGiftPage = () => {
             return () => clearTimeout(timer);
         }
     }, [step]);
-
-    useEffect(() => {
-        const fetchOutOfStock = async () => {
-            try {
-                const items = await api.getOutOfStockItems();
-                setOutOfStockItems(items);
-            } catch (error) {
-                console.error('Failed to fetch out of stock items:', error);
-            }
-        };
-        fetchOutOfStock();
-    }, []);
 
     const availableBoxes = useMemo(() => {
         if (!selectedTie && !selectedPocketSquare) return [];
