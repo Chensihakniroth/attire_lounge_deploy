@@ -61,7 +61,7 @@ class TelegramService
         }
 
         try {
-            $response = Http::get("{$this->baseUrl}/getUpdates", [
+            $response = Http::timeout(35)->get("{$this->baseUrl}/getUpdates", [
                 'offset' => $offset,
                 'timeout' => 30,
             ]);
