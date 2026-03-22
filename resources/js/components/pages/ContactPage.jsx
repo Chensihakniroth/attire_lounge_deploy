@@ -243,9 +243,7 @@ const ContactPage = () => {
             };
             await axios.post('/api/v1/appointments', submissionData);
 
-            const telegramMessage = `New Request:\n\nName: ${formData.name}\nService: ${appointmentTypes.find(t => t.value === formData.service)?.label}\nDate: ${formData.date} at ${formData.time}\nMessage: ${formData.message}`.trim();
-            window.open(`https://t.me/attireloungeofficial?text=${encodeURIComponent(telegramMessage)}`, '_blank');
-            setGeneratedMessage(telegramMessage);
+            setGeneratedMessage('success');
         } catch (error) {
             console.error(error);
             alert('Something went wrong. Please try again.');
@@ -326,8 +324,8 @@ const ContactPage = () => {
                                     <div className="w-24 h-24 bg-green-500/10 rounded-full flex items-center justify-center mx-auto mb-10 border border-green-500/20">
                                         <CheckCircle size={48} className="text-green-400" />
                                     </div>
-                                    <h2 className="text-4xl font-serif text-white mb-6">Manifest Prepared</h2>
-                                    <p className="text-white/80 mb-12 font-light leading-relaxed">Your request is staged. Please confirm the message in Telegram to finalize your private consultation.</p>
+                                    <h2 className="text-4xl font-serif text-white mb-6">Request Confirmed</h2>
+                                    <p className="text-white/80 mb-12 font-light leading-relaxed">Your styling appointment request has been successfully submitted. We will be in touch shortly.</p>
                                     <button onClick={() => setGeneratedMessage('')} className="px-12 py-5 rounded-full bg-white text-black font-black text-[10px] uppercase tracking-[0.4em] hover:bg-attire-accent transition-all duration-700 shadow-2xl">
                                         New Request
                                     </button>
