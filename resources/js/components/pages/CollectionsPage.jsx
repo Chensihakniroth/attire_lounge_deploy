@@ -7,7 +7,7 @@ import minioBaseUrl from '../../config.js';
 import LoadingSpinner from '../common/LoadingSpinner.jsx';
 import { ArrowRight, Loader2 } from 'lucide-react';
 import OptimizedImage from '../common/OptimizedImage.jsx';
-import axios from 'axios';
+import { useCollections } from '../../hooks/useProducts';
 
 const PageHeader = () => (
     <div className="relative text-center py-20 sm:py-32 px-6 z-10">
@@ -32,8 +32,7 @@ const PageHeader = () => (
 );
 
 const CollectionsPage = () => {
-    const [loadingCollections, setLoadingCollections] = useState(true);
-    const [collections, setCollections] = useState([]);
+    const { data: rawCollections, isLoading: loadingCollections } = useCollections();
     const [itemsToShow, setItemsToShow] = useState(6);
 
     const { ref: loadMoreRef, inView } = useInView({
@@ -41,46 +40,27 @@ const CollectionsPage = () => {
         rootMargin: '200px',
     });
 
-    useEffect(() => {
-        const fetchCollections = async () => {
-            try {
-                const response = await axios.get(
-                    `/api/v1/products/collections?t=${Date.now()}`
-                );
-                if (response.data.success) {
-                    // Map backend property names to what the UI expects ✨
-                    // We ensure the image URL is full and correct, using minioBaseUrl as fallback if needed ◕‿◕✿
-                    const mapped = response.data.data.map((c) => {
-                        let imageUrl = c.image_url;
+    // Map the collections when data arrives
+    const collections = React.useMemo(() => {
+        if (!rawCollections) return [];
+        
+        return rawCollections.map((c) => {
+            let imageUrl = c.image_url;
 
-                        // Fallback logic: if image_url is missing or relative, we use the raw image path + minioBaseUrl
-                        if (
-                            !imageUrl ||
-                            (!imageUrl.startsWith('http') && c.image)
-                        ) {
-                            const path = c.image.startsWith('/')
-                                ? c.image
-                                : `/${c.image}`;
-                            imageUrl = `${minioBaseUrl}${path}`;
-                        }
-
-                        return {
-                            ...c,
-                            title: c.name,
-                            image: imageUrl,
-                            itemsCount: c.is_new ? 'New' : '',
-                        };
-                    });
-                    setCollections(mapped);
-                }
-            } catch (err) {
-                console.error('Failed to fetch collections:', err);
-            } finally {
-                setLoadingCollections(false);
+            // Fallback logic: if image_url is missing or relative, we use the raw image path + minioBaseUrl
+            if (!imageUrl || (!imageUrl.startsWith('http') && c.image)) {
+                const path = c.image.startsWith('/') ? c.image : `/${c.image}`;
+                imageUrl = `${minioBaseUrl}${path}`;
             }
-        };
-        fetchCollections();
-    }, []);
+
+            return {
+                ...c,
+                title: c.name,
+                image: imageUrl,
+                itemsCount: c.is_new ? 'New' : '',
+            };
+        });
+    }, [rawCollections]);
 
     const browseAllCard = {
         id: 0,
