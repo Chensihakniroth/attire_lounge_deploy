@@ -36,11 +36,14 @@ COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 # Set working directory
 WORKDIR /var/www/html
 
+# Set Composer to allow superuser
+ENV COMPOSER_ALLOW_SUPERUSER=1
+
 # Copy application files
 COPY . .
 
-# Install PHP dependencies
-RUN composer install --no-dev --optimize-autoloader
+# Install PHP dependencies (Skipping scripts to avoid booting the app without ENV)
+RUN composer install --no-dev --optimize-autoloader --no-scripts
 
 # Install Node dependencies and build assets
 RUN apk add --no-cache nodejs npm \
