@@ -39,4 +39,8 @@ return [
         'endpoint' => env('MINIO_ASSET_URL', env('MINIO_URL', env('MINIO_ENDPOINT', 'https://bucket-production-4ca0.up.railway.app/product-assets'))),
     ],
 
+    'telegram' => [
+        'bot_token' => env('TELEGRAM_BOT_TOKEN'),
+    ],
+
 ];

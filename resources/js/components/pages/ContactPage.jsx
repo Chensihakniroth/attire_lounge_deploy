@@ -355,7 +355,7 @@ const ContactPage = () => {
                                         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                                             <SelectField name="service" label="Service Type" value={formData.service} onChange={e => setFormData({...formData, service: e.target.value})} options={appointmentTypes} />
                                             <div className="grid grid-cols-2 gap-6">
-                                                <InputField name="date" type="date" label="Preferred Date" value={formData.date} onChange={e => setFormData({...formData, date: e.target.value})} error={errors.date} />
+                                                <InputField name="date" type="date" label="Preferred Date" value={formData.date} onChange={e => setFormData({...formData, date: e.target.value})} error={errors.date} min={new Date().toISOString().split('T')[0]} />
                                                 <SelectField name="time" label="Time" value={formData.time} onChange={e => setFormData({...formData, time: e.target.value})} options={timeSlots} />
                                             </div>
                                         </div>

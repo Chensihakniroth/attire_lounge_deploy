@@ -41,6 +41,8 @@ class AppointmentService
 
             $appointment = $this->appointmentRepository->create($appointmentData);
 
+            event(new \App\Events\AppointmentCreated($appointment));
+
             Log::info('AppointmentService: Created successfully.', ['id' => $appointment->id]);
 
             return $appointment;

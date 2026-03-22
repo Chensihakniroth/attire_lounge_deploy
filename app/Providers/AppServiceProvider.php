@@ -40,5 +40,15 @@ class AppServiceProvider extends ServiceProvider
         if (config('app.env') === 'production') {
             \Illuminate\Support\Facades\URL::forceScheme('https');
         }
+
+        \Illuminate\Support\Facades\Event::listen(
+            \App\Events\AppointmentCreated::class,
+            \App\Listeners\SendTelegramNotification::class
+        );
+
+        \Illuminate\Support\Facades\Event::listen(
+            \App\Events\GiftRequestCreated::class,
+            \App\Listeners\SendTelegramNotification::class
+        );
     }
 }

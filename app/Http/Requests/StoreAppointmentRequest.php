@@ -26,7 +26,7 @@ class StoreAppointmentRequest extends FormRequest
             'email' => 'nullable|string|email|max:255',
             'phone' => 'required|string|max:255',
             'service' => 'required|string|max:255',
-            'date' => 'required|date|after_or_equal:today',
+            'date' => 'required|date',
             'time' => 'required|string|max:255',
             'message' => 'nullable|string',
             'favorite_item_image_url' => 'nullable|array',

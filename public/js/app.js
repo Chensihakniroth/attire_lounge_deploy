@@ -1539,13 +1539,13 @@ var lazyWithRetry = (componentImport) => (0, import_react4.lazy)(async () => {
     throw error;
   }
 });
-var HomePage = lazyWithRetry(() => import("./HomePage-ULOMLFTT.js"));
+var HomePage = lazyWithRetry(() => import("./HomePage-D4P32CBT.js"));
 var CollectionsPage = lazyWithRetry(() => import("./CollectionsPage-7J6ZRAEA.js"));
 var ProductListPage = lazyWithRetry(() => import("./ProductListPage-5KF2WNNR.js"));
 var ProductDetailPage = lazyWithRetry(() => import("./ProductDetailPage-GCANK74Z.js"));
 var LookbookPage = lazyWithRetry(() => import("./LookbookPage-LQIUQNNZ.js"));
 var FashionShowPage = lazyWithRetry(() => import("./FashionShowPage-BCVALZMR.js"));
-var ContactPage = lazyWithRetry(() => import("./ContactPage-YFL4OVDA.js"));
+var ContactPage = lazyWithRetry(() => import("./ContactPage-NNGI2QU2.js"));
 var CustomizeGiftPage = lazyWithRetry(() => import("./CustomizeGiftPage-P7ZK6BNV.js"));
 var FavoritesPage = lazyWithRetry(() => import("./FavoritesPage-ZVIK77LI.js"));
 var PrivacyPolicyPage = lazyWithRetry(() => import("./PrivacyPolicyPage-SQ7MHYLB.js"));

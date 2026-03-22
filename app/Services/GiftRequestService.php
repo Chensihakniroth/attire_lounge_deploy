@@ -31,7 +31,11 @@ class GiftRequestService
      */
     public function createGiftRequest(array $data)
     {
-        return $this->giftRequestRepository->create($data);
+        $giftRequest = $this->giftRequestRepository->create($data);
+
+        event(new \App\Events\GiftRequestCreated($giftRequest));
+
+        return $giftRequest;
     }
 
     /**

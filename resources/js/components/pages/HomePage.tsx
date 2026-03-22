@@ -257,8 +257,7 @@ const CollectionsSection = memo(forwardRef<HTMLElement>((_props, ref) => {
 
     return (
         <section className="relative snap-section min-h-screen h-screen flex items-center bg-[#0d3542] overflow-hidden" ref={ref}>
-            {/* Native Preload hint for the next image */}
-            <link rel="preload" as="image" href={showcaseImages[nextImageIndex]} />
+            {/* Removed Native Preload hint to prevent unused resource warnings */}
             <div className="relative z-10 w-full max-w-[1800px] mx-auto px-6 lg:px-20 flex flex-col lg:grid lg:grid-cols-12 gap-12 lg:gap-0 items-center justify-center h-full py-20 lg:py-0">
 
                 {/* Visual - Left on Desktop, Top on Mobile (Columns 1-6) */}
