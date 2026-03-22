@@ -1,0 +1,14 @@
+vendor
+node_modules
+.env
+.git
+.github
+public/storage
+storage/*.key
+.phpunit.result.cache
+Step Id: 808
+docker
+Dockerfile
+nginx.template
+nixpacks.toml
+env_railway

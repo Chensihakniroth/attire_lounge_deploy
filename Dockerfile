@@ -13,6 +13,8 @@ RUN apk add --no-cache \
     unzip \
     git \
     curl \
+    curl-dev \
+    libxml2-dev \
     icu-dev \
     oniguruma-dev \
     gettext \
@@ -20,7 +22,7 @@ RUN apk add --no-cache \
 
 # Install PHP extensions
 RUN docker-php-ext-configure gd --with-freetype --with-jpeg --with-webp \
-    && docker-php-ext-install -j$(nproc) gd pdo_mysql mbstring zip bcmath intl sockets pcntl
+    && docker-php-ext-install -j$(nproc) gd pdo_mysql mbstring zip bcmath intl sockets pcntl dom xml simplexml curl
 
 # Install Redis extension
 RUN apk add --no-cache --virtual .build-deps $PHPIZE_DEPS \
