@@ -78,4 +78,94 @@ class TelegramService
             return [];
         }
     }
+
+    /**
+     * Send a message with an inline keyboard.
+     */
+    public function sendMessageWithKeyboard(string $chatId, string $message, array $keyboard, string $parseMode = 'Markdown'): bool
+    {
+        if (empty($this->token)) return false;
+
+        try {
+            $response = Http::post("{$this->baseUrl}/sendMessage", [
+                'chat_id' => $chatId,
+                'text' => $message,
+                'parse_mode' => $parseMode,
+                'reply_markup' => json_encode(['inline_keyboard' => $keyboard]),
+            ]);
+
+            return $response->successful();
+        } catch (\Exception $e) {
+            Log::error('TelegramService sendMessageWithKeyboard Exception: ' . $e->getMessage());
+            return false;
+        }
+    }
+
+    /**
+     * Answer a callback query.
+     */
+    public function answerCallbackQuery(string $callbackQueryId, string $text = ''): bool
+    {
+        if (empty($this->token)) return false;
+
+        try {
+            $response = Http::post("{$this->baseUrl}/answerCallbackQuery", [
+                'callback_query_id' => $callbackQueryId,
+                'text' => $text,
+            ]);
+
+            return $response->successful();
+        } catch (\Exception $e) {
+            Log::error('TelegramService answerCallbackQuery Exception: ' . $e->getMessage());
+            return false;
+        }
+    }
+
+    /**
+     * Edit a message's text.
+     */
+    public function editMessageText(string $chatId, int $messageId, string $text, array $keyboard = null, string $parseMode = 'Markdown'): bool
+    {
+        if (empty($this->token)) return false;
+
+        try {
+            $data = [
+                'chat_id' => $chatId,
+                'message_id' => $messageId,
+                'text' => $text,
+                'parse_mode' => $parseMode,
+            ];
+
+            if ($keyboard) {
+                $data['reply_markup'] = json_encode(['inline_keyboard' => $keyboard]);
+            }
+
+            $response = Http::post("{$this->baseUrl}/editMessageText", $data);
+
+            return $response->successful();
+        } catch (\Exception $e) {
+            Log::error('TelegramService editMessageText Exception: ' . $e->getMessage());
+            return false;
+        }
+    }
+
+    /**
+     * Delete a message.
+     */
+    public function deleteMessage(string $chatId, int $messageId): bool
+    {
+        if (empty($this->token)) return false;
+
+        try {
+            $response = Http::post("{$this->baseUrl}/deleteMessage", [
+                'chat_id' => $chatId,
+                'message_id' => $messageId,
+            ]);
+
+            return $response->successful();
+        } catch (\Exception $e) {
+            // Ignore errors for message deletion as some IDs might not exist
+            return false;
+        }
+    }
 }

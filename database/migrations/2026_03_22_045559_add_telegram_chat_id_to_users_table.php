@@ -9,7 +9,7 @@ return new class extends Migration
     /**
      * Run the migrations.
      */
-    public function run(): void
+    public function up(): void
     {
         Schema::table('users', function (Blueprint $col) {
             $col->string('telegram_chat_id')->nullable()->after('password');

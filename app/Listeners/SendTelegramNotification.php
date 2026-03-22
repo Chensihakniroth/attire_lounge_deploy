@@ -4,7 +4,7 @@ namespace App\Listeners;
 
 use App\Events\AppointmentCreated;
 use App\Events\GiftRequestCreated;
-use App\Models\User;
+use App\Models\TelegramSubscriber;
 use App\Services\TelegramService;
 use Illuminate\Support\Facades\Log;
 
@@ -45,13 +45,13 @@ class SendTelegramNotification
             "⏰ *Time:* {$appointment->date->format('Y-m-d')} at {$appointment->time}";
 
         try {
-            // Filter users who should receive this (admins or appointment managers)
-            $subscribers = User::role(['super-admin', 'admin', 'appointment-manager'])->get();
+            $subscribers = TelegramSubscriber::where('is_active', true)->get();
+            foreach ($subscribers as $subscriber) {
+                $this->telegramService->sendMessage($subscriber->chat_id, $message);
+            }
 
-            foreach ($subscribers as $user) {
-                if (isset($user->telegram_chat_id) && !empty($user->telegram_chat_id)) {
-                    $this->telegramService->sendMessage($user->telegram_chat_id, $message);
-                }
+            if ($subscribers->isEmpty()) {
+                Log::info('SendTelegramNotification: No active telegram subscribers found for appointment.');
             }
         } catch (\Exception $e) {
             Log::error('SendTelegramNotification Error (Appointment): ' . $e->getMessage());
@@ -69,13 +69,13 @@ class SendTelegramNotification
             "📝 *Preferences:* " . ($giftRequest->preferences ?? 'None');
 
         try {
-            // Filter users who should receive this (admins or gift managers)
-            $subscribers = User::role(['super-admin', 'admin', 'gift-manager'])->get();
+            $subscribers = TelegramSubscriber::where('is_active', true)->get();
+            foreach ($subscribers as $subscriber) {
+                $this->telegramService->sendMessage($subscriber->chat_id, $message);
+            }
 
-            foreach ($subscribers as $user) {
-                if (isset($user->telegram_chat_id) && !empty($user->telegram_chat_id)) {
-                    $this->telegramService->sendMessage($user->telegram_chat_id, $message);
-                }
+            if ($subscribers->isEmpty()) {
+                Log::info('SendTelegramNotification: No active telegram subscribers found for gift request.');
             }
         } catch (\Exception $e) {
             Log::error('SendTelegramNotification Error (Gift): ' . $e->getMessage());
