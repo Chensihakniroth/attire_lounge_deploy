@@ -155,7 +155,6 @@ const AppointmentManager = () => {
     const { 
         appointments, 
         appointmentsLoading, 
-        fetchAppointments,
         loadMoreAppointments,
         appointmentsPagination,
         updateAppointmentStatus, 
@@ -163,12 +162,6 @@ const AppointmentManager = () => {
     } = useAdmin();
 
     const [visibleCount, setVisibleRows] = useState(5);
-
-    useEffect(() => {
-        fetchAppointments(1);
-        const intervalId = setInterval(() => fetchAppointments(1, false), 60000); 
-        return () => clearInterval(intervalId);
-    }, [fetchAppointments]);
 
     const handleUpdateStatus = async (id, status) => {
         try {

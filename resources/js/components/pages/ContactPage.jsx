@@ -12,6 +12,7 @@ import { useFavorites } from '../../context/FavoritesContext';
 import axios from 'axios';
 import OptimizedImage from '../common/OptimizedImage.jsx';
 import { isSafari } from '../../helpers/browserUtils.js';
+import { useProducts } from '../../hooks/useProducts';
 
 // --- Premium Animation Constants ---
 const fadeUp = {
@@ -162,8 +163,8 @@ const FavoritesSelector = ({ favoriteProducts, selectedFavorites, onSelectionCha
 const ContactPage = () => {
     const contentRef = React.useRef(null);
     const { favorites } = useFavorites();
-    const [allProducts, setAllProducts] = useState([]);
-    const [loadingProducts, setLoadingProducts] = useState(true);
+    const { data: productsData, isLoading: loadingProducts } = useProducts({ per_page: 1000, include_hidden: true });
+    const allProducts = productsData?.data || [];
     const [selectedFavorites, setSelectedFavorites] = useState([]);
     const [isSafariBrowser, setIsSafariBrowser] = useState(false);
 
@@ -174,13 +175,6 @@ const ContactPage = () => {
     const favoriteProducts = allProducts.filter(p =>
         favorites.some(fav => String(fav) === String(p.slug) || String(fav) === String(p.id))
     );
-
-    useEffect(() => {
-        axios.get('/api/v1/products', { params: { per_page: 1000, include_hidden: true } })
-            .then(res => res.data.success && setAllProducts(res.data.data))
-            .catch(console.error)
-            .finally(() => setLoadingProducts(false));
-    }, []);
 
     const [formData, setFormData] = useState({
         name: '', email: '', phone: '', service: 'sartorial',

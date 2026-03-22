@@ -133,7 +133,6 @@ const CustomizeGiftManager = () => {
     const { 
         giftRequests, 
         giftRequestsLoading, 
-        fetchGiftRequests, 
         loadMoreGiftRequests,
         giftRequestsPagination,
         updateGiftRequestStatus, 
@@ -141,12 +140,6 @@ const CustomizeGiftManager = () => {
     } = useAdmin();
 
     const [visibleCount, setVisibleRows] = useState(6);
-
-    useEffect(() => {
-        fetchGiftRequests(1);
-        const intervalId = setInterval(() => fetchGiftRequests(1, false), 60000); 
-        return () => clearInterval(intervalId);
-    }, [fetchGiftRequests]);
 
     const visibleRequests = useMemo(() => {
         return (giftRequests || []).slice(0, visibleCount);

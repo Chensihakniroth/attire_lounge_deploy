@@ -5,26 +5,15 @@ import api from '../../../api';
 import OptimizedImage from '../../common/OptimizedImage.jsx';
 import Skeleton from '../../common/Skeleton.jsx';
 import { motion } from 'framer-motion';
+import { useAdmin } from './AdminContext';
 
 const InventoryManager = () => {
-    const [outOfStockItems, setOutOfStockItems] = useState([]);
-    const [loading, setLoading] = useState(true);
+    const { outOfStockItems, outOfStockLoading: loading, fetchOutOfStockItems } = useAdmin();
     const [updatingItems, setUpdatingItems] = useState(new Set());
 
-    const fetchInventory = async () => {
-        try {
-            const items = await api.getOutOfStockItems();
-            setOutOfStockItems(items);
-        } catch (error) {
-            console.error('Failed to fetch inventory:', error);
-        } finally {
-            setLoading(false);
-        }
-    };
-
     useEffect(() => {
-        fetchInventory();
-    }, []);
+        fetchOutOfStockItems();
+    }, [fetchOutOfStockItems]);
 
     const toggleStock = async (id) => {
         if (updatingItems.has(id)) return;
@@ -35,11 +24,7 @@ const InventoryManager = () => {
         setUpdatingItems(prev => new Set(prev).add(id));
         try {
             await api.toggleGiftItemStock(id, nextStatus);
-            setOutOfStockItems(prev => 
-                nextStatus 
-                    ? [...prev, id] 
-                    : prev.filter(item => item !== id)
-            );
+            // We don't manually update state here because the WebSocket event will trigger fetchOutOfStockItems() ✨
         } catch (error) {
             console.error('Failed to toggle stock:', error);
         } finally {

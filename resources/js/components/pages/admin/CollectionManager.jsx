@@ -15,6 +15,7 @@ import {
 import axios from 'axios';
 import { useAdmin } from './AdminContext';
 import OptimizedImage from '../../common/OptimizedImage.jsx';
+import { useQueryClient } from '@tanstack/react-query';
 
 const DEFAULT_FORM = {
     name: '',
@@ -40,6 +41,7 @@ const Toggle = ({ value, onChange, color = 'bg-green-500' }) => (
 );
 
 const CollectionManager = () => {
+    const queryClient = useQueryClient();
     const { collections, fetchCollections, collectionsLoading } = useAdmin();
     const [showModal, setShowModal] = useState(false);
     const [editingId, setEditingId] = useState(null);
@@ -127,7 +129,7 @@ const CollectionManager = () => {
             const method = editingId ? 'patch' : 'post';
             const res = await axios[method](url, formData);
             if (res.data.success) {
-                await fetchCollections();
+                queryClient.invalidateQueries();
                 closeModal();
             }
         } catch (err) {
@@ -148,7 +150,7 @@ const CollectionManager = () => {
             return;
         try {
             const res = await axios.delete(`/api/v1/admin/collections/${id}`);
-            if (res.data.success) fetchCollections();
+            if (res.data.success) queryClient.invalidateQueries();
         } catch (err) {
             alert(
                 err.response?.data?.message || 'Failed to delete collection.'

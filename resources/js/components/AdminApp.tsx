@@ -19,6 +19,36 @@ const queryClient = new QueryClient({
 import AdminLoadingSpinner from './common/AdminLoadingSpinner.jsx';
 import { AdminProvider } from './pages/admin/AdminContext';
 
+const RealtimeAdminUpdater: React.FC = () => {
+    useEffect(() => {
+        if (typeof window !== 'undefined' && window.Echo) {
+            console.log('AdminApp: Initializing Real-time Listeners... (｡♥‿♥｡)');
+            
+            const handleUpdate = (type: string) => {
+                console.log(`AdminApp: Real-time update received (${type})! Invalidating queries...`);
+                queryClient.invalidateQueries();
+            };
+
+            const channel = window.Echo.channel('admin-notifications');
+            channel.listen('.appointment.created', () => handleUpdate('appointment.created'));
+            channel.listen('.gift-request.created', () => handleUpdate('gift-request.created'));
+            channel.listen('.collection.updated', () => handleUpdate('collection.updated'));
+            channel.listen('.product.updated', () => handleUpdate('product.updated'));
+            channel.listen('.stock.updated', () => handleUpdate('stock.updated'));
+
+            const appChannel = window.Echo.channel('appointments');
+            appChannel.listen('.status.updated', () => handleUpdate('appointment.status.updated'));
+            
+            return () => {
+                window.Echo.leaveChannel('admin-notifications');
+                window.Echo.leaveChannel('appointments');
+            };
+        }
+    }, []);
+
+    return null;
+};
+
 const lazyWithRetry = (componentImport: () => Promise<any>) =>
     lazy(async () => {
         const pageHasAlreadyBeenForceRefreshed = JSON.parse(
@@ -66,6 +96,7 @@ function AdminApp() {
     return (
         <HelmetProvider>
             <QueryClientProvider client={queryClient}>
+                <RealtimeAdminUpdater />
                 <Router>
                     <AdminProvider>
                         <GlobalStyles />

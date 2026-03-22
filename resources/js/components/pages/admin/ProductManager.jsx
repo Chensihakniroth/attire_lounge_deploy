@@ -6,6 +6,7 @@ import OptimizedImage from '../../common/OptimizedImage.jsx';
 import Skeleton from '../../common/Skeleton.jsx';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useAdmin } from './AdminContext';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 
 // Animation Variants for a stable, high-end feel
 const containerVariants = {
@@ -98,10 +99,9 @@ const CustomDropdown = ({ selected, options, onChange, label, icon: Icon = Filte
 };
 
 const ProductManager = () => {
+    const queryClient = useQueryClient();
     const { setIsEditing, showCollections, setShowCollections, collections, fetchCollections } = useAdmin();
     const navigate = useNavigate();
-    const [allProducts, setAllProducts] = useState([]);
-    const [loading, setLoading] = useState(true);
     const [isFiltering, setIsFiltering] = useState(false);
     const [searchTerm, setSearchTerm] = useState('');
     const [selectedCollection, setSelectedCollection] = useState('all');
@@ -114,28 +114,22 @@ const ProductManager = () => {
         small: 7
     };
 
-    const fetchData = useCallback(async (isSilent = false) => {
-        if (!isSilent) setLoading(true);
-        try {
-            const productsRes = await axios.get('/api/v1/products', { 
+    const { data: allProducts = [], isLoading: loading } = useQuery({
+        queryKey: ['admin-products'],
+        queryFn: async () => {
+            const { data } = await axios.get('/api/v1/products', { 
                 params: { 
                     per_page: 1000,
                     include_hidden: true
                 } 
             });
-            
-            if (productsRes.data.success) {
-                setAllProducts(productsRes.data.data);
-            }
-            
             // Also refresh global collections if needed ✨
             fetchCollections();
-        } catch (error) {
-            console.error('Failed to fetch product data:', error);
-        } finally {
-            setLoading(false);
+            return data.data;
         }
-    }, [fetchCollections]);
+    });
+
+    const fetchData = () => queryClient.invalidateQueries({ queryKey: ['admin-products'] });
 
     useEffect(() => {
         fetchData();

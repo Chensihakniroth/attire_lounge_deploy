@@ -9,6 +9,7 @@ import ErrorBoundary from '../../common/ErrorBoundary.jsx';
 import Skeleton from '../../common/Skeleton.jsx';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useAdmin } from './AdminContext';
+import { useQuery } from '@tanstack/react-query';
 import axios from 'axios';
 
 const cardVariants = {
@@ -193,28 +194,21 @@ const QuickAction = ({ icon, title, description, link }) => (
 );
 
 const AdminDashboard = () => {
-    const { appointments, appointmentsLoading, fetchAppointments, stats, fetchStats } = useAdmin();
+    const { appointments, appointmentsLoading, stats } = useAdmin();
     const [dashboardMode, setDashboardMode] = useState('services');
     const [chartView, setChartView] = useState('trend'); 
     const [distType, setDistType] = useState('nationality');
     const [timeframe, setTimeframe] = useState('month');
-    const [recentCustomers, setRecentCustomers] = useState([]);
-    const [customersLoading, setCustomersCustomersLoading] = useState(false);
 
-    useEffect(() => { fetchAppointments(); fetchStats(); }, [fetchAppointments, fetchStats]);
-    useEffect(() => {
-        if (dashboardMode === 'registry') {
-            const fetchRecentClients = async () => {
-                setCustomersCustomersLoading(true);
-                try {
-                    const token = localStorage.getItem('admin_token') || sessionStorage.getItem('admin_token');
-                    const res = await axios.get('/api/v1/admin/customer-profiles?per_page=5', { headers: { 'Authorization': `Bearer ${token}` } });
-                    setRecentCustomers(res.data.data);
-                } catch (error) { console.error(error); } finally { setCustomersCustomersLoading(false); }
-            };
-            fetchRecentClients();
-        }
-    }, [dashboardMode]);
+    const { data: recentCustomers = [], isLoading: customersLoading } = useQuery({
+        queryKey: ['admin-recent-customers'],
+        queryFn: async () => {
+            const token = localStorage.getItem('admin_token') || sessionStorage.getItem('admin_token');
+            const res = await axios.get('/api/v1/admin/customer-profiles?per_page=5', { headers: { 'Authorization': `Bearer ${token}` } });
+            return res.data.data;
+        },
+        enabled: dashboardMode === 'registry'
+    });
 
     const displayItems = dashboardMode === 'services' ? appointments.slice(0, 5) : recentCustomers;
     const isLoadingActivity = dashboardMode === 'services' ? (appointmentsLoading && appointments.length === 0) : customersLoading;
