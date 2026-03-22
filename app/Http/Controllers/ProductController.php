@@ -71,6 +71,8 @@ class ProductController extends Controller
             $results[] = $this->productService->createProduct($productData);
         }
 
+        broadcast(new \App\Events\ProductUpdated());
+
         return response()->json([
             'success' => true,
             'message' => count($results) . ' masterpieces created successfully! (ﾉ´ヮ`)ﾉ*:･ﾟ✧',
@@ -327,6 +329,7 @@ class ProductController extends Controller
         }
 
         $product = $this->productService->createProduct($validated);
+        broadcast(new \App\Events\ProductUpdated());
 
         return response()->json([
             'success' => true,
@@ -363,6 +366,8 @@ class ProductController extends Controller
             return response()->json(['success' => false, 'message' => 'Product not found'], 404);
         }
 
+        broadcast(new \App\Events\ProductUpdated());
+
         return response()->json([
             'success' => true,
             'data' => new ProductResource($product)
@@ -379,6 +384,8 @@ class ProductController extends Controller
         if (!$deleted) {
             return response()->json(['success' => false, 'message' => 'Product not found or could not be deleted'], 404);
         }
+
+        broadcast(new \App\Events\ProductUpdated());
 
         return response()->json([
             'success' => true,

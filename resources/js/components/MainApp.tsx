@@ -29,8 +29,32 @@ import PageTransition from './common/PageTransition.jsx';
 declare global {
     interface Window {
         lenis: Lenis | null;
+        Echo: any;
     }
 }
+
+const RealtimeUpdater: React.FC = () => {
+    useEffect(() => {
+        if (typeof window !== 'undefined' && window.Echo) {
+            const channel = window.Echo.channel('admin-notifications');
+            
+            const handleUpdate = () => {
+                console.log('MainApp: Real-time update received! Invalidating queries...');
+                queryClient.invalidateQueries();
+            };
+
+            channel.listen('.collection.updated', handleUpdate);
+            channel.listen('.product.updated', handleUpdate);
+            
+            return () => {
+                window.Echo.leaveChannel('admin-notifications');
+            };
+        }
+    }, []);
+
+    return null;
+};
+
 const AppSuspense = () => {
     return (
         <Suspense fallback={<LoadingSpinner />}>
@@ -308,6 +332,7 @@ function MainApp() {
     return (
         <HelmetProvider>
             <QueryClientProvider client={queryClient}>
+                <RealtimeUpdater />
                 <LazyMotion features={domAnimation}>
                     <Router future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
                         <GlobalStyles />
