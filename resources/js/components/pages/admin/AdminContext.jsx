@@ -330,13 +330,26 @@ export const AdminProvider = ({ children }) => {
             
             channel = window.Echo.channel('appointments')
                 .listen('.status.updated', (e) => {
-                    console.log('Real-time update received via WebSocket:', e);
+                    console.log('Real-time update received (Status):', e);
                     if (e.appointment) {
                         setAppointments(prev => prev.map(app => 
                             app.id === e.appointment.id ? { ...app, ...e.appointment } : app
                         ));
                         fetchStats();
                     }
+                });
+
+            // Listen for NEW Appointments and Gift Requests ✨
+            window.Echo.channel('admin-notifications')
+                .listen('.appointment.created', (e) => {
+                    console.log('Real-time Appointment Created:', e);
+                    fetchStats();
+                    fetchAppointmentsBackground();
+                })
+                .listen('.gift-request.created', (e) => {
+                    console.log('Real-time Gift Request Created:', e);
+                    fetchStats();
+                    fetchGiftRequestsBackground();
                 });
         }
 
@@ -356,6 +369,9 @@ export const AdminProvider = ({ children }) => {
             if (channel) {
                 channel.stopListening('.status.updated');
                 window.Echo.leaveChannel('appointments');
+            }
+            if (window.Echo) {
+                window.Echo.leaveChannel('admin-notifications');
             }
             clearInterval(pollingInterval);
         };
