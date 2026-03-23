@@ -19,45 +19,107 @@ class AdminController extends Controller
     /**
      * Get overview stats for the admin dashboard.
      */
+    /**
+     * Get overview stats for the admin dashboard.
+     */
     public function stats(): JsonResponse
     {
-        // 1. Monthly Trends (Last 6 Months)
-        $monthlyTrends = [];
-        for ($i = 5; $i >= 0; $i--) {
-            $month = Carbon::now()->subMonths($i);
-            $monthlyTrends[] = [
-                'name' => $month->format('M'),
-                'appointments' => Appointment::whereYear('created_at', $month->year)->whereMonth('created_at', $month->month)->count(),
-                'customers' => CustomerProfile::whereYear('created_at', $month->year)->whereMonth('created_at', $month->month)->count(),
-            ];
-        }
+        $cache = \Illuminate\Support\Facades\Cache::supportsTags() 
+            ? \Illuminate\Support\Facades\Cache::tags(['admin-stats']) 
+            : \Illuminate\Support\Facades\Cache::getFacadeRoot();
 
-        // 2. Weekly Trends (Last 4 Weeks)
-        $weeklyTrends = [];
-        for ($i = 3; $i >= 0; $i--) {
-            $startOfWeek = Carbon::now()->subWeeks($i)->startOfWeek();
-            $endOfWeek = Carbon::now()->subWeeks($i)->endOfWeek();
-            $weeklyTrends[] = [
-                'name' => 'W' . $startOfWeek->format('W'),
-                'appointments' => Appointment::whereBetween('created_at', [$startOfWeek, $endOfWeek])->count(),
-                'customers' => CustomerProfile::whereBetween('created_at', [$startOfWeek, $endOfWeek])->count(),
-            ];
-        }
+        $stats = $cache->remember('admin_dashboard_stats', 3600, function () {
+            // 1. Monthly Trends (Last 6 Months)
+            $monthlyTrends = [];
+            $monthlyStart = Carbon::now()->subMonths(5)->startOfMonth();
+            
+            $appointmentsByMonth = Appointment::select([
+                DB::raw('DATE_FORMAT(created_at, "%b") as month_name'),
+                DB::raw('COUNT(*) as count')
+            ])
+            ->where('created_at', '>=', $monthlyStart)
+            ->groupBy(DB::raw('DATE_FORMAT(created_at, "%b")'))
+            ->pluck('count', 'month_name');
 
-        // 3. Daily Trends (Last 7 Days)
-        $dailyTrends = [];
-        for ($i = 6; $i >= 0; $i--) {
-            $day = Carbon::now()->subDays($i);
-            $dailyTrends[] = [
-                'name' => $day->format('D'),
-                'appointments' => Appointment::whereDate('created_at', $day->toDateString())->count(),
-                'customers' => CustomerProfile::whereDate('created_at', $day->toDateString())->count(),
-            ];
-        }
+            $customersByMonth = CustomerProfile::select([
+                DB::raw('DATE_FORMAT(created_at, "%b") as month_name'),
+                DB::raw('COUNT(*) as count')
+            ])
+            ->where('created_at', '>=', $monthlyStart)
+            ->groupBy(DB::raw('DATE_FORMAT(created_at, "%b")'))
+            ->pluck('count', 'month_name');
 
-        return response()->json([
-            'success' => true,
-            'data' => [
+            for ($i = 5; $i >= 0; $i--) {
+                $month = Carbon::now()->subMonths($i);
+                $name = $month->format('M');
+                $monthlyTrends[] = [
+                    'name' => $name,
+                    'appointments' => $appointmentsByMonth->get($name, 0),
+                    'customers' => $customersByMonth->get($name, 0),
+                ];
+            }
+
+            // 2. Weekly Trends (Last 4 Weeks)
+            $weeklyTrends = [];
+            $weeklyStart = Carbon::now()->subWeeks(3)->startOfWeek();
+
+            $appointmentsByWeek = Appointment::select([
+                DB::raw('WEEK(created_at, 1) as week_num'),
+                DB::raw('COUNT(*) as count')
+            ])
+            ->where('created_at', '>=', $weeklyStart)
+            ->groupBy(DB::raw('WEEK(created_at, 1)'))
+            ->pluck('count', 'week_num');
+
+            $customersByWeek = CustomerProfile::select([
+                DB::raw('WEEK(created_at, 1) as week_num'),
+                DB::raw('COUNT(*) as count')
+            ])
+            ->where('created_at', '>=', $weeklyStart)
+            ->groupBy(DB::raw('WEEK(created_at, 1)'))
+            ->pluck('count', 'week_num');
+
+            for ($i = 3; $i >= 0; $i--) {
+                $startOfWeek = Carbon::now()->subWeeks($i)->startOfWeek();
+                $weekNum = (int)$startOfWeek->format('W');
+                $weeklyTrends[] = [
+                    'name' => 'W' . $weekNum,
+                    'appointments' => $appointmentsByWeek->get($weekNum, 0),
+                    'customers' => $customersByWeek->get($weekNum, 0),
+                ];
+            }
+
+            // 3. Daily Trends (Last 7 Days)
+            $dailyTrends = [];
+            $dailyStart = Carbon::now()->subDays(6)->startOfDay();
+
+            $appointmentsByDay = Appointment::select([
+                DB::raw('DATE(created_at) as date'),
+                DB::raw('COUNT(*) as count')
+            ])
+            ->where('created_at', '>=', $dailyStart)
+            ->groupBy(DB::raw('DATE(created_at)'))
+            ->pluck('count', 'date');
+
+            $customersByDay = CustomerProfile::select([
+                DB::raw('DATE(created_at) as date'),
+                DB::raw('COUNT(*) as count')
+            ])
+            ->where('created_at', '>=', $dailyStart)
+            ->groupBy(DB::raw('DATE(created_at)'))
+            ->pluck('count', 'date');
+
+            for ($i = 6; $i >= 0; $i--) {
+                $day = Carbon::now()->subDays($i);
+                $dateString = $day->toDateString();
+                $dailyTrends[] = [
+                    'name' => $day->format('D'),
+                    'appointments' => $appointmentsByDay->get($dateString, 0),
+                    'customers' => $customersByDay->get($dateString, 0),
+                ];
+            }
+
+            return [
                 'appointments' => Appointment::count(),
                 'gifts' => GiftRequest::count(),
                 'total_customers' => CustomerProfile::count(),
@@ -76,7 +138,12 @@ class AdminController extends Controller
                     'shirt_size' => $this->getDistribution(CustomerProfile::class, 'shirt_size'),
                     'preferred_color' => $this->getDistribution(CustomerProfile::class, 'preferred_color'),
                 ]
-            ]
+            ];
+        });
+
+        return response()->json([
+            'success' => true,
+            'data' => $stats
         ]);
     }
 
