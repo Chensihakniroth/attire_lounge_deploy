@@ -198,6 +198,7 @@ const SidebarContent = ({ setOpen, isMobile }) => {
         { name: 'Appointments', to: '/admin/appointments', icon: Calendar },
         { name: 'Collections', to: '/admin/collections', icon: LayoutGrid },
         { name: 'Products', to: '/admin/products', icon: ShoppingBag },
+        { name: 'SEO Suite', to: '/admin/seo', icon: Search },
         { name: 'Gift Requests', to: '/admin/customize-gift', icon: Gift },
         { name: 'Gift Inventory', to: '/admin/inventory', icon: Package },
         { name: 'Newsletter', to: '/admin/newsletter', icon: Mail },

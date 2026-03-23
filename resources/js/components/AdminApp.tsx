@@ -22,24 +22,48 @@ import { AdminProvider } from './pages/admin/AdminContext';
 const RealtimeAdminUpdater: React.FC = () => {
     useEffect(() => {
         if (typeof window !== 'undefined' && window.Echo) {
-            console.log('AdminApp: Initializing Real-time Listeners... (｡♥‿♥｡)');
+            console.group('📡 Attire Lounge Real-time Intelligence');
+            console.log('%cAdminApp: Initializing Systems... (｡♥‿♥｡)', 'color: #d4af37; font-weight: bold;');
             
             const handleUpdate = (type: string) => {
-                console.log(`AdminApp: Real-time update received (${type})! Invalidating queries...`);
+                console.log(`%c[Real-time] 🚀 Update received: ${type}`, 'color: #00ff00; font-weight: bold;');
+                console.log('AdminApp: Invalidating cache to fetch fresh data...');
                 queryClient.invalidateQueries();
             };
 
-            const channel = window.Echo.channel('admin-notifications');
-            channel.listen('.appointment.created', () => handleUpdate('appointment.created'));
-            channel.listen('.gift-request.created', () => handleUpdate('gift-request.created'));
-            channel.listen('.collection.updated', () => handleUpdate('collection.updated'));
-            channel.listen('.product.updated', () => handleUpdate('product.updated'));
-            channel.listen('.stock.updated', () => handleUpdate('stock.updated'));
+            const channels = [
+                {
+                    name: 'admin-notifications',
+                    events: [
+                        '.appointment.created',
+                        '.gift-request.created',
+                        '.collection.updated',
+                        '.product.updated',
+                        '.stock.updated'
+                    ]
+                },
+                {
+                    name: 'appointments',
+                    events: ['.status.updated']
+                }
+            ];
 
-            const appChannel = window.Echo.channel('appointments');
-            appChannel.listen('.status.updated', () => handleUpdate('appointment.status.updated'));
+            channels.forEach(ch => {
+                const echoChannel = window.Echo.channel(ch.name);
+                console.log(`%cJoined Channel: ${ch.name}`, 'color: #3498db; font-style: italic;');
+                
+                ch.events.forEach(event => {
+                    const eventName = event.startsWith('.') ? event.substring(1) : event;
+                    echoChannel.listen(event, () => handleUpdate(`${ch.name}:${eventName}`));
+                    console.log(`  └─ Listening for: ${event}`);
+                });
+            });
+
+            console.log('%cReal-time Ready! Monitoring for masterpiece updates... (•̀ᴗ•́)و', 'color: #d4af37;');
+            console.groupEnd();
             
             return () => {
+                console.log('AdminApp: Cleaning up real-time listeners...');
                 window.Echo.leaveChannel('admin-notifications');
                 window.Echo.leaveChannel('appointments');
             };
