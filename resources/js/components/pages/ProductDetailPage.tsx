@@ -91,8 +91,8 @@ const ProductDetailPage: React.FC = () => {
             variants={pageMotion}
         >
             <SEO 
-                title={`${product.name} | ${product.collection}`}
-                description={product.description || `Experience the ${product.name} from our ${product.collection}. Premium styling excellence at Attire Lounge Official.`}
+                title={product.meta_title || `${product.name} | ${product.collection}`}
+                description={product.meta_description || product.description || `Experience the ${product.name} from our ${product.collection}. Premium styling excellence at Attire Lounge Official.`}
                 image={product.images[0]}
             />
             

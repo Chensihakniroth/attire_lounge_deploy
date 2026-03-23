@@ -76,7 +76,9 @@ const ProductEditor = ({ isNew = false }) => {
         sizing: [],
         category_id: '',
         collection_id: '',
-        images: []
+        images: [],
+        meta_title: '',
+        meta_description: ''
     });
 
     const [categories, setCategories] = useState([]);
@@ -202,7 +204,9 @@ const ProductEditor = ({ isNew = false }) => {
                             sizing: Array.isArray(p.sizes) ? p.sizes : [],
                             category_id: p.category_id || '',
                             collection_id: p.collection_id || '',
-                            images: Array.isArray(p.images) ? p.images : []
+                            images: Array.isArray(p.images) ? p.images : [],
+                            meta_title: p.meta_title || '',
+                            meta_description: p.meta_description || ''
                         });
                     }
                 } catch (err) {
@@ -452,6 +456,66 @@ const ProductEditor = ({ isNew = false }) => {
                                 <p className="text-[10px] font-bold uppercase tracking-widest text-gray-400 dark:text-attire-silver/40 italic">Visual presence builds desire. Please add at least one masterpiece photo.</p>
                             </div>
                         )}
+                    </div>
+
+                    <div className="space-y-8 bg-black/[0.02] dark:bg-white/[0.02] p-10 rounded-[2.5rem] border border-black/5 dark:border-white/5">
+                        <div className="flex items-center gap-4 ml-1">
+                            <div className="w-10 h-10 rounded-2xl bg-attire-accent/10 flex items-center justify-center">
+                                <Eye className="text-attire-accent" size={20} />
+                            </div>
+                            <div>
+                                <label className="text-xs font-bold text-gray-900 dark:text-white uppercase tracking-[0.2em]">Search Engine Optimization</label>
+                                <p className="text-[9px] text-gray-400 dark:text-attire-silver/40 uppercase tracking-widest mt-1">Control how this masterpiece appears in search results</p>
+                            </div>
+                        </div>
+
+                        <div className="space-y-6">
+                            <div className="space-y-3">
+                                <label className="text-[10px] font-bold text-gray-400 dark:text-attire-silver/50 uppercase tracking-[0.2em] ml-1">Meta Title</label>
+                                <input 
+                                    type="text" 
+                                    value={formData.meta_title}
+                                    onChange={e => setFormData({...formData, meta_title: e.target.value})}
+                                    placeholder={formData.name || "Default: Product Name | Attire Lounge"}
+                                    className="w-full bg-white dark:bg-black/20 border border-black/5 dark:border-white/10 rounded-2xl py-5 px-6 text-gray-900 dark:text-white focus:border-attire-accent outline-none transition-all placeholder:text-gray-300 dark:placeholder:text-white/10"
+                                />
+                                <div className="flex justify-between items-center px-2">
+                                    <p className="text-[9px] text-gray-400 dark:text-attire-silver/30 uppercase tracking-widest">Recommended: 50-60 characters</p>
+                                    <span className={`text-[9px] font-bold ${formData.meta_title.length > 60 ? 'text-red-400' : 'text-attire-accent/40'}`}>{formData.meta_title.length}/60</span>
+                                </div>
+                            </div>
+
+                            <div className="space-y-3">
+                                <label className="text-[10px] font-bold text-gray-400 dark:text-attire-silver/50 uppercase tracking-[0.2em] ml-1">Meta Description</label>
+                                <textarea 
+                                    value={formData.meta_description}
+                                    onChange={e => setFormData({...formData, meta_description: e.target.value})}
+                                    rows={3}
+                                    className="w-full bg-white dark:bg-black/20 border border-black/5 dark:border-white/10 rounded-2xl py-5 px-6 text-gray-900 dark:text-white focus:border-attire-accent outline-none transition-all resize-none text-sm leading-relaxed"
+                                    placeholder="Briefly summarize this piece for search engines..."
+                                />
+                                <div className="flex justify-between items-center px-2">
+                                    <p className="text-[9px] text-gray-400 dark:text-attire-silver/30 uppercase tracking-widest">Recommended: 150-160 characters</p>
+                                    <span className={`text-[9px] font-bold ${formData.meta_description.length > 160 ? 'text-red-400' : 'text-attire-accent/40'}`}>{formData.meta_description.length}/160</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Search Preview Mockup */}
+                        <div className="mt-8 p-6 bg-white dark:bg-black/40 rounded-3xl border border-black/5 dark:border-white/10">
+                            <p className="text-[9px] font-bold text-gray-300 dark:text-white/20 uppercase tracking-[0.2em] mb-4">Google Preview</p>
+                            <div className="space-y-1">
+                                <p className="text-[#1a0dab] dark:text-[#8ab4f8] text-lg font-medium truncate">
+                                    {formData.meta_title || formData.name || "Product Name"} | Attire Lounge
+                                </p>
+                                <p className="text-[#006621] dark:text-[#3fb34f] text-sm truncate">
+                                    https://attirelounge.com/shop/{formData.category_id || 'category'}/{formData.slug || 'product'}
+                                </p>
+                                <p className="text-[#4d5156] dark:text-[#bdc1c6] text-sm line-clamp-2 leading-relaxed">
+                                    {formData.meta_description || formData.description || "The piece that defines contemporary elegance..."}
+                                </p>
+                            </div>
+                        </div>
                     </div>
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-10">

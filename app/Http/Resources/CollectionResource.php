@@ -25,8 +25,10 @@ class CollectionResource extends JsonResource
             'image_url' => $this->image_url,
             'is_active' => $this->is_active,
             'is_new' => $this->is_new,
-            'start_date' => $this->start_date,
-            'end_date' => $this->end_date,
+            'sort_order' => $this->sort_order,
+            'meta_title' => $this->meta_title,
+            'meta_description' => $this->meta_description,
+            'products_count' => $this->whenCounted('products'),
         ];
     }
 }

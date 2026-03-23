@@ -24,6 +24,8 @@ export interface Product {
     hidden?: boolean;
     detailed_description?: string;
     color?: string;
+    meta_title?: string;
+    meta_description?: string;
 }
 
 export interface Collection {
@@ -37,6 +39,8 @@ export interface Collection {
     is_active: boolean;
     start_date?: string;
     end_date?: string;
+    meta_title?: string;
+    meta_description?: string;
 }
 
 export interface Appointment {

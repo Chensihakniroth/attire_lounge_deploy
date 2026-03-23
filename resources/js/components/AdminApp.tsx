@@ -1,5 +1,5 @@
 // resources/js/components/AdminApp.tsx
-import React, { Suspense, lazy } from 'react';
+import React, { Suspense, lazy, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { HelmetProvider } from 'react-helmet-async';
@@ -84,6 +84,7 @@ const CollectionManager = lazyWithRetry(() => import('./pages/admin/CollectionMa
 const ProductEditor = lazyWithRetry(() => import('./pages/admin/ProductEditor.jsx'));
 const BulkProductEditor = lazyWithRetry(() => import('./pages/admin/BulkProductEditor.jsx'));
 const InventoryManager = lazyWithRetry(() => import('./pages/admin/InventoryManager.jsx'));
+const SEOManager = lazyWithRetry(() => import('./pages/admin/SEOManager.jsx'));
 
 const GlobalStyles = () => (
     <style dangerouslySetInnerHTML={{ __html: `
@@ -115,6 +116,7 @@ function AdminApp() {
                                         <Route path="/admin/products/:productId/edit" element={<ProductEditor />} />
                                         <Route path="/admin/customize-gift" element={<CustomizeGiftManager />} />
                                         <Route path="/admin/inventory" element={<InventoryManager />} />
+                                        <Route path="/admin/seo" element={<SEOManager />} />
                                         <Route path="/admin/newsletter" element={<NewsletterManager />} />
                                         <Route path="/admin/audit-logs" element={<AuditLog />} />
                                         <Route path="/admin/users" element={<UserManager />} />

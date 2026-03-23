@@ -26,6 +26,8 @@ const DEFAULT_FORM = {
     is_active: true,
     is_new: false,
     sort_order: 0,
+    meta_title: '',
+    meta_description: '',
 };
 
 const Toggle = ({ value, onChange, color = 'bg-green-500' }) => (
@@ -67,6 +69,8 @@ const CollectionManager = () => {
                 is_active: collection.is_active,
                 is_new: collection.is_new,
                 sort_order: collection.sort_order || 0,
+                meta_title: collection.meta_title || '',
+                meta_description: collection.meta_description || '',
             });
         } else {
             setEditingId(null);
@@ -443,22 +447,43 @@ const CollectionManager = () => {
                                                     </label>
                                                     <textarea
                                                         rows={2}
-                                                        value={
-                                                            formData.description
-                                                        }
+                                                        value={formData.description}
                                                         onChange={(e) =>
-                                                            setFormData(
-                                                                (p) => ({
-                                                                    ...p,
-                                                                    description:
-                                                                        e.target
-                                                                            .value,
-                                                                })
-                                                            )
+                                                            setFormData((p) => ({
+                                                                ...p,
+                                                                description: e.target.value,
+                                                            }))
                                                         }
                                                         className="w-full bg-black/5 dark:bg-white/5 border border-black/5 dark:border-white/10 rounded-xl py-3 px-4 text-gray-900 dark:text-white text-sm focus:border-attire-accent outline-none transition-all resize-none leading-relaxed"
                                                         placeholder="A brief description of this collection..."
                                                     />
+                                                </div>
+
+                                                <div className="grid grid-cols-2 gap-4 pt-2 border-t border-black/5 dark:border-white/5">
+                                                    <div className="space-y-1.5">
+                                                        <label className="text-[9px] font-bold text-gray-400 uppercase tracking-widest">
+                                                            SEO Title
+                                                        </label>
+                                                        <input
+                                                            type="text"
+                                                            value={formData.meta_title}
+                                                            onChange={(e) => setFormData(p => ({ ...p, meta_title: e.target.value }))}
+                                                            className="w-full bg-black/5 dark:bg-white/5 border border-black/5 dark:border-white/10 rounded-xl py-3 px-4 text-gray-900 dark:text-white text-sm focus:border-attire-accent outline-none transition-all"
+                                                            placeholder={formData.name + " | Collection"}
+                                                        />
+                                                    </div>
+                                                    <div className="space-y-1.5">
+                                                        <label className="text-[9px] font-bold text-gray-400 uppercase tracking-widest">
+                                                            SEO Description
+                                                        </label>
+                                                        <textarea
+                                                            rows={1}
+                                                            value={formData.meta_description}
+                                                            onChange={(e) => setFormData(p => ({ ...p, meta_description: e.target.value }))}
+                                                            className="w-full bg-black/5 dark:bg-white/5 border border-black/5 dark:border-white/10 rounded-xl py-3 px-4 text-gray-900 dark:text-white text-sm focus:border-attire-accent outline-none transition-all resize-none leading-relaxed"
+                                                            placeholder="Search engine snippet..."
+                                                        />
+                                                    </div>
                                                 </div>
                                             </div>
                                         </div>

@@ -110,9 +110,9 @@ const ProductListPage: React.FC = () => {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
         >
-            <SEO
-                title={`${pageTitle} | Elite Styling House`}
-                description={`Explore our ${pageTitle}. Expertly curated luxury styles designed for the modern gentleman.`}
+            <SEO 
+                title={(selectedCollections.length === 1 && collections.find(c => c.slug === selectedCollections[0])?.meta_title) || `${pageTitle} | Elite Styling House`}
+                description={(selectedCollections.length === 1 && collections.find(c => c.slug === selectedCollections[0])?.meta_description) || `Explore our ${pageTitle}. Expertly curated luxury styles designed for the modern gentleman.`}
             />
             <GrainOverlay />
 

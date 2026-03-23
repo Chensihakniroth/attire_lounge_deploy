@@ -23,6 +23,8 @@ class Collection extends Model
         'start_date',
         'end_date',
         'sort_order',
+        'meta_title',
+        'meta_description',
     ];
 
     protected $casts = [
