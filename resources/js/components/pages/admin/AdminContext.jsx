@@ -66,6 +66,19 @@ export const AdminProvider = ({ children }) => {
         }
     });
 
+    const { data: products = [], isLoading: productsLoading } = useQuery({
+        queryKey: ['admin-products'],
+        queryFn: async () => {
+            const { data } = await axios.get('/api/v1/products', { 
+                params: { 
+                    per_page: 1000,
+                    include_hidden: true
+                } 
+            });
+            return data.data;
+        }
+    });
+
     const { data: outOfStockItems = [], isLoading: outOfStockLoading } = useQuery({
         queryKey: ['outOfStockItems'],
         queryFn: async () => {
@@ -114,6 +127,7 @@ export const AdminProvider = ({ children }) => {
     // --- Legacy Handlers (kept for compatibility) ---
     const fetchStats = () => queryClient.invalidateQueries({ queryKey: ['admin-stats'] });
     const fetchCollections = () => queryClient.invalidateQueries({ queryKey: ['admin-collections'] });
+    const fetchProducts = () => queryClient.invalidateQueries({ queryKey: ['admin-products'] });
     const fetchOutOfStockItems = () => queryClient.invalidateQueries({ queryKey: ['outOfStockItems'] });
     const fetchAppointments = (page = 1) => setAppPage(page);
     const fetchGiftRequests = (page = 1) => setGiftPage(page);
@@ -194,6 +208,10 @@ export const AdminProvider = ({ children }) => {
             collections,
             collectionsLoading,
             fetchCollections,
+
+            products,
+            productsLoading,
+            fetchProducts,
 
             outOfStockItems,
             outOfStockLoading,
