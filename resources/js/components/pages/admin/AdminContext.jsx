@@ -82,7 +82,7 @@ export const AdminProvider = ({ children }) => {
     const { data: outOfStockItems = [], isLoading: outOfStockLoading } = useQuery({
         queryKey: ['outOfStockItems'],
         queryFn: async () => {
-            const { data } = await axios.get('/api/v1/admin/gift-item-stock');
+            const { data } = await axios.get('/api/v1/gift-items/out-of-stock');
             return Array.isArray(data) ? data : [];
         }
     });
@@ -123,44 +123,6 @@ export const AdminProvider = ({ children }) => {
 
     const [isEditing, setIsEditing] = useState(false);
     const [showCollections, setShowCollections] = useState(false);
-
-    // --- Real-time Listeners ---
-    useEffect(() => {
-        if (!window.Echo) return;
-
-        const channel = window.Echo.channel('admin-notifications');
-
-        channel.listen('.stock.updated', () => {
-            queryClient.invalidateQueries({ queryKey: ['outOfStockItems'] });
-        });
-
-        channel.listen('.gift-request.created', () => {
-            queryClient.invalidateQueries({ queryKey: ['admin-gift-requests'] });
-            queryClient.invalidateQueries({ queryKey: ['admin-stats'] });
-        });
-
-        channel.listen('.appointment.created', () => {
-            queryClient.invalidateQueries({ queryKey: ['admin-appointments'] });
-            queryClient.invalidateQueries({ queryKey: ['admin-stats'] });
-        });
-
-        channel.listen('.appointment.status-updated', () => {
-            queryClient.invalidateQueries({ queryKey: ['admin-appointments'] });
-            queryClient.invalidateQueries({ queryKey: ['admin-stats'] });
-        });
-
-        channel.listen('.product.updated', () => {
-            queryClient.invalidateQueries({ queryKey: ['admin-products'] });
-        });
-
-        channel.listen('.collection.updated', () => {
-            queryClient.invalidateQueries({ queryKey: ['admin-collections'] });
-        });
-
-        return () => {
-            window.Echo.leave('admin-notifications');
-        };
-    }, [queryClient]);
 
     // --- Legacy Handlers (kept for compatibility) ---
     const fetchStats = () => queryClient.invalidateQueries({ queryKey: ['admin-stats'] });

@@ -36,15 +36,12 @@ const RealtimeAdminUpdater: React.FC = () => {
                     name: 'admin-notifications',
                     events: [
                         '.appointment.created',
+                        '.appointment.status-updated',
                         '.gift-request.created',
                         '.collection.updated',
                         '.product.updated',
                         '.stock.updated'
                     ]
-                },
-                {
-                    name: 'appointments',
-                    events: ['.status.updated']
                 }
             ];
 
@@ -64,8 +61,7 @@ const RealtimeAdminUpdater: React.FC = () => {
             
             return () => {
                 console.log('AdminApp: Cleaning up real-time listeners...');
-                window.Echo.leaveChannel('admin-notifications');
-                window.Echo.leaveChannel('appointments');
+                window.Echo.leave('admin-notifications');
             };
         }
     }, []);

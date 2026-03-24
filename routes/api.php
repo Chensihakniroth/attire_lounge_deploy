@@ -64,8 +64,8 @@ Route::prefix('v1')->group(function () {
             Route::delete('/appointments/completed', [AppointmentController::class, 'clearCompleted']);
 
             // Gift Requests
-            Route::patch('/gift-requests/{giftRequest}/status', [GiftRequestController::class, 'updateStatus']);
-            Route::delete('/gift-requests/{giftRequest}', [GiftRequestController::class, 'destroy']);
+            Route::patch('/gift-requests/{id}/status', [GiftRequestController::class, 'updateStatus']);
+            Route::delete('/gift-requests/{id}', [GiftRequestController::class, 'destroy']);
 
             // Gift Item Stock Management
             Route::post('/gift-items/toggle-stock', [GiftItemStockController::class, 'toggle']);

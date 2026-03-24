@@ -49,8 +49,9 @@ class GiftRequestController extends Controller
     /**
      * Update the status of the specified resource in storage.
      */
-    public function updateStatus(Request $request, GiftRequest $giftRequest)
+    public function updateStatus(Request $request, $id)
     {
+        $giftRequest = GiftRequest::findOrFail($id);
         $validated = $request->validate([
             'status' => 'required|string|in:Pending,Reviewed,Completed,Cancelled',
         ]);
@@ -63,8 +64,9 @@ class GiftRequestController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(GiftRequest $giftRequest)
+    public function destroy($id)
     {
+        $giftRequest = GiftRequest::findOrFail($id);
         $this->giftRequestService->deleteGiftRequest($giftRequest);
 
         return response()->json(null, 204);
