@@ -1,4 +1,4 @@
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useInfiniteQuery } from '@tanstack/react-query';
 import axios from 'axios';
 import { Product, PaginatedResponse } from '../types';
 
@@ -9,6 +9,7 @@ interface ProductApiResponse extends PaginatedResponse<Product> {
     success: boolean;
 }
 
+// Legacy single-page hook (kept for compatibility)
 export const useProducts = (filters: Record<string, any> = {}) => {
     return useQuery<ProductApiResponse>({
         queryKey: ['products', filters],
@@ -16,6 +17,25 @@ export const useProducts = (filters: Record<string, any> = {}) => {
             const { data } = await axios.get(`${API_BASE}/products`, { params: filters });
             return data;
         },
+    });
+};
+
+// Infinite scroll hook — replaces manual page accumulation in ProductListPage
+export const useInfiniteProducts = (filters: Omit<Record<string, any>, 'page'> = {}) => {
+    return useInfiniteQuery<ProductApiResponse>({
+        queryKey: ['products-infinite', filters],
+        queryFn: async ({ pageParam = 1 }) => {
+            const { data } = await axios.get(`${API_BASE}/products`, {
+                params: { ...filters, page: pageParam },
+            });
+            return data;
+        },
+        initialPageParam: 1,
+        getNextPageParam: (lastPage) => {
+            const { current_page, last_page } = lastPage.meta;
+            return current_page < last_page ? current_page + 1 : undefined;
+        },
+        staleTime: 5 * 60 * 1000, // 5 min — product lists can change
     });
 };
 

@@ -1,13 +1,18 @@
 import React, { useState, useMemo, useEffect, useRef } from 'react';
 import { useLocation, Link } from 'react-router-dom';
-import { motion, AnimatePresence } from 'framer-motion';
+import { m, AnimatePresence } from 'framer-motion';
 import { ChevronLeft, Search, X, ChevronDown, Loader2, SlidersHorizontal, Search as SearchIcon } from 'lucide-react';
 import ItemCard from './collections/ItemCard';
 import GrainOverlay from '../common/GrainOverlay.jsx';
 import SEO from '../common/SEO';
-import { useProducts, useCollections } from '../../hooks/useProducts';
+import { useInfiniteProducts, useCollections } from '../../hooks/useProducts';
 import { Product } from '../../types';
 import useDebounce from '../../hooks/useDebounce';
+
+interface SortOption {
+    value: string;
+    label: string;
+}
 
 const sortOptions: SortOption[] = [
     { value: 'newest', label: 'Newest Arrivals' },
@@ -35,41 +40,25 @@ const ProductListPage: React.FC = () => {
         return collectionQuery ? [collectionQuery] : [];
     });
 
-    const productsPerPage = 12;
-    const [currentLoadedPage, setCurrentLoadedPage] = useState<number>(1);
-    const [allLoadedProducts, setAllLoadedProducts] = useState<Product[]>([]);
-    const [hasMore, setHasMore] = useState<boolean>(true);
-
-    const { data, isLoading, isFetching } = useProducts({
+    // useInfiniteQuery manages all page state — no more manual accumulation!
+    const {
+        data,
+        isLoading,
+        isFetchingNextPage,
+        hasNextPage,
+        fetchNextPage,
+    } = useInfiniteProducts({
         category: selectedCollections.join(','),
         sort: sortOrder,
         search: debouncedSearch,
-        page: currentLoadedPage,
-        per_page: productsPerPage
+        per_page: 12,
     });
 
-    const meta = data?.meta || { total: 0, last_page: 1, current_page: 1 };
-
-    useEffect(() => {
-        setAllLoadedProducts([]);
-        setCurrentLoadedPage(1);
-        setHasMore(true);
-    }, [selectedCollections, sortOrder, debouncedSearch]);
-
-    useEffect(() => {
-        if (data?.data && currentLoadedPage > 0) {
-            setAllLoadedProducts(prevProducts => {
-                const newProducts = data.data.filter(
-                    np => !prevProducts.some(p => p.id === np.id)
-                );
-
-                if (currentLoadedPage === 1) return data.data;
-
-                return [...prevProducts, ...newProducts];
-            });
-            setHasMore(meta.current_page < meta.last_page);
-        }
-    }, [data, currentLoadedPage, meta.current_page, meta.last_page]);
+    // Flatten all pages into a single products array
+    const allLoadedProducts = useMemo<Product[]>(
+        () => data?.pages.flatMap((page) => page.data) ?? [],
+        [data]
+    );
 
     const pageTitle = useMemo(() => {
         const currentCollectionDetails = collections.find(c => c.slug === selectedCollections[0]);
@@ -98,13 +87,13 @@ const ProductListPage: React.FC = () => {
     };
 
     const handleLoadMore = () => {
-        if (hasMore && !isFetching) {
-            setCurrentLoadedPage(prevPage => prevPage + 1);
+        if (hasNextPage && !isFetchingNextPage) {
+            fetchNextPage();
         }
     };
 
     return (
-        <motion.div
+        <m.div
             className="min-h-screen bg-attire-navy relative selection:bg-attire-accent selection:text-white"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
@@ -155,15 +144,15 @@ const ProductListPage: React.FC = () => {
 
                 <AnimatePresence mode="wait">
                     {isLoading && allLoadedProducts.length === 0 ? (
-                        <motion.div
+                        <m.div
                             key="loading-initial"
                             className="flex flex-col items-center justify-center py-32"
                         >
                             <Loader2 className="w-12 h-12 text-attire-accent animate-spin mb-4" />
                             <p className="text-attire-silver/60 text-xs uppercase tracking-widest">Gathering Excellence...</p>
-                        </motion.div>
+                        </m.div>
                     ) : allLoadedProducts.length > 0 ? (
-                        <motion.div
+                        <m.div
                             key="results"
                             className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-8 lg:gap-12"
                             initial={{ opacity: 0, y: 20 }}
@@ -172,21 +161,21 @@ const ProductListPage: React.FC = () => {
                             {allLoadedProducts.map((item) => (
                                 <ItemCard key={item.id} product={item} />
                             ))}
-                        </motion.div>
+                        </m.div>
                     ) : (
-                        <motion.div
+                        <m.div
                             key="empty"
                             className="flex flex-col items-center justify-center py-32 text-center"
                         >
                             <Search size={32} className="text-attire-silver/50 mb-6" />
                             <h3 className="text-2xl font-serif text-white mb-2">No items found</h3>
                             <button onClick={clearFilters} className="mt-8 text-[10px] uppercase tracking-[0.2em] font-bold text-attire-accent">Reset Filters</button>
-                        </motion.div>
+                        </m.div>
                     )}
                 </AnimatePresence>
 
-                {hasMore && (
-                    <motion.div
+                {hasNextPage && (
+                    <m.div
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ delay: 0.5 }}
@@ -194,17 +183,17 @@ const ProductListPage: React.FC = () => {
                     >
                         <button
                             onClick={handleLoadMore}
-                            disabled={isFetching}
+                            disabled={isFetchingNextPage}
                             className="group flex items-center justify-center gap-3 px-8 py-4 bg-white text-black text-[11px] font-bold uppercase tracking-[0.5em] transition-all duration-700 relative overflow-hidden"
                         >
-                            <span className="relative z-10">{isFetching ? 'Loading More...' : 'Load More Products'}</span>
-                            {!isFetching && <ChevronDown size={18} className="relative z-10 group-hover:translate-y-1 transition-transform duration-500" />}
+                            <span className="relative z-10">{isFetchingNextPage ? 'Loading More...' : 'Load More Products'}</span>
+                            {!isFetchingNextPage && <ChevronDown size={18} className="relative z-10 group-hover:translate-y-1 transition-transform duration-500" />}
                             <div className="absolute inset-0 bg-attire-accent translate-y-full group-hover:translate-y-0 transition-transform duration-700" />
                         </button>
-                    </motion.div>
+                    </m.div>
                 )}
             </main>
-        </motion.div>
+        </m.div>
     );
 };
 
@@ -252,7 +241,7 @@ const Controls: React.FC<ControlsProps> = ({ sortOrder, setSortOrder, searchQuer
         {/* Active Filters */}
         <AnimatePresence>
             {(selectedCollections.length > 0 || searchQuery) && (
-                <motion.div
+                <m.div
                     initial={{ opacity: 0, y: -10 }}
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0, y: -10 }}
@@ -275,7 +264,7 @@ const Controls: React.FC<ControlsProps> = ({ sortOrder, setSortOrder, searchQuer
                     >
                         Reset All
                     </button>
-                </motion.div>
+                </m.div>
             )}
         </AnimatePresence>
     </div>
@@ -310,7 +299,7 @@ const CollectionDropdown: React.FC<{ collections: any[]; selectedCollections: st
             </button>
             <AnimatePresence>
                 {isOpen && (
-                    <motion.div
+                    <m.div
                         initial={{ opacity: 0, y: 10, scale: 0.95 }}
                         animate={{ opacity: 1, y: 0, scale: 1 }}
                         exit={{ opacity: 0, y: 10, scale: 0.95 }}
@@ -327,7 +316,7 @@ const CollectionDropdown: React.FC<{ collections: any[]; selectedCollections: st
                                 </button>
                             ))}
                         </div>
-                    </motion.div>
+                    </m.div>
                 )}
             </AnimatePresence>
         </div>
@@ -360,7 +349,7 @@ const FilterSortDropdown: React.FC<{ sortOrder: string; setSortOrder: (order: st
             </button>
             <AnimatePresence>
                 {isOpen && (
-                    <motion.div
+                    <m.div
                         initial={{ opacity: 0, y: 10, scale: 0.95 }}
                         animate={{ opacity: 1, y: 0, scale: 1 }}
                         exit={{ opacity: 0, y: 10, scale: 0.95 }}
@@ -377,7 +366,7 @@ const FilterSortDropdown: React.FC<{ sortOrder: string; setSortOrder: (order: st
                                 </button>
                             ))}
                         </div>
-                    </motion.div>
+                    </m.div>
                 )}
             </AnimatePresence>
         </div>
@@ -390,7 +379,7 @@ interface FilterTagProps {
 }
 
 const FilterTag: React.FC<FilterTagProps> = ({ children, onRemove }) => (
-    <motion.div
+    <m.div
         initial={{ scale: 0.8, opacity: 0 }}
         animate={{ scale: 1, opacity: 1 }}
         className="flex items-center gap-2 bg-white/5 border border-white/10 text-white rounded-lg pl-4 pr-2 py-2 text-[9px] font-bold uppercase tracking-widest group hover:border-white/20 transition-all duration-300"
@@ -402,7 +391,7 @@ const FilterTag: React.FC<FilterTagProps> = ({ children, onRemove }) => (
         >
             <X size={12} />
         </button>
-    </motion.div>
+    </m.div>
 );
 
 export default ProductListPage;

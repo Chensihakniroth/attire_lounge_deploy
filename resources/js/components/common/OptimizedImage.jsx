@@ -75,7 +75,7 @@ const OptimizedImage = ({
                     // Prevent upscaling beyond natural resolution for "original resolution" feel
                     maxWidth: objectFit === 'contain' ? '100%' : 'none',
                     maxHeight: objectFit === 'contain' ? '100%' : 'none',
-                    willChange: 'transform, filter, opacity', // Performance hint for smooth blur
+                    willChange: isLoaded ? 'auto' : 'transform, filter, opacity', // Release GPU layer once loaded
                     ...style,
                 }}
                 {...props}
