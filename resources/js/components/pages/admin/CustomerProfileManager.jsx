@@ -4,7 +4,7 @@ import { Link } from 'react-router-dom';
 import { 
     User, Trash2, Plus, Edit, X, Check, Loader, AlertCircle, 
     ChevronDown, ChevronRight, ChevronLeft, UserCheck, Share2, Search, Filter, Eye, Globe, Phone, PlusCircle,
-    UserPlus, ShieldCheck, Users, Briefcase
+    UserPlus, ShieldCheck, Users, Briefcase, Palette
 } from 'lucide-react';
 import axios from 'axios';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -144,12 +144,15 @@ const CustomerProfileManager = () => {
         total: 0,
         per_page: 15
     });
+
+    const [showCustomHost, setShowCustomHost] = useState(false);
+    const [showCustomAssistant, setShowCustomAssistant] = useState(false);
     
     const [formData, setFormData] = useState({
         date: '',
         client_status: 'New',
         name: '',
-        nationality: 'Cambodian',
+        nationality: 'Cambodia',
         phone: '',
         host: '',
         assistant: '',
@@ -167,6 +170,27 @@ const CustomerProfileManager = () => {
     const JACKET_SIZES = ['S', 'M', 'L', 'XL', '2XL', '3XL', '5XL'];
     const PANTS_SIZES = ['28', '29', '30', '31', '32', '33', '34', '36', '38', '40', '42'];
     const SHOES_SIZES = ['39', '40', '41', '42', '43', '44', '45'];
+
+    const NATIONALITY_OPTIONS = [
+        { label: 'Cambodia', value: 'Cambodia' },
+        { label: 'Traveler', value: 'Traveler' },
+        { label: 'Expat', value: 'Expat' }
+    ];
+
+    const STAFF_NAMES = ['NIROTH', 'LEAP', 'SITHORN', 'LIMA', 'SANTA', 'CHHORVY', 'MOUYCHORN'];
+    const STAFF_OPTIONS = [
+        ...STAFF_NAMES.map(name => ({ label: name, value: name })),
+        { label: 'CUSTOM...', value: 'custom' }
+    ];
+
+    const COLOR_OPTIONS = [
+        { label: 'Black / Blue', value: 'Black/blue' },
+        { label: 'Cream / White', value: 'cream/white' },
+        { label: 'Grey', value: 'grey' },
+        { label: 'BROWN', value: 'BROWN' },
+        { label: 'BEIGE', value: 'BEIGE' },
+        { label: 'OTHER', value: 'OTHER' }
+    ];
 
     const fetchData = useCallback(async (page = 1) => {
         setLoading(true);
@@ -229,13 +253,15 @@ const CustomerProfileManager = () => {
                 color_notes: profile.color_notes,
                 remarks: profile.remarks,
             });
+            setShowCustomHost(profile.host && !STAFF_NAMES.includes(profile.host));
+            setShowCustomAssistant(profile.assistant && !STAFF_NAMES.includes(profile.assistant));
         } else {
             setEditingProfile(null);
             setFormData({
                 date: new Date().toISOString().slice(0, 10),
                 client_status: 'New',
                 name: '',
-                nationality: 'Cambodian',
+                nationality: 'Cambodia',
                 phone: '',
                 host: '',
                 assistant: '',
@@ -248,6 +274,8 @@ const CustomerProfileManager = () => {
                 color_notes: '',
                 remarks: '',
             });
+            setShowCustomHost(false);
+            setShowCustomAssistant(false);
         }
         setShowModal(true);
     };
@@ -553,10 +581,13 @@ const CustomerProfileManager = () => {
                                                         onChange={val => setFormData({...formData, client_status: val})}
                                                         icon={UserCheck}
                                                     />
-                                                    <div className="space-y-2">
-                                                        <label className="text-[10px] font-bold text-gray-400 dark:text-white/40 uppercase tracking-widest ml-1">Nationality</label>
-                                                        <input type="text" value={formData.nationality} onChange={e => setFormData({...formData, nationality: e.target.value})} className="w-full bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 rounded-2xl py-4 px-6 text-gray-900 dark:text-white text-sm focus:border-attire-accent outline-none transition-all" placeholder="e.g. Cambodian" />
-                                                    </div>
+                                                    <CustomDropdown 
+                                                        label="Nationality"
+                                                        selected={formData.nationality}
+                                                        options={NATIONALITY_OPTIONS}
+                                                        onChange={val => setFormData({...formData, nationality: val})}
+                                                        icon={Globe}
+                                                    />
                                                     <CustomDropdown 
                                                         label="Marketing Channel"
                                                         selected={formData.how_did_they_find_us}
@@ -590,16 +621,71 @@ const CustomerProfileManager = () => {
                                                 <p className="text-[10px] font-black text-attire-accent uppercase tracking-[0.3em] mb-6 ml-1">Staff & Preference Details</p>
                                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                                     <div className="space-y-2">
-                                                        <label className="text-[10px] font-bold text-gray-400 dark:text-white/40 uppercase tracking-widest ml-1">Host In-charge</label>
-                                                        <input type="text" value={formData.host} onChange={e => setFormData({...formData, host: e.target.value})} className="w-full bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 rounded-2xl py-4 px-6 text-gray-900 dark:text-white text-sm focus:border-attire-accent outline-none transition-all" placeholder="Host name..." />
+                                                        <CustomDropdown 
+                                                            label="Host In-charge"
+                                                            selected={STAFF_NAMES.includes(formData.host) ? formData.host : (formData.host ? 'custom' : '')}
+                                                            options={STAFF_OPTIONS}
+                                                            onChange={val => {
+                                                                if (val === 'custom') {
+                                                                    setShowCustomHost(true);
+                                                                    setFormData({...formData, host: ''});
+                                                                } else {
+                                                                    setShowCustomHost(false);
+                                                                    setFormData({...formData, host: val});
+                                                                }
+                                                            }}
+                                                            icon={Briefcase}
+                                                        />
+                                                        {showCustomHost && (
+                                                            <motion.input 
+                                                                initial={{ opacity: 0, y: -10 }}
+                                                                animate={{ opacity: 1, y: 0 }}
+                                                                type="text" 
+                                                                value={formData.host} 
+                                                                onChange={e => setFormData({...formData, host: e.target.value})} 
+                                                                className="w-full bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 rounded-2xl py-4 px-6 text-gray-900 dark:text-white text-sm focus:border-attire-accent outline-none transition-all" 
+                                                                placeholder="Enter custom host name..." 
+                                                                autoFocus
+                                                            />
+                                                        )}
                                                     </div>
                                                     <div className="space-y-2">
-                                                        <label className="text-[10px] font-bold text-gray-400 dark:text-white/40 uppercase tracking-widest ml-1">Assistant</label>
-                                                        <input type="text" value={formData.assistant} onChange={e => setFormData({...formData, assistant: e.target.value})} className="w-full bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 rounded-2xl py-4 px-6 text-gray-900 dark:text-white text-sm focus:border-attire-accent outline-none transition-all" placeholder="Assistant name..." />
+                                                        <CustomDropdown 
+                                                            label="Assistant"
+                                                            selected={STAFF_NAMES.includes(formData.assistant) ? formData.assistant : (formData.assistant ? 'custom' : '')}
+                                                            options={STAFF_OPTIONS}
+                                                            onChange={val => {
+                                                                if (val === 'custom') {
+                                                                    setShowCustomAssistant(true);
+                                                                    setFormData({...formData, assistant: ''});
+                                                                } else {
+                                                                    setShowCustomAssistant(false);
+                                                                    setFormData({...formData, assistant: val});
+                                                                }
+                                                            }}
+                                                            icon={UserCheck}
+                                                        />
+                                                        {showCustomAssistant && (
+                                                            <motion.input 
+                                                                initial={{ opacity: 0, y: -10 }}
+                                                                animate={{ opacity: 1, y: 0 }}
+                                                                type="text" 
+                                                                value={formData.assistant} 
+                                                                onChange={e => setFormData({...formData, assistant: e.target.value})} 
+                                                                className="w-full bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 rounded-2xl py-4 px-6 text-gray-900 dark:text-white text-sm focus:border-attire-accent outline-none transition-all" 
+                                                                placeholder="Enter custom assistant name..." 
+                                                                autoFocus
+                                                            />
+                                                        )}
                                                     </div>
                                                     <div className="space-y-2 md:col-span-2">
-                                                        <label className="text-[10px] font-bold text-gray-400 dark:text-white/40 uppercase tracking-widest ml-1">Preferred Color</label>
-                                                        <input type="text" value={formData.preferred_color} onChange={e => setFormData({...formData, preferred_color: e.target.value})} className="w-full bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 rounded-2xl py-4 px-6 text-gray-900 dark:text-white text-sm focus:border-attire-accent outline-none transition-all" placeholder="e.g. Black, Navy Blue" />
+                                                        <CustomDropdown 
+                                                            label="Preferred Color"
+                                                            selected={formData.preferred_color}
+                                                            options={COLOR_OPTIONS}
+                                                            onChange={val => setFormData({...formData, preferred_color: val})}
+                                                            icon={Palette}
+                                                        />
                                                     </div>
                                                     <div className="space-y-2 md:col-span-2">
                                                         <label className="text-[10px] font-bold text-gray-400 dark:text-white/40 uppercase tracking-widest ml-1">Color Notes</label>

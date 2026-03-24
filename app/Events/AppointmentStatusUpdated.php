@@ -47,6 +47,6 @@ class AppointmentStatusUpdated implements ShouldBroadcastNow
      */
     public function broadcastAs(): string
     {
-        return 'status.updated';
+        return 'appointment.status-updated';
     }
 }
