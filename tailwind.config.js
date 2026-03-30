@@ -12,16 +12,50 @@ module.exports = {
   theme: {
     extend: {
       colors: {
-        // New Attire Lounge Official Palette
+        // Core Theme Colors (mapped to CSS variables in app.css)
+        border: "hsl(var(--border))",
+        input: "hsl(var(--input))",
+        ring: "hsl(var(--ring))",
+        background: "hsl(var(--background))",
+        foreground: "hsl(var(--foreground))",
+        primary: {
+          DEFAULT: "hsl(var(--primary))",
+          foreground: "hsl(var(--primary-foreground))",
+        },
+        secondary: {
+          DEFAULT: "hsl(var(--secondary))",
+          foreground: "hsl(var(--secondary-foreground))",
+        },
+        destructive: {
+          DEFAULT: "hsl(var(--destructive))",
+          foreground: "hsl(var(--destructive-foreground))",
+        },
+        muted: {
+          DEFAULT: "hsl(var(--muted))",
+          foreground: "hsl(var(--muted-foreground))",
+        },
+        accent: {
+          DEFAULT: "hsl(var(--accent))",
+          foreground: "hsl(var(--accent-foreground))",
+        },
+        popover: {
+          DEFAULT: "hsl(var(--popover))",
+          foreground: "hsl(var(--popover-foreground))",
+        },
+        card: {
+          DEFAULT: "hsl(var(--card))",
+          foreground: "hsl(var(--card-foreground))",
+        },
+        // Original Attire Lounge Palette
         'attire': {
           'charcoal': '#333333',
-          'stone': '#A0785A',    // Replaced with Havana/Tobacco Brown
+          'stone': '#A0785A',
           'silver': '#E5E7EB',
           'cream': '#FAF8F3',
           'light': '#f9f9f9',
-          'gold': '#8B6B4D',      // Replaced with Mocha/Camel Brown
-          'navy': '#0d3542',      // Replaced with new main color from Canva
-          'accent': '#f5a81c',    // Replaced with new accent
+          'gold': '#8B6B4D',
+          'navy': '#0d3542',
+          'accent': '#f5a81c',
           'dark': '#111111',
         }
       },
