@@ -217,6 +217,9 @@ export default function AlteringManager() {
     // Modals
     const [selectedDetail, setSelectedDetail] = useState(null);
     const [isAdding, setIsAdding] = useState(false);
+    const [showSyncModal, setShowSyncModal] = useState(false);
+    const [syncUrl, setSyncUrl] = useState('');
+    const [isSyncing, setIsSyncing] = useState(false);
     const [wizardStep, setWizardStep] = useState(1);
     const [isNotifying, setIsNotifying] = useState(null);
     const [formData, setFormData] = useState({
@@ -420,6 +423,21 @@ export default function AlteringManager() {
             filter: 'blur(4px)',
             transition: { duration: 0.3 },
         },
+    };
+
+    const handleSync = async () => {
+        if (!syncUrl || !window.hika) return;
+        setIsSyncing(true);
+        try {
+            await window.hika.import('altering', syncUrl);
+            queryClient.invalidateQueries(['admin-alterings']);
+            setShowSyncModal(false);
+            setSyncUrl('');
+        } catch (err) {
+            console.error(err);
+        } finally {
+            setIsSyncing(false);
+        }
     };
 
     return (
@@ -628,9 +646,17 @@ export default function AlteringManager() {
                         )}
                     </div>
 
+                    <button
+                        onClick={() => setShowSyncModal(true)}
+                        className="px-4 py-2.5 bg-attire-accent/10 border border-attire-accent/20 text-attire-accent hover:bg-attire-accent/20 transition-all flex items-center gap-2 rounded-xl text-sm font-mono tracking-widest text-[11px]"
+                    >
+                        <RefreshCw size={14} className={isSyncing ? 'animate-spin' : ''} />
+                        Sync Sheet
+                    </button>
+
                     <Button
                         onClick={() => setIsAdding(true)}
-                        className="bg-attire-charcoal dark:bg-white text-white dark:text-black hover:bg-attire-accent transition-colors px-6 py-5 rounded-xl font-bold uppercase tracking-[0.2em] text-[10px] ml-2"
+                        className="bg-attire-charcoal dark:bg-white text-white dark:text-black hover:bg-attire-accent transition-colors px-6 py-5 rounded-xl font-bold uppercase tracking-[0.2em] text-[10px] ml-1"
                     >
                         <Plus className="w-3 h-3 mr-2" /> Add Record
                     </Button>
@@ -1315,6 +1341,135 @@ export default function AlteringManager() {
                                             Save Record
                                         </Button>
                                     )}
+                                </div>
+                            </Card>
+                        </motion.div>
+                    </div>
+                )}
+            </AnimatePresence>
+            {/* Sync Sheet Modal */}
+            <AnimatePresence>
+                {showSyncModal && (
+                    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+                        <motion.div
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            exit={{ opacity: 0 }}
+                            onClick={() => setShowSyncModal(false)}
+                            className="absolute inset-0 bg-black/60 backdrop-blur-md"
+                        />
+                        <motion.div
+                            initial={{ scale: 0.9, opacity: 0, y: 20 }}
+                            animate={{ scale: 1, opacity: 1, y: 0 }}
+                            exit={{ scale: 0.9, opacity: 0, y: 20 }}
+                            className="relative w-full max-w-lg z-10"
+                        >
+                            <Card className="bg-[#0e0e0e] border border-white/10 p-8 shadow-2xl rounded-[2rem] overflow-hidden">
+                                <div className="absolute top-0 right-0 p-6">
+                                    <button
+                                        onClick={() => setShowSyncModal(false)}
+                                        className="text-white/20 hover:text-white transition-colors"
+                                    >
+                                        <X size={20} />
+                                    </button>
+                                </div>
+
+                                <div className="flex flex-col items-center text-center mb-10">
+                                    <div className="w-20 h-20 bg-attire-accent/10 rounded-3xl flex items-center justify-center mb-6 border border-attire-accent/20 shadow-[0_0_40px_rgba(245,168,28,0.1)]">
+                                        <RefreshCw
+                                            size={32}
+                                            className={`text-attire-accent ${isSyncing ? 'animate-spin' : ''}`}
+                                        />
+                                    </div>
+                                    <h2 className="text-2xl font-serif text-white mb-2">
+                                        Master Sheet Sync
+                                    </h2>
+                                    <p className="text-white/40 text-xs font-mono tracking-widest uppercase">
+                                        Google Sheets Data Intelligence
+                                    </p>
+                                </div>
+
+                                <div className="space-y-6">
+                                    <div className="space-y-2">
+                                        <label className="text-[10px] font-black text-white/40 uppercase tracking-widest pl-2">
+                                            Sheet Sharing URL
+                                        </label>
+                                        <div className="relative group">
+                                            <div className="absolute left-4 top-1/2 -translate-y-1/2">
+                                                <ExternalLink
+                                                    size={16}
+                                                    className="text-white/20 group-focus-within:text-attire-accent transition-colors"
+                                                />
+                                            </div>
+                                            <input
+                                                type="text"
+                                                placeholder="https://docs.google.com/spreadsheets/d/..."
+                                                value={syncUrl}
+                                                onChange={(e) => setSyncUrl(e.target.value)}
+                                                className="w-full bg-white/5 border border-white/10 rounded-2xl py-4 pl-12 pr-4 text-white text-sm outline-none focus:border-attire-accent/50 focus:bg-white/[0.08] transition-all font-mono"
+                                            />
+                                        </div>
+                                    </div>
+
+                                    <div className="bg-white/5 border border-white/5 rounded-2xl p-4 flex items-start gap-3">
+                                        <div className="p-2 bg-blue-500/10 rounded-lg">
+                                            <svg
+                                                width="14"
+                                                height="14"
+                                                viewBox="0 0 24 24"
+                                                fill="none"
+                                                stroke="currentColor"
+                                                strokeWidth="2"
+                                                className="text-blue-400"
+                                            >
+                                                <circle cx="12" cy="12" r="10" />
+                                                <line x1="12" y1="16" x2="12" y2="12" />
+                                                <line x1="12" y1="8" x2="12.01" y2="8" />
+                                            </svg>
+                                        </div>
+                                        <p className="text-[10px] leading-relaxed text-white/50">
+                                            Make sure your Google Sheet is shared with{' '}
+                                            <span className="text-white/80 font-bold">
+                                                Anyone with the link
+                                            </span>{' '}
+                                            or accessible via this application.
+                                        </p>
+                                    </div>
+
+                                    <Button
+                                        onClick={handleSync}
+                                        disabled={isSyncing || !syncUrl}
+                                        className="w-full py-6 bg-attire-accent text-black hover:bg-[#ffb940] transition-all shadow-[0_10px_30px_rgba(245,168,28,0.2)] rounded-2xl text-[11px] font-black uppercase tracking-[0.2em] relative overflow-hidden group"
+                                    >
+                                        {isSyncing && (
+                                            <div className="absolute inset-x-0 bottom-0 h-1 bg-black/10 overflow-hidden">
+                                                <motion.div
+                                                    initial={{ x: '-100%' }}
+                                                    animate={{ x: '100%' }}
+                                                    transition={{ repeat: Infinity, duration: 1.5 }}
+                                                    className="w-1/2 h-full bg-black/20"
+                                                />
+                                            </div>
+                                        )}
+                                        {isSyncing ? (
+                                            'Syncing Master Data...'
+                                        ) : (
+                                            <>
+                                                <RefreshCw
+                                                    size={14}
+                                                    className="mr-2 group-hover:rotate-180 transition-transform duration-500"
+                                                />
+                                                Start Synchronization
+                                            </>
+                                        )}
+                                    </Button>
+
+                                    <button
+                                        onClick={() => setShowSyncModal(false)}
+                                        className="w-full py-4 text-[10px] font-black text-white/20 uppercase tracking-widest hover:text-white transition-colors"
+                                    >
+                                        Maybe Later
+                                    </button>
                                 </div>
                             </Card>
                         </motion.div>

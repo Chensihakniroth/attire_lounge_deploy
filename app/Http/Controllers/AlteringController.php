@@ -164,55 +164,79 @@ class AlteringController extends Controller
 
         $imported = 0;
         foreach ($data as $row) {
-            // Check if exists to avoid duplicates
-            if (!empty($row['order_no'])) {
-                $existing = Altering::where('order_no', $row['order_no'])->first();
+            // 📡 Normalize keys: lowercase, underscore instead of space/hyphen, fix typos
+            $normalizedRow = [];
+            foreach ($row as $key => $value) {
+                $cleanKey = strtolower(str_replace([' ', '-'], '_', trim($key ?? '')));
+                if ($cleanKey === 'prodcut') $cleanKey = 'product';
+                if ($cleanKey === 'order_number') $cleanKey = 'order_no';
+                $normalizedRow[$cleanKey] = $value;
+            }
+            
+            $item = $normalizedRow;
+
+            // 🔍 De-duplication check
+            if (!empty($item['order_no'])) {
+                $existing = Altering::where('order_no', $item['order_no'])->first();
                 if ($existing) continue;
-            } else if (!empty($row['customer_name'])) {
-                $existing = Altering::where('customer_name', $row['customer_name'])
-                                  ->where('product', $row['product'] ?? '')
+            } else if (!empty($item['customer_name'])) {
+                $existing = Altering::where('customer_name', $item['customer_name'])
+                                  ->where('product', $item['product'] ?? '')
+                                  ->where('purchased_date', $item['purchased_date'] ?? '')
                                   ->first();
                 if ($existing) continue;
             }
 
-            // Derive a start_date if purchased_date can be parsed, else null (storing purposes)
+            // 📅 Intelligent Date Parsing
             $startDate = null;
-            if (!empty($row['purchased_date'])) {
+            if (!empty($item['purchased_date'])) {
                 try {
-                    $startDate = \Carbon\Carbon::parse($row['purchased_date'])->toDateString();
-                } catch (\Exception $e) {
-                    // Ignore parsing error
-                }
+                    $startDate = \Carbon\Carbon::parse($item['purchased_date'])->toDateString();
+                } catch (\Exception $e) {}
             }
 
-            // Fallback status logic based on sheet headers
+            $readyAt = null;
+            if (!empty($item['tailor_pick_up_date'])) {
+                try {
+                    $readyAt = \Carbon\Carbon::parse($item['tailor_pick_up_date'])->toDateString();
+                } catch (\Exception $e) {}
+            }
+
+            // 🔄 Derived Status Logic
             $status = 'pending';
-            if (($row['pickup_status'] ?? '') === 'Completed' || ($row['customer_pickup_status'] ?? '') === 'Completed') {
+            $pStatus = strtolower($item['pick_up_status'] ?? $item['status'] ?? '');
+            $cStatus = strtolower($item['customer_pickup_status'] ?? '');
+
+            if (str_contains($pStatus, 'completed') || str_contains($cStatus, 'completed')) {
                 $status = 'completed';
-            } else if (($row['pickup_status'] ?? '') === 'In-Progress') {
+            } else if (str_contains($pStatus, 'ready') || str_contains($cStatus, 'ready')) {
+                $status = 'ready';
+            } else if (str_contains($pStatus, 'progress')) {
                 $status = 'in_progress';
             }
 
             Altering::create([
-                'order_no' => $row['order_no'] ?? null,
-                'customer_name' => $row['customer_name'] ?? 'Unknown',
-                'mobile' => $row['mobile'] ?? null,
-                'delivery_address' => $row['delivery_address'] ?? null,
-                'product' => $row['product'] ?? null,
-                'purchased_date' => $row['purchased_date'] ?? null,
-                'tailor_pickup_date' => $row['tailor_pickup_date'] ?? null,
-                'pickup_status' => $row['pickup_status'] ?? null,
-                'customer_pickup_date' => $row['customer_pickup_date'] ?? null,
-                'customer_pickup_status' => $row['customer_pickup_status'] ?? null,
-                'remark' => $row['remark'] ?? null,
+                'order_no' => $item['order_no'] ?? null,
+                'customer_name' => $item['customer_name'] ?? 'Unknown',
+                'mobile' => $item['mobile'] ?? null,
+                'delivery_address' => $item['delivery_address'] ?? null,
+                'product' => $item['product'] ?? null,
+                'purchased_date' => $item['purchased_date'] ?? null,
+                'tailor_pickup_date' => $item['tailor_pick_up_date'] ?? null,
+                'pickup_status' => $item['pick_up_status'] ?? null,
+                'customer_pickup_date' => $item['customer_pickup_date'] ?? null,
+                'customer_pickup_status' => $item['pickup_status'] ?? null,
+                'remark' => $item['remark'] ?? null,
                 'status' => $status,
-                'start_date' => $startDate,
+                'start_date' => $startDate ?: now()->toDateString(),
+                'ready_at' => $readyAt,
             ]);
             $imported++;
         }
 
         return response()->json([
-            'message' => "Successfully imported {$imported} records."
+            'message' => "Successfully synchronized {$imported} records from the master sheet! (•̀ᴗ•́)و",
+            'imported_count' => $imported
         ]);
     }
 }

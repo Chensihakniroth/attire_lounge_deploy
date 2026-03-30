@@ -1,6 +1,6 @@
 import {
   require_client
-} from "./chunk-FQSRZNAU.js";
+} from "./chunk-KG3UWPT4.js";
 import {
   ErrorBoundary_default
 } from "./chunk-UXBR4C6Z.js";

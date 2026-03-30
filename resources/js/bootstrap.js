@@ -42,3 +42,7 @@ window.Echo = new Echo({
 
 // Simple console log for debugging
 console.log('Attire Lounge Official React App Initialized - Real-time Ready! (ﾉ´ヮ`)ﾉ*:･ﾟ✧');
+
+// 🎮 Initialize Senior Developer Admin Commands
+import { initAdminCommands } from './helpers/adminCommands';
+initAdminCommands();
