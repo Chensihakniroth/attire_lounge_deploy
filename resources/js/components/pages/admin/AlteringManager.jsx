@@ -1,642 +1,1326 @@
-import React, { useState, useEffect, useCallback, useMemo, memo, Fragment } from 'react';
-import { User, Mail, Phone, Calendar, Clock, MessageSquare, Loader, Check, X, Trash2, ChevronDown, Plus, RefreshCw, Smartphone, Package, Search, DollarSign, Bell, Scissors } from 'lucide-react';
+import React, { useState, useEffect, useMemo } from 'react';
+import { motion, useReducedMotion, AnimatePresence } from 'framer-motion';
+import {
+    Download,
+    ChevronDown,
+    X,
+    Mail,
+    Phone,
+    Clock,
+    Search,
+    Scissors,
+    CheckCircle2,
+    AlertCircle,
+    RefreshCw,
+    Check,
+    Loader,
+    Plus,
+    MoreVertical,
+    Smartphone,
+    Package,
+    DollarSign,
+    User,
+} from 'lucide-react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import axios from 'axios';
-import { motion, AnimatePresence } from 'framer-motion';
-import { Listbox, Transition } from '@headlessui/react';
+
+// UI Components
+import { Button } from '@/components/ui/button';
+import { Card, CardTitle, CardDescription } from '@/components/ui/card';
+import { BorderBeam } from '@/components/ui/border-beam';
+
+const statusConfig = {
+    pending: {
+        label: 'Pending',
+        bgColor: 'bg-yellow-500/10',
+        borderColor: 'border-yellow-500/30',
+        textColor: 'text-yellow-600 dark:text-yellow-400',
+        dotColor: 'bg-yellow-500 dark:bg-yellow-400',
+        icon: Clock,
+    },
+    in_progress: {
+        label: 'In Progress',
+        bgColor: 'bg-blue-500/10',
+        borderColor: 'border-blue-500/30',
+        textColor: 'text-blue-600 dark:text-blue-400',
+        dotColor: 'bg-blue-500 dark:bg-blue-400',
+        icon: RefreshCw,
+    },
+    ready: {
+        label: 'Ready',
+        bgColor: 'bg-green-500/10',
+        borderColor: 'border-green-500/30',
+        textColor: 'text-green-600 dark:text-green-400',
+        dotColor: 'bg-green-500 dark:bg-green-400',
+        icon: CheckCircle2,
+    },
+    completed: {
+        label: 'Completed',
+        bgColor: 'bg-black/5 dark:bg-white/5',
+        borderColor: 'border-black/10 dark:border-white/10',
+        textColor: 'text-gray-500 dark:text-white/60',
+        dotColor: 'bg-gray-400 dark:bg-white/40',
+        icon: Check,
+    },
+    cancelled: {
+        label: 'Cancelled',
+        bgColor: 'bg-red-500/10',
+        borderColor: 'border-red-500/30',
+        textColor: 'text-red-600 dark:text-red-400',
+        dotColor: 'bg-red-500 dark:bg-red-400',
+        icon: AlertCircle,
+    },
+};
 
 const formatDate = (dateStr) => {
-    if (!dateStr) return '';
-    return dateStr.split(/[ T]/)[0];
+    if (!dateStr) return '—';
+    return new Date(dateStr).toLocaleDateString('en-US', {
+        month: 'short',
+        day: 'numeric',
+        year: 'numeric',
+    });
 };
 
-const StyledSelect = ({ value, onChange, options, icon: Icon, className = "" }) => {
-    const selected = options.find(o => o.value === value) || options[0];
-    return (
-        <Listbox value={value} onChange={(val) => onChange({ target: { value: val } })}>
-            <div className={`relative ${className}`}>
-                <Listbox.Button className={`relative w-full cursor-pointer rounded-2xl border border-black/10 dark:border-white/10 bg-white/60 dark:bg-black/20 backdrop-blur-xl ${Icon ? 'pl-12' : 'pl-6'} pr-10 py-3.5 text-left text-xs font-bold uppercase tracking-widest text-gray-900 dark:text-white outline-none focus:border-attire-accent focus:ring-4 focus:ring-attire-accent/10 hover:border-attire-accent/50 hover:bg-white dark:hover:bg-black/40 transition-all duration-300 shadow-sm`}>
-                    {Icon && <Icon className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 group-hover:text-attire-accent transition-colors pointer-events-none" />}
-                    <span className="block truncate">{selected?.label}</span>
-                    <span className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-4">
-                        <ChevronDown className="h-4 w-4 text-gray-400 group-hover:text-attire-accent transition-colors duration-300" aria-hidden="true" />
-                    </span>
-                </Listbox.Button>
-                <Transition as={Fragment} leave="transition ease-in duration-100" leaveFrom="opacity-100" leaveTo="opacity-0">
-                    <Listbox.Options className="absolute z-50 mt-2 max-h-60 w-full overflow-auto rounded-2xl bg-white dark:bg-[#0a0f1a]/95 border border-black/10 dark:border-white/10 py-2 shadow-2xl backdrop-blur-3xl ring-1 ring-black ring-opacity-5 focus:outline-none">
-                        {options.map((option, idx) => (
-                            <Listbox.Option
-                                key={idx}
-                                className={({ active }) => `relative cursor-pointer select-none py-3 px-6 text-[10px] sm:text-xs font-bold uppercase tracking-widest transition-all ${active ? 'bg-attire-accent/10 text-attire-accent dark:bg-attire-accent/20' : 'text-gray-600 dark:text-attire-silver hover:text-gray-900 dark:hover:text-white'}`}
-                                value={option.value}
-                            >
-                                {({ selected }) => (
-                                    <div className="flex items-center justify-between">
-                                        <span className={`block truncate ${selected ? 'font-black text-attire-accent' : 'font-medium'}`}>{option.label}</span>
-                                        {selected && <Check size={14} strokeWidth={3} className="text-attire-accent" />}
-                                    </div>
-                                )}
-                            </Listbox.Option>
-                        ))}
-                    </Listbox.Options>
-                </Transition>
-            </div>
-        </Listbox>
-    );
-};
-
-const AlteringRow = memo(({ altering, onUpdate, onDelete, onNotify, isNotifying }) => {
-    const statusConfig = {
-        pending: { label: 'Pending', color: 'text-yellow-600 dark:text-yellow-400', bg: 'bg-yellow-400/10', border: 'border-yellow-400/20' },
-        in_progress: { label: 'In Progress', color: 'text-blue-600 dark:text-blue-400', bg: 'bg-blue-400/10', border: 'border-blue-400/20' },
-        ready: { label: 'Ready', color: 'text-green-600 dark:text-green-400', bg: 'bg-green-400/10', border: 'border-green-400/20' },
-        completed: { label: 'Completed', color: 'text-gray-600 dark:text-gray-400', bg: 'bg-gray-400/10', border: 'border-gray-400/20' },
-        cancelled: { label: 'Cancelled', color: 'text-red-600 dark:text-red-400', bg: 'bg-red-400/10', border: 'border-red-400/20' },
-    };
-
-    const status = statusConfig[altering.status] || statusConfig.pending;
-
-    const [editCost, setEditCost] = useState(altering.altering_cost || '');
-    const [isSavingCost, setIsSavingCost] = useState(false);
-    
-    // Countdown logic
-    const [timeLeft, setTimeLeft] = useState('');
-    const [isFlashing, setIsFlashing] = useState(false);
-
-    useEffect(() => {
-        if (!altering.ready_at) {
-            setTimeLeft('');
-            setIsFlashing(false);
-            return;
-        }
-
-        const target = new Date(altering.ready_at).getTime();
-
-        const updateTimer = () => {
-            const now = new Date().getTime();
-            const difference = target - now;
-
-            if (difference <= 0) {
-                setTimeLeft('Time is up!');
-                setIsFlashing(true);
-            } else {
-                setIsFlashing(false);
-                const days = Math.floor(difference / (1000 * 60 * 60 * 24));
-                const hours = Math.floor((difference % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-                const minutes = Math.floor((difference % (1000 * 60 * 60)) / (1000 * 60));
-                const seconds = Math.floor((difference % (1000 * 60)) / 1000);
-                
-                let timeStr = '';
-                if (days > 0) timeStr += `${days}d `;
-                timeStr += `${hours}h ${minutes}m ${seconds}s`;
-                setTimeLeft(timeStr);
-            }
-        };
-
-        updateTimer();
-        const intervalId = setInterval(updateTimer, 1000);
-        return () => clearInterval(intervalId);
-    }, [altering.ready_at]);
-
-    const handleSaveCost = async () => {
-        setIsSavingCost(true);
-        await onUpdate(altering.id, { altering_cost: editCost });
-        setIsSavingCost(false);
-    };
-
-    return (
-        <motion.div 
-            layout="position"
-            initial={{ opacity: 0, y: 15, scale: 0.98 }}
-            animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, scale: 0.95 }}
-            className={`p-6 md:p-8 rounded-3xl backdrop-blur-xl bg-white/70 dark:bg-white/[0.02] border ${isFlashing ? 'border-red-500 animate-pulse' : 'border-black/5 dark:border-white/5'} shadow-sm hover:shadow-xl dark:shadow-none hover:bg-white/90 dark:hover:bg-white/[0.04] transition-all duration-500 group relative`}
-        >
-            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-5 mb-5 border-b border-black/5 dark:border-white/5">
-                <div className="flex items-center gap-4">
-                    <div className="h-14 w-14 rounded-2xl bg-black/5 dark:bg-white/5 flex items-center justify-center border border-black/5 dark:border-white/5 shadow-inner">
-                        <User className="w-6 h-6 text-gray-400 dark:text-attire-silver group-hover:text-attire-accent transition-colors duration-500" />
-                    </div>
-                    <div>
-                        <h3 className="text-xl md:text-2xl font-serif text-gray-900 dark:text-white flex items-center gap-3">
-                            {altering.customer_name} 
-                            {altering.order_no && <span className="text-[10px] text-gray-500 dark:text-attire-silver/60 font-sans font-bold tracking-[0.2em] uppercase bg-black/5 dark:bg-white/5 px-2.5 py-1 rounded-md border border-black/5 dark:border-white/5">#{altering.order_no}</span>}
-                        </h3>
-                        {altering.start_date && (
-                             <p className="text-[11px] text-gray-500 dark:text-attire-silver/50 uppercase tracking-[0.15em] font-bold mt-1">Started: <span className="text-gray-900 dark:text-attire-cream">{formatDate(altering.start_date)}</span></p>
-                        )}
-                    </div>
-                </div>
-                <div className="flex items-center gap-3">
-                    <div className="relative">
-                        <Listbox value={altering.status} onChange={(val) => onUpdate(altering.id, { status: val })}>
-                            <div className="relative z-10">
-                                <Listbox.Button className={`pl-5 pr-10 py-2 w-32 md:w-36 rounded-full text-[11px] font-bold uppercase tracking-[0.15em] border outline-none cursor-pointer transition-all duration-300 hover:-translate-y-0.5 shadow-sm hover:shadow-md flex items-center justify-between ${status.color} ${status.bg} ${status.border}`}>
-                                    <span className="block truncate">{statusConfig[altering.status]?.label || 'Pending'}</span>
-                                    <ChevronDown className={`absolute right-3.5 top-1/2 -translate-y-1/2 w-4 h-4 pointer-events-none transition-transform ${status.color}`} />
-                                </Listbox.Button>
-                                <Transition as={Fragment} leave="transition ease-in duration-100" leaveFrom="opacity-100" leaveTo="opacity-0">
-                                    <Listbox.Options className="absolute right-0 z-[100] mt-2 w-48 overflow-auto rounded-2xl bg-white dark:bg-[#0a0f1a]/95 border border-black/10 dark:border-white/10 py-2 shadow-2xl backdrop-blur-3xl ring-1 ring-black ring-opacity-5 focus:outline-none">
-                                        {[
-                                            { value: 'pending', label: 'Pending', colorMatch: 'text-yellow-600 dark:text-yellow-400' },
-                                            { value: 'in_progress', label: 'In Progress', colorMatch: 'text-blue-600 dark:text-blue-400' },
-                                            { value: 'ready', label: 'Ready', colorMatch: 'text-green-600 dark:text-green-400' },
-                                            { value: 'completed', label: 'Completed', colorMatch: 'text-gray-600 dark:text-gray-400' },
-                                            { value: 'cancelled', label: 'Cancelled', colorMatch: 'text-red-600 dark:text-red-400' }
-                                        ].map((opt, idx) => (
-                                            <Listbox.Option
-                                                key={idx}
-                                                className={({ active }) => `relative cursor-pointer select-none py-3 px-5 text-[10px] font-bold uppercase tracking-widest transition-all flex items-center justify-between ${active ? 'bg-black/5 dark:bg-white/5' : ''} ${opt.colorMatch}`}
-                                                value={opt.value}
-                                            >
-                                                {({ selected }) => (
-                                                    <>
-                                                        <span className={`block truncate ${selected ? 'font-black' : 'font-medium'}`}>{opt.label}</span>
-                                                        {selected && <Check size={14} strokeWidth={3} />}
-                                                    </>
-                                                )}
-                                            </Listbox.Option>
-                                        ))}
-                                    </Listbox.Options>
-                                </Transition>
-                            </div>
-                        </Listbox>
-                    </div>
-                    
-                    <button onClick={() => onDelete(altering.id)} className="p-2.5 text-gray-400 hover:text-red-500 bg-black/5 dark:bg-white/5 hover:bg-red-50 dark:hover:bg-red-500/10 rounded-full transition-all duration-300 hover:scale-110">
-                        <Trash2 className="w-4 h-4" />
-                    </button>
-                </div>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-12 gap-8">
-                <div className="md:col-span-4 space-y-4">
-                    {altering.mobile && (
-                        <div className="flex items-center text-gray-600 dark:text-attire-silver p-3 bg-black/[0.02] dark:bg-white/[0.02] rounded-xl border border-black/5 dark:border-white/5 hover:bg-black/5 dark:hover:bg-white/5 transition-colors group/tel">
-                            <Smartphone className="w-4 h-4 mr-3 text-attire-accent opacity-70 group-hover/tel:opacity-100 transition-opacity" />
-                            <span className="text-sm font-medium tracking-wide">{altering.mobile}</span>
-                        </div>
-                    )}
-                    {altering.purchased_date && (
-                        <div className="flex items-center text-gray-600 dark:text-attire-silver p-3 bg-black/[0.02] dark:bg-white/[0.02] rounded-xl border border-black/5 dark:border-white/5 hover:bg-black/5 dark:hover:bg-white/5 transition-colors">
-                            <Calendar className="w-4 h-4 mr-3 text-gray-400" />
-                            <span className="text-sm font-medium">Purchased: <span className="text-gray-900 dark:text-white">{altering.purchased_date}</span></span>
-                        </div>
-                    )}
-                    {altering.tailor_pickup_date && (
-                        <div className="flex items-center text-gray-600 dark:text-attire-silver p-3 bg-black/[0.02] dark:bg-white/[0.02] rounded-xl border border-black/5 dark:border-white/5 hover:bg-black/5 dark:hover:bg-white/5 transition-colors">
-                            <Calendar className="w-4 h-4 mr-3 text-gray-400" />
-                            <span className="text-sm">Tailor Pickup: <span className="text-gray-900 dark:text-white">{altering.tailor_pickup_date}</span></span>
-                        </div>
-                    )}
-                </div>
-
-                <div className="md:col-span-8 flex flex-col justify-between">
-                    <div className="space-y-4">
-                        <div className="bg-attire-accent/[0.03] dark:bg-attire-accent/[0.05] p-5 rounded-2xl border border-attire-accent/10">
-                            <div className="flex items-start gap-4">
-                                <Package className="w-5 h-5 text-attire-accent mt-0.5 flex-shrink-0" />
-                                <div>
-                                    <p className="text-[10px] font-bold text-attire-accent/70 uppercase tracking-[0.2em] mb-2">Items to Alter</p>
-                                    <p className="text-[15px] text-gray-800 dark:text-attire-cream leading-relaxed font-serif">{altering.product || 'No items listed.'}</p>
-                                </div>
-                            </div>
-                        </div>
-                        {altering.remark && (
-                             <div className="flex items-start gap-3 mt-4">
-                                 <MessageSquare className="w-4 h-4 text-gray-400 mt-0.5 flex-shrink-0" />
-                                 <p className="text-xs text-gray-500 dark:text-attire-silver/70 italic bg-black/5 dark:bg-white/5 px-4 py-2.5 rounded-xl border border-black/5 dark:border-white/5 relative before:absolute before:left-0 before:top-1/2 before:-translate-y-1/2 before:w-1 before:h-1/2 before:bg-gray-300 dark:before:bg-gray-600 before:rounded-full overflow-hidden leading-relaxed">{altering.remark}</p>
-                             </div>
-                        )}
-                    </div>
-
-                    <div className="flex flex-wrap gap-6 pt-6 mt-6 border-t border-black/5 dark:border-white/5 items-end justify-between">
-                        <div className="space-y-2">
-                            <label className="text-[10px] font-bold uppercase tracking-[0.2em] text-gray-400 dark:text-attire-silver/50">Altering Cost</label>
-                            <div className="flex items-center gap-2 group/cost">
-                                <div className="relative overflow-hidden rounded-xl">
-                                    <div className="absolute left-0 inset-y-0 w-8 bg-black/5 dark:bg-white/5 flex items-center justify-center border-r border-black/5 dark:border-white/5">
-                                        <DollarSign className="w-3.5 h-3.5 text-gray-500" />
-                                    </div>
-                                    <input 
-                                        type="number" 
-                                        step="0.01"
-                                        value={editCost} 
-                                        onChange={(e) => setEditCost(e.target.value)}
-                                        className="pl-10 pr-4 py-2 w-32 bg-white/50 dark:bg-black/20 backdrop-blur-sm border border-black/10 dark:border-white/10 text-sm text-gray-900 dark:text-white outline-none focus:border-attire-accent transition-all font-medium focus:ring-4 focus:ring-attire-accent/10 hover:bg-white dark:hover:bg-black/40" 
-                                    />
-                                </div>
-                                {editCost != altering.altering_cost && (
-                                    <button 
-                                        onClick={handleSaveCost}
-                                        disabled={isSavingCost}
-                                        className="p-2 bg-attire-accent/10 text-attire-accent rounded-xl hover:bg-attire-accent hover:text-white transition-all duration-300 border border-attire-accent/20 shadow-sm"
-                                    >
-                                        <Check className="w-4 h-4" />
-                                    </button>
-                                )}
-                            </div>
-                        </div>
-
-                        <div className="flex items-center">
-                            <div className="flex flex-col items-end space-y-2">
-                                <label className="text-[10px] font-bold uppercase tracking-[0.2em] text-gray-400 dark:text-attire-silver/50">
-                                    {altering.ready_at ? 'Target Ready Time' : 'Set Arrival Timer'}
-                                </label>
-                                {altering.ready_at ? (
-                                    <div className="flex items-center gap-3 bg-black/5 dark:bg-white/5 px-4 py-2 rounded-xl border border-black/5 dark:border-white/5">
-                                        <Clock className={`w-4 h-4 ${isFlashing ? 'text-red-500 animate-pulse' : 'text-attire-accent'}`} />
-                                        <span className={`text-base font-bold font-serif tabular-nums tracking-wide ${isFlashing ? 'text-red-500 animate-pulse' : 'text-gray-900 dark:text-white'}`}>
-                                            {timeLeft}
-                                        </span>
-                                        <button 
-                                            onClick={() => onUpdate(altering.id, { ready_at: null })}
-                                            className="ml-3 text-xs text-red-500/70 hover:text-red-500 font-medium transition-colors"
-                                        >
-                                            Reset
-                                        </button>
-                                    </div>
-                                ) : (
-                                    <div className="relative">
-                                        <input 
-                                            type="datetime-local" 
-                                            onChange={(e) => onUpdate(altering.id, { ready_at: e.target.value })}
-                                            className="pl-3 pr-3 py-2 w-[220px] bg-white/50 dark:bg-black/20 backdrop-blur-sm border border-black/10 dark:border-white/10 rounded-xl text-xs font-medium text-gray-900 dark:text-white outline-none focus:border-attire-accent cursor-pointer transition-all hover:bg-white dark:hover:bg-black/40 focus:ring-4 focus:ring-attire-accent/10"
-                                        />
-                                    </div>
-                                )}
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div className="mt-8 pt-5 border-t border-black/5 dark:border-white/5 flex flex-col sm:flex-row justify-between sm:items-center gap-4">
-                <div className="text-[10px] font-bold text-gray-400 uppercase tracking-[0.2em] flex items-center gap-2 bg-black/5 dark:bg-white/5 px-3 py-1.5 rounded-lg border border-black/5 dark:border-white/5 self-start sm:self-auto">
-                    {altering.notified_at ? (
-                        <><Check className="w-3.5 h-3.5 text-green-500" /> Notified: {new Date(altering.notified_at).toLocaleString()}</>
-                    ) : 'Not Notified Yet'}
-                </div>
-                <button 
-                    onClick={() => onNotify(altering.id)} 
-                    disabled={isNotifying === altering.id} 
-                    className="px-6 py-2.5 text-xs font-bold uppercase tracking-[0.15em] text-white bg-gradient-to-r from-[#0088cc] to-[#00aaff] hover:from-[#0077b3] hover:to-[#0099e6] rounded-xl transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2.5 shadow-lg shadow-[#0088cc]/20 hover:shadow-[#0088cc]/40 hover:-translate-y-0.5"
+const AlteringRow = React.memo(
+    ({
+        altering,
+        statusConfig,
+        isSelected,
+        onSelect,
+        onDetailOpen,
+        shouldAnimate,
+        rowVariants,
+    }) => {
+        const status = statusConfig[altering.status] || statusConfig.pending;
+        return (
+            <motion.div variants={shouldAnimate ? rowVariants : {}}>
+                <div
+                    className={`px-5 py-4 group relative transition-all duration-300 border-b border-black/5 dark:border-white/5 ${isSelected ? 'bg-attire-accent/10 hover:bg-attire-accent/20' : 'bg-transparent hover:bg-black/[0.02] dark:hover:bg-white/[0.02]'}`}
+                    style={{
+                        display: 'grid',
+                        gridTemplateColumns:
+                            '40px 240px 160px 140px 200px 1fr 60px',
+                        columnGap: '10px',
+                        alignItems: 'center',
+                    }}
                 >
-                    {isNotifying === altering.id ? <Loader className="w-4 h-4 animate-spin" /> : <Bell className="w-4 h-4" />} 
-                    Alert via Telegram
-                </button>
-            </div>
-        </motion.div>
-    );
-});
+                    <div className="flex items-center justify-center border-r border-black/5 dark:border-white/5 pr-3">
+                        <input
+                            type="checkbox"
+                            className="w-3.5 h-3.5 rounded border-black/20 dark:border-white/20 bg-transparent accent-attire-accent cursor-pointer"
+                            checked={isSelected}
+                            onChange={() => onSelect(altering.id)}
+                        />
+                    </div>
 
+                    <div className="flex items-center gap-3 min-w-0 border-r border-black/5 dark:border-white/5 px-3">
+                        <div className="h-8 w-8 rounded-full bg-black/5 dark:bg-white/5 flex items-center justify-center flex-shrink-0 text-gray-500 dark:text-white/60">
+                            <User size={14} />
+                        </div>
+                        <div className="min-w-0">
+                            <div className="text-sm font-medium text-gray-900 dark:text-white/90 truncate font-sans">
+                                {altering.customer_name}
+                            </div>
+                            <div className="text-[11px] text-gray-500 dark:text-white/50 font-sans mt-0.5 tracking-wide">
+                                {altering.mobile || '—'}{' '}
+                                {altering.order_no &&
+                                    ` • #${altering.order_no}`}
+                            </div>
+                        </div>
+                    </div>
 
-const AlteringManager = () => {
+                    <div className="flex items-center border-r border-black/5 dark:border-white/5 px-3">
+                        <div
+                            className={`inline-flex items-center gap-1.5 px-2.5 py-1 text-[10px] font-black uppercase tracking-[0.2em] ${status.bgColor} ${status.textColor} border ${status.borderColor} rounded-lg`}
+                        >
+                            <div
+                                className={`w-1.5 h-1.5 rounded-full ${status.dotColor}`}
+                            />
+                            {status.label}
+                        </div>
+                    </div>
+
+                    <div className="flex items-center border-r border-black/5 dark:border-white/5 px-3 text-sm font-mono tracking-widest text-attire-accent font-black">
+                        ${altering.altering_cost || '0.00'}
+                    </div>
+
+                    <div className="flex items-center min-w-0 border-r border-black/5 dark:border-white/5 px-3 text-sm text-gray-400 dark:text-white/50 truncate font-mono uppercase">
+                        {altering.product || 'UNSPECIFIED_ARTIFACT'}
+                    </div>
+
+                    <div className="flex items-center min-w-0 border-r border-black/5 dark:border-white/5 px-3">
+                        <span
+                            className={`text-[11px] font-mono tracking-widest ${altering.ready_at && new Date(altering.ready_at) < new Date() && altering.status !== 'completed' ? 'text-red-600 dark:text-red-400 bg-red-500/10 px-2 py-1 object-none' : 'text-gray-400 dark:text-white/40'}`}
+                        >
+                            {formatDate(altering.ready_at)}
+                        </span>
+                    </div>
+
+                    <div className="flex items-center justify-center px-3">
+                        <button
+                            onClick={() => onDetailOpen(altering)}
+                            className="opacity-0 group-hover:opacity-100 hover:text-attire-accent hover:bg-black/5 dark:hover:bg-white/5 w-8 h-8 flex items-center justify-center transition-all cursor-pointer text-gray-400 dark:text-white/40 border border-transparent hover:border-black/10 dark:hover:border-white/10"
+                        >
+                            <svg
+                                width="14"
+                                height="14"
+                                viewBox="0 0 16 16"
+                                fill="none"
+                            >
+                                <rect
+                                    x="7"
+                                    y="2"
+                                    width="2"
+                                    height="2"
+                                    fill="currentColor"
+                                />
+                                <rect
+                                    x="7"
+                                    y="7"
+                                    width="2"
+                                    height="2"
+                                    fill="currentColor"
+                                />
+                                <rect
+                                    x="7"
+                                    y="12"
+                                    width="2"
+                                    height="2"
+                                    fill="currentColor"
+                                />
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+            </motion.div>
+        );
+    }
+);
+
+export default function AlteringManager() {
     const queryClient = useQueryClient();
-    const [page, setPage] = useState(1);
-    const [statusFilter, setStatusFilter] = useState('all');
-    const [timeframeFilter, setTimeframeFilter] = useState('all');
-    const [dateFilter, setDateFilter] = useState('');
-    const [searchQuery, setSearchQuery] = useState('');
-    const [isAdding, setIsAdding] = useState(false);
-    
+    const [mounted, setMounted] = useState(false);
 
+    // API State
+    const [page, setPage] = useState(1);
+    const [statusFilter, setStatusFilter] = useState('');
+    const [searchQuery, setSearchQuery] = useState('');
+
+    // UI State
+    const [selectedItems, setSelectedItems] = useState([]);
+    const [sortField, setSortField] = useState(null);
+    const [sortOrder, setSortOrder] = useState('asc');
+    const [showSortMenu, setShowSortMenu] = useState(false);
+    const [showFilterMenu, setShowFilterMenu] = useState(false);
+    const [showExportMenu, setShowExportMenu] = useState(false);
+
+    // Modals
+    const [selectedDetail, setSelectedDetail] = useState(null);
+    const [isAdding, setIsAdding] = useState(false);
+    const [wizardStep, setWizardStep] = useState(1);
+    const [isNotifying, setIsNotifying] = useState(null);
+    const [formData, setFormData] = useState({
+        customer_name: '',
+        order_no: '',
+        mobile: '',
+        product: '',
+        remark: '',
+        altering_cost: '',
+        ready_at: '',
+        start_date: new Date().toISOString().split('T')[0],
+    });
+
+    const shouldReduceMotion = useReducedMotion();
+
+    // Data Fetching
     const { data: alteringsData, isLoading } = useQuery({
-        queryKey: ['admin-alterings', page, statusFilter, timeframeFilter, searchQuery, dateFilter],
+        queryKey: ['admin-alterings', page, statusFilter, searchQuery],
         queryFn: async () => {
             const { data } = await axios.get('/api/v1/admin/alterings', {
-                params: { page, status: statusFilter, timeframe: timeframeFilter, search: searchQuery, date: dateFilter }
+                params: {
+                    page,
+                    status: statusFilter
+                        ? statusFilter.toLowerCase().replace(' ', '_')
+                        : 'all',
+                    search: searchQuery,
+                },
             });
             return data;
-        }
+        },
     });
 
     const alterings = alteringsData?.data || [];
     const pagination = {
         currentPage: alteringsData?.current_page || 1,
         lastPage: alteringsData?.last_page || 1,
-        total: alteringsData?.total || 0
+        total: alteringsData?.total || 0,
     };
 
+    // Mutations
     const updateMutation = useMutation({
-        mutationFn: async ({ id, data }) => {
-            return axios.put(`/api/v1/admin/alterings/${id}`, data);
-        },
-        onSuccess: () => {
-            queryClient.invalidateQueries({ queryKey: ['admin-alterings'] });
-        }
+        mutationFn: async ({ id, data }) =>
+            axios.put(`/api/v1/admin/alterings/${id}`, data),
+        onSuccess: () =>
+            queryClient.invalidateQueries({ queryKey: ['admin-alterings'] }),
     });
 
     const deleteMutation = useMutation({
-        mutationFn: async (id) => {
-            return axios.delete(`/api/v1/admin/alterings/${id}`);
-        },
+        mutationFn: async (id) => axios.delete(`/api/v1/admin/alterings/${id}`),
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ['admin-alterings'] });
-        }
+            setSelectedDetail(null);
+        },
     });
 
     const createMutation = useMutation({
-        mutationFn: async (data) => {
-            return axios.post('/api/v1/admin/alterings', data);
-        },
+        mutationFn: async (data) => axios.post('/api/v1/admin/alterings', data),
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ['admin-alterings'] });
             setIsAdding(false);
-            setFormData({ customer_name: '', order_no: '', mobile: '', product: '', remark: '', start_date: new Date().toISOString().split('T')[0] });
-        }
+            setTimeout(() => setWizardStep(1), 300); // reset after exit anim
+            setFormData({
+                customer_name: '',
+                order_no: '',
+                mobile: '',
+                product: '',
+                remark: '',
+                altering_cost: '',
+                ready_at: '',
+                start_date: new Date().toISOString().split('T')[0],
+            });
+        },
     });
 
-    const [isNotifying, setIsNotifying] = useState(null);
     const handleNotify = async (id) => {
         setIsNotifying(id);
         try {
             await axios.post(`/api/v1/admin/alterings/${id}/notify`);
             queryClient.invalidateQueries({ queryKey: ['admin-alterings'] });
-            alert('Telegram notification sent!');
         } catch (err) {
-            alert('Failed to send notification. Is bot configured?');
+            console.error(err);
         } finally {
             setIsNotifying(null);
         }
     };
 
     useEffect(() => {
-        window.importAltering = async (url) => {
-            if (!url) {
-                console.error("❌ Please provide a Google Sheet URL. Example: importAltering('https://docs.google.com/...')");
-                return;
+        setMounted(true);
+    }, []);
+
+    const handleSort = (field) => {
+        if (sortField === field) {
+            setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc');
+        } else {
+            setSortField(field);
+            setSortOrder('asc');
+        }
+        setShowSortMenu(false);
+    };
+
+    const sortedAlterings = useMemo(() => {
+        let sorted = [...alterings];
+        if (!sortField) return sorted;
+
+        return sorted.sort((a, b) => {
+            let aVal = a[sortField] || '';
+            let bVal = b[sortField] || '';
+
+            if (sortField === 'altering_cost') {
+                aVal = parseFloat(aVal) || 0;
+                bVal = parseFloat(bVal) || 0;
             }
-            console.log("⏳ Fetching and importing data from Google Sheets...");
-            try {
-                let csvUrl = url;
-                if (url.includes('/edit')) {
-                    const baseUrl = url.split('/edit')[0];
-                    const urlObj = new URL(url);
-                    let gid = urlObj.searchParams.get('gid');
-                    if (!gid && urlObj.hash.includes('gid=')) {
-                        gid = urlObj.hash.split('gid=')[1];
-                    }
-                    csvUrl = `${baseUrl}/export?format=csv${gid ? '&gid=' + gid : ''}`;
-                }
-                
-                const response = await fetch(csvUrl);
-                if (!response.ok) throw new Error("Could not fetch the sheet. Make sure it's public.");
-                const csvText = await response.text();
-                
-                const rows = csvText.split('\n');
-                const data = [];
-                let headerFound = false;
-                
-                for (let i = 0; i < rows.length; i++) {
-                    const rowStr = rows[i].trim();
-                    if (!rowStr) continue;
-                    
-                    const match = rowStr.match(/(?:\"([^\"]*)\"|([^,]*))(?:,|$)/g);
-                    if (!match) continue;
-                    
-                    const cols = match.map(m => {
-                        let val = m.replace(/,$/, '').trim();
-                        if (val.startsWith('"') && val.endsWith('"')) {
-                            val = val.substring(1, val.length - 1);
-                        }
-                        return val;
-                    });
 
-                    if (!headerFound) {
-                        if (cols[1] && cols[1].toLowerCase().includes('customer')) headerFound = true;
-                        continue;
-                    }
+            if (aVal < bVal) return sortOrder === 'asc' ? -1 : 1;
+            if (aVal > bVal) return sortOrder === 'asc' ? 1 : -1;
+            return 0;
+        });
+    }, [alterings, sortField, sortOrder]);
 
-                    if (!cols[1]) continue;
-
-                    data.push({
-                        order_no: cols[0],
-                        customer_name: cols[1],
-                        mobile: cols[2],
-                        delivery_address: cols[3],
-                        product: cols[4],
-                        purchased_date: cols[5],
-                        tailor_pickup_date: cols[6],
-                        pickup_status: cols[7],
-                        customer_pickup_date: cols[8],
-                        customer_pickup_status: cols[9],
-                        remark: cols[10]
-                    });
-                }
-
-                if (data.length === 0) {
-                    console.error("❌ No valid data found in the sheet.");
-                    return;
-                }
-
-                const res = await axios.post('/api/v1/admin/alterings/import', { data });
-                console.log(`✅ Success: ${res.data.message}`);
-                queryClient.invalidateQueries({ queryKey: ['admin-alterings'] });
-            } catch (err) {
-                console.error("❌ Failed to import from sheet:", err);
-            }
-        };
-
-        console.log("%c👗 Attire Lounge System Command:", "color: #0F9D58; font-weight: bold; font-size: 14px;");
-        console.log("Run this to sync records: %cimportAltering('YOUR_SHEET_URL')", "color: #ff00ff; font-weight: bold;");
-
-        return () => {
-            delete window.importAltering;
-        };
-    }, [queryClient]);
-
-    const [formData, setFormData] = useState({
-        customer_name: '', order_no: '', mobile: '', product: '', remark: '', start_date: new Date().toISOString().split('T')[0]
-    });
-
-    const handleLoadMore = () => {
-        if (page < pagination.lastPage) {
-            setPage(p => p + 1);
+    const handleSelectAll = () => {
+        if (selectedItems.length === sortedAlterings.length) {
+            setSelectedItems([]);
+        } else {
+            setSelectedItems(sortedAlterings.map((a) => a.id));
         }
     };
 
-    const handleDelete = (id) => {
-        if (window.confirm('Are you sure you want to delete this alteration record?')) {
-            deleteMutation.mutate(id);
-        }
+    const handleItemSelect = (id) => {
+        setSelectedItems((prev) =>
+            prev.includes(id) ? prev.filter((i) => i !== id) : [...prev, id]
+        );
     };
 
-    const handleUpdate = (id, data) => {
-        updateMutation.mutate({ id, data });
+    const exportToCSV = () => {
+        const headers = [
+            'Customer',
+            'Order No',
+            'Mobile',
+            'Product',
+            'Status',
+            'Cost',
+            'Ready At',
+        ];
+        const rows = sortedAlterings.map((alt) => [
+            alt.customer_name,
+            alt.order_no || '',
+            alt.mobile || '',
+            alt.product || '',
+            alt.status,
+            alt.altering_cost || '0',
+            alt.ready_at || '',
+        ]);
+        const csvContent = [
+            headers.join(','),
+            ...rows.map((row) =>
+                row
+                    .map((cell) => `"${String(cell).replace(/"/g, '""')}"`)
+                    .join(',')
+            ),
+        ].join('\n');
+        const blob = new Blob([csvContent], {
+            type: 'text/csv;charset=utf-8;',
+        });
+        const link = document.createElement('a');
+        link.href = URL.createObjectURL(blob);
+        link.download = `alterings-${new Date().toISOString().split('T')[0]}.csv`;
+        link.click();
+    };
+
+    const exportToJSON = () => {
+        const jsonContent = JSON.stringify(sortedAlterings, null, 2);
+        const blob = new Blob([jsonContent], {
+            type: 'application/json;charset=utf-8;',
+        });
+        const link = document.createElement('a');
+        link.href = URL.createObjectURL(blob);
+        link.download = `alterings-${new Date().toISOString().split('T')[0]}.json`;
+        link.click();
+    };
+
+    const shouldAnimate = !shouldReduceMotion;
+
+    const containerVariants = {
+        visible: { transition: { staggerChildren: 0.04, delayChildren: 0.1 } },
+    };
+
+    const rowVariants = {
+        hidden: { opacity: 0, y: 30, filter: 'blur(10px)' },
+        visible: {
+            opacity: 1,
+            y: 0,
+            filter: 'blur(0px)',
+            transition: {
+                duration: 0.6,
+                ease: [0.16, 1, 0.3, 1],
+            },
+        },
+        exit: {
+            opacity: 0,
+            y: -20,
+            filter: 'blur(4px)',
+            transition: { duration: 0.3 },
+        },
     };
 
     return (
-        <div className="space-y-8 pb-20 font-sans">
-            <div className="flex flex-col lg:flex-row justify-between items-start lg:items-end gap-6 pb-6 border-b border-black/5 dark:border-white/10">
+        <div className="w-full font-sans pb-20">
+            {/* Header & Controls */}
+            <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-10">
                 <div>
-                    <h1 className="text-4xl md:text-5xl font-serif text-gray-900 dark:text-white mb-3 flex items-center gap-4">
-                        <div className="p-3 bg-attire-accent/10 rounded-2xl border border-attire-accent/20">
-                            <Scissors className="w-8 h-8 md:w-10 md:h-10 text-attire-accent" />
+                    <h1 className="text-4xl font-serif text-attire-charcoal dark:text-white tracking-tight flex items-center gap-4">
+                        <div className="p-3 bg-attire-accent/10 rounded-2xl border border-attire-accent/20 shadow-[0_0_20px_rgba(245,168,28,0.1)]">
+                            <Scissors className="w-8 h-8 text-attire-accent" />
                         </div>
-                        Altering List
+                        Altering Manager
                     </h1>
-                    <p className="text-gray-500 dark:text-attire-silver text-xs font-bold uppercase tracking-[0.2em] md:tracking-[0.3em]">Manage tailor adjustments & pickups</p>
-                </div>
-                <div className="flex flex-wrap gap-4 w-full lg:w-auto">
-                    <button
-                        onClick={() => setIsAdding(true)}
-                        className="w-full lg:w-auto flex items-center justify-center px-6 py-3.5 text-xs font-bold uppercase tracking-[0.2em] text-white bg-attire-accent hover:bg-attire-accent/90 rounded-2xl transition-all duration-300 shadow-lg shadow-attire-accent/30 hover:shadow-attire-accent/50 hover:-translate-y-1"
-                    >
-                        <Plus className="w-4 h-4 mr-2" />
-                        New Record
-                    </button>
-                </div>
-            </div>
-
-            <div className="flex flex-col xl:flex-row gap-5 mb-10">
-                <div className="flex-1 relative group/search">
-                    <Search className="w-4 h-4 absolute left-5 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within/search:text-attire-accent transition-colors" />
-                    <input 
-                        type="text" 
-                        placeholder="Search by name, mobile, order no..." 
-                        value={searchQuery}
-                        onChange={(e) => { setSearchQuery(e.target.value); setPage(1); }}
-                        className="w-full pl-12 pr-5 py-3.5 bg-white/60 dark:bg-black/20 backdrop-blur-xl border border-black/10 dark:border-white/10 rounded-2xl text-sm outline-none focus:border-attire-accent focus:ring-4 focus:ring-attire-accent/10 transition-all text-gray-900 dark:text-white shadow-sm hover:bg-white dark:hover:bg-black/40 font-medium z-0 relative"
-                    />
-                </div>
-                <div className="flex flex-col sm:flex-row gap-4 items-center">
-                    <div className="w-full sm:w-auto min-w-[150px] relative z-0">
-                        <input 
-                            type="date"
-                            value={dateFilter}
-                            onChange={(e) => { setDateFilter(e.target.value); setTimeframeFilter('all'); setPage(1); }}
-                            className="w-full pl-5 pr-5 py-3.5 bg-white/60 dark:bg-black/20 backdrop-blur-xl border border-black/10 dark:border-white/10 rounded-2xl text-[11px] font-bold uppercase tracking-widest text-gray-900 dark:text-white outline-none focus:border-attire-accent focus:ring-4 focus:ring-attire-accent/10 transition-all hover:border-attire-accent/50 hover:bg-white dark:hover:bg-black/40 shadow-sm cursor-pointer"
-                            title="Filter by Specific Date"
-                        />
-                    </div>
-                    <div className="w-full h-[3rem] sm:w-[150px] lg:w-[170px] z-30">
-                        <StyledSelect 
-                            value={timeframeFilter}
-                            onChange={(e) => { setTimeframeFilter(e.target.value); setDateFilter(''); setPage(1); }}
-                            options={[
-                                { value: 'all', label: 'All Time' },
-                                { value: 'today', label: 'Today' },
-                                { value: 'this_week', label: 'This Week' },
-                                { value: 'this_month', label: 'This Month' },
-                                { value: 'this_year', label: 'This Year' }
-                            ]}
-                            icon={Calendar}
-                        />
-                    </div>
-                    <div className="w-full h-[3rem] sm:w-[150px] lg:w-[160px] z-20">
-                        <StyledSelect 
-                            value={statusFilter}
-                            onChange={(e) => { setStatusFilter(e.target.value); setPage(1); }}
-                            options={[
-                                { value: 'all', label: 'All Statuses' },
-                                { value: 'pending', label: 'Pending' },
-                                { value: 'in_progress', label: 'In Progress' },
-                                { value: 'ready', label: 'Ready' },
-                                { value: 'completed', label: 'Completed' },
-                                { value: 'cancelled', label: 'Cancelled' }
-                            ]}
-                        />
+                    <div className="flex items-center gap-3 mt-4">
+                        <span className="w-8 h-px bg-attire-accent/40" />
+                        <p className="text-gray-400 dark:text-white/40 text-[10px] font-black uppercase tracking-[0.4em]">
+                            Tailor Queue Management
+                        </p>
                     </div>
                 </div>
-            </div>
 
-            <AnimatePresence>
-                {isAdding && (
-                    <motion.div
-                        initial={{ opacity: 0, y: -20, height: 0 }}
-                        animate={{ opacity: 1, y: 0, height: 'auto' }}
-                        exit={{ opacity: 0, y: -20, height: 0 }}
-                        className="overflow-hidden"
-                    >
-                        <form onSubmit={(e) => { e.preventDefault(); createMutation.mutate(formData); }} className="p-8 rounded-[2rem] backdrop-blur-2xl bg-white/80 dark:bg-black/40 border border-black/10 dark:border-white/10 shadow-2xl dark:shadow-none mb-10 space-y-6 relative overflow-hidden">
-                            <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-attire-accent via-[#ff6b6b] to-attire-accent opacity-50"></div>
-                            <div className="flex justify-between items-center pb-5 border-b border-black/5 dark:border-white/5">
-                                <div>
-                                    <h3 className="text-2xl font-serif text-gray-900 dark:text-white">New Altering Record</h3>
-                                    <p className="text-xs text-gray-500 font-bold uppercase tracking-[0.2em] mt-1">Add to tailor queue</p>
-                                </div>
-                                <button type="button" onClick={() => setIsAdding(false)} className="p-2.5 text-gray-400 hover:text-gray-900 dark:text-attire-silver dark:hover:text-white bg-black/5 dark:bg-white/5 hover:bg-black/10 dark:hover:bg-white/10 rounded-full transition-all duration-300 hover:-rotate-90">
-                                    <X className="w-5 h-5" />
-                                </button>
-                            </div>
-                            
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                <div>
-                                    <label className="block text-[10px] font-bold uppercase tracking-[0.2em] text-gray-500 dark:text-attire-silver/60 mb-2 pl-1">Customer Name *</label>
-                                    <input required type="text" value={formData.customer_name} onChange={e => setFormData({...formData, customer_name: e.target.value})} className="w-full bg-white dark:bg-white/5 border border-black/10 dark:border-white/10 rounded-2xl px-5 py-3.5 text-sm font-medium text-gray-900 dark:text-white outline-none focus:border-attire-accent focus:ring-4 focus:ring-attire-accent/10 transition-all shadow-sm" />
-                                </div>
-                                <div>
-                                    <label className="block text-[10px] font-bold uppercase tracking-[0.2em] text-gray-500 dark:text-attire-silver/60 mb-2 pl-1">Mobile</label>
-                                    <input type="text" value={formData.mobile} onChange={e => setFormData({...formData, mobile: e.target.value})} className="w-full bg-white dark:bg-white/5 border border-black/10 dark:border-white/10 rounded-2xl px-5 py-3.5 text-sm font-medium text-gray-900 dark:text-white outline-none focus:border-attire-accent focus:ring-4 focus:ring-attire-accent/10 transition-all shadow-sm" />
-                                </div>
-                                <div>
-                                    <label className="block text-[10px] font-bold uppercase tracking-[0.2em] text-gray-500 dark:text-attire-silver/60 mb-2 pl-1">Start Date</label>
-                                    <input type="date" value={formData.start_date} onChange={e => setFormData({...formData, start_date: e.target.value})} className="w-full bg-white dark:bg-white/5 border border-black/10 dark:border-white/10 rounded-2xl px-5 py-3.5 text-sm font-medium text-gray-900 dark:text-white outline-none focus:border-attire-accent focus:ring-4 focus:ring-attire-accent/10 transition-all shadow-sm" />
-                                </div>
-                                <div>
-                                    <label className="block text-[10px] font-bold uppercase tracking-[0.2em] text-gray-500 dark:text-attire-silver/60 mb-2 pl-1">Order No</label>
-                                    <input type="text" value={formData.order_no} onChange={e => setFormData({...formData, order_no: e.target.value})} className="w-full bg-white dark:bg-white/5 border border-black/10 dark:border-white/10 rounded-2xl px-5 py-3.5 text-sm font-medium text-gray-900 dark:text-white outline-none focus:border-attire-accent focus:ring-4 focus:ring-attire-accent/10 transition-all shadow-sm" />
-                                </div>
-                                <div className="md:col-span-2">
-                                    <label className="block text-[10px] font-bold uppercase tracking-[0.2em] text-gray-500 dark:text-attire-silver/60 mb-2 pl-1">Product Details (Items to alter) *</label>
-                                    <textarea required value={formData.product} onChange={e => setFormData({...formData, product: e.target.value})} rows="3" className="w-full bg-white dark:bg-white/5 border border-black/10 dark:border-white/10 rounded-2xl px-5 py-3.5 text-sm font-medium text-gray-900 dark:text-white outline-none focus:border-attire-accent focus:ring-4 focus:ring-attire-accent/10 transition-all shadow-sm resize-none"></textarea>
-                                </div>
-                                <div className="md:col-span-2">
-                                    <label className="block text-[10px] font-bold uppercase tracking-[0.2em] text-gray-500 dark:text-attire-silver/60 mb-2 pl-1">Remarks (Optional)</label>
-                                    <input type="text" value={formData.remark} onChange={e => setFormData({...formData, remark: e.target.value})} className="w-full bg-white dark:bg-white/5 border border-black/10 dark:border-white/10 rounded-2xl px-5 py-3.5 text-sm font-medium text-gray-900 dark:text-white outline-none focus:border-attire-accent focus:ring-4 focus:ring-attire-accent/10 transition-all shadow-sm" />
-                                </div>
-                            </div>
-                            <div className="flex justify-end pt-6 mt-4 border-t border-black/5 dark:border-white/5">
-                                <button type="submit" disabled={createMutation.isPending} className="flex items-center px-8 py-3.5 text-xs font-bold uppercase tracking-[0.2em] text-white bg-attire-accent hover:bg-attire-accent/90 rounded-2xl transition-all duration-300 disabled:opacity-50 shadow-lg shadow-attire-accent/30 hover:shadow-attire-accent/50 hover:-translate-y-1">
-                                    {createMutation.isPending ? <Loader className="w-5 h-5 mr-3 animate-spin" /> : <Check className="w-5 h-5 mr-3" />}
-                                    Save Record
-                                </button>
-                            </div>
-                        </form>
-                    </motion.div>
-                )}
-            </AnimatePresence>
+                <div className="flex items-center gap-3 flex-wrap">
+                    <div className="relative">
+                        <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 dark:text-white/40" />
+                        <input
+                            type="text"
+                            placeholder="Search..."
+                            value={searchQuery}
+                            onChange={(e) => {
+                                setSearchQuery(e.target.value);
+                                setPage(1);
+                            }}
+                            className="bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 rounded-xl py-2.5 pl-10 pr-4 text-attire-charcoal dark:text-white text-sm outline-none focus:border-attire-accent/50 transition-all placeholder:text-gray-400 dark:placeholder:text-white/20 w-48 lg:w-64 font-mono tracking-widest text-[11px]"
+                        />
+                    </div>
 
-            {isLoading ? (
-                <div className="flex justify-center py-20">
-                    <Loader className="w-8 h-8 text-attire-accent animate-spin" />
-                </div>
-            ) : alterings.length === 0 ? (
-                <div className="text-center py-20 bg-black/5 dark:bg-black/20 rounded-3xl border border-black/5 dark:border-white/5">
-                    <Scissors className="mx-auto text-gray-300 dark:text-attire-silver/20 mb-4" size={48} />
-                    <p className="text-gray-500 dark:text-attire-silver/60 uppercase tracking-widest text-xs">No alteration records found.</p>
-                </div>
-            ) : (
-                <div className="space-y-6">
-                    <AnimatePresence mode="popLayout">
-                        {alterings.map(alt => (
-                            <AlteringRow 
-                                key={alt.id} 
-                                altering={alt} 
-                                onUpdate={handleUpdate} 
-                                onDelete={handleDelete} 
-                                onNotify={handleNotify} 
-                                isNotifying={isNotifying}
-                            />
-                        ))}
-                    </AnimatePresence>
-
-                    {page < pagination.lastPage && (
-                        <div className="flex justify-center mt-12">
-                            <button 
-                                onClick={handleLoadMore}
-                                className="group flex items-center gap-3 px-8 py-4 bg-black/5 dark:bg-white/5 hover:bg-black/10 dark:hover:bg-white/10 border border-black/5 dark:border-white/10 rounded-2xl transition-all"
+                    <div className="relative">
+                        <button
+                            onClick={() => setShowFilterMenu(!showFilterMenu)}
+                            className={`px-4 py-2.5 bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 text-attire-charcoal dark:text-white hover:bg-black/10 dark:hover:bg-white/10 transition-colors flex items-center gap-2 rounded-xl text-sm font-mono tracking-widest text-[11px] ${statusFilter ? 'ring-1 ring-attire-accent/50' : ''}`}
+                        >
+                            <svg
+                                width="14"
+                                height="14"
+                                viewBox="0 0 16 16"
+                                fill="none"
                             >
-                                <span className="text-[10px] font-bold uppercase tracking-[0.3em] text-gray-900 dark:text-white">Load More</span>
-                                <ChevronDown size={16} className="text-attire-accent group-hover:translate-y-1 transition-transform" />
+                                <path
+                                    d="M2 3H14M4 8H12M6 13H10"
+                                    stroke="currentColor"
+                                    strokeWidth="1.5"
+                                    strokeLinecap="round"
+                                />
+                            </svg>
+                            Filter
+                            {statusFilter && (
+                                <span className="ml-1 text-[10px] bg-attire-accent text-black font-black rounded px-1.5 py-0.5">
+                                    1
+                                </span>
+                            )}
+                        </button>
+                        {showFilterMenu && (
+                            <>
+                                <div
+                                    className="fixed inset-0 z-10"
+                                    onClick={() => setShowFilterMenu(false)}
+                                />
+                                <div className="absolute right-0 mt-2 w-48 bg-[#0a0a0a] border border-white/10 shadow-xl rounded-xl z-20 overflow-hidden py-2">
+                                    <button
+                                        onClick={() => {
+                                            setStatusFilter('');
+                                            setShowFilterMenu(false);
+                                            setPage(1);
+                                        }}
+                                        className={`w-full px-4 py-2.5 text-left text-sm text-white/80 hover:bg-white/5 transition-colors ${!statusFilter ? 'bg-white/5' : ''}`}
+                                    >
+                                        All Records
+                                    </button>
+                                    <div className="h-px bg-white/10 my-1" />
+                                    {[
+                                        'Pending',
+                                        'In Progress',
+                                        'Ready',
+                                        'Completed',
+                                    ].map((status) => (
+                                        <button
+                                            key={status}
+                                            onClick={() => {
+                                                setStatusFilter(status);
+                                                setShowFilterMenu(false);
+                                                setPage(1);
+                                            }}
+                                            className={`w-full px-4 py-2.5 text-left text-sm text-white/80 hover:bg-white/5 transition-colors ${statusFilter === status ? 'bg-white/5' : ''}`}
+                                        >
+                                            {status}
+                                        </button>
+                                    ))}
+                                </div>
+                            </>
+                        )}
+                    </div>
+
+                    <div className="relative">
+                        <button
+                            onClick={() => setShowSortMenu(!showSortMenu)}
+                            className="px-4 py-2.5 bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 text-attire-charcoal dark:text-white hover:bg-black/10 dark:hover:bg-white/10 transition-colors flex items-center gap-2 rounded-xl text-sm font-mono tracking-widest text-[11px]"
+                        >
+                            <svg
+                                width="14"
+                                height="14"
+                                viewBox="0 0 16 16"
+                                fill="none"
+                            >
+                                <path
+                                    d="M3 6L6 3L9 6M6 3V13M13 10L10 13L7 10M10 13V3"
+                                    stroke="currentColor"
+                                    strokeWidth="1.5"
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                />
+                            </svg>
+                            Sort
+                            <ChevronDown size={14} className="opacity-50" />
+                        </button>
+                        {showSortMenu && (
+                            <>
+                                <div
+                                    className="fixed inset-0 z-10"
+                                    onClick={() => setShowSortMenu(false)}
+                                />
+                                <div className="absolute right-0 mt-2 w-48 bg-[#0a0a0a] border border-white/10 shadow-xl rounded-xl z-20 py-2">
+                                    <button
+                                        onClick={() =>
+                                            handleSort('customer_name')
+                                        }
+                                        className={`w-full px-4 py-2 text-left text-sm hover:bg-white/5 text-white/80 ${sortField === 'customer_name' ? 'bg-white/5' : ''}`}
+                                    >
+                                        Name{' '}
+                                        {sortField === 'customer_name' &&
+                                            (sortOrder === 'asc'
+                                                ? 'A-Z'
+                                                : 'Z-A')}
+                                    </button>
+                                    <button
+                                        onClick={() =>
+                                            handleSort('altering_cost')
+                                        }
+                                        className={`w-full px-4 py-2 text-left text-sm hover:bg-white/5 text-white/80 ${sortField === 'altering_cost' ? 'bg-white/5' : ''}`}
+                                    >
+                                        Cost{' '}
+                                        {sortField === 'altering_cost' &&
+                                            (sortOrder === 'asc'
+                                                ? 'Low-High'
+                                                : 'High-Low')}
+                                    </button>
+                                    <button
+                                        onClick={() => handleSort('ready_at')}
+                                        className={`w-full px-4 py-2 text-left text-sm hover:bg-white/5 text-white/80 ${sortField === 'ready_at' ? 'bg-white/5' : ''}`}
+                                    >
+                                        Ready Date{' '}
+                                        {sortField === 'ready_at' &&
+                                            (sortOrder === 'asc'
+                                                ? 'Old-New'
+                                                : 'New-Old')}
+                                    </button>
+                                </div>
+                            </>
+                        )}
+                    </div>
+
+                    <div className="relative">
+                        <button
+                            onClick={() => setShowExportMenu(!showExportMenu)}
+                            className="px-4 py-2.5 bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 text-attire-charcoal dark:text-white hover:bg-black/10 dark:hover:bg-white/10 transition-colors flex items-center gap-2 rounded-xl text-sm font-mono tracking-widest text-[11px]"
+                        >
+                            <Download size={14} /> Export{' '}
+                            <ChevronDown size={14} className="opacity-50" />
+                        </button>
+                        {showExportMenu && (
+                            <>
+                                <div
+                                    className="fixed inset-0 z-10"
+                                    onClick={() => setShowExportMenu(false)}
+                                />
+                                <div className="absolute right-0 mt-2 w-32 bg-[#0a0a0a] border border-white/10 shadow-xl rounded-xl z-20 py-2">
+                                    <button
+                                        onClick={() => {
+                                            exportToCSV();
+                                            setShowExportMenu(false);
+                                        }}
+                                        className="w-full px-4 py-2 text-left text-sm hover:bg-white/5 text-white/80"
+                                    >
+                                        CSV
+                                    </button>
+                                    <button
+                                        onClick={() => {
+                                            exportToJSON();
+                                            setShowExportMenu(false);
+                                        }}
+                                        className="w-full px-4 py-2 text-left text-sm hover:bg-white/5 text-white/80 border-t border-white/10 m-0 rounded-none"
+                                    >
+                                        JSON
+                                    </button>
+                                </div>
+                            </>
+                        )}
+                    </div>
+
+                    <Button
+                        onClick={() => setIsAdding(true)}
+                        className="bg-attire-charcoal dark:bg-white text-white dark:text-black hover:bg-attire-accent transition-colors px-6 py-5 rounded-xl font-bold uppercase tracking-[0.2em] text-[10px] ml-2"
+                    >
+                        <Plus className="w-3 h-3 mr-2" /> Add Record
+                    </Button>
+                </div>
+            </div>
+
+            {/* Table Area */}
+            <div className="bg-white/80 dark:bg-[#0a0a0a]/80 backdrop-blur-xl border border-black/10 dark:border-white/10 rounded-3xl overflow-hidden relative shadow-2xl">
+                <div className="overflow-x-auto">
+                    <div className="min-w-[1100px]">
+                        {/* Table Header */}
+                        <div
+                            className="px-5 py-4 text-[10px] font-black uppercase tracking-[0.2em] text-gray-400 dark:text-white/40 bg-black/[0.02] dark:bg-white/[0.02] border-b border-black/5 dark:border-white/10 text-left"
+                            style={{
+                                display: 'grid',
+                                gridTemplateColumns:
+                                    '40px 240px 160px 140px 200px 1fr 60px',
+                                columnGap: '10px',
+                            }}
+                        >
+                            <div className="flex items-center justify-center border-r border-black/5 dark:border-white/5 pr-3">
+                                <input
+                                    type="checkbox"
+                                    className="w-3.5 h-3.5 rounded border-black/20 dark:border-white/20 bg-transparent accent-attire-accent cursor-pointer"
+                                    checked={
+                                        sortedAlterings.length > 0 &&
+                                        selectedItems.length ===
+                                            sortedAlterings.length
+                                    }
+                                    onChange={handleSelectAll}
+                                />
+                            </div>
+                            <div className="flex items-center gap-1.5 border-r border-black/5 dark:border-white/5 px-3">
+                                <svg
+                                    width="12"
+                                    height="12"
+                                    viewBox="0 0 16 16"
+                                    fill="none"
+                                    className="opacity-50"
+                                >
+                                    <circle
+                                        cx="8"
+                                        cy="6"
+                                        r="3"
+                                        stroke="currentColor"
+                                        strokeWidth="1.5"
+                                    />
+                                    <path
+                                        d="M3 14C3 11.5 5 10 8 10C11 10 13 11.5 13 14"
+                                        stroke="currentColor"
+                                        strokeWidth="1.5"
+                                    />
+                                </svg>
+                                Client
+                            </div>
+                            <div className="flex items-center gap-1.5 border-r border-black/5 dark:border-white/5 px-3">
+                                <svg
+                                    width="12"
+                                    height="12"
+                                    viewBox="0 0 16 16"
+                                    fill="none"
+                                    className="opacity-50"
+                                >
+                                    <path
+                                        d="M3 8L6 5L10 9L13 6"
+                                        stroke="currentColor"
+                                        strokeWidth="1.5"
+                                        strokeLinecap="round"
+                                    />
+                                </svg>
+                                Status
+                            </div>
+                            <div className="flex items-center gap-1.5 border-r border-black/5 dark:border-white/5 px-3">
+                                <DollarSign size={12} className="opacity-50" />{' '}
+                                Cost
+                            </div>
+                            <div className="flex items-center gap-1.5 border-r border-black/5 dark:border-white/5 px-3">
+                                <Package size={12} className="opacity-50" />{' '}
+                                Product
+                            </div>
+                            <div className="flex items-center gap-1.5 border-r border-black/5 dark:border-white/5 px-3">
+                                <Clock size={12} className="opacity-50" /> Ready
+                                Date
+                            </div>
+                            <div className="flex items-center justify-center px-3 opacity-30">
+                                <MoreVertical size={14} />
+                            </div>
+                        </div>
+
+                        {isLoading ? (
+                            <div className="flex items-center justify-center h-64">
+                                <Loader className="w-8 h-8 text-attire-accent animate-spin" />
+                            </div>
+                        ) : sortedAlterings.length === 0 ? (
+                            <div className="flex flex-col items-center justify-center h-64 text-center">
+                                <Scissors className="w-12 h-12 text-black/10 dark:text-white/10 mb-4" />
+                                <p className="text-gray-400 dark:text-white/30 text-xs font-black uppercase tracking-widest">
+                                    No records found
+                                </p>
+                            </div>
+                        ) : (
+                            <AnimatePresence mode="wait">
+                                <motion.div
+                                    key={`page-${page}`}
+                                    variants={
+                                        shouldAnimate ? containerVariants : {}
+                                    }
+                                    initial={
+                                        shouldAnimate ? 'hidden' : 'visible'
+                                    }
+                                    animate="visible"
+                                >
+                                    {sortedAlterings.map((altering) => (
+                                        <AlteringRow
+                                            key={altering.id}
+                                            altering={altering}
+                                            statusConfig={statusConfig}
+                                            isSelected={selectedItems.includes(
+                                                altering.id
+                                            )}
+                                            onSelect={handleItemSelect}
+                                            onDetailOpen={setSelectedDetail}
+                                            shouldAnimate={shouldAnimate}
+                                            rowVariants={rowVariants}
+                                        />
+                                    ))}
+                                </motion.div>
+                            </AnimatePresence>
+                        )}
+                    </div>
+                </div>
+
+                {/* Pagination Details */}
+                {!isLoading && pagination.total > 0 && (
+                    <div className="flex items-center justify-between p-5 border-t border-black/5 dark:border-white/10 bg-black/[0.01] dark:bg-white/[0.01]">
+                        <div className="text-[10px] uppercase font-black tracking-widest text-gray-400 dark:text-white/40">
+                            Page {pagination.currentPage} of{' '}
+                            {pagination.lastPage}{' '}
+                            <span className="mx-2 opacity-30">•</span>{' '}
+                            {pagination.total} records
+                        </div>
+                        <div className="flex gap-2">
+                            <button
+                                onClick={() =>
+                                    setPage((p) => Math.max(1, p - 1))
+                                }
+                                disabled={page === 1}
+                                className="px-4 py-2 bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 text-attire-charcoal dark:text-white text-[10px] font-black uppercase tracking-[0.2em] hover:bg-black/10 dark:hover:bg-white/10 disabled:opacity-30 transition-colors rounded-xl"
+                            >
+                                Previous
+                            </button>
+                            <button
+                                onClick={() =>
+                                    setPage((p) =>
+                                        Math.min(pagination.lastPage, p + 1)
+                                    )
+                                }
+                                disabled={page === pagination.lastPage}
+                                className="px-4 py-2 bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 text-attire-charcoal dark:text-white text-[10px] font-black uppercase tracking-[0.2em] hover:bg-black/10 dark:hover:bg-white/10 disabled:opacity-30 transition-colors rounded-xl"
+                            >
+                                Next
                             </button>
                         </div>
-                    )}
-                </div>
-            )}
+                    </div>
+                )}
+            </div>
+
+            {/* Detail Modal Overlays */}
+            <AnimatePresence>
+                {selectedDetail && (
+                    <motion.div
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        transition={{ duration: 0.3 }}
+                        className="fixed inset-0 bg-black/60 dark:bg-[#000000]/80 backdrop-blur-md flex items-center justify-center z-50 p-4"
+                        onClick={() => setSelectedDetail(null)}
+                    >
+                        <motion.div
+                            initial={{ scale: 0.95, opacity: 0, y: 20 }}
+                            animate={{ scale: 1, opacity: 1, y: 0 }}
+                            exit={{ scale: 0.95, opacity: 0, y: 20 }}
+                            transition={{
+                                type: 'spring',
+                                stiffness: 400,
+                                damping: 30,
+                            }}
+                            className="bg-white dark:bg-[#0a0a0a] border border-black/10 dark:border-white/10 rounded-[2.5rem] p-8 max-w-lg w-full shadow-2xl relative overflow-hidden"
+                            onClick={(e) => e.stopPropagation()}
+                        >
+                            <div className="absolute top-0 right-0 w-64 h-64 bg-attire-accent/[0.03] rounded-full blur-3xl pointer-events-none" />
+
+                            <button
+                                onClick={() => setSelectedDetail(null)}
+                                className="absolute top-6 right-6 w-8 h-8 rounded-full bg-black/5 dark:bg-white/5 hover:bg-black/10 dark:hover:bg-white/10 flex items-center justify-center transition-colors text-gray-400 dark:text-white/40 hover:text-attire-charcoal dark:hover:text-white"
+                            >
+                                <X size={14} />
+                            </button>
+
+                            <div className="space-y-8 relative z-10">
+                                {/* Header */}
+                                <div className="flex items-center gap-4">
+                                    <div className="w-16 h-16 rounded-3xl bg-attire-accent/10 border border-attire-accent/20 flex items-center justify-center shadow-[0_0_20px_rgba(245,168,28,0.1)]">
+                                        <User className="w-8 h-8 text-attire-accent" />
+                                    </div>
+                                    <div>
+                                        <h3 className="text-2xl font-serif text-attire-charcoal dark:text-white tracking-tight leading-none mb-2">
+                                            {selectedDetail.customer_name}
+                                        </h3>
+                                        <div className="flex flex-wrap gap-2">
+                                            {(() => {
+                                                const status =
+                                                    statusConfig[
+                                                        selectedDetail.status
+                                                    ] || statusConfig.pending;
+                                                return (
+                                                    <div
+                                                        className={`inline-flex items-center gap-1.5 px-2 py-0.5 text-[9px] font-black uppercase tracking-widest ${status.bgColor} ${status.textColor} border ${status.borderColor} rounded-md`}
+                                                    >
+                                                        <status.icon className="w-3 h-3" />{' '}
+                                                        {status.label}
+                                                    </div>
+                                                );
+                                            })()}
+                                            {selectedDetail.order_no && (
+                                                <div className="inline-flex items-center px-2 py-0.5 text-[9px] font-mono uppercase tracking-widest bg-white/5 border border-white/10 text-white/50 rounded-md">
+                                                    #{selectedDetail.order_no}
+                                                </div>
+                                            )}
+                                        </div>
+                                    </div>
+                                </div>
+
+                                {/* Information Matrix */}
+                                <div className="grid gap-4 bg-white/[0.02] border border-white/5 p-5 rounded-3xl">
+                                    <div className="flex gap-4 items-start">
+                                        <Smartphone
+                                            size={16}
+                                            className="text-white/30 mt-0.5 shrink-0"
+                                        />
+                                        <div>
+                                            <p className="text-[10px] uppercase font-black tracking-widest text-white/30 mb-0.5">
+                                                Phone
+                                            </p>
+                                            <p className="text-sm font-medium text-white">
+                                                {selectedDetail.mobile ||
+                                                    'Unknown'}
+                                            </p>
+                                        </div>
+                                    </div>
+                                    <div className="flex gap-4 items-start">
+                                        <Package
+                                            size={16}
+                                            className="text-white/30 mt-0.5 shrink-0"
+                                        />
+                                        <div>
+                                            <p className="text-[10px] uppercase font-black tracking-widest text-white/30 mb-0.5">
+                                                Product
+                                            </p>
+                                            <p className="text-sm text-white/80 font-serif italic">
+                                                {selectedDetail.product ||
+                                                    'Unspecified Detail'}
+                                            </p>
+                                        </div>
+                                    </div>
+                                    {selectedDetail.remark && (
+                                        <div className="flex gap-4 items-start">
+                                            <Mail
+                                                size={16}
+                                                className="text-white/30 mt-0.5 shrink-0"
+                                            />
+                                            <div>
+                                                <p className="text-[10px] uppercase font-black tracking-widest text-white/30 mb-0.5">
+                                                    Notes
+                                                </p>
+                                                <p className="text-sm text-white/60 leading-relaxed bg-black/20 p-3 rounded-xl border border-white/5 mt-1">
+                                                    {selectedDetail.remark}
+                                                </p>
+                                            </div>
+                                        </div>
+                                    )}
+                                    <div className="grid grid-cols-2 gap-4 pt-4 border-t border-white/5">
+                                        <div>
+                                            <p className="text-[10px] uppercase font-black tracking-widest text-white/30 mb-1">
+                                                Ready Date
+                                            </p>
+                                            <p className="text-sm font-mono text-white/80">
+                                                {formatDate(
+                                                    selectedDetail.ready_at
+                                                )}
+                                            </p>
+                                        </div>
+                                        <div>
+                                            <p className="text-[10px] uppercase font-black tracking-widest text-white/30 mb-1">
+                                                Cost
+                                            </p>
+                                            <p className="text-sm font-mono text-attire-accent">
+                                                $
+                                                {selectedDetail.altering_cost ||
+                                                    '0.00'}
+                                            </p>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                {/* Actions */}
+                                <div className="flex flex-col gap-3 pt-2">
+                                    <div className="flex gap-3">
+                                        {selectedDetail.status !==
+                                            'completed' && (
+                                            <button
+                                                onClick={() => {
+                                                    updateMutation.mutate({
+                                                        id: selectedDetail.id,
+                                                        data: {
+                                                            status: 'completed',
+                                                        },
+                                                    });
+                                                    setSelectedDetail(null);
+                                                }}
+                                                className="flex-1 bg-white text-black hover:bg-white/80 transition-colors py-4 rounded-xl text-[10px] font-black uppercase tracking-[0.2em] shadow-xl flex justify-center items-center gap-2"
+                                            >
+                                                <CheckCircle2 size={14} /> Mark
+                                                Complete
+                                            </button>
+                                        )}
+                                        <button
+                                            onClick={() =>
+                                                handleNotify(selectedDetail.id)
+                                            }
+                                            disabled={
+                                                isNotifying ===
+                                                selectedDetail.id
+                                            }
+                                            className="flex-1 bg-attire-accent/10 border border-attire-accent/30 text-attire-accent hover:bg-attire-accent/20 transition-colors py-4 rounded-xl text-[10px] font-black uppercase tracking-[0.2em] flex justify-center items-center gap-2"
+                                        >
+                                            {isNotifying ===
+                                            selectedDetail.id ? (
+                                                <Loader
+                                                    className="animate-spin"
+                                                    size={14}
+                                                />
+                                            ) : (
+                                                <Mail size={14} />
+                                            )}{' '}
+                                            Notify Client
+                                        </button>
+                                    </div>
+                                    <button
+                                        onClick={() => {
+                                            if (
+                                                confirm('Delete this record?')
+                                            ) {
+                                                deleteMutation.mutate(
+                                                    selectedDetail.id
+                                                );
+                                            }
+                                        }}
+                                        className="text-red-500/50 hover:text-red-500 hover:bg-red-500/10 py-3 rounded-xl text-xs font-medium transition-colors"
+                                    >
+                                        Delete Record
+                                    </button>
+                                    <div className="text-center pt-2">
+                                        <span className="text-[9px] uppercase tracking-widest font-black text-white/20">
+                                            {selectedDetail.notified_at
+                                                ? `Last notified: ${formatDate(selectedDetail.notified_at)}`
+                                                : 'Not notified yet'}
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                        </motion.div>
+                    </motion.div>
+                )}
+
+                {/* Add Modal Wizard */}
+                {isAdding && (
+                    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+                        <div
+                            className="absolute inset-0 bg-black/60 dark:bg-[#000000]/80 backdrop-blur-md"
+                            onClick={() => setIsAdding(false)}
+                        />
+                        <motion.div
+                            initial={{ scale: 0.95, opacity: 0 }}
+                            animate={{ scale: 1, opacity: 1 }}
+                            exit={{ scale: 0.95, opacity: 0 }}
+                            className="relative w-full max-w-xl"
+                        >
+                            <Card className="bg-white dark:bg-[#0a0a0a] border border-black/10 dark:border-white/10 p-8 rounded-[3rem] shadow-2xl relative overflow-hidden">
+                                <BorderBeam size={250} duration={12} />
+
+                                {/* Header / Progress Indicators */}
+                                <div className="flex justify-between items-start mb-8 relative z-10">
+                                    <div>
+                                        <CardTitle className="text-3xl font-serif text-attire-charcoal dark:text-white tracking-tight">
+                                            Add Record
+                                        </CardTitle>
+                                        <div className="flex items-center gap-2 mt-3">
+                                            {[1, 2, 3].map((step) => (
+                                                <div
+                                                    key={step}
+                                                    className={`h-1.5 rounded-full transition-all duration-300 ${wizardStep >= step ? 'w-8 bg-attire-accent' : 'w-4 bg-black/10 dark:bg-white/10'}`}
+                                                />
+                                            ))}
+                                        </div>
+                                    </div>
+                                    <Button
+                                        variant="ghost"
+                                        onClick={() => setIsAdding(false)}
+                                        className="text-gray-400 dark:text-white/40 hover:text-attire-charcoal dark:hover:text-white hover:bg-black/5 dark:hover:bg-white/5 rounded-full w-10 h-10 p-0 flex items-center justify-center"
+                                    >
+                                        <X size={16} />
+                                    </Button>
+                                </div>
+
+                                <div className="relative z-10 min-h-[300px]">
+                                    <AnimatePresence mode="wait">
+                                        {wizardStep === 1 && (
+                                            <motion.div
+                                                key="step1"
+                                                initial={{ opacity: 0, x: 20 }}
+                                                animate={{ opacity: 1, x: 0 }}
+                                                exit={{ opacity: 0, x: -20 }}
+                                                className="space-y-6"
+                                            >
+                                                <div className="space-y-2">
+                                                    <label className="text-[10px] font-black text-gray-400 dark:text-white/40 uppercase tracking-widest pl-1">
+                                                        Customer Name
+                                                    </label>
+                                                    <input
+                                                        required
+                                                        autoFocus
+                                                        value={
+                                                            formData.customer_name
+                                                        }
+                                                        onChange={(e) =>
+                                                            setFormData({
+                                                                ...formData,
+                                                                customer_name:
+                                                                    e.target
+                                                                        .value,
+                                                            })
+                                                        }
+                                                        placeholder="Full Name"
+                                                        className="w-full bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 hover:border-black/20 dark:hover:border-white/20 rounded-2xl p-4 text-attire-charcoal dark:text-white text-sm outline-none focus:border-attire-accent/50 focus:bg-black/[0.07] dark:focus:bg-white/[0.07] transition-all"
+                                                    />
+                                                </div>
+                                                <div className="space-y-2">
+                                                    <label className="text-[10px] font-black text-gray-400 dark:text-white/40 uppercase tracking-widest pl-1">
+                                                        Phone Number
+                                                    </label>
+                                                    <input
+                                                        value={formData.mobile}
+                                                        onChange={(e) =>
+                                                            setFormData({
+                                                                ...formData,
+                                                                mobile: e.target
+                                                                    .value,
+                                                            })
+                                                        }
+                                                        placeholder="+1 (555) 000-0000"
+                                                        className="w-full bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 hover:border-black/20 dark:hover:border-white/20 rounded-2xl p-4 text-attire-charcoal dark:text-white text-sm outline-none focus:border-attire-accent/50 focus:bg-black/[0.07] dark:focus:bg-white/[0.07] transition-all"
+                                                    />
+                                                </div>
+                                                <div className="space-y-2">
+                                                    <label className="text-[10px] font-black text-gray-400 dark:text-white/40 uppercase tracking-widest pl-1">
+                                                        Order Number (Optional)
+                                                    </label>
+                                                    <input
+                                                        value={
+                                                            formData.order_no
+                                                        }
+                                                        onChange={(e) =>
+                                                            setFormData({
+                                                                ...formData,
+                                                                order_no:
+                                                                    e.target
+                                                                        .value,
+                                                            })
+                                                        }
+                                                        placeholder="#ORD-..."
+                                                        className="w-full bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 hover:border-black/20 dark:hover:border-white/20 rounded-2xl p-4 text-attire-charcoal dark:text-white font-mono text-sm outline-none focus:border-attire-accent/50 focus:bg-black/[0.07] dark:focus:bg-white/[0.07] transition-all"
+                                                    />
+                                                </div>
+                                            </motion.div>
+                                        )}
+                                        {wizardStep === 2 && (
+                                            <motion.div
+                                                key="step2"
+                                                initial={{ opacity: 0, x: 20 }}
+                                                animate={{ opacity: 1, x: 0 }}
+                                                exit={{ opacity: 0, x: -20 }}
+                                                className="space-y-6"
+                                            >
+                                                <div className="space-y-2">
+                                                    <label className="text-[10px] font-black text-gray-400 dark:text-white/40 uppercase tracking-widest pl-1">
+                                                        Product Details
+                                                    </label>
+                                                    <textarea
+                                                        required
+                                                        autoFocus
+                                                        rows="3"
+                                                        value={formData.product}
+                                                        onChange={(e) =>
+                                                            setFormData({
+                                                                ...formData,
+                                                                product:
+                                                                    e.target
+                                                                        .value,
+                                                            })
+                                                        }
+                                                        placeholder="Specify the exact alterations required..."
+                                                        className="w-full bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 hover:border-black/20 dark:hover:border-white/20 rounded-2xl p-4 text-attire-charcoal dark:text-white text-sm outline-none focus:border-attire-accent/50 focus:bg-black/[0.07] dark:focus:bg-white/[0.07] transition-all resize-none"
+                                                    />
+                                                </div>
+                                                <div className="space-y-2">
+                                                    <label className="text-[10px] font-black text-gray-400 dark:text-white/40 uppercase tracking-widest pl-1">
+                                                        Notes (Optional)
+                                                    </label>
+                                                    <textarea
+                                                        rows="3"
+                                                        value={formData.remark}
+                                                        onChange={(e) =>
+                                                            setFormData({
+                                                                ...formData,
+                                                                remark: e.target
+                                                                    .value,
+                                                            })
+                                                        }
+                                                        placeholder="Internal tailor notes, structural warnings..."
+                                                        className="w-full bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 hover:border-black/20 dark:hover:border-white/20 rounded-2xl p-4 text-gray-500 dark:text-white/60 text-sm outline-none focus:border-attire-accent/50 focus:bg-black/[0.07] dark:focus:bg-white/[0.07] transition-all resize-none"
+                                                    />
+                                                </div>
+                                            </motion.div>
+                                        )}
+                                        {wizardStep === 3 && (
+                                            <motion.div
+                                                key="step3"
+                                                initial={{ opacity: 0, x: 20 }}
+                                                animate={{ opacity: 1, x: 0 }}
+                                                exit={{ opacity: 0, x: -20 }}
+                                                className="space-y-6"
+                                            >
+                                                <div className="space-y-2">
+                                                    <label className="text-[10px] font-black text-gray-400 dark:text-white/40 uppercase tracking-widest pl-1">
+                                                        Cost ($)
+                                                    </label>
+                                                    <div className="relative">
+                                                        <DollarSign
+                                                            className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 dark:text-white/40"
+                                                            size={16}
+                                                        />
+                                                        <input
+                                                            required
+                                                            type="number"
+                                                            step="0.01"
+                                                            value={
+                                                                formData.altering_cost
+                                                            }
+                                                            onChange={(e) =>
+                                                                setFormData({
+                                                                    ...formData,
+                                                                    altering_cost:
+                                                                        e.target
+                                                                            .value,
+                                                                })
+                                                            }
+                                                            placeholder="0.00"
+                                                            className="w-full bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 hover:border-black/20 dark:hover:border-white/20 rounded-2xl py-4 pl-12 pr-4 text-attire-accent font-mono text-lg outline-none focus:border-attire-accent/50 focus:bg-black/[0.07] dark:focus:bg-white/[0.07] transition-all"
+                                                        />
+                                                    </div>
+                                                </div>
+                                                <div className="grid grid-cols-2 gap-4">
+                                                    <div className="space-y-2">
+                                                        <label className="text-[10px] font-black text-gray-400 dark:text-white/40 uppercase tracking-widest pl-1">
+                                                            Start Date
+                                                        </label>
+                                                        <input
+                                                            required
+                                                            type="date"
+                                                            value={
+                                                                formData.start_date
+                                                            }
+                                                            onChange={(e) =>
+                                                                setFormData({
+                                                                    ...formData,
+                                                                    start_date:
+                                                                        e.target
+                                                                            .value,
+                                                                })
+                                                            }
+                                                            className="w-full bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 hover:border-black/20 dark:hover:border-white/20 rounded-2xl p-4 text-attire-charcoal dark:text-white text-sm outline-none focus:border-attire-accent/50 focus:bg-black/[0.07] dark:focus:bg-white/[0.07] transition-all [color-scheme:light] dark:[color-scheme:dark]"
+                                                        />
+                                                    </div>
+                                                    <div className="space-y-2">
+                                                        <label className="text-[10px] font-black text-gray-400 dark:text-white/40 uppercase tracking-widest pl-1">
+                                                            Target Ready
+                                                        </label>
+                                                        <input
+                                                            required
+                                                            type="date"
+                                                            value={
+                                                                formData.ready_at
+                                                            }
+                                                            onChange={(e) =>
+                                                                setFormData({
+                                                                    ...formData,
+                                                                    ready_at:
+                                                                        e.target
+                                                                            .value,
+                                                                })
+                                                            }
+                                                            className="w-full bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 hover:border-black/20 dark:hover:border-white/20 rounded-2xl p-4 text-attire-charcoal dark:text-white text-sm outline-none focus:border-attire-accent/50 focus:bg-black/[0.07] dark:focus:bg-white/[0.07] transition-all [color-scheme:light] dark:[color-scheme:dark]"
+                                                        />
+                                                    </div>
+                                                </div>
+                                            </motion.div>
+                                        )}
+                                    </AnimatePresence>
+                                </div>
+
+                                {/* Controls */}
+                                <div className="mt-8 pt-6 border-t border-black/10 dark:border-white/10 flex items-center justify-between relative z-10">
+                                    <button
+                                        type="button"
+                                        onClick={() =>
+                                            wizardStep > 1
+                                                ? setWizardStep((w) => w - 1)
+                                                : setIsAdding(false)
+                                        }
+                                        className="text-[10px] font-black uppercase tracking-widest text-white/40 hover:text-white transition-colors px-4 py-3"
+                                    >
+                                        {wizardStep === 1
+                                            ? 'Cancel'
+                                            : 'Go Back'}
+                                    </button>
+
+                                    {wizardStep < 3 ? (
+                                        <button
+                                            type="button"
+                                            onClick={() => {
+                                                if (
+                                                    wizardStep === 1 &&
+                                                    !formData.customer_name
+                                                )
+                                                    return alert(
+                                                        'Client name is required.'
+                                                    );
+                                                if (
+                                                    wizardStep === 2 &&
+                                                    !formData.product
+                                                )
+                                                    return alert(
+                                                        'Garment scope is required.'
+                                                    );
+                                                setWizardStep((w) => w + 1);
+                                            }}
+                                            className="px-8 py-4 bg-black/5 dark:bg-white/10 text-attire-charcoal dark:text-white hover:bg-black/10 dark:hover:bg-white transition-colors dark:hover:text-black rounded-2xl text-[10px] font-black uppercase tracking-widest"
+                                        >
+                                            Continue
+                                        </button>
+                                    ) : (
+                                        <Button
+                                            onClick={() => {
+                                                if (
+                                                    !formData.altering_cost ||
+                                                    !formData.ready_at
+                                                )
+                                                    return alert(
+                                                        'Quote and Target Date are required.'
+                                                    );
+                                                createMutation.mutate(formData);
+                                            }}
+                                            disabled={createMutation.isPending}
+                                            className="px-8 py-6 bg-attire-accent text-black hover:bg-[#ffb940] transition-colors shadow-[0_0_20px_rgba(245,168,28,0.3)] rounded-2xl text-[10px] font-black uppercase tracking-widest"
+                                        >
+                                            {createMutation.isPending ? (
+                                                <Loader className="animate-spin mr-2" />
+                                            ) : (
+                                                <CheckCircle2 className="mr-2 w-4 h-4" />
+                                            )}
+                                            Save Record
+                                        </Button>
+                                    )}
+                                </div>
+                            </Card>
+                        </motion.div>
+                    </div>
+                )}
+            </AnimatePresence>
         </div>
     );
-};
-
-export default AlteringManager;
+}

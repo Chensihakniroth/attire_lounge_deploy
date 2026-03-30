@@ -61,10 +61,10 @@ const OptimizedImage = ({
                 loading={priority ? 'eager' : 'lazy'}
                 fetchpriority={priority ? 'high' : 'auto'}
                 decoding="async"
-                className={`transition-all duration-[1200ms] ease-[cubic-bezier(0.25,1,0.5,1)] ${
+                className={`transition-all duration-[400ms] ease-out ${
                     isLoaded
-                        ? 'opacity-100 blur-0 scale-100'
-                        : 'opacity-0 blur-xl scale-105'
+                        ? 'opacity-100 scale-100'
+                        : 'opacity-0 scale-[1.02]'
                 } ${
                     objectFit === 'contain'
                         ? 'max-w-full max-h-full w-auto h-auto object-contain'
@@ -72,10 +72,9 @@ const OptimizedImage = ({
                 } ${className}`}
                 style={{
                     objectFit,
-                    // Prevent upscaling beyond natural resolution for "original resolution" feel
                     maxWidth: objectFit === 'contain' ? '100%' : 'none',
                     maxHeight: objectFit === 'contain' ? '100%' : 'none',
-                    willChange: isLoaded ? 'auto' : 'transform, filter, opacity', // Release GPU layer once loaded
+                    willChange: isLoaded ? 'auto' : 'transform, opacity',
                     ...style,
                 }}
                 {...props}

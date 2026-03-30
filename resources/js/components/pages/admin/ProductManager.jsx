@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback, useMemo, memo } from 'react';
+import React, { useState, useEffect, useCallback, useMemo, memo, useTransition } from 'react';
 import { ShoppingBag, Search, Filter, Loader, Edit2, Trash2, ExternalLink, Plus, FolderPlus, Check, X, Star, Tag, Save, AlertCircle, Eye, EyeOff, RefreshCw, ChevronDown, Sparkles } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
@@ -102,17 +102,19 @@ const ProductManager = () => {
     const queryClient = useQueryClient();
     const { setIsEditing, showCollections, setShowCollections, collections, fetchCollections } = useAdmin();
     const navigate = useNavigate();
+    const [isPending, startTransition] = useTransition();
     const [isFiltering, setIsFiltering] = useState(false);
+    const [searchInput, setSearchInput] = useState('');
     const [searchTerm, setSearchTerm] = useState('');
     const [selectedCollection, setSelectedCollection] = useState('all');
     const [gridSize, setGridSize] = useState('medium'); // Default to 5 columns ✨
     const [visibleRows, setVisibleRows] = useState(3); // Show only 3 rows initially ✨
     
-    const itemsPerRow = {
+    const itemsPerRow = useMemo(() => ({
         large: 3,
         medium: 5,
         small: 7
-    };
+    }), []);
 
     const { data: allProducts = [], isLoading: loading } = useQuery({
         queryKey: ['admin-products'],
@@ -129,21 +131,35 @@ const ProductManager = () => {
         }
     });
 
-    const fetchData = () => queryClient.invalidateQueries({ queryKey: ['admin-products'] });
+    const fetchData = useCallback((invalidate = true) => {
+        if (invalidate) {
+            queryClient.invalidateQueries({ queryKey: ['admin-products'] });
+        }
+    }, [queryClient]);
 
     useEffect(() => {
-        fetchData();
-    }, [fetchData]);
+        // Initial fetch handled by useQuery, but we refresh collections ✨
+        fetchCollections();
+    }, [fetchCollections]);
+
+    const handleEdit = useCallback((slug) => {
+        navigate(`/admin/products/${slug}/edit`);
+    }, [navigate]);
 
     // Handle smooth search transition and reset pagination
     useEffect(() => {
         setVisibleRows(3); // Reset rows on filter change
-        if (allProducts.length > 0) {
-            setIsFiltering(true);
-            const timer = setTimeout(() => setIsFiltering(false), 300);
-            return () => clearTimeout(timer);
-        }
-    }, [searchTerm, selectedCollection, allProducts.length]);
+    }, [searchTerm, selectedCollection]);
+
+    // Handle debounced search transition
+    useEffect(() => {
+        const timer = setTimeout(() => {
+            startTransition(() => {
+                setSearchTerm(searchInput);
+            });
+        }, 300);
+        return () => clearTimeout(timer);
+    }, [searchInput]);
 
     const filteredProducts = useMemo(() => {
         const term = searchTerm.toLowerCase();
@@ -166,43 +182,37 @@ const ProductManager = () => {
 
     const hasMore = filteredProducts.length > visibleProducts.length;
 
-    const handleLoadMore = () => {
+    const handleLoadMore = useCallback(() => {
         setVisibleRows(prev => prev + 3); // Load 3 more rows
-    };
-
-    const handleUpdateProduct = useCallback((updatedProduct) => {
-        setAllProducts(prev => prev.map(p => p.id === updatedProduct.id ? updatedProduct : p));
-        setEditingProduct(null);
     }, []);
 
-    const toggleVisibility = useCallback(async (product) => {
-        const nextStatus = !product.is_visible;
-        setAllProducts(prev => prev.map(p => 
-            p.id === product.id ? { ...p, is_visible: nextStatus } : p
-        ));
+    const toggleVisibility = useCallback(async (productId, currentVisibility) => {
+        const nextStatus = !currentVisibility;
+        
+        // Local Optimistic Update via Query Cache
+        queryClient.setQueryData(['admin-products'], oldData => {
+            if (!oldData) return oldData;
+            return oldData.map(p => p.id === productId ? { ...p, is_visible: nextStatus } : p);
+        });
 
         try {
             const token = localStorage.getItem('admin_token') || sessionStorage.getItem('admin_token');
-            const response = await axios.put(`/api/v1/admin/products/${product.id}`, 
+            const response = await axios.put(`/api/v1/admin/products/${productId}`, 
                 { is_visible: nextStatus },
                 { headers: { 'Authorization': `Bearer ${token}` } }
             );
             if (!response.data.success) throw new Error('Failed to update');
         } catch (error) {
             console.error('Failed to toggle visibility:', error);
-            setAllProducts(prev => prev.map(p => p.id === product.id ? product : p));
+            // Rollback on error
+            queryClient.invalidateQueries(['admin-products']);
             alert('Failed to update product visibility.');
         }
-    }, []);
+    }, [queryClient]);
 
     const handleDeleteProduct = useCallback(async (id) => {
         if (window.confirm('Are you sure you want to permanently delete this product? This will also remove all associated images from MinIO.')) {
-            console.log("========================================");
-            console.log(`Initiating permanent deletion for Product ID: ${id} (ﾉ´ヮ\`)ﾉ*:･ﾟ✧`);
-            
-            // Optimistic update ✨
-            const deletedProduct = allProducts.find(p => p.id === id);
-            setAllProducts(prev => prev.filter(p => p.id !== id));
+            console.log(`Initiating permanent deletion for Product ID: ${id}`);
             
             try {
                 const token = localStorage.getItem('admin_token') || sessionStorage.getItem('admin_token');
@@ -211,28 +221,17 @@ const ProductManager = () => {
                 });
                 
                 if (response.data.success) {
-                    console.log("Deletion Successful! (｡♥‿♥｡)");
-                    console.log("Response:", response.data.message);
-                    console.log("Images should now be cleared from MinIO. ✨");
+                    queryClient.invalidateQueries(['admin-products']);
+                    console.log("Deletion Successful!");
                 } else {
                     throw new Error(response.data.message || 'Unknown error');
                 }
             } catch (error) {
-                console.error("========================================");
-                console.error("Deletion Failed! (｡>﹏<｡)");
-                console.error("Error Detail:", error.response?.data || error.message);
-                console.error("========================================");
-                
-                // Rollback optimistic update
-                if (deletedProduct) {
-                    setAllProducts(prev => [...prev, deletedProduct]);
-                }
+                console.error("Deletion Failed!", error);
                 alert('Failed to delete product: ' + (error.response?.data?.message || error.message));
-            } finally {
-                console.log("========================================");
             }
         }
-    }, [allProducts, fetchData]);
+    }, [queryClient]);
 
     const gridClasses = {
         large: "grid-cols-1 md:grid-cols-2 xl:grid-cols-3",
@@ -294,11 +293,16 @@ const ProductManager = () => {
                     <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 dark:text-attire-silver/40" size={18} />
                     <input 
                         type="text" 
-                        placeholder="Quick search..." 
-                        value={searchTerm}
-                        onChange={(e) => setSearchTerm(e.target.value)}
+                        placeholder="Quick search products..." 
+                        value={searchInput}
+                        onChange={(e) => setSearchInput(e.target.value)}
                         className="w-full bg-black/5 dark:bg-white/5 border border-black/5 dark:border-white/10 rounded-2xl py-4 pl-12 pr-6 text-gray-900 dark:text-white text-sm focus:border-attire-accent/50 dark:focus:bg-white/10 outline-none transition-all"
                     />
+                    {(isPending || isFiltering) && (
+                        <div className="absolute right-4 top-1/2 -translate-y-1/2">
+                            <Loader className="animate-spin text-attire-accent" size={16} />
+                        </div>
+                    )}
                 </div>
                 <CustomDropdown 
                     selected={selectedCollection}
@@ -345,9 +349,9 @@ const ProductManager = () => {
                                         key={product.id} 
                                         product={product} 
                                         size={gridSize}
-                                        onEdit={() => navigate(`/admin/products/${product.slug}/edit`)}
-                                        onDelete={() => handleDeleteProduct(product.id)}
-                                        onToggleVisibility={() => toggleVisibility(product)}
+                                        onEdit={handleEdit}
+                                        onDelete={handleDeleteProduct}
+                                        onToggleVisibility={toggleVisibility}
                                     />
                                 ))
                             ) : (
@@ -424,7 +428,7 @@ const ProductCard = memo(React.forwardRef(({ product, onEdit, onDelete, onToggle
                 
                 <div className={`absolute ${isSmall ? 'top-2 right-2' : 'top-4 right-4'} opacity-0 group-hover:opacity-100 transition-all z-20 translate-y-2 group-hover:translate-y-0`}>
                     <button 
-                        onClick={(e) => { e.stopPropagation(); onToggleVisibility(); }}
+                        onClick={(e) => { e.stopPropagation(); onToggleVisibility(product.id, product.is_visible); }}
                         className={`${isSmall ? 'p-2' : 'p-3'} rounded-xl backdrop-blur-md border transition-all ${product.is_visible ? 'bg-white/10 border-white/10 text-white hover:bg-white/20' : 'bg-red-500/20 border-red-500/20 text-red-400 hover:bg-red-500/30'}`}
                     >
                         {product.is_visible ? <Eye size={isSmall ? 14 : 16} /> : <EyeOff size={14} />}
@@ -434,14 +438,14 @@ const ProductCard = memo(React.forwardRef(({ product, onEdit, onDelete, onToggle
                 <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 flex items-end p-4 md:p-6">
                     <div className="flex gap-2 md:gap-3 w-full translate-y-4 group-hover:translate-y-0 transition-transform duration-500">
                         <button 
-                            onClick={onEdit}
+                            onClick={(e) => { e.stopPropagation(); onEdit(product.slug); }}
                             className={`flex-grow flex items-center justify-center gap-2 bg-white text-black ${isSmall ? 'py-2 px-1' : 'py-3'} rounded-xl text-[10px] font-bold uppercase tracking-widest hover:bg-attire-accent transition-colors shadow-xl`}
                         >
                             <Edit2 size={isSmall ? 10 : 12} /> {isSmall ? 'Edit' : 'Edit Details'}
                         </button>
                         {!isSmall && (
                             <button 
-                                onClick={onDelete}
+                                onClick={(e) => { e.stopPropagation(); onDelete(product.id); }}
                                 className="w-12 h-12 flex items-center justify-center bg-red-500/20 text-red-500 rounded-xl hover:bg-red-500 hover:text-white transition-all border border-red-500/20 shadow-xl"
                             >
                                 <Trash2 size={16} />

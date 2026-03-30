@@ -1,18 +1,23 @@
 import React from 'react';
-import { motion } from 'framer-motion';
 
 const Skeleton = ({ className = '' }) => (
-    <motion.div 
-        className={`bg-white/5 rounded-xl ${className}`}
-        animate={{
-            opacity: [0.4, 0.7, 0.4]
-        }}
-        transition={{
-            duration: 2,
-            repeat: Infinity,
-            ease: "easeInOut"
-        }}
-    />
+    <>
+        <style dangerouslySetInnerHTML={{ __html: `
+            @keyframes pulse-gentle {
+                0%, 100% { opacity: 0.3; }
+                50% { opacity: 0.6; }
+            }
+            .animate-pulse-gentle {
+                animation: pulse-gentle 2s ease-in-out infinite;
+            }
+        `}} />
+        <div 
+            className={`bg-white/5 rounded-xl animate-pulse-gentle ${className}`}
+            style={{
+                willChange: 'opacity'
+            }}
+        />
+    </>
 );
 
 export default Skeleton;

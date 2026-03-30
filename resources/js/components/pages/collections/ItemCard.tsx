@@ -1,16 +1,7 @@
 import React, { memo } from 'react';
-import { motion, Variants } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import OptimizedImage from '../../common/OptimizedImage.jsx';
 import { Product } from '../../../types';
-
-const itemVariants: Variants = {
-    hidden: { y: 20, opacity: 0 },
-    visible: {
-      y: 0,
-      opacity: 1
-    }
-};
 
 interface ItemCardProps {
     product: Product;
@@ -32,22 +23,26 @@ const ItemCard: React.FC<ItemCardProps> = memo(({ product }) => {
     };
 
     return (
-        <motion.div
-            className={`text-left group ${hasSlug ? 'cursor-pointer' : 'cursor-not-allowed'}`}
+        <div
+            className={`text-left group animate-gallery-reveal ${hasSlug ? 'cursor-pointer' : 'cursor-not-allowed'}`}
             onClick={handleProductClick}
-            variants={itemVariants}
-            transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
+            style={{
+                willChange: 'transform, opacity'
+            }}
         >
             <div className={`relative overflow-hidden aspect-[3/4] rounded-sm bg-white/5 ${!hasSlug ? 'opacity-50' : ''}`}>
                 <OptimizedImage 
                     src={imageUrl} 
                     fallback={fallbackUrl}
                     alt={product.name} 
-                    className="w-full h-full object-cover" 
+                    className="w-full h-full object-cover grayscale-[0.2] transition-all duration-700 group-hover:grayscale-0 group-hover:scale-[1.03]" 
                     containerClassName="w-full h-full"
                 />
+                
+                {/* Subtle Hover Overlay - Professional touch */}
+                <div className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity duration-700" />
             </div>
-        </motion.div>
+        </div>
     );
 });
 

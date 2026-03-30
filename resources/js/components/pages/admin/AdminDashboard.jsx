@@ -12,6 +12,11 @@ import { useAdmin } from './AdminContext';
 import { useQuery } from '@tanstack/react-query';
 import axios from 'axios';
 
+// UI Components
+import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
+import { Button } from "@/components/ui/button";
+
 const cardVariants = {
     hidden: { opacity: 0, y: 20 },
     visible: { opacity: 1, y: 0, transition: { duration: 0.6, ease: [0.22, 1, 0.36, 1] } }
@@ -53,7 +58,7 @@ const GlassyStatCard = ({ label, value, trend, icon: Icon, color = "attire-accen
             </div>
             {trend && (
                 <div className={`flex items-center gap-1 px-2.5 py-1 rounded-full text-[9px] font-black uppercase tracking-widest ${trend > 0 ? 'bg-green-500/10 text-green-500' : 'bg-red-500/10 text-red-500'}`}>
-                    {trend > 0 ? <TrendingUp size={10} /> : <TrendingDown size={10} />}
+                    <TrendingUp size={10} />
                     {Math.abs(trend)}%
                 </div>
             )}
@@ -330,15 +335,15 @@ const AdminDashboard = () => {
     return (
         <ErrorBoundary>
             <motion.div className="space-y-10 pb-24 font-sans" initial="hidden" animate="visible" variants={{ hidden: { opacity: 0 }, visible: { opacity: 1, transition: { staggerChildren: 0.15 } } }}>
-                <motion.div variants={cardVariants} className="flex flex-col md:flex-row md:items-center justify-between gap-8">
-                    <div><h1 className="text-4xl font-serif text-gray-900 dark:text-white mb-2 tracking-tight">Intelligence</h1><div className="flex items-center gap-3"><span className="w-8 h-px bg-attire-accent/40" /><p className="text-gray-400 dark:text-attire-silver text-[10px] font-black uppercase tracking-[0.4em]">Performance Command Center</p></div></div>
-                </motion.div>
+                
+
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                     <StatCard icon={<Calendar />} title="Appointments" value={stats.appointments} link="/admin/appointments" loading={appointmentsLoading && appointments.length === 0} highlight={dashboardMode === 'services'} />
                     <StatCard icon={<Users />} title="Total Clients" value={stats.total_customers} link="/admin/customer-profiles" loading={appointmentsLoading && appointments.length === 0} highlight={dashboardMode === 'registry'} />
                     <StatCard icon={<ShoppingBag />} title="Total Products" value={stats.products} link="/admin/products" loading={appointmentsLoading && appointments.length === 0} />
                     <StatCard icon={<TrendingUp />} title="Subscribers" value={stats.subscribers} link="/admin/newsletter" loading={appointmentsLoading && appointments.length === 0} />
                 </div>
+
                 <motion.div variants={cardVariants} className="bg-white dark:bg-black/20 backdrop-blur-xl p-10 rounded-[3rem] shadow-xl shadow-black/[0.02] border border-black/5 dark:border-white/10 overflow-hidden relative group">
                     <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-attire-accent/[0.03] rounded-full blur-[120px] -mr-48 -mt-48 pointer-events-none group-hover:bg-attire-accent/[0.05] transition-all duration-1000" />
 
@@ -477,9 +482,66 @@ const AdminDashboard = () => {
                             </div>
                         </div>
                     </div>
-                </motion.div>                <div className="grid grid-cols-1 lg:grid-cols-3 gap-10">
-                    <motion.div variants={cardVariants} className="lg:col-span-2 bg-white dark:bg-black/20 backdrop-blur-xl p-10 rounded-[3rem] shadow-xl shadow-black/[0.02] border border-black/5 dark:border-white/10"><div className="flex items-center justify-between mb-10"><div className="flex items-center gap-4"><div className={`p-3 rounded-2xl transition-colors ${dashboardMode === 'services' ? 'bg-blue-500/10 text-blue-500' : 'bg-attire-accent/10 text-attire-accent'}`}><Activity size={24} /></div><div><h2 className="text-2xl font-serif text-gray-900 dark:text-white tracking-tight">{dashboardMode === 'services' ? 'Recent Journal' : 'Registry Entries'}</h2><p className="text-[10px] font-black text-gray-400 dark:text-white/20 uppercase tracking-[0.2em] mt-1">Latest system events</p></div></div><Link to={dashboardMode === 'services' ? "/admin/appointments" : "/admin/customer-profiles"} className="text-[10px] font-black text-attire-accent hover:text-gray-900 dark:hover:text-white transition-colors uppercase tracking-[0.3em] bg-attire-accent/5 px-5 py-2.5 rounded-xl border border-attire-accent/10">View All</Link></div>{isLoadingActivity ? (<div className="space-y-4">{[...Array(5)].map((_, i) => <Skeleton key={i} className="h-16 w-full rounded-2xl" />)}</div>) : displayItems.length > 0 ? (<motion.ul key={dashboardMode} className="space-y-3" initial={{ opacity: 0 }} animate={{ opacity: 1 }}>{displayItems.map(item => (<motion.li key={item.id} initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.3 }} className="py-4 px-4 flex items-center justify-between border-b border-black/5 dark:border-white/5 last:border-0 rounded-2xl transition duration-200 ease-out hover:bg-black/[0.02] dark:hover:bg-white/[0.02] group"><div className="flex items-center space-x-4"><div className={`h-10 w-10 flex items-center justify-center rounded-xl border transition-colors ${dashboardMode === 'registry' ? 'bg-attire-accent/10 border-attire-accent/20 text-attire-accent' : 'bg-black/5 dark:bg-white/5 border-black/5 dark:border-white/5 text-gray-400 group-hover:text-attire-accent'}`}>{dashboardMode === 'registry' ? <UserPlus size={18} /> : <Calendar size={18} />}</div><div><p className="font-bold text-gray-900 dark:text-white group-hover:text-attire-accent transition-colors text-[13px] uppercase tracking-wide">{item.name}</p><p className="text-[10px] uppercase font-black tracking-widest text-gray-400 dark:text-white/20">{dashboardMode === 'registry' ? `${item.nationality || 'Cambodian'} • ${item.client_status}` : item.service}</p></div></div><div className="text-[10px] font-mono text-gray-400 dark:text-attire-silver/50 flex items-center bg-black/5 dark:bg-black/20 px-3 py-1 rounded-full border border-black/5 dark:border-white/5"><Clock size={10} className="mr-2" /><span>{new Date(item.created_at || item.date).toLocaleDateString()}</span></div></motion.li>))}</motion.ul>) : (<div className="text-center py-24 bg-black/[0.01] rounded-[2.5rem] border border-dashed border-black/5 dark:border-white/5"><div className="w-20 h-20 bg-black/5 dark:bg-white/5 rounded-full flex items-center justify-center mx-auto mb-6 border border-black/5 dark:border-white/5"><Clock className="text-gray-400 dark:text-attire-silver/20" size={32} /></div><p className="text-gray-400 dark:text-attire-silver/40 text-[11px] font-black uppercase tracking-[0.3em] italic">No recent activity detected.</p></div>)}</motion.div>
-                    <motion.div variants={cardVariants} className="bg-white dark:bg-black/20 backdrop-blur-xl p-10 rounded-[3rem] shadow-xl shadow-black/[0.02] border border-black/5 dark:border-white/10 flex flex-col"><div className="flex items-center gap-4 mb-10"><div className="p-3 bg-purple-500/10 rounded-2xl text-purple-500"><ShieldCheck size={24} /></div><div><h2 className="text-2xl font-serif text-gray-900 dark:text-white tracking-tight">Terminals</h2><p className="text-[10px] font-black text-gray-400 dark:text-white/20 uppercase tracking-[0.2em] mt-1">Direct access</p></div></div><div className="flex flex-col gap-4 flex-grow"><QuickAction icon={<Users />} title="Client Registry" description="Manage Dossiers" link="/admin/customer-profiles" /><QuickAction icon={<Package />} title="Product Library" description="Curate Collections" link="/admin/products" /><QuickAction icon={<Plus />} title="New Masterpiece" description="Registry Entry" link="/admin/products/new" /><QuickAction icon={<Calendar />} title="Appointment Board" description="Consultations" link="/admin/appointments" /><QuickAction icon={<Gift />} title="Gift Requests" description="Custom Curation" link="/admin/customize-gift" /><div className="mt-10 pt-10 border-t border-black/5 dark:border-white/5"><div className="flex items-center gap-3 mb-6 text-gray-400 dark:text-white/20"><AlertTriangle size={14} /><p className="text-[10px] font-black uppercase tracking-[0.3em]">Priority Alerts</p></div><div className="p-6 bg-yellow-500/5 dark:bg-yellow-400/5 rounded-[2.5rem] border border-yellow-500/10 dark:border-yellow-400/10 shadow-inner"><div className="flex items-center justify-between"><div><span className="text-2xl font-serif text-gray-900 dark:text-white leading-none">{stats.pending_appointments}</span><span className="text-[10px] font-black text-gray-400 dark:text-white/20 uppercase tracking-widest ml-3">Pending</span></div><Link to="/admin/appointments" className="p-3 bg-yellow-400 text-black rounded-xl hover:bg-yellow-500 transition-colors shadow-lg shadow-yellow-400/20"><ArrowRight size={16} /></Link></div><p className="text-[9px] font-bold text-yellow-600/60 dark:text-yellow-400/40 uppercase tracking-widest mt-3">Awaiting response</p></div></div></div></motion.div>
+                </motion.div>
+
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-10">
+                    <motion.div variants={cardVariants} className="lg:col-span-2 bg-white dark:bg-black/20 backdrop-blur-xl p-10 rounded-[3rem] shadow-xl shadow-black/[0.02] border border-black/5 dark:border-white/10">
+                        <div className="flex items-center justify-between mb-10">
+                            <div className="flex items-center gap-4">
+                                <div className={`p-3 rounded-2xl transition-colors ${dashboardMode === 'services' ? 'bg-blue-500/10 text-blue-500' : 'bg-attire-accent/10 text-attire-accent'}`}><Activity size={24} /></div>
+                                <div><h2 className="text-2xl font-serif text-gray-900 dark:text-white tracking-tight">{dashboardMode === 'services' ? 'Recent Journal' : 'Registry Entries'}</h2><p className="text-[10px] font-black text-gray-400 dark:text-white/20 uppercase tracking-[0.2em] mt-1">Latest system events</p></div>
+                            </div>
+                            <Link to={dashboardMode === 'services' ? "/admin/appointments" : "/admin/customer-profiles"} className="text-[10px] font-black text-attire-accent hover:text-gray-900 dark:hover:text-white transition-colors uppercase tracking-[0.3em] bg-attire-accent/5 px-5 py-2.5 rounded-xl border border-attire-accent/10">View All</Link>
+                        </div>
+                        {isLoadingActivity ? (
+                            <div className="space-y-4">{[...Array(5)].map((_, i) => <Skeleton key={i} className="h-16 w-full rounded-2xl" />)}</div>
+                        ) : displayItems.length > 0 ? (
+                            <motion.ul key={dashboardMode} className="space-y-3" initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
+                                {displayItems.map(item => (
+                                    <motion.li key={item.id} initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.3 }} className="py-4 px-4 flex items-center justify-between border-b border-black/5 dark:border-white/5 last:border-0 rounded-2xl transition duration-200 ease-out hover:bg-black/[0.02] dark:hover:bg-white/[0.02] group">
+                                        <div className="flex items-center space-x-4">
+                                            <div className={`h-10 w-10 flex items-center justify-center rounded-xl border transition-colors ${dashboardMode === 'registry' ? 'bg-attire-accent/10 border-attire-accent/20 text-attire-accent' : 'bg-blue-500/10 border-blue-500/20 text-blue-500'}`}>
+                                                {dashboardMode === 'registry' ? <User size={18} /> : <Calendar size={18} />}
+                                            </div>
+                                            <div>
+                                                <p className="text-sm font-medium text-gray-900 dark:text-white">{dashboardMode === 'registry' ? item.customer_name : item.client_name}</p>
+                                                <p className="text-[10px] text-gray-400 dark:text-white/20 uppercase tracking-widest">{dashboardMode === 'registry' ? item.mobile : item.service_type}</p>
+                                            </div>
+                                        </div>
+                                        <div className="text-right">
+                                            <p className="text-xs font-mono text-gray-900 dark:text-white">{new Date(item.created_at).toLocaleDateString()}</p>
+                                            <p className={`text-[9px] font-black uppercase tracking-[0.2em] ${item.status === 'completed' ? 'text-green-500' : 'text-attire-accent'}`}>{item.status}</p>
+                                        </div>
+                                    </motion.li>
+                                ))}
+                            </motion.ul>
+                        ) : (
+                            <div className="py-20 text-center">
+                                <Info className="mx-auto text-gray-300 dark:text-white/10 mb-4" size={40} />
+                                <p className="text-sm text-gray-400 dark:text-white/20 uppercase tracking-[0.2em]">No entries recorded</p>
+                            </div>
+                        )}
+                    </motion.div>
+
+                    <motion.div variants={cardVariants} className="bg-white dark:bg-black/20 backdrop-blur-xl p-10 rounded-[3rem] shadow-xl shadow-black/[0.02] border border-black/5 dark:border-white/10 flex flex-col">
+                        <div className="flex items-center gap-4 mb-10"><div className="p-3 bg-purple-500/10 rounded-2xl text-purple-500"><ShieldCheck size={24} /></div><div><h2 className="text-2xl font-serif text-gray-900 dark:text-white tracking-tight">Terminals</h2><p className="text-[10px] font-black text-gray-400 dark:text-white/20 uppercase tracking-[0.2em] mt-1">Direct access</p></div></div>
+                        <div className="flex flex-col gap-4 flex-grow">
+                            <QuickAction icon={<Users />} title="Client Registry" description="Manage Dossiers" link="/admin/customer-profiles" />
+                            <QuickAction icon={<Package />} title="Product Library" description="Curate Collections" link="/admin/products" />
+                            <QuickAction icon={<Plus />} title="New Masterpiece" description="Registry Entry" link="/admin/products/new" />
+                            <QuickAction icon={<Calendar />} title="Appointment Board" description="Consultations" link="/admin/appointments" />
+                            <QuickAction icon={<Gift />} title="Gift Requests" description="Custom Curation" link="/admin/customize-gift" />
+                            <div className="mt-10 pt-10 border-t border-black/5 dark:border-white/5">
+                                <div className="flex items-center gap-3 mb-6 text-gray-400 dark:text-white/20"><AlertTriangle size={14} /><p className="text-[10px] font-black uppercase tracking-[0.3em]">Priority Alerts</p></div>
+                                <div className="p-6 bg-yellow-500/5 dark:bg-yellow-400/5 rounded-[2.5rem] border border-yellow-500/10 dark:border-yellow-400/10 shadow-inner">
+                                    <div className="flex items-center justify-between">
+                                        <div><span className="text-2xl font-serif text-gray-900 dark:text-white leading-none">{stats.pending_appointments || 0}</span><span className="text-[10px] font-black text-gray-400 dark:text-white/20 uppercase tracking-widest ml-3">Pending</span></div>
+                                        <Link to="/admin/appointments" className="p-3 bg-yellow-400 text-black rounded-full hover:bg-yellow-500 transition-colors"><ArrowRight size={16} /></Link>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </motion.div>
                 </div>
             </motion.div>
         </ErrorBoundary>
