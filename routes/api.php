@@ -12,6 +12,7 @@ use App\Http\Controllers\AdminController;
 use App\Http\Controllers\ActivityController;
 use App\Http\Controllers\CustomerProfileController;
 use App\Http\Controllers\UserController;
+use App\Http\Controllers\PromocodeController;
 
 Route::prefix('v1')->group(function () {
     // Public Product routes (accessible to all)
@@ -34,6 +35,9 @@ Route::prefix('v1')->group(function () {
     // Gift Item Stock (public access for fetching status)
     Route::get('/gift-items/out-of-stock', [\App\Http\Controllers\GiftItemStockController::class, 'index']);
 
+    // Promocodes (Public validate route)
+    Route::post('/promocodes/validate', [PromocodeController::class, 'validateCode']);
+
     // Newsletter Subscription (public)
     Route::post('/newsletter-subscriptions', [NewsletterSubscriptionController::class, 'store']);
 
@@ -54,6 +58,11 @@ Route::prefix('v1')->group(function () {
             // Admin Dashboard Stats
             Route::get('/stats', [AdminController::class, 'stats']);
 
+            // Promocodes
+            Route::get('/promocodes', [PromocodeController::class, 'index']);
+            Route::post('/promocodes', [PromocodeController::class, 'store']);
+            Route::delete('/promocodes/{id}', [PromocodeController::class, 'destroy']);
+
             // Newsletter Management
             Route::get('/newsletter-subscriptions', [NewsletterSubscriptionController::class, 'index']);
             Route::delete('/newsletter-subscriptions/{subscriber}', [NewsletterSubscriptionController::class, 'destroy']);
@@ -69,6 +78,14 @@ Route::prefix('v1')->group(function () {
 
             // Gift Item Stock Management
             Route::post('/gift-items/toggle-stock', [GiftItemStockController::class, 'toggle']);
+
+            // Alterings
+            Route::get('/alterings', [\App\Http\Controllers\AlteringController::class, 'index']);
+            Route::post('/alterings', [\App\Http\Controllers\AlteringController::class, 'store']);
+            Route::put('/alterings/{id}', [\App\Http\Controllers\AlteringController::class, 'update']);
+            Route::post('/alterings/{id}/notify', [\App\Http\Controllers\AlteringController::class, 'notify']);
+            Route::delete('/alterings/{id}', [\App\Http\Controllers\AlteringController::class, 'destroy']);
+            Route::post('/alterings/import', [\App\Http\Controllers\AlteringController::class, 'import']);
 
             // Products
             Route::post('/products/bulk', [ProductController::class, 'bulkStore']);

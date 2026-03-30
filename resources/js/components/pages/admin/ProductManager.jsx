@@ -390,14 +390,6 @@ const ProductManager = () => {
 const ProductCard = memo(React.forwardRef(({ product, onEdit, onDelete, onToggleVisibility, size }, ref) => {
     const isSmall = size === 'small';
 
-    // Debugging image URLs ✨
-    React.useEffect(() => {
-        if (product.images && product.images.length > 0) {
-            console.log(`🖼️ Rendering Product: ${product.name} | Image URL: ${product.images[0]}`);
-        } else {
-            console.warn(`⚠️ Product ${product.name} has no images!`);
-        }
-    }, [product]);
 
     return (
         <motion.div 

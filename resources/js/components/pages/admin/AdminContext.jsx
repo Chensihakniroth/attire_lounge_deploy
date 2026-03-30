@@ -144,6 +144,18 @@ export const AdminProvider = ({ children }) => {
         }
     };
 
+    const createAppointment = async (appointmentData) => {
+        try {
+            const response = await axios.post('/api/v1/appointments', appointmentData);
+            queryClient.invalidateQueries({ queryKey: ['admin-appointments'] });
+            queryClient.invalidateQueries({ queryKey: ['admin-stats'] });
+            return response.data;
+        } catch (err) {
+            console.error('Failed to create appointment:', err);
+            throw err;
+        }
+    };
+
     const updateAppointmentStatus = async (id, status) => {
         try {
             await axios.patch(`/api/v1/admin/appointments/${id}/status`, { status });
@@ -190,6 +202,7 @@ export const AdminProvider = ({ children }) => {
             appointmentsLoading,
             fetchAppointments,
             loadMoreAppointments,
+            createAppointment,
             appointmentsPagination,
             updateAppointmentStatus,
             clearCompletedAppointments,

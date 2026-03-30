@@ -105,6 +105,8 @@ const ProductEditor = lazyWithRetry(() => import('./pages/admin/ProductEditor.js
 const BulkProductEditor = lazyWithRetry(() => import('./pages/admin/BulkProductEditor.jsx'));
 const InventoryManager = lazyWithRetry(() => import('./pages/admin/InventoryManager.jsx'));
 const SEOManager = lazyWithRetry(() => import('./pages/admin/SEOManager.jsx'));
+const AlteringManager = lazyWithRetry(() => import('./pages/admin/AlteringManager.jsx'));
+const PromocodeManager = lazyWithRetry(() => import('./pages/admin/PromocodeManager.jsx'));
 
 const GlobalStyles = () => (
     <style dangerouslySetInnerHTML={{ __html: `
@@ -118,7 +120,7 @@ function AdminApp() {
         <HelmetProvider>
             <QueryClientProvider client={queryClient}>
                 <RealtimeAdminUpdater />
-                <Router>
+                <Router future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
                     <AdminProvider>
                         <GlobalStyles />
                         <Suspense fallback={<AdminLoadingSpinner />}>
@@ -129,6 +131,8 @@ function AdminApp() {
                                     <Route element={<AdminLayout />}>
                                         <Route path="/admin" element={<AdminDashboard />} />
                                         <Route path="/admin/appointments" element={<AppointmentManager />} />
+                                        <Route path="/admin/alterings" element={<AlteringManager />} />
+                                        <Route path="/admin/promocodes" element={<PromocodeManager />} />
                                         <Route path="/admin/products" element={<ProductManager />} />
                                         <Route path="/admin/collections" element={<CollectionManager />} />
                                         <Route path="/admin/products/bulk" element={<BulkProductEditor />} />

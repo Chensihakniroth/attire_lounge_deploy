@@ -5,7 +5,7 @@ import OptimizedImage from '../../common/OptimizedImage.jsx';
 import Skeleton from '../../common/Skeleton.jsx';
 import { motion, AnimatePresence } from 'framer-motion';
 
-const GiftRequestCard = ({ request, onUpdate, onDelete }) => {
+const GiftRequestCard = React.forwardRef(({ request, onUpdate, onDelete }, ref) => {
     const [isUpdating, setIsUpdating] = useState(false);
 
     const handleUpdate = async (status) => {
@@ -24,9 +24,11 @@ const GiftRequestCard = ({ request, onUpdate, onDelete }) => {
 
     return (
         <motion.div 
+            ref={ref}
             layout="position"
             initial={{ opacity: 0, y: 15 }}
             animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, scale: 0.95 }}
             className="group p-6 rounded-3xl backdrop-blur-xl bg-white dark:bg-black/20 border border-black/5 dark:border-white/10 shadow-lg dark:shadow-none transition-all duration-300 hover:bg-gray-50 dark:hover:bg-black/30 hover:border-black/10 dark:hover:border-attire-accent/30"
         >
             <div className="flex justify-between items-start pb-4 mb-6 border-b border-black/5 dark:border-white/5">
@@ -107,7 +109,7 @@ const GiftRequestCard = ({ request, onUpdate, onDelete }) => {
             </div>
         </motion.div>
     );
-};
+});
 
 const GiftSkeleton = () => (
     <div className="p-6 rounded-3xl bg-white dark:bg-white/5 border border-black/5 dark:border-white/5 shadow-lg dark:shadow-none space-y-6">

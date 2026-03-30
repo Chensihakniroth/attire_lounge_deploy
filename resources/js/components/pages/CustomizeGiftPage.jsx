@@ -23,6 +23,7 @@ import {
     Heart,
 } from 'lucide-react';
 import api from '../../api';
+import axios from 'axios';
 import Skeleton from '../common/Skeleton.jsx';
 import giftOptions from '../../data/giftOptions';
 import { isSafari } from '../../helpers/browserUtils.js';
@@ -180,6 +181,11 @@ const CustomizeGiftPage = () => {
     const [note, setNote] = useState('');
     const [submissionStatus, setSubmissionStatus] = useState({ state: 'idle' });
     const [formErrors, setFormErrors] = useState({});
+    
+    // Promocode states
+    const [promoCode, setPromoCode] = useState('');
+    const [appliedPromo, setAppliedPromo] = useState(null);
+    const [promoStatus, setPromoStatus] = useState({ state: 'idle', message: '' });
 
     // Use React Query for caching and real-time invalidation support
     const { data: outOfStockItems = [] } = useQuery({
@@ -223,10 +229,29 @@ const CustomizeGiftPage = () => {
         return giftOptions.boxes;
     }, [selectedTie, selectedPocketSquare]);
 
-    const totalPrice =
+    const basePrice =
         (selectedTie?.price || 0) +
         (selectedPocketSquare?.price || 0) +
         (selectedBox?.price || 0);
+
+    const discountAmount = appliedPromo ? (basePrice * appliedPromo.discount_percentage) / 100 : 0;
+    const totalPrice = basePrice - discountAmount;
+
+    const handleApplyPromo = async () => {
+        if (!promoCode.trim()) return;
+        setPromoStatus({ state: 'loading', message: '' });
+        try {
+            const res = await axios.post('/api/v1/promocodes/validate', { code: promoCode });
+            setAppliedPromo({ code: promoCode, discount_percentage: res.data.discount_percentage });
+            setPromoStatus({ state: 'success', message: `${res.data.discount_percentage}% discount applied!` });
+        } catch (error) {
+            setAppliedPromo(null);
+            setPromoStatus({
+                state: 'error',
+                message: error.response?.data?.message || 'Invalid or expired code.'
+            });
+        }
+    };
 
     const validateStep1 = () => {
         const errors = {};
@@ -241,7 +266,7 @@ const CustomizeGiftPage = () => {
     const handleFinalize = async () => {
         setSubmissionStatus({ state: 'loading' });
         try {
-            const preferences = `Tie: ${selectedTie.name}\nPocket Square: ${selectedPocketSquare.name}\nBox: ${selectedBox.name}\nNote: ${note}`;
+            const preferences = `Tie: ${selectedTie.name}\nPocket Square: ${selectedPocketSquare.name}\nBox: ${selectedBox.name}\nNote: ${note}${appliedPromo ? `\nPromo Code Applied: ${appliedPromo.code} (${appliedPromo.discount_percentage}% OFF)` : ''}`;
             const selectedItems = [
                 { type: 'Tie', ...selectedTie },
                 { type: 'Pocket Square', ...selectedPocketSquare },
@@ -280,6 +305,9 @@ const CustomizeGiftPage = () => {
         setNote('');
         setSubmissionStatus({ state: 'idle' });
         setFormErrors({});
+        setPromoCode('');
+        setAppliedPromo(null);
+        setPromoStatus({ state: 'idle', message: '' });
     };
 
     return (
@@ -724,6 +752,42 @@ const CustomizeGiftPage = () => {
 
                                         <div className="space-y-4">
                                             <label className="text-[10px] font-black uppercase tracking-[0.3em] text-white/60">
+                                                Promotional Code
+                                            </label>
+                                            <div className="flex gap-4">
+                                                <input
+                                                    value={promoCode}
+                                                    onChange={(e) => setPromoCode(e.target.value.toUpperCase())}
+                                                    disabled={appliedPromo || promoStatus.state === 'loading'}
+                                                    placeholder="ENTER CODE"
+                                                    className="flex-1 bg-black/40 border border-white/10 rounded-2xl p-4 text-sm font-mono tracking-widest outline-none focus:border-attire-accent/30 transition-all text-white placeholder-white/20 uppercase"
+                                                />
+                                                {appliedPromo ? (
+                                                    <button
+                                                        onClick={() => { setAppliedPromo(null); setPromoCode(''); setPromoStatus({ state: 'idle', message: '' }); }}
+                                                        className="px-6 py-4 rounded-2xl border border-red-500/30 text-red-400 font-black text-[10px] uppercase tracking-[0.3em] hover:bg-red-500/10 transition-colors"
+                                                    >
+                                                        Remove
+                                                    </button>
+                                                ) : (
+                                                    <button
+                                                        onClick={handleApplyPromo}
+                                                        disabled={!promoCode.trim() || promoStatus.state === 'loading'}
+                                                        className="px-8 py-4 rounded-2xl border border-attire-accent/30 text-attire-accent font-black text-[10px] uppercase tracking-[0.3em] hover:bg-attire-accent/10 transition-colors disabled:opacity-50 flex items-center gap-2"
+                                                    >
+                                                        {promoStatus.state === 'loading' ? <Loader size={14} className="animate-spin" /> : 'Apply'}
+                                                    </button>
+                                                )}
+                                            </div>
+                                            {promoStatus.message && (
+                                                <p className={`text-xs mt-2 ${promoStatus.state === 'success' ? 'text-green-400' : 'text-red-400'}`}>
+                                                    {promoStatus.message}
+                                                </p>
+                                            )}
+                                        </div>
+
+                                        <div className="space-y-4">
+                                            <label className="text-[10px] font-black uppercase tracking-[0.3em] text-white/60">
                                                 Personal Note (Optional)
                                             </label>
                                             <textarea
@@ -838,9 +902,17 @@ const CustomizeGiftPage = () => {
                                     <p className="text-[9px] font-black uppercase tracking-[0.3em] text-white/40 mb-2">
                                         Total Estimate
                                     </p>
-                                    <span className="text-4xl font-mono text-white tracking-tighter">
-                                        ${totalPrice.toFixed(2)}
-                                    </span>
+                                    <div className="flex items-center gap-3">
+                                        {appliedPromo && (
+                                            <span className="text-xl font-mono text-white/30 line-through">
+                                                ${basePrice.toFixed(2)}
+                                            </span>
+                                        )}
+                                        <span className="text-4xl font-mono text-white tracking-tighter flex items-center gap-2">
+                                            ${totalPrice.toFixed(2)}
+                                            {appliedPromo && <span className="text-sm text-green-400 font-sans tracking-normal -mb-2">(-{appliedPromo.discount_percentage}%)</span>}
+                                        </span>
+                                    </div>
                                 </div>
                                 <div className="text-right">
                                     <p className="text-[9px] font-black uppercase tracking-[0.3em] text-attire-accent">

@@ -4,9 +4,10 @@ import { Link } from 'react-router-dom';
 import { 
     User, Trash2, Plus, Edit, X, Check, Loader, AlertCircle, 
     ChevronDown, ChevronRight, ChevronLeft, UserCheck, Share2, Search, Filter, Eye, Globe, Phone, PlusCircle,
-    UserPlus, ShieldCheck, Users, Briefcase, Palette
+    UserPlus, ShieldCheck, Users, Briefcase, Palette, Activity, Ruler
 } from 'lucide-react';
 import axios from 'axios';
+import { useAdmin } from './AdminContext';
 import { motion, AnimatePresence } from 'framer-motion';
 import Skeleton from '../../common/Skeleton.jsx';
 import ErrorBoundary from '../../common/ErrorBoundary.jsx';
@@ -129,7 +130,25 @@ const StatusFilter = ({ value, onChange }) => {
     );
 };
 
+const GlassyStatCard = ({ label, value, icon: Icon, color = "attire-accent" }) => (
+    <motion.div 
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="relative overflow-hidden group p-6 rounded-[2.5rem] bg-white/50 dark:bg-black/20 backdrop-blur-xl border border-black/5 dark:border-white/10 hover:border-attire-accent/30 transition-all duration-500 shadow-xl shadow-black/[0.02]"
+    >
+        <div className="absolute top-0 right-0 -mt-4 -mr-4 w-24 h-24 bg-attire-accent/5 rounded-full blur-3xl group-hover:bg-attire-accent/10 transition-all duration-700" />
+        <div className="flex justify-between items-start mb-4">
+            <div className={`p-3 rounded-2xl bg-${color}/10 text-${color} border border-${color}/20 group-hover:scale-110 transition-transform duration-500`}>
+                <Icon size={20} />
+            </div>
+        </div>
+        <p className="text-[10px] font-black text-gray-400 dark:text-white/20 uppercase tracking-[0.2em] mb-1">{label}</p>
+        <p className="text-3xl font-serif text-gray-900 dark:text-white tracking-tight">{value}</p>
+    </motion.div>
+);
+
 const CustomerProfileManager = () => {
+    const { stats } = useAdmin();
     const [profiles, setProfiles] = useState([]);
     const [loading, setLoading] = useState(true);
     const [showModal, setShowModal] = useState(false);
@@ -327,9 +346,12 @@ const CustomerProfileManager = () => {
     };
 
     const SizeToggleGroup = ({ label, field, sizes }) => (
-        <div className="space-y-4 bg-black/[0.02] dark:bg-white/[0.02] p-6 rounded-[2rem] border border-black/5 dark:border-white/5">
-            <label className="text-[10px] font-black text-gray-400 dark:text-white/40 uppercase tracking-[0.2em] ml-1 block">{label}</label>
-            <div className="flex flex-wrap gap-2">
+        <div className="space-y-5 bg-black/[0.02] dark:bg-white/[0.02] p-8 rounded-[2.5rem] border border-black/5 dark:border-white/5 group/size hover:border-attire-accent/20 transition-all duration-500">
+            <div className="flex items-center gap-3 mb-2">
+                <Ruler size={14} className="text-attire-accent opacity-40 group-hover/size:opacity-100 transition-opacity" />
+                <label className="text-[10px] font-black text-gray-400 dark:text-white/40 uppercase tracking-[0.3em] block">{label}</label>
+            </div>
+            <div className="flex flex-wrap gap-2.5">
                 {sizes.map(size => {
                     const isSelected = formData[field] === size;
                     return (
@@ -337,13 +359,16 @@ const CustomerProfileManager = () => {
                             key={size}
                             type="button"
                             onClick={() => toggleSize(field, size)}
-                            className={`px-5 py-2.5 rounded-xl text-[10px] font-black transition-all border uppercase tracking-widest ${
+                            className={`min-w-[54px] h-12 rounded-xl text-[10px] font-black transition-all duration-500 border uppercase tracking-widest relative overflow-hidden group/btn ${
                                 isSelected 
-                                    ? 'bg-attire-accent border-attire-accent text-black shadow-[0_0_20px_rgba(255,184,0,0.3)]' 
-                                    : 'bg-black/5 dark:bg-white/5 border-black/10 dark:border-white/10 text-gray-400 dark:text-white/40 hover:text-gray-900 dark:hover:text-white hover:bg-black/10 dark:hover:bg-white/10'
+                                    ? 'bg-attire-accent border-attire-accent text-black shadow-[0_10px_25px_rgba(245,168,28,0.3)] scale-105 z-10' 
+                                    : 'bg-white dark:bg-white/5 border-black/10 dark:border-white/10 text-gray-400 dark:text-white/30 hover:border-attire-accent/40 hover:text-gray-900 dark:hover:text-white'
                             }`}
                         >
-                            {size}
+                            <span className="relative z-10">{size}</span>
+                            {!isSelected && (
+                                <div className="absolute inset-0 bg-attire-accent opacity-0 group-hover/btn:opacity-5 transition-opacity" />
+                            )}
                         </button>
                     );
                 })}
@@ -355,51 +380,54 @@ const CustomerProfileManager = () => {
         <ErrorBoundary>
             <div className="space-y-10 pb-24 font-sans">
                 {/* Header Section */}
-                <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
+                <div className="flex flex-col md:flex-row md:items-center justify-between gap-8">
                     <div>
-                        <h1 className="text-4xl font-serif text-gray-900 dark:text-white mb-2">Customer Profiles</h1>
-                        <p className="text-gray-400 dark:text-attire-silver text-sm uppercase tracking-widest">Client Identity Management</p>
+                        <h1 className="text-4xl font-serif text-gray-900 dark:text-white mb-2 tracking-tight">Client Registry</h1>
+                        <div className="flex items-center gap-3">
+                            <span className="w-8 h-px bg-attire-accent/40" />
+                            <p className="text-gray-400 dark:text-attire-silver text-[10px] font-black uppercase tracking-[0.4em]">Dossier Management Systems</p>
+                        </div>
                     </div>
 
-                    <div className="flex flex-wrap items-center gap-3">
-                        <div className="relative group min-w-[240px]">
-                            <Search className="absolute left-5 top-1/2 -translate-y-1/2 text-gray-400 dark:text-white/20 group-focus-within:text-attire-accent transition-colors" size={14} />
-                            <input 
-                                type="text" 
-                                placeholder="Search identity..." 
-                                value={searchQuery}
-                                onChange={e => setSearchQuery(e.target.value)}
-                                className="w-full bg-white dark:bg-black/20 border border-black/5 dark:border-white/10 rounded-2xl py-3.5 pl-12 pr-6 text-gray-900 dark:text-white text-[11px] font-bold uppercase tracking-widest focus:border-attire-accent outline-none transition-all"
-                            />
-                        </div>
-                        
-                        <StatusFilter 
-                            value={filterStatus}
-                            onChange={setFilterStatus}
-                        />
+                    <motion.button
+                        whileTap={{ scale: 0.95 }}
+                        onClick={() => handleOpenModal()}
+                        className="flex items-center gap-3 bg-black dark:bg-white text-white dark:text-black rounded-2xl py-4 px-10 text-[10px] font-black uppercase tracking-widest hover:bg-attire-accent dark:hover:bg-attire-accent transition-all shadow-xl shadow-black/10 group"
+                    >
+                        <PlusCircle size={16} className="group-hover:rotate-90 transition-transform duration-500" />
+                        <span>Register Client Identity</span>
+                    </motion.button>
+                </div>
 
-                        <motion.button
-                            whileTap={{ scale: 0.95 }}
-                            onClick={() => handleOpenModal()}
-                            className="flex items-center gap-3 bg-black dark:bg-white text-white dark:text-black rounded-2xl py-3.5 px-8 text-[10px] font-bold uppercase tracking-widest hover:bg-attire-accent dark:hover:bg-attire-accent transition-all shadow-lg"
-                        >
-                            <Plus size={14} />
-                            <span>Register Client</span>
-                        </motion.button>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <GlassyStatCard label="Total Identities" value={pagination.total} icon={Users} />
+                    <GlassyStatCard label="VIP Access" value={profiles.filter(p => p.client_status === 'VIP').length + "+"} icon={ShieldCheck} />
+                    <GlassyStatCard label="Live Consults" value={stats.pending_appointments} icon={UserCheck} color="blue-500" />
+                </div>
+
+                <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 p-2 bg-black/5 dark:bg-white/5 rounded-[2.5rem] border border-black/5 dark:border-white/10">
+                    <div className="relative group flex-grow">
+                        <Search className="absolute left-6 top-1/2 -translate-y-1/2 text-gray-400 dark:text-white/20 group-focus-within:text-attire-accent transition-colors" size={16} />
+                        <input type="text" placeholder="Search client archives..." value={searchQuery} onChange={e => setSearchQuery(e.target.value)} className="w-full bg-transparent border-none rounded-2xl py-5 pl-14 pr-8 text-gray-900 dark:text-white text-[11px] font-bold uppercase tracking-widest focus:ring-0 outline-none transition-all" />
+                    </div>
+                    <div className="flex items-center gap-4 px-4">
+                        <StatusFilter value={filterStatus} onChange={setFilterStatus} />
+                        <div className="h-10 w-px bg-black/5 dark:bg-white/10 hidden md:block" />
+                        <button className="p-4 bg-black/5 dark:bg-white/5 rounded-2xl text-gray-400 dark:text-white/20 hover:text-attire-accent hover:bg-white dark:hover:bg-white/10 transition-all border border-transparent hover:border-attire-accent/20"><Filter size={16} /></button>
                     </div>
                 </div>
 
-                {/* Audit Log Style Table */}
-                <div className="bg-white dark:bg-black/20 backdrop-blur-xl rounded-[2rem] shadow-xl border border-black/5 dark:border-white/10 overflow-hidden">
-                    <div className="overflow-x-auto">
+                <div className="bg-white dark:bg-black/20 backdrop-blur-xl rounded-[3rem] shadow-2xl shadow-black/[0.02] border border-black/5 dark:border-white/10 overflow-hidden relative group">
+                    <div className="absolute top-0 right-0 w-[400px] h-[400px] bg-attire-accent/[0.02] rounded-full blur-[100px] -mr-32 -mt-32 pointer-events-none group-hover:bg-attire-accent/[0.04] transition-all duration-1000" />
+                    <div className="overflow-x-auto relative">
                         <table className="w-full text-left border-collapse">
                             <thead>
                                 <tr className="border-b border-black/5 dark:border-white/5 bg-black/[0.02] dark:bg-white/[0.02]">
-                                    <th className="px-8 py-6 text-[10px] font-bold text-gray-400 dark:text-attire-silver/40 uppercase tracking-[0.2em]">Client Identity</th>
-                                    <th className="px-8 py-6 text-[10px] font-bold text-gray-400 dark:text-attire-silver/40 uppercase tracking-[0.2em]">Nationality</th>
-                                    <th className="px-8 py-6 text-[10px] font-bold text-gray-400 dark:text-attire-silver/40 uppercase tracking-[0.2em]">Management</th>
-                                    <th className="px-8 py-6 text-[10px] font-bold text-gray-400 dark:text-attire-silver/40 uppercase tracking-[0.2em]">Status</th>
-                                    <th className="px-8 py-6 text-[10px] font-bold text-gray-400 dark:text-attire-silver/40 uppercase tracking-[0.2em] text-right">Actions</th>
+                                    <th className="px-8 py-8 text-[10px] font-black text-gray-400 dark:text-attire-silver/40 uppercase tracking-[0.3em]">Identity Profile</th>
+                                    <th className="px-8 py-8 text-[10px] font-black text-gray-400 dark:text-attire-silver/40 uppercase tracking-[0.3em]">Origin</th>
+                                    <th className="px-8 py-8 text-[10px] font-black text-gray-400 dark:text-attire-silver/40 uppercase tracking-[0.3em]">Management</th>
+                                    <th className="px-8 py-8 text-[10px] font-black text-gray-400 dark:text-attire-silver/40 uppercase tracking-[0.3em]">Status</th>
+                                    <th className="px-8 py-8 text-[10px] font-black text-gray-400 dark:text-attire-silver/40 uppercase tracking-[0.3em] text-right">Operations</th>
                                 </tr>
                             </thead>
                             <tbody className="divide-y divide-black/5 dark:divide-white/5">
@@ -407,84 +435,51 @@ const CustomerProfileManager = () => {
                                     [...Array(5)].map((_, i) => (
                                         <tr key={i} className="border-b border-black/5 dark:border-white/5 last:border-0">
                                             {[...Array(5)].map((_, j) => (
-                                                <td key={j} className="px-8 py-6"><Skeleton className="h-4 w-full rounded" /></td>
+                                                <td key={j} className="px-8 py-8"><Skeleton className="h-4 w-full rounded-full" /></td>
                                             ))}
                                         </tr>
                                     ))
                                 ) : profiles.length > 0 ? (
                                     profiles.map(profile => (
-                                        <tr key={profile.id} className="group hover:bg-black/[0.01] dark:hover:bg-white/[0.01] transition-colors border-b border-black/5 dark:border-white/5 last:border-0">
-                                            <td className="px-8 py-6">
-                                                <div className="flex items-center gap-4">
-                                                    <div className="h-10 w-10 rounded-xl bg-black/5 dark:bg-white/5 flex items-center justify-center border border-black/5 dark:border-white/5 text-[10px] font-black uppercase text-gray-400 dark:text-white/20">
-                                                        {profile.name.substring(0, 2)}
-                                                    </div>
-                                                    <div>
-                                                        <p className="text-xs font-bold text-gray-900 dark:text-white uppercase tracking-wider">{profile.name}</p>
-                                                        <p className="text-[10px] text-gray-400 dark:text-attire-silver/40 font-mono mt-0.5">{profile.phone || 'NO CONTACT'}</p>
+                                        <tr key={profile.id} className="group hover:bg-attire-accent/[0.02] dark:hover:bg-attire-accent/[0.02] transition-all duration-500 border-b border-black/5 dark:border-white/5 last:border-0">
+                                            <td className="px-8 py-8">
+                                                <div>
+                                                    <p className="text-[13px] font-black text-gray-900 dark:text-white uppercase tracking-wider group-hover:text-attire-accent transition-colors">{profile.name}</p>
+                                                    <div className="flex items-center gap-2 mt-1">
+                                                        <Phone size={10} className="text-gray-400 dark:text-white/20" />
+                                                        <p className="text-[10px] text-gray-400 dark:text-attire-silver/40 font-mono tracking-widest uppercase">{profile.phone || 'N/A'}</p>
                                                     </div>
                                                 </div>
                                             </td>
-                                            <td className="px-8 py-6">
-                                                <div className="flex items-center gap-2">
-                                                    <Globe size={14} className="text-gray-400 dark:text-white/20" />
-                                                    <span className="text-[10px] font-bold uppercase tracking-widest text-gray-600 dark:text-white/60">{profile.nationality || '-'}</span>
+                                            <td className="px-8 py-8">
+                                                <div className="inline-flex items-center gap-3 px-4 py-2 bg-black/[0.02] dark:bg-white/5 rounded-xl border border-black/5 dark:border-white/10 group-hover:border-attire-accent/20 transition-all">
+                                                    <Globe size={12} className="text-attire-accent opacity-50" />
+                                                    <span className="text-[10px] font-black uppercase tracking-[0.15em] text-gray-600 dark:text-white/60">{profile.nationality || 'NOT SPECIFIED'}</span>
                                                 </div>
                                             </td>
-                                            <td className="px-8 py-6">
-                                                <div className="flex flex-col">
-                                                    <div className="flex items-center gap-2">
-                                                        <Briefcase size={12} className="text-attire-accent opacity-40" />
-                                                        <span className="text-[10px] font-bold text-gray-600 dark:text-white/60 uppercase tracking-widest">{profile.host || 'UNASSIGNED'}</span>
-                                                    </div>
-                                                    {profile.assistant && (
-                                                        <p className="text-[9px] text-gray-400 dark:text-white/20 uppercase tracking-widest mt-1 ml-5">ASST: {profile.assistant}</p>
-                                                    )}
+                                            <td className="px-8 py-8">
+                                                <div className="space-y-2">
+                                                    <div className="flex items-center gap-2.5"><div className="w-1.5 h-1.5 rounded-full bg-attire-accent opacity-40" /><span className="text-[10px] font-black text-gray-900 dark:text-white uppercase tracking-[0.1em]">{profile.host || 'PENDING'}</span></div>
+                                                    {profile.assistant && <div className="flex items-center gap-2.5 ml-4"><div className="w-1 h-px bg-white/10" /><span className="text-[9px] font-bold text-gray-400 dark:text-white/20 uppercase tracking-widest">{profile.assistant}</span></div>}
                                                 </div>
                                             </td>
-                                            <td className="px-8 py-6">
-                                                <span className={`px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-widest border ${
-                                                    profile.client_status === 'VIP' ? 'bg-attire-accent/10 text-attire-accent border-attire-accent/20' : 
-                                                    profile.client_status === 'Returning' ? 'bg-blue-500/10 text-blue-400 border-blue-500/20' : 
-                                                    'bg-gray-500/10 text-gray-400 border border-gray-500/20'
-                                                }`}>
-                                                    {profile.client_status}
-                                                </span>
+                                            <td className="px-8 py-8">
+                                                <span className={`inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-[9px] font-black uppercase tracking-[0.2em] border shadow-sm ${profile.client_status === 'VIP' ? 'bg-attire-accent/10 text-attire-accent border-attire-accent/30 shadow-attire-accent/5' : profile.client_status === 'Returning' ? 'bg-blue-500/10 text-blue-400 border-blue-500/30 shadow-blue-500/5' : 'bg-green-500/10 text-green-400 border-green-500/30 shadow-green-500/5'}`}><span className={`w-1.5 h-1.5 rounded-full animate-pulse ${profile.client_status === 'VIP' ? 'bg-attire-accent' : profile.client_status === 'Returning' ? 'bg-blue-500' : 'bg-green-500'}`} />{profile.client_status}</span>
                                             </td>
-                                            <td className="px-8 py-6 text-right">
-                                                <div className="flex justify-end gap-2">
-                                                    <Link 
-                                                        to={`/admin/customer-profiles/${profile.id}`}
-                                                        className="p-3 bg-black/5 dark:bg-white/5 rounded-xl text-gray-400 dark:text-attire-silver hover:bg-black dark:hover:bg-white hover:text-white dark:hover:text-black transition-all"
-                                                        title="View Dossier"
-                                                    >
-                                                        <Eye size={16} />
-                                                    </Link>
-                                                    <button 
-                                                        onClick={() => handleOpenModal(profile)} 
-                                                        className="p-3 bg-black/5 dark:bg-white/5 rounded-xl text-gray-400 dark:text-attire-silver hover:bg-black dark:hover:bg-white hover:text-white dark:hover:text-black transition-all"
-                                                        title="Edit Profile"
-                                                    >
-                                                        <Edit size={16} />
-                                                    </button>
-                                                    <button 
-                                                        onClick={() => handleDelete(profile.id)} 
-                                                        className="p-3 bg-red-500/5 text-red-500/40 hover:bg-red-500 hover:text-white rounded-xl transition-all"
-                                                        title="Delete Profile"
-                                                    >
-                                                        <Trash2 size={16} />
-                                                    </button>
+                                            <td className="px-8 py-8 text-right">
+                                                <div className="flex justify-end gap-3 opacity-40 group-hover:opacity-100 transition-all duration-500">
+                                                    <Link to={`/admin/customer-profiles/${profile.id}`} className="p-3 bg-white dark:bg-white/5 border border-black/5 dark:border-white/10 rounded-2xl text-gray-400 dark:text-attire-silver hover:bg-attire-accent hover:border-attire-accent hover:text-black transition-all shadow-lg shadow-black/5" title="Dossier"><Eye size={16} /></Link>
+                                                    <button onClick={() => handleOpenModal(profile)} className="p-3 bg-white dark:bg-white/5 border border-black/5 dark:border-white/10 rounded-2xl text-gray-400 dark:text-attire-silver hover:bg-blue-500 hover:border-blue-500 hover:text-white transition-all shadow-lg shadow-black/5" title="Configure"><Edit size={16} /></button>
+                                                    <button onClick={() => handleDelete(profile.id)} className="p-3 bg-white dark:bg-white/5 border border-black/5 dark:border-white/10 rounded-2xl text-gray-400 dark:text-attire-silver hover:bg-red-500 hover:border-red-500 hover:text-white transition-all shadow-lg shadow-black/5" title="Archive"><Trash2 size={16} /></button>
                                                 </div>
                                             </td>
                                         </tr>
                                     ))
                                 ) : (
                                     <tr>
-                                        <td colSpan="5" className="px-8 py-20 text-center">
-                                            <div className="w-16 h-16 bg-black/5 dark:bg-white/5 rounded-full flex items-center justify-center mx-auto mb-4 border border-black/5 dark:border-white/5">
-                                                <User className="text-gray-400 dark:text-attire-silver/30" />
-                                            </div>
-                                            <p className="text-gray-400 dark:text-attire-silver/60 text-xs uppercase tracking-widest italic">No matching client records found.</p>
+                                        <td colSpan="5" className="px-8 py-32 text-center">
+                                            <div className="w-20 h-20 bg-black/5 dark:bg-white/5 rounded-[2rem] flex items-center justify-center mx-auto mb-6 border border-black/5 dark:border-white/5"><User className="text-gray-400 dark:text-attire-silver/20" size={32} /></div>
+                                            <p className="text-gray-400 dark:text-attire-silver/40 text-[11px] font-black uppercase tracking-[0.3em] italic">No matching client records found.</p>
                                         </td>
                                     </tr>
                                 )}
@@ -493,28 +488,12 @@ const CustomerProfileManager = () => {
                     </div>
 
                     {pagination.last_page > 1 && (
-                        <div className="px-8 py-6 border-t border-black/5 dark:border-white/5 bg-black/[0.01] dark:bg-white/[0.01] flex items-center justify-between">
-                            <p className="text-[10px] font-bold text-gray-400 dark:text-attire-silver/40 uppercase tracking-widest">
-                                Total: {pagination.total} clients
-                            </p>
-                            <div className="flex items-center gap-2">
-                                <button
-                                    onClick={() => handlePageChange(pagination.current_page - 1)}
-                                    disabled={pagination.current_page === 1}
-                                    className="p-2 border border-black/5 dark:border-white/10 rounded-xl disabled:opacity-30 hover:bg-black/5 dark:hover:bg-white/5 transition-all"
-                                >
-                                    <ChevronLeft size={16} />
-                                </button>
-                                <span className="text-[10px] font-bold text-gray-900 dark:text-white uppercase tracking-[0.2em] px-4">
-                                    Page {pagination.current_page} of {pagination.last_page}
-                                </span>
-                                <button
-                                    onClick={() => handlePageChange(pagination.current_page + 1)}
-                                    disabled={pagination.current_page === pagination.last_page}
-                                    className="p-2 border border-black/5 dark:border-white/10 rounded-xl disabled:opacity-30 hover:bg-black/5 dark:hover:bg-white/5 transition-all"
-                                >
-                                    <ChevronRight size={16} />
-                                </button>
+                        <div className="px-10 py-8 border-t border-black/5 dark:border-white/5 bg-black/[0.01] dark:bg-white/[0.01] flex items-center justify-between">
+                            <p className="text-[10px] font-black text-gray-400 dark:text-attire-silver/40 uppercase tracking-[0.3em]">Archive Capacity: {pagination.total} Identities</p>
+                            <div className="flex items-center gap-4">
+                                <button onClick={() => handlePageChange(pagination.current_page - 1)} disabled={pagination.current_page === 1} className="p-3 bg-white dark:bg-white/5 border border-black/5 dark:border-white/10 rounded-xl disabled:opacity-20 hover:border-attire-accent/40 transition-all shadow-lg shadow-black/5"><ChevronLeft size={18} /></button>
+                                <div className="flex items-center bg-black/5 dark:bg-white/5 px-6 py-3 rounded-xl border border-black/5 dark:border-white/5"><span className="text-[10px] font-black text-gray-900 dark:text-white uppercase tracking-[0.2em]">Sector {pagination.current_page} <span className="opacity-20 mx-2">/</span> {pagination.last_page}</span></div>
+                                <button onClick={() => handlePageChange(pagination.current_page + 1)} disabled={pagination.current_page === pagination.last_page} className="p-3 bg-white dark:bg-white/5 border border-black/5 dark:border-white/10 rounded-xl disabled:opacity-20 hover:border-attire-accent/40 transition-all shadow-lg shadow-black/5"><ChevronRight size={18} /></button>
                             </div>
                         </div>
                     )}

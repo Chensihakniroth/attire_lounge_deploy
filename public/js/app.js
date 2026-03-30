@@ -6,14 +6,14 @@ import {
 } from "./chunk-UXBR4C6Z.js";
 import {
   Footer_default
-} from "./chunk-YKAY2BO5.js";
+} from "./chunk-NKEYZ5GR.js";
 import "./chunk-C24ENFZ7.js";
 import {
   isSafari
 } from "./chunk-OYA3TQ7M.js";
 import {
   LoadingSpinner_default
-} from "./chunk-KFBKQ3FM.js";
+} from "./chunk-BJXHTGVX.js";
 import {
   FavoritesProvider,
   useFavorites
@@ -21,7 +21,7 @@ import {
 import {
   QueryClient,
   QueryClientProvider
-} from "./chunk-UGDZJQX7.js";
+} from "./chunk-3U65JC3Q.js";
 import "./chunk-LKV2EZRT.js";
 import {
   HelmetProvider
@@ -52,7 +52,7 @@ import {
   useIsPresent,
   useMotionValueEvent,
   useScroll
-} from "./chunk-PSR3IJGQ.js";
+} from "./chunk-JKGT7VJT.js";
 import {
   __toESM,
   require_jsx_runtime,
@@ -1557,18 +1557,18 @@ var lazyWithRetry = (componentImport) => (0, import_react4.lazy)(async () => {
     throw error;
   }
 });
-var HomePage = lazyWithRetry(() => import("./HomePage-P5TE45DD.js"));
-var CollectionsPage = lazyWithRetry(() => import("./CollectionsPage-3ZVVP5ZS.js"));
-var ProductListPage = lazyWithRetry(() => import("./ProductListPage-KGRDFYBG.js"));
-var ProductDetailPage = lazyWithRetry(() => import("./ProductDetailPage-UFRQT7GC.js"));
-var LookbookPage = lazyWithRetry(() => import("./LookbookPage-VVGOFKDH.js"));
-var FashionShowPage = lazyWithRetry(() => import("./FashionShowPage-LQEZLE2M.js"));
-var ContactPage = lazyWithRetry(() => import("./ContactPage-QSIU4OX2.js"));
-var CustomizeGiftPage = lazyWithRetry(() => import("./CustomizeGiftPage-S53QAFDK.js"));
-var FavoritesPage = lazyWithRetry(() => import("./FavoritesPage-L5GQQSRW.js"));
-var PrivacyPolicyPage = lazyWithRetry(() => import("./PrivacyPolicyPage-NPNV7BOV.js"));
-var TermsOfServicePage = lazyWithRetry(() => import("./TermsOfServicePage-L3ST2UWA.js"));
-var ReturnPolicyPage = lazyWithRetry(() => import("./ReturnPolicyPage-KOOITIOY.js"));
+var HomePage = lazyWithRetry(() => import("./HomePage-HHXIOGJH.js"));
+var CollectionsPage = lazyWithRetry(() => import("./CollectionsPage-LUO3ZWQK.js"));
+var ProductListPage = lazyWithRetry(() => import("./ProductListPage-3UB5IVQZ.js"));
+var ProductDetailPage = lazyWithRetry(() => import("./ProductDetailPage-5XBGL5BT.js"));
+var LookbookPage = lazyWithRetry(() => import("./LookbookPage-PNFZ557M.js"));
+var FashionShowPage = lazyWithRetry(() => import("./FashionShowPage-L4ROAG5M.js"));
+var ContactPage = lazyWithRetry(() => import("./ContactPage-O3YHE6XB.js"));
+var CustomizeGiftPage = lazyWithRetry(() => import("./CustomizeGiftPage-7LYSA34W.js"));
+var FavoritesPage = lazyWithRetry(() => import("./FavoritesPage-2ILPAJ7A.js"));
+var PrivacyPolicyPage = lazyWithRetry(() => import("./PrivacyPolicyPage-RARHADOJ.js"));
+var TermsOfServicePage = lazyWithRetry(() => import("./TermsOfServicePage-JONCNURW.js"));
+var ReturnPolicyPage = lazyWithRetry(() => import("./ReturnPolicyPage-HOMDCF2Y.js"));
 var Placeholder = ({ title }) => /* @__PURE__ */ (0, import_jsx_runtime3.jsx)("div", { className: "min-h-screen pt-24 px-6", children: /* @__PURE__ */ (0, import_jsx_runtime3.jsxs)("div", { className: "max-w-4xl mx-auto", children: [
   /* @__PURE__ */ (0, import_jsx_runtime3.jsx)("h1", { className: "text-2xl font-serif mb-4", children: title }),
   /* @__PURE__ */ (0, import_jsx_runtime3.jsx)("p", { className: "text-gray-600", children: "Coming soon" })

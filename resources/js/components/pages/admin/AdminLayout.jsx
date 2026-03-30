@@ -29,6 +29,8 @@ import {
     Search,
     UserCircle,
     LayoutGrid,
+    Scissors,
+    Ticket,
 } from 'lucide-react';
 import { ThemeProvider, useTheme } from './ThemeContext';
 import { AdminProvider, useAdmin } from './AdminContext';
@@ -36,7 +38,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import axios from 'axios';
 import { isSafari } from '../../../helpers/browserUtils';
 
-const NavItem = ({ item, isCollapsed }) => {
+const NavItem = ({ item, isCollapsed, setOpen }) => {
     return (
         <motion.div
             whileHover={{ x: isCollapsed ? 0 : 4, scale: 1.02 }}
@@ -46,6 +48,7 @@ const NavItem = ({ item, isCollapsed }) => {
             <NavLink
                 to={item.to}
                 end={item.to === '/admin'}
+                onClick={() => setOpen && setOpen(false)}
                 className={({ isActive }) =>
                     `flex items-center px-4 py-3 text-sm font-bold uppercase tracking-widest rounded-xl transition-all duration-300 ${
                         isActive
@@ -196,8 +199,10 @@ const SidebarContent = ({ setOpen, isMobile }) => {
             icon: Users,
         },
         { name: 'Appointments', to: '/admin/appointments', icon: Calendar },
+        { name: 'Alterings', to: '/admin/alterings', icon: Scissors },
         { name: 'Collections', to: '/admin/collections', icon: LayoutGrid },
         { name: 'Products', to: '/admin/products', icon: ShoppingBag },
+        { name: 'Promocodes', to: '/admin/promocodes', icon: Ticket },
         { name: 'SEO Suite', to: '/admin/seo', icon: Search },
         { name: 'Gift Requests', to: '/admin/customize-gift', icon: Gift },
         { name: 'Gift Inventory', to: '/admin/inventory', icon: Package },
@@ -227,18 +232,16 @@ const SidebarContent = ({ setOpen, isMobile }) => {
                 <h1 className="text-sm font-bold tracking-[0.3em] text-gray-900 dark:text-white uppercase whitespace-nowrap overflow-hidden">
                     Attire Lounge
                 </h1>
-                {isMobile && (
-                    <button
-                        onClick={() => setOpen(false)}
-                        className="text-gray-400 hover:text-gray-900 dark:hover:text-white lg:hidden"
-                    >
-                        <X size={20} />
-                    </button>
-                )}
+                <button
+                    onClick={() => setOpen(false)}
+                    className="text-gray-400 hover:text-gray-900 dark:hover:text-white"
+                >
+                    <X size={20} />
+                </button>
             </div>
             <nav className="flex-grow p-4 space-y-2 mt-4 overflow-y-auto attire-scrollbar">
                 {filteredNavItems.map((item) => (
-                    <NavItem key={item.name} item={item} isCollapsed={false} />
+                    <NavItem key={item.name} item={item} isCollapsed={false} setOpen={setOpen} />
                 ))}
             </nav>
             <div className="p-4 border-t border-black/5 dark:border-white/5 space-y-2">
@@ -276,61 +279,60 @@ const SidebarContent = ({ setOpen, isMobile }) => {
     );
 };
 
-const Sidebar = ({ isOpen, setOpen, isMobile = false }) => {
-    if (isMobile) {
-        return (
-            <AnimatePresence>
-                {isOpen && (
-                    <>
-                        <motion.div
-                            className="fixed inset-y-0 left-0 z-[100] transform lg:hidden"
-                            initial={{ x: '-100%' }}
-                            animate={{ x: 0 }}
-                            exit={{ x: '-100%' }}
-                            transition={{
-                                duration: 0.4,
-                                ease: [0.22, 1, 0.36, 1],
-                            }}
-                        >
-                            <SidebarContent setOpen={setOpen} isMobile={true} />
-                        </motion.div>
+const Sidebar = ({ isOpen, setOpen, isDesktop }) => {
+    return (
+        <AnimatePresence mode="popLayout">
+            {isOpen && (
+                <>
+                    <motion.div
+                        className="fixed inset-y-0 left-0 z-[100] flex-shrink-0 h-full overflow-hidden"
+                        initial={{ x: '-100%' }}
+                        animate={{ x: 0 }}
+                        exit={{ x: '-100%' }}
+                        transition={{
+                            duration: 0.4,
+                            ease: [0.22, 1, 0.36, 1],
+                        }}
+                    >
+                        <SidebarContent setOpen={setOpen} isMobile={!isDesktop} />
+                    </motion.div>
 
-                        <motion.div
-                            className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[90] lg:hidden"
-                            initial={{ opacity: 0 }}
-                            animate={{ opacity: 1 }}
-                            exit={{ opacity: 0 }}
-                            onClick={() => setOpen(false)}
-                        ></motion.div>
-                    </>
-                )}
-            </AnimatePresence>
-        );
-    }
-
-    return <SidebarContent setOpen={setOpen} isMobile={false} />;
+                    <motion.div
+                        className="fixed inset-0 bg-black/40 dark:bg-black/60 backdrop-blur-sm z-[90]"
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        onClick={() => setOpen(false)}
+                    ></motion.div>
+                </>
+            )}
+        </AnimatePresence>
+    );
 };
 
 const AdminLayout = () => {
-    const [isSidebarVisible, setSidebarVisible] = useState(false);
-    const [isMobileOpen, setMobileOpen] = useState(false);
+    const [isSidebarOpen, setSidebarOpen] = useState(false);
     const [isDesktop, setIsDesktop] = useState(window.innerWidth >= 1024);
 
     useEffect(() => {
         const handleResize = () => {
-            setIsDesktop(window.innerWidth >= 1024);
+            const desktop = window.innerWidth >= 1024;
+            setIsDesktop(desktop);
         };
         window.addEventListener('resize', handleResize);
         return () => window.removeEventListener('resize', handleResize);
     }, []);
 
+    // Auto-close sidebar on resize transition instead
+    useEffect(() => {
+        setSidebarOpen(false);
+    }, [isDesktop]);
+
     return (
         <ThemeProvider>
             <AdminLayoutContent
-                isSidebarVisible={isSidebarVisible}
-                setSidebarVisible={setSidebarVisible}
-                isMobileOpen={isMobileOpen}
-                setMobileOpen={setMobileOpen}
+                isSidebarOpen={isSidebarOpen}
+                setSidebarOpen={setSidebarOpen}
                 isDesktop={isDesktop}
             />
         </ThemeProvider>
@@ -338,11 +340,9 @@ const AdminLayout = () => {
 };
 
 const AdminLayoutContent = ({
-    isSidebarVisible,
-    setSidebarVisible,
-    isMobileOpen,
-    setMobileOpen,
-    isDesktop,
+    isSidebarOpen,
+    setSidebarOpen,
+    isDesktop
 }) => {
     const { isEditing } = useAdmin();
     const location = useLocation();
@@ -353,63 +353,34 @@ const AdminLayoutContent = ({
         setIsSafariBrowser(isSafari());
     }, []);
 
+    // Adjust sidebar based on editing state
+    useEffect(() => {
+        if (isEditing) {
+            setSidebarOpen(false);
+        }
+    }, [isEditing, setSidebarOpen]);
+
     return (
         <div
             id="admin-root"
             className="flex h-screen bg-gray-50 dark:bg-[#050505] font-sans text-gray-900 dark:text-white selection:bg-attire-accent selection:text-black transition-colors duration-300 relative"
         >
-            {/* Desktop Sidebar with Motion */}
-            <AnimatePresence mode="wait">
-                {isDesktop && isSidebarVisible && !isEditing && (
-                    <motion.div
-                        key="admin-sidebar"
-                        initial={{ width: 0, opacity: 0 }}
-                        animate={{ width: 280, opacity: 1 }}
-                        exit={{ width: 0, opacity: 0 }}
-                        transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
-                        className="hidden lg:block overflow-hidden h-full flex-shrink-0 bg-white dark:bg-[#0a0a0a]"
-                    >
-                        {/* Fading inner container to prevent text folding */}
-                        <motion.div
-                            initial={{ opacity: 0 }}
-                            animate={{ opacity: 1 }}
-                            exit={{ opacity: 0 }}
-                            transition={{ duration: 0.2 }}
-                            className="h-full"
-                        >
-                            <Sidebar
-                                isOpen={isMobileOpen}
-                                setOpen={setMobileOpen}
-                            />
-                        </motion.div>
-                    </motion.div>
-                )}
-            </AnimatePresence>
-
-            {/* Mobile Sidebar Overlay */}
-            {!isEditing && (
-                <Sidebar
-                    isMobile={true}
-                    isOpen={isMobileOpen}
-                    setOpen={setMobileOpen}
-                />
-            )}
+            {/* Unified Sidebar Overlay */}
+            <Sidebar
+                isOpen={!isEditing && isSidebarOpen}
+                setOpen={setSidebarOpen}
+                isDesktop={isDesktop}
+            />
 
             <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
                 {!isEditing && (
                     <header className="h-16 bg-white/80 dark:bg-[#0a0a0a]/80 backdrop-blur-md border-b border-black/5 dark:border-white/5 flex items-center px-6 justify-between flex-shrink-0 z-20 transition-colors duration-300">
                         <div className="flex items-center gap-4">
                             <button
-                                onClick={() => {
-                                    if (window.innerWidth < 1024) {
-                                        setMobileOpen(true);
-                                    } else {
-                                        setSidebarVisible(!isSidebarVisible);
-                                    }
-                                }}
+                                onClick={() => setSidebarOpen(!isSidebarOpen)}
                                 className="p-2 hover:bg-black/5 dark:hover:bg-white/5 rounded-xl text-gray-500 dark:text-attire-silver hover:text-gray-900 dark:hover:text-white transition-all active:scale-95"
                             >
-                                <Menu size={20} />
+                                {isSidebarOpen ? <X size={20} /> : <Menu size={20} />}
                             </button>
                             <div className="h-4 w-px bg-black/10 dark:bg-white/10 mx-2 hidden lg:block" />
                             <GlobalSearch />

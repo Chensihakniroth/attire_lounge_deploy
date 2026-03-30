@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback, useMemo, memo } from 'react';
-import { User, Mail, Phone, Calendar, Clock, MessageSquare, AlertTriangle, Loader, Check, X, Trash2, ChevronDown } from 'lucide-react';
+import { User, Mail, Phone, Calendar, Clock, MessageSquare, AlertTriangle, Loader, Check, X, Trash2, ChevronDown, Plus } from 'lucide-react';
 import { useAdmin } from './AdminContext';
 import OptimizedImage from '../../common/OptimizedImage.jsx';
 import Skeleton from '../../common/Skeleton.jsx';
@@ -158,10 +158,37 @@ const AppointmentManager = () => {
         loadMoreAppointments,
         appointmentsPagination,
         updateAppointmentStatus, 
-        clearCompletedAppointments 
+        clearCompletedAppointments,
+        createAppointment
     } = useAdmin();
 
     const [visibleCount, setVisibleRows] = useState(5);
+    const [isAdding, setIsAdding] = useState(false);
+    const [isSubmitting, setIsSubmitting] = useState(false);
+    const [formData, setFormData] = useState({
+        name: '', email: '', phone: '', service: 'consultation', date: '', time: '', message: ''
+    });
+
+    const handleInputChange = (e) => {
+        const { name, value } = e.target;
+        setFormData(prev => ({ ...prev, [name]: value }));
+    };
+
+    const handleCreateAppointment = async (e) => {
+        e.preventDefault();
+        setIsSubmitting(true);
+        try {
+            await createAppointment(formData);
+            setIsAdding(false);
+            setFormData({ name: '', email: '', phone: '', service: 'consultation', date: '', time: '', message: '' });
+            alert('Appointment created successfully!');
+        } catch (err) {
+            console.error('Failed to create appointment', err);
+            alert(err.response?.data?.message || 'Failed to create appointment.');
+        } finally {
+            setIsSubmitting(false);
+        }
+    };
 
     const handleUpdateStatus = async (id, status) => {
         try {
@@ -203,19 +230,89 @@ const AppointmentManager = () => {
 
     return (
         <div className="space-y-8 pb-20">
-            <div className="flex justify-between items-end pb-4 border-b border-black/5 dark:border-white/10">
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-end gap-4 pb-4 border-b border-black/5 dark:border-white/10">
                 <div>
                     <h1 className="text-4xl font-serif text-gray-900 dark:text-white mb-2">Appointments</h1>
                     <p className="text-gray-500 dark:text-attire-silver text-sm uppercase tracking-widest">Client consults & visits</p>
                 </div>
-                <button
-                    onClick={handleClearCompleted}
-                    className="flex items-center px-5 py-2.5 text-xs font-bold uppercase tracking-widest text-gray-500 dark:text-attire-silver hover:text-red-600 dark:hover:text-red-400 bg-black/5 dark:bg-white/5 hover:bg-red-500/10 border border-black/5 dark:border-white/10 hover:border-red-500/30 rounded-xl transition-all duration-300"
-                >
-                    <Trash2 className="w-4 h-4 mr-2" />
-                    Clear History
-                </button>
+                <div className="flex flex-wrap gap-3">
+                    <button
+                        onClick={() => setIsAdding(true)}
+                        className="flex items-center px-5 py-2.5 text-xs font-bold uppercase tracking-widest text-gray-900 dark:text-white hover:text-attire-accent dark:hover:text-attire-accent bg-black/5 dark:bg-white/5 hover:bg-black/10 dark:hover:bg-white/10 border border-black/5 dark:border-white/10 hover:border-black/20 dark:hover:border-white/20 rounded-xl transition-all duration-300"
+                    >
+                        <Plus className="w-4 h-4 mr-2" />
+                        Add Appointment
+                    </button>
+                    <button
+                        onClick={handleClearCompleted}
+                        className="flex items-center px-5 py-2.5 text-xs font-bold uppercase tracking-widest text-gray-500 dark:text-attire-silver hover:text-red-600 dark:hover:text-red-400 bg-black/5 dark:bg-white/5 hover:bg-red-500/10 border border-black/5 dark:border-white/10 hover:border-red-500/30 rounded-xl transition-all duration-300"
+                    >
+                        <Trash2 className="w-4 h-4 mr-2" />
+                        Clear History
+                    </button>
+                </div>
             </div>
+
+            <AnimatePresence>
+                {isAdding && (
+                    <motion.div
+                        initial={{ opacity: 0, y: -20, height: 0 }}
+                        animate={{ opacity: 1, y: 0, height: 'auto' }}
+                        exit={{ opacity: 0, y: -20, height: 0 }}
+                        className="overflow-hidden"
+                    >
+                        <form onSubmit={handleCreateAppointment} className="p-6 rounded-3xl backdrop-blur-xl bg-white dark:bg-black/20 border border-black/5 dark:border-white/10 shadow-lg dark:shadow-none mb-8 space-y-4">
+                            <div className="flex justify-between items-center mb-4">
+                                <h3 className="text-xl font-serif text-gray-900 dark:text-white">New Appointment</h3>
+                                <button type="button" onClick={() => setIsAdding(false)} className="text-gray-500 hover:text-gray-900 dark:text-attire-silver dark:hover:text-white transition-colors">
+                                    <X className="w-5 h-5" />
+                                </button>
+                            </div>
+                            
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div>
+                                    <label className="block text-xs font-bold uppercase tracking-widest text-gray-500 dark:text-attire-silver/60 mb-1">Name *</label>
+                                    <input required type="text" name="name" value={formData.name} onChange={handleInputChange} className="w-full bg-black/5 dark:bg-white/5 border border-black/5 dark:border-white/10 rounded-xl px-4 py-2 text-gray-900 dark:text-white outline-none focus:border-attire-accent transition-colors" />
+                                </div>
+                                <div>
+                                    <label className="block text-xs font-bold uppercase tracking-widest text-gray-500 dark:text-attire-silver/60 mb-1">Email</label>
+                                    <input type="email" name="email" value={formData.email} onChange={handleInputChange} className="w-full bg-black/5 dark:bg-white/5 border border-black/5 dark:border-white/10 rounded-xl px-4 py-2 text-gray-900 dark:text-white outline-none focus:border-attire-accent transition-colors" />
+                                </div>
+                                <div>
+                                    <label className="block text-xs font-bold uppercase tracking-widest text-gray-500 dark:text-attire-silver/60 mb-1">Phone *</label>
+                                    <input required type="text" name="phone" value={formData.phone} onChange={handleInputChange} className="w-full bg-black/5 dark:bg-white/5 border border-black/5 dark:border-white/10 rounded-xl px-4 py-2 text-gray-900 dark:text-white outline-none focus:border-attire-accent transition-colors" />
+                                </div>
+                                <div>
+                                    <label className="block text-xs font-bold uppercase tracking-widest text-gray-500 dark:text-attire-silver/60 mb-1">Service *</label>
+                                    <select required name="service" value={formData.service} onChange={handleInputChange} className="w-full bg-black/5 dark:bg-white/5 border border-black/5 dark:border-white/10 rounded-xl px-4 py-2 text-gray-900 dark:text-white outline-none focus:border-attire-accent transition-colors appearance-none">
+                                        <option value="consultation" className="bg-white dark:bg-gray-900">Consultation</option>
+                                        <option value="fitting" className="bg-white dark:bg-gray-900">Fitting</option>
+                                        <option value="pickup" className="bg-white dark:bg-gray-900">Pickup</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label className="block text-xs font-bold uppercase tracking-widest text-gray-500 dark:text-attire-silver/60 mb-1">Date *</label>
+                                    <input required type="date" name="date" value={formData.date} onChange={handleInputChange} className="w-full bg-black/5 dark:bg-white/5 border border-black/5 dark:border-white/10 rounded-xl px-4 py-2 text-gray-900 dark:text-white outline-none focus:border-attire-accent transition-colors" />
+                                </div>
+                                <div>
+                                    <label className="block text-xs font-bold uppercase tracking-widest text-gray-500 dark:text-attire-silver/60 mb-1">Time *</label>
+                                    <input required type="time" name="time" value={formData.time} onChange={handleInputChange} className="w-full bg-black/5 dark:bg-white/5 border border-black/5 dark:border-white/10 rounded-xl px-4 py-2 text-gray-900 dark:text-white outline-none focus:border-attire-accent transition-colors" />
+                                </div>
+                                <div className="md:col-span-2">
+                                    <label className="block text-xs font-bold uppercase tracking-widest text-gray-500 dark:text-attire-silver/60 mb-1">Message</label>
+                                    <textarea name="message" value={formData.message} onChange={handleInputChange} rows="3" className="w-full bg-black/5 dark:bg-white/5 border border-black/5 dark:border-white/10 rounded-xl px-4 py-2 text-gray-900 dark:text-white outline-none focus:border-attire-accent transition-colors resize-none"></textarea>
+                                </div>
+                            </div>
+                            <div className="flex justify-end pt-4">
+                                <button type="submit" disabled={isSubmitting} className="flex items-center px-6 py-2.5 text-xs font-bold uppercase tracking-widest text-white bg-attire-accent hover:bg-attire-accent/90 rounded-xl transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed">
+                                    {isSubmitting ? <Loader className="w-4 h-4 mr-2 animate-spin" /> : <Check className="w-4 h-4 mr-2" />}
+                                    Save Appointment
+                                </button>
+                            </div>
+                        </form>
+                    </motion.div>
+                )}
+            </AnimatePresence>
 
             {appointmentsLoading && appointments.length === 0 ? (
                 <div className="space-y-6">
