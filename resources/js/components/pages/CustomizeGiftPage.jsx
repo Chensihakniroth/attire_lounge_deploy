@@ -115,7 +115,7 @@ const SelectionCard = ({ item, isSelected, onSelect, isOutOfStock }) => {
                             initial={{ opacity: 0 }}
                             animate={{ opacity: 1 }}
                             exit={{ opacity: 0 }}
-                            className="absolute inset-0 bg-attire-accent/5 backdrop-blur-[2px]"
+                            className="absolute inset-0 bg-attire-accent/5"
                         />
                     )}
                 </AnimatePresence>

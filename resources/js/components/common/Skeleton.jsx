@@ -12,7 +12,7 @@ const Skeleton = ({ className = '' }) => (
             }
         `}} />
         <div 
-            className={`bg-white/5 rounded-xl animate-pulse-gentle ${className}`}
+            className={`bg-black/5 dark:bg-white/10 rounded-xl animate-pulse-gentle ${className}`}
             style={{
                 willChange: 'opacity'
             }}

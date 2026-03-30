@@ -329,13 +329,11 @@ const AdminLayout = () => {
     }, [isDesktop]);
 
     return (
-        <ThemeProvider>
-            <AdminLayoutContent
-                isSidebarOpen={isSidebarOpen}
-                setSidebarOpen={setSidebarOpen}
-                isDesktop={isDesktop}
-            />
-        </ThemeProvider>
+        <AdminLayoutContent
+            isSidebarOpen={isSidebarOpen}
+            setSidebarOpen={setSidebarOpen}
+            isDesktop={isDesktop}
+        />
     );
 };
 

@@ -1,7 +1,20 @@
 import React, { useState, useEffect, useRef } from 'react';
 import Skeleton from './Skeleton';
 
-const OptimizedImage = ({
+interface OptimizedImageProps extends React.ImgHTMLAttributes<HTMLImageElement> {
+    src: string;
+    alt: string;
+    className?: string;
+    containerClassName?: string;
+    objectFit?: 'cover' | 'contain' | 'fill' | 'none' | 'scale-down';
+    skeletonClassName?: string;
+    bgClassName?: string;
+    priority?: boolean;
+    fallback?: string | null;
+    style?: React.CSSProperties;
+}
+
+const OptimizedImage: React.FC<OptimizedImageProps> = ({
     src,
     alt,
     className = '',
@@ -16,7 +29,7 @@ const OptimizedImage = ({
 }) => {
     const [isLoaded, setIsLoaded] = useState(false);
     const [error, setError] = useState(false);
-    const imgRef = useRef(null);
+    const imgRef = useRef<HTMLImageElement>(null);
 
     useEffect(() => {
         // If image is already complete (cached), set loaded immediately
@@ -33,8 +46,6 @@ const OptimizedImage = ({
         if (fallback && !error) {
             // Try fallback once
             setError(true);
-            // We don't set isLoaded to true here yet,
-            // the fallback image will trigger onLoad or another onError
         } else {
             setError(true);
             setIsLoaded(true);
@@ -54,12 +65,11 @@ const OptimizedImage = ({
 
             <img
                 ref={imgRef}
-                src={error && fallback ? fallback : src}
+                src={error && fallback ? (fallback as string) : src}
                 alt={alt}
                 onLoad={() => setIsLoaded(true)}
                 onError={handleError}
                 loading={priority ? 'eager' : 'lazy'}
-                fetchpriority={priority ? 'high' : 'auto'}
                 decoding="async"
                 className={`transition-all duration-[400ms] ease-out ${
                     isLoaded

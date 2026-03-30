@@ -1557,15 +1557,15 @@ var lazyWithRetry = (componentImport) => (0, import_react4.lazy)(async () => {
     throw error;
   }
 });
-var HomePage = lazyWithRetry(() => import("./HomePage-HM3GFOM3.js"));
-var CollectionsPage = lazyWithRetry(() => import("./CollectionsPage-BPV2HKLQ.js"));
-var ProductListPage = lazyWithRetry(() => import("./ProductListPage-IZY5WN4R.js"));
-var ProductDetailPage = lazyWithRetry(() => import("./ProductDetailPage-WOTJOVDC.js"));
-var LookbookPage = lazyWithRetry(() => import("./LookbookPage-MX7BA2GR.js"));
-var FashionShowPage = lazyWithRetry(() => import("./FashionShowPage-NZ56IQR4.js"));
-var ContactPage = lazyWithRetry(() => import("./ContactPage-EDCILK72.js"));
-var CustomizeGiftPage = lazyWithRetry(() => import("./CustomizeGiftPage-CQR2LPXV.js"));
-var FavoritesPage = lazyWithRetry(() => import("./FavoritesPage-5Z66YEIL.js"));
+var HomePage = lazyWithRetry(() => import("./HomePage-4LMVM3H6.js"));
+var CollectionsPage = lazyWithRetry(() => import("./CollectionsPage-K43Z4FYQ.js"));
+var ProductListPage = lazyWithRetry(() => import("./ProductListPage-56DP4ODQ.js"));
+var ProductDetailPage = lazyWithRetry(() => import("./ProductDetailPage-ML6AJ3MA.js"));
+var LookbookPage = lazyWithRetry(() => import("./LookbookPage-QHDDBTY5.js"));
+var FashionShowPage = lazyWithRetry(() => import("./FashionShowPage-OOBCAJFR.js"));
+var ContactPage = lazyWithRetry(() => import("./ContactPage-WWT2HADB.js"));
+var CustomizeGiftPage = lazyWithRetry(() => import("./CustomizeGiftPage-T7J7R2P4.js"));
+var FavoritesPage = lazyWithRetry(() => import("./FavoritesPage-E2EJNI6G.js"));
 var PrivacyPolicyPage = lazyWithRetry(() => import("./PrivacyPolicyPage-TXY7SDF2.js"));
 var TermsOfServicePage = lazyWithRetry(() => import("./TermsOfServicePage-WYLNZWIH.js"));
 var ReturnPolicyPage = lazyWithRetry(() => import("./ReturnPolicyPage-JDNAI3R5.js"));

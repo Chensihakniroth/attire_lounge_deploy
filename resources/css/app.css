@@ -65,6 +65,9 @@
     body {
         @apply antialiased bg-background text-foreground;
         font-family: 'Inter', sans-serif;
+        background-color: hsl(var(--background));
+        color: hsl(var(--foreground));
+        transition: background-color 0.4s cubic-bezier(0.4, 0, 0.2, 1);
         overflow-x: hidden;
         /* Prevent flicker on mobile */
         -webkit-tap-highlight-color: transparent;
@@ -72,6 +75,7 @@
     }
 
     html {
+        background-color: hsl(var(--background));
         /* Fluid typography: shrinks from 16px on desktop to ~13px on very small mobile */
         /* Scaled to 90% of original to simulate 90% zoom level (Requested by user) */
         font-size: clamp(11.7px, 0.72rem + 0.36vw, 14.4px);

@@ -24,7 +24,7 @@ const CustomDatePicker = ({ value, onChange, label, required }) => {
                     value={value}
                     onChange={onChange}
                     required={required}
-                    className="w-full bg-black/5 dark:bg-[#151515] border border-black/10 dark:border-white/10 rounded-xl py-3 pl-12 pr-4 text-attire-charcoal dark:text-white font-medium focus:outline-none focus:border-[#d4af37]/60 focus:ring-1 focus:ring-[#d4af37]/60 transition-all cursor-pointer shadow-inner placeholder-transparent hover:border-black/20 dark:hover:border-white/20"
+                    className="w-full bg-black/5 dark:bg-white/[0.03] border border-black/10 dark:border-white/10 rounded-xl py-3 pl-12 pr-4 text-attire-charcoal dark:text-white font-medium focus:outline-none focus:border-[#d4af37]/60 focus:ring-1 focus:ring-[#d4af37]/60 transition-all cursor-pointer shadow-inner placeholder-transparent hover:border-black/20 dark:hover:border-white/20"
                 />
             </div>
         </div>
@@ -206,8 +206,12 @@ const PromocodeManager = () => {
                     
                     {/* Active */}
                     <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-4">
-                        <h2 className="text-xs font-semibold text-attire-charcoal/50 dark:text-white/50 uppercase tracking-widest flex items-center gap-2">
-                            <span className="w-2 h-2 rounded-full bg-[#d4af37]"></span> Active
+                        <h2 className="text-[10px] font-black text-attire-charcoal/40 dark:text-white/40 uppercase tracking-[0.2em] flex items-center gap-2.5">
+                            <span className="relative flex h-2 w-2">
+                                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#d4af37] opacity-20"></span>
+                                <span className="relative inline-flex rounded-full h-2 w-2 bg-[#d4af37] ring-4 ring-[#d4af37]/10"></span>
+                            </span>
+                            Active
                         </h2>
                         
                         <div className="space-y-3">
@@ -227,8 +231,11 @@ const PromocodeManager = () => {
 
                     {/* Expired */}
                     <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-4">
-                        <h2 className="text-xs font-semibold text-attire-charcoal/30 dark:text-white/30 uppercase tracking-widest flex items-center gap-2">
-                            <span className="w-2 h-2 rounded-full bg-red-500/50"></span> Expired
+                        <h2 className="text-[10px] font-black text-attire-charcoal/30 dark:text-white/20 uppercase tracking-[0.2em] flex items-center gap-2.5">
+                            <span className="relative flex h-2 w-2 opacity-50">
+                                <span className="relative inline-flex rounded-full h-2 w-2 bg-red-500/50 ring-4 ring-red-500/5"></span>
+                            </span>
+                            Expired
                         </h2>
                         
                         <div className="space-y-3">
@@ -280,7 +287,7 @@ const PromocodeManager = () => {
                                     <label className="block text-[10px] font-semibold text-attire-charcoal/40 dark:text-white/40 uppercase tracking-wider mb-2">Discount (%)</label>
                                     <input
                                         type="number" name="discount_percentage" value={formData.discount_percentage} onChange={handleInputChange} required min="1" max="100"
-                                        className="w-full bg-black/5 dark:bg-[#111] border border-black/10 dark:border-white/10 rounded-xl py-3 px-4 text-attire-charcoal dark:text-white text-sm focus:border-[#d4af37]/60 focus:outline-none"
+                                        className="w-full bg-black/5 dark:bg-white/[0.03] border border-black/10 dark:border-white/10 rounded-xl py-3 px-4 text-attire-charcoal dark:text-white text-sm focus:border-[#d4af37]/60 focus:outline-none"
                                     />
                                 </div>
 
@@ -313,30 +320,64 @@ const PromocodeCard = ({ code, status, onDelete }) => {
         setTimeout(() => setCopied(false), 2000);
     };
 
+    const isActive = status === 'active';
+
     return (
-        <div className={`p-4 rounded-2xl border flex items-center justify-between gap-3 ${status === 'active' ? 'bg-white dark:bg-[#0f0f0f] border-black/10 dark:border-white/10' : 'bg-black/5 dark:bg-[#050505] border-transparent opacity-60'} transition-all shadow-sm`}>
-            <div className="flex-1 overflow-hidden">
-                <div className="flex items-center gap-2 mb-1">
-                    <span onClick={handleCopy} className="font-mono text-lg font-bold tracking-widest text-attire-charcoal dark:text-white cursor-pointer hover:text-[#d4af37] truncate">
+        <div className={`relative group p-5 rounded-2xl border flex items-center justify-between gap-4 transition-all duration-300 ${
+            isActive 
+                ? 'bg-white/80 dark:bg-white/[0.03] backdrop-blur-xl border-black/10 dark:border-white/10 shadow-sm hover:shadow-md hover:border-[#d4af37]/30' 
+                : 'bg-black/5 dark:bg-white/[0.01] border-transparent opacity-50 grayscale'
+        }`}>
+            {/* Design accents for a "ticket" look */}
+            {isActive && (
+                <div className="absolute inset-0 pointer-events-none overflow-hidden rounded-2xl">
+                    <div className="absolute -left-2 top-1/2 -translate-y-1/2 w-4 h-4 bg-background rounded-full z-0" />
+                    <div className="absolute -right-2 top-1/2 -translate-y-1/2 w-4 h-4 bg-background rounded-full z-0" />
+                </div>
+            )}
+
+            <div className="flex-1 overflow-hidden relative z-10 flex flex-col gap-1">
+                <div className="flex items-center gap-3 mb-1.5">
+                    <span 
+                        onClick={handleCopy} 
+                        className={`font-mono text-xl font-black tracking-[0.15em] cursor-pointer transition-colors truncate ${
+                            isActive ? 'text-attire-charcoal dark:text-white hover:text-[#d4af37]' : 'text-gray-400'
+                        }`}
+                    >
                         {code.code}
                     </span>
-                    <span className={`px-2 py-0.5 rounded text-[10px] uppercase font-bold tracking-wider ${status === 'active' ? 'bg-[#d4af37]/10 text-[#d4af37]' : 'bg-red-500/10 text-red-500'}`}>
-                        {code.discount_percentage}%
-                    </span>
+                    <div className={`px-2.5 py-1 rounded-full text-[10px] font-black tracking-tighter flex items-center gap-1 ${
+                        isActive ? 'bg-[#d4af37]/20 text-[#d4af37]' : 'bg-gray-200 dark:bg-gray-800 text-gray-500'
+                    }`}>
+                        <Sparkles size={10} className="animate-pulse" />
+                        {code.discount_percentage}% OFF
+                    </div>
                 </div>
-                <div className="flex items-center gap-3 text-[11px] text-attire-charcoal/40 dark:text-white/40 font-medium">
-                    <span>{code.name}</span>
-                    <span>•</span>
-                    <span>{dateFormatted}</span>
+                <div className="flex items-center gap-3 text-[11px] font-bold uppercase tracking-widest text-attire-charcoal/40 dark:text-white/30">
+                    <span className="truncate max-w-[150px]">{code.name}</span>
+                    <span className="opacity-30">•</span>
+                    <span className="flex items-center gap-1.5">
+                        <Calendar size={12} className="opacity-50" />
+                        {dateFormatted}
+                    </span>
                 </div>
             </div>
 
-            <div className="flex items-center gap-1 shrink-0">
-                <button onClick={handleCopy} className="p-2 text-attire-charcoal/40 dark:text-white/40 hover:text-attire-charcoal dark:hover:text-white rounded-lg hover:bg-black/5 dark:hover:bg-white/5">
-                    {copied ? <CheckCheck size={16} /> : <Copy size={16} />}
+            <div className="flex items-center gap-1 shrink-0 opacity-0 group-hover:opacity-100 transition-opacity">
+                <button 
+                    onClick={handleCopy} 
+                    className="p-2.5 text-attire-charcoal/40 dark:text-white/40 hover:text-attire-charcoal dark:hover:text-white rounded-xl hover:bg-black/5 dark:hover:bg-white/5 transition-all active:scale-95"
+                    title="Copy Code"
+                >
+                    {copied ? <CheckCheck size={18} className="text-green-500" /> : <Copy size={18} />}
                 </button>
-                <button onClick={() => onDelete(code.id, code.code)} className="p-2 text-attire-charcoal/40 dark:text-white/40 hover:text-red-500 rounded-lg hover:bg-black/5 dark:hover:bg-white/5">
-                    <Trash2 size={16} />
+                <div className="w-px h-6 bg-black/5 dark:bg-white/5 mx-1" />
+                <button 
+                    onClick={() => onDelete(code.id, code.code)} 
+                    className="p-2.5 text-attire-charcoal/30 dark:text-white/30 hover:text-red-500 rounded-xl hover:bg-red-500/10 transition-all active:scale-95"
+                    title="Revoke Code"
+                >
+                    <Trash2 size={18} />
                 </button>
             </div>
         </div>

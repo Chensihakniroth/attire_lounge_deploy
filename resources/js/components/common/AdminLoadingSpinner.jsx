@@ -3,7 +3,7 @@ import React from 'react';
 
 const AdminLoadingSpinner = () => {
     return (
-        <div className="flex-1 w-full h-full p-6 md:p-10 animate-pulse bg-gray-50 dark:bg-[#050505] flex flex-col gap-6">
+        <div className="flex-1 w-full h-full p-6 md:p-10 animate-pulse bg-background flex flex-col gap-6 transition-colors duration-500">
             {/* Header skeleton */}
             <div className="flex justify-between items-end pb-6 border-b border-black/5 dark:border-white/10">
                 <div className="space-y-4 w-1/3">

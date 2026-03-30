@@ -18,6 +18,7 @@ const queryClient = new QueryClient({
 // Components
 import AdminLoadingSpinner from './common/AdminLoadingSpinner.jsx';
 import { AdminProvider } from './pages/admin/AdminContext';
+import { ThemeProvider } from './pages/admin/ThemeContext';
 
 const RealtimeAdminUpdater: React.FC = () => {
     useEffect(() => {
@@ -121,40 +122,42 @@ function AdminApp() {
             <QueryClientProvider client={queryClient}>
                 <RealtimeAdminUpdater />
                 <Router future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
-                    <AdminProvider>
-                        <GlobalStyles />
-                        <Suspense fallback={<AdminLoadingSpinner />}>
-                            <Routes>
-                                <Route path="/admin/login" element={<AdminLogin />} />
-                                
-                                <Route element={<PrivateRoute />}>
-                                    <Route element={<AdminLayout />}>
-                                        <Route path="/admin" element={<AdminDashboard />} />
-                                        <Route path="/admin/appointments" element={<AppointmentManager />} />
-                                        <Route path="/admin/alterings" element={<AlteringManager />} />
-                                        <Route path="/admin/promocodes" element={<PromocodeManager />} />
-                                        <Route path="/admin/products" element={<ProductManager />} />
-                                        <Route path="/admin/collections" element={<CollectionManager />} />
-                                        <Route path="/admin/products/bulk" element={<BulkProductEditor />} />
-                                        <Route path="/admin/products/new" element={<ProductEditor isNew={true} />} />
-                                        <Route path="/admin/products/:productId/edit" element={<ProductEditor />} />
-                                        <Route path="/admin/customize-gift" element={<CustomizeGiftManager />} />
-                                        <Route path="/admin/inventory" element={<InventoryManager />} />
-                                        <Route path="/admin/seo" element={<SEOManager />} />
-                                        <Route path="/admin/newsletter" element={<NewsletterManager />} />
-                                        <Route path="/admin/audit-logs" element={<AuditLog />} />
-                                        <Route path="/admin/users" element={<UserManager />} />
-                                        <Route path="/admin/profile" element={<ProfileEditor />} />
-                                        <Route path="/admin/customer-profiles" element={<CustomerProfileManager />} />
-                                        <Route path="/admin/customer-profiles/:id" element={<CustomerProfileDetail />} />
+                    <ThemeProvider>
+                        <AdminProvider>
+                            <GlobalStyles />
+                            <Suspense fallback={<AdminLoadingSpinner />}>
+                                <Routes>
+                                    <Route path="/admin/login" element={<AdminLogin />} />
+                                    
+                                    <Route element={<PrivateRoute />}>
+                                        <Route element={<AdminLayout />}>
+                                            <Route path="/admin" element={<AdminDashboard />} />
+                                            <Route path="/admin/appointments" element={<AppointmentManager />} />
+                                            <Route path="/admin/alterings" element={<AlteringManager />} />
+                                            <Route path="/admin/promocodes" element={<PromocodeManager />} />
+                                            <Route path="/admin/products" element={<ProductManager />} />
+                                            <Route path="/admin/collections" element={<CollectionManager />} />
+                                            <Route path="/admin/products/bulk" element={<BulkProductEditor />} />
+                                            <Route path="/admin/products/new" element={<ProductEditor isNew={true} />} />
+                                            <Route path="/admin/products/:productId/edit" element={<ProductEditor />} />
+                                            <Route path="/admin/customize-gift" element={<CustomizeGiftManager />} />
+                                            <Route path="/admin/inventory" element={<InventoryManager />} />
+                                            <Route path="/admin/seo" element={<SEOManager />} />
+                                            <Route path="/admin/newsletter" element={<NewsletterManager />} />
+                                            <Route path="/admin/audit-logs" element={<AuditLog />} />
+                                            <Route path="/admin/users" element={<UserManager />} />
+                                            <Route path="/admin/profile" element={<ProfileEditor />} />
+                                            <Route path="/admin/customer-profiles" element={<CustomerProfileManager />} />
+                                            <Route path="/admin/customer-profiles/:id" element={<CustomerProfileDetail />} />
+                                        </Route>
                                     </Route>
-                                </Route>
-                                
-                                {/* Fallback for admin routes */}
-                                <Route path="*" element={<div className="p-8">Admin Page Not Found</div>} />
-                            </Routes>
-                        </Suspense>
-                    </AdminProvider>
+                                    
+                                    {/* Fallback for admin routes */}
+                                    <Route path="*" element={<div className="p-8 text-foreground bg-background">Admin Page Not Found</div>} />
+                                </Routes>
+                            </Suspense>
+                        </AdminProvider>
+                    </ThemeProvider>
                 </Router>
             </QueryClientProvider>
         </HelmetProvider>

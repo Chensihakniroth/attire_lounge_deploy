@@ -47,7 +47,7 @@ class PromocodeController extends Controller
         $promocode = Promocode::where('code', $request->code)->first();
 
         if (!$promocode) {
-            return response()->json(['valid' => false, 'message' => 'Invalid promo code.'], 404);
+            return response()->json(['valid' => false, 'message' => 'Invalid promo code.'], 200);
         }
 
         if (Carbon::now()->isAfter($promocode->expires_at)) {
