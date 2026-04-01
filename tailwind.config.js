@@ -55,6 +55,7 @@ module.exports = {
           'light': '#f9f9f9',
           'gold': '#8B6B4D',
           'navy': '#0d3542',
+          'midnight': '#0a0f1a',
           'accent': '#f5a81c',
           'dark': '#111111',
         }
