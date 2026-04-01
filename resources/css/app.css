@@ -84,15 +84,15 @@
         /* -webkit-overflow-scrolling: touch; - REMOVED as it can interfere with modern scroll behaviors */
     }
 
-    /* === ANTI-WHITE-FLASH: Front-store app forces midnight background === */
-    /* When #app (front-store React root) is present, lock html/body to dark midnight. */
+    /* === ANTI-WHITE-FLASH: Front-store app forces navy background === */
+    /* When #app (front-store React root) is present, lock html/body to dark navy. */
     /* This prevents the body's white HSL background from bleeding through during */
     /* PageTransition overlay animations between routes. */
     body:has(#app) {
-        background-color: #0a0f1a !important;
+        background-color: #0d3542 !important;
     }
     html:has(#app) {
-        background-color: #0a0f1a !important;
+        background-color: #0d3542 !important;
     }
 
     /* Hide main scrollbar for Chrome, Safari and Opera */

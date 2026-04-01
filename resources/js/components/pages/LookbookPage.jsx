@@ -101,7 +101,7 @@ const LookbookPage = () => {
     }, [inView, hasMore]);
 
     return (
-        <div className="min-h-screen bg-attire-midnight text-white relative selection:bg-attire-accent selection:text-black overflow-x-hidden">
+        <div className="min-h-screen bg-attire-navy text-white relative selection:bg-attire-accent selection:text-black overflow-x-hidden">
             <SEO
                 title="Lookbook | Atelier Styling House"
                 description="A curated visual journey through our finest sartorial collections. Hand-crafted elegance for the modern gentleman."
