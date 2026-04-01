@@ -40,8 +40,7 @@ window.Echo = new Echo({
     enabledTransports: ['ws', 'wss'],
 });
 
-// Simple console log for debugging
-console.log('Attire Lounge Official React App Initialized - Real-time Ready! (ﾉ´ヮ`)ﾉ*:･ﾟ✧');
+console.log('%c✦ Attire Lounge Admin', 'color: #f5a81c; font-weight: bold;');
 
 // 🎮 Initialize Senior Developer Admin Commands
 import { initAdminCommands } from './helpers/adminCommands';

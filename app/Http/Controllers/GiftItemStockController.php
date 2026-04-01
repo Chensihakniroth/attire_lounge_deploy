@@ -33,7 +33,11 @@ class GiftItemStockController extends Controller
             ['is_out_of_stock' => $validated['is_out_of_stock']]
         );
 
-        broadcast(new \App\Events\StockUpdated());
+        try {
+            broadcast(new \App\Events\StockUpdated());
+        } catch (\Exception $e) {
+            \Illuminate\Support\Facades\Log::error('Stock broadcast failed: ' . $e->getMessage());
+        }
 
         return response()->json($itemStock);
     }

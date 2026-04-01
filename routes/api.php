@@ -85,6 +85,7 @@ Route::prefix('v1')->group(function () {
             Route::put('/alterings/{id}', [\App\Http\Controllers\AlteringController::class, 'update']);
             Route::post('/alterings/{id}/notify', [\App\Http\Controllers\AlteringController::class, 'notify']);
             Route::delete('/alterings/{id}', [\App\Http\Controllers\AlteringController::class, 'destroy']);
+            Route::post('/alterings/bulk-delete', [\App\Http\Controllers\AlteringController::class, 'bulkDestroy']);
             Route::post('/alterings/import', [\App\Http\Controllers\AlteringController::class, 'import']);
 
             // Products

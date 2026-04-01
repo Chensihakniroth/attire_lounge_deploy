@@ -1,202 +1,320 @@
-import React, { useState, useEffect, useMemo } from 'react';
-import { motion, useReducedMotion, AnimatePresence } from 'framer-motion';
-import {
-    Download,
-    ChevronDown,
-    X,
-    Mail,
-    Phone,
-    Clock,
-    Search,
-    Scissors,
-    CheckCircle2,
-    AlertCircle,
-    RefreshCw,
-    Check,
-    Loader,
-    Plus,
-    MoreVertical,
-    Smartphone,
-    Package,
-    DollarSign,
-    User,
-    ExternalLink,
-} from 'lucide-react';
+import React, { useState, useEffect, useMemo, useCallback, Suspense, lazy } from 'react';
+import { createPortal } from 'react-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import axios from 'axios';
-
-// UI Components
+import { motion, AnimatePresence, useReducedMotion } from 'framer-motion';
+import { 
+    Scissors, 
+    Search, 
+    X, 
+    Smartphone, 
+    Clock, 
+    MoreVertical, 
+    RefreshCw, 
+    Plus, 
+    Download, 
+    ChevronDown, 
+    DollarSign, 
+    Package, 
+    User, 
+    AlertCircle, 
+    CheckCircle2, 
+    Loader,
+    Mail,
+    ExternalLink
+} from 'lucide-react';
+import { Card, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Card, CardTitle, CardDescription } from '@/components/ui/card';
 import { BorderBeam } from '@/components/ui/border-beam';
 
 const statusConfig = {
     pending: {
         label: 'Pending',
-        bgColor: 'bg-yellow-500/10',
-        borderColor: 'border-yellow-500/30',
-        textColor: 'text-yellow-600 dark:text-yellow-400',
-        dotColor: 'bg-yellow-500 dark:bg-yellow-400',
         icon: Clock,
+        bgColor: 'bg-amber-500/10',
+        textColor: 'text-amber-500',
+        borderColor: 'border-amber-500/20',
     },
     in_progress: {
         label: 'In Progress',
-        bgColor: 'bg-blue-500/10',
-        borderColor: 'border-blue-500/30',
-        textColor: 'text-blue-600 dark:text-blue-400',
-        dotColor: 'bg-blue-500 dark:bg-blue-400',
         icon: RefreshCw,
+        bgColor: 'bg-blue-500/10',
+        textColor: 'text-blue-500',
+        borderColor: 'border-blue-500/20',
     },
     ready: {
         label: 'Ready',
-        bgColor: 'bg-green-500/10',
-        borderColor: 'border-green-500/30',
-        textColor: 'text-green-600 dark:text-green-400',
-        dotColor: 'bg-green-500 dark:bg-green-400',
         icon: CheckCircle2,
+        bgColor: 'bg-emerald-500/10',
+        textColor: 'text-emerald-500',
+        borderColor: 'border-emerald-500/20',
     },
     completed: {
         label: 'Completed',
-        bgColor: 'bg-black/5 dark:bg-white/5',
-        borderColor: 'border-black/10 dark:border-white/10',
-        textColor: 'text-gray-500 dark:text-white/60',
-        dotColor: 'bg-gray-400 dark:bg-white/40',
-        icon: Check,
+        icon: Scissors,
+        bgColor: 'bg-gray-500/10',
+        textColor: 'text-gray-500',
+        borderColor: 'border-gray-500/20',
     },
-    cancelled: {
-        label: 'Cancelled',
-        bgColor: 'bg-red-500/10',
-        borderColor: 'border-red-500/30',
-        textColor: 'text-red-600 dark:text-red-400',
-        dotColor: 'bg-red-500 dark:bg-red-400',
-        icon: AlertCircle,
+};
+
+const containerVariants = {
+    hidden: { opacity: 0 },
+    visible: {
+        opacity: 1,
+        transition: {
+            staggerChildren: 0.05,
+        },
     },
 };
 
 const formatDate = (dateStr) => {
-    if (!dateStr) return '—';
-    return new Date(dateStr).toLocaleDateString('en-US', {
-        month: 'short',
-        day: 'numeric',
-        year: 'numeric',
-    });
+    if (!dateStr) return 'N/A';
+    try {
+        const date = new Date(dateStr);
+        return date.toLocaleDateString('en-US', {
+            month: 'short',
+            day: 'numeric',
+            year: 'numeric',
+        });
+    } catch (e) {
+        return dateStr;
+    }
 };
 
-const AlteringRow = React.memo(
-    ({
-        altering,
-        statusConfig,
-        isSelected,
-        onSelect,
-        onDetailOpen,
-        shouldAnimate,
-        rowVariants,
-    }) => {
-        const status = statusConfig[altering.status] || statusConfig.pending;
-        return (
-            <motion.div variants={shouldAnimate ? rowVariants : {}}>
-                <div
-                    className={`px-5 py-4 group relative transition-all duration-300 border-b border-black/5 dark:border-white/5 ${isSelected ? 'bg-attire-accent/10 hover:bg-attire-accent/20' : 'bg-transparent hover:bg-black/[0.02] dark:hover:bg-white/[0.02]'}`}
-                    style={{
-                        display: 'grid',
-                        gridTemplateColumns:
-                            '40px 240px 160px 140px 200px 1fr 60px',
-                        columnGap: '10px',
-                        alignItems: 'center',
-                    }}
-                >
-                    <div className="flex items-center justify-center border-r border-black/5 dark:border-white/5 pr-3">
-                        <input
-                            type="checkbox"
-                            className="w-3.5 h-3.5 rounded border-black/20 dark:border-white/20 bg-transparent accent-attire-accent cursor-pointer"
-                            checked={isSelected}
-                            onChange={() => onSelect(altering.id)}
-                        />
-                    </div>
-
-                    <div className="flex items-center gap-3 min-w-0 border-r border-black/5 dark:border-white/5 px-3">
-                        <div className="h-8 w-8 rounded-full bg-black/5 dark:bg-white/5 flex items-center justify-center flex-shrink-0 text-gray-500 dark:text-white/60">
-                            <User size={14} />
-                        </div>
-                        <div className="min-w-0">
-                            <div className="text-sm font-medium text-gray-900 dark:text-white/90 truncate font-sans">
-                                {altering.customer_name}
-                            </div>
-                            <div className="text-[11px] text-gray-500 dark:text-white/50 font-sans mt-0.5 tracking-wide">
-                                {altering.mobile || '—'}{' '}
-                                {altering.order_no &&
-                                    ` • #${altering.order_no}`}
-                            </div>
-                        </div>
-                    </div>
-
-                    <div className="flex items-center border-r border-black/5 dark:border-white/5 px-3">
-                        <div
-                            className={`inline-flex items-center gap-1.5 px-2.5 py-1 text-[10px] font-black uppercase tracking-[0.2em] ${status.bgColor} ${status.textColor} border ${status.borderColor} rounded-lg`}
-                        >
-                            <div
-                                className={`w-1.5 h-1.5 rounded-full ${status.dotColor}`}
-                            />
-                            {status.label}
-                        </div>
-                    </div>
-
-                    <div className="flex items-center border-r border-black/5 dark:border-white/5 px-3 text-sm font-mono tracking-widest text-attire-accent font-black">
-                        ${altering.altering_cost || '0.00'}
-                    </div>
-
-                    <div className="flex items-center min-w-0 border-r border-black/5 dark:border-white/5 px-3 text-sm text-gray-400 dark:text-white/50 truncate font-mono uppercase">
-                        {altering.product || 'UNSPECIFIED_ARTIFACT'}
-                    </div>
-
-                    <div className="flex items-center min-w-0 border-r border-black/5 dark:border-white/5 px-3">
-                        <span
-                            className={`text-[11px] font-mono tracking-widest ${altering.ready_at && new Date(altering.ready_at) < new Date() && altering.status !== 'completed' ? 'text-red-600 dark:text-red-400 bg-red-500/10 px-2 py-1 object-none' : 'text-gray-400 dark:text-white/40'}`}
-                        >
-                            {formatDate(altering.ready_at)}
-                        </span>
-                    </div>
-
-                    <div className="flex items-center justify-center px-3">
-                        <button
-                            onClick={() => onDetailOpen(altering)}
-                            className="opacity-0 group-hover:opacity-100 hover:text-attire-accent hover:bg-black/5 dark:hover:bg-white/5 w-8 h-8 flex items-center justify-center transition-all cursor-pointer text-gray-400 dark:text-white/40 border border-transparent hover:border-black/10 dark:hover:border-white/10"
-                        >
-                            <svg
-                                width="14"
-                                height="14"
-                                viewBox="0 0 16 16"
-                                fill="none"
-                            >
-                                <rect
-                                    x="7"
-                                    y="2"
-                                    width="2"
-                                    height="2"
-                                    fill="currentColor"
-                                />
-                                <rect
-                                    x="7"
-                                    y="7"
-                                    width="2"
-                                    height="2"
-                                    fill="currentColor"
-                                />
-                                <rect
-                                    x="7"
-                                    y="12"
-                                    width="2"
-                                    height="2"
-                                    fill="currentColor"
-                                />
-                            </svg>
-                        </button>
-                    </div>
+const TableSkeleton = () => (
+    <div className="flex flex-col">
+        {[1, 2, 3, 4, 5].map((i) => (
+            <div
+                key={i}
+                className="px-5 py-8 border-b border-black/5 dark:border-white/5 animate-pulse"
+                style={{
+                    display: 'grid',
+                    gridTemplateColumns: '40px 200px 160px 140px 120px 160px 1fr 60px',
+                    columnGap: '10px',
+                    alignItems: 'center',
+                }}
+            >
+                <div className="h-4 w-4 bg-gray-200 dark:bg-white/5 rounded mx-auto" />
+                <div className="flex items-center gap-3">
+                    <div className="h-8 w-8 rounded-full bg-gray-200 dark:bg-white/5" />
+                    <div className="h-4 w-32 bg-gray-200 dark:bg-white/5 rounded" />
                 </div>
-            </motion.div>
-        );
-    }
+                <div className="space-y-2">
+                    <div className="h-3 w-24 bg-gray-200 dark:bg-white/5 rounded" />
+                    <div className="h-2 w-16 bg-gray-200 dark:bg-white/5 rounded" />
+                </div>
+                <div className="h-6 w-20 bg-gray-200 dark:bg-white/5 rounded-lg" />
+                <div className="h-4 w-12 bg-gray-200 dark:bg-white/5 rounded" />
+                <div className="h-4 w-28 bg-gray-200 dark:bg-white/5 rounded" />
+                <div className="h-4 w-20 bg-gray-200 dark:bg-white/5 rounded" />
+                <div className="h-8 w-8 bg-gray-200 dark:bg-white/5 rounded mx-auto" />
+            </div>
+        ))}
+    </div>
 );
+
+const AlteringRow = React.memo(({ 
+    altering, 
+    statusConfig, 
+    isSelected, 
+    onSelect, 
+    onDetailOpen,
+    shouldAnimate,
+    rowVariants 
+}) => {
+    const status = statusConfig[altering.status] || statusConfig.pending;
+
+    return (
+        <motion.div
+            variants={shouldAnimate ? rowVariants : {}}
+            className={`px-5 py-4 border-b border-black/5 dark:border-white/5 hover:bg-black/[0.02] dark:hover:bg-white/[0.02] transition-colors group cursor-pointer ${
+                isSelected ? 'bg-attire-accent/5 dark:bg-attire-accent/5' : ''
+            }`}
+            style={{
+                display: 'grid',
+                gridTemplateColumns: '40px 200px 160px 140px 120px 160px 1fr 60px',
+                columnGap: '10px',
+                alignItems: 'center',
+            }}
+            onClick={() => onDetailOpen(altering)}
+        >
+            <div 
+                className="flex items-center justify-center border-r border-black/5 dark:border-white/5 pr-3 h-full"
+                onClick={(e) => e.stopPropagation()}
+            >
+                <input
+                    type="checkbox"
+                    className="w-3.5 h-3.5 rounded border-black/20 dark:border-white/20 bg-transparent accent-attire-accent cursor-pointer"
+                    checked={isSelected}
+                    onChange={() => onSelect(altering.id)}
+                />
+            </div>
+
+            <div className="flex items-center gap-3 border-r border-black/5 dark:border-white/5 px-3 h-full overflow-hidden">
+                <div className="w-8 h-8 rounded-full bg-attire-accent/10 border border-attire-accent/20 flex items-center justify-center shrink-0">
+                    <span className="text-[10px] font-black text-attire-accent">
+                        {altering.customer_name?.charAt(0) || 'U'}
+                    </span>
+                </div>
+                <span className="text-sm font-serif text-attire-charcoal dark:text-white truncate">
+                    {altering.customer_name}
+                </span>
+            </div>
+
+            <div className="flex flex-col gap-1 border-r border-black/5 dark:border-white/5 px-3 h-full justify-center overflow-hidden">
+                <div className="flex items-center gap-1.5 opacity-40">
+                    <div className="w-1 h-1 rounded-full bg-current" />
+                    <span className="text-[9px] font-mono tracking-tighter uppercase truncate">
+                        #{altering.order_no || 'MANUAL'}
+                    </span>
+                </div>
+                <div className="text-[10px] font-medium text-gray-500 dark:text-white/40 flex items-center gap-1">
+                    <Smartphone size={8} />
+                    {altering.mobile || 'N/A'}
+                </div>
+            </div>
+
+            <div className="px-3 border-r border-black/5 dark:border-white/5 h-full flex items-center">
+                <div className={`inline-flex items-center gap-1.5 px-2 py-1 rounded-lg text-[9px] font-black uppercase tracking-widest border ${status.bgColor} ${status.textColor} ${status.borderColor} shadow-sm w-fit`}>
+                    <status.icon className="w-3 h-3" />
+                    {status.label}
+                </div>
+            </div>
+
+            <div className="px-3 border-r border-black/5 dark:border-white/5 h-full flex items-center">
+                <span className="text-xs font-mono font-bold text-attire-accent">
+                    ${altering.altering_cost || '0.00'}
+                </span>
+            </div>
+
+            <div className="px-3 border-r border-black/5 dark:border-white/5 h-full flex items-center overflow-hidden">
+                <span className="text-[10px] font-medium text-gray-500 dark:text-white/60 line-clamp-1 italic">
+                    {altering.product || 'Unspecified Product'}
+                </span>
+            </div>
+
+            <div className="px-3 border-r border-black/5 dark:border-white/5 h-full flex items-center">
+                <div className="flex flex-col">
+                    <span className="text-xs font-mono text-attire-charcoal dark:text-white">
+                        {formatDate(altering.ready_at)}
+                    </span>
+                    <span className="text-[9px] uppercase tracking-tighter text-gray-400 font-bold">
+                        {altering.ready_at ? 'Target Ready' : 'Date TBD'}
+                    </span>
+                </div>
+            </div>
+
+            <div 
+                className="flex items-center justify-center px-3 h-full"
+                onClick={(e) => e.stopPropagation()}
+            >
+                <div className="p-2 opacity-0 group-hover:opacity-100 dark:group-hover:bg-white/5 rounded-lg transition-all hover:text-attire-accent">
+                    <MoreVertical size={14} />
+                </div>
+            </div>
+        </motion.div>
+    );
+});
+
+const AlteringTable = React.memo(({ 
+    alterings, 
+    selectedItems, 
+    onItemSelect, 
+    onSelectAll, 
+    onDetailOpen,
+    shouldAnimate,
+    rowVariants 
+}) => {
+    return (
+        <div className="min-w-[1100px]">
+            {/* Table Header */}
+            <div
+                className="px-5 py-4 text-[10px] font-black uppercase tracking-[0.2em] text-gray-400 dark:text-white/40 bg-black/[0.02] dark:bg-white/[0.02] border-b border-black/5 dark:border-white/10 text-left"
+                style={{
+                    display: 'grid',
+                    gridTemplateColumns: '40px 200px 160px 140px 120px 160px 1fr 60px',
+                    columnGap: '10px',
+                }}
+            >
+                <div className="flex items-center justify-center border-r border-black/5 dark:border-white/5 pr-3">
+                    <input
+                        type="checkbox"
+                        className="w-3.5 h-3.5 rounded border-black/20 dark:border-white/20 bg-transparent accent-attire-accent cursor-pointer"
+                        checked={alterings.length > 0 && selectedItems.length === alterings.length}
+                        onChange={onSelectAll}
+                    />
+                </div>
+                <div className="flex items-center gap-1.5 border-r border-black/5 dark:border-white/5 px-3">
+                    <User size={12} className="opacity-50" />
+                    Customer Name
+                </div>
+                <div className="flex items-center gap-1.5 border-r border-black/5 dark:border-white/5 px-3">
+                    <Smartphone size={12} className="opacity-50" />
+                    Ref & Mobile
+                </div>
+                <div className="flex items-center gap-1.5 border-r border-black/5 dark:border-white/5 px-3">
+                    <Clock size={12} className="opacity-50" />
+                    Current Status
+                </div>
+                <div className="flex items-center gap-1.5 border-r border-black/5 dark:border-white/5 px-3">
+                    <DollarSign size={12} className="opacity-50" />
+                    Cost
+                </div>
+                <div className="flex items-center gap-1.5 border-r border-black/5 dark:border-white/5 px-3">
+                    <Package size={12} className="opacity-50" />
+                    Product Item
+                </div>
+                <div className="flex items-center gap-1.5 border-r border-black/5 dark:border-white/5 px-3">
+                    <Clock size={12} className="opacity-50" />
+                    Est. Ready Date
+                </div>
+                <div className="flex items-center justify-center px-3">
+                    <MoreVertical size={12} className="opacity-50" />
+                </div>
+            </div>
+
+            {/* Table Body */}
+            <AnimatePresence mode="popLayout" initial={false}>
+                {alterings.length === 0 ? (
+                    <motion.div
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        className="py-20 text-center"
+                    >
+                        <div className="inline-flex p-4 rounded-full bg-black/5 dark:bg-white/5 mb-4">
+                            <AlertCircle className="w-6 h-6 text-gray-400" />
+                        </div>
+                        <p className="text-sm text-gray-500 dark:text-white/40 font-mono tracking-widest uppercase">
+                            No records found matching your filters
+                        </p>
+                    </motion.div>
+                ) : (
+                    <motion.div
+                        variants={{
+                            visible: { transition: { staggerChildren: 0.04 } }
+                        }}
+                        initial="hidden"
+                        animate="visible"
+                    >
+                        {alterings.map((altering) => (
+                            <AlteringRow
+                                key={altering.id}
+                                altering={altering}
+                                statusConfig={statusConfig}
+                                isSelected={selectedItems.includes(altering.id)}
+                                onSelect={onItemSelect}
+                                onDetailOpen={onDetailOpen}
+                                shouldAnimate={shouldAnimate}
+                                rowVariants={rowVariants}
+                            />
+                        ))}
+                    </motion.div>
+                )}
+            </AnimatePresence>
+        </div>
+    );
+});
 
 export default function AlteringManager() {
     const queryClient = useQueryClient();
@@ -276,6 +394,14 @@ export default function AlteringManager() {
         },
     });
 
+    const bulkDeleteMutation = useMutation({
+        mutationFn: async (ids) => axios.post('/api/v1/admin/alterings/bulk-delete', { ids }),
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ['admin-alterings'] });
+            setSelectedItems([]);
+        },
+    });
+
     const createMutation = useMutation({
         mutationFn: async (data) => axios.post('/api/v1/admin/alterings', data),
         onSuccess: () => {
@@ -311,16 +437,7 @@ export default function AlteringManager() {
         setMounted(true);
     }, []);
 
-    const handleSort = (field) => {
-        if (sortField === field) {
-            setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc');
-        } else {
-            setSortField(field);
-            setSortOrder('asc');
-        }
-        setShowSortMenu(false);
-    };
-
+    // 📊 Business Logic (Memoized)
     const sortedAlterings = useMemo(() => {
         let sorted = [...alterings];
         if (!sortField) return sorted;
@@ -340,30 +457,8 @@ export default function AlteringManager() {
         });
     }, [alterings, sortField, sortOrder]);
 
-    const handleSelectAll = () => {
-        if (selectedItems.length === sortedAlterings.length) {
-            setSelectedItems([]);
-        } else {
-            setSelectedItems(sortedAlterings.map((a) => a.id));
-        }
-    };
-
-    const handleItemSelect = (id) => {
-        setSelectedItems((prev) =>
-            prev.includes(id) ? prev.filter((i) => i !== id) : [...prev, id]
-        );
-    };
-
-    const exportToCSV = () => {
-        const headers = [
-            'Customer',
-            'Order No',
-            'Mobile',
-            'Product',
-            'Status',
-            'Cost',
-            'Ready At',
-        ];
+    const exportToCSV = useCallback(() => {
+        const headers = ['Customer', 'Order No', 'Mobile', 'Product', 'Status', 'Cost', 'Ready At'];
         const rows = sortedAlterings.map((alt) => [
             alt.customer_name,
             alt.order_no || '',
@@ -375,37 +470,25 @@ export default function AlteringManager() {
         ]);
         const csvContent = [
             headers.join(','),
-            ...rows.map((row) =>
-                row
-                    .map((cell) => `"${String(cell).replace(/"/g, '""')}"`)
-                    .join(',')
-            ),
+            ...rows.map((row) => row.map((cell) => `"${String(cell).replace(/"/g, '""')}"`).join(',')),
         ].join('\n');
-        const blob = new Blob([csvContent], {
-            type: 'text/csv;charset=utf-8;',
-        });
+        const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
         const link = document.createElement('a');
         link.href = URL.createObjectURL(blob);
         link.download = `alterings-${new Date().toISOString().split('T')[0]}.csv`;
         link.click();
-    };
+    }, [sortedAlterings]);
 
-    const exportToJSON = () => {
+    const exportToJSON = useCallback(() => {
         const jsonContent = JSON.stringify(sortedAlterings, null, 2);
-        const blob = new Blob([jsonContent], {
-            type: 'application/json;charset=utf-8;',
-        });
+        const blob = new Blob([jsonContent], { type: 'application/json;charset=utf-8;' });
         const link = document.createElement('a');
         link.href = URL.createObjectURL(blob);
         link.download = `alterings-${new Date().toISOString().split('T')[0]}.json`;
         link.click();
-    };
+    }, [sortedAlterings]);
 
     const shouldAnimate = !shouldReduceMotion;
-
-    const containerVariants = {
-        visible: { transition: { staggerChildren: 0.04, delayChildren: 0.1 } },
-    };
 
     const rowVariants = {
         hidden: { opacity: 0, y: 30, filter: 'blur(10px)' },
@@ -413,10 +496,7 @@ export default function AlteringManager() {
             opacity: 1,
             y: 0,
             filter: 'blur(0px)',
-            transition: {
-                duration: 0.6,
-                ease: [0.16, 1, 0.3, 1],
-            },
+            transition: { duration: 0.6, ease: [0.16, 1, 0.3, 1] },
         },
         exit: {
             opacity: 0,
@@ -426,7 +506,32 @@ export default function AlteringManager() {
         },
     };
 
-    const handleSync = async () => {
+    // 🖱️ Event Handlers (Memoized)
+    const handleSort = useCallback((field) => {
+        setSortField((prev) => {
+            if (prev === field) {
+                setSortOrder((p) => (p === 'asc' ? 'desc' : 'asc'));
+                return prev;
+            }
+            setSortOrder('asc');
+            return field;
+        });
+        setShowSortMenu(false);
+    }, []);
+
+    const handleSelectAll = useCallback(() => {
+        setSelectedItems((prev) => 
+            prev.length === sortedAlterings.length ? [] : sortedAlterings.map((a) => a.id)
+        );
+    }, [sortedAlterings]);
+
+    const handleItemSelect = useCallback((id) => {
+        setSelectedItems((prev) =>
+            prev.includes(id) ? prev.filter((i) => i !== id) : [...prev, id]
+        );
+    }, []);
+
+    const handleSync = useCallback(async () => {
         if (!syncUrl || !window.hika) return;
         setIsSyncing(true);
         try {
@@ -439,7 +544,27 @@ export default function AlteringManager() {
         } finally {
             setIsSyncing(false);
         }
-    };
+    }, [syncUrl, queryClient]);
+
+    const handleDetailOpen = useCallback((altering) => {
+        setSelectedDetail(altering);
+    }, []);
+
+    const handlePageChange = useCallback((newPage) => {
+        setPage(newPage);
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }, []);
+
+    const handleSearchChange = useCallback((e) => {
+        setSearchQuery(e.target.value);
+        setPage(1);
+    }, []);
+
+    const handleReset = useCallback(() => {
+        setSearchQuery('');
+        setStatusFilter('');
+        setPage(1);
+    }, []);
 
     return (
         <div className="w-full font-sans pb-20">
@@ -461,19 +586,44 @@ export default function AlteringManager() {
                 </div>
 
                 <div className="flex items-center gap-3 flex-wrap">
-                    <div className="relative">
-                        <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 dark:text-white/40" />
+                    <div className="relative group">
+                        <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 dark:text-white/40 group-focus-within:text-attire-accent transition-colors" />
                         <input
                             type="text"
-                            placeholder="Search..."
+                            placeholder="Search records..."
                             value={searchQuery}
                             onChange={(e) => {
                                 setSearchQuery(e.target.value);
                                 setPage(1);
                             }}
-                            className="bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 rounded-xl py-2.5 pl-10 pr-4 text-attire-charcoal dark:text-white text-sm outline-none focus:border-attire-accent/50 transition-all placeholder:text-gray-400 dark:placeholder:text-white/20 w-48 lg:w-64 font-mono tracking-widest text-[11px]"
+                            className="bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 rounded-xl py-2.5 pl-10 pr-10 text-attire-charcoal dark:text-white text-sm outline-none focus:border-attire-accent/50 transition-all placeholder:text-gray-400 dark:placeholder:text-white/20 w-48 lg:w-64 font-mono tracking-widest text-[11px]"
                         />
+                        {searchQuery && (
+                            <button
+                                onClick={() => {
+                                    setSearchQuery('');
+                                    setPage(1);
+                                }}
+                                className="absolute right-3 top-1/2 -translate-y-1/2 p-1 hover:bg-black/10 dark:hover:bg-white/10 rounded-full text-gray-400 hover:text-attire-accent transition-all"
+                                title="Clear search"
+                            >
+                                <X size={14} />
+                            </button>
+                        )}
                     </div>
+
+                    {(searchQuery || statusFilter) && (
+                        <button
+                            onClick={() => {
+                                setSearchQuery('');
+                                setStatusFilter('');
+                                setPage(1);
+                            }}
+                            className="text-[10px] font-black underline uppercase tracking-widest text-attire-accent hover:text-[#ffb940] transition-colors p-2"
+                        >
+                            Reset
+                        </button>
+                    )}
 
                     <div className="relative">
                         <button
@@ -646,14 +796,43 @@ export default function AlteringManager() {
                             </>
                         )}
                     </div>
+                    {selectedItems.length > 0 && (
+                        <div className="flex items-center gap-2">
+                            <button
+                                onClick={() => setSelectedItems([])}
+                                className="bg-black/5 dark:bg-white/5 hover:bg-black/10 dark:hover:bg-white/10 text-gray-500 transition-all px-4 py-2.5 rounded-xl font-bold uppercase tracking-widest text-[9px] border border-black/10 dark:border-white/10 flex items-center gap-2"
+                            >
+                                <X size={12} strokeWidth={3} />
+                                Clear {selectedItems.length}
+                            </button>
+                            <button
+                                onClick={() => {
+                                    if (window.confirm(`Are you sure you want to delete ${selectedItems.length} selected records?`)) {
+                                        bulkDeleteMutation.mutate(selectedItems);
+                                    }
+                                }}
+                                disabled={bulkDeleteMutation.isPending}
+                                className="bg-red-500/10 hover:bg-red-500/20 text-red-500 transition-all px-4 py-2.5 rounded-xl font-bold uppercase tracking-widest text-[9px] border border-red-500/20 flex items-center gap-2 disabled:opacity-50"
+                            >
+                                {bulkDeleteMutation.isPending ? (
+                                    <Loader className="w-3 h-3 animate-spin" />
+                                ) : (
+                                    <svg width="12" height="12" viewBox="0 0 16 16" fill="none">
+                                        <path d="M3 4H13M5 4V3C5 2.44772 5.44772 2 6 2H10C10.5523 2 11 2.44772 11 3V4M6.5 7V11M9.5 7V11M4 4V13C4 13.5523 4.44772 14 5 14H11C11.5523 14 12 13.5523 12 13V4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                                    </svg>
+                                )}
+                                Delete Selected
+                            </button>
+                        </div>
+                    )}
 
-                    <button
+                    <Button
                         onClick={() => setShowSyncModal(true)}
-                        className="px-4 py-2.5 bg-attire-accent/10 border border-attire-accent/20 text-attire-accent hover:bg-attire-accent/20 transition-all flex items-center gap-2 rounded-xl text-sm font-mono tracking-widest text-[11px]"
+                        className="bg-black/5 dark:bg-white/5 text-attire-charcoal dark:text-white hover:bg-attire-accent dark:hover:bg-attire-accent transition-colors px-6 py-5 rounded-xl font-bold uppercase tracking-[0.2em] text-[10px] ml-1 border border-black/10 dark:border-white/10"
                     >
-                        <RefreshCw size={14} className={isSyncing ? 'animate-spin' : ''} />
+                        <RefreshCw className={`w-3.5 h-3.5 mr-2 ${isSyncing ? 'animate-spin' : ''}`} />
                         Sync Sheet
-                    </button>
+                    </Button>
 
                     <Button
                         onClick={() => setIsAdding(true)}
@@ -664,131 +843,26 @@ export default function AlteringManager() {
                 </div>
             </div>
 
-            {/* Table Area */}
+            {/* Table Area - Optimized with Suspense and Memoization */}
             <div className="bg-white/80 dark:bg-[#0a0a0a]/80 backdrop-blur-xl border border-black/10 dark:border-white/10 rounded-3xl overflow-hidden relative shadow-2xl">
-                <div className="overflow-x-auto">
-                    <div className="min-w-[1100px]">
-                        {/* Table Header */}
-                        <div
-                            className="px-5 py-4 text-[10px] font-black uppercase tracking-[0.2em] text-gray-400 dark:text-white/40 bg-black/[0.02] dark:bg-white/[0.02] border-b border-black/5 dark:border-white/10 text-left"
-                            style={{
-                                display: 'grid',
-                                gridTemplateColumns:
-                                    '40px 240px 160px 140px 200px 1fr 60px',
-                                columnGap: '10px',
-                            }}
-                        >
-                            <div className="flex items-center justify-center border-r border-black/5 dark:border-white/5 pr-3">
-                                <input
-                                    type="checkbox"
-                                    className="w-3.5 h-3.5 rounded border-black/20 dark:border-white/20 bg-transparent accent-attire-accent cursor-pointer"
-                                    checked={
-                                        sortedAlterings.length > 0 &&
-                                        selectedItems.length ===
-                                            sortedAlterings.length
-                                    }
-                                    onChange={handleSelectAll}
-                                />
-                            </div>
-                            <div className="flex items-center gap-1.5 border-r border-black/5 dark:border-white/5 px-3">
-                                <svg
-                                    width="12"
-                                    height="12"
-                                    viewBox="0 0 16 16"
-                                    fill="none"
-                                    className="opacity-50"
-                                >
-                                    <circle
-                                        cx="8"
-                                        cy="6"
-                                        r="3"
-                                        stroke="currentColor"
-                                        strokeWidth="1.5"
-                                    />
-                                    <path
-                                        d="M3 14C3 11.5 5 10 8 10C11 10 13 11.5 13 14"
-                                        stroke="currentColor"
-                                        strokeWidth="1.5"
-                                    />
-                                </svg>
-                                Client
-                            </div>
-                            <div className="flex items-center gap-1.5 border-r border-black/5 dark:border-white/5 px-3">
-                                <svg
-                                    width="12"
-                                    height="12"
-                                    viewBox="0 0 16 16"
-                                    fill="none"
-                                    className="opacity-50"
-                                >
-                                    <path
-                                        d="M3 8L6 5L10 9L13 6"
-                                        stroke="currentColor"
-                                        strokeWidth="1.5"
-                                        strokeLinecap="round"
-                                    />
-                                </svg>
-                                Status
-                            </div>
-                            <div className="flex items-center gap-1.5 border-r border-black/5 dark:border-white/5 px-3">
-                                <DollarSign size={12} className="opacity-50" />{' '}
-                                Cost
-                            </div>
-                            <div className="flex items-center gap-1.5 border-r border-black/5 dark:border-white/5 px-3">
-                                <Package size={12} className="opacity-50" />{' '}
-                                Product
-                            </div>
-                            <div className="flex items-center gap-1.5 border-r border-black/5 dark:border-white/5 px-3">
-                                <Clock size={12} className="opacity-50" /> Ready
-                                Date
-                            </div>
-                            <div className="flex items-center justify-center px-3 opacity-30">
-                                <MoreVertical size={14} />
-                            </div>
+                <Suspense fallback={<TableSkeleton />}>
+                    {isLoading ? (
+                        <TableSkeleton />
+                    ) : (
+                        <div className="overflow-x-auto">
+                            <AlteringTable 
+                                alterings={sortedAlterings} 
+                                selectedItems={selectedItems}
+                                onItemSelect={handleItemSelect}
+                                onSelectAll={handleSelectAll}
+                                onDetailOpen={handleDetailOpen}
+                                shouldAnimate={shouldAnimate}
+                                rowVariants={rowVariants}
+                            />
                         </div>
-
-                        {isLoading ? (
-                            <div className="flex items-center justify-center h-64">
-                                <Loader className="w-8 h-8 text-attire-accent animate-spin" />
-                            </div>
-                        ) : sortedAlterings.length === 0 ? (
-                            <div className="flex flex-col items-center justify-center h-64 text-center">
-                                <Scissors className="w-12 h-12 text-black/10 dark:text-white/10 mb-4" />
-                                <p className="text-gray-400 dark:text-white/30 text-xs font-black uppercase tracking-widest">
-                                    No records found
-                                </p>
-                            </div>
-                        ) : (
-                            <AnimatePresence mode="wait">
-                                <motion.div
-                                    key={`page-${page}`}
-                                    variants={
-                                        shouldAnimate ? containerVariants : {}
-                                    }
-                                    initial={
-                                        shouldAnimate ? 'hidden' : 'visible'
-                                    }
-                                    animate="visible"
-                                >
-                                    {sortedAlterings.map((altering) => (
-                                        <AlteringRow
-                                            key={altering.id}
-                                            altering={altering}
-                                            statusConfig={statusConfig}
-                                            isSelected={selectedItems.includes(
-                                                altering.id
-                                            )}
-                                            onSelect={handleItemSelect}
-                                            onDetailOpen={setSelectedDetail}
-                                            shouldAnimate={shouldAnimate}
-                                            rowVariants={rowVariants}
-                                        />
-                                    ))}
-                                </motion.div>
-                            </AnimatePresence>
-                        )}
-                    </div>
-                </div>
+                    )}
+                </Suspense>
+            </div>
 
                 {/* Pagination Details */}
                 {!isLoading && pagination.total > 0 && (
@@ -823,18 +897,17 @@ export default function AlteringManager() {
                         </div>
                     </div>
                 )}
-            </div>
 
             {/* Detail Modal Overlays */}
-            <AnimatePresence>
-                {selectedDetail && (
+            {typeof document !== 'undefined' && createPortal(
+                <AnimatePresence>
+                    {selectedDetail && (
                     <motion.div
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
                         exit={{ opacity: 0 }}
                         transition={{ duration: 0.3 }}
-                        className="fixed inset-0 bg-black/60 dark:bg-[#000000]/80 backdrop-blur-md flex items-center justify-center z-50 p-4"
-                        onClick={() => setSelectedDetail(null)}
+                        className="fixed inset-0 bg-black/60 dark:bg-[#000000]/80 backdrop-blur-xl flex items-center justify-center z-[99999] p-4"                        onClick={() => setSelectedDetail(null)}
                     >
                         <motion.div
                             initial={{ scale: 0.95, opacity: 0, y: 20 }}
@@ -1035,9 +1108,9 @@ export default function AlteringManager() {
 
                 {/* Add Modal Wizard */}
                 {isAdding && (
-                    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+                    <div className="fixed inset-0 z-[99999] flex items-center justify-center p-4">
                         <div
-                            className="absolute inset-0 bg-black/60 dark:bg-[#000000]/80 backdrop-blur-md"
+                            className="absolute inset-0 bg-black/60 dark:bg-[#000000]/80 backdrop-blur-xl"
                             onClick={() => setIsAdding(false)}
                         />
                         <motion.div
@@ -1347,17 +1420,20 @@ export default function AlteringManager() {
                         </motion.div>
                     </div>
                 )}
-            </AnimatePresence>
+            </AnimatePresence>,
+            document.body
+        )}
             {/* Sync Sheet Modal */}
-            <AnimatePresence>
-                {showSyncModal && (
-                    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+            {typeof document !== 'undefined' && createPortal(
+                <AnimatePresence>
+                    {showSyncModal && (
+                        <div className="fixed inset-0 z-[99999] flex items-center justify-center p-4">
                         <motion.div
                             initial={{ opacity: 0 }}
                             animate={{ opacity: 1 }}
                             exit={{ opacity: 0 }}
                             onClick={() => setShowSyncModal(false)}
-                            className="absolute inset-0 bg-black/60 backdrop-blur-md"
+                            className="absolute inset-0 bg-black/60 backdrop-blur-xl"
                         />
                         <motion.div
                             initial={{ scale: 0.9, opacity: 0, y: 20 }}
@@ -1476,7 +1552,9 @@ export default function AlteringManager() {
                         </motion.div>
                     </div>
                 )}
-            </AnimatePresence>
+            </AnimatePresence>,
+            document.body
+        )}
         </div>
     );
 }

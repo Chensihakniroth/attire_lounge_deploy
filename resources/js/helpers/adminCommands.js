@@ -17,17 +17,21 @@ const parseGoogleSheetUrl = (url) => {
 };
 
 const csvToJSON = (csv) => {
-    const lines = csv.split(/\r?\n/);
+    // 🛡️ Strip UTF-8 BOM if present
+    const cleanedCsv = csv.replace(/^\uFEFF/, '');
+    const lines = cleanedCsv.split(/\r?\n/);
     if (lines.length < 1) return [];
     
-    const headers = lines[0].split(',').map(h => h.trim().replace(/^"|"$/g, ''));
+    // Split headers safely (handling quotes if headers are quoted)
+    const splitRegex = /,(?=(?:(?:[^"]*"){2})*[^"]*$)/;
+    const headers = lines[0].split(splitRegex).map(h => h.trim().replace(/^"|"$/g, ''));
     const result = [];
 
     for (let i = 1; i < lines.length; i++) {
-        if (!lines[i]) continue;
+        if (!lines[i].trim()) continue;
         
-        // Handle quoted CSV values (naive but effective for most Google Sheets)
-        const currentline = lines[i].match(/(".*?"|[^",\s]+)(?=\s*,|\s*$)/g) || lines[i].split(',');
+        // Handle quoted CSV values safely (splits only on commas NOT inside quotes)
+        const currentline = lines[i].split(splitRegex);
         const obj = {};
         
         headers.forEach((header, index) => {
@@ -58,39 +62,31 @@ export const initAdminCommands = () => {
 
         import: async (type, url) => {
             if (type !== 'altering') {
-                console.error('❌ Unsupported import type! Try "altering".');
+                console.error(`❌ Unsupported import type: "${type}". Try "altering".`);
                 return;
             }
 
-            console.log(`%c📡 Initializing Import for: ${type}...`, 'color: #f5a81c; font-weight: bold;');
-            
             const csvUrl = parseGoogleSheetUrl(url);
             if (!csvUrl) {
-                console.error('❌ Invalid Google Sheet URL! Please provide a standard sharing link.');
+                console.error('❌ Invalid Google Sheet URL.');
                 return;
             }
 
+            console.log(`%c📥 Importing ${type}...`, 'color: #f5a81c;');
             try {
-                console.log('📥 Fetching master sheet data...');
                 const response = await fetch(csvUrl);
                 const csvText = await response.text();
-                
-                console.log('⚙️ Parsing and normalizing records...');
                 const jsonData = csvToJSON(csvText);
-                
-                console.log(`🚀 Sending ${jsonData.length} records to the backend...`);
                 const { data } = await window.axios.post('/api/v1/admin/alterings/import', {
                     data: jsonData
                 });
-                
-                console.log(`%c✅ SUCCESS! ${data.message}`, 'color: #00ff00; font-weight: bold;');
-                console.log('%cReloading data in UI... (｡♥‿♥｡)', 'color: #d4af37;');
+                console.log(`%c✅ ${data.message} (${jsonData.length} records)`, 'color: #00cc88; font-weight: bold;');
             } catch (err) {
-                console.error('❌ Import failed! (ಥ﹏ಥ)', err);
+                console.error('❌ Import failed:', err);
             }
         }
     };
 
-    // Auto-help on load for curious devs
-    console.log('%cType %chika.help() %cfor secret admin commands! *(¬‿¬)*', 'color: #d4af37;', 'color: #f5a81c; font-weight: bold;', 'color: #d4af37;');
+    // Hint for curious devs
+    console.log('%chika.help() %c→ admin commands', 'color: #f5a81c; font-weight: bold;', 'color: #888;');
 };

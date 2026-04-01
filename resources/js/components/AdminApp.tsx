@@ -23,12 +23,10 @@ import { ThemeProvider } from './pages/admin/ThemeContext';
 const RealtimeAdminUpdater: React.FC = () => {
     useEffect(() => {
         if (typeof window !== 'undefined' && window.Echo) {
-            console.group('📡 Attire Lounge Real-time Intelligence');
-            console.log('%cAdminApp: Initializing Systems... (｡♥‿♥｡)', 'color: #d4af37; font-weight: bold;');
+            console.log('%c📡 [AdminApp] Real-time ready', 'color: #d4af37; font-weight: bold;');
             
             const handleUpdate = (type: string) => {
-                console.log(`%c[Real-time] 🚀 Update received: ${type}`, 'color: #00ff00; font-weight: bold;');
-                console.log('AdminApp: Invalidating cache to fetch fresh data...');
+                console.log(`%c[RT] ${type}`, 'color: #00cc88;');
                 queryClient.invalidateQueries();
             };
 
@@ -48,20 +46,13 @@ const RealtimeAdminUpdater: React.FC = () => {
 
             channels.forEach(ch => {
                 const echoChannel = window.Echo.channel(ch.name);
-                console.log(`%cJoined Channel: ${ch.name}`, 'color: #3498db; font-style: italic;');
-                
                 ch.events.forEach(event => {
                     const eventName = event.startsWith('.') ? event.substring(1) : event;
                     echoChannel.listen(event, () => handleUpdate(`${ch.name}:${eventName}`));
-                    console.log(`  └─ Listening for: ${event}`);
                 });
             });
 
-            console.log('%cReal-time Ready! Monitoring for masterpiece updates... (•̀ᴗ•́)و', 'color: #d4af37;');
-            console.groupEnd();
-            
             return () => {
-                console.log('AdminApp: Cleaning up real-time listeners...');
                 window.Echo.leave('admin-notifications');
             };
         }

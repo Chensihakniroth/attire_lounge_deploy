@@ -141,6 +141,21 @@ class AlteringController extends Controller
         ]);
     }
 
+    public function bulkDestroy(Request $request): JsonResponse
+    {
+        $ids = $request->input('ids', []);
+        
+        if (empty($ids)) {
+            return response()->json(['message' => 'No items selected.'], 400);
+        }
+
+        Altering::whereIn('id', $ids)->delete();
+
+        return response()->json([
+            'message' => 'Selected altering records deleted successfully.'
+        ]);
+    }
+
     public function notify($id): JsonResponse
     {
         $altering = Altering::findOrFail($id);
@@ -164,25 +179,35 @@ class AlteringController extends Controller
 
         $imported = 0;
         foreach ($data as $row) {
-            // 📡 Normalize keys: lowercase, underscore instead of space/hyphen, fix typos
+            // 📡 Robust Normalize keys: lowercase, underscores, strip non-alphanumeric starts (BOM)
             $normalizedRow = [];
             foreach ($row as $key => $value) {
-                $cleanKey = strtolower(str_replace([' ', '-'], '_', trim($key ?? '')));
+                // Remove BOM and other non-printable characters first
+                $safeKey = preg_replace('/[\x00-\x1F\x7F-\xFF]/', '', $key);
+                $cleanKey = strtolower(str_replace([' ', '-'], '_', trim($safeKey ?? '')));
+                
+                // Specific Alias Mapping
                 if ($cleanKey === 'prodcut') $cleanKey = 'product';
                 if ($cleanKey === 'order_number') $cleanKey = 'order_no';
+                if ($cleanKey === 'customer_name' || $cleanKey === 'name' || $cleanKey === 'customer' || $cleanKey === 'client') {
+                    $cleanKey = 'customer_name';
+                }
+                if ($cleanKey === 'delivery_address' || $cleanKey === 'address') $cleanKey = 'delivery_address';
+                if ($cleanKey === 'tailor_pick_up_date') $cleanKey = 'tailor_pickup_date';
+                
                 $normalizedRow[$cleanKey] = $value;
             }
             
             $item = $normalizedRow;
 
-            // 🔍 De-duplication check
+            // 🔍 De-duplication check: Skip if same order_no OR (same name + product + date)
             if (!empty($item['order_no'])) {
                 $existing = Altering::where('order_no', $item['order_no'])->first();
                 if ($existing) continue;
-            } else if (!empty($item['customer_name'])) {
+            } else if (!empty($item['customer_name']) && $item['customer_name'] !== 'Unknown') {
                 $existing = Altering::where('customer_name', $item['customer_name'])
-                                  ->where('product', $item['product'] ?? '')
-                                  ->where('purchased_date', $item['purchased_date'] ?? '')
+                                  ->where('product', $item['product'] ?? null)
+                                  ->where('purchased_date', $item['purchased_date'] ?? null)
                                   ->first();
                 if ($existing) continue;
             }
