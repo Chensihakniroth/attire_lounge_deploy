@@ -13,6 +13,9 @@ use App\Http\Controllers\ActivityController;
 use App\Http\Controllers\CustomerProfileController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\PromocodeController;
+use App\Http\Controllers\PosProductController;
+use App\Http\Controllers\PosInvoiceController;
+use App\Http\Controllers\PosRefundController;
 
 Route::prefix('v1')->group(function () {
     // Public Product routes (accessible to all)
@@ -112,6 +115,30 @@ Route::prefix('v1')->group(function () {
             Route::get('/customer-profiles/{id}', [CustomerProfileController::class, 'show']);
             Route::put('/customer-profiles/{id}', [CustomerProfileController::class, 'update']);
             Route::delete('/customer-profiles/{id}', [CustomerProfileController::class, 'destroy']);
+
+            // ─── POS System ────────────────────────────────────────────────────
+            // Products
+            Route::get('/pos/products', [PosProductController::class, 'index']);
+            Route::post('/pos/products', [PosProductController::class, 'store']);
+            Route::put('/pos/products/{id}', [PosProductController::class, 'update']);
+            Route::delete('/pos/products/{id}', [PosProductController::class, 'destroy']);
+            Route::get('/pos/products/services', [PosProductController::class, 'services']);
+            Route::get('/pos/products/categories', [PosProductController::class, 'categories']);
+            Route::get('/pos/products/{id}', [PosProductController::class, 'show']);
+            Route::get('/pos/products/{id}/label', [PosProductController::class, 'label']);
+            Route::patch('/pos/products/{id}/stock', [PosProductController::class, 'updateStock']);
+
+            // Invoices
+            Route::get('/pos/invoices', [PosInvoiceController::class, 'index']);
+            Route::post('/pos/invoices', [PosInvoiceController::class, 'store']);
+            Route::get('/pos/invoices/{id}', [PosInvoiceController::class, 'show']);
+
+            // Refunds
+            Route::post('/pos/invoices/{id}/refund', [PosRefundController::class, 'store']);
+
+            // Daily summary (for Admin Dashboard widget)
+            Route::get('/pos/summary/daily', [PosInvoiceController::class, 'dailySummary']);
+            // ───────────────────────────────────────────────────────────────────
 
             // Restricted strictly to Super Admin ONLY
             Route::middleware(['role:super-admin'])->group(function () {

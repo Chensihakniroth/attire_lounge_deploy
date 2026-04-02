@@ -1,0 +1,32 @@
+import React, { useState, useEffect } from 'react';
+import { Outlet } from 'react-router-dom';
+import { motion, AnimatePresence } from 'framer-motion';
+import { POSProvider } from './POSContext';
+import POSHeader from './POSHeader';
+import { useTheme } from '../admin/ThemeContext';
+
+const POSLayout = () => {
+    const { isDarkMode } = useTheme();
+    
+    return (
+        <POSProvider>
+            <div className={`min-h-screen flex flex-col font-sans transition-colors duration-300 ${isDarkMode ? 'bg-[#050505] text-white' : 'bg-gray-50 text-gray-900'}`}>
+                {/* Background Decoration */}
+                <div className="fixed inset-0 pointer-events-none opacity-20 overflow-hidden z-0">
+                    <div className="absolute -top-24 -left-24 w-96 h-96 bg-attire-accent/10 blur-[120px] rounded-full" />
+                    <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-white/[0.02] blur-[150px] rounded-full" />
+                </div>
+
+                {/* POS Header */}
+                <POSHeader />
+
+                {/* Main Content Area */}
+                <main className="flex-1 flex overflow-hidden relative z-10">
+                    <Outlet />
+                </main>
+            </div>
+        </POSProvider>
+    );
+};
+
+export default POSLayout;

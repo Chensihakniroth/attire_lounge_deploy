@@ -31,6 +31,7 @@ import {
     LayoutGrid,
     Scissors,
     Ticket,
+    ArrowLeftRight
 } from 'lucide-react';
 import { ThemeProvider, useTheme } from './ThemeContext';
 import { AdminProvider, useAdmin } from './AdminContext';
@@ -202,7 +203,9 @@ const SidebarContent = ({ setOpen, isMobile }) => {
         { name: 'Alterings', to: '/admin/alterings', icon: Scissors },
         { name: 'Collections', to: '/admin/collections', icon: LayoutGrid },
         { name: 'Products', to: '/admin/products', icon: ShoppingBag },
+        { name: 'POS Products', to: '/admin/pos-products', icon: Package },
         { name: 'Promocodes', to: '/admin/promocodes', icon: Ticket },
+        { name: 'Sales History', to: '/admin/sales-history', icon: History },
         { name: 'SEO Suite', to: '/admin/seo', icon: Search },
         { name: 'Gift Requests', to: '/admin/customize-gift', icon: Gift },
         { name: 'Gift Inventory', to: '/admin/inventory', icon: Package },
@@ -342,6 +345,7 @@ const AdminLayoutContent = ({
     setSidebarOpen,
     isDesktop
 }) => {
+    const navigate = useNavigate();
     const { isEditing } = useAdmin();
     const location = useLocation();
     const currentOutlet = useOutlet();
@@ -385,6 +389,18 @@ const AdminLayoutContent = ({
                         </div>
 
                         <div className="flex items-center gap-4">
+                            {/* POS Switcher Button */}
+                            <button
+                                onClick={() => navigate('/admin/pos')}
+                                className="flex items-center gap-2 px-4 py-2 bg-attire-accent/10 border border-attire-accent/20 rounded-xl hover:bg-attire-accent hover:text-black transition-all group"
+                                title="Open POS System"
+                            >
+                                <ArrowLeftRight size={14} className="text-attire-accent group-hover:text-black" />
+                                <span className="text-[10px] font-bold uppercase tracking-widest text-attire-accent group-hover:text-black hidden sm:block">Open POS</span>
+                            </button>
+
+                            <div className="h-4 w-px bg-black/10 dark:bg-white/10 mx-2" />
+
                             <div className="text-right hidden md:block">
                                 <p className="text-[10px] font-bold text-gray-900 dark:text-white uppercase tracking-wider leading-none mb-1">
                                     Administrator

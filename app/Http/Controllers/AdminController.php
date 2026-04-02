@@ -8,6 +8,8 @@ use App\Models\GiftRequest;
 use App\Models\Product;
 use App\Models\NewsletterSubscription;
 use App\Models\CustomerProfile;
+use App\Models\PosInvoice;
+use App\Models\PosRefund;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
@@ -137,6 +139,13 @@ class AdminController extends Controller
                     'nationality' => $this->getDistribution(CustomerProfile::class, 'nationality'),
                     'shirt_size' => $this->getDistribution(CustomerProfile::class, 'shirt_size'),
                     'preferred_color' => $this->getDistribution(CustomerProfile::class, 'preferred_color'),
+                ],
+                'pos_summary' => [
+                    'total_revenue' => (float) PosInvoice::whereDate('date', Carbon::now()->toDateString())->where('status', 'completed')->sum('grand_total'),
+                    'invoice_count' => (int) PosInvoice::whereDate('date', Carbon::now()->toDateString())->where('status', 'completed')->count(),
+                    'total_refunds' => (float) PosRefund::whereHas('invoice', function ($q) {
+                        $q->whereDate('date', Carbon::now()->toDateString());
+                    })->sum('amount'),
                 ]
             ];
         });

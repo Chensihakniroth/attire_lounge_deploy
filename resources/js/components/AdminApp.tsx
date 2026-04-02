@@ -99,6 +99,10 @@ const InventoryManager = lazyWithRetry(() => import('./pages/admin/InventoryMana
 const SEOManager = lazyWithRetry(() => import('./pages/admin/SEOManager.jsx'));
 const AlteringManager = lazyWithRetry(() => import('./pages/admin/AlteringManager.jsx'));
 const PromocodeManager = lazyWithRetry(() => import('./pages/admin/PromocodeManager.jsx'));
+const POSLayout = lazyWithRetry(() => import('./pages/pos/POSLayout.jsx'));
+const POSInterface = lazyWithRetry(() => import('./pages/pos/POSInterface.jsx'));
+const SalesHistoryManager = lazyWithRetry(() => import('./pages/admin/SalesHistoryManager.jsx'));
+const PosProductManager = lazyWithRetry(() => import('./pages/admin/PosProductManager.jsx'));
 
 const GlobalStyles = () => (
     <style dangerouslySetInnerHTML={{ __html: `
@@ -128,6 +132,7 @@ function AdminApp() {
                                             <Route path="/admin/promocodes" element={<PromocodeManager />} />
                                             <Route path="/admin/products" element={<ProductManager />} />
                                             <Route path="/admin/collections" element={<CollectionManager />} />
+                                            <Route path="/admin/pos-products" element={<PosProductManager />} />
                                             <Route path="/admin/products/bulk" element={<BulkProductEditor />} />
                                             <Route path="/admin/products/new" element={<ProductEditor isNew={true} />} />
                                             <Route path="/admin/products/:productId/edit" element={<ProductEditor />} />
@@ -140,6 +145,14 @@ function AdminApp() {
                                             <Route path="/admin/profile" element={<ProfileEditor />} />
                                             <Route path="/admin/customer-profiles" element={<CustomerProfileManager />} />
                                             <Route path="/admin/customer-profiles/:id" element={<CustomerProfileDetail />} />
+                                            <Route path="/admin/sales-history" element={<SalesHistoryManager />} />
+                                        </Route>
+                                    </Route>
+                                    
+                                    {/* POS System - Full screen separate layout */}
+                                    <Route element={<PrivateRoute />}>
+                                        <Route element={<POSLayout />}>
+                                            <Route path="/admin/pos" element={<POSInterface />} />
                                         </Route>
                                     </Route>
                                     

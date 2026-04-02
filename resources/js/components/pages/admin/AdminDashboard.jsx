@@ -16,6 +16,7 @@ import axios from 'axios';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
+import DailySummaryWidget from './DailySummaryWidget';
 
 const cardVariants = {
     hidden: { opacity: 0, y: 20 },
@@ -531,14 +532,9 @@ const AdminDashboard = () => {
                             <QuickAction icon={<Plus />} title="New Masterpiece" description="Registry Entry" link="/admin/products/new" />
                             <QuickAction icon={<Calendar />} title="Appointment Board" description="Consultations" link="/admin/appointments" />
                             <QuickAction icon={<Gift />} title="Gift Requests" description="Custom Curation" link="/admin/customize-gift" />
-                            <div className="mt-10 pt-10 border-t border-black/5 dark:border-white/5">
-                                <div className="flex items-center gap-3 mb-6 text-gray-400 dark:text-white/20"><AlertTriangle size={14} /><p className="text-[10px] font-black uppercase tracking-[0.3em]">Priority Alerts</p></div>
-                                <div className="p-6 bg-yellow-500/5 dark:bg-yellow-400/5 rounded-[2.5rem] border border-yellow-500/10 dark:border-yellow-400/10 shadow-inner">
-                                    <div className="flex items-center justify-between">
-                                        <div><span className="text-2xl font-serif text-gray-900 dark:text-white leading-none">{stats.pending_appointments || 0}</span><span className="text-[10px] font-black text-gray-400 dark:text-white/20 uppercase tracking-widest ml-3">Pending</span></div>
-                                        <Link to="/admin/appointments" className="p-3 bg-yellow-400 text-black rounded-full hover:bg-yellow-500 transition-colors"><ArrowRight size={16} /></Link>
-                                    </div>
-                                </div>
+                            
+                            <div className="mt-6 pt-6 border-t border-black/5 dark:border-white/5 space-y-6">
+                                <DailySummaryWidget stats={stats} loading={appointmentsLoading} />
                             </div>
                         </div>
                     </motion.div>
