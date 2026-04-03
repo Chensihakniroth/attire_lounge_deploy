@@ -14,6 +14,7 @@ import axios from 'axios';
 import { motion, AnimatePresence } from 'framer-motion';
 import Skeleton from '../../common/Skeleton.jsx';
 import ErrorBoundary from '../../common/ErrorBoundary.jsx';
+import ModernModal from '../../common/ModernModal.jsx';
 
 // Only two roles in the system
 const ROLES = [
@@ -283,195 +284,163 @@ const UserManager = () => {
                 </div>
 
                 {/* Modal */}
-                <AnimatePresence>
-                    {showModal && (
-                        <div className="fixed inset-0 z-[9999] flex items-center justify-center p-6">
-                            <motion.div
-                                initial={{ opacity: 0 }}
-                                animate={{ opacity: 1 }}
-                                exit={{ opacity: 0 }}
-                                onClick={() => setShowModal(false)}
-                                className="absolute inset-0 bg-black/80 backdrop-blur-xl"
+                <ModernModal
+                    isOpen={showModal}
+                    onClose={() => setShowModal(false)}
+                    title={editingUser ? 'Edit Member' : 'Invite Member'}
+                >
+                    <form
+                        onSubmit={handleSubmit}
+                        className="space-y-6 px-2 pb-2"
+                    >
+                        {/* Name */}
+                        <div className="space-y-2">
+                            <label className="text-[10px] font-black text-gray-400 dark:text-white/40 uppercase tracking-widest pl-1">
+                                Full Name
+                            </label>
+                            <input
+                                type="text"
+                                required
+                                value={formData.name}
+                                onChange={(e) =>
+                                    setFormData({
+                                        ...formData,
+                                        name: e.target.value,
+                                    })
+                                }
+                                className="w-full bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 rounded-2xl py-4 px-5 text-gray-900 dark:text-white text-sm focus:border-attire-accent outline-none transition-all"
+                                placeholder="Jane Doe"
                             />
-                            <motion.div
-                                initial={{ opacity: 0, scale: 0.96, y: 20 }}
-                                animate={{ opacity: 1, scale: 1, y: 0 }}
-                                exit={{ opacity: 0, scale: 0.96, y: 20 }}
-                                className="relative w-full max-w-md bg-white dark:bg-[#0d0d0d] border border-black/5 dark:border-white/10 rounded-[2rem] overflow-hidden shadow-2xl z-[10000]"
-                            >
-                                {/* Modal Header */}
-                                <div className="px-8 pt-8 pb-6 flex justify-between items-center">
-                                    <div>
-                                        <h2 className="text-xl font-serif text-gray-900 dark:text-white">
-                                            {editingUser
-                                                ? 'Edit Member'
-                                                : 'Invite Member'}
-                                        </h2>
-                                        <p className="text-[10px] text-gray-400 uppercase tracking-widest mt-1">
-                                            {editingUser
-                                                ? `Updating ${editingUser.name}`
-                                                : 'Add to your team'}
-                                        </p>
-                                    </div>
-                                    <button
-                                        onClick={() => setShowModal(false)}
-                                        className="p-2.5 bg-black/5 dark:bg-white/5 rounded-full text-gray-400 hover:text-gray-900 dark:hover:text-white transition-all"
-                                    >
-                                        <X size={18} />
-                                    </button>
-                                </div>
-
-                                <form
-                                    onSubmit={handleSubmit}
-                                    className="px-8 pb-8 space-y-5"
-                                >
-                                    {/* Name */}
-                                    <div className="space-y-2">
-                                        <label className="text-[9px] font-bold text-gray-400 uppercase tracking-widest">
-                                            Full Name
-                                        </label>
-                                        <input
-                                            type="text"
-                                            required
-                                            value={formData.name}
-                                            onChange={(e) =>
-                                                setFormData({
-                                                    ...formData,
-                                                    name: e.target.value,
-                                                })
-                                            }
-                                            className="w-full bg-black/5 dark:bg-white/5 border border-black/5 dark:border-white/10 rounded-xl py-3.5 px-5 text-gray-900 dark:text-white text-sm focus:border-attire-accent outline-none transition-all"
-                                            placeholder="Jane Doe"
-                                        />
-                                    </div>
-
-                                    {/* Email */}
-                                    <div className="space-y-2">
-                                        <label className="text-[9px] font-bold text-gray-400 uppercase tracking-widest">
-                                            Email Address
-                                        </label>
-                                        <input
-                                            type="email"
-                                            required
-                                            value={formData.email}
-                                            onChange={(e) =>
-                                                setFormData({
-                                                    ...formData,
-                                                    email: e.target.value,
-                                                })
-                                            }
-                                            className="w-full bg-black/5 dark:bg-white/5 border border-black/5 dark:border-white/10 rounded-xl py-3.5 px-5 text-gray-900 dark:text-white text-sm focus:border-attire-accent outline-none transition-all"
-                                            placeholder="jane@attirelounge.com"
-                                        />
-                                    </div>
-
-                                    {/* Password */}
-                                    <div className="space-y-2">
-                                        <label className="text-[9px] font-bold text-gray-400 uppercase tracking-widest">
-                                            Password{' '}
-                                            {editingUser && (
-                                                <span className="normal-case font-normal">
-                                                    (leave blank to keep
-                                                    current)
-                                                </span>
-                                            )}
-                                        </label>
-                                        <input
-                                            type="password"
-                                            required={!editingUser}
-                                            value={formData.password}
-                                            onChange={(e) =>
-                                                setFormData({
-                                                    ...formData,
-                                                    password: e.target.value,
-                                                })
-                                            }
-                                            className="w-full bg-black/5 dark:bg-white/5 border border-black/5 dark:border-white/10 rounded-xl py-3.5 px-5 text-gray-900 dark:text-white text-sm focus:border-attire-accent outline-none transition-all"
-                                            placeholder="••••••••"
-                                        />
-                                    </div>
-
-                                    {/* Role Picker */}
-                                    <div className="space-y-3">
-                                        <label className="text-[9px] font-bold text-gray-400 uppercase tracking-widest">
-                                            Access Role
-                                        </label>
-                                        <div className="grid grid-cols-2 gap-3">
-                                            {ROLES.map((role) => (
-                                                <button
-                                                    key={role.name}
-                                                    type="button"
-                                                    onClick={() =>
-                                                        setFormData({
-                                                            ...formData,
-                                                            role: role.name,
-                                                        })
-                                                    }
-                                                    className={`flex flex-col items-start gap-2 p-4 rounded-2xl border text-left transition-all ${
-                                                        formData.role ===
-                                                        role.name
-                                                            ? `${role.activeBg} ${role.activeText} border-transparent`
-                                                            : `bg-black/5 dark:bg-white/5 border-black/5 dark:border-white/10 text-gray-500 dark:text-attire-silver/60 hover:border-attire-accent/20`
-                                                    }`}
-                                                >
-                                                    <role.Icon
-                                                        size={18}
-                                                        className={
-                                                            formData.role ===
-                                                            role.name
-                                                                ? ''
-                                                                : role.color
-                                                        }
-                                                    />
-                                                    <span className="text-[10px] font-black uppercase tracking-widest">
-                                                        {role.label}
-                                                    </span>
-                                                </button>
-                                            ))}
-                                        </div>
-                                    </div>
-
-                                    {/* Error */}
-                                    {error && (
-                                        <p className="text-xs text-red-400 bg-red-500/10 border border-red-500/20 rounded-xl px-4 py-3">
-                                            {error}
-                                        </p>
-                                    )}
-
-                                    {/* Actions */}
-                                    <div className="flex gap-3 pt-2">
-                                        <button
-                                            type="button"
-                                            onClick={() => setShowModal(false)}
-                                            className="flex-grow py-3.5 border border-black/5 dark:border-white/10 rounded-xl text-[10px] font-bold uppercase tracking-widest text-gray-400 hover:text-gray-900 dark:hover:text-white transition-all"
-                                        >
-                                            Cancel
-                                        </button>
-                                        <button
-                                            type="submit"
-                                            disabled={saving}
-                                            className="flex-grow py-3.5 bg-black dark:bg-white text-white dark:text-black rounded-xl text-[10px] font-bold uppercase tracking-widest hover:bg-attire-accent dark:hover:bg-attire-accent transition-all flex items-center justify-center gap-2 disabled:opacity-50"
-                                        >
-                                            {saving ? (
-                                                <Loader
-                                                    className="animate-spin"
-                                                    size={12}
-                                                />
-                                            ) : (
-                                                <Check size={12} />
-                                            )}
-                                            {saving
-                                                ? 'Saving...'
-                                                : editingUser
-                                                  ? 'Save Changes'
-                                                  : 'Invite'}
-                                        </button>
-                                    </div>
-                                </form>
-                            </motion.div>
                         </div>
-                    )}
-                </AnimatePresence>
+
+                        {/* Email */}
+                        <div className="space-y-2">
+                            <label className="text-[10px] font-black text-gray-400 dark:text-white/40 uppercase tracking-widest pl-1">
+                                Email Address
+                            </label>
+                            <input
+                                type="email"
+                                required
+                                value={formData.email}
+                                onChange={(e) =>
+                                    setFormData({
+                                        ...formData,
+                                        email: e.target.value,
+                                    })
+                                }
+                                className="w-full bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 rounded-2xl py-4 px-5 text-gray-900 dark:text-white text-sm focus:border-attire-accent outline-none transition-all font-mono"
+                                placeholder="jane@attirelounge.com"
+                            />
+                        </div>
+
+                        {/* Password */}
+                        <div className="space-y-2">
+                            <label className="text-[10px] font-black text-gray-400 dark:text-white/40 uppercase tracking-widest pl-1">
+                                Password{' '}
+                                {editingUser && (
+                                    <span className="normal-case font-normal italic opacity-60">
+                                        (leave blank to keep current)
+                                    </span>
+                                )}
+                            </label>
+                            <input
+                                type="password"
+                                required={!editingUser}
+                                value={formData.password}
+                                onChange={(e) =>
+                                    setFormData({
+                                        ...formData,
+                                        password: e.target.value,
+                                    })
+                                }
+                                className="w-full bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 rounded-2xl py-4 px-5 text-gray-900 dark:text-white text-sm focus:border-attire-accent outline-none transition-all"
+                                placeholder="••••••••"
+                            />
+                        </div>
+
+                        {/* Role Picker */}
+                        <div className="space-y-3">
+                            <label className="text-[10px] font-black text-gray-400 dark:text-white/40 uppercase tracking-widest pl-1">
+                                Access Role
+                            </label>
+                            <div className="grid grid-cols-2 gap-3">
+                                {ROLES.map((role) => (
+                                    <button
+                                        key={role.name}
+                                        type="button"
+                                        onClick={() =>
+                                            setFormData({
+                                                ...formData,
+                                                role: role.name,
+                                            })
+                                        }
+                                        className={`flex flex-col items-start gap-2 p-4 rounded-2xl border text-left transition-all ${
+                                            formData.role === role.name
+                                                ? `${role.activeBg} ${role.activeText} border-transparent shadow-lg`
+                                                : `bg-black/5 dark:bg-white/5 border-black/10 dark:border-white/10 text-gray-500 dark:text-white/40 hover:border-attire-accent/20`
+                                        }`}
+                                    >
+                                        <role.Icon
+                                            size={20}
+                                            className={
+                                                formData.role === role.name
+                                                    ? ''
+                                                    : role.color
+                                            }
+                                        />
+                                        <span className="text-[10px] font-black uppercase tracking-widest">
+                                            {role.label}
+                                        </span>
+                                    </button>
+                                ))}
+                            </div>
+                        </div>
+
+                        {/* Error */}
+                        <AnimatePresence>
+                            {error && (
+                                <motion.p
+                                    initial={{ opacity: 0, height: 0 }}
+                                    animate={{ opacity: 1, height: 'auto' }}
+                                    exit={{ opacity: 0, height: 0 }}
+                                    className="text-[11px] text-red-500 bg-red-500/10 border border-red-500/20 rounded-xl px-4 py-3 font-medium"
+                                >
+                                    {error}
+                                </motion.p>
+                            )}
+                        </AnimatePresence>
+
+                        {/* Actions */}
+                        <div className="flex gap-3 pt-4 border-t border-black/10 dark:border-white/10">
+                            <button
+                                type="button"
+                                onClick={() => setShowModal(false)}
+                                className="flex-grow py-4 border border-black/10 dark:border-white/10 rounded-2xl text-[10px] font-black uppercase tracking-widest text-gray-400 hover:text-attire-charcoal dark:hover:text-white transition-all underline decoration-dotted"
+                            >
+                                Cancel
+                            </button>
+                            <button
+                                type="submit"
+                                disabled={saving}
+                                className="flex-grow py-4 bg-attire-charcoal dark:bg-white text-white dark:text-black rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-attire-accent dark:hover:bg-attire-accent transition-all flex items-center justify-center gap-2 disabled:opacity-50 shadow-xl"
+                            >
+                                {saving ? (
+                                    <Loader
+                                        className="animate-spin"
+                                        size={14}
+                                    />
+                                ) : (
+                                    <Check size={14} />
+                                )}
+                                {saving
+                                    ? 'Saving...'
+                                    : editingUser
+                                      ? 'Save Changes'
+                                      : 'Invite Member'}
+                            </button>
+                        </div>
+                    </form>
+                </ModernModal>
             </div>
         </ErrorBoundary>
     );

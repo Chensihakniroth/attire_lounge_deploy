@@ -1,5 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
-import { createPortal } from 'react-dom';
+import React, { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { 
     User, Trash2, Plus, Edit, X, Check, Loader, AlertCircle, 
@@ -11,6 +10,7 @@ import { useAdmin } from './AdminContext';
 import { motion, AnimatePresence } from 'framer-motion';
 import Skeleton from '../../common/Skeleton.jsx';
 import ErrorBoundary from '../../common/ErrorBoundary.jsx';
+import ModernModal from '../../common/ModernModal.jsx';
 
 const CustomDropdown = ({ label, selected, options, onChange, icon: Icon }) => {
     const [isOpen, setIsOpen] = useState(false);
@@ -499,199 +499,175 @@ const CustomerProfileManager = () => {
                     )}
                 </div>
 
-                {createPortal(
-                    <AnimatePresence>
-                        {showModal && (
-                            <div className="fixed inset-0 z-[9999] flex items-center justify-center p-6">
-                                <motion.div 
-                                    initial={{ opacity: 0 }}
-                                    animate={{ opacity: 1 }}
-                                    exit={{ opacity: 0 }}
-                                    onClick={() => setShowModal(false)}
-                                    className="absolute inset-0 bg-black/80 backdrop-blur-xl"
-                                />
-                                
-                                <motion.div
-                                    initial={{ opacity: 0, scale: 0.95, y: 20 }}
-                                    animate={{ opacity: 1, scale: 1, y: 0 }}
-                                    exit={{ opacity: 0, scale: 0.95, y: 20 }}
-                                    className="relative w-full max-w-4xl bg-white dark:bg-[#0d0d0d] border border-black/5 dark:border-white/10 rounded-[2.5rem] overflow-hidden shadow-2xl z-[10000] font-sans"
-                                >
-                                    <div className="p-8 border-b border-black/5 dark:border-white/5 flex justify-between items-center bg-black/[0.02] dark:bg-white/[0.02]">
-                                        <h2 className="text-2xl font-serif text-gray-900 dark:text-white">{editingProfile ? 'Edit Customer Profile' : 'New Customer Profile'}</h2>
-                                        <button onClick={() => setShowModal(false)} className="p-3 bg-black/5 dark:bg-white/5 rounded-full text-gray-400 hover:text-gray-900 dark:hover:text-white transition-all">
-                                            <X size={20} />
-                                        </button>
-                                    </div>
-
-                                    <form onSubmit={handleSubmit} className="p-8 space-y-8 max-h-[75vh] overflow-y-auto attire-scrollbar">
-                                        {error && (
-                                            <div className="p-4 bg-red-500/10 border border-red-500/20 rounded-2xl flex items-center gap-3 text-red-400 text-xs">
-                                                <AlertCircle size={14} />
-                                                <span>{error}</span>
-                                            </div>
-                                        )}
-
-                                        <div className="space-y-12">
-                                            {/* Basic Info Section */}
-                                            <div>
-                                                <p className="text-[10px] font-black text-attire-accent uppercase tracking-[0.3em] mb-6 ml-1">Basic Information</p>
-                                                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                                                    <div className="space-y-2">
-                                                        <label className="text-[10px] font-bold text-gray-400 dark:text-white/40 uppercase tracking-widest ml-1">Full Name</label>
-                                                        <input type="text" required value={formData.name} onChange={e => setFormData({...formData, name: e.target.value})} className="w-full bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 rounded-2xl py-4 px-6 text-gray-900 dark:text-white text-sm focus:border-attire-accent outline-none transition-all" placeholder="Enter name..." />
-                                                    </div>
-                                                    <div className="space-y-2">
-                                                        <label className="text-[10px] font-bold text-gray-400 dark:text-white/40 uppercase tracking-widest ml-1">Phone Number</label>
-                                                        <input type="text" value={formData.phone} onChange={e => setFormData({...formData, phone: e.target.value})} className="w-full bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 rounded-2xl py-4 px-6 text-gray-900 dark:text-white text-sm focus:border-attire-accent outline-none transition-all font-mono" placeholder="012 345 678" />
-                                                    </div>
-                                                    <div className="space-y-2">
-                                                        <label className="text-[10px] font-bold text-gray-400 dark:text-white/40 uppercase tracking-widest ml-1">Visit Date</label>
-                                                        <input type="date" required value={formData.date} onChange={e => setFormData({...formData, date: e.target.value})} className="w-full bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 rounded-2xl py-4 px-6 text-gray-900 dark:text-white text-sm focus:border-attire-accent outline-none transition-all font-mono" />
-                                                    </div>
-                                                    <CustomDropdown 
-                                                        label="Client Status"
-                                                        selected={formData.client_status}
-                                                        options={[
-                                                            { label: 'New Client', value: 'New' },
-                                                            { label: 'Returning', value: 'Returning' },
-                                                            { label: 'VIP Member', value: 'VIP' }
-                                                        ]}
-                                                        onChange={val => setFormData({...formData, client_status: val})}
-                                                        icon={UserCheck}
-                                                    />
-                                                    <CustomDropdown 
-                                                        label="Nationality"
-                                                        selected={formData.nationality}
-                                                        options={NATIONALITY_OPTIONS}
-                                                        onChange={val => setFormData({...formData, nationality: val})}
-                                                        icon={Globe}
-                                                    />
-                                                    <CustomDropdown 
-                                                        label="Marketing Channel"
-                                                        selected={formData.how_did_they_find_us}
-                                                        options={[
-                                                            { label: 'Facebook', value: 'Facebook' },
-                                                            { label: 'Instagram', value: 'Instagram' },
-                                                            { label: 'Referral', value: 'Referral' },
-                                                            { label: 'Telegram', value: 'Telegram' },
-                                                            { label: 'Direct Message', value: 'Direct Message' },
-                                                            { label: 'Other', value: 'Other' }
-                                                        ]}
-                                                        onChange={val => setFormData({...formData, how_did_they_find_us: val})}
-                                                        icon={Share2}
-                                                    />
-                                                </div>
-                                            </div>
-
-                                            {/* Measurements Section ✨ */}
-                                            <div>
-                                                <p className="text-[10px] font-black text-attire-accent uppercase tracking-[0.3em] mb-6 ml-1">Size & Measurements</p>
-                                                <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                                                    <SizeToggleGroup label="Shirt Size" field="shirt_size" sizes={SHIRT_SIZES} />
-                                                    <SizeToggleGroup label="Jacket Size" field="jacket_size" sizes={JACKET_SIZES} />
-                                                    <SizeToggleGroup label="Pants / Waist" field="pants_size" sizes={PANTS_SIZES} />
-                                                    <SizeToggleGroup label="Shoes Size" field="shoes_size" sizes={SHOES_SIZES} />
-                                                </div>
-                                            </div>
-
-                                            {/* Staff & Notes Section */}
-                                            <div>
-                                                <p className="text-[10px] font-black text-attire-accent uppercase tracking-[0.3em] mb-6 ml-1">Staff & Preference Details</p>
-                                                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                                    <div className="space-y-2">
-                                                        <CustomDropdown 
-                                                            label="Host In-charge"
-                                                            selected={STAFF_NAMES.includes(formData.host) ? formData.host : (formData.host ? 'custom' : '')}
-                                                            options={STAFF_OPTIONS}
-                                                            onChange={val => {
-                                                                if (val === 'custom') {
-                                                                    setShowCustomHost(true);
-                                                                    setFormData({...formData, host: ''});
-                                                                } else {
-                                                                    setShowCustomHost(false);
-                                                                    setFormData({...formData, host: val});
-                                                                }
-                                                            }}
-                                                            icon={Briefcase}
-                                                        />
-                                                        {showCustomHost && (
-                                                            <motion.input 
-                                                                initial={{ opacity: 0, y: -10 }}
-                                                                animate={{ opacity: 1, y: 0 }}
-                                                                type="text" 
-                                                                value={formData.host} 
-                                                                onChange={e => setFormData({...formData, host: e.target.value})} 
-                                                                className="w-full bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 rounded-2xl py-4 px-6 text-gray-900 dark:text-white text-sm focus:border-attire-accent outline-none transition-all" 
-                                                                placeholder="Enter custom host name..." 
-                                                                autoFocus
-                                                            />
-                                                        )}
-                                                    </div>
-                                                    <div className="space-y-2">
-                                                        <CustomDropdown 
-                                                            label="Assistant"
-                                                            selected={STAFF_NAMES.includes(formData.assistant) ? formData.assistant : (formData.assistant ? 'custom' : '')}
-                                                            options={STAFF_OPTIONS}
-                                                            onChange={val => {
-                                                                if (val === 'custom') {
-                                                                    setShowCustomAssistant(true);
-                                                                    setFormData({...formData, assistant: ''});
-                                                                } else {
-                                                                    setShowCustomAssistant(false);
-                                                                    setFormData({...formData, assistant: val});
-                                                                }
-                                                            }}
-                                                            icon={UserCheck}
-                                                        />
-                                                        {showCustomAssistant && (
-                                                            <motion.input 
-                                                                initial={{ opacity: 0, y: -10 }}
-                                                                animate={{ opacity: 1, y: 0 }}
-                                                                type="text" 
-                                                                value={formData.assistant} 
-                                                                onChange={e => setFormData({...formData, assistant: e.target.value})} 
-                                                                className="w-full bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 rounded-2xl py-4 px-6 text-gray-900 dark:text-white text-sm focus:border-attire-accent outline-none transition-all" 
-                                                                placeholder="Enter custom assistant name..." 
-                                                                autoFocus
-                                                            />
-                                                        )}
-                                                    </div>
-                                                    <div className="space-y-2 md:col-span-2">
-                                                        <CustomDropdown 
-                                                            label="Preferred Color"
-                                                            selected={formData.preferred_color}
-                                                            options={COLOR_OPTIONS}
-                                                            onChange={val => setFormData({...formData, preferred_color: val})}
-                                                            icon={Palette}
-                                                        />
-                                                    </div>
-                                                    <div className="space-y-2 md:col-span-2">
-                                                        <label className="text-[10px] font-bold text-gray-400 dark:text-white/40 uppercase tracking-widest ml-1">Color Notes</label>
-                                                        <textarea value={formData.color_notes} onChange={e => setFormData({...formData, color_notes: e.target.value})} className="w-full bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 rounded-2xl py-4 px-6 text-gray-900 dark:text-white text-sm focus:border-attire-accent outline-none transition-all h-24 resize-none" placeholder="Specific color preferences or restrictions..." />
-                                                    </div>
-                                                    <div className="space-y-2 md:col-span-2">
-                                                        <label className="text-[10px] font-bold text-gray-400 dark:text-white/40 uppercase tracking-widest ml-1">Additional Remarks</label>
-                                                        <textarea value={formData.remarks} onChange={e => setFormData({...formData, remarks: e.target.value})} className="w-full bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 rounded-2xl py-4 px-6 text-gray-900 dark:text-white text-sm focus:border-attire-accent outline-none transition-all h-24 resize-none" placeholder="Any other important details about the client..." />
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-
-                                        <div className="pt-8 flex gap-4">
-                                            <button type="button" onClick={() => setShowModal(false)} className="flex-grow py-5 border border-black/10 dark:border-white/10 rounded-2xl text-[11px] font-bold uppercase tracking-[0.3em] text-gray-400 dark:text-white/40 hover:text-gray-900 dark:hover:text-white hover:bg-black/5 dark:hover:bg-white/5 transition-all">Cancel</button>
-                                            <button type="submit" disabled={saving} className="flex-grow py-5 bg-black dark:bg-white text-white dark:text-black rounded-2xl text-[11px] font-bold uppercase tracking-[0.3em] hover:bg-attire-accent dark:hover:bg-attire-accent transition-all flex items-center justify-center gap-3 disabled:opacity-50">
-                                                {saving ? <Loader className="animate-spin" size={16} /> : <Check size={16} />}
-                                                {saving ? 'Processing...' : 'Save Customer Profile'}
-                                            </button>
-                                        </div>
-                                    </form>
-                                </motion.div>
+                <ModernModal
+                    isOpen={showModal}
+                    onClose={() => setShowModal(false)}
+                    title={editingProfile ? 'Edit Customer Profile' : 'New Customer Profile'}
+                    maxWidth="max-w-4xl"
+                >
+                    <form onSubmit={handleSubmit} className="p-8 space-y-8 max-h-[75vh] overflow-y-auto attire-scrollbar">
+                        {error && (
+                            <div className="p-4 bg-red-500/10 border border-red-500/20 rounded-2xl flex items-center gap-3 text-red-400 text-xs">
+                                <AlertCircle size={14} />
+                                <span>{error}</span>
                             </div>
                         )}
-                    </AnimatePresence>,
-                    document.body
-                )}
+
+                        <div className="space-y-12">
+                            {/* Basic Info Section */}
+                            <div>
+                                <p className="text-[10px] font-black text-attire-accent uppercase tracking-[0.3em] mb-6 ml-1">Basic Information</p>
+                                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                                    <div className="space-y-2">
+                                        <label className="text-[10px] font-bold text-gray-400 dark:text-white/40 uppercase tracking-widest ml-1">Full Name</label>
+                                        <input type="text" required value={formData.name} onChange={e => setFormData({...formData, name: e.target.value})} className="w-full bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 rounded-2xl py-4 px-6 text-gray-900 dark:text-white text-sm focus:border-attire-accent outline-none transition-all" placeholder="Enter name..." />
+                                    </div>
+                                    <div className="space-y-2">
+                                        <label className="text-[10px] font-bold text-gray-400 dark:text-white/40 uppercase tracking-widest ml-1">Phone Number</label>
+                                        <input type="text" value={formData.phone} onChange={e => setFormData({...formData, phone: e.target.value})} className="w-full bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 rounded-2xl py-4 px-6 text-gray-900 dark:text-white text-sm focus:border-attire-accent outline-none transition-all font-mono" placeholder="012 345 678" />
+                                    </div>
+                                    <div className="space-y-2">
+                                        <label className="text-[10px] font-bold text-gray-400 dark:text-white/40 uppercase tracking-widest ml-1">Visit Date</label>
+                                        <input type="date" required value={formData.date} onChange={e => setFormData({...formData, date: e.target.value})} className="w-full bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 rounded-2xl py-4 px-6 text-gray-900 dark:text-white text-sm focus:border-attire-accent outline-none transition-all font-mono" />
+                                    </div>
+                                    <CustomDropdown 
+                                        label="Client Status"
+                                        selected={formData.client_status}
+                                        options={[
+                                            { label: 'New Client', value: 'New' },
+                                            { label: 'Returning', value: 'Returning' },
+                                            { label: 'VIP Member', value: 'VIP' }
+                                        ]}
+                                        onChange={val => setFormData({...formData, client_status: val})}
+                                        icon={UserCheck}
+                                    />
+                                    <CustomDropdown 
+                                        label="Nationality"
+                                        selected={formData.nationality}
+                                        options={NATIONALITY_OPTIONS}
+                                        onChange={val => setFormData({...formData, nationality: val})}
+                                        icon={Globe}
+                                    />
+                                    <CustomDropdown 
+                                        label="Marketing Channel"
+                                        selected={formData.how_did_they_find_us}
+                                        options={[
+                                            { label: 'Facebook', value: 'Facebook' },
+                                            { label: 'Instagram', value: 'Instagram' },
+                                            { label: 'Referral', value: 'Referral' },
+                                            { label: 'Telegram', value: 'Telegram' },
+                                            { label: 'Direct Message', value: 'Direct Message' },
+                                            { label: 'Other', value: 'Other' }
+                                        ]}
+                                        onChange={val => setFormData({...formData, how_did_they_find_us: val})}
+                                        icon={Share2}
+                                    />
+                                </div>
+                            </div>
+
+                            {/* Measurements Section ✨ */}
+                            <div>
+                                <p className="text-[10px] font-black text-attire-accent uppercase tracking-[0.3em] mb-6 ml-1">Size & Measurements</p>
+                                <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                                    <SizeToggleGroup label="Shirt Size" field="shirt_size" sizes={SHIRT_SIZES} />
+                                    <SizeToggleGroup label="Jacket Size" field="jacket_size" sizes={JACKET_SIZES} />
+                                    <SizeToggleGroup label="Pants / Waist" field="pants_size" sizes={PANTS_SIZES} />
+                                    <SizeToggleGroup label="Shoes Size" field="shoes_size" sizes={SHOES_SIZES} />
+                                </div>
+                            </div>
+
+                            {/* Staff & Notes Section */}
+                            <div>
+                                <p className="text-[10px] font-black text-attire-accent uppercase tracking-[0.3em] mb-6 ml-1">Staff & Preference Details</p>
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                    <div className="space-y-2">
+                                        <CustomDropdown 
+                                            label="Host In-charge"
+                                            selected={STAFF_NAMES.includes(formData.host) ? formData.host : (formData.host ? 'custom' : '')}
+                                            options={STAFF_OPTIONS}
+                                            onChange={val => {
+                                                if (val === 'custom') {
+                                                    setShowCustomHost(true);
+                                                    setFormData({...formData, host: ''});
+                                                } else {
+                                                    setShowCustomHost(false);
+                                                    setFormData({...formData, host: val});
+                                                }
+                                            }}
+                                            icon={Briefcase}
+                                        />
+                                        {showCustomHost && (
+                                            <motion.input 
+                                                initial={{ opacity: 0, y: -10 }}
+                                                animate={{ opacity: 1, y: 0 }}
+                                                type="text" 
+                                                value={formData.host} 
+                                                onChange={e => setFormData({...formData, host: e.target.value})} 
+                                                className="w-full bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 rounded-2xl py-4 px-6 text-gray-900 dark:text-white text-sm focus:border-attire-accent outline-none transition-all" 
+                                                placeholder="Enter custom host name..." 
+                                                autoFocus
+                                            />
+                                        )}
+                                    </div>
+                                    <div className="space-y-2">
+                                        <CustomDropdown 
+                                            label="Assistant"
+                                            selected={STAFF_NAMES.includes(formData.assistant) ? formData.assistant : (formData.assistant ? 'custom' : '')}
+                                            options={STAFF_OPTIONS}
+                                            onChange={val => {
+                                                if (val === 'custom') {
+                                                    setShowCustomAssistant(true);
+                                                    setFormData({...formData, assistant: ''});
+                                                } else {
+                                                    setShowCustomAssistant(false);
+                                                    setFormData({...formData, assistant: val});
+                                                }
+                                            }}
+                                            icon={UserCheck}
+                                        />
+                                        {showCustomAssistant && (
+                                            <motion.input 
+                                                initial={{ opacity: 0, y: -10 }}
+                                                animate={{ opacity: 1, y: 0 }}
+                                                type="text" 
+                                                value={formData.assistant} 
+                                                onChange={e => setFormData({...formData, assistant: e.target.value})} 
+                                                className="w-full bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 rounded-2xl py-4 px-6 text-gray-900 dark:text-white text-sm focus:border-attire-accent outline-none transition-all" 
+                                                placeholder="Enter custom assistant name..." 
+                                                autoFocus
+                                            />
+                                        )}
+                                    </div>
+                                    <div className="space-y-2 md:col-span-2">
+                                        <CustomDropdown 
+                                            label="Preferred Color"
+                                            selected={formData.preferred_color}
+                                            options={COLOR_OPTIONS}
+                                            onChange={val => setFormData({...formData, preferred_color: val})}
+                                            icon={Palette}
+                                        />
+                                    </div>
+                                    <div className="space-y-2 md:col-span-2">
+                                        <label className="text-[10px] font-bold text-gray-400 dark:text-white/40 uppercase tracking-widest ml-1">Color Notes</label>
+                                        <textarea value={formData.color_notes} onChange={e => setFormData({...formData, color_notes: e.target.value})} className="w-full bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 rounded-2xl py-4 px-6 text-gray-900 dark:text-white text-sm focus:border-attire-accent outline-none transition-all h-24 resize-none" placeholder="Specific color preferences or restrictions..." />
+                                    </div>
+                                    <div className="space-y-2 md:col-span-2">
+                                        <label className="text-[10px] font-bold text-gray-400 dark:text-white/40 uppercase tracking-widest ml-1">Additional Remarks</label>
+                                        <textarea value={formData.remarks} onChange={e => setFormData({...formData, remarks: e.target.value})} className="w-full bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 rounded-2xl py-4 px-6 text-gray-900 dark:text-white text-sm focus:border-attire-accent outline-none transition-all h-24 resize-none" placeholder="Any other important details about the client..." />
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div className="pt-8 flex gap-4">
+                            <button type="button" onClick={() => setShowModal(false)} className="flex-grow py-5 border border-black/10 dark:border-white/10 rounded-2xl text-[11px] font-bold uppercase tracking-[0.3em] text-gray-400 dark:text-white/40 hover:text-gray-900 dark:hover:text-white hover:bg-black/5 dark:hover:bg-white/5 transition-all">Cancel</button>
+                            <button type="submit" disabled={saving} className="flex-grow py-5 bg-black dark:bg-white text-white dark:text-black rounded-2xl text-[11px] font-bold uppercase tracking-[0.3em] hover:bg-attire-accent dark:hover:bg-attire-accent transition-all flex items-center justify-center gap-3 disabled:opacity-50">
+                                {saving ? <Loader className="animate-spin" size={16} /> : <Check size={16} />}
+                                {saving ? 'Processing...' : 'Save Customer Profile'}
+                            </button>
+                        </div>
+                    </form>
+                </ModernModal>
             </div>
         </ErrorBoundary>
     );

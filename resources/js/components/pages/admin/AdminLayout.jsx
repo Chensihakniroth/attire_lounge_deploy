@@ -53,7 +53,7 @@ const NavItem = ({ item, isCollapsed, setOpen }) => {
                 className={({ isActive }) =>
                     `flex items-center px-4 py-3 text-sm font-bold uppercase tracking-widest rounded-xl transition-all duration-300 ${
                         isActive
-                            ? 'bg-black dark:bg-white/10 text-white dark:text-attire-accent shadow-lg shadow-black/5 dark:shadow-none'
+                            ? 'bg-[#0d3542] text-white shadow-lg shadow-black/5'
                             : 'text-gray-500 dark:text-gray-400 hover:bg-black/5 dark:hover:bg-white/5 hover:text-gray-900 dark:hover:text-white'
                     } ${isCollapsed ? 'justify-center px-2' : ''}`
                 }
@@ -230,7 +230,7 @@ const SidebarContent = ({ setOpen, isMobile }) => {
     );
 
     return (
-        <div className="flex flex-col w-[280px] bg-white dark:bg-[#0a0a0a] border-r border-black/5 dark:border-white/5 flex-shrink-0 h-full overflow-hidden transition-colors duration-300 font-sans">
+        <div className="flex flex-col w-[280px] bg-[#fcfcfa] dark:bg-[#1a1a1a] border-r border-black/5 dark:border-white/5 flex-shrink-0 h-full overflow-hidden transition-colors duration-300 font-sans">
             <div className="h-16 flex items-center justify-between px-6 border-b border-black/5 dark:border-white/5">
                 <h1 className="text-sm font-bold tracking-[0.3em] text-gray-900 dark:text-white uppercase whitespace-nowrap overflow-hidden">
                     Attire Lounge
@@ -365,7 +365,7 @@ const AdminLayoutContent = ({
     return (
         <div
             id="admin-root"
-            className="flex h-screen bg-gray-50 dark:bg-[#050505] font-sans text-gray-900 dark:text-white selection:bg-attire-accent selection:text-black transition-colors duration-300 relative"
+            className="flex h-screen bg-[#f8f8f6] dark:bg-[#1a1a1a] font-sans text-gray-900 dark:text-white selection:bg-[#0d3542] selection:text-white transition-colors duration-300 relative"
         >
             {/* Unified Sidebar Overlay */}
             <Sidebar
@@ -376,7 +376,7 @@ const AdminLayoutContent = ({
 
             <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
                 {!isEditing && (
-                    <header className="h-16 bg-white/80 dark:bg-[#0a0a0a]/80 backdrop-blur-md border-b border-black/5 dark:border-white/5 flex items-center px-6 justify-between flex-shrink-0 z-20 transition-colors duration-300">
+                    <header className="h-16 bg-[#f8f8f6]/80 dark:bg-[#222]/80 backdrop-blur-md border-b border-black/5 dark:border-white/5 flex items-center px-6 justify-between flex-shrink-0 z-20 transition-colors duration-300">
                         <div className="flex items-center gap-4">
                             <button
                                 onClick={() => setSidebarOpen(!isSidebarOpen)}
@@ -390,13 +390,13 @@ const AdminLayoutContent = ({
 
                         <div className="flex items-center gap-4">
                             {/* POS Switcher Button */}
-                            <button
+                             <button
                                 onClick={() => navigate('/admin/pos')}
-                                className="flex items-center gap-2 px-4 py-2 bg-attire-accent/10 border border-attire-accent/20 rounded-xl hover:bg-attire-accent hover:text-black transition-all group"
+                                className="flex items-center gap-2 px-4 py-2 bg-[#0d3542]/10 border border-[#0d3542]/20 rounded-xl hover:bg-[#0d3542] hover:text-white transition-all group"
                                 title="Open POS System"
                             >
-                                <ArrowLeftRight size={14} className="text-attire-accent group-hover:text-black" />
-                                <span className="text-[10px] font-bold uppercase tracking-widest text-attire-accent group-hover:text-black hidden sm:block">Open POS</span>
+                                <ArrowLeftRight size={14} className="text-[#0d3542] group-hover:text-white" />
+                                <span className="text-[10px] font-bold uppercase tracking-widest text-[#0d3542] group-hover:text-white hidden sm:block">Open POS</span>
                             </button>
 
                             <div className="h-4 w-px bg-black/10 dark:bg-white/10 mx-2" />
@@ -405,34 +405,30 @@ const AdminLayoutContent = ({
                                 <p className="text-[10px] font-bold text-gray-900 dark:text-white uppercase tracking-wider leading-none mb-1">
                                     Administrator
                                 </p>
-                                <p className="text-[9px] text-attire-accent uppercase tracking-[0.2em]">
+                                <p className="text-[9px] text-[#0d3542] uppercase tracking-[0.2em]">
                                     Master Access
                                 </p>
                             </div>
-                            <div className="w-8 h-8 rounded-full bg-attire-accent/10 border border-attire-accent/20 flex items-center justify-center">
+                            <div className="w-8 h-8 rounded-full bg-[#0d3542]/10 border border-[#0d3542]/20 flex items-center justify-center">
                                 <ShoppingBag
                                     size={14}
-                                    className="text-attire-accent"
+                                    className="text-[#0d3542]"
                                 />
                             </div>
                         </div>
                     </header>
                 )}
 
-                <main
-                    className={`flex-1 overflow-y-auto relative ${isEditing ? 'p-0' : 'p-6 md:p-10'}`}
-                >
+                <main className="flex-1 overflow-y-auto relative p-8">
                     {/* Background decoration */}
                     {!isSafariBrowser && !isEditing && (
                         <div className="absolute top-0 left-0 w-full h-full pointer-events-none opacity-20 overflow-hidden">
-                            <div className="absolute -top-24 -left-24 w-96 h-96 bg-attire-accent/10 blur-[120px] rounded-full" />
+                            <div className="absolute -top-24 -left-24 w-96 h-96 bg-[#0d3542]/10 blur-[120px] rounded-full" />
                             <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-white/[0.02] blur-[150px] rounded-full" />
                         </div>
                     )}
 
-                    <div
-                        className={`relative z-10 w-full ${isEditing ? 'max-w-none' : 'max-w-7xl mx-auto'}`}
-                    >
+                    <div className="relative z-10 w-full max-w-none">
                         <AnimatePresence mode="wait">
                             <motion.div
                                 key={location.pathname}

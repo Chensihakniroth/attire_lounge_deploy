@@ -21,9 +21,9 @@ import { usePOS } from './POSContext';
 
 // --- Sub-Components ---
 
-const ProductLogRow = ({ product, expanded, onToggle, onAdd }) => {
+const ProductLogRow = React.forwardRef(({ product, expanded, onToggle, onAdd }, ref) => {
     return (
-        <div className="border-b border-black/5 dark:border-white/5 last:border-0">
+        <div ref={ref} className="border-b border-black/5 dark:border-white/5 last:border-0">
             <motion.div
                 onClick={onToggle}
                 className={`w-full p-4 flex items-center gap-4 transition-all cursor-pointer hover:bg-black/[0.02] dark:hover:bg-white/[0.02] active:bg-black/[0.05] dark:active:bg-white/[0.05] ${expanded ? 'bg-attire-accent/5 dark:bg-attire-accent/5' : ''}`}
@@ -135,7 +135,7 @@ const ProductLogRow = ({ product, expanded, onToggle, onAdd }) => {
             </AnimatePresence>
         </div>
     );
-};
+});
 
 const FilterPanel = ({ filters, categories, onChange, totalResults }) => {
     const stockOptions = ["all", "in-stock", "out-of-stock"];

@@ -127,6 +127,8 @@ Route::prefix('v1')->group(function () {
             Route::get('/pos/products/{id}', [PosProductController::class, 'show']);
             Route::get('/pos/products/{id}/label', [PosProductController::class, 'label']);
             Route::patch('/pos/products/{id}/stock', [PosProductController::class, 'updateStock']);
+            Route::post('/pos/products/bulk-update', [PosProductController::class, 'bulkUpdate']);
+            Route::post('/pos/products/bulk-deactivate', [PosProductController::class, 'bulkDeactivate']);
 
             // Invoices
             Route::get('/pos/invoices', [PosInvoiceController::class, 'index']);

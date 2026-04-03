@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
     Plus,
@@ -16,6 +15,7 @@ import axios from 'axios';
 import { useAdmin } from './AdminContext';
 import OptimizedImage from '../../common/OptimizedImage.jsx';
 import { useQueryClient } from '@tanstack/react-query';
+import ModernModal from '../../common/ModernModal';
 
 const DEFAULT_FORM = {
     name: '',
@@ -285,306 +285,265 @@ const CollectionManager = () => {
                 </div>
             )}
 
-            {/* Modal */}
-            {typeof document !== 'undefined' &&
-                createPortal(
-                    <AnimatePresence>
-                        {showModal && (
-                            <div className="fixed inset-0 z-[99999] flex items-center justify-center p-6">
-                                <motion.div
-                                    initial={{ opacity: 0 }}
-                                    animate={{ opacity: 1 }}
-                                    exit={{ opacity: 0 }}
-                                    onClick={closeModal}
-                                    className="absolute inset-0 bg-black/40 backdrop-blur-xl"
+            <ModernModal 
+                isOpen={showModal} 
+                onClose={closeModal} 
+                title={editingId ? 'Edit Collection' : 'New Collection'}
+            >
+                <form
+                    onSubmit={handleSubmit}
+                    className="p-8"
+                >
+                    <div className="flex gap-6">
+                        {/* Image Uploader */}
+                        <div className="flex-shrink-0">
+                            <label className="text-[9px] font-bold text-gray-400 uppercase tracking-widest block mb-2">
+                                Cover
+                            </label>
+                            <label className="relative w-28 h-36 rounded-2xl overflow-hidden block cursor-pointer bg-black/5 dark:bg-white/5 border border-black/5 dark:border-white/10 group">
+                                <input
+                                    type="file"
+                                    className="hidden"
+                                    accept="image/*"
+                                    onChange={
+                                        handleImageUpload
+                                    }
                                 />
-                                <motion.div
-                                    initial={{ opacity: 0, scale: 0.96, y: 20 }}
-                                    animate={{ opacity: 1, scale: 1, y: 0 }}
-                                    exit={{ opacity: 0, scale: 0.96, y: 20 }}
-                                    className="relative w-full max-w-2xl bg-white dark:bg-[#0d0d0d] border border-black/5 dark:border-white/10 rounded-[2rem] overflow-hidden shadow-2xl z-[10000]"
-                                >
-                                    {/* Modal Header */}
-                                    <div className="px-8 pt-8 pb-6 flex justify-between items-center border-b border-black/5 dark:border-white/5">
-                                        <div>
-                                            <h2 className="text-xl font-serif text-gray-900 dark:text-white">
-                                                {editingId
-                                                    ? 'Edit Collection'
-                                                    : 'New Collection'}
-                                            </h2>
-                                            {editingId && (
-                                                <p className="text-[10px] text-gray-400 uppercase tracking-widest mt-1 font-mono">
-                                                    {formData.slug}
-                                                </p>
-                                            )}
-                                        </div>
-                                        <button
-                                            onClick={closeModal}
-                                            className="p-2.5 bg-black/5 dark:bg-white/5 rounded-full text-gray-400 hover:text-gray-900 dark:hover:text-white transition-all"
-                                        >
-                                            <X size={18} />
-                                        </button>
+                                {formData.image ? (
+                                    <img
+                                        src={formData.image}
+                                        alt="Preview"
+                                        className="w-full h-full object-cover"
+                                    />
+                                ) : (
+                                    <div className="w-full h-full flex items-center justify-center text-gray-300 dark:text-white/20">
+                                        <ImageIcon
+                                            size={28}
+                                        />
                                     </div>
+                                )}
+                                <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-all flex items-center justify-center text-white">
+                                    {uploading ? (
+                                        <Loader
+                                            className="animate-spin"
+                                            size={18}
+                                        />
+                                    ) : (
+                                        <Upload size={18} />
+                                    )}
+                                </div>
+                            </label>
+                        </div>
 
-                                    <form
-                                        onSubmit={handleSubmit}
-                                        className="p-8"
-                                    >
-                                        <div className="flex gap-6">
-                                            {/* Image Uploader */}
-                                            <div className="flex-shrink-0">
-                                                <label className="text-[9px] font-bold text-gray-400 uppercase tracking-widest block mb-2">
-                                                    Cover
-                                                </label>
-                                                <label className="relative w-28 h-36 rounded-2xl overflow-hidden block cursor-pointer bg-black/5 dark:bg-white/5 border border-black/5 dark:border-white/10 group">
-                                                    <input
-                                                        type="file"
-                                                        className="hidden"
-                                                        accept="image/*"
-                                                        onChange={
-                                                            handleImageUpload
-                                                        }
-                                                    />
-                                                    {formData.image ? (
-                                                        <img
-                                                            src={formData.image}
-                                                            alt="Preview"
-                                                            className="w-full h-full object-cover"
-                                                        />
-                                                    ) : (
-                                                        <div className="w-full h-full flex items-center justify-center text-gray-300 dark:text-white/20">
-                                                            <ImageIcon
-                                                                size={28}
-                                                            />
-                                                        </div>
-                                                    )}
-                                                    <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-all flex items-center justify-center text-white">
-                                                        {uploading ? (
-                                                            <Loader
-                                                                className="animate-spin"
-                                                                size={18}
-                                                            />
-                                                        ) : (
-                                                            <Upload size={18} />
-                                                        )}
-                                                    </div>
-                                                </label>
-                                            </div>
-
-                                            {/* Right Fields */}
-                                            <div className="flex-1 space-y-4">
-                                                <div className="grid grid-cols-2 gap-4">
-                                                    <div className="col-span-2 space-y-1.5">
-                                                        <label className="text-[9px] font-bold text-gray-400 uppercase tracking-widest">
-                                                            Name
-                                                        </label>
-                                                        <input
-                                                            type="text"
-                                                            required
-                                                            value={
-                                                                formData.name
-                                                            }
-                                                            onChange={(e) =>
-                                                                handleNameChange(
-                                                                    e.target
-                                                                        .value
-                                                                )
-                                                            }
-                                                            className="w-full bg-black/5 dark:bg-white/5 border border-black/5 dark:border-white/10 rounded-xl py-3 px-4 text-gray-900 dark:text-white text-sm focus:border-attire-accent outline-none transition-all"
-                                                            placeholder="e.g. Summer Essentials"
-                                                        />
-                                                    </div>
-                                                    <div className="space-y-1.5">
-                                                        <label className="text-[9px] font-bold text-gray-400 uppercase tracking-widest">
-                                                            Slug
-                                                        </label>
-                                                        <input
-                                                            type="text"
-                                                            required
-                                                            value={
-                                                                formData.slug
-                                                            }
-                                                            onChange={(e) =>
-                                                                setFormData(
-                                                                    (p) => ({
-                                                                        ...p,
-                                                                        slug: e
-                                                                            .target
-                                                                            .value,
-                                                                    })
-                                                                )
-                                                            }
-                                                            className="w-full bg-black/5 dark:bg-white/5 border border-black/5 dark:border-white/10 rounded-xl py-3 px-4 text-gray-900 dark:text-white/60 text-sm focus:border-attire-accent outline-none transition-all font-mono"
-                                                        />
-                                                    </div>
-                                                    <div className="space-y-1.5">
-                                                        <label className="text-[9px] font-bold text-gray-400 uppercase tracking-widest">
-                                                            Year
-                                                        </label>
-                                                        <input
-                                                            type="number"
-                                                            required
-                                                            value={
-                                                                formData.year
-                                                            }
-                                                            onChange={(e) =>
-                                                                setFormData(
-                                                                    (p) => ({
-                                                                        ...p,
-                                                                        year: e
-                                                                            .target
-                                                                            .value,
-                                                                    })
-                                                                )
-                                                            }
-                                                            className="w-full bg-black/5 dark:bg-white/5 border border-black/5 dark:border-white/10 rounded-xl py-3 px-4 text-gray-900 dark:text-white text-sm focus:border-attire-accent outline-none transition-all font-mono"
-                                                        />
-                                                    </div>
-                                                </div>
-                                                <div className="space-y-1.5">
-                                                    <label className="text-[9px] font-bold text-gray-400 uppercase tracking-widest">
-                                                        Description
-                                                    </label>
-                                                    <textarea
-                                                        rows={2}
-                                                        value={formData.description}
-                                                        onChange={(e) =>
-                                                            setFormData((p) => ({
-                                                                ...p,
-                                                                description: e.target.value,
-                                                            }))
-                                                        }
-                                                        className="w-full bg-black/5 dark:bg-white/5 border border-black/5 dark:border-white/10 rounded-xl py-3 px-4 text-gray-900 dark:text-white text-sm focus:border-attire-accent outline-none transition-all resize-none leading-relaxed"
-                                                        placeholder="A brief description of this collection..."
-                                                    />
-                                                </div>
-
-                                                <div className="grid grid-cols-2 gap-4 pt-2 border-t border-black/5 dark:border-white/5">
-                                                    <div className="space-y-1.5">
-                                                        <label className="text-[9px] font-bold text-gray-400 uppercase tracking-widest">
-                                                            SEO Title
-                                                        </label>
-                                                        <input
-                                                            type="text"
-                                                            value={formData.meta_title}
-                                                            onChange={(e) => setFormData(p => ({ ...p, meta_title: e.target.value }))}
-                                                            className="w-full bg-black/5 dark:bg-white/5 border border-black/5 dark:border-white/10 rounded-xl py-3 px-4 text-gray-900 dark:text-white text-sm focus:border-attire-accent outline-none transition-all"
-                                                            placeholder={formData.name + " | Collection"}
-                                                        />
-                                                    </div>
-                                                    <div className="space-y-1.5">
-                                                        <label className="text-[9px] font-bold text-gray-400 uppercase tracking-widest">
-                                                            SEO Description
-                                                        </label>
-                                                        <textarea
-                                                            rows={1}
-                                                            value={formData.meta_description}
-                                                            onChange={(e) => setFormData(p => ({ ...p, meta_description: e.target.value }))}
-                                                            className="w-full bg-black/5 dark:bg-white/5 border border-black/5 dark:border-white/10 rounded-xl py-3 px-4 text-gray-900 dark:text-white text-sm focus:border-attire-accent outline-none transition-all resize-none leading-relaxed"
-                                                            placeholder="Search engine snippet..."
-                                                        />
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-
-                                        {/* Toggles */}
-                                        <div className="mt-6 grid grid-cols-2 gap-3">
-                                            {[
-                                                {
-                                                    key: 'is_active',
-                                                    label: 'Visible in Store',
-                                                    sub: 'Show to customers',
-                                                    color: 'bg-green-500',
-                                                },
-                                                {
-                                                    key: 'is_new',
-                                                    label: 'New Arrival Badge',
-                                                    sub: 'Display "New" label',
-                                                    color: 'bg-attire-accent',
-                                                },
-                                            ].map(
-                                                ({
-                                                    key,
-                                                    label,
-                                                    sub,
-                                                    color,
-                                                }) => (
-                                                    <div
-                                                        key={key}
-                                                        className="flex items-center justify-between p-4 bg-black/[0.02] dark:bg-white/[0.02] rounded-2xl border border-black/5 dark:border-white/5"
-                                                    >
-                                                        <div>
-                                                            <p className="text-[10px] font-bold text-gray-900 dark:text-white uppercase tracking-wider">
-                                                                {label}
-                                                            </p>
-                                                            <p className="text-[9px] text-gray-400 mt-0.5">
-                                                                {sub}
-                                                            </p>
-                                                        </div>
-                                                        <Toggle
-                                                            value={
-                                                                formData[key]
-                                                            }
-                                                            onChange={(v) =>
-                                                                setFormData(
-                                                                    (p) => ({
-                                                                        ...p,
-                                                                        [key]: v,
-                                                                    })
-                                                                )
-                                                            }
-                                                            color={color}
-                                                        />
-                                                    </div>
-                                                )
-                                            )}
-                                        </div>
-
-                                        {/* Error */}
-                                        {error && (
-                                            <div className="mt-4 flex items-center gap-2 p-3 bg-red-500/10 border border-red-500/20 rounded-xl text-red-400 text-xs">
-                                                <AlertCircle size={12} />
-                                                <span>{error}</span>
-                                            </div>
-                                        )}
-
-                                        {/* Actions */}
-                                        <div className="mt-6 flex gap-3">
-                                            <button
-                                                type="button"
-                                                onClick={closeModal}
-                                                className="flex-grow py-3.5 border border-black/5 dark:border-white/10 rounded-xl text-[10px] font-bold uppercase tracking-widest text-gray-400 hover:text-gray-900 dark:hover:text-white transition-all"
-                                            >
-                                                Cancel
-                                            </button>
-                                            <button
-                                                type="submit"
-                                                disabled={saving || uploading}
-                                                className="flex-grow py-3.5 bg-black dark:bg-white text-white dark:text-black rounded-xl text-[10px] font-bold uppercase tracking-widest hover:bg-attire-accent dark:hover:bg-attire-accent transition-all flex items-center justify-center gap-2 disabled:opacity-50"
-                                            >
-                                                {saving ? (
-                                                    <Loader
-                                                        className="animate-spin"
-                                                        size={12}
-                                                    />
-                                                ) : (
-                                                    <Check size={12} />
-                                                )}
-                                                {saving
-                                                    ? 'Saving...'
-                                                    : editingId
-                                                      ? 'Save Changes'
-                                                      : 'Create Collection'}
-                                            </button>
-                                        </div>
-                                    </form>
-                                </motion.div>
+                        {/* Right Fields */}
+                        <div className="flex-1 space-y-4">
+                            <div className="grid grid-cols-2 gap-4">
+                                <div className="col-span-2 space-y-1.5">
+                                    <label className="text-[9px] font-bold text-gray-400 uppercase tracking-widest">
+                                        Name
+                                    </label>
+                                    <input
+                                        type="text"
+                                        required
+                                        value={
+                                            formData.name
+                                        }
+                                        onChange={(e) =>
+                                            handleNameChange(
+                                                e.target
+                                                    .value
+                                            )
+                                        }
+                                        className="w-full bg-black/5 dark:bg-white/5 border border-black/5 dark:border-white/10 rounded-xl py-3 px-4 text-gray-900 dark:text-white text-sm focus:border-attire-accent outline-none transition-all"
+                                        placeholder="e.g. Summer Essentials"
+                                    />
+                                </div>
+                                <div className="space-y-1.5">
+                                    <label className="text-[9px] font-bold text-gray-400 uppercase tracking-widest">
+                                        Slug
+                                    </label>
+                                    <input
+                                        type="text"
+                                        required
+                                        value={
+                                            formData.slug
+                                        }
+                                        onChange={(e) =>
+                                            setFormData(
+                                                (p) => ({
+                                                    ...p,
+                                                    slug: e
+                                                        .target
+                                                        .value,
+                                                })
+                                            )
+                                        }
+                                        className="w-full bg-black/5 dark:bg-white/5 border border-black/5 dark:border-white/10 rounded-xl py-3 px-4 text-gray-900 dark:text-white/60 text-sm focus:border-attire-accent outline-none transition-all font-mono"
+                                    />
+                                </div>
+                                <div className="space-y-1.5">
+                                    <label className="text-[9px] font-bold text-gray-400 uppercase tracking-widest">
+                                        Year
+                                    </label>
+                                    <input
+                                        type="number"
+                                        required
+                                        value={
+                                            formData.year
+                                        }
+                                        onChange={(e) =>
+                                            setFormData(
+                                                (p) => ({
+                                                    ...p,
+                                                    year: e
+                                                        .target
+                                                        .value,
+                                                })
+                                            )
+                                        }
+                                        className="w-full bg-black/5 dark:bg-white/5 border border-black/5 dark:border-white/10 rounded-xl py-3 px-4 text-gray-900 dark:text-white text-sm focus:border-attire-accent outline-none transition-all font-mono"
+                                    />
+                                </div>
                             </div>
+                            <div className="space-y-1.5">
+                                <label className="text-[9px] font-bold text-gray-400 uppercase tracking-widest">
+                                    Description
+                                </label>
+                                <textarea
+                                    rows={2}
+                                    value={formData.description}
+                                    onChange={(e) =>
+                                        setFormData((p) => ({
+                                            ...p,
+                                            description: e.target.value,
+                                        }))
+                                    }
+                                    className="w-full bg-black/5 dark:bg-white/5 border border-black/5 dark:border-white/10 rounded-xl py-3 px-4 text-gray-900 dark:text-white text-sm focus:border-attire-accent outline-none transition-all resize-none leading-relaxed"
+                                    placeholder="A brief description of this collection..."
+                                />
+                            </div>
+
+                            <div className="grid grid-cols-2 gap-4 pt-2 border-t border-black/5 dark:border-white/5">
+                                <div className="space-y-1.5">
+                                    <label className="text-[9px] font-bold text-gray-400 uppercase tracking-widest">
+                                        SEO Title
+                                    </label>
+                                    <input
+                                        type="text"
+                                        value={formData.meta_title}
+                                        onChange={(e) => setFormData(p => ({ ...p, meta_title: e.target.value }))}
+                                        className="w-full bg-black/5 dark:bg-white/5 border border-black/5 dark:border-white/10 rounded-xl py-3 px-4 text-gray-900 dark:text-white text-sm focus:border-attire-accent outline-none transition-all"
+                                        placeholder={formData.name + " | Collection"}
+                                    />
+                                </div>
+                                <div className="space-y-1.5">
+                                    <label className="text-[9px] font-bold text-gray-400 uppercase tracking-widest">
+                                        SEO Description
+                                    </label>
+                                    <textarea
+                                        rows={1}
+                                        value={formData.meta_description}
+                                        onChange={(e) => setFormData(p => ({ ...p, meta_description: e.target.value }))}
+                                        className="w-full bg-black/5 dark:bg-white/5 border border-black/5 dark:border-white/10 rounded-xl py-3 px-4 text-gray-900 dark:text-white text-sm focus:border-attire-accent outline-none transition-all resize-none leading-relaxed"
+                                        placeholder="Search engine snippet..."
+                                    />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* Toggles */}
+                    <div className="mt-6 grid grid-cols-2 gap-3">
+                        {[
+                            {
+                                key: 'is_active',
+                                label: 'Visible in Store',
+                                sub: 'Show to customers',
+                                color: 'bg-green-500',
+                            },
+                            {
+                                key: 'is_new',
+                                label: 'New Arrival Badge',
+                                sub: 'Display "New" label',
+                                color: 'bg-attire-accent',
+                            },
+                        ].map(
+                            ({
+                                key,
+                                label,
+                                sub,
+                                color,
+                            }) => (
+                                <div
+                                    key={key}
+                                    className="flex items-center justify-between p-4 bg-black/[0.02] dark:bg-white/[0.02] rounded-2xl border border-black/5 dark:border-white/5"
+                                >
+                                    <div>
+                                        <p className="text-[10px] font-bold text-gray-900 dark:text-white uppercase tracking-wider">
+                                            {label}
+                                        </p>
+                                        <p className="text-[9px] text-gray-400 mt-0.5">
+                                            {sub}
+                                        </p>
+                                    </div>
+                                    <Toggle
+                                        value={
+                                            formData[key]
+                                        }
+                                        onChange={(v) =>
+                                            setFormData(
+                                                (p) => ({
+                                                    ...p,
+                                                    [key]: v,
+                                                })
+                                            )
+                                        }
+                                        color={color}
+                                    />
+                                </div>
+                            )
                         )}
-                    </AnimatePresence>,
-                    document.body
-                )}
+                    </div>
+
+                    {/* Error */}
+                    {error && (
+                        <div className="mt-4 flex items-center gap-2 p-3 bg-red-500/10 border border-red-500/20 rounded-xl text-red-400 text-xs">
+                            <AlertCircle size={12} />
+                            <span>{error}</span>
+                        </div>
+                    )}
+
+                    {/* Actions */}
+                    <div className="mt-6 flex gap-3">
+                        <button
+                            type="button"
+                            onClick={closeModal}
+                            className="flex-grow py-3.5 border border-black/5 dark:border-white/10 rounded-xl text-[10px] font-bold uppercase tracking-widest text-gray-400 hover:text-gray-900 dark:hover:text-white transition-all"
+                        >
+                            Cancel
+                        </button>
+                        <button
+                            type="submit"
+                            disabled={saving || uploading}
+                            className="flex-grow py-3.5 bg-black dark:bg-white text-white dark:text-black rounded-xl text-[10px] font-bold uppercase tracking-widest hover:bg-attire-accent dark:hover:bg-attire-accent transition-all flex items-center justify-center gap-2 disabled:opacity-50"
+                        >
+                            {saving ? (
+                                <Loader
+                                    className="animate-spin"
+                                    size={12}
+                                />
+                            ) : (
+                                <Check size={12} />
+                            )}
+                            {saving
+                                ? 'Saving...'
+                                : editingId
+                                  ? 'Save Changes'
+                                  : 'Create Collection'}
+                        </button>
+                    </div>
+                </form>
+            </ModernModal>
         </div>
     );
 };

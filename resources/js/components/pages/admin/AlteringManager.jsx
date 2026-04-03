@@ -1,5 +1,4 @@
 import React, { useState, useEffect, useMemo, useCallback, Suspense, lazy } from 'react';
-import { createPortal } from 'react-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import axios from 'axios';
 import { motion, AnimatePresence, useReducedMotion } from 'framer-motion';
@@ -26,6 +25,7 @@ import {
 import { Card, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { BorderBeam } from '@/components/ui/border-beam';
+import ModernModal from '../../common/ModernModal.jsx';
 
 const statusConfig = {
     pending: {
@@ -899,662 +899,551 @@ export default function AlteringManager() {
                 )}
 
             {/* Detail Modal Overlays */}
-            {typeof document !== 'undefined' && createPortal(
-                <AnimatePresence>
-                    {selectedDetail && (
-                    <motion.div
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        exit={{ opacity: 0 }}
-                        transition={{ duration: 0.3 }}
-                        className="fixed inset-0 bg-black/60 dark:bg-[#000000]/80 backdrop-blur-xl flex items-center justify-center z-[99999] p-4"                        onClick={() => setSelectedDetail(null)}
-                    >
-                        <motion.div
-                            initial={{ scale: 0.95, opacity: 0, y: 20 }}
-                            animate={{ scale: 1, opacity: 1, y: 0 }}
-                            exit={{ scale: 0.95, opacity: 0, y: 20 }}
-                            transition={{
-                                type: 'spring',
-                                stiffness: 400,
-                                damping: 30,
-                            }}
-                            className="bg-white dark:bg-[#0a0a0a] border border-black/10 dark:border-white/10 rounded-[2.5rem] p-8 max-w-lg w-full shadow-2xl relative overflow-hidden"
-                            onClick={(e) => e.stopPropagation()}
-                        >
-                            <div className="absolute top-0 right-0 w-64 h-64 bg-attire-accent/[0.03] rounded-full blur-3xl pointer-events-none" />
-
-                            <button
-                                onClick={() => setSelectedDetail(null)}
-                                className="absolute top-6 right-6 w-8 h-8 rounded-full bg-black/5 dark:bg-white/5 hover:bg-black/10 dark:hover:bg-white/10 flex items-center justify-center transition-colors text-gray-400 dark:text-white/40 hover:text-attire-charcoal dark:hover:text-white"
-                            >
-                                <X size={14} />
-                            </button>
-
-                            <div className="space-y-8 relative z-10">
-                                {/* Header */}
-                                <div className="flex items-center gap-4">
-                                    <div className="w-16 h-16 rounded-3xl bg-attire-accent/10 border border-attire-accent/20 flex items-center justify-center shadow-[0_0_20px_rgba(245,168,28,0.1)]">
-                                        <User className="w-8 h-8 text-attire-accent" />
-                                    </div>
-                                    <div>
-                                        <h3 className="text-2xl font-serif text-attire-charcoal dark:text-white tracking-tight leading-none mb-2">
-                                            {selectedDetail.customer_name}
-                                        </h3>
-                                        <div className="flex flex-wrap gap-2">
-                                            {(() => {
-                                                const status =
-                                                    statusConfig[
-                                                        selectedDetail.status
-                                                    ] || statusConfig.pending;
-                                                return (
-                                                    <div
-                                                        className={`inline-flex items-center gap-1.5 px-2 py-0.5 text-[9px] font-black uppercase tracking-widest ${status.bgColor} ${status.textColor} border ${status.borderColor} rounded-md`}
-                                                    >
-                                                        <status.icon className="w-3 h-3" />{' '}
-                                                        {status.label}
-                                                    </div>
-                                                );
-                                            })()}
-                                            {selectedDetail.order_no && (
-                                                <div className="inline-flex items-center px-2 py-0.5 text-[9px] font-mono uppercase tracking-widest bg-white/5 border border-white/10 text-white/50 rounded-md">
-                                                    #{selectedDetail.order_no}
-                                                </div>
-                                            )}
-                                        </div>
-                                    </div>
-                                </div>
-
-                                {/* Information Matrix */}
-                                <div className="grid gap-4 bg-white/[0.02] border border-white/5 p-5 rounded-3xl">
-                                    <div className="flex gap-4 items-start">
-                                        <Smartphone
-                                            size={16}
-                                            className="text-white/30 mt-0.5 shrink-0"
-                                        />
-                                        <div>
-                                            <p className="text-[10px] uppercase font-black tracking-widest text-white/30 mb-0.5">
-                                                Phone
-                                            </p>
-                                            <p className="text-sm font-medium text-white">
-                                                {selectedDetail.mobile ||
-                                                    'Unknown'}
-                                            </p>
-                                        </div>
-                                    </div>
-                                    <div className="flex gap-4 items-start">
-                                        <Package
-                                            size={16}
-                                            className="text-white/30 mt-0.5 shrink-0"
-                                        />
-                                        <div>
-                                            <p className="text-[10px] uppercase font-black tracking-widest text-white/30 mb-0.5">
-                                                Product
-                                            </p>
-                                            <p className="text-sm text-white/80 font-serif italic">
-                                                {selectedDetail.product ||
-                                                    'Unspecified Detail'}
-                                            </p>
-                                        </div>
-                                    </div>
-                                    {selectedDetail.remark && (
-                                        <div className="flex gap-4 items-start">
-                                            <Mail
-                                                size={16}
-                                                className="text-white/30 mt-0.5 shrink-0"
-                                            />
-                                            <div>
-                                                <p className="text-[10px] uppercase font-black tracking-widest text-white/30 mb-0.5">
-                                                    Notes
-                                                </p>
-                                                <p className="text-sm text-white/60 leading-relaxed bg-black/20 p-3 rounded-xl border border-white/5 mt-1">
-                                                    {selectedDetail.remark}
-                                                </p>
+            <ModernModal
+                isOpen={!!selectedDetail}
+                onClose={() => setSelectedDetail(null)}
+                title="Altering Details"
+            >
+                {selectedDetail && (
+                    <div className="space-y-8 relative z-10 px-2 pb-2">
+                        {/* Header */}
+                        <div className="flex items-center gap-4">
+                            <div className="w-16 h-16 rounded-3xl bg-attire-accent/10 border border-attire-accent/20 flex items-center justify-center shadow-[0_0_20px_rgba(245,168,28,0.1)]">
+                                <User className="w-8 h-8 text-attire-accent" />
+                            </div>
+                            <div>
+                                <h3 className="text-2xl font-serif text-attire-charcoal dark:text-white tracking-tight leading-none mb-2">
+                                    {selectedDetail.customer_name}
+                                </h3>
+                                <div className="flex flex-wrap gap-2">
+                                    {(() => {
+                                        const status =
+                                            statusConfig[
+                                                selectedDetail.status
+                                            ] || statusConfig.pending;
+                                        return (
+                                            <div
+                                                className={`inline-flex items-center gap-1.5 px-2 py-0.5 text-[9px] font-black uppercase tracking-widest ${status.bgColor} ${status.textColor} border ${status.borderColor} rounded-md`}
+                                            >
+                                                <status.icon className="w-3 h-3" />{' '}
+                                                {status.label}
                                             </div>
+                                        );
+                                    })()}
+                                    {selectedDetail.order_no && (
+                                        <div className="inline-flex items-center px-2 py-0.5 text-[9px] font-mono uppercase tracking-widest bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 text-gray-500 dark:text-white/50 rounded-md">
+                                            #{selectedDetail.order_no}
                                         </div>
                                     )}
-                                    <div className="grid grid-cols-2 gap-4 pt-4 border-t border-white/5">
-                                        <div>
-                                            <p className="text-[10px] uppercase font-black tracking-widest text-white/30 mb-1">
-                                                Ready Date
-                                            </p>
-                                            <p className="text-sm font-mono text-white/80">
-                                                {formatDate(
-                                                    selectedDetail.ready_at
-                                                )}
-                                            </p>
-                                        </div>
-                                        <div>
-                                            <p className="text-[10px] uppercase font-black tracking-widest text-white/30 mb-1">
-                                                Cost
-                                            </p>
-                                            <p className="text-sm font-mono text-attire-accent">
-                                                $
-                                                {selectedDetail.altering_cost ||
-                                                    '0.00'}
-                                            </p>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                {/* Actions */}
-                                <div className="flex flex-col gap-3 pt-2">
-                                    <div className="flex gap-3">
-                                        {selectedDetail.status !==
-                                            'completed' && (
-                                            <button
-                                                onClick={() => {
-                                                    updateMutation.mutate({
-                                                        id: selectedDetail.id,
-                                                        data: {
-                                                            status: 'completed',
-                                                        },
-                                                    });
-                                                    setSelectedDetail(null);
-                                                }}
-                                                className="flex-1 bg-white text-black hover:bg-white/80 transition-colors py-4 rounded-xl text-[10px] font-black uppercase tracking-[0.2em] shadow-xl flex justify-center items-center gap-2"
-                                            >
-                                                <CheckCircle2 size={14} /> Mark
-                                                Complete
-                                            </button>
-                                        )}
-                                        <button
-                                            onClick={() =>
-                                                handleNotify(selectedDetail.id)
-                                            }
-                                            disabled={
-                                                isNotifying ===
-                                                selectedDetail.id
-                                            }
-                                            className="flex-1 bg-attire-accent/10 border border-attire-accent/30 text-attire-accent hover:bg-attire-accent/20 transition-colors py-4 rounded-xl text-[10px] font-black uppercase tracking-[0.2em] flex justify-center items-center gap-2"
-                                        >
-                                            {isNotifying ===
-                                            selectedDetail.id ? (
-                                                <Loader
-                                                    className="animate-spin"
-                                                    size={14}
-                                                />
-                                            ) : (
-                                                <Mail size={14} />
-                                            )}{' '}
-                                            Notify Client
-                                        </button>
-                                    </div>
-                                    <button
-                                        onClick={() => {
-                                            if (
-                                                confirm('Delete this record?')
-                                            ) {
-                                                deleteMutation.mutate(
-                                                    selectedDetail.id
-                                                );
-                                            }
-                                        }}
-                                        className="text-red-500/50 hover:text-red-500 hover:bg-red-500/10 py-3 rounded-xl text-xs font-medium transition-colors"
-                                    >
-                                        Delete Record
-                                    </button>
-                                    <div className="text-center pt-2">
-                                        <span className="text-[9px] uppercase tracking-widest font-black text-white/20">
-                                            {selectedDetail.notified_at
-                                                ? `Last notified: ${formatDate(selectedDetail.notified_at)}`
-                                                : 'Not notified yet'}
-                                        </span>
-                                    </div>
                                 </div>
                             </div>
-                        </motion.div>
-                    </motion.div>
-                )}
+                        </div>
 
-                {/* Add Modal Wizard */}
-                {isAdding && (
-                    <div className="fixed inset-0 z-[99999] flex items-center justify-center p-4">
-                        <div
-                            className="absolute inset-0 bg-black/60 dark:bg-[#000000]/80 backdrop-blur-xl"
-                            onClick={() => setIsAdding(false)}
-                        />
-                        <motion.div
-                            initial={{ scale: 0.95, opacity: 0 }}
-                            animate={{ scale: 1, opacity: 1 }}
-                            exit={{ scale: 0.95, opacity: 0 }}
-                            className="relative w-full max-w-xl"
-                        >
-                            <Card className="bg-white dark:bg-[#0a0a0a] border border-black/10 dark:border-white/10 p-8 rounded-[3rem] shadow-2xl relative overflow-hidden">
-                                <BorderBeam size={250} duration={12} />
-
-                                {/* Header / Progress Indicators */}
-                                <div className="flex justify-between items-start mb-8 relative z-10">
-                                    <div>
-                                        <CardTitle className="text-3xl font-serif text-attire-charcoal dark:text-white tracking-tight">
-                                            Add Record
-                                        </CardTitle>
-                                        <div className="flex items-center gap-2 mt-3">
-                                            {[1, 2, 3].map((step) => (
-                                                <div
-                                                    key={step}
-                                                    className={`h-1.5 rounded-full transition-all duration-300 ${wizardStep >= step ? 'w-8 bg-attire-accent' : 'w-4 bg-black/10 dark:bg-white/10'}`}
-                                                />
-                                            ))}
-                                        </div>
-                                    </div>
-                                    <Button
-                                        variant="ghost"
-                                        onClick={() => setIsAdding(false)}
-                                        className="text-gray-400 dark:text-white/40 hover:text-attire-charcoal dark:hover:text-white hover:bg-black/5 dark:hover:bg-white/5 rounded-full w-10 h-10 p-0 flex items-center justify-center"
-                                    >
-                                        <X size={16} />
-                                    </Button>
-                                </div>
-
-                                <div className="relative z-10 min-h-[300px]">
-                                    <AnimatePresence mode="wait">
-                                        {wizardStep === 1 && (
-                                            <motion.div
-                                                key="step1"
-                                                initial={{ opacity: 0, x: 20 }}
-                                                animate={{ opacity: 1, x: 0 }}
-                                                exit={{ opacity: 0, x: -20 }}
-                                                className="space-y-6"
-                                            >
-                                                <div className="space-y-2">
-                                                    <label className="text-[10px] font-black text-gray-400 dark:text-white/40 uppercase tracking-widest pl-1">
-                                                        Customer Name
-                                                    </label>
-                                                    <input
-                                                        required
-                                                        autoFocus
-                                                        value={
-                                                            formData.customer_name
-                                                        }
-                                                        onChange={(e) =>
-                                                            setFormData({
-                                                                ...formData,
-                                                                customer_name:
-                                                                    e.target
-                                                                        .value,
-                                                            })
-                                                        }
-                                                        placeholder="Full Name"
-                                                        className="w-full bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 hover:border-black/20 dark:hover:border-white/20 rounded-2xl p-4 text-attire-charcoal dark:text-white text-sm outline-none focus:border-attire-accent/50 focus:bg-black/[0.07] dark:focus:bg-white/[0.07] transition-all"
-                                                    />
-                                                </div>
-                                                <div className="space-y-2">
-                                                    <label className="text-[10px] font-black text-gray-400 dark:text-white/40 uppercase tracking-widest pl-1">
-                                                        Phone Number
-                                                    </label>
-                                                    <input
-                                                        value={formData.mobile}
-                                                        onChange={(e) =>
-                                                            setFormData({
-                                                                ...formData,
-                                                                mobile: e.target
-                                                                    .value,
-                                                            })
-                                                        }
-                                                        placeholder="+1 (555) 000-0000"
-                                                        className="w-full bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 hover:border-black/20 dark:hover:border-white/20 rounded-2xl p-4 text-attire-charcoal dark:text-white text-sm outline-none focus:border-attire-accent/50 focus:bg-black/[0.07] dark:focus:bg-white/[0.07] transition-all"
-                                                    />
-                                                </div>
-                                                <div className="space-y-2">
-                                                    <label className="text-[10px] font-black text-gray-400 dark:text-white/40 uppercase tracking-widest pl-1">
-                                                        Order Number (Optional)
-                                                    </label>
-                                                    <input
-                                                        value={
-                                                            formData.order_no
-                                                        }
-                                                        onChange={(e) =>
-                                                            setFormData({
-                                                                ...formData,
-                                                                order_no:
-                                                                    e.target
-                                                                        .value,
-                                                            })
-                                                        }
-                                                        placeholder="#ORD-..."
-                                                        className="w-full bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 hover:border-black/20 dark:hover:border-white/20 rounded-2xl p-4 text-attire-charcoal dark:text-white font-mono text-sm outline-none focus:border-attire-accent/50 focus:bg-black/[0.07] dark:focus:bg-white/[0.07] transition-all"
-                                                    />
-                                                </div>
-                                            </motion.div>
-                                        )}
-                                        {wizardStep === 2 && (
-                                            <motion.div
-                                                key="step2"
-                                                initial={{ opacity: 0, x: 20 }}
-                                                animate={{ opacity: 1, x: 0 }}
-                                                exit={{ opacity: 0, x: -20 }}
-                                                className="space-y-6"
-                                            >
-                                                <div className="space-y-2">
-                                                    <label className="text-[10px] font-black text-gray-400 dark:text-white/40 uppercase tracking-widest pl-1">
-                                                        Product Details
-                                                    </label>
-                                                    <textarea
-                                                        required
-                                                        autoFocus
-                                                        rows="3"
-                                                        value={formData.product}
-                                                        onChange={(e) =>
-                                                            setFormData({
-                                                                ...formData,
-                                                                product:
-                                                                    e.target
-                                                                        .value,
-                                                            })
-                                                        }
-                                                        placeholder="Specify the exact alterations required..."
-                                                        className="w-full bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 hover:border-black/20 dark:hover:border-white/20 rounded-2xl p-4 text-attire-charcoal dark:text-white text-sm outline-none focus:border-attire-accent/50 focus:bg-black/[0.07] dark:focus:bg-white/[0.07] transition-all resize-none"
-                                                    />
-                                                </div>
-                                                <div className="space-y-2">
-                                                    <label className="text-[10px] font-black text-gray-400 dark:text-white/40 uppercase tracking-widest pl-1">
-                                                        Notes (Optional)
-                                                    </label>
-                                                    <textarea
-                                                        rows="3"
-                                                        value={formData.remark}
-                                                        onChange={(e) =>
-                                                            setFormData({
-                                                                ...formData,
-                                                                remark: e.target
-                                                                    .value,
-                                                            })
-                                                        }
-                                                        placeholder="Internal tailor notes, structural warnings..."
-                                                        className="w-full bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 hover:border-black/20 dark:hover:border-white/20 rounded-2xl p-4 text-gray-500 dark:text-white/60 text-sm outline-none focus:border-attire-accent/50 focus:bg-black/[0.07] dark:focus:bg-white/[0.07] transition-all resize-none"
-                                                    />
-                                                </div>
-                                            </motion.div>
-                                        )}
-                                        {wizardStep === 3 && (
-                                            <motion.div
-                                                key="step3"
-                                                initial={{ opacity: 0, x: 20 }}
-                                                animate={{ opacity: 1, x: 0 }}
-                                                exit={{ opacity: 0, x: -20 }}
-                                                className="space-y-6"
-                                            >
-                                                <div className="space-y-2">
-                                                    <label className="text-[10px] font-black text-gray-400 dark:text-white/40 uppercase tracking-widest pl-1">
-                                                        Cost ($)
-                                                    </label>
-                                                    <div className="relative">
-                                                        <DollarSign
-                                                            className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 dark:text-white/40"
-                                                            size={16}
-                                                        />
-                                                        <input
-                                                            required
-                                                            type="number"
-                                                            step="0.01"
-                                                            value={
-                                                                formData.altering_cost
-                                                            }
-                                                            onChange={(e) =>
-                                                                setFormData({
-                                                                    ...formData,
-                                                                    altering_cost:
-                                                                        e.target
-                                                                            .value,
-                                                                })
-                                                            }
-                                                            placeholder="0.00"
-                                                            className="w-full bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 hover:border-black/20 dark:hover:border-white/20 rounded-2xl py-4 pl-12 pr-4 text-attire-accent font-mono text-lg outline-none focus:border-attire-accent/50 focus:bg-black/[0.07] dark:focus:bg-white/[0.07] transition-all"
-                                                        />
-                                                    </div>
-                                                </div>
-                                                <div className="grid grid-cols-2 gap-4">
-                                                    <div className="space-y-2">
-                                                        <label className="text-[10px] font-black text-gray-400 dark:text-white/40 uppercase tracking-widest pl-1">
-                                                            Start Date
-                                                        </label>
-                                                        <input
-                                                            required
-                                                            type="date"
-                                                            value={
-                                                                formData.start_date
-                                                            }
-                                                            onChange={(e) =>
-                                                                setFormData({
-                                                                    ...formData,
-                                                                    start_date:
-                                                                        e.target
-                                                                            .value,
-                                                                })
-                                                            }
-                                                            className="w-full bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 hover:border-black/20 dark:hover:border-white/20 rounded-2xl p-4 text-attire-charcoal dark:text-white text-sm outline-none focus:border-attire-accent/50 focus:bg-black/[0.07] dark:focus:bg-white/[0.07] transition-all [color-scheme:light] dark:[color-scheme:dark]"
-                                                        />
-                                                    </div>
-                                                    <div className="space-y-2">
-                                                        <label className="text-[10px] font-black text-gray-400 dark:text-white/40 uppercase tracking-widest pl-1">
-                                                            Target Ready
-                                                        </label>
-                                                        <input
-                                                            required
-                                                            type="date"
-                                                            value={
-                                                                formData.ready_at
-                                                            }
-                                                            onChange={(e) =>
-                                                                setFormData({
-                                                                    ...formData,
-                                                                    ready_at:
-                                                                        e.target
-                                                                            .value,
-                                                                })
-                                                            }
-                                                            className="w-full bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 hover:border-black/20 dark:hover:border-white/20 rounded-2xl p-4 text-attire-charcoal dark:text-white text-sm outline-none focus:border-attire-accent/50 focus:bg-black/[0.07] dark:focus:bg-white/[0.07] transition-all [color-scheme:light] dark:[color-scheme:dark]"
-                                                        />
-                                                    </div>
-                                                </div>
-                                            </motion.div>
-                                        )}
-                                    </AnimatePresence>
-                                </div>
-
-                                {/* Controls */}
-                                <div className="mt-8 pt-6 border-t border-black/10 dark:border-white/10 flex items-center justify-between relative z-10">
-                                    <button
-                                        type="button"
-                                        onClick={() =>
-                                            wizardStep > 1
-                                                ? setWizardStep((w) => w - 1)
-                                                : setIsAdding(false)
-                                        }
-                                        className="text-[10px] font-black uppercase tracking-widest text-white/40 hover:text-white transition-colors px-4 py-3"
-                                    >
-                                        {wizardStep === 1
-                                            ? 'Cancel'
-                                            : 'Go Back'}
-                                    </button>
-
-                                    {wizardStep < 3 ? (
-                                        <button
-                                            type="button"
-                                            onClick={() => {
-                                                if (
-                                                    wizardStep === 1 &&
-                                                    !formData.customer_name
-                                                )
-                                                    return alert(
-                                                        'Client name is required.'
-                                                    );
-                                                if (
-                                                    wizardStep === 2 &&
-                                                    !formData.product
-                                                )
-                                                    return alert(
-                                                        'Garment scope is required.'
-                                                    );
-                                                setWizardStep((w) => w + 1);
-                                            }}
-                                            className="px-8 py-4 bg-black/5 dark:bg-white/10 text-attire-charcoal dark:text-white hover:bg-black/10 dark:hover:bg-white transition-colors dark:hover:text-black rounded-2xl text-[10px] font-black uppercase tracking-widest"
-                                        >
-                                            Continue
-                                        </button>
-                                    ) : (
-                                        <Button
-                                            onClick={() => {
-                                                if (
-                                                    !formData.altering_cost ||
-                                                    !formData.ready_at
-                                                )
-                                                    return alert(
-                                                        'Quote and Target Date are required.'
-                                                    );
-                                                createMutation.mutate(formData);
-                                            }}
-                                            disabled={createMutation.isPending}
-                                            className="px-8 py-6 bg-attire-accent text-black hover:bg-[#ffb940] transition-colors shadow-[0_0_20px_rgba(245,168,28,0.3)] rounded-2xl text-[10px] font-black uppercase tracking-widest"
-                                        >
-                                            {createMutation.isPending ? (
-                                                <Loader className="animate-spin mr-2" />
-                                            ) : (
-                                                <CheckCircle2 className="mr-2 w-4 h-4" />
-                                            )}
-                                            Save Record
-                                        </Button>
-                                    )}
-                                </div>
-                            </Card>
-                        </motion.div>
-                    </div>
-                )}
-            </AnimatePresence>,
-            document.body
-        )}
-            {/* Sync Sheet Modal */}
-            {typeof document !== 'undefined' && createPortal(
-                <AnimatePresence>
-                    {showSyncModal && (
-                        <div className="fixed inset-0 z-[99999] flex items-center justify-center p-4">
-                        <motion.div
-                            initial={{ opacity: 0 }}
-                            animate={{ opacity: 1 }}
-                            exit={{ opacity: 0 }}
-                            onClick={() => setShowSyncModal(false)}
-                            className="absolute inset-0 bg-black/60 backdrop-blur-xl"
-                        />
-                        <motion.div
-                            initial={{ scale: 0.9, opacity: 0, y: 20 }}
-                            animate={{ scale: 1, opacity: 1, y: 0 }}
-                            exit={{ scale: 0.9, opacity: 0, y: 20 }}
-                            className="relative w-full max-w-lg z-10"
-                        >
-                            <Card className="bg-[#0e0e0e] border border-white/10 p-8 shadow-2xl rounded-[2rem] overflow-hidden">
-                                <div className="absolute top-0 right-0 p-6">
-                                    <button
-                                        onClick={() => setShowSyncModal(false)}
-                                        className="text-white/20 hover:text-white transition-colors"
-                                    >
-                                        <X size={20} />
-                                    </button>
-                                </div>
-
-                                <div className="flex flex-col items-center text-center mb-10">
-                                    <div className="w-20 h-20 bg-attire-accent/10 rounded-3xl flex items-center justify-center mb-6 border border-attire-accent/20 shadow-[0_0_40px_rgba(245,168,28,0.1)]">
-                                        <RefreshCw
-                                            size={32}
-                                            className={`text-attire-accent ${isSyncing ? 'animate-spin' : ''}`}
-                                        />
-                                    </div>
-                                    <h2 className="text-2xl font-serif text-white mb-2">
-                                        Master Sheet Sync
-                                    </h2>
-                                    <p className="text-white/40 text-xs font-mono tracking-widest uppercase">
-                                        Google Sheets Data Intelligence
+                        {/* Information Matrix */}
+                        <div className="grid gap-4 bg-black/[0.02] dark:bg-white/[0.02] border border-black/5 dark:border-white/5 p-5 rounded-3xl">
+                            <div className="flex gap-4 items-start">
+                                <Smartphone
+                                    size={16}
+                                    className="text-gray-400 dark:text-white/30 mt-0.5 shrink-0"
+                                />
+                                <div>
+                                    <p className="text-[10px] uppercase font-black tracking-widest text-gray-400 dark:text-white/30 mb-0.5">
+                                        Phone
+                                    </p>
+                                    <p className="text-sm font-medium text-gray-900 dark:text-white">
+                                        {selectedDetail.mobile ||
+                                            'Unknown'}
                                     </p>
                                 </div>
+                            </div>
+                            <div className="flex gap-4 items-start">
+                                <Package
+                                    size={16}
+                                    className="text-gray-400 dark:text-white/30 mt-0.5 shrink-0"
+                                />
+                                <div>
+                                    <p className="text-[10px] uppercase font-black tracking-widest text-gray-400 dark:text-white/30 mb-0.5">
+                                        Product
+                                    </p>
+                                    <p className="text-sm text-gray-700 dark:text-white/80 font-serif italic">
+                                        {selectedDetail.product ||
+                                            'Unspecified Detail'}
+                                    </p>
+                                </div>
+                            </div>
+                            {selectedDetail.remark && (
+                                <div className="flex gap-4 items-start">
+                                    <Mail
+                                        size={16}
+                                        className="text-gray-400 dark:text-white/30 mt-0.5 shrink-0"
+                                    />
+                                    <div>
+                                        <p className="text-[10px] uppercase font-black tracking-widest text-gray-400 dark:text-white/30 mb-0.5">
+                                            Notes
+                                        </p>
+                                        <p className="text-sm text-gray-600 dark:text-white/60 leading-relaxed bg-black/5 dark:bg-black/20 p-3 rounded-xl border border-black/5 dark:border-white/5 mt-1">
+                                            {selectedDetail.remark}
+                                        </p>
+                                    </div>
+                                </div>
+                            )}
+                            <div className="grid grid-cols-2 gap-4 pt-4 border-t border-black/5 dark:border-white/5">
+                                <div>
+                                    <p className="text-[10px] uppercase font-black tracking-widest text-gray-400 dark:text-white/30 mb-1">
+                                        Ready Date
+                                    </p>
+                                    <p className="text-sm font-mono text-gray-800 dark:text-white/80">
+                                        {formatDate(
+                                            selectedDetail.ready_at
+                                        )}
+                                    </p>
+                                </div>
+                                <div>
+                                    <p className="text-[10px] uppercase font-black tracking-widest text-gray-400 dark:text-white/30 mb-1">
+                                        Cost
+                                    </p>
+                                    <p className="text-sm font-mono text-attire-accent">
+                                        $
+                                        {selectedDetail.altering_cost ||
+                                            '0.00'}
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
 
-                                <div className="space-y-6">
+                        {/* Actions */}
+                        <div className="flex flex-col gap-3 pt-2">
+                            <div className="flex gap-3">
+                                {selectedDetail.status !==
+                                    'completed' && (
+                                    <button
+                                        onClick={() => {
+                                            updateMutation.mutate({
+                                                id: selectedDetail.id,
+                                                data: {
+                                                    status: 'completed',
+                                                },
+                                            });
+                                            setSelectedDetail(null);
+                                        }}
+                                        className="flex-1 bg-attire-charcoal dark:bg-white text-white dark:text-black hover:bg-attire-accent dark:hover:bg-attire-accent transition-colors py-4 rounded-xl text-[10px] font-black uppercase tracking-[0.2em] shadow-xl flex justify-center items-center gap-2"
+                                    >
+                                        <CheckCircle2 size={14} /> Mark
+                                        Complete
+                                    </button>
+                                )}
+                                <button
+                                    onClick={() =>
+                                        handleNotify(selectedDetail.id)
+                                    }
+                                    disabled={
+                                        isNotifying ===
+                                        selectedDetail.id
+                                    }
+                                    className="flex-1 bg-attire-accent/10 border border-attire-accent/30 text-attire-accent hover:bg-attire-accent/20 transition-colors py-4 rounded-xl text-[10px] font-black uppercase tracking-[0.2em] flex justify-center items-center gap-2"
+                                >
+                                    {isNotifying ===
+                                    selectedDetail.id ? (
+                                        <Loader
+                                            className="animate-spin"
+                                            size={14}
+                                        />
+                                    ) : (
+                                        <Mail size={14} />
+                                    )}{' '}
+                                    Notify Client
+                                </button>
+                            </div>
+                            <button
+                                onClick={() => {
+                                    if (
+                                        confirm('Delete this record?')
+                                    ) {
+                                        deleteMutation.mutate(
+                                            selectedDetail.id
+                                        );
+                                    }
+                                }}
+                                className="text-red-500/50 hover:text-red-500 hover:bg-red-500/10 py-3 rounded-xl text-xs font-medium transition-colors"
+                            >
+                                Delete Record
+                            </button>
+                            <div className="text-center pt-2">
+                                <span className="text-[9px] uppercase tracking-widest font-black text-gray-400 dark:text-white/20">
+                                    {selectedDetail.notified_at
+                                        ? `Last notified: ${formatDate(selectedDetail.notified_at)}`
+                                        : 'Not notified yet'}
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                )}
+            </ModernModal>
+
+            {/* Add Modal Wizard */}
+            <ModernModal
+                isOpen={isAdding}
+                onClose={() => setIsAdding(false)}
+                title="Add Altering Record"
+            >
+                <div className="relative z-10 px-2">
+                    {/* Progress Indicators */}
+                    <div className="flex items-center gap-2 mb-8">
+                        {[1, 2, 3].map((step) => (
+                            <div
+                                key={step}
+                                className={`h-1.5 rounded-full transition-all duration-300 ${wizardStep >= step ? 'w-8 bg-attire-accent' : 'w-4 bg-black/10 dark:bg-white/10'}`}
+                            />
+                        ))}
+                    </div>
+
+                    <div className="min-h-[300px]">
+                        <AnimatePresence mode="wait">
+                            {wizardStep === 1 && (
+                                <motion.div
+                                    key="step1"
+                                    initial={{ opacity: 0, x: 20 }}
+                                    animate={{ opacity: 1, x: 0 }}
+                                    exit={{ opacity: 0, x: -20 }}
+                                    className="space-y-6"
+                                >
                                     <div className="space-y-2">
-                                        <label className="text-[10px] font-black text-white/40 uppercase tracking-widest pl-2">
-                                            Sheet Sharing URL
+                                        <label className="text-[10px] font-black text-gray-400 dark:text-white/40 uppercase tracking-widest pl-1">
+                                            Customer Name
                                         </label>
-                                        <div className="relative group">
-                                            <div className="absolute left-4 top-1/2 -translate-y-1/2">
-                                                <ExternalLink
-                                                    size={16}
-                                                    className="text-white/20 group-focus-within:text-attire-accent transition-colors"
-                                                />
-                                            </div>
+                                        <input
+                                            required
+                                            autoFocus
+                                            value={
+                                                formData.customer_name
+                                            }
+                                            onChange={(e) =>
+                                                setFormData({
+                                                    ...formData,
+                                                    customer_name:
+                                                        e.target
+                                                            .value,
+                                                })
+                                            }
+                                            placeholder="Full Name"
+                                            className="w-full bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 hover:border-black/20 dark:hover:border-white/20 rounded-2xl p-4 text-gray-900 dark:text-white text-sm outline-none focus:border-attire-accent/50 focus:bg-black/[0.07] dark:focus:bg-white/[0.07] transition-all"
+                                        />
+                                    </div>
+                                    <div className="space-y-2">
+                                        <label className="text-[10px] font-black text-gray-400 dark:text-white/40 uppercase tracking-widest pl-1">
+                                            Phone Number
+                                        </label>
+                                        <input
+                                            value={formData.mobile}
+                                            onChange={(e) =>
+                                                setFormData({
+                                                    ...formData,
+                                                    mobile: e.target
+                                                        .value,
+                                                })
+                                            }
+                                            placeholder="+1 (555) 000-0000"
+                                            className="w-full bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 hover:border-black/20 dark:hover:border-white/20 rounded-2xl p-4 text-gray-900 dark:text-white text-sm outline-none focus:border-attire-accent/50 focus:bg-black/[0.07] dark:focus:bg-white/[0.07] transition-all"
+                                        />
+                                    </div>
+                                    <div className="space-y-2">
+                                        <label className="text-[10px] font-black text-gray-400 dark:text-white/40 uppercase tracking-widest pl-1">
+                                            Order Number (Optional)
+                                        </label>
+                                        <input
+                                            value={
+                                                formData.order_no
+                                            }
+                                            onChange={(e) =>
+                                                setFormData({
+                                                    ...formData,
+                                                    order_no:
+                                                        e.target
+                                                            .value,
+                                                })
+                                            }
+                                            placeholder="#ORD-..."
+                                            className="w-full bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 hover:border-black/20 dark:hover:border-white/20 rounded-2xl p-4 text-gray-900 dark:text-white font-mono text-sm outline-none focus:border-attire-accent/50 focus:bg-black/[0.07] dark:focus:bg-white/[0.07] transition-all"
+                                        />
+                                    </div>
+                                </motion.div>
+                            )}
+                            {wizardStep === 2 && (
+                                <motion.div
+                                    key="step2"
+                                    initial={{ opacity: 0, x: 20 }}
+                                    animate={{ opacity: 1, x: 0 }}
+                                    exit={{ opacity: 0, x: -20 }}
+                                    className="space-y-6"
+                                >
+                                    <div className="space-y-2">
+                                        <label className="text-[10px] font-black text-gray-400 dark:text-white/40 uppercase tracking-widest pl-1">
+                                            Product Details
+                                        </label>
+                                        <textarea
+                                            required
+                                            autoFocus
+                                            rows="3"
+                                            value={formData.product}
+                                            onChange={(e) =>
+                                                setFormData({
+                                                    ...formData,
+                                                    product:
+                                                        e.target
+                                                            .value,
+                                                })
+                                            }
+                                            placeholder="Specify the exact alterations required..."
+                                            className="w-full bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 hover:border-black/20 dark:hover:border-white/20 rounded-2xl p-4 text-gray-900 dark:text-white text-sm outline-none focus:border-attire-accent/50 focus:bg-black/[0.07] dark:focus:bg-white/[0.07] transition-all resize-none"
+                                        />
+                                    </div>
+                                    <div className="space-y-2">
+                                        <label className="text-[10px] font-black text-gray-400 dark:text-white/40 uppercase tracking-widest pl-1">
+                                            Notes (Optional)
+                                        </label>
+                                        <textarea
+                                            rows="3"
+                                            value={formData.remark}
+                                            onChange={(e) =>
+                                                setFormData({
+                                                    ...formData,
+                                                    remark: e.target
+                                                        .value,
+                                                })
+                                            }
+                                            placeholder="Internal tailor notes, structural warnings..."
+                                            className="w-full bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 hover:border-black/20 dark:hover:border-white/20 rounded-2xl p-4 text-gray-500 dark:text-white/60 text-sm outline-none focus:border-attire-accent/50 focus:bg-black/[0.07] dark:focus:bg-white/[0.07] transition-all resize-none"
+                                        />
+                                    </div>
+                                </motion.div>
+                            )}
+                            {wizardStep === 3 && (
+                                <motion.div
+                                    key="step3"
+                                    initial={{ opacity: 0, x: 20 }}
+                                    animate={{ opacity: 1, x: 0 }}
+                                    exit={{ opacity: 0, x: -20 }}
+                                    className="space-y-6"
+                                >
+                                    <div className="space-y-2">
+                                        <label className="text-[10px] font-black text-gray-400 dark:text-white/40 uppercase tracking-widest pl-1">
+                                            Cost ($)
+                                        </label>
+                                        <div className="relative">
+                                            <DollarSign
+                                                className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 dark:text-white/40"
+                                                size={16}
+                                            />
                                             <input
-                                                type="text"
-                                                placeholder="https://docs.google.com/spreadsheets/d/..."
-                                                value={syncUrl}
-                                                onChange={(e) => setSyncUrl(e.target.value)}
-                                                className="w-full bg-white/5 border border-white/10 rounded-2xl py-4 pl-12 pr-4 text-white text-sm outline-none focus:border-attire-accent/50 focus:bg-white/[0.08] transition-all font-mono"
+                                                required
+                                                type="number"
+                                                step="0.01"
+                                                value={
+                                                    formData.altering_cost
+                                                }
+                                                onChange={(e) =>
+                                                    setFormData({
+                                                        ...formData,
+                                                        altering_cost:
+                                                            e.target
+                                                                .value,
+                                                    })
+                                                }
+                                                placeholder="0.00"
+                                                className="w-full bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 hover:border-black/20 dark:hover:border-white/20 rounded-2xl py-4 pl-12 pr-4 text-attire-accent font-mono text-lg outline-none focus:border-attire-accent/50 focus:bg-black/[0.07] dark:focus:bg-white/[0.07] transition-all"
                                             />
                                         </div>
                                     </div>
-
-                                    <div className="bg-white/5 border border-white/5 rounded-2xl p-4 flex items-start gap-3">
-                                        <div className="p-2 bg-blue-500/10 rounded-lg">
-                                            <svg
-                                                width="14"
-                                                height="14"
-                                                viewBox="0 0 24 24"
-                                                fill="none"
-                                                stroke="currentColor"
-                                                strokeWidth="2"
-                                                className="text-blue-400"
-                                            >
-                                                <circle cx="12" cy="12" r="10" />
-                                                <line x1="12" y1="16" x2="12" y2="12" />
-                                                <line x1="12" y1="8" x2="12.01" y2="8" />
-                                            </svg>
+                                    <div className="grid grid-cols-2 gap-4">
+                                        <div className="space-y-2">
+                                            <label className="text-[10px] font-black text-gray-400 dark:text-white/40 uppercase tracking-widest pl-1">
+                                                Start Date
+                                            </label>
+                                            <input
+                                                required
+                                                type="date"
+                                                value={
+                                                    formData.start_date
+                                                }
+                                                onChange={(e) =>
+                                                    setFormData({
+                                                        ...formData,
+                                                        start_date:
+                                                            e.target
+                                                                .value,
+                                                    })
+                                                }
+                                                className="w-full bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 hover:border-black/20 dark:hover:border-white/20 rounded-2xl p-4 text-gray-900 dark:text-white text-sm outline-none focus:border-attire-accent/50 focus:bg-black/[0.07] dark:focus:bg-white/[0.07] transition-all [color-scheme:light] dark:[color-scheme:dark]"
+                                            />
                                         </div>
-                                        <p className="text-[10px] leading-relaxed text-white/50">
-                                            Make sure your Google Sheet is shared with{' '}
-                                            <span className="text-white/80 font-bold">
-                                                Anyone with the link
-                                            </span>{' '}
-                                            or accessible via this application.
-                                        </p>
+                                        <div className="space-y-2">
+                                            <label className="text-[10px] font-black text-gray-400 dark:text-white/40 uppercase tracking-widest pl-1">
+                                                Target Ready
+                                            </label>
+                                            <input
+                                                required
+                                                type="date"
+                                                value={
+                                                    formData.ready_at
+                                                }
+                                                onChange={(e) =>
+                                                    setFormData({
+                                                        ...formData,
+                                                        ready_at:
+                                                            e.target
+                                                                .value,
+                                                    })
+                                                }
+                                                className="w-full bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 hover:border-black/20 dark:hover:border-white/20 rounded-2xl p-4 text-gray-900 dark:text-white text-sm outline-none focus:border-attire-accent/50 focus:bg-black/[0.07] dark:focus:bg-white/[0.07] transition-all [color-scheme:light] dark:[color-scheme:dark]"
+                                            />
+                                        </div>
                                     </div>
-
-                                    <Button
-                                        onClick={handleSync}
-                                        disabled={isSyncing || !syncUrl}
-                                        className="w-full py-6 bg-attire-accent text-black hover:bg-[#ffb940] transition-all shadow-[0_10px_30px_rgba(245,168,28,0.2)] rounded-2xl text-[11px] font-black uppercase tracking-[0.2em] relative overflow-hidden group"
-                                    >
-                                        {isSyncing && (
-                                            <div className="absolute inset-x-0 bottom-0 h-1 bg-black/10 overflow-hidden">
-                                                <motion.div
-                                                    initial={{ x: '-100%' }}
-                                                    animate={{ x: '100%' }}
-                                                    transition={{ repeat: Infinity, duration: 1.5 }}
-                                                    className="w-1/2 h-full bg-black/20"
-                                                />
-                                            </div>
-                                        )}
-                                        {isSyncing ? (
-                                            'Syncing Master Data...'
-                                        ) : (
-                                            <>
-                                                <RefreshCw
-                                                    size={14}
-                                                    className="mr-2 group-hover:rotate-180 transition-transform duration-500"
-                                                />
-                                                Start Synchronization
-                                            </>
-                                        )}
-                                    </Button>
-
-                                    <button
-                                        onClick={() => setShowSyncModal(false)}
-                                        className="w-full py-4 text-[10px] font-black text-white/20 uppercase tracking-widest hover:text-white transition-colors"
-                                    >
-                                        Maybe Later
-                                    </button>
-                                </div>
-                            </Card>
-                        </motion.div>
+                                </motion.div>
+                            )}
+                        </AnimatePresence>
                     </div>
-                )}
-            </AnimatePresence>,
-            document.body
-        )}
+
+                    {/* Controls */}
+                    <div className="mt-8 pt-6 border-t border-black/10 dark:border-white/10 flex items-center justify-between relative z-10">
+                        <button
+                            type="button"
+                            onClick={() =>
+                                wizardStep > 1
+                                    ? setWizardStep((w) => w - 1)
+                                    : setIsAdding(false)
+                            }
+                            className="text-[10px] font-black uppercase tracking-widest text-gray-400 dark:text-white/40 hover:text-attire-charcoal dark:hover:text-white transition-colors px-4 py-3"
+                        >
+                            {wizardStep === 1
+                                ? 'Cancel'
+                                : 'Go Back'}
+                        </button>
+
+                        {wizardStep < 3 ? (
+                            <button
+                                type="button"
+                                onClick={() => {
+                                    if (
+                                        wizardStep === 1 &&
+                                        !formData.customer_name
+                                    )
+                                        return alert(
+                                            'Client name is required.'
+                                        );
+                                    if (
+                                        wizardStep === 2 &&
+                                        !formData.product
+                                    )
+                                        return alert(
+                                            'Garment scope is required.'
+                                        );
+                                    setWizardStep((w) => w + 1);
+                                }}
+                                className="px-8 py-4 bg-black/5 dark:bg-white/10 text-gray-900 dark:text-white hover:bg-black/10 dark:hover:bg-white transition-colors dark:hover:text-black rounded-2xl text-[10px] font-black uppercase tracking-widest"
+                            >
+                                Continue
+                            </button>
+                        ) : (
+                            <Button
+                                onClick={() => {
+                                    if (
+                                        !formData.altering_cost ||
+                                        !formData.ready_at
+                                    )
+                                        return alert(
+                                            'Quote and Target Date are required.'
+                                        );
+                                    createMutation.mutate(formData);
+                                }}
+                                disabled={createMutation.isPending}
+                                className="px-8 py-6 bg-attire-accent text-black hover:bg-[#ffb940] transition-colors shadow-[0_0_20px_rgba(245,168,28,0.3)] rounded-2xl text-[10px] font-black uppercase tracking-widest"
+                            >
+                                {createMutation.isPending ? (
+                                    <Loader className="animate-spin mr-2" />
+                                ) : (
+                                    <CheckCircle2 className="mr-2 w-4 h-4" />
+                                )}
+                                Save Record
+                            </Button>
+                        )}
+                    </div>
+                </div>
+            </ModernModal>
+
+            {/* Sync Sheet Modal */}
+            <ModernModal
+                isOpen={showSyncModal}
+                onClose={() => setShowSyncModal(false)}
+                title="Master Sheet Sync"
+            >
+                <div className="space-y-6 px-2 pb-2">
+                    <div className="flex flex-col items-center text-center mb-8">
+                        <div className="w-20 h-20 bg-attire-accent/10 rounded-3xl flex items-center justify-center mb-6 border border-attire-accent/20 shadow-[0_0_40px_rgba(245,168,28,0.1)]">
+                            <RefreshCw
+                                size={32}
+                                className={`text-attire-accent ${isSyncing ? 'animate-spin' : ''}`}
+                            />
+                        </div>
+                        <p className="text-gray-400 dark:text-white/40 text-xs font-mono tracking-widest uppercase">
+                            Google Sheets Intelligence
+                        </p>
+                    </div>
+
+                    <div className="space-y-4">
+                        <div className="space-y-2">
+                            <label className="text-[10px] font-black text-gray-400 dark:text-white/40 uppercase tracking-widest pl-2">
+                                Sheet Sharing URL
+                            </label>
+                            <div className="relative group">
+                                <div className="absolute left-4 top-1/2 -translate-y-1/2">
+                                    <ExternalLink
+                                        size={16}
+                                        className="text-gray-400 dark:text-white/20 group-focus-within:text-attire-accent transition-colors"
+                                    />
+                                </div>
+                                <input
+                                    type="text"
+                                    placeholder="https://docs.google.com/spreadsheets/d/..."
+                                    value={syncUrl}
+                                    onChange={(e) => setSyncUrl(e.target.value)}
+                                    className="w-full bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 rounded-2xl py-4 pl-12 pr-4 text-gray-900 dark:text-white text-sm outline-none focus:border-attire-accent/50 focus:bg-black/[0.08] dark:focus:bg-white/[0.08] transition-all font-mono"
+                                />
+                            </div>
+                        </div>
+
+                        <div className="bg-black/5 dark:bg-white/5 border border-black/5 dark:border-white/5 rounded-2xl p-4 flex items-start gap-3">
+                            <div className="p-2 bg-blue-500/10 rounded-lg">
+                                <AlertCircle size={14} className="text-blue-400" />
+                            </div>
+                            <p className="text-[10px] leading-relaxed text-gray-500 dark:text-white/50">
+                                Make sure your Google Sheet is shared with{' '}
+                                <span className="text-gray-900 dark:text-white/80 font-bold">
+                                    Anyone with the link
+                                </span>{' '}
+                                or accessible via this application.
+                            </p>
+                        </div>
+
+                        <Button
+                            onClick={handleSync}
+                            disabled={isSyncing || !syncUrl}
+                            className="w-full py-6 bg-attire-accent text-black hover:bg-[#ffb940] transition-all shadow-[0_10px_30px_rgba(245,168,28,0.2)] rounded-2xl text-[11px] font-black uppercase tracking-[0.2em] relative overflow-hidden group"
+                        >
+                            {isSyncing ? (
+                                'Syncing Master Data...'
+                            ) : (
+                                <>
+                                    <RefreshCw
+                                        size={14}
+                                        className="mr-2 group-hover:rotate-180 transition-transform duration-500"
+                                    />
+                                    Start Synchronization
+                                </>
+                            )}
+                        </Button>
+                    </div>
+                </div>
+            </ModernModal>
         </div>
     );
 }

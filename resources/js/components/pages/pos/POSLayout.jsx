@@ -26,7 +26,7 @@ const POSLayout = () => {
                 <POSHeader />
 
                 {/* Main Content Area */}
-                <main className="flex-1 flex overflow-hidden relative z-10">
+                <main className="flex-1 flex overflow-hidden relative z-10 p-8">
                     <Outlet />
                 </main>
             </div>

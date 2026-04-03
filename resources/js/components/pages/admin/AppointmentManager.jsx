@@ -1,9 +1,11 @@
 import React, { useState, useEffect, useCallback, useMemo, memo } from 'react';
 import { User, Mail, Phone, Calendar, Clock, MessageSquare, AlertTriangle, Loader, Check, X, Trash2, ChevronDown, Plus } from 'lucide-react';
+import { Button } from '@/components/ui/button';
 import { useAdmin } from './AdminContext';
 import OptimizedImage from '../../common/OptimizedImage.jsx';
 import Skeleton from '../../common/Skeleton.jsx';
 import { motion, AnimatePresence } from 'framer-motion';
+import ModernModal from '../../common/ModernModal';
 
 const AppointmentRow = memo(React.forwardRef(({ appointment, onUpdateStatus }, ref) => {
     const statusConfig = {
@@ -238,7 +240,7 @@ const AppointmentManager = () => {
                 <div className="flex flex-wrap gap-3">
                     <button
                         onClick={() => setIsAdding(true)}
-                        className="flex items-center px-5 py-2.5 text-xs font-bold uppercase tracking-widest text-gray-900 dark:text-white hover:text-attire-accent dark:hover:text-attire-accent bg-black/5 dark:bg-white/5 hover:bg-black/10 dark:hover:bg-white/10 border border-black/5 dark:border-white/10 hover:border-black/20 dark:hover:border-white/20 rounded-xl transition-all duration-300"
+                        className="flex items-center px-5 py-2.5 text-xs font-bold uppercase tracking-widest text-[#0d3542] dark:text-attire-accent hover:text-white dark:hover:text-black bg-black/5 dark:bg-white/5 hover:bg-[#0d3542] dark:hover:bg-attire-accent border border-[#0d3542]/20 dark:border-attire-accent/20 rounded-xl transition-all duration-300"
                     >
                         <Plus className="w-4 h-4 mr-2" />
                         Add Appointment
@@ -253,66 +255,56 @@ const AppointmentManager = () => {
                 </div>
             </div>
 
-            <AnimatePresence>
-                {isAdding && (
-                    <motion.div
-                        initial={{ opacity: 0, y: -20, height: 0 }}
-                        animate={{ opacity: 1, y: 0, height: 'auto' }}
-                        exit={{ opacity: 0, y: -20, height: 0 }}
-                        className="overflow-hidden"
-                    >
-                        <form onSubmit={handleCreateAppointment} className="p-6 rounded-3xl backdrop-blur-xl bg-white dark:bg-black/20 border border-black/5 dark:border-white/10 shadow-lg dark:shadow-none mb-8 space-y-4">
-                            <div className="flex justify-between items-center mb-4">
-                                <h3 className="text-xl font-serif text-gray-900 dark:text-white">New Appointment</h3>
-                                <button type="button" onClick={() => setIsAdding(false)} className="text-gray-500 hover:text-gray-900 dark:text-attire-silver dark:hover:text-white transition-colors">
-                                    <X className="w-5 h-5" />
-                                </button>
-                            </div>
-                            
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                <div>
-                                    <label className="block text-xs font-bold uppercase tracking-widest text-gray-500 dark:text-attire-silver/60 mb-1">Name *</label>
-                                    <input required type="text" name="name" value={formData.name} onChange={handleInputChange} className="w-full bg-black/5 dark:bg-white/5 border border-black/5 dark:border-white/10 rounded-xl px-4 py-2 text-gray-900 dark:text-white outline-none focus:border-attire-accent transition-colors" />
-                                </div>
-                                <div>
-                                    <label className="block text-xs font-bold uppercase tracking-widest text-gray-500 dark:text-attire-silver/60 mb-1">Email</label>
-                                    <input type="email" name="email" value={formData.email} onChange={handleInputChange} className="w-full bg-black/5 dark:bg-white/5 border border-black/5 dark:border-white/10 rounded-xl px-4 py-2 text-gray-900 dark:text-white outline-none focus:border-attire-accent transition-colors" />
-                                </div>
-                                <div>
-                                    <label className="block text-xs font-bold uppercase tracking-widest text-gray-500 dark:text-attire-silver/60 mb-1">Phone *</label>
-                                    <input required type="text" name="phone" value={formData.phone} onChange={handleInputChange} className="w-full bg-black/5 dark:bg-white/5 border border-black/5 dark:border-white/10 rounded-xl px-4 py-2 text-gray-900 dark:text-white outline-none focus:border-attire-accent transition-colors" />
-                                </div>
-                                <div>
-                                    <label className="block text-xs font-bold uppercase tracking-widest text-gray-500 dark:text-attire-silver/60 mb-1">Service *</label>
-                                    <select required name="service" value={formData.service} onChange={handleInputChange} className="w-full bg-black/5 dark:bg-white/5 border border-black/5 dark:border-white/10 rounded-xl px-4 py-2 text-gray-900 dark:text-white outline-none focus:border-attire-accent transition-colors appearance-none">
-                                        <option value="consultation" className="bg-white dark:bg-gray-900">Consultation</option>
-                                        <option value="fitting" className="bg-white dark:bg-gray-900">Fitting</option>
-                                        <option value="pickup" className="bg-white dark:bg-gray-900">Pickup</option>
-                                    </select>
-                                </div>
-                                <div>
-                                    <label className="block text-xs font-bold uppercase tracking-widest text-gray-500 dark:text-attire-silver/60 mb-1">Date *</label>
-                                    <input required type="date" name="date" value={formData.date} onChange={handleInputChange} className="w-full bg-black/5 dark:bg-white/5 border border-black/5 dark:border-white/10 rounded-xl px-4 py-2 text-gray-900 dark:text-white outline-none focus:border-attire-accent transition-colors" />
-                                </div>
-                                <div>
-                                    <label className="block text-xs font-bold uppercase tracking-widest text-gray-500 dark:text-attire-silver/60 mb-1">Time *</label>
-                                    <input required type="time" name="time" value={formData.time} onChange={handleInputChange} className="w-full bg-black/5 dark:bg-white/5 border border-black/5 dark:border-white/10 rounded-xl px-4 py-2 text-gray-900 dark:text-white outline-none focus:border-attire-accent transition-colors" />
-                                </div>
-                                <div className="md:col-span-2">
-                                    <label className="block text-xs font-bold uppercase tracking-widest text-gray-500 dark:text-attire-silver/60 mb-1">Message</label>
-                                    <textarea name="message" value={formData.message} onChange={handleInputChange} rows="3" className="w-full bg-black/5 dark:bg-white/5 border border-black/5 dark:border-white/10 rounded-xl px-4 py-2 text-gray-900 dark:text-white outline-none focus:border-attire-accent transition-colors resize-none"></textarea>
-                                </div>
-                            </div>
-                            <div className="flex justify-end pt-4">
-                                <button type="submit" disabled={isSubmitting} className="flex items-center px-6 py-2.5 text-xs font-bold uppercase tracking-widest text-white bg-attire-accent hover:bg-attire-accent/90 rounded-xl transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed">
-                                    {isSubmitting ? <Loader className="w-4 h-4 mr-2 animate-spin" /> : <Check className="w-4 h-4 mr-2" />}
-                                    Save Appointment
-                                </button>
-                            </div>
-                        </form>
-                    </motion.div>
-                )}
-            </AnimatePresence>
+            <ModernModal
+                isOpen={isAdding}
+                onClose={() => setIsAdding(false)}
+                title="New Appointment Request"
+                maxWidth="max-w-2xl"
+            >
+                <form onSubmit={handleCreateAppointment} className="p-8 space-y-8 bg-[#fcfcfa] dark:bg-[#0d0d0d]">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                        <div className="space-y-2">
+                            <label className="text-[10px] font-black text-gray-500 dark:text-white/40 uppercase tracking-[0.2em]">Full Name *</label>
+                            <input required type="text" name="name" value={formData.name} onChange={handleInputChange} className="w-full bg-black/5 dark:bg-white/5 p-4 text-[12px] font-black outline-none border-b border-black/5 dark:border-white/5 focus:border-[#0d3542] dark:focus:border-attire-accent transition-all uppercase text-gray-900 dark:text-white" placeholder="ENTER NAME" />
+                        </div>
+                        <div className="space-y-2">
+                            <label className="text-[10px] font-black text-gray-500 dark:text-white/40 uppercase tracking-[0.2em]">Communication (Email)</label>
+                            <input type="email" name="email" value={formData.email} onChange={handleInputChange} className="w-full bg-black/5 dark:bg-white/5 p-4 text-[12px] font-black outline-none border-b border-black/5 dark:border-white/5 focus:border-[#0d3542] dark:focus:border-attire-accent transition-all uppercase text-gray-900 dark:text-white" placeholder="EMAIL ADDRESS" />
+                        </div>
+                        <div className="space-y-2">
+                            <label className="text-[10px] font-black text-gray-500 dark:text-white/40 uppercase tracking-[0.2em]">Contact Primary *</label>
+                            <input required type="text" name="phone" value={formData.phone} onChange={handleInputChange} className="w-full bg-black/5 dark:bg-white/5 p-4 text-[12px] font-black outline-none border-b border-black/5 dark:border-white/5 focus:border-[#0d3542] dark:focus:border-attire-accent transition-all uppercase text-gray-900 dark:text-white" placeholder="PHONE NUMBER" />
+                        </div>
+                        <div className="space-y-2">
+                            <label className="text-[10px] font-black text-gray-500 dark:text-white/40 uppercase tracking-[0.2em]">Service Specification *</label>
+                            <select required name="service" value={formData.service} onChange={handleInputChange} className="w-full bg-black/5 dark:bg-white/5 p-4 text-[11px] font-black outline-none border-b border-black/5 dark:border-white/5 focus:border-[#0d3542] dark:focus:border-attire-accent transition-all uppercase text-gray-900 dark:text-white appearance-none cursor-pointer">
+                                <option value="consultation">CONSULTATION</option>
+                                <option value="fitting">FITTING</option>
+                                <option value="pickup">PICKUP</option>
+                            </select>
+                        </div>
+                        <div className="space-y-2">
+                            <label className="text-[10px] font-black text-gray-500 dark:text-white/40 uppercase tracking-[0.2em]">Calendar Date *</label>
+                            <input required type="date" name="date" value={formData.date} onChange={handleInputChange} className="w-full bg-black/5 dark:bg-white/5 p-4 text-[11px] font-black outline-none border-b border-black/5 dark:border-white/5 focus:border-[#0d3542] dark:focus:border-attire-accent transition-all text-gray-900 dark:text-white" />
+                        </div>
+                        <div className="space-y-2">
+                            <label className="text-[10px] font-black text-gray-500 dark:text-white/40 uppercase tracking-[0.2em]">Operational Time *</label>
+                            <input required type="time" name="time" value={formData.time} onChange={handleInputChange} className="w-full bg-black/5 dark:bg-white/5 p-4 text-[11px] font-black outline-none border-b border-black/5 dark:border-white/5 focus:border-[#0d3542] dark:focus:border-attire-accent transition-all text-gray-900 dark:text-white" />
+                        </div>
+                        <div className="md:col-span-2 space-y-2">
+                            <label className="text-[10px] font-black text-gray-500 dark:text-white/40 uppercase tracking-[0.2em]">Requirements / Message</label>
+                            <textarea name="message" value={formData.message} onChange={handleInputChange} rows="3" className="w-full bg-black/5 dark:bg-white/5 p-4 text-[12px] font-black outline-none border-b border-black/5 dark:border-white/5 focus:border-[#0d3542] dark:focus:border-attire-accent transition-all uppercase text-gray-900 dark:text-white resize-none" placeholder="ADDITIONAL NOTES..."></textarea>
+                        </div>
+                    </div>
+                    <div className="flex justify-end gap-4 pt-6 border-t border-black/5 dark:border-white/5">
+                        <Button variant="outline" onClick={() => setIsAdding(false)} className="h-12 px-8 text-[10px] font-black uppercase tracking-widest border-black/10 dark:border-white/10 text-gray-400">CANCEL</Button>
+                        <button type="submit" disabled={isSubmitting} className="h-12 px-10 bg-[#0d3542] dark:bg-attire-accent text-white dark:text-black text-[10px] font-black uppercase tracking-widest hover:scale-[1.02] transition-all shadow-xl flex items-center gap-2">
+                            {isSubmitting ? <Loader className="w-4 h-4 animate-spin" /> : <Check className="w-4 h-4" />}
+                            CONFIRM APPOINTMENT
+                        </button>
+                    </div>
+                </form>
+            </ModernModal>
 
             {appointmentsLoading && appointments.length === 0 ? (
                 <div className="space-y-6">

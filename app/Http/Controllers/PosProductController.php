@@ -163,4 +163,66 @@ class PosProductController extends Controller
         $product->update(['stock_qty' => $request->stock_qty]);
         return response()->json($product);
     }
+
+    /**
+     * Bulk update multiple products.
+     * POST /api/v1/admin/pos/products/bulk-update
+     */
+    public function bulkUpdate(Request $request): JsonResponse
+    {
+        $validated = $request->validate([
+            'product_ids' => 'required|array',
+            'product_ids.*' => 'exists:pos_products,id',
+            'category' => 'nullable|string',
+            'price_change_type' => 'nullable|in:percentage,fixed',
+            'price_change_value' => 'nullable|numeric',
+            'stock_reset_value' => 'nullable|integer|min:0',
+        ]);
+
+        $products = PosProduct::whereIn('id', $validated['product_ids'])->get();
+
+        foreach ($products as $product) {
+            $updates = [];
+
+            if (isset($validated['category'])) {
+                $updates['category'] = $validated['category'];
+            }
+
+            if (isset($validated['price_change_value'])) {
+                if ($validated['price_change_type'] === 'percentage') {
+                    $updates['price'] = $product->price * (1 + ($validated['price_change_value'] / 100));
+                } else {
+                    $updates['price'] = $product->price + $validated['price_change_value'];
+                }
+                // Ensure price doesn't go negative
+                $updates['price'] = max(0, $updates['price']);
+            }
+
+            if (isset($validated['stock_reset_value'])) {
+                $updates['stock_qty'] = $validated['stock_reset_value'];
+            }
+
+            if (!empty($updates)) {
+                $product->update($updates);
+            }
+        }
+
+        return response()->json(['message' => 'Bulk update completed successfully', 'count' => $products->count()]);
+    }
+
+    /**
+     * Bulk deactivate (archive) products.
+     * POST /api/v1/admin/pos/products/bulk-deactivate
+     */
+    public function bulkDeactivate(Request $request): JsonResponse
+    {
+        $validated = $request->validate([
+            'product_ids' => 'required|array',
+            'product_ids.*' => 'exists:pos_products,id',
+        ]);
+
+        PosProduct::whereIn('id', $validated['product_ids'])->update(['is_active' => false]);
+
+        return response()->json(['message' => 'Products archived successfully', 'count' => count($validated['product_ids'])]);
+    }
 }

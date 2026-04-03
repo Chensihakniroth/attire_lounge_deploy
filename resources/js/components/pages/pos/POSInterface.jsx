@@ -6,6 +6,7 @@ import ServicePanel from './ServicePanel';
 import { usePOS } from './POSContext';
 import InvoiceHistoryPanel from './InvoiceHistoryPanel';
 import ProductSearchModal from './ProductSearchModal';
+import ModernModal from '../../common/ModernModal';
 
 const POSInterface = () => {
     const { isHistoryOpen, setIsHistoryOpen } = usePOS();
@@ -46,22 +47,13 @@ const POSInterface = () => {
             </div>
 
             {/* Overlays */}
-            <AnimatePresence>
-                {isHistoryOpen && (
-                    <React.Fragment key="history-panel">
-                        {/* Backdrop */}
-                        <motion.div 
-                            initial={{ opacity: 0 }}
-                            animate={{ opacity: 1 }}
-                            exit={{ opacity: 0 }}
-                            onClick={() => setIsHistoryOpen(false)}
-                            className="fixed inset-0 bg-black/40 backdrop-blur-sm z-[190]"
-                        />
-                        {/* Slide-over Panel */}
-                        <InvoiceHistoryPanel onClose={() => setIsHistoryOpen(false)} />
-                    </React.Fragment>
-                )}
+            <ModernModal isOpen={isHistoryOpen} onClose={() => setIsHistoryOpen(false)} showCloseButton={false}>
+                <div className="flex justify-end h-full"> {/* Container for Slide-over positioning */}
+                    <InvoiceHistoryPanel onClose={() => setIsHistoryOpen(false)} />
+                </div>
+            </ModernModal>
 
+            <AnimatePresence>
                 {isSearchOpen && (
                     <ProductSearchModal 
                         key="product-search"

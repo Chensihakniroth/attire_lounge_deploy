@@ -78,7 +78,7 @@ const ProductCard = ({ product }) => {
         >
             {/* Stock Badge */}
             <div
-                className={`absolute top-2 left-2 z-10 px-2 py-1 rounded-lg text-[8px] font-bold uppercase tracking-widest backdrop-blur-md ${
+                className={`absolute top-2 left-2 z-10 px-2 py-1 rounded-lg text-[10px] font-bold uppercase tracking-widest backdrop-blur-md ${
                     product.stock_qty > 10
                         ? 'bg-green-500/10 text-green-500 border border-green-500/20'
                         : product.stock_qty > 0
@@ -102,7 +102,7 @@ const ProductCard = ({ product }) => {
 
             {/* Product Rarity/Tier Badge */}
             <div
-                className={`absolute top-2 right-2 z-10 px-2 py-1 rounded-lg text-[8px] font-bold uppercase tracking-widest border backdrop-blur-md ${tierStyle}`}
+                className={`absolute top-2 right-2 z-10 px-2 py-1 rounded-lg text-[10px] font-bold uppercase tracking-widest border backdrop-blur-md ${tierStyle}`}
             >
                 {product.tier}
             </div>
@@ -119,14 +119,14 @@ const ProductCard = ({ product }) => {
                             <div className="p-1.5 rounded-lg bg-black/5 dark:bg-white/5 text-gray-400">
                                 <Tag size={12} />
                             </div>
-                            <p className="text-[9px] font-bold uppercase tracking-widest text-gray-400 group-hover:text-attire-accent transition-colors">
+                            <p className="text-[11px] font-bold uppercase tracking-widest text-gray-400 group-hover:text-attire-accent transition-colors">
                                 {product.sku || 'NO SKU'}
                             </p>
                         </div>
-                        <h3 className="text-[11px] font-bold uppercase tracking-wider text-gray-900 dark:text-white line-clamp-2 leading-relaxed group-hover:text-attire-accent transition-colors">
+                        <h3 className="text-[13px] font-bold uppercase tracking-wider text-gray-900 dark:text-white line-clamp-2 leading-relaxed group-hover:text-attire-accent transition-colors">
                             {product.name}
                         </h3>
-                        <p className="text-[8px] text-gray-500 uppercase tracking-widest font-medium">
+                        <p className="text-[10px] text-gray-500 uppercase tracking-widest font-medium">
                             {product.category || 'General'}
                         </p>
                     </div>
@@ -136,7 +136,7 @@ const ProductCard = ({ product }) => {
                             <span className="text-[14px] font-bold text-gray-900 dark:text-white group-hover:scale-105 origin-left transition-transform tracking-tight">
                                 ${parseFloat(product.price).toLocaleString()}
                             </span>
-                            <p className="text-[7px] text-gray-400 uppercase tracking-widest font-bold">
+                            <p className="text-[9px] text-gray-400 uppercase tracking-widest font-bold">
                                 Unit Price
                             </p>
                         </div>
