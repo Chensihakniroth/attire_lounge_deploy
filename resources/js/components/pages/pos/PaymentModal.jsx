@@ -66,10 +66,39 @@ const PaymentModal = ({ totals, onClose }) => {
         setError(null);
 
         try {
+            const methodMap = {
+                'Cash': 'cash',
+                'Credit': 'credit',
+                'Debit': 'debit',
+                'Kaq': 'khqr',
+                'QR Code': 'qr_code',
+                'Deposit': 'deposit'
+            };
+
+            const discountTypeMap = {
+                'none': 'none',
+                'percentage': 'percent',
+                'price': 'amount'
+            };
+
             const payload = {
-                customer_id: activeTab.customer?.id,
-                items: activeTab.cartItems,
-                payments: payments,
+                customer_profile_id: activeTab.customer?.id,
+                items: activeTab.cartItems.map(item => ({
+                    product_id: item.product_id,
+                    product_name: item.product_name,
+                    product_variant: item.product_variant,
+                    product_sku: item.product_sku,
+                    is_service: item.is_service,
+                    quantity: item.quantity,
+                    unit_price: item.unit_price,
+                    discount_type: discountTypeMap[item.discount_type] || 'none',
+                    discount_value: item.discount_value,
+                    gift_wrap: item.gift_wrap
+                })),
+                payments: payments.map(p => ({
+                    method: methodMap[p.method] || p.method.toLowerCase(),
+                    amount: p.amount
+                })),
                 notes: activeTab.notes
             };
 

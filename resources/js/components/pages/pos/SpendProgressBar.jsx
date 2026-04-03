@@ -25,12 +25,14 @@ const SpendProgressBar = ({ currentSpend, isVip }) => {
         <div className="space-y-3 p-4 bg-black/[0.02] dark:bg-white/[0.02] rounded-2xl border border-black/5 dark:border-white/5">
             <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
-                    <Sparkles size={12} className="text-attire-accent" />
-                    <span className="text-[9px] font-bold uppercase tracking-widest text-gray-500">VIP Progress</span>
+                    <Sparkles size={14} className="text-attire-accent" />
+                    <span className="text-[10px] font-black uppercase tracking-[0.2em] text-gray-500">VIP Progress</span>
                 </div>
-                <span className="text-[10px] font-bold text-gray-900 dark:text-white">
-                    ${currentSpend.toLocaleString()} / $1,500
-                </span>
+                <div className="px-3 py-1 bg-black/5 dark:bg-white/5 rounded-lg border border-black/5 dark:border-white/10">
+                    <span className="text-[11px] font-mono font-black text-gray-900 dark:text-white">
+                        ${currentSpend.toLocaleString()} <span className="opacity-30">/</span> $1,500
+                    </span>
+                </div>
             </div>
 
             {/* Progress Bar Container */}
@@ -48,10 +50,12 @@ const SpendProgressBar = ({ currentSpend, isVip }) => {
                     return (
                         <div 
                             key={idx}
-                            className="absolute top-0 bottom-0 w-px bg-white/20 z-10"
+                            className={`absolute top-0 bottom-0 w-1 z-10 transition-colors ${isReached ? 'bg-white' : 'bg-white/20'}`}
                             style={{ left: `${markerPos}%` }}
                         >
-                            <div className="absolute -top-1 -left-1 w-2 h-2 rounded-full hidden" />
+                            <div className={`absolute -top-1 -left-1.5 w-4 h-4 rounded-full border-2 border-[#0a0a0a] transition-all flex items-center justify-center ${isReached ? 'bg-attire-accent scale-110 shadow-lg shadow-attire-accent/50' : 'bg-gray-800'}`}>
+                                <div className="w-1 h-1 bg-white rounded-full" />
+                            </div>
                         </div>
                     );
                 })}

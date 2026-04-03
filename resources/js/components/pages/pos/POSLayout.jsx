@@ -10,7 +10,12 @@ const POSLayout = () => {
     
     return (
         <POSProvider>
-            <div className={`min-h-screen flex flex-col font-sans transition-colors duration-300 ${isDarkMode ? 'bg-[#050505] text-white' : 'bg-gray-50 text-gray-900'}`}>
+            <div className={`h-screen w-screen flex flex-col font-sans transition-colors duration-300 relative overflow-hidden ${isDarkMode ? 'bg-[#050505] text-white' : 'bg-gray-50 text-gray-900'}`}>
+                {/* Scoped Reset for Full Screen */}
+                <style dangerouslySetInnerHTML={{ __html: `
+                    html, body, #app { height: 100% !important; width: 100% !important; overflow: hidden !important; margin: 0; padding: 0; }
+                `}} />
+                
                 {/* Background Decoration */}
                 <div className="fixed inset-0 pointer-events-none opacity-20 overflow-hidden z-0">
                     <div className="absolute -top-24 -left-24 w-96 h-96 bg-attire-accent/10 blur-[120px] rounded-full" />

@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useContext, useState, useEffect, useMemo } from 'react';
 
 const POSContext = createContext();
 
@@ -17,6 +17,7 @@ export const POSProvider = ({ children }) => {
             customer: null,
             cartItems: [],
             notes: '',
+            note: '',
             heldAt: null,
             status: 'active'
         }
@@ -35,6 +36,7 @@ export const POSProvider = ({ children }) => {
             customer: null,
             cartItems: [],
             notes: '',
+            note: '',
             heldAt: null,
             status: 'active'
         };
@@ -138,6 +140,10 @@ export const POSProvider = ({ children }) => {
         updateActiveTab({ customer });
     };
 
+    const updateNote = (note) => {
+        updateActiveTab({ note });
+    };
+
     const clearInvoice = () => {
         updateActiveTab({
             customer: null,
@@ -155,11 +161,53 @@ export const POSProvider = ({ children }) => {
         addNewTab(); // Automatically open a new tab after holding
     };
 
+    // Centralized Totals Calculation
+    const totals = useMemo(() => {
+        if (!activeTab) return { subtotal: 0, productSubtotalForDiscount: 0, tierDiscountPercent: 0, tierDiscountAmount: 0, finalTotal: 0 };
+        
+        let subtotal = 0;
+        let productSubtotalForDiscount = 0;
+        
+        activeTab.cartItems.forEach(item => {
+            const itemTotal = item.unit_price * item.quantity;
+            let finalPrice = itemTotal;
+
+            if (item.discount_type === 'percentage') {
+                finalPrice = itemTotal * (1 - item.discount_value / 100);
+            } else if (item.discount_type === 'price') {
+                finalPrice = itemTotal - item.discount_value;
+            }
+
+            subtotal += Math.max(0, finalPrice);
+            
+            if (!item.is_service) {
+                productSubtotalForDiscount += item.unit_price * item.quantity;
+            }
+        });
+
+        let tierDiscountPercent = 0;
+        if (productSubtotalForDiscount >= 1500) tierDiscountPercent = 15;
+        else if (productSubtotalForDiscount >= 1000) tierDiscountPercent = 10;
+        else if (productSubtotalForDiscount >= 500) tierDiscountPercent = 8;
+
+        const tierDiscountAmount = subtotal * (tierDiscountPercent / 100);
+        const finalTotal = subtotal - tierDiscountAmount;
+
+        return {
+            subtotal,
+            productSubtotalForDiscount,
+            tierDiscountPercent,
+            tierDiscountAmount,
+            finalTotal
+        };
+    }, [activeTab.cartItems]);
+
     const value = {
         invoiceTabs,
         activeTabIndex,
         setActiveTabIndex,
         activeTab,
+        totals,
         addNewTab,
         closeTab,
         addItem,
@@ -168,6 +216,7 @@ export const POSProvider = ({ children }) => {
         updateItemDiscount,
         toggleGiftWrap,
         attachCustomer,
+        updateNote,
         clearInvoice,
         holdInvoice,
         isHistoryOpen,

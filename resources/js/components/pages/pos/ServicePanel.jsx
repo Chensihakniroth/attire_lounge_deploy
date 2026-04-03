@@ -48,36 +48,46 @@ const ServicePanel = () => {
 
     return (
         <div className="h-full flex flex-col">
-            <div className="flex items-center justify-between mb-3 px-1">
-                <h3 className="text-[10px] font-bold uppercase tracking-[0.2em] text-gray-500 dark:text-gray-400">
-                    Quick Services
-                </h3>
+            <div className="flex items-center justify-between mb-2 px-1">
+                <div className="flex items-center gap-1.5">
+                    <div className="w-1 h-1 rounded-full bg-attire-accent animate-pulse" />
+                    <h3 className="text-[10px] font-black uppercase tracking-[0.25em] text-gray-900 dark:text-white">
+                        Quick Services
+                    </h3>
+                </div>
+                <span className="text-[7px] font-black uppercase tracking-widest text-gray-400 opacity-30">Quick Add</span>
             </div>
             
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-2 overflow-y-auto no-scrollbar pb-2">
+            <div className="grid grid-rows-2 grid-flow-col gap-3 overflow-x-auto no-scrollbar pb-1 h-[calc(100%-1.5rem)]">
                 {services.map((service) => (
                     <motion.button
                         key={service.id}
-                        whileHover={{ scale: 1.02, y: -2 }}
+                        whileHover={{ y: -3, scale: 1.01 }}
                         whileTap={{ scale: 0.98 }}
                         onClick={() => addItem(service)}
-                        className="flex flex-col items-center justify-center gap-2 p-3 rounded-2xl bg-white dark:bg-white/5 border border-black/5 dark:border-white/10 hover:border-attire-accent/50 hover:bg-attire-accent/10 transition-all text-center group relative overflow-hidden shadow-sm"
+                        className="flex-shrink-0 w-36 h-18 flex flex-col items-center justify-center p-3 rounded-2xl bg-black/5 dark:bg-white/[0.02] border border-black/10 dark:border-white/10 hover:border-attire-accent/40 hover:bg-white dark:hover:bg-white/[0.04] transition-all text-center group relative overflow-hidden shadow-sm"
                     >
-                        <div className="p-2 rounded-xl bg-black/[0.03] dark:bg-white/[0.03] text-gray-400 group-hover:text-attire-accent group-hover:scale-110 transition-all">
-                            {getIcon(service.name)}
-                        </div>
-                        <div className="space-y-0.5">
-                            <p className="text-[9px] font-bold uppercase tracking-wider text-gray-700 dark:text-white line-clamp-1">
-                                {service.name}
-                            </p>
-                            <p className="text-[8px] text-attire-accent font-bold">
-                                ${parseFloat(service.price).toLocaleString()}
-                            </p>
+                        {/* Background Ornament */}
+                        <div className="absolute -bottom-3 -right-3 w-12 h-12 bg-attire-accent/5 rounded-full blur-lg group-hover:bg-attire-accent/15 transition-all" />
+                        
+                        <div className="relative z-10 flex items-center gap-3 w-full">
+                            <div className="w-8 h-8 rounded-xl bg-white dark:bg-black border border-black/5 dark:border-white/20 flex items-center justify-center text-gray-400 group-hover:text-attire-accent group-hover:bg-attire-accent/10 group-hover:border-attire-accent/30 transition-all shadow-sm flex-shrink-0">
+                                {getIcon(service.name)}
+                            </div>
+                            
+                            <div className="flex flex-col items-start min-w-0 text-left">
+                                <p className="text-[9px] font-black uppercase tracking-tight text-gray-900 dark:text-white leading-none mb-1 truncate w-full">
+                                    {service.name}
+                                </p>
+                                <span className="text-[8px] font-bold text-attire-accent bg-attire-accent/10 px-1.5 py-0.5 rounded-md uppercase tracking-wider">
+                                    ${parseFloat(service.price).toLocaleString()}
+                                </span>
+                            </div>
                         </div>
 
-                        {/* Hover Highlight */}
-                        <div className="absolute top-0 right-0 p-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                            <div className="w-1.5 h-1.5 rounded-full bg-attire-accent animate-pulse" />
+                        {/* Hover Pulse */}
+                        <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-all translate-x-2 group-hover:translate-x-0">
+                            <div className="w-1 h-1 rounded-full bg-attire-accent shadow-[0_0_8px_rgba(212,175,55,0.8)]" />
                         </div>
                     </motion.button>
                 ))}
