@@ -19,7 +19,7 @@ const CustomDropdown = ({ label, selected, options, onChange, icon: Icon }) => {
 
     return (
         <div className="space-y-2 relative">
-            <label className="text-[10px] font-bold text-gray-400 dark:text-white/40 uppercase tracking-widest ml-1">{label}</label>
+            <label className="text-xs font-bold text-gray-400 dark:text-white/40 uppercase tracking-widest ml-1">{label}</label>
             <button
                 type="button"
                 onClick={() => setIsOpen(!isOpen)}
@@ -87,7 +87,7 @@ const StatusFilter = ({ value, onChange }) => {
             <motion.button
                 whileTap={{ scale: 0.98 }}
                 onClick={() => setIsOpen(!isOpen)}
-                className="flex items-center gap-4 bg-white dark:bg-black/20 border border-black/5 dark:border-white/10 rounded-2xl py-3.5 px-6 text-[10px] font-bold uppercase tracking-[0.2em] text-gray-900 dark:text-white hover:border-attire-accent/30 transition-all shadow-sm"
+                className="flex items-center gap-4 bg-white dark:bg-black/20 border border-black/5 dark:border-white/10 rounded-2xl py-3.5 px-6 text-xs font-bold uppercase tracking-[0.2em] text-gray-900 dark:text-white hover:border-attire-accent/30 transition-all shadow-sm"
             >
                 <currentOption.icon size={14} className={currentOption.color || 'text-gray-400'} />
                 <span>{currentOption.label}</span>
@@ -112,7 +112,7 @@ const StatusFilter = ({ value, onChange }) => {
                                         onChange(option.value);
                                         setIsOpen(false);
                                     }}
-                                    className={`w-full flex items-center gap-4 px-6 py-3.5 text-[10px] font-bold uppercase tracking-widest transition-all ${
+                                    className={`w-full flex items-center gap-4 px-6 py-3.5 text-xs font-bold uppercase tracking-widest transition-all ${
                                         value === option.value 
                                             ? 'bg-black dark:bg-white text-white dark:text-black' 
                                             : 'text-gray-500 dark:text-attire-silver/60 hover:bg-black/5 dark:hover:bg-white/5 hover:text-gray-900 dark:hover:text-white'
@@ -142,7 +142,7 @@ const GlassyStatCard = ({ label, value, icon: Icon, color = "attire-accent" }) =
                 <Icon size={20} />
             </div>
         </div>
-        <p className="text-[10px] font-black text-gray-400 dark:text-white/20 uppercase tracking-[0.2em] mb-1">{label}</p>
+        <p className="text-xs font-black text-gray-400 dark:text-white/20 uppercase tracking-[0.2em] mb-1">{label}</p>
         <p className="text-3xl font-serif text-gray-900 dark:text-white tracking-tight">{value}</p>
     </motion.div>
 );
@@ -349,7 +349,7 @@ const CustomerProfileManager = () => {
         <div className="space-y-5 bg-black/[0.02] dark:bg-white/[0.02] p-8 rounded-[2.5rem] border border-black/5 dark:border-white/5 group/size hover:border-attire-accent/20 transition-all duration-500">
             <div className="flex items-center gap-3 mb-2">
                 <Ruler size={14} className="text-attire-accent opacity-40 group-hover/size:opacity-100 transition-opacity" />
-                <label className="text-[10px] font-black text-gray-400 dark:text-white/40 uppercase tracking-[0.3em] block">{label}</label>
+                <label className="text-xs font-black text-gray-400 dark:text-white/40 uppercase tracking-[0.3em] block">{label}</label>
             </div>
             <div className="flex flex-wrap gap-2.5">
                 {sizes.map(size => {
@@ -359,7 +359,7 @@ const CustomerProfileManager = () => {
                             key={size}
                             type="button"
                             onClick={() => toggleSize(field, size)}
-                            className={`min-w-[54px] h-12 rounded-xl text-[10px] font-black transition-all duration-500 border uppercase tracking-widest relative overflow-hidden group/btn ${
+                            className={`min-w-[54px] h-12 rounded-xl text-xs font-black transition-all duration-500 border uppercase tracking-widest relative overflow-hidden group/btn ${
                                 isSelected 
                                     ? 'bg-attire-accent border-attire-accent text-black shadow-[0_10px_25px_rgba(245,168,28,0.3)] scale-105 z-10' 
                                     : 'bg-white dark:bg-white/5 border-black/10 dark:border-white/10 text-gray-400 dark:text-white/30 hover:border-attire-accent/40 hover:text-gray-900 dark:hover:text-white'
@@ -385,14 +385,14 @@ const CustomerProfileManager = () => {
                         <h1 className="text-4xl font-serif text-gray-900 dark:text-white mb-2 tracking-tight">Client Registry</h1>
                         <div className="flex items-center gap-3">
                             <span className="w-8 h-px bg-attire-accent/40" />
-                            <p className="text-gray-400 dark:text-attire-silver text-[10px] font-black uppercase tracking-[0.4em]">Dossier Management Systems</p>
+                            <p className="text-gray-400 dark:text-attire-silver text-xs font-black uppercase tracking-[0.4em]">Dossier Management Systems</p>
                         </div>
                     </div>
 
                     <motion.button
                         whileTap={{ scale: 0.95 }}
                         onClick={() => handleOpenModal()}
-                        className="flex items-center gap-3 bg-black dark:bg-white text-white dark:text-black rounded-2xl py-4 px-10 text-[10px] font-black uppercase tracking-widest hover:bg-attire-accent dark:hover:bg-attire-accent transition-all shadow-xl shadow-black/10 group"
+                        className="flex items-center gap-3 bg-black dark:bg-white text-white dark:text-black rounded-2xl py-4 px-10 text-xs font-black uppercase tracking-widest hover:bg-attire-accent dark:hover:bg-attire-accent transition-all shadow-xl shadow-black/10 group"
                     >
                         <PlusCircle size={16} className="group-hover:rotate-90 transition-transform duration-500" />
                         <span>Register Client Identity</span>
@@ -408,7 +408,7 @@ const CustomerProfileManager = () => {
                 <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 p-2 bg-black/5 dark:bg-white/5 rounded-[2.5rem] border border-black/5 dark:border-white/10">
                     <div className="relative group flex-grow">
                         <Search className="absolute left-6 top-1/2 -translate-y-1/2 text-gray-400 dark:text-white/20 group-focus-within:text-attire-accent transition-colors" size={16} />
-                        <input type="text" placeholder="Search client archives..." value={searchQuery} onChange={e => setSearchQuery(e.target.value)} className="w-full bg-transparent border-none rounded-2xl py-5 pl-14 pr-8 text-gray-900 dark:text-white text-[11px] font-bold uppercase tracking-widest focus:ring-0 outline-none transition-all" />
+                        <input type="text" placeholder="Search client archives..." value={searchQuery} onChange={e => setSearchQuery(e.target.value)} className="w-full bg-transparent border-none rounded-2xl py-5 pl-14 pr-8 text-gray-900 dark:text-white text-sm font-bold uppercase tracking-widest focus:ring-0 outline-none transition-all" />
                     </div>
                     <div className="flex items-center gap-4 px-4">
                         <StatusFilter value={filterStatus} onChange={setFilterStatus} />
@@ -423,11 +423,11 @@ const CustomerProfileManager = () => {
                         <table className="w-full text-left border-collapse">
                             <thead>
                                 <tr className="border-b border-black/5 dark:border-white/5 bg-black/[0.02] dark:bg-white/[0.02]">
-                                    <th className="px-8 py-8 text-[10px] font-black text-gray-400 dark:text-attire-silver/40 uppercase tracking-[0.3em]">Identity Profile</th>
-                                    <th className="px-8 py-8 text-[10px] font-black text-gray-400 dark:text-attire-silver/40 uppercase tracking-[0.3em]">Origin</th>
-                                    <th className="px-8 py-8 text-[10px] font-black text-gray-400 dark:text-attire-silver/40 uppercase tracking-[0.3em]">Management</th>
-                                    <th className="px-8 py-8 text-[10px] font-black text-gray-400 dark:text-attire-silver/40 uppercase tracking-[0.3em]">Status</th>
-                                    <th className="px-8 py-8 text-[10px] font-black text-gray-400 dark:text-attire-silver/40 uppercase tracking-[0.3em] text-right">Operations</th>
+                                    <th className="px-8 py-8 text-xs font-black text-gray-400 dark:text-attire-silver/40 uppercase tracking-[0.3em]">Identity Profile</th>
+                                    <th className="px-8 py-8 text-xs font-black text-gray-400 dark:text-attire-silver/40 uppercase tracking-[0.3em]">Origin</th>
+                                    <th className="px-8 py-8 text-xs font-black text-gray-400 dark:text-attire-silver/40 uppercase tracking-[0.3em]">Management</th>
+                                    <th className="px-8 py-8 text-xs font-black text-gray-400 dark:text-attire-silver/40 uppercase tracking-[0.3em]">Status</th>
+                                    <th className="px-8 py-8 text-xs font-black text-gray-400 dark:text-attire-silver/40 uppercase tracking-[0.3em] text-right">Operations</th>
                                 </tr>
                             </thead>
                             <tbody className="divide-y divide-black/5 dark:divide-white/5">
@@ -444,27 +444,27 @@ const CustomerProfileManager = () => {
                                         <tr key={profile.id} className="group hover:bg-attire-accent/[0.02] dark:hover:bg-attire-accent/[0.02] transition-all duration-500 border-b border-black/5 dark:border-white/5 last:border-0">
                                             <td className="px-8 py-8">
                                                 <div>
-                                                    <p className="text-[13px] font-black text-gray-900 dark:text-white uppercase tracking-wider group-hover:text-attire-accent transition-colors">{profile.name}</p>
+                                                    <p className="text-sm font-black text-gray-900 dark:text-white uppercase tracking-wider group-hover:text-attire-accent transition-colors">{profile.name}</p>
                                                     <div className="flex items-center gap-2 mt-1">
                                                         <Phone size={10} className="text-gray-400 dark:text-white/20" />
-                                                        <p className="text-[10px] text-gray-400 dark:text-attire-silver/40 font-mono tracking-widest uppercase">{profile.phone || 'N/A'}</p>
+                                                        <p className="text-xs text-gray-400 dark:text-attire-silver/40 font-mono tracking-widest uppercase">{profile.phone || 'N/A'}</p>
                                                     </div>
                                                 </div>
                                             </td>
                                             <td className="px-8 py-8">
                                                 <div className="inline-flex items-center gap-3 px-4 py-2 bg-black/[0.02] dark:bg-white/5 rounded-xl border border-black/5 dark:border-white/10 group-hover:border-attire-accent/20 transition-all">
                                                     <Globe size={12} className="text-attire-accent opacity-50" />
-                                                    <span className="text-[10px] font-black uppercase tracking-[0.15em] text-gray-600 dark:text-white/60">{profile.nationality || 'NOT SPECIFIED'}</span>
+                                                    <span className="text-xs font-black uppercase tracking-[0.15em] text-gray-600 dark:text-white/60">{profile.nationality || 'NOT SPECIFIED'}</span>
                                                 </div>
                                             </td>
                                             <td className="px-8 py-8">
                                                 <div className="space-y-2">
-                                                    <div className="flex items-center gap-2.5"><div className="w-1.5 h-1.5 rounded-full bg-attire-accent opacity-40" /><span className="text-[10px] font-black text-gray-900 dark:text-white uppercase tracking-[0.1em]">{profile.host || 'PENDING'}</span></div>
-                                                    {profile.assistant && <div className="flex items-center gap-2.5 ml-4"><div className="w-1 h-px bg-white/10" /><span className="text-[9px] font-bold text-gray-400 dark:text-white/20 uppercase tracking-widest">{profile.assistant}</span></div>}
+                                                    <div className="flex items-center gap-2.5"><div className="w-1.5 h-1.5 rounded-full bg-attire-accent opacity-40" /><span className="text-xs font-black text-gray-900 dark:text-white uppercase tracking-[0.1em]">{profile.host || 'PENDING'}</span></div>
+                                                    {profile.assistant && <div className="flex items-center gap-2.5 ml-4"><div className="w-1 h-px bg-white/10" /><span className="text-xs font-bold text-gray-400 dark:text-white/20 uppercase tracking-widest">{profile.assistant}</span></div>}
                                                 </div>
                                             </td>
                                             <td className="px-8 py-8">
-                                                <span className={`inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-[9px] font-black uppercase tracking-[0.2em] border shadow-sm ${profile.client_status === 'VIP' ? 'bg-attire-accent/10 text-attire-accent border-attire-accent/30 shadow-attire-accent/5' : profile.client_status === 'Returning' ? 'bg-blue-500/10 text-blue-400 border-blue-500/30 shadow-blue-500/5' : 'bg-green-500/10 text-green-400 border-green-500/30 shadow-green-500/5'}`}><span className={`w-1.5 h-1.5 rounded-full animate-pulse ${profile.client_status === 'VIP' ? 'bg-attire-accent' : profile.client_status === 'Returning' ? 'bg-blue-500' : 'bg-green-500'}`} />{profile.client_status}</span>
+                                                <span className={`inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-xs font-black uppercase tracking-[0.2em] border shadow-sm ${profile.client_status === 'VIP' ? 'bg-attire-accent/10 text-attire-accent border-attire-accent/30 shadow-attire-accent/5' : profile.client_status === 'Returning' ? 'bg-blue-500/10 text-blue-400 border-blue-500/30 shadow-blue-500/5' : 'bg-green-500/10 text-green-400 border-green-500/30 shadow-green-500/5'}`}><span className={`w-1.5 h-1.5 rounded-full animate-pulse ${profile.client_status === 'VIP' ? 'bg-attire-accent' : profile.client_status === 'Returning' ? 'bg-blue-500' : 'bg-green-500'}`} />{profile.client_status}</span>
                                             </td>
                                             <td className="px-8 py-8 text-right">
                                                 <div className="flex justify-end gap-3 opacity-40 group-hover:opacity-100 transition-all duration-500">
@@ -479,7 +479,7 @@ const CustomerProfileManager = () => {
                                     <tr>
                                         <td colSpan="5" className="px-8 py-32 text-center">
                                             <div className="w-20 h-20 bg-black/5 dark:bg-white/5 rounded-[2rem] flex items-center justify-center mx-auto mb-6 border border-black/5 dark:border-white/5"><User className="text-gray-400 dark:text-attire-silver/20" size={32} /></div>
-                                            <p className="text-gray-400 dark:text-attire-silver/40 text-[11px] font-black uppercase tracking-[0.3em] italic">No matching client records found.</p>
+                                            <p className="text-gray-400 dark:text-attire-silver/40 text-xs font-black uppercase tracking-[0.3em] italic">No matching client records found.</p>
                                         </td>
                                     </tr>
                                 )}
@@ -489,10 +489,10 @@ const CustomerProfileManager = () => {
 
                     {pagination.last_page > 1 && (
                         <div className="px-10 py-8 border-t border-black/5 dark:border-white/5 bg-black/[0.01] dark:bg-white/[0.01] flex items-center justify-between">
-                            <p className="text-[10px] font-black text-gray-400 dark:text-attire-silver/40 uppercase tracking-[0.3em]">Archive Capacity: {pagination.total} Identities</p>
+                            <p className="text-xs font-black text-gray-400 dark:text-attire-silver/40 uppercase tracking-[0.3em]">Archive Capacity: {pagination.total} Identities</p>
                             <div className="flex items-center gap-4">
                                 <button onClick={() => handlePageChange(pagination.current_page - 1)} disabled={pagination.current_page === 1} className="p-3 bg-white dark:bg-white/5 border border-black/5 dark:border-white/10 rounded-xl disabled:opacity-20 hover:border-attire-accent/40 transition-all shadow-lg shadow-black/5"><ChevronLeft size={18} /></button>
-                                <div className="flex items-center bg-black/5 dark:bg-white/5 px-6 py-3 rounded-xl border border-black/5 dark:border-white/5"><span className="text-[10px] font-black text-gray-900 dark:text-white uppercase tracking-[0.2em]">Sector {pagination.current_page} <span className="opacity-20 mx-2">/</span> {pagination.last_page}</span></div>
+                                <div className="flex items-center bg-black/5 dark:bg-white/5 px-6 py-3 rounded-xl border border-black/5 dark:border-white/5"><span className="text-xs font-black text-gray-900 dark:text-white uppercase tracking-[0.2em]">Sector {pagination.current_page} <span className="opacity-20 mx-2">/</span> {pagination.last_page}</span></div>
                                 <button onClick={() => handlePageChange(pagination.current_page + 1)} disabled={pagination.current_page === pagination.last_page} className="p-3 bg-white dark:bg-white/5 border border-black/5 dark:border-white/10 rounded-xl disabled:opacity-20 hover:border-attire-accent/40 transition-all shadow-lg shadow-black/5"><ChevronRight size={18} /></button>
                             </div>
                         </div>
@@ -516,18 +516,18 @@ const CustomerProfileManager = () => {
                         <div className="space-y-12">
                             {/* Basic Info Section */}
                             <div>
-                                <p className="text-[10px] font-black text-attire-accent uppercase tracking-[0.3em] mb-6 ml-1">Basic Information</p>
+                                <p className="text-xs font-black text-attire-accent uppercase tracking-[0.3em] mb-6 ml-1">Basic Information</p>
                                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                                     <div className="space-y-2">
-                                        <label className="text-[10px] font-bold text-gray-400 dark:text-white/40 uppercase tracking-widest ml-1">Full Name</label>
+                                        <label className="text-xs font-bold text-gray-400 dark:text-white/40 uppercase tracking-widest ml-1">Full Name</label>
                                         <input type="text" required value={formData.name} onChange={e => setFormData({...formData, name: e.target.value})} className="w-full bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 rounded-2xl py-4 px-6 text-gray-900 dark:text-white text-sm focus:border-attire-accent outline-none transition-all" placeholder="Enter name..." />
                                     </div>
                                     <div className="space-y-2">
-                                        <label className="text-[10px] font-bold text-gray-400 dark:text-white/40 uppercase tracking-widest ml-1">Phone Number</label>
+                                        <label className="text-xs font-bold text-gray-400 dark:text-white/40 uppercase tracking-widest ml-1">Phone Number</label>
                                         <input type="text" value={formData.phone} onChange={e => setFormData({...formData, phone: e.target.value})} className="w-full bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 rounded-2xl py-4 px-6 text-gray-900 dark:text-white text-sm focus:border-attire-accent outline-none transition-all font-mono" placeholder="012 345 678" />
                                     </div>
                                     <div className="space-y-2">
-                                        <label className="text-[10px] font-bold text-gray-400 dark:text-white/40 uppercase tracking-widest ml-1">Visit Date</label>
+                                        <label className="text-xs font-bold text-gray-400 dark:text-white/40 uppercase tracking-widest ml-1">Visit Date</label>
                                         <input type="date" required value={formData.date} onChange={e => setFormData({...formData, date: e.target.value})} className="w-full bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 rounded-2xl py-4 px-6 text-gray-900 dark:text-white text-sm focus:border-attire-accent outline-none transition-all font-mono" />
                                     </div>
                                     <CustomDropdown 
@@ -567,7 +567,7 @@ const CustomerProfileManager = () => {
 
                             {/* Measurements Section ✨ */}
                             <div>
-                                <p className="text-[10px] font-black text-attire-accent uppercase tracking-[0.3em] mb-6 ml-1">Size & Measurements</p>
+                                <p className="text-xs font-black text-attire-accent uppercase tracking-[0.3em] mb-6 ml-1">Size & Measurements</p>
                                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
                                     <SizeToggleGroup label="Shirt Size" field="shirt_size" sizes={SHIRT_SIZES} />
                                     <SizeToggleGroup label="Jacket Size" field="jacket_size" sizes={JACKET_SIZES} />
@@ -578,7 +578,7 @@ const CustomerProfileManager = () => {
 
                             {/* Staff & Notes Section */}
                             <div>
-                                <p className="text-[10px] font-black text-attire-accent uppercase tracking-[0.3em] mb-6 ml-1">Staff & Preference Details</p>
+                                <p className="text-xs font-black text-attire-accent uppercase tracking-[0.3em] mb-6 ml-1">Staff & Preference Details</p>
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                     <div className="space-y-2">
                                         <CustomDropdown 
@@ -648,11 +648,11 @@ const CustomerProfileManager = () => {
                                         />
                                     </div>
                                     <div className="space-y-2 md:col-span-2">
-                                        <label className="text-[10px] font-bold text-gray-400 dark:text-white/40 uppercase tracking-widest ml-1">Color Notes</label>
+                                        <label className="text-xs font-bold text-gray-400 dark:text-white/40 uppercase tracking-widest ml-1">Color Notes</label>
                                         <textarea value={formData.color_notes} onChange={e => setFormData({...formData, color_notes: e.target.value})} className="w-full bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 rounded-2xl py-4 px-6 text-gray-900 dark:text-white text-sm focus:border-attire-accent outline-none transition-all h-24 resize-none" placeholder="Specific color preferences or restrictions..." />
                                     </div>
                                     <div className="space-y-2 md:col-span-2">
-                                        <label className="text-[10px] font-bold text-gray-400 dark:text-white/40 uppercase tracking-widest ml-1">Additional Remarks</label>
+                                        <label className="text-xs font-bold text-gray-400 dark:text-white/40 uppercase tracking-widest ml-1">Additional Remarks</label>
                                         <textarea value={formData.remarks} onChange={e => setFormData({...formData, remarks: e.target.value})} className="w-full bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 rounded-2xl py-4 px-6 text-gray-900 dark:text-white text-sm focus:border-attire-accent outline-none transition-all h-24 resize-none" placeholder="Any other important details about the client..." />
                                     </div>
                                 </div>
@@ -660,8 +660,8 @@ const CustomerProfileManager = () => {
                         </div>
 
                         <div className="pt-8 flex gap-4">
-                            <button type="button" onClick={() => setShowModal(false)} className="flex-grow py-5 border border-black/10 dark:border-white/10 rounded-2xl text-[11px] font-bold uppercase tracking-[0.3em] text-gray-400 dark:text-white/40 hover:text-gray-900 dark:hover:text-white hover:bg-black/5 dark:hover:bg-white/5 transition-all">Cancel</button>
-                            <button type="submit" disabled={saving} className="flex-grow py-5 bg-black dark:bg-white text-white dark:text-black rounded-2xl text-[11px] font-bold uppercase tracking-[0.3em] hover:bg-attire-accent dark:hover:bg-attire-accent transition-all flex items-center justify-center gap-3 disabled:opacity-50">
+                            <button type="button" onClick={() => setShowModal(false)} className="flex-grow py-5 border border-black/10 dark:border-white/10 rounded-2xl text-xs font-bold uppercase tracking-[0.3em] text-gray-400 dark:text-white/40 hover:text-gray-900 dark:hover:text-white hover:bg-black/5 dark:hover:bg-white/5 transition-all">Cancel</button>
+                            <button type="submit" disabled={saving} className="flex-grow py-5 bg-black dark:bg-white text-white dark:text-black rounded-2xl text-xs font-bold uppercase tracking-[0.3em] hover:bg-attire-accent dark:hover:bg-attire-accent transition-all flex items-center justify-center gap-3 disabled:opacity-50">
                                 {saving ? <Loader className="animate-spin" size={16} /> : <Check size={16} />}
                                 {saving ? 'Processing...' : 'Save Customer Profile'}
                             </button>

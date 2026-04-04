@@ -100,13 +100,13 @@ const NewsletterManager = () => {
                                 placeholder="Search numbers..."
                                 value={search}
                                 onChange={(e) => setSearch(e.target.value)}
-                                className="bg-white dark:bg-black/20 border border-black/5 dark:border-white/10 rounded-2xl py-3.5 pl-12 pr-6 text-[10px] font-bold uppercase tracking-widest text-gray-900 dark:text-white focus:border-attire-accent outline-none transition-all w-64 shadow-sm"
+                                className="bg-white dark:bg-black/20 border border-black/5 dark:border-white/10 rounded-2xl py-3.5 pl-12 pr-6 text-sm font-bold uppercase tracking-widest text-gray-900 dark:text-white focus:border-attire-accent outline-none transition-all w-64 shadow-sm"
                             />
                         </div>
                         <motion.button
                             whileTap={{ scale: 0.95 }}
                             onClick={handleExport}
-                            className="flex items-center gap-3 bg-black dark:bg-white text-white dark:text-black rounded-2xl py-3.5 px-6 text-[10px] font-bold uppercase tracking-widest hover:bg-attire-accent dark:hover:bg-attire-accent transition-all shadow-lg"
+                            className="flex items-center gap-3 bg-black dark:bg-white text-white dark:text-black rounded-2xl py-3.5 px-6 text-xs font-bold uppercase tracking-widest hover:bg-attire-accent dark:hover:bg-attire-accent transition-all shadow-lg"
                         >
                             <Download size={14} />
                             <span>Export CSV</span>
@@ -119,10 +119,10 @@ const NewsletterManager = () => {
                         <table className="w-full text-left border-collapse">
                             <thead>
                                 <tr className="border-b border-black/5 dark:border-white/5 bg-black/[0.02] dark:bg-white/[0.02]">
-                                    <th className="px-8 py-6 text-[10px] font-bold text-gray-400 dark:text-attire-silver/40 uppercase tracking-[0.2em]">Contact Information</th>
-                                    <th className="px-8 py-6 text-[10px] font-bold text-gray-400 dark:text-attire-silver/40 uppercase tracking-[0.2em]">Status</th>
-                                    <th className="px-8 py-6 text-[10px] font-bold text-gray-400 dark:text-attire-silver/40 uppercase tracking-[0.2em]">Joined Date</th>
-                                    <th className="px-8 py-6 text-[10px] font-bold text-gray-400 dark:text-attire-silver/40 uppercase tracking-[0.2em] text-right">Actions</th>
+                                    <th className="px-8 py-6 text-xs font-bold text-gray-400 dark:text-attire-silver/40 uppercase tracking-[0.2em]">Contact Information</th>
+                                    <th className="px-8 py-6 text-xs font-bold text-gray-400 dark:text-attire-silver/40 uppercase tracking-[0.2em]">Status</th>
+                                    <th className="px-8 py-6 text-xs font-bold text-gray-400 dark:text-attire-silver/40 uppercase tracking-[0.2em]">Joined Date</th>
+                                    <th className="px-8 py-6 text-xs font-bold text-gray-400 dark:text-attire-silver/40 uppercase tracking-[0.2em] text-right">Actions</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -144,19 +144,19 @@ const NewsletterManager = () => {
                                                     </div>
                                                     <div>
                                                         <p className="text-sm font-bold text-gray-900 dark:text-white uppercase tracking-wider">{sub.phone_number}</p>
-                                                        <p className="text-[10px] text-gray-400 dark:text-attire-silver/40 font-mono italic">SMS Channel</p>
+                                                        <p className="text-xs text-gray-400 dark:text-attire-silver/40 font-mono italic">SMS Channel</p>
                                                     </div>
                                                 </div>
                                             </td>
                                             <td className="px-8 py-6">
-                                                <span className="px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-widest border text-green-500 bg-green-500/10 border-green-500/20">
+                                                <span className="px-3 py-1 rounded-full text-[11px] font-black uppercase tracking-widest border text-green-500 bg-green-500/10 border-green-500/20">
                                                     Active
                                                 </span>
                                             </td>
                                             <td className="px-8 py-6">
                                                 <div className="flex flex-col">
                                                     <span className="text-xs text-gray-900 dark:text-white font-medium">{new Date(sub.created_at).toLocaleDateString()}</span>
-                                                    <span className="text-[10px] text-gray-400 dark:text-attire-silver/40 font-mono">{new Date(sub.created_at).toLocaleTimeString()}</span>
+                                                    <span className="text-xs text-gray-400 dark:text-attire-silver/40 font-mono">{new Date(sub.created_at).toLocaleTimeString()}</span>
                                                 </div>
                                             </td>
                                             <td className="px-8 py-6 text-right">
@@ -186,7 +186,7 @@ const NewsletterManager = () => {
 
                     {pagination.last_page > 1 && (
                         <div className="px-8 py-6 border-t border-black/5 dark:border-white/5 bg-black/[0.01] dark:bg-white/[0.01] flex items-center justify-between">
-                            <p className="text-[10px] font-bold text-gray-400 dark:text-attire-silver/40 uppercase tracking-widest">
+                            <p className="text-xs font-bold text-gray-400 dark:text-attire-silver/40 uppercase tracking-widest">
                                 Total: {pagination.total} subscribers
                             </p>
                             <div className="flex items-center gap-2">
@@ -197,7 +197,7 @@ const NewsletterManager = () => {
                                 >
                                     <ChevronLeft size={16} />
                                 </button>
-                                <span className="text-[10px] font-bold text-gray-900 dark:text-white uppercase tracking-[0.2em] px-4">
+                                <span className="text-xs font-bold text-gray-900 dark:text-white uppercase tracking-[0.2em] px-4">
                                     Page {pagination.current_page} of {pagination.last_page}
                                 </span>
                                 <button

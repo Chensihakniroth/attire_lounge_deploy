@@ -6,6 +6,7 @@ import OptimizedImage from '../../common/OptimizedImage.jsx';
 import Skeleton from '../../common/Skeleton.jsx';
 import { motion, AnimatePresence } from 'framer-motion';
 import ModernModal from '../../common/ModernModal';
+import { formatTime } from '@/helpers/format';
 
 const AppointmentRow = memo(React.forwardRef(({ appointment, onUpdateStatus }, ref) => {
     const statusConfig = {
@@ -15,16 +16,6 @@ const AppointmentRow = memo(React.forwardRef(({ appointment, onUpdateStatus }, r
     };
 
     const status = statusConfig[appointment.status] || statusConfig.pending;
-
-    const formatTime = (timeStr) => {
-        if (!timeStr) return '';
-        const [hours] = timeStr.split(':');
-        let h = parseInt(hours, 10);
-        const ampm = h >= 12 ? 'PM' : 'AM';
-        h = h % 12;
-        h = h ? h : 12;
-        return `${h}${ampm}`;
-    };
 
     return (
         <motion.div 
@@ -41,11 +32,11 @@ const AppointmentRow = memo(React.forwardRef(({ appointment, onUpdateStatus }, r
                         <User className="w-5 h-5 text-gray-400 dark:text-attire-silver group-hover:text-attire-accent transition-colors" />
                     </div>
                     <div>
-                        <h3 className="text-xl font-serif text-gray-900 dark:text-white">{appointment.name}</h3>
-                        <p className="text-xs text-gray-500 dark:text-attire-silver/60 uppercase tracking-wider font-medium">{appointment.service}</p>
+                        <h3 className="text-2xl font-serif text-gray-900 dark:text-white">{appointment.name}</h3>
+                        <p className="text-[13px] text-gray-500 dark:text-attire-silver/60 uppercase tracking-wider font-black">{appointment.service}</p>
                     </div>
                 </div>
-                <span className={`px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider border ${status.color} ${status.bg} ${status.border}`}>
+                <span className={`px-5 py-2 rounded-full text-[12.5px] font-black uppercase tracking-wider border ${status.color} ${status.bg} ${status.border}`}>
                     {status.label}
                 </span>
             </div>
@@ -53,16 +44,16 @@ const AppointmentRow = memo(React.forwardRef(({ appointment, onUpdateStatus }, r
             <div className="grid grid-cols-1 md:grid-cols-12 gap-6">
                 <div className="md:col-span-4 space-y-3">
                     <div className="flex items-center text-gray-600 dark:text-attire-silver/80 group-hover:text-gray-900 dark:group-hover:text-white transition-colors">
-                        <Mail className="w-4 h-4 mr-3 text-gray-400 dark:text-attire-silver/40" />
-                        <a href={`mailto:${appointment.email}`} className="hover:text-attire-accent hover:underline truncate text-sm transition-colors">{appointment.email}</a>
+                        <Mail className="w-4.5 h-4.5 mr-3 text-gray-400 dark:text-attire-silver/40" />
+                        <a href={`mailto:${appointment.email}`} className="hover:text-attire-accent hover:underline truncate text-[14.5px] font-medium transition-colors">{appointment.email}</a>
                     </div>
                     <div className="flex items-center text-gray-600 dark:text-attire-silver/80 group-hover:text-gray-900 dark:group-hover:text-white transition-colors">
-                        <Phone className="w-4 h-4 mr-3 text-gray-400 dark:text-attire-silver/40" />
-                        <span className="text-sm">{appointment.phone}</span>
+                        <Phone className="w-4.5 h-4.5 mr-3 text-gray-400 dark:text-attire-silver/40" />
+                        <span className="text-[14.5px] font-medium">{appointment.phone}</span>
                     </div>
-                    <div className="flex items-center text-gray-600 dark:text-attire-silver/80 pt-3 border-t border-black/5 dark:border-white/5 mt-3">
-                        <Calendar className="w-4 h-4 mr-3 text-gray-400 dark:text-attire-silver/40" />
-                        <span className="text-sm font-medium text-gray-900 dark:text-white">{new Date(appointment.date).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })} <span className="text-black/10 dark:text-white/20 mx-1">|</span> {formatTime(appointment.time)}</span>
+                    <div className="flex items-center text-gray-600 dark:text-attire-silver/80 pt-4 border-t border-black/5 dark:border-white/5 mt-4">
+                        <Calendar className="w-4.5 h-4.5 mr-3 text-gray-400 dark:text-attire-silver/40" />
+                        <span className="text-[14.5px] font-bold text-gray-900 dark:text-white">{new Date(appointment.date).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })} <span className="text-black/10 dark:text-white/20 mx-1">|</span> {formatTime(appointment.time)}</span>
                     </div>
                 </div>
 
@@ -72,8 +63,8 @@ const AppointmentRow = memo(React.forwardRef(({ appointment, onUpdateStatus }, r
                             <div className="flex items-start gap-3">
                                 <MessageSquare className="w-4 h-4 text-attire-accent mt-1 flex-shrink-0" />
                                 <div>
-                                    <p className="text-xs font-bold text-gray-400 dark:text-attire-silver/50 uppercase tracking-widest mb-1">Request Details</p>
-                                    <p className="text-sm text-gray-700 dark:text-attire-cream italic leading-relaxed">"{appointment.message}"</p>
+                                    <p className="text-[11.5px] font-black text-gray-400 dark:text-attire-silver/50 uppercase tracking-[0.2em] mb-1.5">Request Details</p>
+                                    <p className="text-[15.5px] text-gray-700 dark:text-attire-cream italic leading-relaxed">"{appointment.message}"</p>
                                 </div>
                             </div>
                         </div>
@@ -98,7 +89,7 @@ const AppointmentRow = memo(React.forwardRef(({ appointment, onUpdateStatus }, r
                                                     className="w-full h-full transition-transform duration-500 group-hover/img:scale-110"
                                                 />
                                             </div>
-                                            <p className="text-[10px] text-gray-900 dark:text-white text-center font-medium truncate w-full max-w-[80px]" title={name}>{name}</p>
+                                            <p className="text-xs text-gray-900 dark:text-white text-center font-medium truncate w-full max-w-[80px]" title={name}>{name}</p>
                                         </div>
                                     );
                                 })}
@@ -264,41 +255,41 @@ const AppointmentManager = () => {
                 <form onSubmit={handleCreateAppointment} className="p-8 space-y-8 bg-[#fcfcfa] dark:bg-[#0d0d0d]">
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                         <div className="space-y-2">
-                            <label className="text-[10px] font-black text-gray-500 dark:text-white/40 uppercase tracking-[0.2em]">Full Name *</label>
-                            <input required type="text" name="name" value={formData.name} onChange={handleInputChange} className="w-full bg-black/5 dark:bg-white/5 p-4 text-[12px] font-black outline-none border-b border-black/5 dark:border-white/5 focus:border-[#0d3542] dark:focus:border-attire-accent transition-all uppercase text-gray-900 dark:text-white" placeholder="ENTER NAME" />
+                            <label className="text-[11.5px] font-black text-gray-400 dark:text-white/40 uppercase tracking-[0.2em]">Full Name *</label>
+                            <input required type="text" name="name" value={formData.name} onChange={handleInputChange} className="w-full bg-black/5 dark:bg-white/5 p-4 text-[16px] font-black outline-none border-b-2 border-black/5 dark:border-white/5 focus:border-[#0d3542] dark:focus:border-attire-accent transition-all uppercase text-gray-900 dark:text-white" placeholder="ENTER NAME" />
                         </div>
                         <div className="space-y-2">
-                            <label className="text-[10px] font-black text-gray-500 dark:text-white/40 uppercase tracking-[0.2em]">Communication (Email)</label>
-                            <input type="email" name="email" value={formData.email} onChange={handleInputChange} className="w-full bg-black/5 dark:bg-white/5 p-4 text-[12px] font-black outline-none border-b border-black/5 dark:border-white/5 focus:border-[#0d3542] dark:focus:border-attire-accent transition-all uppercase text-gray-900 dark:text-white" placeholder="EMAIL ADDRESS" />
+                            <label className="text-[11.5px] font-black text-gray-400 dark:text-white/40 uppercase tracking-[0.2em]">Communication (Email)</label>
+                            <input type="email" name="email" value={formData.email} onChange={handleInputChange} className="w-full bg-black/5 dark:bg-white/5 p-4 text-[16px] font-black outline-none border-b-2 border-black/5 dark:border-white/5 focus:border-[#0d3542] dark:focus:border-attire-accent transition-all uppercase text-gray-900 dark:text-white" placeholder="EMAIL ADDRESS" />
                         </div>
                         <div className="space-y-2">
-                            <label className="text-[10px] font-black text-gray-500 dark:text-white/40 uppercase tracking-[0.2em]">Contact Primary *</label>
-                            <input required type="text" name="phone" value={formData.phone} onChange={handleInputChange} className="w-full bg-black/5 dark:bg-white/5 p-4 text-[12px] font-black outline-none border-b border-black/5 dark:border-white/5 focus:border-[#0d3542] dark:focus:border-attire-accent transition-all uppercase text-gray-900 dark:text-white" placeholder="PHONE NUMBER" />
+                            <label className="text-[11.5px] font-black text-gray-400 dark:text-white/40 uppercase tracking-[0.2em]">Contact Primary *</label>
+                            <input required type="text" name="phone" value={formData.phone} onChange={handleInputChange} className="w-full bg-black/5 dark:bg-white/5 p-4 text-[16px] font-black outline-none border-b-2 border-black/5 dark:border-white/5 focus:border-[#0d3542] dark:focus:border-attire-accent transition-all uppercase text-gray-900 dark:text-white" placeholder="PHONE NUMBER" />
                         </div>
                         <div className="space-y-2">
-                            <label className="text-[10px] font-black text-gray-500 dark:text-white/40 uppercase tracking-[0.2em]">Service Specification *</label>
-                            <select required name="service" value={formData.service} onChange={handleInputChange} className="w-full bg-black/5 dark:bg-white/5 p-4 text-[11px] font-black outline-none border-b border-black/5 dark:border-white/5 focus:border-[#0d3542] dark:focus:border-attire-accent transition-all uppercase text-gray-900 dark:text-white appearance-none cursor-pointer">
+                            <label className="text-[11.5px] font-black text-gray-400 dark:text-white/40 uppercase tracking-[0.2em]">Service Specification *</label>
+                            <select required name="service" value={formData.service} onChange={handleInputChange} className="w-full bg-black/5 dark:bg-white/5 p-4 text-[16px] font-black outline-none border-b-2 border-black/5 dark:border-white/5 focus:border-[#0d3542] dark:focus:border-attire-accent transition-all uppercase text-gray-900 dark:text-white appearance-none cursor-pointer">
                                 <option value="consultation">CONSULTATION</option>
                                 <option value="fitting">FITTING</option>
                                 <option value="pickup">PICKUP</option>
                             </select>
                         </div>
                         <div className="space-y-2">
-                            <label className="text-[10px] font-black text-gray-500 dark:text-white/40 uppercase tracking-[0.2em]">Calendar Date *</label>
-                            <input required type="date" name="date" value={formData.date} onChange={handleInputChange} className="w-full bg-black/5 dark:bg-white/5 p-4 text-[11px] font-black outline-none border-b border-black/5 dark:border-white/5 focus:border-[#0d3542] dark:focus:border-attire-accent transition-all text-gray-900 dark:text-white" />
+                            <label className="text-[11.5px] font-black text-gray-400 dark:text-white/40 uppercase tracking-[0.2em]">Calendar Date *</label>
+                            <input required type="date" name="date" value={formData.date} onChange={handleInputChange} className="w-full bg-black/5 dark:bg-white/5 p-4 text-[16px] font-black outline-none border-b-2 border-black/5 dark:border-white/5 focus:border-[#0d3542] dark:focus:border-attire-accent transition-all text-gray-900 dark:text-white" />
                         </div>
                         <div className="space-y-2">
-                            <label className="text-[10px] font-black text-gray-500 dark:text-white/40 uppercase tracking-[0.2em]">Operational Time *</label>
-                            <input required type="time" name="time" value={formData.time} onChange={handleInputChange} className="w-full bg-black/5 dark:bg-white/5 p-4 text-[11px] font-black outline-none border-b border-black/5 dark:border-white/5 focus:border-[#0d3542] dark:focus:border-attire-accent transition-all text-gray-900 dark:text-white" />
+                            <label className="text-[11.5px] font-black text-gray-400 dark:text-white/40 uppercase tracking-[0.2em]">Operational Time *</label>
+                            <input required type="time" name="time" value={formData.time} onChange={handleInputChange} className="w-full bg-black/5 dark:bg-white/5 p-4 text-[16px] font-black outline-none border-b-2 border-black/5 dark:border-white/5 focus:border-[#0d3542] dark:focus:border-attire-accent transition-all text-gray-900 dark:text-white" />
                         </div>
                         <div className="md:col-span-2 space-y-2">
-                            <label className="text-[10px] font-black text-gray-500 dark:text-white/40 uppercase tracking-[0.2em]">Requirements / Message</label>
-                            <textarea name="message" value={formData.message} onChange={handleInputChange} rows="3" className="w-full bg-black/5 dark:bg-white/5 p-4 text-[12px] font-black outline-none border-b border-black/5 dark:border-white/5 focus:border-[#0d3542] dark:focus:border-attire-accent transition-all uppercase text-gray-900 dark:text-white resize-none" placeholder="ADDITIONAL NOTES..."></textarea>
+                            <label className="text-[11.5px] font-black text-gray-400 dark:text-white/40 uppercase tracking-[0.2em]">Requirements / Message</label>
+                            <textarea name="message" value={formData.message} onChange={handleInputChange} rows="3" className="w-full bg-black/5 dark:bg-white/5 p-4 text-[16px] font-black outline-none border-b-2 border-black/5 dark:border-white/5 focus:border-[#0d3542] dark:focus:border-attire-accent transition-all uppercase text-gray-900 dark:text-white resize-none" placeholder="ADDITIONAL NOTES..."></textarea>
                         </div>
                     </div>
                     <div className="flex justify-end gap-4 pt-6 border-t border-black/5 dark:border-white/5">
-                        <Button variant="outline" onClick={() => setIsAdding(false)} className="h-12 px-8 text-[10px] font-black uppercase tracking-widest border-black/10 dark:border-white/10 text-gray-400">CANCEL</Button>
-                        <button type="submit" disabled={isSubmitting} className="h-12 px-10 bg-[#0d3542] dark:bg-attire-accent text-white dark:text-black text-[10px] font-black uppercase tracking-widest hover:scale-[1.02] transition-all shadow-xl flex items-center gap-2">
+                        <Button variant="outline" onClick={() => setIsAdding(false)} className="h-12 px-8 text-xs font-black uppercase tracking-widest border-black/10 dark:border-white/10 text-gray-400">CANCEL</Button>
+                        <button type="submit" disabled={isSubmitting} className="h-12 px-10 bg-[#0d3542] dark:bg-attire-accent text-white dark:text-black text-xs font-black uppercase tracking-widest hover:scale-[1.02] transition-all shadow-xl flex items-center gap-2">
                             {isSubmitting ? <Loader className="w-4 h-4 animate-spin" /> : <Check className="w-4 h-4" />}
                             CONFIRM APPOINTMENT
                         </button>
@@ -345,7 +336,7 @@ const AppointmentManager = () => {
                                 onClick={handleLoadMore}
                                 className="group flex items-center gap-3 px-8 py-4 bg-black/5 dark:bg-white/5 hover:bg-black/10 dark:hover:bg-white/10 border border-black/5 dark:border-white/10 rounded-2xl transition-all"
                             >
-                                <span className="text-[10px] font-bold uppercase tracking-[0.3em] text-gray-900 dark:text-white">Load More History</span>
+                                <span className="text-xs font-bold uppercase tracking-[0.3em] text-gray-900 dark:text-white">Load More History</span>
                                 <ChevronDown size={16} className="text-attire-accent group-hover:translate-y-1 transition-transform" />
                             </button>
                         </div>

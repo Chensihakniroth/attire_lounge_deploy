@@ -40,7 +40,7 @@ const StatCard = ({ icon, title, value, link, loading, highlight = false }) => {
             </div>
             <div className="mt-6">
                 <p className={`text-4xl font-serif tracking-tight transition-colors ${highlight ? 'text-attire-accent' : 'text-gray-900 dark:text-white'}`}>{value}</p>
-                <p className="text-[10px] font-black text-gray-400 dark:text-attire-silver/40 mt-2 uppercase tracking-[0.2em]">{title}</p>
+                <p className="text-xs font-black text-gray-400 dark:text-attire-silver/40 mt-2 uppercase tracking-[0.2em]">{title}</p>
             </div>
         </motion.div>
     );
@@ -58,14 +58,14 @@ const GlassyStatCard = ({ label, value, trend, icon: Icon, color = "attire-accen
                 <Icon size={20} />
             </div>
             {trend && (
-                <div className={`flex items-center gap-1 px-2.5 py-1 rounded-full text-[9px] font-black uppercase tracking-widest ${trend > 0 ? 'bg-green-500/10 text-green-500' : 'bg-red-500/10 text-red-500'}`}>
+                <div className={`flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-black uppercase tracking-widest ${trend > 0 ? 'bg-green-500/10 text-green-500' : 'bg-red-500/10 text-red-500'}`}>
                     <TrendingUp size={10} />
                     {Math.abs(trend)}%
                 </div>
             )}
         </div>
         
-        <p className="text-[10px] font-black text-gray-400 dark:text-white/20 uppercase tracking-[0.2em] mb-1">{label}</p>
+        <p className="text-xs font-black text-gray-400 dark:text-white/20 uppercase tracking-[0.2em] mb-1">{label}</p>
         <p className="text-3xl font-serif text-gray-900 dark:text-white tracking-tight">{value}</p>
     </motion.div>
 );
@@ -74,7 +74,7 @@ const MultiTrendChart = ({ data, activeKey = 'appointments', timeframe = 'month'
     const [hoveredIndex, setHoveredIndex] = useState(null);
     if (!data || data.length === 0) return (
         <div className="h-[300px] flex items-center justify-center border border-dashed border-black/10 dark:border-white/10 rounded-[2rem]">
-            <p className="text-[10px] font-black uppercase tracking-[0.4em] text-gray-400 animate-pulse">Gathering Intel...</p>
+            <p className="text-xs font-black uppercase tracking-[0.4em] text-gray-400 animate-pulse">Gathering Intel...</p>
         </div>
     );
 
@@ -119,7 +119,7 @@ const MultiTrendChart = ({ data, activeKey = 'appointments', timeframe = 'month'
                     return (
                         <g key={i}>
                             <line x1={paddingX} y1={y} x2={width - paddingX} y2={y} className="stroke-black/[0.04] dark:stroke-white/[0.04]" strokeWidth="1" />
-                            <text x={paddingX - 20} y={y + 4} className="fill-gray-400 dark:fill-white/20 text-[10px] font-mono font-bold" textAnchor="end">{Math.round(line * maxVal)}</text>
+                            <text x={paddingX - 20} y={y + 4} className="fill-gray-400 dark:fill-white/20 text-xs font-mono font-bold" textAnchor="end">{Math.round(line * maxVal)}</text>
                         </g>
                     );
                 })}
@@ -188,7 +188,7 @@ const MultiTrendChart = ({ data, activeKey = 'appointments', timeframe = 'month'
             {/* X-Axis Labels */}
             <div className="flex justify-between mt-8 px-[60px]">
                 {data.map((d, i) => (
-                    <span key={i} className={`text-[9px] font-black uppercase tracking-widest transition-all duration-300 ${hoveredIndex === i ? 'text-attire-accent scale-110' : 'text-gray-400 dark:text-white/10'}`}>
+                    <span key={i} className={`text-[11px] font-black uppercase tracking-widest transition-all duration-300 ${hoveredIndex === i ? 'text-attire-accent scale-110' : 'text-gray-400 dark:text-white/10'}`}>
                         {d.name}
                     </span>
                 ))}
@@ -209,9 +209,9 @@ const MultiTrendChart = ({ data, activeKey = 'appointments', timeframe = 'month'
                         }}
                     >
                         <div className="bg-black/90 dark:bg-white text-white dark:text-black px-6 py-3 rounded-2xl shadow-2xl backdrop-blur-xl border border-white/10 dark:border-black/10 flex flex-col items-center gap-1">
-                            <span className="text-[8px] font-black uppercase tracking-[0.2em] opacity-50">{data[hoveredIndex].name}</span>
+                            <span className="text-[10px] font-black uppercase tracking-[0.2em] opacity-50">{data[hoveredIndex].name}</span>
                             <span className="text-lg font-serif">{data[hoveredIndex][activeKey]}</span>
-                            <span className="text-[8px] font-black uppercase tracking-widest">{activeKey}</span>
+                            <span className="text-[10px] font-black uppercase tracking-widest">{activeKey}</span>
                         </div>
                     </motion.div>
                 )}
@@ -272,7 +272,7 @@ const DemographicPieChart = ({ data }) => {
                             <span className="text-4xl font-serif text-gray-900 dark:text-white block leading-none">
                                 {hoveredIndex !== null ? data[hoveredIndex].value : total}
                             </span>
-                            <span className="text-[10px] font-black text-gray-400 dark:text-white/20 uppercase tracking-[0.2em] mt-2 block">
+                            <span className="text-xs font-black text-gray-400 dark:text-white/20 uppercase tracking-[0.2em] mt-2 block">
                                 {hoveredIndex !== null ? data[hoveredIndex].label : 'Total Reach'}
                             </span>
                         </motion.div>
@@ -294,12 +294,12 @@ const DemographicPieChart = ({ data }) => {
                     >
                         <div className="flex items-center gap-4">
                             <div className="w-2.5 h-2.5 rounded-full shadow-lg" style={{ backgroundColor: colors[i % colors.length] }} />
-                            <span className="text-[11px] font-black text-gray-900 dark:text-white uppercase tracking-wider truncate max-w-[140px]">{item.label}</span>
+                            <span className="text-xs font-black text-gray-900 dark:text-white uppercase tracking-wider truncate max-w-[140px]">{item.label}</span>
                         </div>
                         <div className="flex items-center gap-4">
                             <span className="text-xs font-mono font-black text-gray-900 dark:text-white">{item.value}</span>
                             <div className="w-12 text-right">
-                                <span className="text-[10px] font-mono text-attire-accent font-bold">{Math.round((item.value / total) * 100)}%</span>
+                                <span className="text-[11px] font-mono text-attire-accent font-bold">{Math.round((item.value / total) * 100)}%</span>
                             </div>
                         </div>
                     </motion.div>
@@ -310,7 +310,7 @@ const DemographicPieChart = ({ data }) => {
 };
 
 const QuickAction = ({ icon, title, description, link }) => (
-    <Link to={link} className="block"><div className="flex items-center gap-4 p-4 bg-black/[0.02] dark:bg-white/5 rounded-2xl border border-black/5 dark:border-white/5 hover:border-attire-accent/30 hover:bg-white dark:hover:bg-white/10 transition-all duration-300 group shadow-sm hover:shadow-lg hover:shadow-black/[0.02]"><div className="h-10 w-10 flex items-center justify-center bg-white dark:bg-black/20 rounded-xl border border-black/5 dark:border-white/5 group-hover:border-attire-accent/20 transition-colors">{React.cloneElement(icon, { size: 18, className: "text-gray-400 dark:text-attire-silver group-hover:text-attire-accent transition-colors" })}</div><div className="flex-grow"><p className="text-[10px] font-black text-gray-900 dark:text-white uppercase tracking-wider">{title}</p><p className="text-[9px] text-gray-400 dark:text-attire-silver/40 uppercase tracking-widest font-medium">{description}</p></div><ArrowRight size={12} className="text-gray-300 dark:text-white/20 group-hover:text-attire-accent group-hover:translate-x-1 transition-all" /></div></Link>
+    <Link to={link} className="block"><div className="flex items-center gap-4 p-4 bg-black/[0.02] dark:bg-white/5 rounded-2xl border border-black/5 dark:border-white/5 hover:border-attire-accent/30 hover:bg-white dark:hover:bg-white/10 transition-all duration-300 group shadow-sm hover:shadow-lg hover:shadow-black/[0.02]"><div className="h-10 w-10 flex items-center justify-center bg-white dark:bg-black/20 rounded-xl border border-black/5 dark:border-white/5 group-hover:border-attire-accent/20 transition-colors">{React.cloneElement(icon, { size: 18, className: "text-gray-400 dark:text-attire-silver group-hover:text-attire-accent transition-colors" })}</div><div className="flex-grow"><p className="text-xs font-black text-gray-900 dark:text-white uppercase tracking-wider">{title}</p><p className="text-[11px] text-gray-400 dark:text-attire-silver/40 uppercase tracking-widest font-medium">{description}</p></div><ArrowRight size={12} className="text-gray-300 dark:text-white/20 group-hover:text-attire-accent group-hover:translate-x-1 transition-all" /></div></Link>
 );
 
 const AdminDashboard = () => {
@@ -365,7 +365,7 @@ const AdminDashboard = () => {
                                     </h2>
                                     <div className="flex items-center gap-2 mt-1">
                                         <div className="w-1.5 h-1.5 rounded-full bg-attire-accent animate-pulse" />
-                                        <p className="text-[10px] font-black text-gray-400 dark:text-white/20 uppercase tracking-[0.3em]">
+                                        <p className="text-xs font-black text-gray-400 dark:text-white/20 uppercase tracking-[0.3em]">
                                             {chartView === 'trend' ? 'Real-time performance analytics' : 'Audience distribution matrix'}
                                         </p>
                                     </div>
@@ -404,15 +404,15 @@ const AdminDashboard = () => {
                                                     <button 
                                                         key={t} 
                                                         onClick={() => setTimeframe(t.toLowerCase())} 
-                                                        className={`px-5 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all duration-300 ${timeframe === t.toLowerCase() ? 'bg-black dark:bg-white text-white dark:text-black shadow-xl' : 'text-gray-400 hover:text-gray-900 dark:hover:text-white'}`}
+                                                        className={`px-5 py-2.5 rounded-xl text-xs font-black uppercase tracking-widest transition-all duration-300 ${timeframe === t.toLowerCase() ? 'bg-black dark:bg-white text-white dark:text-black shadow-xl' : 'text-gray-400 hover:text-gray-900 dark:hover:text-white'}`}
                                                     >
                                                         {t}
                                                     </button>
                                                 ))}
                                             </div>
                                             <div className="flex gap-1 p-1.5 bg-black/5 dark:bg-white/5 rounded-2xl border border-black/5 dark:border-white/5">
-                                                <button onClick={() => setDashboardMode('services')} className={`px-5 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all duration-300 ${dashboardMode === 'services' ? 'bg-attire-accent text-black shadow-xl' : 'text-gray-400 hover:text-gray-900 dark:hover:text-white'}`}>Consults</button>
-                                                <button onClick={() => setDashboardMode('registry')} className={`px-5 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all duration-300 ${dashboardMode === 'registry' ? 'bg-attire-accent text-black shadow-xl' : 'text-gray-400 hover:text-gray-900 dark:hover:text-white'}`}>Clients</button>
+                                                <button onClick={() => setDashboardMode('services')} className={`px-5 py-2.5 rounded-xl text-xs font-black uppercase tracking-widest transition-all duration-300 ${dashboardMode === 'services' ? 'bg-attire-accent text-black shadow-xl' : 'text-gray-400 hover:text-gray-900 dark:hover:text-white'}`}>Consults</button>
+                                                <button onClick={() => setDashboardMode('registry')} className={`px-5 py-2.5 rounded-xl text-xs font-black uppercase tracking-widest transition-all duration-300 ${dashboardMode === 'registry' ? 'bg-attire-accent text-black shadow-xl' : 'text-gray-400 hover:text-gray-900 dark:hover:text-white'}`}>Clients</button>
                                             </div>
                                         </motion.div>
                                     ) : (
@@ -427,7 +427,7 @@ const AdminDashboard = () => {
                                                 <button 
                                                     key={opt.id} 
                                                     onClick={() => setDistType(opt.id)} 
-                                                    className={`px-5 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all duration-300 ${distType === opt.id ? 'bg-black dark:bg-white text-white dark:text-black shadow-xl' : 'text-gray-400 hover:text-gray-900 dark:hover:text-white'}`}
+                                                    className={`px-5 py-2.5 rounded-xl text-xs font-black uppercase tracking-widest transition-all duration-300 ${distType === opt.id ? 'bg-black dark:bg-white text-white dark:text-black shadow-xl' : 'text-gray-400 hover:text-gray-900 dark:hover:text-white'}`}
                                                 >
                                                     {opt.label}
                                                 </button>
@@ -455,7 +455,7 @@ const AdminDashboard = () => {
 
                             <div className="space-y-4">
                                 <div className="p-6 bg-black/[0.02] dark:bg-white/[0.02] rounded-[2rem] border border-black/5 dark:border-white/5">
-                                    <h3 className="text-[10px] font-black text-gray-400 dark:text-white/20 uppercase tracking-[0.3em] mb-6">Quick Insights</h3>
+                                    <h3 className="text-xs font-black text-gray-400 dark:text-white/20 uppercase tracking-[0.3em] mb-6">Quick Insights</h3>
                                     <div className="space-y-4">
                                         <GlassyStatCard 
                                             label="Peak Activity" 
@@ -472,9 +472,9 @@ const AdminDashboard = () => {
                                         <div className="p-6 bg-attire-accent/5 rounded-[2rem] border border-attire-accent/10">
                                             <div className="flex items-center gap-3 mb-2">
                                                 <ShieldCheck className="text-attire-accent" size={14} />
-                                                <span className="text-[9px] font-black uppercase tracking-widest text-attire-accent">Growth Status</span>
+                                                <span className="text-xs font-black uppercase tracking-widest text-attire-accent">Growth Status</span>
                                             </div>
-                                            <p className="text-[11px] text-gray-600 dark:text-white/60 leading-relaxed">
+                                            <p className="text-xs text-gray-600 dark:text-white/60 leading-relaxed">
                                                 Your {dashboardMode === 'services' ? 'consultation' : 'client'} base is currently expanding at an optimal rate.
                                             </p>
                                         </div>
@@ -490,9 +490,9 @@ const AdminDashboard = () => {
                         <div className="flex items-center justify-between mb-10">
                             <div className="flex items-center gap-4">
                                 <div className={`p-3 rounded-2xl transition-colors ${dashboardMode === 'services' ? 'bg-blue-500/10 text-blue-500' : 'bg-attire-accent/10 text-attire-accent'}`}><Activity size={24} /></div>
-                                <div><h2 className="text-2xl font-serif text-gray-900 dark:text-white tracking-tight">{dashboardMode === 'services' ? 'Recent Journal' : 'Registry Entries'}</h2><p className="text-[10px] font-black text-gray-400 dark:text-white/20 uppercase tracking-[0.2em] mt-1">Latest system events</p></div>
+                                <div><h2 className="text-2xl font-serif text-gray-900 dark:text-white tracking-tight">{dashboardMode === 'services' ? 'Recent Journal' : 'Registry Entries'}</h2><p className="text-xs font-black text-gray-400 dark:text-white/20 uppercase tracking-[0.2em] mt-1">Latest system events</p></div>
                             </div>
-                            <Link to={dashboardMode === 'services' ? "/admin/appointments" : "/admin/customer-profiles"} className="text-[10px] font-black text-attire-accent hover:text-gray-900 dark:hover:text-white transition-colors uppercase tracking-[0.3em] bg-attire-accent/5 px-5 py-2.5 rounded-xl border border-attire-accent/10">View All</Link>
+                            <Link to={dashboardMode === 'services' ? "/admin/appointments" : "/admin/customer-profiles"} className="text-xs font-black text-attire-accent hover:text-gray-900 dark:hover:text-white transition-colors uppercase tracking-[0.3em] bg-attire-accent/5 px-5 py-2.5 rounded-xl border border-attire-accent/10">View All</Link>
                         </div>
                         {isLoadingActivity ? (
                             <div className="space-y-4">{[...Array(5)].map((_, i) => <Skeleton key={i} className="h-16 w-full rounded-2xl" />)}</div>
@@ -506,12 +506,12 @@ const AdminDashboard = () => {
                                             </div>
                                             <div>
                                                 <p className="text-sm font-medium text-gray-900 dark:text-white">{dashboardMode === 'registry' ? item.customer_name : item.client_name}</p>
-                                                <p className="text-[10px] text-gray-400 dark:text-white/20 uppercase tracking-widest">{dashboardMode === 'registry' ? item.mobile : item.service_type}</p>
+                                                <p className="text-xs text-gray-400 dark:text-white/20 uppercase tracking-widest">{dashboardMode === 'registry' ? item.mobile : item.service_type}</p>
                                             </div>
                                         </div>
                                         <div className="text-right">
                                             <p className="text-xs font-mono text-gray-900 dark:text-white">{new Date(item.created_at).toLocaleDateString()}</p>
-                                            <p className={`text-[9px] font-black uppercase tracking-[0.2em] ${item.status === 'completed' ? 'text-green-500' : 'text-attire-accent'}`}>{item.status}</p>
+                                            <p className={`text-xs font-black uppercase tracking-[0.2em] ${item.status === 'completed' ? 'text-green-500' : 'text-attire-accent'}`}>{item.status}</p>
                                         </div>
                                     </motion.li>
                                 ))}
@@ -525,7 +525,7 @@ const AdminDashboard = () => {
                     </motion.div>
 
                     <motion.div variants={cardVariants} className="bg-white dark:bg-black/20 backdrop-blur-xl p-10 rounded-[3rem] shadow-xl shadow-black/[0.02] border border-black/5 dark:border-white/10 flex flex-col">
-                        <div className="flex items-center gap-4 mb-10"><div className="p-3 bg-purple-500/10 rounded-2xl text-purple-500"><ShieldCheck size={24} /></div><div><h2 className="text-2xl font-serif text-gray-900 dark:text-white tracking-tight">Terminals</h2><p className="text-[10px] font-black text-gray-400 dark:text-white/20 uppercase tracking-[0.2em] mt-1">Direct access</p></div></div>
+                        <div className="flex items-center gap-4 mb-10"><div className="p-3 bg-purple-500/10 rounded-2xl text-purple-500"><ShieldCheck size={24} /></div><div><h2 className="text-2xl font-serif text-gray-900 dark:text-white tracking-tight">Terminals</h2><p className="text-xs font-black text-gray-400 dark:text-white/20 uppercase tracking-[0.2em] mt-1">Direct access</p></div></div>
                         <div className="flex flex-col gap-4 flex-grow">
                             <QuickAction icon={<Users />} title="Client Registry" description="Manage Dossiers" link="/admin/customer-profiles" />
                             <QuickAction icon={<Package />} title="Product Library" description="Curate Collections" link="/admin/products" />

@@ -19,11 +19,13 @@ export const POSProvider = ({ children }) => {
             notes: '',
             note: '',
             heldAt: null,
-            status: 'active'
+            status: 'active',
+            payments: []
         }
     ]);
     const [activeTabIndex, setActiveTabIndex] = useState(0);
     const [isHistoryOpen, setIsHistoryOpen] = useState(false);
+    const [isServiceOpen, setIsServiceOpen] = useState(false);
 
     // Persist to local storage? Maybe later. 
     // Let's keep it in memory for now as per design "multi-tab" often means current session.
@@ -38,7 +40,8 @@ export const POSProvider = ({ children }) => {
             notes: '',
             note: '',
             heldAt: null,
-            status: 'active'
+            status: 'active',
+            payments: []
         };
         setInvoiceTabs([...invoiceTabs, newTab]);
         setActiveTabIndex(invoiceTabs.length);
@@ -150,7 +153,8 @@ export const POSProvider = ({ children }) => {
             cartItems: [],
             notes: '',
             heldAt: null,
-            status: 'active'
+            status: 'active',
+            payments: []
         });
     };
 
@@ -159,6 +163,10 @@ export const POSProvider = ({ children }) => {
         
         updateActiveTab({ status: 'held', heldAt: new Date() });
         addNewTab(); // Automatically open a new tab after holding
+    };
+
+    const updatePayments = (payments) => {
+        updateActiveTab({ payments });
     };
 
     // Centralized Totals Calculation
@@ -193,14 +201,19 @@ export const POSProvider = ({ children }) => {
         const tierDiscountAmount = subtotal * (tierDiscountPercent / 100);
         const finalTotal = subtotal - tierDiscountAmount;
 
+        const currentPaid = (activeTab?.payments || []).reduce((sum, p) => sum + p.amount, 0);
+        const changeDue = Math.max(0, currentPaid - finalTotal);
+
         return {
             subtotal,
             productSubtotalForDiscount,
             tierDiscountPercent,
             tierDiscountAmount,
-            finalTotal
+            finalTotal,
+            currentPaid,
+            changeDue
         };
-    }, [activeTab.cartItems]);
+    }, [activeTab.cartItems, activeTab.payments]);
 
     const value = {
         invoiceTabs,
@@ -217,10 +230,13 @@ export const POSProvider = ({ children }) => {
         toggleGiftWrap,
         attachCustomer,
         updateNote,
+        updatePayments,
         clearInvoice,
         holdInvoice,
         isHistoryOpen,
-        setIsHistoryOpen
+        setIsHistoryOpen,
+        isServiceOpen,
+        setIsServiceOpen
     };
 
     return <POSContext.Provider value={value}>{children}</POSContext.Provider>;

@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { usePOS } from './POSContext';
-import { Scissors, Ruler, Loader2, Sparkles, Wand2, Zap } from 'lucide-react';
+import { Zap, Loader2, ChevronDown } from 'lucide-react';
 import { motion } from 'framer-motion';
 
-const ServicePanel = () => {
+const ServicePanel = ({ onClose }) => {
     const [services, setServices] = useState([]);
     const [loading, setLoading] = useState(true);
     const { addItem } = usePOS();
@@ -23,77 +23,58 @@ const ServicePanel = () => {
         fetchServices();
     }, []);
 
-    const serviceIcons = {
-        'default': <Sparkles size={16} />,
-        'altering': <Scissors size={16} />,
-        'measurement': <Ruler size={16} />,
-        'custom': <Wand2 size={16} />,
-        'express': <Zap size={16} />
-    };
-
-    const getIcon = (name) => {
-        const n = name.toLowerCase();
-        if (n.includes('altering') || n.includes('repair')) return serviceIcons.altering;
-        if (n.includes('measure')) return serviceIcons.measurement;
-        if (n.includes('custom')) return serviceIcons.custom;
-        if (n.includes('express') || n.includes('rush')) return serviceIcons.express;
-        return serviceIcons.default;
-    };
-
     if (loading) return (
-        <div className="h-full flex items-center justify-center">
-            <Loader2 className="animate-spin text-attire-accent" size={24} />
+        <div className="h-full flex items-center justify-center bg-black/[0.02] dark:bg-white/[0.01] rounded-2xl animate-pulse">
+            <Loader2 className="animate-spin text-attire-accent opacity-30" size={32} />
         </div>
     );
 
     return (
-        <div className="h-full flex flex-col">
-            <div className="flex items-center justify-between mb-2 px-1">
-                <div className="flex items-center gap-1.5">
-                    <div className="w-1 h-1 rounded-full bg-attire-accent animate-pulse" />
-                    <h3 className="text-[10px] font-black uppercase tracking-[0.25em] text-gray-900 dark:text-white">
-                        Quick Services
-                    </h3>
+        <div className="h-full flex flex-col font-sans select-none overflow-hidden">
+            {/* Functional Header */}
+            <div className="flex items-center justify-between mb-4 px-1">
+                <div className="flex items-center gap-2">
+                    <div className="p-1.5 rounded-lg bg-attire-accent text-black">
+                        <Zap size={14} fill="currentColor" />
+                    </div>
+                    <div>
+                        <h3 className="text-[12px] font-black uppercase tracking-[0.3em] text-gray-900 dark:text-white leading-none mb-0.5">
+                            Tactical Services
+                        </h3>
+                        <p className="text-[8px] text-gray-500 uppercase tracking-widest font-bold">Quick-add to current invoice</p>
+                    </div>
                 </div>
-                <span className="text-[7px] font-black uppercase tracking-widest text-gray-400 opacity-30">Quick Add</span>
+                <button 
+                    onClick={onClose}
+                    className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-black/5 dark:bg-white/5 border border-black/5 dark:border-white/10 text-[9px] font-black uppercase tracking-widest hover:bg-red-500/10 hover:text-red-500 transition-all group"
+                >
+                    Close Deck <ChevronDown size={14} className="group-hover:translate-y-0.5 transition-transform" />
+                </button>
             </div>
-            
-            <div className="grid grid-rows-2 grid-flow-col gap-3 overflow-x-auto no-scrollbar pb-1 h-[calc(100%-1.5rem)]">
+
+            {/* Left-Aligned Flex Deck */}
+            <div className="flex-1 flex flex-wrap gap-3 justify-start content-start overflow-y-auto attire-scrollbar pb-2">
                 {services.map((service) => (
                     <motion.button
                         key={service.id}
-                        whileHover={{ y: -3, scale: 1.01 }}
-                        whileTap={{ scale: 0.98 }}
-                        onClick={() => addItem(service)}
-                        className="flex-shrink-0 w-36 h-18 flex flex-col items-center justify-center p-3 rounded-2xl bg-black/5 dark:bg-white/[0.02] border border-black/10 dark:border-white/10 hover:border-attire-accent/40 hover:bg-white dark:hover:bg-white/[0.04] transition-all text-center group relative overflow-hidden shadow-sm"
+                        whileTap={{ scale: 0.95 }}
+                        onClick={() => {
+                            addItem(service);
+                        }}
+                        className="flex flex-col items-start justify-center text-left p-4 w-[160px] min-h-[90px] rounded-2xl bg-black/[0.03] dark:bg-white/[0.03] border border-black/5 dark:border-white/10 hover:border-attire-accent/60 hover:bg-white dark:hover:bg-white/[0.06] transition-all group shadow-sm hover:shadow-attire-accent/5"
                     >
-                        {/* Background Ornament */}
-                        <div className="absolute -bottom-3 -right-3 w-12 h-12 bg-attire-accent/5 rounded-full blur-lg group-hover:bg-attire-accent/15 transition-all" />
-                        
-                        <div className="relative z-10 flex items-center gap-3 w-full">
-                            <div className="w-8 h-8 rounded-xl bg-white dark:bg-black border border-black/5 dark:border-white/20 flex items-center justify-center text-gray-400 group-hover:text-attire-accent group-hover:bg-attire-accent/10 group-hover:border-attire-accent/30 transition-all shadow-sm flex-shrink-0">
-                                {getIcon(service.name)}
-                            </div>
-                            
-                            <div className="flex flex-col items-start min-w-0 text-left">
-                                <p className="text-[9px] font-black uppercase tracking-tight text-gray-900 dark:text-white leading-none mb-1 truncate w-full">
-                                    {service.name}
-                                </p>
-                                <span className="text-[8px] font-bold text-attire-accent bg-attire-accent/10 px-1.5 py-0.5 rounded-md uppercase tracking-wider">
-                                    ${parseFloat(service.price).toLocaleString()}
-                                </span>
-                            </div>
-                        </div>
-
-                        {/* Hover Pulse */}
-                        <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-all translate-x-2 group-hover:translate-x-0">
-                            <div className="w-1 h-1 rounded-full bg-attire-accent shadow-[0_0_8px_rgba(212,175,55,0.8)]" />
-                        </div>
+                        <p className="text-[12px] font-black uppercase tracking-[0.05em] text-gray-900 dark:text-white leading-tight mb-2 group-hover:text-attire-accent transition-colors line-clamp-2 w-full">
+                            {service.name}
+                        </p>
+                        <span className="text-[13px] font-mono font-black text-attire-accent">
+                            ${parseFloat(service.price).toLocaleString()}
+                        </span>
                     </motion.button>
                 ))}
             </div>
         </div>
     );
 };
+
 
 export default ServicePanel;

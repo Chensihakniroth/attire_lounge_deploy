@@ -171,8 +171,8 @@ const PromocodeManager = () => {
             {/* Header Section */}
             <div className="flex flex-col md:flex-row justify-between flex-wrap gap-4 items-end">
                 <div>
-                    <h1 className="text-3xl font-light text-attire-charcoal dark:text-white tracking-widest">
-                        PROMOCODES
+                    <h1 className="text-4xl font-light text-attire-charcoal dark:text-white tracking-[0.2em] uppercase">
+                        Promocode Ledger
                     </h1>
                 </div>
 
@@ -207,12 +207,12 @@ const PromocodeManager = () => {
                     
                     {/* Active */}
                     <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-4">
-                        <h2 className="text-[10px] font-black text-attire-charcoal/40 dark:text-white/40 uppercase tracking-[0.2em] flex items-center gap-2.5">
-                            <span className="relative flex h-2 w-2">
+                        <h2 className="text-[11.5px] font-black text-attire-charcoal/40 dark:text-white/40 uppercase tracking-[0.3em] flex items-center gap-3">
+                            <span className="relative flex h-2.5 w-2.5">
                                 <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#0d3542] dark:bg-attire-accent opacity-20"></span>
-                                <span className="relative inline-flex rounded-full h-2 w-2 bg-[#0d3542] dark:bg-attire-accent ring-4 ring-[#0d3542]/10 dark:ring-attire-accent/10"></span>
+                                <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-[#0d3542] dark:bg-attire-accent ring-4 ring-[#0d3542]/10 dark:ring-attire-accent/10"></span>
                             </span>
-                            Active
+                            Active Repository
                         </h2>
                         
                         <div className="space-y-3">
@@ -232,11 +232,11 @@ const PromocodeManager = () => {
 
                     {/* Expired */}
                     <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-4">
-                        <h2 className="text-[10px] font-black text-attire-charcoal/30 dark:text-white/20 uppercase tracking-[0.2em] flex items-center gap-2.5">
-                            <span className="relative flex h-2 w-2 opacity-50">
-                                <span className="relative inline-flex rounded-full h-2 w-2 bg-red-500/50 ring-4 ring-red-500/5"></span>
+                        <h2 className="text-[11.5px] font-black text-attire-charcoal/30 dark:text-white/20 uppercase tracking-[0.3em] flex items-center gap-3">
+                            <span className="relative flex h-2.5 w-2.5 opacity-50">
+                                <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-red-500/50 ring-4 ring-red-500/5"></span>
                             </span>
-                            Expired
+                            Expired Archive
                         </h2>
                         
                         <div className="space-y-3">
@@ -261,23 +261,23 @@ const PromocodeManager = () => {
             <ModernModal isOpen={isCreating} onClose={() => setIsCreating(false)} maxWidth="max-w-md" title="NEW CODE">
                 <form onSubmit={handleCreateSubmit} className="space-y-6 pt-2">
                     <div className="group">
-                        <label className="block text-[10px] font-semibold text-attire-charcoal/40 dark:text-white/40 uppercase tracking-wider mb-2 transition-colors group-focus-within:text-[#0d3542] dark:group-focus-within:text-attire-accent">Name</label>
+                        <label className="block text-[11.5px] font-black text-attire-charcoal/40 dark:text-white/40 uppercase tracking-wider mb-2 transition-colors group-focus-within:text-[#0d3542] dark:group-focus-within:text-attire-accent">Campaign Designation</label>
                         <input
                             type="text" name="name" value={formData.name} onChange={handleInputChange} required
-                            className="w-full bg-black/5 dark:bg-white/[0.03] border border-black/10 dark:border-white/10 rounded-xl py-4 px-5 text-attire-charcoal dark:text-white text-sm focus:border-[#0d3542] dark:focus:border-attire-accent focus:ring-1 focus:ring-[#0d3542]/20 dark:focus:ring-attire-accent/20 focus:outline-none transition-all shadow-inner"
+                            className="w-full bg-black/5 dark:bg-white/[0.03] border border-black/10 dark:border-white/10 rounded-xl py-4 px-5 text-attire-charcoal dark:text-white text-[16px] font-black focus:border-[#0d3542] dark:focus:border-attire-accent focus:ring-1 focus:ring-[#0d3542]/20 dark:focus:ring-attire-accent/20 focus:outline-none transition-all shadow-inner"
                             placeholder="SUMMER SALE"
                         />
                     </div>
 
                     <div className="group">
-                        <label className="block text-[10px] font-semibold text-attire-charcoal/40 dark:text-white/40 uppercase tracking-wider mb-2 transition-colors group-focus-within:text-[#0d3542] dark:group-focus-within:text-attire-accent">Discount (%)</label>
+                        <label className="block text-[11.5px] font-black text-attire-charcoal/40 dark:text-white/40 uppercase tracking-wider mb-2 transition-colors group-focus-within:text-[#0d3542] dark:group-focus-within:text-attire-accent">Discount Ratio (%)</label>
                         <div className="relative">
                             <input
                                 type="number" name="discount_percentage" value={formData.discount_percentage} onChange={handleInputChange} required min="1" max="100"
-                                className="w-full bg-black/5 dark:bg-white/[0.03] border border-black/10 dark:border-white/10 rounded-xl py-4 px-5 text-attire-charcoal dark:text-white text-sm focus:border-[#0d3542] dark:focus:border-attire-accent focus:ring-1 focus:ring-[#0d3542]/20 dark:focus:ring-attire-accent/20 focus:outline-none transition-all shadow-inner"
+                                className="w-full bg-black/5 dark:bg-white/[0.03] border border-black/10 dark:border-white/10 rounded-xl py-4 px-5 text-attire-charcoal dark:text-white text-[16px] font-black focus:border-[#0d3542] dark:focus:border-attire-accent focus:ring-1 focus:ring-[#0d3542]/20 dark:focus:ring-attire-accent/20 focus:outline-none transition-all shadow-inner"
                                 placeholder="20"
                             />
-                            <Percent size={14} className="absolute right-5 top-1/2 -translate-y-1/2 text-attire-charcoal/30 dark:text-white/30" />
+                            <Percent size={16} className="absolute right-5 top-1/2 -translate-y-1/2 text-attire-charcoal/30 dark:text-white/30" />
                         </div>
                     </div>
 
@@ -327,24 +327,24 @@ const PromocodeCard = ({ code, status, onDelete }) => {
                 <div className="flex items-center gap-4 mb-2">
                     <span 
                         onClick={handleCopy} 
-                        className={`font-mono text-2xl font-black tracking-[0.2em] cursor-pointer transition-colors truncate ${
+                        className={`font-mono text-[26px] font-black tracking-[0.3em] cursor-pointer transition-colors truncate ${
                             isActive ? 'text-[#0d3542] dark:text-white hover:text-[#0d3542]/80 dark:hover:text-attire-accent' : 'text-gray-400'
                         }`}
                     >
                         {code.code}
                     </span>
-                    <div className={`px-3 py-1.5 rounded-full text-[10px] font-black tracking-widest flex items-center gap-1.5 shadow-sm ${
+                    <div className={`px-4 py-2 rounded-full text-[12.5px] font-black tracking-widest flex items-center gap-2 shadow-sm ${
                         isActive ? 'bg-[#0d3542]/10 text-[#0d3542] dark:bg-attire-accent/10 dark:text-attire-accent' : 'bg-gray-200 dark:bg-gray-800 text-gray-500'
                     }`}>
-                        <Sparkles size={12} className="animate-pulse" />
+                        <Sparkles size={14} className="animate-pulse" />
                         {code.discount_percentage}% OFF
                     </div>
                 </div>
-                <div className="flex items-center gap-3 text-[11px] font-bold uppercase tracking-[0.3em] text-attire-charcoal/40 dark:text-white/30">
-                    <span className="truncate max-w-[150px]">{code.name}</span>
+                <div className="flex items-center gap-3 text-[12px] font-black uppercase tracking-[0.3em] text-attire-charcoal/40 dark:text-white/30">
+                    <span className="truncate max-w-[200px]">{code.name}</span>
                     <span className="opacity-30">•</span>
-                    <span className="flex items-center gap-1.5">
-                        <Calendar size={12} className="opacity-50" />
+                    <span className="flex items-center gap-2">
+                        <Calendar size={14} className="opacity-50" />
                         {dateFormatted}
                     </span>
                 </div>

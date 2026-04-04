@@ -20,8 +20,13 @@ class PosProductController extends Controller
             $query = PosProduct::active()->products();
         }
 
-        if ($search = $request->get('search')) {
-            $query->search($search);
+        if ($search = $request->get('search') || $request->get('name') || $request->get('attribute') || $request->get('code')) {
+            $query->search(
+                $request->get('search'),
+                $request->get('name'),
+                $request->get('attribute'),
+                $request->get('code')
+            );
         }
 
         if ($category = $request->get('category')) {
@@ -30,6 +35,15 @@ class PosProductController extends Controller
 
         if ($tier = $request->get('tier')) {
             $query->where('tier', $tier);
+        }
+
+        if ($request->filled('in_stock')) {
+            $inStock = $request->get('in_stock');
+            if ($inStock == 1) {
+                $query->where('stock_qty', '>', 0);
+            } elseif ($inStock == 0) {
+                $query->where('stock_qty', '<=', 0);
+            }
         }
 
         $products = $query

@@ -26,6 +26,7 @@ import { Card, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { BorderBeam } from '@/components/ui/border-beam';
 import ModernModal from '../../common/ModernModal.jsx';
+import { formatDate } from '@/helpers/format';
 
 const statusConfig = {
     pending: {
@@ -66,20 +67,6 @@ const containerVariants = {
             staggerChildren: 0.05,
         },
     },
-};
-
-const formatDate = (dateStr) => {
-    if (!dateStr) return 'N/A';
-    try {
-        const date = new Date(dateStr);
-        return date.toLocaleDateString('en-US', {
-            month: 'short',
-            day: 'numeric',
-            year: 'numeric',
-        });
-    } catch (e) {
-        return dateStr;
-    }
 };
 
 const TableSkeleton = () => (
@@ -151,55 +138,55 @@ const AlteringRow = React.memo(({
                 />
             </div>
 
-            <div className="flex items-center gap-3 border-r border-black/5 dark:border-white/5 px-3 h-full overflow-hidden">
-                <div className="w-8 h-8 rounded-full bg-attire-accent/10 border border-attire-accent/20 flex items-center justify-center shrink-0">
-                    <span className="text-[10px] font-black text-attire-accent">
+            <div className="flex items-center gap-4 border-r border-black/5 dark:border-white/5 px-4 h-full overflow-hidden">
+                <div className="w-10 h-10 rounded-full bg-attire-accent/10 border border-attire-accent/20 flex items-center justify-center shrink-0">
+                    <span className="text-sm font-black text-attire-accent">
                         {altering.customer_name?.charAt(0) || 'U'}
                     </span>
                 </div>
-                <span className="text-sm font-serif text-attire-charcoal dark:text-white truncate">
+                <span className="text-[16px] font-serif text-attire-charcoal dark:text-white truncate">
                     {altering.customer_name}
                 </span>
             </div>
 
-            <div className="flex flex-col gap-1 border-r border-black/5 dark:border-white/5 px-3 h-full justify-center overflow-hidden">
+            <div className="flex flex-col gap-1.5 border-r border-black/5 dark:border-white/5 px-4 h-full justify-center overflow-hidden">
                 <div className="flex items-center gap-1.5 opacity-40">
-                    <div className="w-1 h-1 rounded-full bg-current" />
-                    <span className="text-[9px] font-mono tracking-tighter uppercase truncate">
+                    <div className="w-1.5 h-1.5 rounded-full bg-current" />
+                    <span className="text-[13px] font-mono tracking-tighter uppercase truncate">
                         #{altering.order_no || 'MANUAL'}
                     </span>
                 </div>
-                <div className="text-[10px] font-medium text-gray-500 dark:text-white/40 flex items-center gap-1">
-                    <Smartphone size={8} />
+                <div className="text-[12.5px] font-medium text-gray-500 dark:text-white/40 flex items-center gap-2">
+                    <Smartphone size={10} />
                     {altering.mobile || 'N/A'}
                 </div>
             </div>
 
-            <div className="px-3 border-r border-black/5 dark:border-white/5 h-full flex items-center">
-                <div className={`inline-flex items-center gap-1.5 px-2 py-1 rounded-lg text-[9px] font-black uppercase tracking-widest border ${status.bgColor} ${status.textColor} ${status.borderColor} shadow-sm w-fit`}>
-                    <status.icon className="w-3 h-3" />
+            <div className="px-4 border-r border-black/5 dark:border-white/5 h-full flex items-center">
+                <div className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[12px] font-black uppercase tracking-widest border ${status.bgColor} ${status.textColor} ${status.borderColor} shadow-sm w-fit`}>
+                    <status.icon className="w-3.5 h-3.5" />
                     {status.label}
                 </div>
             </div>
 
-            <div className="px-3 border-r border-black/5 dark:border-white/5 h-full flex items-center">
-                <span className="text-xs font-mono font-bold text-attire-accent">
+            <div className="px-4 border-r border-black/5 dark:border-white/5 h-full flex items-center">
+                <span className="text-[15px] font-mono font-bold text-attire-accent">
                     ${altering.altering_cost || '0.00'}
                 </span>
             </div>
 
             <div className="px-3 border-r border-black/5 dark:border-white/5 h-full flex items-center overflow-hidden">
-                <span className="text-[10px] font-medium text-gray-500 dark:text-white/60 line-clamp-1 italic">
+                <span className="text-xs font-medium text-gray-500 dark:text-white/60 line-clamp-1 italic">
                     {altering.product || 'Unspecified Product'}
                 </span>
             </div>
 
-            <div className="px-3 border-r border-black/5 dark:border-white/5 h-full flex items-center">
+            <div className="px-4 border-r border-black/5 dark:border-white/5 h-full flex items-center">
                 <div className="flex flex-col">
-                    <span className="text-xs font-mono text-attire-charcoal dark:text-white">
-                        {formatDate(altering.ready_at)}
+                    <span className="text-[14px] font-mono text-attire-charcoal dark:text-white">
+                        {formatDate(altering.ready_at, { fallback: 'N/A', month: 'short' })}
                     </span>
-                    <span className="text-[9px] uppercase tracking-tighter text-gray-400 font-bold">
+                    <span className="text-[11.5px] uppercase tracking-tighter text-gray-400 font-bold">
                         {altering.ready_at ? 'Target Ready' : 'Date TBD'}
                     </span>
                 </div>
@@ -230,7 +217,7 @@ const AlteringTable = React.memo(({
         <div className="min-w-[1100px]">
             {/* Table Header */}
             <div
-                className="px-5 py-4 text-[10px] font-black uppercase tracking-[0.2em] text-gray-400 dark:text-white/40 bg-black/[0.02] dark:bg-white/[0.02] border-b border-black/5 dark:border-white/10 text-left"
+                className="px-5 py-5 text-[12.5px] font-black uppercase tracking-[0.2em] text-gray-400 dark:text-white/40 bg-black/[0.02] dark:bg-white/[0.02] border-b border-black/5 dark:border-white/10 text-left"
                 style={{
                     display: 'grid',
                     gridTemplateColumns: '40px 200px 160px 140px 120px 160px 1fr 60px',
@@ -253,9 +240,9 @@ const AlteringTable = React.memo(({
                     <Smartphone size={12} className="opacity-50" />
                     Ref & Mobile
                 </div>
-                <div className="flex items-center gap-1.5 border-r border-black/5 dark:border-white/5 px-3">
-                    <Clock size={12} className="opacity-50" />
-                    Current Status
+                <div className="flex items-center gap-1.5 border-r border-black/5 dark:border-white/5 px-4">
+                    <Clock size={14} className="opacity-50" />
+                    Status
                 </div>
                 <div className="flex items-center gap-1.5 border-r border-black/5 dark:border-white/5 px-3">
                     <DollarSign size={12} className="opacity-50" />
@@ -579,7 +566,7 @@ export default function AlteringManager() {
                     </h1>
                     <div className="flex items-center gap-3 mt-4">
                         <span className="w-8 h-px bg-attire-accent/40" />
-                        <p className="text-gray-400 dark:text-white/40 text-[10px] font-black uppercase tracking-[0.4em]">
+                        <p className="text-gray-400 dark:text-white/40 text-xs font-black uppercase tracking-[0.4em]">
                             Tailor Queue Management
                         </p>
                     </div>
@@ -596,7 +583,7 @@ export default function AlteringManager() {
                                 setSearchQuery(e.target.value);
                                 setPage(1);
                             }}
-                            className="bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 rounded-xl py-2.5 pl-10 pr-10 text-attire-charcoal dark:text-white text-sm outline-none focus:border-attire-accent/50 transition-all placeholder:text-gray-400 dark:placeholder:text-white/20 w-48 lg:w-64 font-mono tracking-widest text-[11px]"
+                            className="bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 rounded-xl py-3.5 pl-10 pr-10 text-attire-charcoal dark:text-white outline-none focus:border-attire-accent/50 transition-all placeholder:text-gray-400 dark:placeholder:text-white/20 w-48 lg:w-64 font-mono tracking-widest text-[14.5px]"
                         />
                         {searchQuery && (
                             <button
@@ -619,7 +606,7 @@ export default function AlteringManager() {
                                 setStatusFilter('');
                                 setPage(1);
                             }}
-                            className="text-[10px] font-black underline uppercase tracking-widest text-attire-accent hover:text-[#ffb940] transition-colors p-2"
+                            className="text-xs font-black underline uppercase tracking-widest text-attire-accent hover:text-[#ffb940] transition-colors p-2"
                         >
                             Reset
                         </button>
@@ -628,7 +615,7 @@ export default function AlteringManager() {
                     <div className="relative">
                         <button
                             onClick={() => setShowFilterMenu(!showFilterMenu)}
-                            className={`px-4 py-2.5 bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 text-attire-charcoal dark:text-white hover:bg-black/10 dark:hover:bg-white/10 transition-colors flex items-center gap-2 rounded-xl text-sm font-mono tracking-widest text-[11px] ${statusFilter ? 'ring-1 ring-attire-accent/50' : ''}`}
+                            className={`px-4 py-2.5 bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 text-attire-charcoal dark:text-white hover:bg-black/10 dark:hover:bg-white/10 transition-colors flex items-center gap-2 rounded-xl font-mono tracking-widest text-xs ${statusFilter ? 'ring-1 ring-attire-accent/50' : ''}`}
                         >
                             <svg
                                 width="14"
@@ -645,7 +632,7 @@ export default function AlteringManager() {
                             </svg>
                             Filter
                             {statusFilter && (
-                                <span className="ml-1 text-[10px] bg-attire-accent text-black font-black rounded px-1.5 py-0.5">
+                                <span className="ml-1 text-xs bg-attire-accent text-black font-black rounded px-1.5 py-0.5">
                                     1
                                 </span>
                             )}
@@ -694,7 +681,7 @@ export default function AlteringManager() {
                     <div className="relative">
                         <button
                             onClick={() => setShowSortMenu(!showSortMenu)}
-                            className="px-4 py-2.5 bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 text-attire-charcoal dark:text-white hover:bg-black/10 dark:hover:bg-white/10 transition-colors flex items-center gap-2 rounded-xl text-sm font-mono tracking-widest text-[11px]"
+                            className="px-4 py-2.5 bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 text-attire-charcoal dark:text-white hover:bg-black/10 dark:hover:bg-white/10 transition-colors flex items-center gap-2 rounded-xl text-sm font-mono tracking-widest text-xs"
                         >
                             <svg
                                 width="14"
@@ -994,7 +981,8 @@ export default function AlteringManager() {
                                     </p>
                                     <p className="text-sm font-mono text-gray-800 dark:text-white/80">
                                         {formatDate(
-                                            selectedDetail.ready_at
+                                            selectedDetail.ready_at,
+                                            { fallback: 'N/A', month: 'short' }
                                         )}
                                     </p>
                                 </div>
@@ -1071,7 +1059,7 @@ export default function AlteringManager() {
                             <div className="text-center pt-2">
                                 <span className="text-[9px] uppercase tracking-widest font-black text-gray-400 dark:text-white/20">
                                     {selectedDetail.notified_at
-                                        ? `Last notified: ${formatDate(selectedDetail.notified_at)}`
+                                        ? `Last notified: ${formatDate(selectedDetail.notified_at, { fallback: 'N/A', month: 'short' })}`
                                         : 'Not notified yet'}
                                 </span>
                             </div>

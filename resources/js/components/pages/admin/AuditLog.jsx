@@ -21,7 +21,7 @@ const ActionFilter = ({ value, onChange }) => {
             <motion.button
                 whileTap={{ scale: 0.98 }}
                 onClick={() => setIsOpen(!isOpen)}
-                className="flex items-center gap-4 bg-white dark:bg-black/20 border border-black/5 dark:border-white/10 rounded-2xl py-3.5 px-6 text-[10px] font-bold uppercase tracking-[0.2em] text-gray-900 dark:text-white hover:border-attire-accent/30 transition-all shadow-sm"
+                className="flex items-center gap-4 bg-white dark:bg-black/20 border border-black/5 dark:border-white/10 rounded-2xl py-3.5 px-6 text-xs font-bold uppercase tracking-[0.2em] text-gray-900 dark:text-white hover:border-attire-accent/30 transition-all shadow-sm"
             >
                 <currentOption.icon size={14} className={currentOption.color || 'text-gray-400'} />
                 <span>{currentOption.label}</span>
@@ -46,7 +46,7 @@ const ActionFilter = ({ value, onChange }) => {
                                         onChange(option.value);
                                         setIsOpen(false);
                                     }}
-                                    className={`w-full flex items-center gap-4 px-6 py-3.5 text-[10px] font-bold uppercase tracking-widest transition-all ${
+                                    className={`w-full flex items-center gap-4 px-6 py-3.5 text-xs font-bold uppercase tracking-widest transition-all ${
                                         value === option.value 
                                             ? 'bg-black dark:bg-white text-white dark:text-black' 
                                             : 'text-gray-500 dark:text-attire-silver/60 hover:bg-black/5 dark:hover:bg-white/5 hover:text-gray-900 dark:hover:text-white'
@@ -134,7 +134,7 @@ const AuditLog = () => {
         
         return (
             <div className="mt-4 space-y-3">
-                <p className="text-[10px] font-bold text-gray-400 dark:text-attire-silver/40 uppercase tracking-widest border-b border-black/5 dark:border-white/5 pb-2">Changes</p>
+                <p className="text-xs font-bold text-gray-400 dark:text-attire-silver/40 uppercase tracking-widest border-b border-black/5 dark:border-white/5 pb-2">Changes</p>
                 <div className="grid grid-cols-1 gap-2">
                     {Object.entries(changes).map(([key, value]) => (
                         <div key={key} className="text-[11px] bg-black/5 dark:bg-white/5 p-3 rounded-xl border border-black/5 dark:border-white/5">
@@ -179,12 +179,12 @@ const AuditLog = () => {
                         <table className="w-full text-left border-collapse">
                             <thead>
                                 <tr className="border-b border-black/5 dark:border-white/5 bg-black/[0.02] dark:bg-white/[0.02]">
-                                    <th className="px-8 py-6 text-[10px] font-bold text-gray-400 dark:text-attire-silver/40 uppercase tracking-[0.2em]">User</th>
-                                    <th className="px-8 py-6 text-[10px] font-bold text-gray-400 dark:text-attire-silver/40 uppercase tracking-[0.2em]">Action</th>
-                                    <th className="px-8 py-6 text-[10px] font-bold text-gray-400 dark:text-attire-silver/40 uppercase tracking-[0.2em]">Details</th>
-                                    <th className="px-8 py-6 text-[10px] font-bold text-gray-400 dark:text-attire-silver/40 uppercase tracking-[0.2em]">IP Address</th>
-                                    <th className="px-8 py-6 text-[10px] font-bold text-gray-400 dark:text-attire-silver/40 uppercase tracking-[0.2em]">Time</th>
-                                    <th className="px-8 py-6 text-[10px] font-bold text-gray-400 dark:text-attire-silver/40 uppercase tracking-[0.2em]">Actions</th>
+                                    <th className="px-8 py-6 text-xs font-bold text-gray-400 dark:text-attire-silver/40 uppercase tracking-[0.2em]">User</th>
+                                    <th className="px-8 py-6 text-xs font-bold text-gray-400 dark:text-attire-silver/40 uppercase tracking-[0.2em]">Action</th>
+                                    <th className="px-8 py-6 text-xs font-bold text-gray-400 dark:text-attire-silver/40 uppercase tracking-[0.2em]">Details</th>
+                                    <th className="px-8 py-6 text-xs font-bold text-gray-400 dark:text-attire-silver/40 uppercase tracking-[0.2em]">IP Address</th>
+                                    <th className="px-8 py-6 text-xs font-bold text-gray-400 dark:text-attire-silver/40 uppercase tracking-[0.2em]">Time</th>
+                                    <th className="px-8 py-6 text-xs font-bold text-gray-400 dark:text-attire-silver/40 uppercase tracking-[0.2em]">Actions</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -206,12 +206,12 @@ const AuditLog = () => {
                                                     </div>
                                                     <div>
                                                         <p className="text-xs font-bold text-gray-900 dark:text-white uppercase tracking-wider">{activity.user?.name || 'System'}</p>
-                                                        <p className="text-[10px] text-gray-400 dark:text-attire-silver/40 font-mono">{activity.user?.email || 'N/A'}</p>
+                                                        <p className="text-xs text-gray-400 dark:text-attire-silver/40 font-mono">{activity.user?.email || 'N/A'}</p>
                                                     </div>
                                                 </div>
                                             </td>
                                             <td className="px-8 py-6">
-                                                <span className={`px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-widest border ${getActionColor(activity.action)}`}>
+                                                <span className={`px-3 py-1 rounded-full text-[11px] font-black uppercase tracking-widest border ${getActionColor(activity.action)}`}>
                                                     {activity.action}
                                                 </span>
                                             </td>
@@ -219,12 +219,12 @@ const AuditLog = () => {
                                                 <p className="text-xs text-gray-600 dark:text-attire-silver/80 line-clamp-1 max-w-xs">{activity.details}</p>
                                             </td>
                                             <td className="px-8 py-6">
-                                                <span className="text-[10px] font-mono text-gray-400 dark:text-attire-silver/40">{activity.ip_address}</span>
+                                                <span className="text-xs font-mono text-gray-400 dark:text-attire-silver/40">{activity.ip_address}</span>
                                             </td>
                                             <td className="px-8 py-6">
                                                 <div className="flex flex-col">
                                                     <span className="text-xs text-gray-900 dark:text-white font-medium">{new Date(activity.created_at).toLocaleDateString()}</span>
-                                                    <span className="text-[10px] text-gray-400 dark:text-attire-silver/40 font-mono">{new Date(activity.created_at).toLocaleTimeString()}</span>
+                                                    <span className="text-xs text-gray-400 dark:text-attire-silver/40 font-mono">{new Date(activity.created_at).toLocaleTimeString()}</span>
                                                 </div>
                                             </td>
                                             <td className="px-8 py-6">
@@ -253,7 +253,7 @@ const AuditLog = () => {
 
                     {pagination.last_page > 1 && (
                         <div className="px-8 py-6 border-t border-black/5 dark:border-white/5 bg-black/[0.01] dark:bg-white/[0.01] flex items-center justify-between">
-                            <p className="text-[10px] font-bold text-gray-400 dark:text-attire-silver/40 uppercase tracking-widest">
+                            <p className="text-xs font-bold text-gray-400 dark:text-attire-silver/40 uppercase tracking-widest">
                                 Total: {pagination.total} activities
                             </p>
                             <div className="flex items-center gap-2">
@@ -264,7 +264,7 @@ const AuditLog = () => {
                                 >
                                     <ChevronLeft size={16} />
                                 </button>
-                                <span className="text-[10px] font-bold text-gray-900 dark:text-white uppercase tracking-[0.2em] px-4">
+                                <span className="text-xs font-bold text-gray-900 dark:text-white uppercase tracking-[0.2em] px-4">
                                     Page {pagination.current_page} of {pagination.last_page}
                                 </span>
                                 <button
@@ -304,7 +304,7 @@ const AuditLog = () => {
                                         </div>
                                         <div>
                                             <h2 className="text-xl font-serif text-gray-900 dark:text-white">Activity Detail</h2>
-                                            <p className="text-[9px] font-bold text-gray-400 dark:text-attire-silver/40 uppercase tracking-widest mt-0.5">Reference ID: #{selectedActivity.id}</p>
+                                            <p className="text-xs font-bold text-gray-400 dark:text-attire-silver/40 uppercase tracking-widest mt-0.5">Reference ID: #{selectedActivity.id}</p>
                                         </div>
                                     </div>
                                     <button 
@@ -319,28 +319,28 @@ const AuditLog = () => {
                                     <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                                         <div className="space-y-4">
                                             <div>
-                                                <p className="text-[9px] font-bold text-gray-400 dark:text-attire-silver/30 uppercase tracking-[0.2em] mb-2">Performed By</p>
+                                                <p className="text-xs font-bold text-gray-400 dark:text-attire-silver/30 uppercase tracking-[0.2em] mb-2">Performed By</p>
                                                 <div className="flex items-center gap-3 bg-black/5 dark:bg-white/5 p-4 rounded-2xl border border-black/5 dark:border-white/5">
                                                     <div className="h-10 w-10 rounded-full bg-black/5 dark:bg-white/5 flex items-center justify-center border border-black/5 dark:border-white/5">
                                                         <User size={18} className="text-gray-400 dark:text-attire-silver" />
                                                     </div>
                                                     <div>
                                                         <p className="text-sm font-bold text-gray-900 dark:text-white uppercase tracking-wider">{selectedActivity.user?.name || 'System'}</p>
-                                                        <p className="text-[10px] text-gray-400 dark:text-attire-silver/40 font-mono">{selectedActivity.user?.email || 'automated-system'}</p>
+                                                        <p className="text-xs text-gray-400 dark:text-attire-silver/40 font-mono">{selectedActivity.user?.email || 'automated-system'}</p>
                                                     </div>
                                                 </div>
                                             </div>
 
                                             <div>
-                                                <p className="text-[9px] font-bold text-gray-400 dark:text-attire-silver/30 uppercase tracking-[0.2em] mb-2">Contextual Data</p>
+                                                <p className="text-xs font-bold text-gray-400 dark:text-attire-silver/30 uppercase tracking-[0.2em] mb-2">Contextual Data</p>
                                                 <div className="space-y-2">
                                                     <div className="flex items-center justify-between p-3 bg-black/5 dark:bg-white/5 rounded-xl border border-black/5 dark:border-white/5">
-                                                        <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Model</span>
-                                                        <span className="text-[10px] font-mono text-gray-900 dark:text-white">{selectedActivity.model_type.split('\\').pop()}</span>
+                                                        <span className="text-xs font-bold text-gray-400 uppercase tracking-widest">Model</span>
+                                                        <span className="text-xs font-mono text-gray-900 dark:text-white">{selectedActivity.model_type.split('\\').pop()}</span>
                                                     </div>
                                                     <div className="flex items-center justify-between p-3 bg-black/5 dark:bg-white/5 rounded-xl border border-black/5 dark:border-white/5">
-                                                        <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Object ID</span>
-                                                        <span className="text-[10px] font-mono text-gray-900 dark:text-white">#{selectedActivity.model_id}</span>
+                                                        <span className="text-xs font-bold text-gray-400 uppercase tracking-widest">Object ID</span>
+                                                        <span className="text-xs font-mono text-gray-900 dark:text-white">#{selectedActivity.model_id}</span>
                                                     </div>
                                                 </div>
                                             </div>
@@ -348,19 +348,19 @@ const AuditLog = () => {
 
                                         <div className="space-y-4">
                                             <div>
-                                                <p className="text-[9px] font-bold text-gray-400 dark:text-attire-silver/30 uppercase tracking-[0.2em] mb-2">Metadata</p>
+                                                <p className="text-xs font-bold text-gray-400 dark:text-attire-silver/30 uppercase tracking-[0.2em] mb-2">Metadata</p>
                                                 <div className="space-y-2">
                                                     <div className="flex items-center gap-3 p-3 bg-black/5 dark:bg-white/5 rounded-xl border border-black/5 dark:border-white/5">
                                                         <Clock size={12} className="text-attire-accent" />
-                                                        <span className="text-[10px] font-mono text-gray-900 dark:text-white">{new Date(selectedActivity.created_at).toLocaleString()}</span>
+                                                        <span className="text-xs font-mono text-gray-900 dark:text-white">{new Date(selectedActivity.created_at).toLocaleString()}</span>
                                                     </div>
                                                     <div className="flex items-center gap-3 p-3 bg-black/5 dark:bg-white/5 rounded-xl border border-black/5 dark:border-white/5">
                                                         <Info size={12} className="text-attire-accent" />
-                                                        <span className="text-[10px] font-mono text-gray-900 dark:text-white">{selectedActivity.ip_address}</span>
+                                                        <span className="text-xs font-mono text-gray-900 dark:text-white">{selectedActivity.ip_address}</span>
                                                     </div>
                                                     <div className="p-3 bg-black/5 dark:bg-white/5 rounded-xl border border-black/5 dark:border-white/5 overflow-hidden">
-                                                        <p className="text-[8px] font-bold text-gray-400 uppercase tracking-widest mb-1">User Agent</p>
-                                                        <p className="text-[9px] font-mono text-gray-600 dark:text-attire-silver/40 break-all leading-tight">{selectedActivity.user_agent}</p>
+                                                        <p className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-1">User Agent</p>
+                                                        <p className="text-[11px] font-mono text-gray-600 dark:text-attire-silver/40 break-all leading-tight">{selectedActivity.user_agent}</p>
                                                     </div>
                                                 </div>
                                             </div>
@@ -369,7 +369,7 @@ const AuditLog = () => {
 
                                     <div className="space-y-4">
                                         <div>
-                                            <p className="text-[9px] font-bold text-gray-400 dark:text-attire-silver/30 uppercase tracking-[0.2em] mb-2">Description</p>
+                                            <p className="text-xs font-bold text-gray-400 dark:text-attire-silver/30 uppercase tracking-[0.2em] mb-2">Description</p>
                                             <div className="p-4 bg-black/5 dark:bg-white/5 rounded-2xl border border-black/5 dark:border-white/5 italic text-sm text-gray-700 dark:text-attire-silver/80">
                                                 "{selectedActivity.details}"
                                             </div>

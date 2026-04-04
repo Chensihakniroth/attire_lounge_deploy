@@ -180,7 +180,7 @@ const CollectionManager = () => {
                 <motion.button
                     whileTap={{ scale: 0.95 }}
                     onClick={() => openModal()}
-                    className="flex items-center gap-2 bg-attire-accent text-black rounded-2xl py-3 px-6 text-[10px] font-bold uppercase tracking-widest hover:bg-white transition-all"
+                    className="flex items-center gap-2 bg-attire-accent text-black rounded-2xl py-3 px-6 text-xs font-bold uppercase tracking-widest hover:bg-white transition-all"
                 >
                     <Plus size={14} /> New Collection
                 </motion.button>
@@ -236,12 +236,12 @@ const CollectionManager = () => {
                                 {/* Status Badges */}
                                 <div className="absolute top-4 left-4 flex gap-2 z-10">
                                     {col.is_new && (
-                                        <span className="px-2.5 py-1 bg-attire-accent text-black text-[8px] font-black uppercase tracking-widest rounded-full">
+                                        <span className="px-2.5 py-1 bg-attire-accent text-black text-[11px] font-black uppercase tracking-widest rounded-full">
                                             New
                                         </span>
                                     )}
                                     {!col.is_active && (
-                                        <span className="px-2.5 py-1 bg-red-500 text-white text-[8px] font-black uppercase tracking-widest rounded-full">
+                                        <span className="px-2.5 py-1 bg-red-500 text-white text-[11px] font-black uppercase tracking-widest rounded-full">
                                             Hidden
                                         </span>
                                     )}
@@ -267,7 +267,7 @@ const CollectionManager = () => {
 
                                 {/* Content */}
                                 <div className="absolute inset-x-0 bottom-0 p-6 z-10">
-                                    <span className="text-attire-accent text-[9px] font-bold uppercase tracking-[0.3em] mb-1 block">
+                                    <span className="text-attire-accent text-[11px] font-bold uppercase tracking-[0.3em] mb-1 block">
                                         {col.year}
                                     </span>
                                     <h3 className="text-2xl font-serif text-white mb-1">
@@ -297,7 +297,7 @@ const CollectionManager = () => {
                     <div className="flex gap-6">
                         {/* Image Uploader */}
                         <div className="flex-shrink-0">
-                            <label className="text-[9px] font-bold text-gray-400 uppercase tracking-widest block mb-2">
+                            <label className="text-xs font-bold text-gray-400 uppercase tracking-widest block mb-2">
                                 Cover
                             </label>
                             <label className="relative w-28 h-36 rounded-2xl overflow-hidden block cursor-pointer bg-black/5 dark:bg-white/5 border border-black/5 dark:border-white/10 group">
@@ -339,7 +339,7 @@ const CollectionManager = () => {
                         <div className="flex-1 space-y-4">
                             <div className="grid grid-cols-2 gap-4">
                                 <div className="col-span-2 space-y-1.5">
-                                    <label className="text-[9px] font-bold text-gray-400 uppercase tracking-widest">
+                                    <label className="text-xs font-bold text-gray-400 uppercase tracking-widest">
                                         Name
                                     </label>
                                     <input
@@ -359,7 +359,7 @@ const CollectionManager = () => {
                                     />
                                 </div>
                                 <div className="space-y-1.5">
-                                    <label className="text-[9px] font-bold text-gray-400 uppercase tracking-widest">
+                                    <label className="text-xs font-bold text-gray-400 uppercase tracking-widest">
                                         Slug
                                     </label>
                                     <input
@@ -382,7 +382,7 @@ const CollectionManager = () => {
                                     />
                                 </div>
                                 <div className="space-y-1.5">
-                                    <label className="text-[9px] font-bold text-gray-400 uppercase tracking-widest">
+                                    <label className="text-xs font-bold text-gray-400 uppercase tracking-widest">
                                         Year
                                     </label>
                                     <input
@@ -406,7 +406,7 @@ const CollectionManager = () => {
                                 </div>
                             </div>
                             <div className="space-y-1.5">
-                                <label className="text-[9px] font-bold text-gray-400 uppercase tracking-widest">
+                                <label className="text-xs font-bold text-gray-400 uppercase tracking-widest">
                                     Description
                                 </label>
                                 <textarea
@@ -425,7 +425,7 @@ const CollectionManager = () => {
 
                             <div className="grid grid-cols-2 gap-4 pt-2 border-t border-black/5 dark:border-white/5">
                                 <div className="space-y-1.5">
-                                    <label className="text-[9px] font-bold text-gray-400 uppercase tracking-widest">
+                                    <label className="text-xs font-bold text-gray-400 uppercase tracking-widest">
                                         SEO Title
                                     </label>
                                     <input
@@ -437,7 +437,7 @@ const CollectionManager = () => {
                                     />
                                 </div>
                                 <div className="space-y-1.5">
-                                    <label className="text-[9px] font-bold text-gray-400 uppercase tracking-widest">
+                                    <label className="text-xs font-bold text-gray-400 uppercase tracking-widest">
                                         SEO Description
                                     </label>
                                     <textarea
@@ -479,10 +479,10 @@ const CollectionManager = () => {
                                     className="flex items-center justify-between p-4 bg-black/[0.02] dark:bg-white/[0.02] rounded-2xl border border-black/5 dark:border-white/5"
                                 >
                                     <div>
-                                        <p className="text-[10px] font-bold text-gray-900 dark:text-white uppercase tracking-wider">
+                                        <p className="text-xs font-bold text-gray-900 dark:text-white uppercase tracking-wider">
                                             {label}
                                         </p>
-                                        <p className="text-[9px] text-gray-400 mt-0.5">
+                                        <p className="text-[11px] text-gray-400 mt-0.5">
                                             {sub}
                                         </p>
                                     </div>
@@ -518,14 +518,14 @@ const CollectionManager = () => {
                         <button
                             type="button"
                             onClick={closeModal}
-                            className="flex-grow py-3.5 border border-black/5 dark:border-white/10 rounded-xl text-[10px] font-bold uppercase tracking-widest text-gray-400 hover:text-gray-900 dark:hover:text-white transition-all"
+                            className="flex-grow py-3.5 border border-black/5 dark:border-white/10 rounded-xl text-xs font-bold uppercase tracking-widest text-gray-400 hover:text-gray-900 dark:hover:text-white transition-all"
                         >
                             Cancel
                         </button>
                         <button
                             type="submit"
                             disabled={saving || uploading}
-                            className="flex-grow py-3.5 bg-black dark:bg-white text-white dark:text-black rounded-xl text-[10px] font-bold uppercase tracking-widest hover:bg-attire-accent dark:hover:bg-attire-accent transition-all flex items-center justify-center gap-2 disabled:opacity-50"
+                            className="flex-grow py-3.5 bg-black dark:bg-white text-white dark:text-black rounded-xl text-xs font-bold uppercase tracking-widest hover:bg-attire-accent dark:hover:bg-attire-accent transition-all flex items-center justify-center gap-2 disabled:opacity-50"
                         >
                             {saving ? (
                                 <Loader

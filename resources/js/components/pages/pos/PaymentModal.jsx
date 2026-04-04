@@ -17,8 +17,8 @@ import { motion, AnimatePresence } from 'framer-motion';
 import ModernModal from '../../common/ModernModal';
 
 const PaymentModal = ({ totals, onClose }) => {
-    const { activeTab, clearInvoice } = usePOS();
-    const [payments, setPayments] = useState([]);
+    const { activeTab, clearInvoice, updatePayments } = usePOS();
+    const payments = activeTab.payments || [];
     const [currentMethod, setCurrentMethod] = useState('Cash');
     const [amountInput, setAmountInput] = useState('');
     const [loading, setLoading] = useState(false);
@@ -46,12 +46,15 @@ const PaymentModal = ({ totals, onClose }) => {
         const amount = parseFloat(amountInput);
         if (isNaN(amount) || amount <= 0) return;
 
-        setPayments([...payments, { method: currentMethod, amount: Math.min(amount, remaining) }]);
+        // Allow overpayment for Cash only
+        const actualAmount = currentMethod === 'Cash' ? amount : Math.min(amount, remaining);
+        
+        updatePayments([...payments, { method: currentMethod, amount: actualAmount }]);
         setAmountInput('');
     };
 
     const removePayment = (index) => {
-        setPayments(payments.filter((_, i) => i !== index));
+        updatePayments(payments.filter((_, i) => i !== index));
     };
 
     const handleCheckout = async () => {

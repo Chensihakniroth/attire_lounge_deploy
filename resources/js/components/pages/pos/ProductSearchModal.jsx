@@ -8,7 +8,7 @@ const ProductSearchModal = ({ isOpen, onClose }) => {
         <ModernModal 
             isOpen={isOpen} 
             onClose={onClose} 
-            maxWidth="max-w-7xl" 
+            maxWidth="max-w-[95vw]" 
             showCloseButton={false}
         >
             <div className="h-[90vh] relative flex flex-col">

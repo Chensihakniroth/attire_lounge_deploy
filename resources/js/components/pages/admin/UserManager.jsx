@@ -173,7 +173,7 @@ const UserManager = () => {
                     <motion.button
                         whileTap={{ scale: 0.95 }}
                         onClick={() => openModal()}
-                        className="flex items-center gap-2 bg-black dark:bg-white text-white dark:text-black rounded-2xl py-3 px-6 text-[10px] font-bold uppercase tracking-widest hover:bg-attire-accent dark:hover:bg-attire-accent transition-all"
+                        className="flex items-center gap-2 bg-black dark:bg-white text-white dark:text-black rounded-2xl py-3 px-6 text-xs font-bold uppercase tracking-widest hover:bg-attire-accent dark:hover:bg-attire-accent transition-all"
                     >
                         <Plus size={14} /> Invite Member
                     </motion.button>
@@ -193,11 +193,11 @@ const UserManager = () => {
                             </div>
                             <div>
                                 <p
-                                    className={`text-[10px] font-black uppercase tracking-widest mb-1 ${role.color}`}
+                                    className={`text-xs font-black uppercase tracking-widest mb-1 ${role.color}`}
                                 >
                                     {role.label}
                                 </p>
-                                <p className="text-[11px] text-gray-500 dark:text-attire-silver/50">
+                                <p className="text-xs text-gray-500 dark:text-attire-silver/50">
                                     {role.description}
                                 </p>
                             </div>
@@ -244,7 +244,7 @@ const UserManager = () => {
                                             <p className="text-sm font-bold text-gray-900 dark:text-white truncate">
                                                 {user.name}
                                             </p>
-                                            <p className="text-[10px] text-gray-400 dark:text-attire-silver/40 font-mono truncate">
+                                            <p className="text-xs text-gray-400 dark:text-attire-silver/40 font-mono truncate">
                                                 {user.email}
                                             </p>
                                         </div>
@@ -252,7 +252,7 @@ const UserManager = () => {
                                         {/* Role Badge */}
                                         {role && (
                                             <span
-                                                className={`hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-[9px] font-black uppercase tracking-widest ${role.bg} ${role.border} border ${role.color} flex-shrink-0`}
+                                                className={`hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-[11px] font-black uppercase tracking-widest ${role.bg} ${role.border} border ${role.color} flex-shrink-0`}
                                             >
                                                 <role.Icon size={10} />
                                                 {role.label}
@@ -263,7 +263,7 @@ const UserManager = () => {
                                         <div className="flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity flex-shrink-0">
                                             <button
                                                 onClick={() => openModal(user)}
-                                                className="px-3 py-2 bg-black/5 dark:bg-white/5 rounded-xl text-[9px] font-bold uppercase tracking-widest text-gray-500 hover:text-gray-900 dark:hover:text-white transition-all"
+                                                className="px-3 py-2 bg-black/5 dark:bg-white/5 rounded-xl text-[11px] font-bold uppercase tracking-widest text-gray-500 hover:text-gray-900 dark:hover:text-white transition-all"
                                             >
                                                 Edit
                                             </button>
@@ -295,7 +295,7 @@ const UserManager = () => {
                     >
                         {/* Name */}
                         <div className="space-y-2">
-                            <label className="text-[10px] font-black text-gray-400 dark:text-white/40 uppercase tracking-widest pl-1">
+                            <label className="text-xs font-black text-gray-400 dark:text-white/40 uppercase tracking-widest pl-1">
                                 Full Name
                             </label>
                             <input
@@ -315,7 +315,7 @@ const UserManager = () => {
 
                         {/* Email */}
                         <div className="space-y-2">
-                            <label className="text-[10px] font-black text-gray-400 dark:text-white/40 uppercase tracking-widest pl-1">
+                            <label className="text-xs font-black text-gray-400 dark:text-white/40 uppercase tracking-widest pl-1">
                                 Email Address
                             </label>
                             <input
@@ -335,7 +335,7 @@ const UserManager = () => {
 
                         {/* Password */}
                         <div className="space-y-2">
-                            <label className="text-[10px] font-black text-gray-400 dark:text-white/40 uppercase tracking-widest pl-1">
+                            <label className="text-xs font-black text-gray-400 dark:text-white/40 uppercase tracking-widest pl-1">
                                 Password{' '}
                                 {editingUser && (
                                     <span className="normal-case font-normal italic opacity-60">
@@ -360,7 +360,7 @@ const UserManager = () => {
 
                         {/* Role Picker */}
                         <div className="space-y-3">
-                            <label className="text-[10px] font-black text-gray-400 dark:text-white/40 uppercase tracking-widest pl-1">
+                            <label className="text-xs font-black text-gray-400 dark:text-white/40 uppercase tracking-widest pl-1">
                                 Access Role
                             </label>
                             <div className="grid grid-cols-2 gap-3">
@@ -388,7 +388,7 @@ const UserManager = () => {
                                                     : role.color
                                             }
                                         />
-                                        <span className="text-[10px] font-black uppercase tracking-widest">
+                                        <span className="text-xs font-black uppercase tracking-widest">
                                             {role.label}
                                         </span>
                                     </button>
@@ -403,7 +403,7 @@ const UserManager = () => {
                                     initial={{ opacity: 0, height: 0 }}
                                     animate={{ opacity: 1, height: 'auto' }}
                                     exit={{ opacity: 0, height: 0 }}
-                                    className="text-[11px] text-red-500 bg-red-500/10 border border-red-500/20 rounded-xl px-4 py-3 font-medium"
+                                    className="text-xs text-red-500 bg-red-500/10 border border-red-500/20 rounded-xl px-4 py-3 font-medium"
                                 >
                                     {error}
                                 </motion.p>
@@ -415,14 +415,14 @@ const UserManager = () => {
                             <button
                                 type="button"
                                 onClick={() => setShowModal(false)}
-                                className="flex-grow py-4 border border-black/10 dark:border-white/10 rounded-2xl text-[10px] font-black uppercase tracking-widest text-gray-400 hover:text-attire-charcoal dark:hover:text-white transition-all underline decoration-dotted"
+                                className="flex-grow py-4 border border-black/10 dark:border-white/10 rounded-2xl text-xs font-black uppercase tracking-widest text-gray-400 hover:text-attire-charcoal dark:hover:text-white transition-all underline decoration-dotted"
                             >
                                 Cancel
                             </button>
                             <button
                                 type="submit"
                                 disabled={saving}
-                                className="flex-grow py-4 bg-attire-charcoal dark:bg-white text-white dark:text-black rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-attire-accent dark:hover:bg-attire-accent transition-all flex items-center justify-center gap-2 disabled:opacity-50 shadow-xl"
+                                className="flex-grow py-4 bg-attire-charcoal dark:bg-white text-white dark:text-black rounded-2xl text-xs font-black uppercase tracking-widest hover:bg-attire-accent dark:hover:bg-attire-accent transition-all flex items-center justify-center gap-2 disabled:opacity-50 shadow-xl"
                             >
                                 {saving ? (
                                     <Loader

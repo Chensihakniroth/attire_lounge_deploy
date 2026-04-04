@@ -63,7 +63,7 @@ const NavItem = ({ item, isCollapsed, setOpen }) => {
                     className={`w-5 h-5 ${isCollapsed ? '' : 'mr-3'} transition-transform duration-300 group-hover:scale-110 flex-shrink-0`}
                 />
                 {!isCollapsed && (
-                    <span className="text-[11px] whitespace-nowrap overflow-hidden">
+                    <span className="text-xs whitespace-nowrap overflow-hidden">
                         {item.name}
                     </span>
                 )}
@@ -117,7 +117,7 @@ const GlobalSearch = () => {
                 <input
                     type="text"
                     placeholder="Search identity..."
-                    className="bg-transparent border-none outline-none text-[11px] font-bold uppercase tracking-widest w-full text-gray-900 dark:text-white placeholder:text-gray-400"
+                    className="bg-transparent border-none outline-none text-sm font-bold uppercase tracking-widest w-full text-gray-900 dark:text-white placeholder:text-gray-400"
                     onFocus={() => setIsOpen(true)}
                     onBlur={() => setTimeout(() => setIsOpen(false), 200)}
                     value={query}
@@ -157,10 +157,10 @@ const GlobalSearch = () => {
                                     />
                                 </div>
                                 <div>
-                                    <p className="text-[10px] font-bold uppercase tracking-wider text-gray-900 dark:text-white">
+                                    <p className="text-xs font-bold uppercase tracking-wider text-gray-900 dark:text-white">
                                         {item.name}
                                     </p>
-                                    <p className="text-[8px] text-gray-400 uppercase tracking-widest">
+                                    <p className="text-[10px] text-gray-400 uppercase tracking-widest">
                                         {item.category?.name || 'Product'}
                                     </p>
                                 </div>
@@ -255,14 +255,14 @@ const SidebarContent = ({ setOpen, isMobile }) => {
                     {isDarkMode ? (
                         <>
                             <Sun className="w-5 h-5 mr-3 flex-shrink-0" />
-                            <span className="text-[10px] whitespace-nowrap overflow-hidden">
+                            <span className="text-xs whitespace-nowrap overflow-hidden">
                                 Light Mode
                             </span>
                         </>
                     ) : (
                         <>
                             <Moon className="w-5 h-5 mr-3 flex-shrink-0" />
-                            <span className="text-[10px] whitespace-nowrap overflow-hidden">
+                            <span className="text-xs whitespace-nowrap overflow-hidden">
                                 Dark Mode
                             </span>
                         </>
@@ -273,7 +273,7 @@ const SidebarContent = ({ setOpen, isMobile }) => {
                     className="w-full flex items-center px-4 py-3 text-sm font-bold uppercase tracking-widest text-gray-500 dark:text-gray-400 rounded-lg hover:bg-red-500/10 hover:text-red-400 transition-colors"
                 >
                     <LogOut className="w-5 h-5 mr-3 flex-shrink-0" />
-                    <span className="text-[10px] whitespace-nowrap overflow-hidden">
+                    <span className="text-xs whitespace-nowrap overflow-hidden">
                         Logout
                     </span>
                 </button>
@@ -396,16 +396,16 @@ const AdminLayoutContent = ({
                                 title="Open POS System"
                             >
                                 <ArrowLeftRight size={14} className="text-[#0d3542] group-hover:text-white" />
-                                <span className="text-[10px] font-bold uppercase tracking-widest text-[#0d3542] group-hover:text-white hidden sm:block">Open POS</span>
+                                <span className="text-xs font-bold uppercase tracking-widest text-[#0d3542] group-hover:text-white hidden sm:block">Open POS</span>
                             </button>
 
                             <div className="h-4 w-px bg-black/10 dark:bg-white/10 mx-2" />
 
                             <div className="text-right hidden md:block">
-                                <p className="text-[10px] font-bold text-gray-900 dark:text-white uppercase tracking-wider leading-none mb-1">
+                                <p className="text-xs font-bold text-gray-900 dark:text-white uppercase tracking-wider leading-none mb-1">
                                     Administrator
                                 </p>
-                                <p className="text-[9px] text-[#0d3542] uppercase tracking-[0.2em]">
+                                <p className="text-[11px] text-[#0d3542] uppercase tracking-[0.2em]">
                                     Master Access
                                 </p>
                             </div>
@@ -419,15 +419,7 @@ const AdminLayoutContent = ({
                     </header>
                 )}
 
-                <main className="flex-1 overflow-y-auto relative p-8">
-                    {/* Background decoration */}
-                    {!isSafariBrowser && !isEditing && (
-                        <div className="absolute top-0 left-0 w-full h-full pointer-events-none opacity-20 overflow-hidden">
-                            <div className="absolute -top-24 -left-24 w-96 h-96 bg-[#0d3542]/10 blur-[120px] rounded-full" />
-                            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-white/[0.02] blur-[150px] rounded-full" />
-                        </div>
-                    )}
-
+                <main className="flex-1 overflow-y-auto relative p-8 bg-[#f8f8f6] dark:bg-[#121212]">
                     <div className="relative z-10 w-full max-w-none">
                         <AnimatePresence mode="wait">
                             <motion.div

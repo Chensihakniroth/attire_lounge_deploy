@@ -59,7 +59,7 @@ const SalesHistoryManager = () => {
                 </div>
                 
                 <div className="flex items-center gap-3">
-                    <button className="flex items-center gap-2 px-4 py-2 bg-black dark:bg-white/10 text-white rounded-xl text-[10px] font-bold uppercase tracking-widest hover:bg-black/80 transition-all border border-black/10 dark:border-white/10">
+                    <button className="flex items-center gap-2 px-4 py-2 bg-black dark:bg-white/10 text-white rounded-xl text-xs font-bold uppercase tracking-widest hover:bg-black/80 transition-all border border-black/10 dark:border-white/10">
                         <Download size={14} /> Export Report
                     </button>
                 </div>
@@ -75,7 +75,7 @@ const SalesHistoryManager = () => {
                     <div key={idx} className="p-6 bg-white dark:bg-white/5 border border-black/5 dark:border-white/10 rounded-[2rem] shadow-sm relative overflow-hidden group">
                         <div className="flex items-center justify-between relative z-10">
                             <div className="space-y-1">
-                                <p className="text-[10px] font-bold text-gray-500 uppercase tracking-widest">{stat.label}</p>
+                                <p className="text-xs font-bold text-gray-500 uppercase tracking-widest">{stat.label}</p>
                                 <p className={`text-2xl font-bold tracking-tighter ${stat.color}`}>{stat.value}</p>
                             </div>
                             <div className={`p-4 rounded-2xl bg-black/[0.03] dark:bg-white/[0.03] ${stat.color} group-hover:scale-110 transition-transform`}>
@@ -93,14 +93,14 @@ const SalesHistoryManager = () => {
                     <input 
                         type="text"
                         placeholder="Search invoice number, customer name, or phone..."
-                        className="w-full bg-black/[0.02] dark:bg-white/[0.02] border border-black/5 dark:border-white/10 rounded-xl py-3 pl-12 pr-4 text-[11px] font-bold uppercase tracking-widest outline-none focus:border-attire-accent/50 transition-all"
+                        className="w-full bg-black/[0.02] dark:bg-white/[0.02] border border-black/5 dark:border-white/10 rounded-xl py-3 pl-12 pr-4 text-sm font-bold uppercase tracking-widest outline-none focus:border-attire-accent/50 transition-all"
                         value={search}
                         onChange={(e) => setSearch(e.target.value)}
                         onKeyDown={(e) => e.key === 'Enter' && fetchInvoices()}
                     />
                 </div>
                 <div className="flex gap-2 w-full md:w-auto">
-                    <button className="flex items-center gap-2 px-6 py-3 bg-white dark:bg-white/5 border border-black/5 dark:border-white/10 rounded-xl text-[10px] font-bold uppercase tracking-widest text-gray-500 hover:text-attire-accent transition-all whitespace-nowrap">
+                    <button className="flex items-center gap-2 px-6 py-3 bg-white dark:bg-white/5 border border-black/5 dark:border-white/10 rounded-xl text-xs font-bold uppercase tracking-widest text-gray-500 hover:text-attire-accent transition-all whitespace-nowrap">
                         <Calendar size={14} /> Filter Date
                     </button>
                     <button 
@@ -118,7 +118,7 @@ const SalesHistoryManager = () => {
                     <thead>
                         <tr className="bg-black/[0.02] dark:bg-white/[0.02] border-b border-black/5 dark:border-white/5">
                             {['Invoice #', 'Customer', 'Date / Time', 'Items', 'Total', 'Status', 'Actions'].map((h, i) => (
-                                <th key={i} className="px-6 py-5 text-[10px] font-bold uppercase tracking-[0.2em] text-gray-500 whitespace-nowrap">{h}</th>
+                                <th key={i} className="px-6 py-5 text-xs font-bold uppercase tracking-[0.2em] text-gray-500 whitespace-nowrap">{h}</th>
                             ))}
                         </tr>
                     </thead>
@@ -136,38 +136,38 @@ const SalesHistoryManager = () => {
                         ) : (
                             invoices.map((inv) => (
                                 <tr key={inv.id} className="hover:bg-black/[0.01] dark:hover:bg-white/[0.01] transition-colors group">
-                                    <td className="px-6 py-6 text-[11px] font-bold text-gray-900 dark:text-white tracking-widest uppercase">
+                                    <td className="px-6 py-6 text-sm font-bold text-gray-900 dark:text-white tracking-widest uppercase">
                                         {inv.invoice_number}
                                     </td>
                                     <td className="px-6 py-6">
                                         <div className="flex items-center gap-3">
-                                            <div className="w-8 h-8 rounded-lg bg-black/5 dark:bg-white/5 flex items-center justify-center text-gray-400 group-hover:text-attire-accent font-bold text-[10px]">
+                                            <div className="w-8 h-8 rounded-lg bg-black/5 dark:bg-white/5 flex items-center justify-center text-gray-400 group-hover:text-attire-accent font-bold text-xs">
                                                 {inv.customer?.name.charAt(0) || 'W'}
                                             </div>
                                             <div>
-                                                <p className="text-[11px] font-bold text-gray-900 dark:text-white uppercase tracking-wider">{inv.customer?.name || 'Walk-in'}</p>
-                                                <p className="text-[9px] text-gray-500 uppercase tracking-widest">{inv.customer?.phone || 'No Contact'}</p>
+                                                <p className="text-sm font-bold text-gray-900 dark:text-white uppercase tracking-wider">{inv.customer?.name || 'Walk-in'}</p>
+                                                <p className="text-xs text-gray-500 uppercase tracking-widest">{inv.customer?.phone || 'No Contact'}</p>
                                             </div>
                                         </div>
                                     </td>
                                     <td className="px-6 py-6">
-                                        <div className="text-[10px] font-bold text-gray-700 dark:text-gray-300 uppercase tracking-widest">
+                                        <div className="text-xs font-bold text-gray-700 dark:text-gray-300 uppercase tracking-widest">
                                             {new Date(inv.created_at).toLocaleDateString()}
                                         </div>
-                                        <p className="text-[9px] text-gray-500 uppercase tracking-widest mt-1">
+                                        <p className="text-xs text-gray-500 uppercase tracking-widest mt-1">
                                             {new Date(inv.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                                         </p>
                                     </td>
-                                    <td className="px-6 py-6 text-[10px] font-bold text-gray-500 uppercase tracking-widest">
+                                    <td className="px-6 py-6 text-xs font-bold text-gray-500 uppercase tracking-widest">
                                         {inv.items_count || 0} Products
                                     </td>
                                     <td className="px-6 py-6">
-                                        <span className="text-[11px] font-bold text-attire-accent tracking-widest">
+                                        <span className="text-sm font-bold text-attire-accent tracking-widest">
                                             ${parseFloat(inv.total_amount).toLocaleString()}
                                         </span>
                                     </td>
                                     <td className="px-6 py-6">
-                                        <span className={`px-2 py-1 rounded-lg text-[8px] font-bold uppercase tracking-widest ${
+                                        <span className={`px-2 py-1 rounded-lg text-xs font-bold uppercase tracking-widest ${
                                             inv.status === 'completed' ? 'bg-green-500/10 text-green-500 border border-green-500/20' : 'bg-red-500/10 text-red-500 border border-red-500/20'
                                         }`}>
                                             {inv.status}
@@ -198,7 +198,7 @@ const SalesHistoryManager = () => {
 
             {/* Pagination Placeholder */}
             <div className="flex items-center justify-between pb-10">
-                <p className="text-[10px] font-bold text-gray-500 uppercase tracking-widest">Showing {invoices.length} transactions</p>
+                <p className="text-xs font-bold text-gray-500 uppercase tracking-widest">Showing {invoices.length} transactions</p>
                 <div className="flex items-center gap-2">
                     <button className="p-2 rounded-xl border border-black/5 dark:border-white/10 text-gray-400 hover:text-attire-accent transition-all disabled:opacity-30"><ChevronLeft size={16} /></button>
                     <button className="p-2 rounded-xl border border-black/5 dark:border-white/10 text-gray-400 hover:text-attire-accent transition-all disabled:opacity-30"><ChevronRight size={16} /></button>

@@ -16,6 +16,7 @@ use App\Http\Controllers\PromocodeController;
 use App\Http\Controllers\PosProductController;
 use App\Http\Controllers\PosInvoiceController;
 use App\Http\Controllers\PosRefundController;
+use App\Http\Controllers\SearchController;
 
 Route::prefix('v1')->group(function () {
     // Public Product routes (accessible to all)
