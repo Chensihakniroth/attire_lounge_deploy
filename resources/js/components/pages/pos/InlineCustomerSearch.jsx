@@ -63,7 +63,7 @@ const InlineCustomerSearch = () => {
                     <input 
                         type="text"
                         placeholder="Search Customer..."
-                        className="w-full bg-black/[0.03] dark:bg-white/[0.03] border border-black/10 dark:border-white/10 rounded-xl py-3 pl-10 pr-4 text-[11px] font-bold uppercase tracking-widest text-gray-900 dark:text-white outline-none focus:border-attire-accent/30 focus:bg-white dark:focus:bg-black transition-all"
+                        className="w-full bg-black/[0.02] dark:bg-[#161b22] border border-black/10 dark:border-[#30363d] rounded-xl py-3 pl-10 pr-4 text-[11px] font-bold uppercase tracking-widest text-gray-900 dark:text-white outline-none focus:border-[#0d3542]/30 focus:bg-[#fdfdfc] dark:focus:bg-[#0d1117] transition-all"
                         value={query}
                         onChange={(e) => {
                             setQuery(e.target.value);
@@ -93,7 +93,7 @@ const InlineCustomerSearch = () => {
                         initial={{ opacity: 0, y: 10 }}
                         animate={{ opacity: 1, y: 0 }}
                         exit={{ opacity: 0, y: 10 }}
-                        className="absolute top-full left-0 right-0 mt-2 bg-white dark:bg-[#121212] border border-black/5 dark:border-white/10 rounded-2xl shadow-2xl z-[150] overflow-hidden max-h-[300px] no-scrollbar"
+                        className="absolute top-full left-0 right-0 mt-2 bg-[#fdfdfc] dark:bg-[#161b22] border border-black/5 dark:border-[#30363d] rounded-2xl shadow-none z-[150] overflow-hidden max-h-[300px] no-scrollbar"
                     >
                         <div className="p-2 space-y-1">
                             {results.map(customer => (

@@ -78,7 +78,7 @@ const InvoiceHistoryPanel = ({ onClose }) => {
                 animate={{ x: 0 }}
                 exit={{ x: '100%' }}
                 transition={{ type: 'spring', damping: 30, stiffness: 300 }}
-                className="absolute inset-y-0 right-0 w-full max-w-md bg-white dark:bg-[#0a0a0a] shadow-[-20px_0_60px_rgba(0,0,0,0.1)] border-l border-black/5 dark:border-white/10 flex flex-col font-sans pointer-events-auto"
+                className="absolute inset-y-0 right-0 w-full max-w-md bg-white dark:bg-[#0a0a0a] shadow-none border-l border-black/5 dark:border-white/10 flex flex-col font-sans pointer-events-auto"
             >
                 {/* Header */}
                 <div className="p-6 border-b border-black/5 dark:border-white/10 flex items-center justify-between bg-black/[0.01] dark:bg-white/[0.01]">
@@ -104,7 +104,7 @@ const InvoiceHistoryPanel = ({ onClose }) => {
                         <Calendar size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-attire-accent" />
                         <input 
                             type="date" 
-                            className="w-full bg-white dark:bg-white/[0.03] border border-black/10 dark:border-white/10 rounded-xl py-3 pl-12 pr-4 text-[11px] font-bold uppercase tracking-widest outline-none focus:border-attire-accent/50 transition-all shadow-sm"
+                            className="w-full bg-white dark:bg-white/[0.03] border border-black/10 dark:border-white/10 rounded-xl py-3 pl-12 pr-4 text-[11px] font-bold uppercase tracking-widest outline-none focus:border-attire-accent/50 transition-all shadow-none"
                             value={date}
                             onChange={(e) => setDate(e.target.value)}
                         />
@@ -115,7 +115,7 @@ const InvoiceHistoryPanel = ({ onClose }) => {
                         <input 
                             type="text" 
                             placeholder="Search invoice # or customer..."
-                            className="w-full bg-white dark:bg-white/[0.03] border border-black/10 dark:border-white/10 rounded-xl py-3 pl-12 pr-4 text-[11px] font-bold uppercase tracking-widest outline-none focus:border-attire-accent/50 transition-all shadow-sm"
+                            className="w-full bg-white dark:bg-white/[0.03] border border-black/10 dark:border-white/10 rounded-xl py-3 pl-12 pr-4 text-[11px] font-bold uppercase tracking-widest outline-none focus:border-attire-accent/50 transition-all shadow-none"
                             value={search}
                             onChange={(e) => setSearch(e.target.value)}
                             onKeyDown={(e) => e.key === 'Enter' && fetchHistory()}

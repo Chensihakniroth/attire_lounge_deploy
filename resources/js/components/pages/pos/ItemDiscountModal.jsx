@@ -111,7 +111,7 @@ const ItemDiscountModal = ({ isOpen, onClose, item, onApply }) => {
                     </button>
                     <button 
                         onClick={handleApply}
-                        className="flex-[2] flex items-center justify-center gap-2 py-5 rounded-2xl bg-black dark:bg-white text-white dark:text-black shadow-xl hover:scale-[1.02] active:scale-[0.98] transition-all text-[12px] font-black uppercase tracking-widest"
+                        className="flex-[2] flex items-center justify-center gap-2 py-5 rounded-2xl bg-black dark:bg-white text-white dark:text-black shadow-none border border-black/10 dark:border-white/10 hover:scale-[1.02] active:scale-[0.98] transition-all text-[12px] font-black uppercase tracking-widest"
                     >
                         <Check size={18} /> Apply Discount
                     </button>

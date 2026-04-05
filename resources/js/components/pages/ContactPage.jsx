@@ -30,14 +30,14 @@ const InfoCard = ({ icon: Icon, title, details, action }) => {
             target={action?.startsWith('http') ? "_blank" : undefined}
             rel={action?.startsWith('http') ? "noopener noreferrer" : undefined}
             whileHover={{ y: -5 }}
-            className="flex items-start gap-6 group p-6 rounded-[2rem] bg-white/[0.02] border border-white/10 hover:border-attire-accent/30 transition-all duration-500 block w-full text-left"
+            className="flex items-start gap-6 group p-6 rounded-[2rem] bg-white/[0.02] border border-white/10 hover:border-attire-accent/30 transition-all duration-500 w-full text-left"
         >
             <div className="mt-1 flex-shrink-0 w-12 h-12 rounded-2xl bg-attire-accent/10 border border-attire-accent/20 flex items-center justify-center group-hover:bg-attire-accent group-hover:text-black transition-all duration-500">
                 <Icon size={20} className="text-attire-accent group-hover:text-black transition-colors" />
             </div>
             <div>
-                <h4 className="text-[10px] font-black text-white/60 uppercase tracking-[0.3em] mb-2">{title}</h4>
-                <div className="text-sm text-attire-silver group-hover:text-white transition-colors leading-relaxed font-medium">
+                <h4 className="text-[10px] font-black text-white/80 uppercase tracking-[0.3em] mb-2">{title}</h4>
+                <div className="text-sm text-attire-silver group-hover:text-white transition-colors leading-relaxed font-semibold">
                     {details.map((line, i) => <p key={i}>{line}</p>)}
                 </div>
             </div>
@@ -48,7 +48,7 @@ const InfoCard = ({ icon: Icon, title, details, action }) => {
 const InputField = ({ label, icon: Icon, error, ...props }) => (
     <div className="space-y-2">
         {label && (
-            <label className="block text-[10px] font-black text-white/60 uppercase tracking-[0.3em] ml-1">
+            <label className="block text-[10px] font-black text-white/80 uppercase tracking-[0.3em] ml-1">
                 {label}
             </label>
         )}
@@ -264,10 +264,10 @@ const ContactPage = () => {
                             <Sparkles size={14} className="text-attire-accent" />
                             <span className="text-[10px] font-black uppercase tracking-[0.4em] text-white/80">STYLING CONSULTANTS</span>
                         </div>
-                        <h1 className="text-6xl md:text-8xl font-serif font-light text-white leading-tight">
+                        <h1 className="text-6xl md:text-8xl font-serif font-light text-white leading-tight drop-shadow-lg">
                             styling <br/> Appointment
                         </h1>
-                        <p className="text-white/80 font-light tracking-wide text-lg max-w-xl mx-auto">
+                        <p className="text-white/95 font-medium tracking-wide text-lg max-w-xl mx-auto drop-shadow-md">
                             Step into our private styling house in Phnom Penh. Let our certified-sytlist specialists refine your signature silhouette.
                         </p>
                     </motion.div>

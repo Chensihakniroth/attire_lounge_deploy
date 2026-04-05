@@ -37,7 +37,7 @@ const ModernModal = ({
                         animate={{ opacity: 1 }}
                         exit={{ opacity: 0 }}
                         onClick={onClose}
-                        className="absolute inset-0 bg-black/40 backdrop-blur-xl pointer-events-auto"
+                        className="absolute inset-0 bg-black/60 pointer-events-auto"
                     />
 
                     {/* Modal Content */}

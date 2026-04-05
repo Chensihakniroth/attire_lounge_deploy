@@ -29,11 +29,11 @@ const CartItem = ({ item }) => {
             initial={{ opacity: 0, x: 20 }}
             animate={{ opacity: 1, x: 0 }}
             exit={{ opacity: 0, x: -20 }}
-            className={`group bg-white dark:bg-white/[0.03] border border-black/5 dark:border-white/5 rounded-2xl p-3 transition-all hover:bg-white/50 dark:hover:bg-white/[0.05] relative ${isMenuOpen ? 'ring-1 ring-attire-accent/30 shadow-lg' : 'shadow-sm'}`}
+            className={`group bg-background dark:bg-white/[0.03] border border-black/15 dark:border-white/10 rounded-2xl p-3 transition-all hover:bg-background/80 dark:hover:bg-white/[0.05] relative ${isMenuOpen ? 'ring-1 ring-attire-accent/30 shadow-none' : 'shadow-none'}`}
         >
             <div className="flex items-start gap-3">
                 {/* Quantity Controls */}
-                <div className="flex flex-col items-center gap-1 bg-black/[0.03] dark:bg-white/[0.03] rounded-xl p-1 border border-black/5 dark:border-white/5 flex-shrink-0 group-hover:bg-white dark:group-hover:bg-black transition-colors">
+                <div className="flex flex-col items-center gap-1 bg-black/[0.03] dark:bg-white/[0.03] rounded-xl p-1 border border-black/15 dark:border-white/10 flex-shrink-0 group-hover:bg-background dark:group-hover:bg-black transition-colors">
                     <button 
                         onClick={() => updateQty(item.product_id, 1)}
                         className="p-1 hover:text-attire-accent transition-colors active:scale-110"
@@ -114,7 +114,7 @@ const CartItem = ({ item }) => {
                         initial={{ height: 0, opacity: 0 }}
                         animate={{ height: 'auto', opacity: 1 }}
                         exit={{ height: 0, opacity: 0 }}
-                        className="overflow-hidden bg-black/5 dark:bg-white/[0.02] mt-3 rounded-xl border-t border-black/5 dark:border-white/5"
+                        className="overflow-hidden bg-black/5 dark:bg-white/[0.02] mt-3 rounded-xl border-t border-black/15 dark:border-white/10"
                     >
                         <div className="p-3 grid grid-cols-2 gap-3">
                             {/* Discount Controls */}
@@ -122,7 +122,7 @@ const CartItem = ({ item }) => {
                                 <span className="text-[8px] font-bold uppercase tracking-widest text-gray-500 dark:text-gray-400 flex items-center gap-1">
                                     <Tag size={8} /> Item Discount
                                 </span>
-                                <div className="flex items-center bg-white dark:bg-black rounded-lg border border-black/5 dark:border-white/10 overflow-hidden">
+                                <div className="flex items-center bg-background dark:bg-black rounded-lg border border-black/15 dark:border-white/10 overflow-hidden">
                                     <button 
                                         onClick={() => updateItemDiscount(item.product_id, item.discount_type === 'percentage' ? 'none' : 'percentage', item.discount_value)}
                                         className={`p-2 transition-colors ${item.discount_type === 'percentage' ? 'bg-attire-accent text-black' : 'text-gray-400'}`}
@@ -157,8 +157,8 @@ const CartItem = ({ item }) => {
                                         onClick={() => toggleGiftWrap(item.product_id)}
                                         className={`w-full flex items-center justify-center gap-2 py-2 px-3 rounded-lg border transition-all text-[9px] font-bold uppercase tracking-widest ${
                                             item.gift_wrap 
-                                                ? 'bg-attire-accent border-attire-accent text-black shadow-lg shadow-attire-accent/10' 
-                                                : 'bg-white dark:bg-black border-black/5 dark:border-white/10 text-gray-400'
+                                                ? 'bg-attire-accent border-attire-accent text-black shadow-none' 
+                                                : 'bg-background dark:bg-black border-black/15 dark:border-white/10 text-gray-400'
                                         }`}
                                     >
                                         <Gift size={10} />

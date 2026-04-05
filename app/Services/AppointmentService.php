@@ -74,19 +74,26 @@ class AppointmentService
     {
         $appointment = $this->appointmentRepository->updateStatus($appointment, $status);
         
-        // Broadcast the update for real-time magic! (ﾉ´ヮ`)ﾉ*:･ﾟ✧
-        broadcast(new AppointmentStatusUpdated($appointment));
+        try {
+            // Broadcast the update for real-time magic! (ﾉ´ヮ`)ﾉ*:･ﾟ✧
+            broadcast(new AppointmentStatusUpdated($appointment));
+        } catch (Exception $e) {
+            Log::warning('AppointmentService: Broadcasting status update failed.', [
+                'id' => $appointment->id,
+                'error' => $e->getMessage()
+            ]);
+        }
 
         return $appointment;
     }
 
     /**
-     * Clear all completed appointments.
+     * Clear all closed appointments (Completed & Cancelled).
      *
      * @return int The number of deleted appointments.
      */
     public function clearCompleted(): int
     {
-        return $this->appointmentRepository->deleteByStatus('done');
+        return Appointment::whereIn('status', ['done', 'cancelled'])->delete();
     }
 }

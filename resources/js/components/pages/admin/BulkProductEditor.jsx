@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, Check, Loader, AlertCircle, RefreshCw, ChevronLeft, Plus, Trash2, ImageIcon, Sparkles } from 'lucide-react';
+import { X, Check, AlertCircle, RefreshCw, ChevronLeft, Plus, Trash2, ImageIcon, Sparkles } from 'lucide-react';
+import { LumaSpin } from '@/components/ui/luma-spin';
 import axios from 'axios';
 import { useAdmin } from './AdminContext';
 
@@ -32,7 +33,7 @@ const CustomDropdown = ({ selected, options, onChange, icon: Icon = RefreshCw, c
                     <motion.div
                         initial={{ opacity: 0, y: 10, scale: 0.95 }}
                         animate={{ opacity: 1, y: 0, scale: 1 }}
-                        className="absolute top-full left-0 right-0 mt-2 z-[70] bg-white dark:bg-[#0d0d0d] border border-black/5 dark:border-white/10 rounded-2xl overflow-hidden shadow-2xl backdrop-blur-xl"
+                        className="absolute top-full left-0 right-0 mt-2 z-[70] bg-white dark:bg-[#0d0d0d] border border-black/5 dark:border-white/10 rounded-2xl overflow-hidden shadow-none backdrop-blur-xl"
                     >
                         <div className="max-h-60 overflow-y-auto p-2 attire-scrollbar">
                             {options.map((opt, idx) => (
@@ -374,7 +375,7 @@ const BulkProductEditor = () => {
                                         exit={{ opacity: 0, scale: 0.8 }}
                                         className="aspect-square rounded-2xl border border-attire-accent/30 bg-attire-accent/5 flex flex-col items-center justify-center gap-2"
                                     >
-                                        <Loader className="animate-spin text-attire-accent" size={24} />
+                                        <LumaSpin className="animate-spin" size="sm" />
                                         <span className="text-[8px] font-bold uppercase tracking-widest text-attire-accent">Uploading...</span>
                                     </motion.div>
                                 )}
@@ -392,7 +393,7 @@ const BulkProductEditor = () => {
                                             <button 
                                                 type="button"
                                                 onClick={() => handleRemoveImage(idx)}
-                                                className="w-10 h-10 rounded-full bg-red-500 text-white flex items-center justify-center hover:scale-110 transition-transform shadow-xl"
+                                                className="w-10 h-10 rounded-full bg-red-500 text-white flex items-center justify-center hover:scale-110 transition-transform shadow-none"
                                             >
                                                 <Trash2 size={18} />
                                             </button>
@@ -464,9 +465,9 @@ const BulkProductEditor = () => {
                         <button 
                             type="submit"
                             disabled={saving || formData.images.length === 0}
-                            className="flex-grow py-6 bg-gray-900 dark:bg-white text-white dark:text-black rounded-2xl text-[11px] font-bold uppercase tracking-[0.4em] hover:bg-attire-accent dark:hover:bg-attire-accent transition-all flex items-center justify-center gap-4 shadow-2xl shadow-black/5 disabled:opacity-50 disabled:cursor-not-allowed"
+                            className="flex-grow py-6 bg-gray-900 dark:bg-white text-white dark:text-black rounded-2xl text-[11px] font-bold uppercase tracking-[0.4em] hover:bg-attire-accent dark:hover:bg-attire-accent transition-all flex items-center justify-center gap-4 shadow-none disabled:opacity-50 disabled:cursor-not-allowed"
                         >
-                            {saving ? <Loader className="animate-spin" size={18} /> : <Check size={18} />}
+                            {saving ? <LumaSpin className="animate-spin" size="sm" /> : <Check size={18} />}
                             {saving ? 'Creating Masterpieces...' : `Launch ${formData.images.length} Products`}
                         </button>
                     </div>

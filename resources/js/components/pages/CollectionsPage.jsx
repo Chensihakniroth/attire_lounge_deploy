@@ -22,7 +22,7 @@ const PageHeader = () => (
             <h1 className="text-5xl md:text-7xl font-serif font-light text-white mb-6">
                 Our Collections
             </h1>
-            <p className="text-lg text-attire-silver max-w-2xl mx-auto leading-relaxed font-light">
+            <p className="text-lg text-attire-silver/95 max-w-2xl mx-auto leading-relaxed font-normal drop-shadow-sm">
                 Curated ensembles where timeless elegance meets modern style.
                 Each piece is designed to elevate your personal look with
                 effortless sophistication.

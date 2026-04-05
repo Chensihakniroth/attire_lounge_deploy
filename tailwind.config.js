@@ -49,15 +49,15 @@ module.exports = {
         // Original Attire Lounge Palette
         'attire': {
           'charcoal': '#333333',
-          'stone': '#A0785A',
+          'stone': '#8b6b4d',
           'silver': '#E5E7EB',
-          'cream': '#FAF8F3',
-          'light': '#f9f9f9',
+          'cream': '#f8f9fa',
+          'light': '#f8f9fa',
           'gold': '#8B6B4D',
           'navy': '#0d3542',
-          'midnight': '#0a0f1a',
-          'accent': '#f5a81c',
-          'dark': '#111111',
+          'midnight': '#0d1117',
+          'accent': 'hsl(var(--accent))', /* Dynamically track theme accent */
+          'dark': '#0d1117',
         }
       },
       fontFamily: {

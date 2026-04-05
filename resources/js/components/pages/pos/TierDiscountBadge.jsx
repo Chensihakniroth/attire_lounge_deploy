@@ -9,27 +9,27 @@ const TierDiscountBadge = ({ discountPercent, amount }) => {
         <motion.div
             initial={{ opacity: 0, scale: 0.9, y: 10 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
-            className="flex items-center gap-3 p-3 bg-attire-accent/10 border border-attire-accent/30 rounded-2xl relative overflow-hidden group shadow-lg shadow-attire-accent/5 transition-all"
+            className="flex items-center gap-3 p-3 bg-[#0d3542]/10 dark:bg-[#58a6ff]/10 border border-[#0d3542]/30 dark:border-[#30363d] rounded-2xl relative overflow-hidden group shadow-none transition-all"
         >
-            <div className="p-2 rounded-xl bg-attire-accent text-black scale-110 shadow-lg shadow-attire-accent/20">
+            <div className="p-2 rounded-xl bg-[#0d3542] dark:bg-[#58a6ff] text-white dark:text-black scale-110 shadow-none border border-black/5 dark:border-white/5">
                 <Sparkles size={14} className="animate-spin-slow" />
             </div>
             <div className="flex-1">
                 <div className="flex items-center gap-2">
-                    <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-attire-accent">
+                    <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-[#0d3542] dark:text-[#58a6ff]">
                         Tier Discount Active
                     </span>
-                    <span className="px-1.5 py-0.5 rounded-full bg-attire-accent text-black text-[8px] font-bold">
+                    <span className="px-1.5 py-0.5 rounded-xl bg-[#0d3542] dark:bg-[#58a6ff] text-white dark:text-black text-[8px] font-bold">
                         -{discountPercent}%
                     </span>
                 </div>
-                <p className="text-[9px] text-gray-500 dark:text-gray-400 uppercase tracking-widest mt-0.5">
-                    Total Savings: <span className="text-white font-bold">${amount.toLocaleString()}</span>
+                <p className="text-[9px] text-gray-500 dark:text-[#8b949e] uppercase tracking-widest mt-0.5">
+                    Total Savings: <span className="text-[#0d3542] dark:text-[#c9d1d9] font-bold">${amount.toLocaleString()}</span>
                 </p>
             </div>
 
             {/* Background Glow */}
-            <div className="absolute top-0 right-0 w-16 h-16 bg-attire-accent/5 blur-2xl rounded-full -mr-8 -mt-8" />
+
         </motion.div>
     );
 };

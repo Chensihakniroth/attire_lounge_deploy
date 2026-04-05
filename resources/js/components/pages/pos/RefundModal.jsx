@@ -70,10 +70,10 @@ const RefundModal = ({ invoice, onClose, onRefundSuccess }) => {
         <ModernModal isOpen={true} onClose={onClose} maxWidth={success ? "max-w-md" : "max-w-2xl"} showCloseButton={!success}>
              {success ? (
                 <div className="text-center py-12 px-8 space-y-6">
-                    <div className="w-20 h-20 bg-green-500 rounded-full flex items-center justify-center mx-auto shadow-2xl relative">
+                    <div className="w-20 h-20 bg-green-500 rounded-full flex items-center justify-center mx-auto shadow-none border border-green-400 relative">
                         <CheckCircle size={40} className="text-white" />
                         <motion.div 
-                            animate={{ scale: [1, 1.4, 1], opacity: [0.5, 0, 0.5] }}
+                            animate={{ scale: [1, 1.2, 1], opacity: [0.3, 0.1, 0.3] }}
                             transition={{ repeat: Infinity, duration: 2 }}
                             className="absolute inset-0 bg-green-500 rounded-full -z-10"
                         />
@@ -161,9 +161,9 @@ const RefundModal = ({ invoice, onClose, onRefundSuccess }) => {
                                 <button 
                                     onClick={() => handleRefund('partial')}
                                     disabled={loading || selectedItems.length === 0}
-                                    className={`px-8 py-3 rounded-xl text-[10px] font-bold uppercase tracking-widest transition-all active:scale-95 shadow-xl ${
+                                    className={`px-8 py-3 rounded-xl text-[10px] font-bold uppercase tracking-widest transition-all active:scale-95 shadow-none ${
                                         selectedItems.length > 0 
-                                            ? 'bg-red-500 text-white shadow-red-500/20 hover:scale-[1.02]' 
+                                            ? 'bg-red-500 text-white border border-red-400 hover:scale-[1.02]' 
                                             : 'bg-gray-200 dark:bg-white/5 text-gray-400 cursor-not-allowed'
                                     }`}
                                 >

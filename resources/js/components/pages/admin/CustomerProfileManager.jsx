@@ -1,14 +1,14 @@
 import React, { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { 
-    User, Trash2, Plus, Edit, X, Check, Loader, AlertCircle, 
+    User, Trash2, Plus, Edit, X, Check, AlertCircle, 
     ChevronDown, ChevronRight, ChevronLeft, UserCheck, Share2, Search, Filter, Eye, Globe, Phone, PlusCircle,
     UserPlus, ShieldCheck, Users, Briefcase, Palette, Activity, Ruler
 } from 'lucide-react';
+import { LumaSpin } from '@/components/ui/luma-spin';
 import axios from 'axios';
 import { useAdmin } from './AdminContext';
 import { motion, AnimatePresence } from 'framer-motion';
-import Skeleton from '../../common/Skeleton.jsx';
 import ErrorBoundary from '../../common/ErrorBoundary.jsx';
 import ModernModal from '../../common/ModernModal.jsx';
 
@@ -23,14 +23,14 @@ const CustomDropdown = ({ label, selected, options, onChange, icon: Icon }) => {
             <button
                 type="button"
                 onClick={() => setIsOpen(!isOpen)}
-                className="w-full bg-black/5 dark:bg-white/5 border border-black/5 dark:border-white/10 rounded-2xl py-4 px-6 text-gray-900 dark:text-white text-sm text-left focus:border-attire-accent outline-none transition-all cursor-pointer flex items-center justify-between group"
+                className="w-full bg-black/5 dark:bg-[#161b22] border border-black/5 dark:border-[#30363d] rounded-2xl py-4 px-6 text-gray-900 dark:text-[#c9d1d9] text-sm text-left focus:border-[#0d3542] dark:focus:border-[#58a6ff] outline-none transition-all cursor-pointer flex items-center justify-between group"
             >
                 <div className="flex items-center gap-3">
-                    {Icon && <Icon className="text-white/20 group-hover:text-attire-accent transition-colors" size={16} />}
+                    {Icon && <Icon className="text-gray-400 dark:text-[#8b949e]/40 group-hover:text-[#0d3542] dark:group-hover:text-[#58a6ff] transition-colors" size={16} />}
                     <span className="truncate">{displayName}</span>
                 </div>
                 <div className={`transition-transform duration-300 ${isOpen ? 'rotate-180' : ''}`}>
-                    <ChevronDown size={16} className="text-gray-400 dark:text-white/20" />
+                    <ChevronDown size={16} className="text-gray-400 dark:text-[#8b949e]/20" />
                 </div>
             </button>
 
@@ -42,7 +42,7 @@ const CustomDropdown = ({ label, selected, options, onChange, icon: Icon }) => {
                             initial={{ opacity: 0, y: 10, scale: 0.95 }}
                             animate={{ opacity: 1, y: 0, scale: 1 }}
                             exit={{ opacity: 0, y: 10, scale: 0.95 }}
-                            className="absolute top-full left-0 right-0 mt-2 z-[110] bg-white dark:bg-[#1a1a1a] border border-black/5 dark:border-white/10 rounded-2xl overflow-hidden shadow-2xl backdrop-blur-xl p-2"
+                            className="absolute top-full left-0 right-0 mt-2 z-[110] bg-white dark:bg-[#161b22] border border-black/5 dark:border-[#30363d] rounded-2xl overflow-hidden p-2"
                         >
                             <div className="max-h-60 overflow-y-auto attire-scrollbar">
                                 {options.map((opt) => (
@@ -55,8 +55,8 @@ const CustomDropdown = ({ label, selected, options, onChange, icon: Icon }) => {
                                         }}
                                         className={`w-full text-left px-4 py-3 rounded-xl text-xs font-bold uppercase tracking-widest transition-all mb-1 last:mb-0 ${
                                             selected === opt.value 
-                                                ? 'bg-attire-accent text-black' 
-                                                : 'text-gray-500 dark:text-white/40 hover:bg-white/5 hover:text-white'
+                                                ? 'bg-[#0d3542] dark:bg-[#58a6ff] text-white dark:text-black' 
+                                                : 'text-gray-500 dark:text-[#8b949e] hover:bg-black/5 dark:hover:bg-[#0d1117] hover:text-gray-900 dark:hover:text-[#c9d1d9]'
                                         }`}
                                     >
                                         {opt.label}
@@ -87,7 +87,7 @@ const StatusFilter = ({ value, onChange }) => {
             <motion.button
                 whileTap={{ scale: 0.98 }}
                 onClick={() => setIsOpen(!isOpen)}
-                className="flex items-center gap-4 bg-white dark:bg-black/20 border border-black/5 dark:border-white/10 rounded-2xl py-3.5 px-6 text-xs font-bold uppercase tracking-[0.2em] text-gray-900 dark:text-white hover:border-attire-accent/30 transition-all shadow-sm"
+                className="flex items-center gap-4 bg-white dark:bg-[#161b22] border border-black/5 dark:border-[#30363d] rounded-2xl py-3.5 px-6 text-xs font-bold uppercase tracking-[0.2em] text-gray-900 dark:text-[#c9d1d9] hover:border-[#0d3542]/30 dark:hover:border-[#58a6ff]/30 transition-all"
             >
                 <currentOption.icon size={14} className={currentOption.color || 'text-gray-400'} />
                 <span>{currentOption.label}</span>
@@ -103,7 +103,7 @@ const StatusFilter = ({ value, onChange }) => {
                             animate={{ opacity: 1, y: 0, scale: 1 }}
                             exit={{ opacity: 0, y: 10, scale: 0.95 }}
                             transition={{ duration: 0.2, ease: "easeOut" }}
-                            className="absolute right-0 mt-3 w-56 bg-white dark:bg-[#0d0d0d] border border-black/5 dark:border-white/10 rounded-2xl shadow-[0_20px_50px_rgba(0,0,0,0.1)] dark:shadow-[0_20px_50px_rgba(0,0,0,0.7)] overflow-hidden py-2 backdrop-blur-xl z-[100]"
+                            className="absolute right-0 mt-3 w-56 bg-white dark:bg-[#161b22] border border-black/5 dark:border-[#30363d] rounded-2xl overflow-hidden py-2 z-[100]"
                         >
                             {options.map((option) => (
                                 <button
@@ -132,18 +132,19 @@ const StatusFilter = ({ value, onChange }) => {
 
 const GlassyStatCard = ({ label, value, icon: Icon, color = "attire-accent" }) => (
     <motion.div 
-        initial={{ opacity: 0, y: 20 }}
+        initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
-        className="relative overflow-hidden group p-6 rounded-[2.5rem] bg-white/50 dark:bg-black/20 backdrop-blur-xl border border-black/5 dark:border-white/10 hover:border-attire-accent/30 transition-all duration-500 shadow-xl shadow-black/[0.02]"
+        className="relative p-4 rounded-3xl bg-white dark:bg-[#161b22] border border-black/5 dark:border-[#30363d] hover:border-[#0d3542]/30 dark:hover:border-[#58a6ff]/30 transition-all duration-300 shadow-none"
     >
-        <div className="absolute top-0 right-0 -mt-4 -mr-4 w-24 h-24 bg-attire-accent/5 rounded-full blur-3xl group-hover:bg-attire-accent/10 transition-all duration-700" />
-        <div className="flex justify-between items-start mb-4">
-            <div className={`p-3 rounded-2xl bg-${color}/10 text-${color} border border-${color}/20 group-hover:scale-110 transition-transform duration-500`}>
-                <Icon size={20} />
+        <div className="flex items-center gap-4">
+            <div className={`p-2.5 rounded-xl ${color === 'attire-accent' ? 'bg-[#0d3542]/10 dark:bg-[#58a6ff]/10 text-[#0d3542] dark:text-[#58a6ff]' : 'bg-blue-500/10 text-blue-500'}`}>
+                <Icon size={18} />
+            </div>
+            <div>
+                <p className="text-[10px] font-black text-gray-400 dark:text-[#8b949e]/30 uppercase tracking-widest">{label}</p>
+                <p className="text-xl font-serif text-gray-900 dark:text-[#c9d1d9] tracking-tight">{value}</p>
             </div>
         </div>
-        <p className="text-xs font-black text-gray-400 dark:text-white/20 uppercase tracking-[0.2em] mb-1">{label}</p>
-        <p className="text-3xl font-serif text-gray-900 dark:text-white tracking-tight">{value}</p>
     </motion.div>
 );
 
@@ -346,12 +347,12 @@ const CustomerProfileManager = () => {
     };
 
     const SizeToggleGroup = ({ label, field, sizes }) => (
-        <div className="space-y-5 bg-black/[0.02] dark:bg-white/[0.02] p-8 rounded-[2.5rem] border border-black/5 dark:border-white/5 group/size hover:border-attire-accent/20 transition-all duration-500">
-            <div className="flex items-center gap-3 mb-2">
-                <Ruler size={14} className="text-attire-accent opacity-40 group-hover/size:opacity-100 transition-opacity" />
-                <label className="text-xs font-black text-gray-400 dark:text-white/40 uppercase tracking-[0.3em] block">{label}</label>
+        <div className="space-y-3 bg-black/[0.01] dark:bg-white/[0.01] p-5 rounded-2xl border border-black/5 dark:border-white/5">
+            <div className="flex items-center gap-2 mb-1">
+                <Ruler size={12} className="text-attire-accent opacity-40" />
+                <label className="text-[10px] font-black text-gray-400 dark:text-[#8b949e]/40 uppercase tracking-widest">{label}</label>
             </div>
-            <div className="flex flex-wrap gap-2.5">
+            <div className="flex flex-wrap gap-1.5">
                 {sizes.map(size => {
                     const isSelected = formData[field] === size;
                     return (
@@ -359,16 +360,13 @@ const CustomerProfileManager = () => {
                             key={size}
                             type="button"
                             onClick={() => toggleSize(field, size)}
-                            className={`min-w-[54px] h-12 rounded-xl text-xs font-black transition-all duration-500 border uppercase tracking-widest relative overflow-hidden group/btn ${
+                            className={`min-w-[42px] h-9 rounded-lg text-[10px] font-black transition-all border uppercase tracking-wider ${
                                 isSelected 
-                                    ? 'bg-attire-accent border-attire-accent text-black shadow-[0_10px_25px_rgba(245,168,28,0.3)] scale-105 z-10' 
-                                    : 'bg-white dark:bg-white/5 border-black/10 dark:border-white/10 text-gray-400 dark:text-white/30 hover:border-attire-accent/40 hover:text-gray-900 dark:hover:text-white'
+                                    ? 'bg-[#0d3542] dark:bg-[#58a6ff] border-[#0d3542] dark:border-[#58a6ff] text-white dark:text-black' 
+                                    : 'bg-white dark:bg-[#161b22] border-black/10 dark:border-[#30363d] text-gray-400 dark:text-[#8b949e]/40 hover:border-attire-accent/40'
                             }`}
                         >
-                            <span className="relative z-10">{size}</span>
-                            {!isSelected && (
-                                <div className="absolute inset-0 bg-attire-accent opacity-0 group-hover/btn:opacity-5 transition-opacity" />
-                            )}
+                            {size}
                         </button>
                     );
                 })}
@@ -380,97 +378,95 @@ const CustomerProfileManager = () => {
         <ErrorBoundary>
             <div className="space-y-10 pb-24 font-sans">
                 {/* Header Section */}
-                <div className="flex flex-col md:flex-row md:items-center justify-between gap-8">
+                <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
                     <div>
-                        <h1 className="text-4xl font-serif text-gray-900 dark:text-white mb-2 tracking-tight">Client Registry</h1>
-                        <div className="flex items-center gap-3">
-                            <span className="w-8 h-px bg-attire-accent/40" />
-                            <p className="text-gray-400 dark:text-attire-silver text-xs font-black uppercase tracking-[0.4em]">Dossier Management Systems</p>
-                        </div>
+                        <h1 className="text-3xl font-serif text-gray-900 dark:text-white mb-1 tracking-tight">Customers</h1>
+                        <p className="text-gray-400 dark:text-[#8b949e]/40 text-[10px] font-black uppercase tracking-[0.3em]">Customer Directory</p>
                     </div>
 
                     <motion.button
-                        whileTap={{ scale: 0.95 }}
+                        whileTap={{ scale: 0.98 }}
                         onClick={() => handleOpenModal()}
-                        className="flex items-center gap-3 bg-black dark:bg-white text-white dark:text-black rounded-2xl py-4 px-10 text-xs font-black uppercase tracking-widest hover:bg-attire-accent dark:hover:bg-attire-accent transition-all shadow-xl shadow-black/10 group"
+                        className="flex items-center gap-2 bg-[#0d3542] dark:bg-[#58a6ff] text-white dark:text-black rounded-xl py-3 px-8 text-[10px] font-black uppercase tracking-widest hover:bg-black dark:hover:bg-white transition-all group"
                     >
-                        <PlusCircle size={16} className="group-hover:rotate-90 transition-transform duration-500" />
-                        <span>Register Client Identity</span>
+                        <PlusCircle size={14} className="group-hover:rotate-90 transition-transform duration-300" />
+                        <span>Add Customer</span>
                     </motion.button>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                    <GlassyStatCard label="Total Identities" value={pagination.total} icon={Users} />
-                    <GlassyStatCard label="VIP Access" value={profiles.filter(p => p.client_status === 'VIP').length + "+"} icon={ShieldCheck} />
-                    <GlassyStatCard label="Live Consults" value={stats.pending_appointments} icon={UserCheck} color="blue-500" />
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <GlassyStatCard label="Total" value={pagination.total} icon={Users} />
+                    <GlassyStatCard label="VIP" value={profiles.filter(p => p.client_status === 'VIP').length + "+"} icon={ShieldCheck} />
+                    <GlassyStatCard label="Consults" value={stats.pending_appointments} icon={UserCheck} color="blue-500" />
                 </div>
 
-                <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 p-2 bg-black/5 dark:bg-white/5 rounded-[2.5rem] border border-black/5 dark:border-white/10">
+                <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 p-2 bg-black/[0.02] dark:bg-[#161b22] rounded-[2.5rem] border border-black/5 dark:border-[#30363d] shadow-none">
                     <div className="relative group flex-grow">
-                        <Search className="absolute left-6 top-1/2 -translate-y-1/2 text-gray-400 dark:text-white/20 group-focus-within:text-attire-accent transition-colors" size={16} />
-                        <input type="text" placeholder="Search client archives..." value={searchQuery} onChange={e => setSearchQuery(e.target.value)} className="w-full bg-transparent border-none rounded-2xl py-5 pl-14 pr-8 text-gray-900 dark:text-white text-sm font-bold uppercase tracking-widest focus:ring-0 outline-none transition-all" />
+                        <Search className="absolute left-6 top-1/2 -translate-y-1/2 text-gray-400 dark:text-[#8b949e]/40 group-focus-within:text-[#0d3542] dark:group-focus-within:text-[#58a6ff] transition-colors" size={16} />
+                        <input type="text" placeholder="Search client archives..." value={searchQuery} onChange={e => setSearchQuery(e.target.value)} className="w-full bg-transparent border-none rounded-2xl py-5 pl-14 pr-8 text-gray-900 dark:text-[#c9d1d9] text-[10px] font-bold uppercase tracking-[0.2em] focus:ring-0 outline-none transition-all placeholder:text-gray-300 dark:placeholder:text-white/10" />
                     </div>
                     <div className="flex items-center gap-4 px-4">
                         <StatusFilter value={filterStatus} onChange={setFilterStatus} />
-                        <div className="h-10 w-px bg-black/5 dark:bg-white/10 hidden md:block" />
-                        <button className="p-4 bg-black/5 dark:bg-white/5 rounded-2xl text-gray-400 dark:text-white/20 hover:text-attire-accent hover:bg-white dark:hover:bg-white/10 transition-all border border-transparent hover:border-attire-accent/20"><Filter size={16} /></button>
+                        <div className="h-10 w-px bg-black/5 dark:bg-[#30363d] hidden md:block" />
+                        <button className="p-4 bg-black/5 dark:bg-white/5 rounded-2xl text-gray-400 dark:text-[#8b949e]/40 hover:text-[#0d3542] dark:hover:text-[#58a6ff] hover:bg-white dark:hover:bg-[#0d1117] transition-all border border-transparent hover:border-[#0d3542]/20 dark:hover:border-[#58a6ff]/20"><Filter size={16} /></button>
                     </div>
                 </div>
 
-                <div className="bg-white dark:bg-black/20 backdrop-blur-xl rounded-[3rem] shadow-2xl shadow-black/[0.02] border border-black/5 dark:border-white/10 overflow-hidden relative group">
-                    <div className="absolute top-0 right-0 w-[400px] h-[400px] bg-attire-accent/[0.02] rounded-full blur-[100px] -mr-32 -mt-32 pointer-events-none group-hover:bg-attire-accent/[0.04] transition-all duration-1000" />
+                <div className="bg-white dark:bg-[#161b22] rounded-[3rem] border border-black/5 dark:border-[#30363d] overflow-hidden relative group shadow-none">
+                    <div className="absolute top-0 right-0 w-[400px] h-[400px] bg-[#0d3542]/[0.02] dark:bg-[#58a6ff]/[0.02] rounded-full blur-[100px] -mr-32 -mt-32 pointer-events-none group-hover:bg-[#0d3542]/[0.04] dark:group-hover:bg-[#58a6ff]/[0.04] transition-all duration-1000" />
                     <div className="overflow-x-auto relative">
                         <table className="w-full text-left border-collapse">
                             <thead>
-                                <tr className="border-b border-black/5 dark:border-white/5 bg-black/[0.02] dark:bg-white/[0.02]">
-                                    <th className="px-8 py-8 text-xs font-black text-gray-400 dark:text-attire-silver/40 uppercase tracking-[0.3em]">Identity Profile</th>
-                                    <th className="px-8 py-8 text-xs font-black text-gray-400 dark:text-attire-silver/40 uppercase tracking-[0.3em]">Origin</th>
-                                    <th className="px-8 py-8 text-xs font-black text-gray-400 dark:text-attire-silver/40 uppercase tracking-[0.3em]">Management</th>
-                                    <th className="px-8 py-8 text-xs font-black text-gray-400 dark:text-attire-silver/40 uppercase tracking-[0.3em]">Status</th>
-                                    <th className="px-8 py-8 text-xs font-black text-gray-400 dark:text-attire-silver/40 uppercase tracking-[0.3em] text-right">Operations</th>
+                                <tr className="border-b border-black/5 dark:border-[#30363d] bg-black/[0.01] dark:bg-[#0d1117]">
+                                    <th className="px-6 py-4 text-[10px] font-black text-gray-400 dark:text-[#8b949e]/30 uppercase tracking-[0.3em]">Name</th>
+                                    <th className="px-6 py-4 text-[10px] font-black text-gray-400 dark:text-[#8b949e]/30 uppercase tracking-[0.3em]">Nationality</th>
+                                    <th className="px-6 py-4 text-[10px] font-black text-gray-400 dark:text-[#8b949e]/30 uppercase tracking-[0.3em]">Staff</th>
+                                    <th className="px-6 py-4 text-[10px] font-black text-gray-400 dark:text-[#8b949e]/30 uppercase tracking-[0.3em]">Status</th>
+                                    <th className="px-6 py-4 text-[10px] font-black text-gray-400 dark:text-[#8b949e]/30 uppercase tracking-[0.3em] text-right">Actions</th>
                                 </tr>
                             </thead>
-                            <tbody className="divide-y divide-black/5 dark:divide-white/5">
+                            <tbody className="divide-y divide-black/5 dark:divide-[#30363d]">
                                 {loading ? (
-                                    [...Array(5)].map((_, i) => (
-                                        <tr key={i} className="border-b border-black/5 dark:border-white/5 last:border-0">
-                                            {[...Array(5)].map((_, j) => (
-                                                <td key={j} className="px-8 py-8"><Skeleton className="h-4 w-full rounded-full" /></td>
-                                            ))}
-                                        </tr>
-                                    ))
+                                    <tr>
+                                        <td colSpan="7" className="py-32 text-center">
+                                            <div className="flex flex-col items-center justify-center space-y-4">
+                                                <LumaSpin size="xl" />
+                                                <p className="text-[10px] font-black uppercase tracking-[0.4em] text-gray-400 dark:text-[#8b949e]/40">Gathering Client Profiles...</p>
+                                            </div>
+                                        </td>
+                                    </tr>
                                 ) : profiles.length > 0 ? (
                                     profiles.map(profile => (
-                                        <tr key={profile.id} className="group hover:bg-attire-accent/[0.02] dark:hover:bg-attire-accent/[0.02] transition-all duration-500 border-b border-black/5 dark:border-white/5 last:border-0">
-                                            <td className="px-8 py-8">
+                                        <tr key={profile.id} className="group hover:bg-black/[0.01] dark:hover:bg-white/[0.01] transition-all duration-300 border-b border-black/5 dark:border-[#30363d] last:border-0">
+                                            <td className="px-6 py-4">
                                                 <div>
-                                                    <p className="text-sm font-black text-gray-900 dark:text-white uppercase tracking-wider group-hover:text-attire-accent transition-colors">{profile.name}</p>
-                                                    <div className="flex items-center gap-2 mt-1">
-                                                        <Phone size={10} className="text-gray-400 dark:text-white/20" />
-                                                        <p className="text-xs text-gray-400 dark:text-attire-silver/40 font-mono tracking-widest uppercase">{profile.phone || 'N/A'}</p>
+                                                    <p className="text-[11px] font-black text-gray-900 dark:text-white uppercase tracking-wider group-hover:text-attire-accent transition-colors">{profile.name}</p>
+                                                    <div className="flex items-center gap-2 mt-0.5">
+                                                        <Phone size={8} className="text-gray-400 dark:text-[#8b949e]/40" />
+                                                        <p className="text-[9px] text-gray-400 dark:text-[#8b949e]/30 font-mono tracking-widest uppercase">{profile.phone || 'N/A'}</p>
                                                     </div>
                                                 </div>
                                             </td>
-                                            <td className="px-8 py-8">
-                                                <div className="inline-flex items-center gap-3 px-4 py-2 bg-black/[0.02] dark:bg-white/5 rounded-xl border border-black/5 dark:border-white/10 group-hover:border-attire-accent/20 transition-all">
-                                                    <Globe size={12} className="text-attire-accent opacity-50" />
-                                                    <span className="text-xs font-black uppercase tracking-[0.15em] text-gray-600 dark:text-white/60">{profile.nationality || 'NOT SPECIFIED'}</span>
+                                            <td className="px-6 py-4">
+                                                <div className="inline-flex items-center gap-2 px-3 py-1 bg-black/[0.02] dark:bg-white/[0.02] rounded-lg border border-black/5 dark:border-white/5">
+                                                    <Globe size={10} className="text-gray-400 opacity-50" />
+                                                    <span className="text-[9px] font-black uppercase tracking-widest text-gray-500 dark:text-white/40">{profile.nationality || 'UNKNOWN'}</span>
                                                 </div>
                                             </td>
-                                            <td className="px-8 py-8">
-                                                <div className="space-y-2">
-                                                    <div className="flex items-center gap-2.5"><div className="w-1.5 h-1.5 rounded-full bg-attire-accent opacity-40" /><span className="text-xs font-black text-gray-900 dark:text-white uppercase tracking-[0.1em]">{profile.host || 'PENDING'}</span></div>
-                                                    {profile.assistant && <div className="flex items-center gap-2.5 ml-4"><div className="w-1 h-px bg-white/10" /><span className="text-xs font-bold text-gray-400 dark:text-white/20 uppercase tracking-widest">{profile.assistant}</span></div>}
+                                            <td className="px-6 py-4">
+                                                <div className="flex items-center gap-2">
+                                                    <div className="w-1.5 h-1.5 rounded-full bg-attire-accent/40" />
+                                                    <span className="text-[10px] font-black text-gray-600 dark:text-white/60 uppercase tracking-widest">{profile.host || 'PENDING'}</span>
                                                 </div>
                                             </td>
-                                            <td className="px-8 py-8">
-                                                <span className={`inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-xs font-black uppercase tracking-[0.2em] border shadow-sm ${profile.client_status === 'VIP' ? 'bg-attire-accent/10 text-attire-accent border-attire-accent/30 shadow-attire-accent/5' : profile.client_status === 'Returning' ? 'bg-blue-500/10 text-blue-400 border-blue-500/30 shadow-blue-500/5' : 'bg-green-500/10 text-green-400 border-green-500/30 shadow-green-500/5'}`}><span className={`w-1.5 h-1.5 rounded-full animate-pulse ${profile.client_status === 'VIP' ? 'bg-attire-accent' : profile.client_status === 'Returning' ? 'bg-blue-500' : 'bg-green-500'}`} />{profile.client_status}</span>
+                                            <td className="px-6 py-4">
+                                                <span className={`inline-flex items-center gap-2 px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-widest border ${profile.client_status === 'VIP' ? 'bg-attire-accent/10 text-attire-accent border-attire-accent/20' : profile.client_status === 'Returning' ? 'bg-blue-500/10 text-blue-400 border-blue-500/20' : 'bg-green-500/10 text-green-400 border-green-500/20'}`}><span className={`w-1 h-1 rounded-full ${profile.client_status === 'VIP' ? 'bg-attire-accent' : profile.client_status === 'Returning' ? 'bg-blue-500' : 'bg-green-500'}`} />{profile.client_status}</span>
                                             </td>
-                                            <td className="px-8 py-8 text-right">
-                                                <div className="flex justify-end gap-3 opacity-40 group-hover:opacity-100 transition-all duration-500">
-                                                    <Link to={`/admin/customer-profiles/${profile.id}`} className="p-3 bg-white dark:bg-white/5 border border-black/5 dark:border-white/10 rounded-2xl text-gray-400 dark:text-attire-silver hover:bg-attire-accent hover:border-attire-accent hover:text-black transition-all shadow-lg shadow-black/5" title="Dossier"><Eye size={16} /></Link>
-                                                    <button onClick={() => handleOpenModal(profile)} className="p-3 bg-white dark:bg-white/5 border border-black/5 dark:border-white/10 rounded-2xl text-gray-400 dark:text-attire-silver hover:bg-blue-500 hover:border-blue-500 hover:text-white transition-all shadow-lg shadow-black/5" title="Configure"><Edit size={16} /></button>
-                                                    <button onClick={() => handleDelete(profile.id)} className="p-3 bg-white dark:bg-white/5 border border-black/5 dark:border-white/10 rounded-2xl text-gray-400 dark:text-attire-silver hover:bg-red-500 hover:border-red-500 hover:text-white transition-all shadow-lg shadow-black/5" title="Archive"><Trash2 size={16} /></button>
+                                            <td className="px-6 py-4 text-right">
+                                                <div className="flex justify-end gap-2">
+                                                    <Link to={`/admin/customer-profiles/${profile.id}`} className="p-2 bg-black/[0.02] dark:bg-white/[0.02] border border-black/5 dark:border-white/5 rounded-lg text-gray-400 hover:text-white hover:bg-black dark:hover:bg-white dark:hover:text-black transition-all" title="View"><Eye size={12} /></Link>
+                                                    <button onClick={() => handleOpenModal(profile)} className="p-2 bg-black/[0.02] dark:bg-white/[0.02] border border-black/5 dark:border-white/5 rounded-lg text-gray-400 hover:text-white hover:bg-blue-500 transition-all" title="Edit"><Edit size={12} /></button>
+                                                    <button onClick={() => handleDelete(profile.id)} className="p-2 bg-black/[0.02] dark:bg-white/[0.02] border border-black/5 dark:border-white/5 rounded-lg text-gray-400 hover:text-white hover:bg-red-500 transition-all" title="Delete"><Trash2 size={12} /></button>
                                                 </div>
                                             </td>
                                         </tr>
@@ -478,8 +474,8 @@ const CustomerProfileManager = () => {
                                 ) : (
                                     <tr>
                                         <td colSpan="5" className="px-8 py-32 text-center">
-                                            <div className="w-20 h-20 bg-black/5 dark:bg-white/5 rounded-[2rem] flex items-center justify-center mx-auto mb-6 border border-black/5 dark:border-white/5"><User className="text-gray-400 dark:text-attire-silver/20" size={32} /></div>
-                                            <p className="text-gray-400 dark:text-attire-silver/40 text-xs font-black uppercase tracking-[0.3em] italic">No matching client records found.</p>
+                                            <div className="w-20 h-20 bg-black/5 dark:bg-[#161b22] rounded-[2rem] flex items-center justify-center mx-auto mb-6 border border-black/5 dark:border-[#30363d]"><User className="text-gray-400 dark:text-[#8b949e]/20" size={32} /></div>
+                                            <p className="text-gray-400 dark:text-[#8b949e]/40 text-xs font-black uppercase tracking-[0.3em] italic">No matching client records found.</p>
                                         </td>
                                     </tr>
                                 )}
@@ -487,54 +483,52 @@ const CustomerProfileManager = () => {
                         </table>
                     </div>
 
-                    {pagination.last_page > 1 && (
-                        <div className="px-10 py-8 border-t border-black/5 dark:border-white/5 bg-black/[0.01] dark:bg-white/[0.01] flex items-center justify-between">
-                            <p className="text-xs font-black text-gray-400 dark:text-attire-silver/40 uppercase tracking-[0.3em]">Archive Capacity: {pagination.total} Identities</p>
-                            <div className="flex items-center gap-4">
-                                <button onClick={() => handlePageChange(pagination.current_page - 1)} disabled={pagination.current_page === 1} className="p-3 bg-white dark:bg-white/5 border border-black/5 dark:border-white/10 rounded-xl disabled:opacity-20 hover:border-attire-accent/40 transition-all shadow-lg shadow-black/5"><ChevronLeft size={18} /></button>
-                                <div className="flex items-center bg-black/5 dark:bg-white/5 px-6 py-3 rounded-xl border border-black/5 dark:border-white/5"><span className="text-xs font-black text-gray-900 dark:text-white uppercase tracking-[0.2em]">Sector {pagination.current_page} <span className="opacity-20 mx-2">/</span> {pagination.last_page}</span></div>
-                                <button onClick={() => handlePageChange(pagination.current_page + 1)} disabled={pagination.current_page === pagination.last_page} className="p-3 bg-white dark:bg-white/5 border border-black/5 dark:border-white/10 rounded-xl disabled:opacity-20 hover:border-attire-accent/40 transition-all shadow-lg shadow-black/5"><ChevronRight size={18} /></button>
+                        <div className="px-8 py-4 border-t border-black/5 dark:border-white/5 flex items-center justify-between">
+                            <p className="text-[10px] font-black text-gray-400 dark:text-[#8b949e]/30 uppercase tracking-widest">Total: {pagination.total}</p>
+                            <div className="flex items-center gap-3">
+                                <button onClick={() => handlePageChange(pagination.current_page - 1)} disabled={pagination.current_page === 1} className="p-2 border border-black/10 dark:border-white/10 rounded-lg hover:bg-black/[0.02] disabled:opacity-20 transition-all"><ChevronLeft size={14} /></button>
+                                <span className="text-[10px] font-black uppercase tracking-widest">Page {pagination.current_page} / {pagination.last_page}</span>
+                                <button onClick={() => handlePageChange(pagination.current_page + 1)} disabled={pagination.current_page === pagination.last_page} className="p-2 border border-black/10 dark:border-white/10 rounded-lg hover:bg-black/[0.02] disabled:opacity-20 transition-all"><ChevronRight size={14} /></button>
                             </div>
                         </div>
-                    )}
                 </div>
 
                 <ModernModal
                     isOpen={showModal}
                     onClose={() => setShowModal(false)}
-                    title={editingProfile ? 'Edit Customer Profile' : 'New Customer Profile'}
-                    maxWidth="max-w-4xl"
+                    title={editingProfile ? 'Edit Customer' : 'Add Customer'}
+                    maxWidth="max-w-3xl"
                 >
-                    <form onSubmit={handleSubmit} className="p-8 space-y-8 max-h-[75vh] overflow-y-auto attire-scrollbar">
+                    <form onSubmit={handleSubmit} className="p-6 space-y-6 max-h-[80vh] overflow-y-auto attire-scrollbar bg-white dark:bg-[#0d1117]">
                         {error && (
-                            <div className="p-4 bg-red-500/10 border border-red-500/20 rounded-2xl flex items-center gap-3 text-red-400 text-xs">
-                                <AlertCircle size={14} />
+                            <div className="p-3 bg-red-500/10 border border-red-500/20 rounded-xl flex items-center gap-3 text-red-400 text-[10px] uppercase font-black">
+                                <AlertCircle size={12} />
                                 <span>{error}</span>
                             </div>
                         )}
 
-                        <div className="space-y-12">
+                        <div className="space-y-8">
                             {/* Basic Info Section */}
                             <div>
-                                <p className="text-xs font-black text-attire-accent uppercase tracking-[0.3em] mb-6 ml-1">Basic Information</p>
-                                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                                    <div className="space-y-2">
-                                        <label className="text-xs font-bold text-gray-400 dark:text-white/40 uppercase tracking-widest ml-1">Full Name</label>
-                                        <input type="text" required value={formData.name} onChange={e => setFormData({...formData, name: e.target.value})} className="w-full bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 rounded-2xl py-4 px-6 text-gray-900 dark:text-white text-sm focus:border-attire-accent outline-none transition-all" placeholder="Enter name..." />
+                                <p className="text-[10px] font-black text-attire-accent uppercase tracking-widest mb-4">Information</p>
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <div className="space-y-1.5">
+                                        <label className="text-[10px] font-black text-gray-400 dark:text-white/20 uppercase tracking-widest ml-1">Name</label>
+                                        <input type="text" required value={formData.name} onChange={e => setFormData({...formData, name: e.target.value})} className="w-full bg-black/[0.02] dark:bg-white/[0.02] border border-black/10 dark:border-white/10 rounded-xl py-3 px-5 text-gray-900 dark:text-white text-sm focus:border-attire-accent outline-none transition-all" placeholder="Customer name" />
                                     </div>
-                                    <div className="space-y-2">
-                                        <label className="text-xs font-bold text-gray-400 dark:text-white/40 uppercase tracking-widest ml-1">Phone Number</label>
-                                        <input type="text" value={formData.phone} onChange={e => setFormData({...formData, phone: e.target.value})} className="w-full bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 rounded-2xl py-4 px-6 text-gray-900 dark:text-white text-sm focus:border-attire-accent outline-none transition-all font-mono" placeholder="012 345 678" />
+                                    <div className="space-y-1.5">
+                                        <label className="text-[10px] font-black text-gray-400 dark:text-white/20 uppercase tracking-widest ml-1">Phone</label>
+                                        <input type="text" value={formData.phone} onChange={e => setFormData({...formData, phone: e.target.value})} className="w-full bg-black/[0.02] dark:bg-white/[0.02] border border-black/10 dark:border-white/10 rounded-xl py-3 px-5 text-gray-900 dark:text-white text-sm focus:border-attire-accent outline-none transition-all font-mono" placeholder="012 345 678" />
                                     </div>
-                                    <div className="space-y-2">
-                                        <label className="text-xs font-bold text-gray-400 dark:text-white/40 uppercase tracking-widest ml-1">Visit Date</label>
-                                        <input type="date" required value={formData.date} onChange={e => setFormData({...formData, date: e.target.value})} className="w-full bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 rounded-2xl py-4 px-6 text-gray-900 dark:text-white text-sm focus:border-attire-accent outline-none transition-all font-mono" />
+                                    <div className="space-y-1.5">
+                                        <label className="text-[10px] font-black text-gray-400 dark:text-white/20 uppercase tracking-widest ml-1">Date</label>
+                                        <input type="date" required value={formData.date} onChange={e => setFormData({...formData, date: e.target.value})} className="w-full bg-black/[0.02] dark:bg-white/[0.02] border border-black/10 dark:border-white/10 rounded-xl py-3 px-5 text-gray-900 dark:text-white text-sm focus:border-attire-accent outline-none transition-all font-mono" />
                                     </div>
                                     <CustomDropdown 
-                                        label="Client Status"
+                                        label="Status"
                                         selected={formData.client_status}
                                         options={[
-                                            { label: 'New Client', value: 'New' },
+                                            { label: 'New', value: 'New' },
                                             { label: 'Returning', value: 'Returning' },
                                             { label: 'VIP Member', value: 'VIP' }
                                         ]}
@@ -549,14 +543,13 @@ const CustomerProfileManager = () => {
                                         icon={Globe}
                                     />
                                     <CustomDropdown 
-                                        label="Marketing Channel"
+                                        label="Found us via"
                                         selected={formData.how_did_they_find_us}
                                         options={[
                                             { label: 'Facebook', value: 'Facebook' },
                                             { label: 'Instagram', value: 'Instagram' },
                                             { label: 'Referral', value: 'Referral' },
                                             { label: 'Telegram', value: 'Telegram' },
-                                            { label: 'Direct Message', value: 'Direct Message' },
                                             { label: 'Other', value: 'Other' }
                                         ]}
                                         onChange={val => setFormData({...formData, how_did_they_find_us: val})}
@@ -567,22 +560,22 @@ const CustomerProfileManager = () => {
 
                             {/* Measurements Section ✨ */}
                             <div>
-                                <p className="text-xs font-black text-attire-accent uppercase tracking-[0.3em] mb-6 ml-1">Size & Measurements</p>
-                                <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                                    <SizeToggleGroup label="Shirt Size" field="shirt_size" sizes={SHIRT_SIZES} />
-                                    <SizeToggleGroup label="Jacket Size" field="jacket_size" sizes={JACKET_SIZES} />
-                                    <SizeToggleGroup label="Pants / Waist" field="pants_size" sizes={PANTS_SIZES} />
-                                    <SizeToggleGroup label="Shoes Size" field="shoes_size" sizes={SHOES_SIZES} />
+                                <p className="text-[10px] font-black text-attire-accent uppercase tracking-widest mb-4">Measurements</p>
+                                <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                                    <SizeToggleGroup label="Shirt" field="shirt_size" sizes={SHIRT_SIZES} />
+                                    <SizeToggleGroup label="Jacket" field="jacket_size" sizes={JACKET_SIZES} />
+                                    <SizeToggleGroup label="Pants" field="pants_size" sizes={PANTS_SIZES} />
+                                    <SizeToggleGroup label="Shoes" field="shoes_size" sizes={SHOES_SIZES} />
                                 </div>
                             </div>
 
-                            {/* Staff & Notes Section */}
+                            {/* Staff & Preferences */}
                             <div>
-                                <p className="text-xs font-black text-attire-accent uppercase tracking-[0.3em] mb-6 ml-1">Staff & Preference Details</p>
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                    <div className="space-y-2">
+                                <p className="text-[10px] font-black text-attire-accent uppercase tracking-widest mb-4">Staff & Preferences</p>
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <div className="space-y-1.5">
                                         <CustomDropdown 
-                                            label="Host In-charge"
+                                            label="Host"
                                             selected={STAFF_NAMES.includes(formData.host) ? formData.host : (formData.host ? 'custom' : '')}
                                             options={STAFF_OPTIONS}
                                             onChange={val => {
@@ -597,19 +590,10 @@ const CustomerProfileManager = () => {
                                             icon={Briefcase}
                                         />
                                         {showCustomHost && (
-                                            <motion.input 
-                                                initial={{ opacity: 0, y: -10 }}
-                                                animate={{ opacity: 1, y: 0 }}
-                                                type="text" 
-                                                value={formData.host} 
-                                                onChange={e => setFormData({...formData, host: e.target.value})} 
-                                                className="w-full bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 rounded-2xl py-4 px-6 text-gray-900 dark:text-white text-sm focus:border-attire-accent outline-none transition-all" 
-                                                placeholder="Enter custom host name..." 
-                                                autoFocus
-                                            />
+                                            <input type="text" value={formData.host} onChange={e => setFormData({...formData, host: e.target.value})} className="w-full bg-black/[0.02] dark:bg-white/[0.02] border border-black/10 dark:border-white/10 rounded-xl py-3 px-5 text-gray-900 dark:text-white text-sm focus:border-attire-accent outline-none transition-all" placeholder="Host name..." />
                                         )}
                                     </div>
-                                    <div className="space-y-2">
+                                    <div className="space-y-1.5">
                                         <CustomDropdown 
                                             label="Assistant"
                                             selected={STAFF_NAMES.includes(formData.assistant) ? formData.assistant : (formData.assistant ? 'custom' : '')}
@@ -626,44 +610,31 @@ const CustomerProfileManager = () => {
                                             icon={UserCheck}
                                         />
                                         {showCustomAssistant && (
-                                            <motion.input 
-                                                initial={{ opacity: 0, y: -10 }}
-                                                animate={{ opacity: 1, y: 0 }}
-                                                type="text" 
-                                                value={formData.assistant} 
-                                                onChange={e => setFormData({...formData, assistant: e.target.value})} 
-                                                className="w-full bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 rounded-2xl py-4 px-6 text-gray-900 dark:text-white text-sm focus:border-attire-accent outline-none transition-all" 
-                                                placeholder="Enter custom assistant name..." 
-                                                autoFocus
-                                            />
+                                            <input type="text" value={formData.assistant} onChange={e => setFormData({...formData, assistant: e.target.value})} className="w-full bg-black/[0.02] dark:bg-white/[0.02] border border-black/10 dark:border-white/10 rounded-xl py-3 px-5 text-gray-900 dark:text-white text-sm focus:border-attire-accent outline-none transition-all" placeholder="Assistant name..." />
                                         )}
                                     </div>
-                                    <div className="space-y-2 md:col-span-2">
+                                    <div className="md:col-span-2">
                                         <CustomDropdown 
-                                            label="Preferred Color"
+                                            label="Color preference"
                                             selected={formData.preferred_color}
                                             options={COLOR_OPTIONS}
                                             onChange={val => setFormData({...formData, preferred_color: val})}
                                             icon={Palette}
                                         />
                                     </div>
-                                    <div className="space-y-2 md:col-span-2">
-                                        <label className="text-xs font-bold text-gray-400 dark:text-white/40 uppercase tracking-widest ml-1">Color Notes</label>
-                                        <textarea value={formData.color_notes} onChange={e => setFormData({...formData, color_notes: e.target.value})} className="w-full bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 rounded-2xl py-4 px-6 text-gray-900 dark:text-white text-sm focus:border-attire-accent outline-none transition-all h-24 resize-none" placeholder="Specific color preferences or restrictions..." />
-                                    </div>
-                                    <div className="space-y-2 md:col-span-2">
-                                        <label className="text-xs font-bold text-gray-400 dark:text-white/40 uppercase tracking-widest ml-1">Additional Remarks</label>
-                                        <textarea value={formData.remarks} onChange={e => setFormData({...formData, remarks: e.target.value})} className="w-full bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 rounded-2xl py-4 px-6 text-gray-900 dark:text-white text-sm focus:border-attire-accent outline-none transition-all h-24 resize-none" placeholder="Any other important details about the client..." />
+                                    <div className="md:col-span-2 space-y-1.5">
+                                        <label className="text-[10px] font-black text-gray-400 dark:text-white/20 uppercase tracking-widest ml-1">Notes</label>
+                                        <textarea value={formData.remarks} onChange={e => setFormData({...formData, remarks: e.target.value})} className="w-full bg-black/[0.02] dark:bg-white/[0.02] border border-black/10 dark:border-white/10 rounded-xl py-3 px-5 text-gray-900 dark:text-white text-sm focus:border-attire-accent outline-none transition-all h-20 resize-none" placeholder="Add any details..." />
                                     </div>
                                 </div>
                             </div>
                         </div>
 
-                        <div className="pt-8 flex gap-4">
-                            <button type="button" onClick={() => setShowModal(false)} className="flex-grow py-5 border border-black/10 dark:border-white/10 rounded-2xl text-xs font-bold uppercase tracking-[0.3em] text-gray-400 dark:text-white/40 hover:text-gray-900 dark:hover:text-white hover:bg-black/5 dark:hover:bg-white/5 transition-all">Cancel</button>
-                            <button type="submit" disabled={saving} className="flex-grow py-5 bg-black dark:bg-white text-white dark:text-black rounded-2xl text-xs font-bold uppercase tracking-[0.3em] hover:bg-attire-accent dark:hover:bg-attire-accent transition-all flex items-center justify-center gap-3 disabled:opacity-50">
-                                {saving ? <Loader className="animate-spin" size={16} /> : <Check size={16} />}
-                                {saving ? 'Processing...' : 'Save Customer Profile'}
+                        <div className="pt-6 flex gap-3">
+                            <button type="button" onClick={() => setShowModal(false)} className="flex-grow py-3.5 border border-black/10 dark:border-white/10 rounded-xl text-[10px] font-black uppercase tracking-widest text-gray-400 hover:text-white hover:bg-black transition-all">Cancel</button>
+                            <button type="submit" disabled={saving} className="flex-grow py-3.5 bg-attire-accent text-white dark:text-black rounded-xl text-[10px] font-black uppercase tracking-widest hover:brightness-110 transition-all flex items-center justify-center gap-2 disabled:opacity-50">
+                                {saving ? <LumaSpin className="animate-spin" size="sm" /> : <Check size={14} />}
+                                {saving ? 'Saving...' : 'Save Customer'}
                             </button>
                         </div>
                     </form>

@@ -7,12 +7,11 @@ import {
     Plus,
     X,
     Check,
-    Loader,
     ChevronDown,
 } from 'lucide-react';
+import { LumaSpin } from '@/components/ui/luma-spin';
 import axios from 'axios';
 import { motion, AnimatePresence } from 'framer-motion';
-import Skeleton from '../../common/Skeleton.jsx';
 import ErrorBoundary from '../../common/ErrorBoundary.jsx';
 import ModernModal from '../../common/ModernModal.jsx';
 
@@ -36,10 +35,10 @@ const ROLES = [
         description:
             'Full access including team management, audit logs, and system settings.',
         Icon: ShieldCheck,
-        color: 'text-attire-accent',
-        bg: 'bg-attire-accent/10',
-        border: 'border-attire-accent/20',
-        activeBg: 'bg-attire-accent',
+        color: 'text-[#58a6ff]',
+        bg: 'bg-[#58a6ff]/10',
+        border: 'border-[#58a6ff]/20',
+        activeBg: 'bg-[#58a6ff]',
         activeText: 'text-black',
     },
 ];
@@ -173,7 +172,7 @@ const UserManager = () => {
                     <motion.button
                         whileTap={{ scale: 0.95 }}
                         onClick={() => openModal()}
-                        className="flex items-center gap-2 bg-black dark:bg-white text-white dark:text-black rounded-2xl py-3 px-6 text-xs font-bold uppercase tracking-widest hover:bg-attire-accent dark:hover:bg-attire-accent transition-all"
+                        className="flex items-center gap-2 bg-black dark:bg-white text-white dark:text-black rounded-2xl py-3 px-6 text-xs font-bold uppercase tracking-widest hover:bg-[#0d3542] dark:hover:bg-[#58a6ff] hover:text-white dark:hover:text-black transition-all"
                     >
                         <Plus size={14} /> Invite Member
                     </motion.button>
@@ -208,12 +207,10 @@ const UserManager = () => {
                 {/* Users Table */}
                 <div className="space-y-3">
                     {loading ? (
-                        [...Array(3)].map((_, i) => (
-                            <Skeleton
-                                key={i}
-                                className="h-20 w-full rounded-2xl"
-                            />
-                        ))
+                        <div className="py-24 flex flex-col items-center justify-center space-y-4 bg-white/5 dark:bg-black/10 rounded-[2rem] border border-black/5 dark:border-white/5">
+                            <LumaSpin size="xl" />
+                            <p className="text-[10px] font-black uppercase tracking-[0.4em] text-gray-400 dark:text-[#8b949e]/40">Verifying Credentials...</p>
+                        </div>
                     ) : users.length === 0 ? (
                         <div className="text-center py-20 text-gray-400 dark:text-attire-silver/30 text-sm">
                             No team members yet. Invite someone to get started.
@@ -229,7 +226,7 @@ const UserManager = () => {
                                         animate={{ opacity: 1, y: 0 }}
                                         exit={{ opacity: 0, x: -20 }}
                                         transition={{ delay: index * 0.04 }}
-                                        className="flex items-center gap-4 p-4 bg-white dark:bg-black/20 border border-black/5 dark:border-white/10 rounded-2xl hover:border-attire-accent/20 transition-all group"
+                                        className="flex items-center gap-4 p-4 bg-white dark:bg-[#161b22] border border-black/5 dark:border-white/10 rounded-2xl hover:border-[#0d3542]/20 transition-all group"
                                     >
                                         {/* Avatar */}
                                         <div className="h-10 w-10 rounded-xl bg-black/5 dark:bg-white/5 flex items-center justify-center flex-shrink-0">
@@ -263,7 +260,7 @@ const UserManager = () => {
                                         <div className="flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity flex-shrink-0">
                                             <button
                                                 onClick={() => openModal(user)}
-                                                className="px-3 py-2 bg-black/5 dark:bg-white/5 rounded-xl text-[11px] font-bold uppercase tracking-widest text-gray-500 hover:text-gray-900 dark:hover:text-white transition-all"
+                                                className="px-3 py-2 bg-black/5 dark:bg-white/5 rounded-xl text-[11px] font-bold uppercase tracking-widest text-[#0d3542] dark:text-[#58a6ff] hover:bg-[#0d3542] dark:hover:bg-[#58a6ff] hover:text-white dark:hover:text-black transition-all"
                                             >
                                                 Edit
                                             </button>
@@ -308,7 +305,7 @@ const UserManager = () => {
                                         name: e.target.value,
                                     })
                                 }
-                                className="w-full bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 rounded-2xl py-4 px-5 text-gray-900 dark:text-white text-sm focus:border-attire-accent outline-none transition-all"
+                                className="w-full bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 rounded-2xl py-4 px-5 text-gray-900 dark:text-white text-sm focus:border-[#0d3542] dark:focus:border-[#58a6ff] outline-none transition-all"
                                 placeholder="Jane Doe"
                             />
                         </div>
@@ -328,7 +325,7 @@ const UserManager = () => {
                                         email: e.target.value,
                                     })
                                 }
-                                className="w-full bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 rounded-2xl py-4 px-5 text-gray-900 dark:text-white text-sm focus:border-attire-accent outline-none transition-all font-mono"
+                                className="w-full bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 rounded-2xl py-4 px-5 text-gray-900 dark:text-white text-sm focus:border-[#0d3542] dark:focus:border-[#58a6ff] outline-none transition-all font-mono"
                                 placeholder="jane@attirelounge.com"
                             />
                         </div>
@@ -353,7 +350,7 @@ const UserManager = () => {
                                         password: e.target.value,
                                     })
                                 }
-                                className="w-full bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 rounded-2xl py-4 px-5 text-gray-900 dark:text-white text-sm focus:border-attire-accent outline-none transition-all"
+                                className="w-full bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 rounded-2xl py-4 px-5 text-gray-900 dark:text-white text-sm focus:border-[#0d3542] dark:focus:border-[#58a6ff] outline-none transition-all"
                                 placeholder="••••••••"
                             />
                         </div>
@@ -376,8 +373,8 @@ const UserManager = () => {
                                         }
                                         className={`flex flex-col items-start gap-2 p-4 rounded-2xl border text-left transition-all ${
                                             formData.role === role.name
-                                                ? `${role.activeBg} ${role.activeText} border-transparent shadow-lg`
-                                                : `bg-black/5 dark:bg-white/5 border-black/10 dark:border-white/10 text-gray-500 dark:text-white/40 hover:border-attire-accent/20`
+                                                ? `${role.activeBg} ${role.activeText} border-transparent shadow-none`
+                                                : `bg-black/5 dark:bg-white/5 border-black/10 dark:border-white/10 text-gray-500 dark:text-white/40 hover:border-[#0d3542]/20 dark:hover:border-[#58a6ff]/20`
                                         }`}
                                     >
                                         <role.Icon
@@ -422,12 +419,11 @@ const UserManager = () => {
                             <button
                                 type="submit"
                                 disabled={saving}
-                                className="flex-grow py-4 bg-attire-charcoal dark:bg-white text-white dark:text-black rounded-2xl text-xs font-black uppercase tracking-widest hover:bg-attire-accent dark:hover:bg-attire-accent transition-all flex items-center justify-center gap-2 disabled:opacity-50 shadow-xl"
+                                className="flex-grow py-4 bg-attire-charcoal dark:bg-white text-white dark:text-black rounded-2xl text-xs font-black uppercase tracking-widest hover:bg-[#0d3542] dark:hover:bg-[#58a6ff] hover:text-white transition-all flex items-center justify-center gap-2 disabled:opacity-50 shadow-none"
                             >
                                 {saving ? (
-                                    <Loader
-                                        className="animate-spin"
-                                        size={14}
+                                    <LumaSpin
+                                        size="sm"
                                     />
                                 ) : (
                                     <Check size={14} />

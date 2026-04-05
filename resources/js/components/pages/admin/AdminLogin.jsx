@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Lock, User as UserIcon, Loader, ShieldCheck, ArrowRight, Check, RefreshCw, AlertTriangle } from 'lucide-react';
+import { Lock, User as UserIcon, ShieldCheck, ArrowRight, Check, AlertTriangle } from 'lucide-react';
+import { LumaSpin } from '@/components/ui/luma-spin';
 import { motion } from 'framer-motion';
 import axios from 'axios';
 import minioBaseUrl from '../../../config';
@@ -59,7 +60,7 @@ const AdminLogin = () => {
     };
 
     return (
-        <div className="relative min-h-screen flex font-sans overflow-hidden bg-[#050505] text-white selection:bg-attire-accent selection:text-black">
+        <div className="relative min-h-screen flex font-sans overflow-hidden bg-[#0d1117] text-white selection:bg-[#58a6ff] selection:text-black">
             {/* Left Column: Visual Branding */}
             <div className="hidden lg:flex lg:w-1/2 relative overflow-hidden bg-black border-r border-white/5">
                 <motion.div 
@@ -73,11 +74,11 @@ const AdminLogin = () => {
                         loop 
                         muted 
                         playsInline
-                        className="w-full h-full object-cover grayscale brightness-50 contrast-125"
+                        className="w-full h-full object-cover grayscale opacity-30 brightness-50 contrast-125"
                     >
                         <source src={`${minioBaseUrl}/uploads/asset/hero-background1.mp4`} type="video/mp4" />
                     </video>
-                    <div className="absolute inset-0 bg-gradient-to-r from-black via-transparent to-black/20" />
+                    <div className="absolute inset-0 bg-gradient-to-r from-[#0d1117] via-transparent to-[#0d1117]/20" />
                 </motion.div>
 
                 {/* Branding Content */}
@@ -114,8 +115,8 @@ const AdminLogin = () => {
             </div>
 
             {/* Right Column: Clean Login Form */}
-            <div className="flex-1 flex items-center justify-center p-8 bg-[#050505] relative">
-                {!isSafariBrowser && <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-attire-accent/[0.03] blur-[120px] rounded-full pointer-events-none" />}
+            <div className="flex-1 flex items-center justify-center p-8 bg-[#0d1117] relative">
+
 
                 <motion.div 
                     initial={{ opacity: 0, y: 20 }}
@@ -148,24 +149,24 @@ const AdminLogin = () => {
 
                     <form onSubmit={handleLogin} className="space-y-8">
                         <div className="space-y-3">
-                            <label className="text-[10px] font-bold text-attire-silver/30 uppercase tracking-[0.2em] ml-1">Identity</label>
+                            <label className="text-[10px] font-bold text-[#8b949e] uppercase tracking-[0.2em] ml-1">Identity</label>
                             <input
                                 type="text"
                                 value={login}
                                 onChange={(e) => setLogin(e.target.value)}
-                                className="w-full bg-white/[0.03] border border-white/5 rounded-xl py-4 px-5 text-white text-sm outline-none transition-all duration-500 focus:bg-white/[0.06] focus:border-white/10 placeholder:text-white/5"
+                                className="w-full bg-[#161b22] border border-[#30363d] rounded-xl py-4 px-5 text-white text-sm outline-none transition-all duration-500 focus:bg-[#0d1117] focus:border-[#58a6ff]/50 placeholder:text-white/5"
                                 placeholder="Username or Email"
                                 required
                             />
                         </div>
 
                         <div className="space-y-3">
-                            <label className="text-[10px] font-bold text-attire-silver/30 uppercase tracking-[0.2em] ml-1">Access Key</label>
+                            <label className="text-[10px] font-bold text-[#8b949e] uppercase tracking-[0.2em] ml-1">Access Key</label>
                             <input
                                 type="password"
                                 value={password}
                                 onChange={(e) => setPassword(e.target.value)}
-                                className="w-full bg-white/[0.03] border border-white/5 rounded-xl py-4 px-5 text-white text-sm outline-none transition-all duration-500 focus:bg-white/[0.06] focus:border-white/10 placeholder:text-white/5"
+                                className="w-full bg-[#161b22] border border-[#30363d] rounded-xl py-4 px-5 text-white text-sm outline-none transition-all duration-500 focus:bg-[#0d1117] focus:border-[#58a6ff]/50 placeholder:text-white/5"
                                 placeholder="••••••••"
                                 required
                             />
@@ -200,12 +201,12 @@ const AdminLogin = () => {
                         <button
                             type="submit"
                             disabled={loading}
-                            className="group relative w-full h-[60px] bg-white text-black font-black uppercase tracking-[0.4em] text-[10px] rounded-xl overflow-hidden transition-all duration-700 hover:bg-attire-accent disabled:opacity-50"
+                            className="group relative w-full h-[60px] bg-white text-black font-black uppercase tracking-[0.4em] text-[10px] rounded-xl overflow-hidden transition-all duration-700 hover:bg-[#58a6ff] disabled:opacity-50"
                         >
                             <span className="relative z-10 flex items-center justify-center gap-3">
                                 {loading ? (
                                     <>
-                                        <RefreshCw className="animate-spin" size={16} />
+                                        <LumaSpin size="sm" />
                                         Verifying
                                     </>
                                 ) : (
@@ -215,7 +216,7 @@ const AdminLogin = () => {
                                     </>
                                 )}
                             </span>
-                            <div className="absolute inset-0 bg-attire-accent translate-y-full group-hover:translate-y-0 transition-transform duration-700" />
+                            <div className="absolute inset-0 bg-[#58a6ff] translate-y-full group-hover:translate-y-0 transition-transform duration-700" />
                         </button>
                     </form>
 

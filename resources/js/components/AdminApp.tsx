@@ -108,6 +108,40 @@ const GlobalStyles = () => (
     <style dangerouslySetInnerHTML={{ __html: `
         *::-webkit-scrollbar { display: none !important; }
         * { -ms-overflow-style: none !important; scrollbar-width: none !important; }
+        
+        /* Only apply default shadows on the dashboard page */
+        #admin-root main.dashboard-page [class*="rounded-"]:not(.flat-card):not(.shadow-none), 
+        #admin-root main.dashboard-page [class*="border-"]:not(.flat-card):not(.shadow-none),
+        #admin-root main.dashboard-page button:not(.flat-button):not(.shadow-none) {
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.05), 0 4px 6px -2px rgba(0, 0, 0, 0.02);
+            transition: box-shadow 0.3s ease;
+        }
+
+        #admin-root .dark main.dashboard-page [class*="rounded-"]:not(.flat-card):not(.shadow-none), 
+        #admin-root .dark main.dashboard-page [class*="border-"]:not(.flat-card):not(.shadow-none) {
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.3), 0 10px 30px -5px rgba(0, 0, 0, 0.2);
+        }
+
+        /* Exclusions for Sidebar, Search, Specific Cards, and List Items */
+        #admin-root aside,
+        #admin-root header,
+        #admin-root .sidebar-content,
+        #admin-root nav a,
+        #admin-root button[title*="Toggle"],
+        #admin-root .appointment-card,
+        #admin-root .gift-card,
+        #admin-root .search-container,
+        #admin-root tr,
+        #admin-root li,
+        #admin-root [class*="item-list"] > *,
+        #admin-root [class*="list-row"] {
+            box-shadow: none !important;
+        }
+
+        #admin-root main.dashboard-page button:hover:not(.flat-button),
+        #admin-root main.dashboard-page a:hover:not(.flat-card) {
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        }
     `}} />
 );
 

@@ -73,8 +73,8 @@ const ProductCard = ({ product }) => {
             layout
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
-            whileHover={{ y: -4, scale: 1.02 }}
-            className="group relative flex flex-col bg-white dark:bg-[#0d0d0d] border border-black/5 dark:border-white/5 rounded-2xl overflow-hidden cursor-pointer shadow-sm hover:shadow-xl transition-all duration-300"
+            whileHover={{ y: -2, scale: 1.01 }}
+            className="group relative flex flex-col bg-background dark:bg-[#0d0d0d] border border-black/5 dark:border-white/5 rounded-2xl overflow-hidden cursor-pointer shadow-none transition-all duration-300"
         >
             {/* Stock Badge */}
             <div
@@ -94,7 +94,7 @@ const ProductCard = ({ product }) => {
             {/* Print Button (Hover only) */}
             <button
                 onClick={handlePrint}
-                className="absolute top-2 right-12 z-20 p-2 rounded-xl bg-white/10 opacity-0 group-hover:opacity-100 backdrop-blur-md text-gray-400 hover:text-attire-accent transition-all hover:bg-white/20"
+                className="absolute top-2 right-12 z-20 p-2 rounded-xl bg-background/10 opacity-0 group-hover:opacity-100 backdrop-blur-md text-gray-400 hover:text-attire-accent transition-all hover:bg-background/20"
                 title="Print Label"
             >
                 <Printer size={14} />
@@ -142,7 +142,7 @@ const ProductCard = ({ product }) => {
                         </div>
 
                         <div
-                            className={`p-2.5 rounded-xl transition-all duration-300 ${isAdded ? 'bg-attire-accent text-black scale-110 shadow-lg shadow-attire-accent/20' : 'bg-black dark:bg-white/10 text-white dark:text-attire-accent opacity-0 group-hover:opacity-100 translate-x-4 group-hover:translate-x-0'}`}
+                            className={`p-2.5 rounded-xl border border-black/5 dark:border-white/5 transition-all duration-300 ${isAdded ? 'bg-attire-accent text-black scale-110' : 'bg-black dark:bg-white/10 text-white dark:text-attire-accent opacity-0 group-hover:opacity-100 translate-x-4 group-hover:translate-x-0'}`}
                         >
                             {isAdded ? (
                                 <Zap size={14} fill="currentColor" />

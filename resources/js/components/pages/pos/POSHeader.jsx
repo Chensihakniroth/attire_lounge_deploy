@@ -30,7 +30,7 @@ const POSHeader = () => {
     const { isDarkMode, toggleDarkMode } = useTheme();
 
     return (
-        <header className="h-16 flex items-center px-6 bg-white/80 dark:bg-[#0a0a0a]/80 backdrop-blur-md border-b border-black/5 dark:border-white/5 relative z-50 transition-colors duration-300">
+        <header className="h-16 flex items-center px-6 bg-background/80 dark:bg-[#0a0a0a]/80 backdrop-blur-md border-b border-black/[0.08] dark:border-white/10 relative z-50 transition-colors duration-300">
             {/* Logo & Admin Switcher */}
             <div className="flex items-center gap-6 mr-8">
                 <div className="flex flex-col">
@@ -69,7 +69,7 @@ const POSHeader = () => {
                                 onClick={() => setActiveTabIndex(index)}
                                 className={`flex items-center gap-3 px-4 py-2 rounded-xl text-[10px] font-bold uppercase tracking-widest transition-all whitespace-nowrap group ${
                                     activeTabIndex === index
-                                        ? 'bg-attire-accent text-black shadow-lg shadow-attire-accent/20'
+                                        ? 'bg-attire-accent text-white shadow-none border border-black/5 dark:border-white/5'
                                         : 'bg-black/5 dark:bg-white/5 text-gray-500 dark:text-gray-400 hover:bg-black/10 dark:hover:bg-white/10'
                                 }`}
                             >

@@ -33,7 +33,7 @@ const CollectionCard = ({ collection }) => {
                 <h3 className="text-3xl font-serif text-white mb-3 transform group-hover:-translate-y-2 transition-transform duration-500">
                     {collection.title}
                 </h3>
-                <p className="text-white/70 text-sm max-w-xs mb-6 opacity-0 group-hover:opacity-100 transform translate-y-4 group-hover:translate-y-0 transition-all duration-500 delay-100">
+                <p className="text-white/95 text-sm max-w-xs mb-6 opacity-0 group-hover:opacity-100 transform translate-y-4 group-hover:translate-y-0 transition-all duration-500 delay-100 font-medium drop-shadow-sm">
                     {collection.description}
                 </p>
                 <div className="inline-flex items-center gap-2 text-attire-accent font-medium border-b border-attire-accent/30 pb-1 group-hover:border-attire-accent transition-colors">

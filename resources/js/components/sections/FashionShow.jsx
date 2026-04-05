@@ -41,21 +41,21 @@ const FashionShow = memo(forwardRef((props, ref) => {
             >
               <motion.div variants={itemVariants} className="flex items-center justify-center lg:justify-start gap-4">
                 <span className="w-8 lg:w-12 h-[1px] bg-attire-accent"></span>
-                <span className="text-attire-accent text-[8px] lg:text-[10px] tracking-[0.5em] uppercase font-bold">Inaugural Event</span>
+                <span className="text-attire-accent text-[8px] lg:text-[10px] tracking-[0.5em] uppercase font-bold drop-shadow-sm">Inaugural Event</span>
               </motion.div>
 
               <motion.div variants={itemVariants} className="space-y-3 lg:space-y-4">
-                <h2 className="font-serif text-4xl md:text-7xl lg:text-8xl text-white leading-[0.9] tracking-tighter">
+                <h2 className="font-serif text-4xl md:text-7xl lg:text-8xl text-white leading-[0.9] tracking-tighter drop-shadow-md">
                   Sartorial <br />
                   <span className="text-attire-accent italic">Excellence</span>
                 </h2>
-                <p className="text-attire-silver/60 text-[10px] lg:text-sm tracking-[0.2em] uppercase font-light">
+                <p className="text-attire-silver/80 text-[10px] lg:text-sm tracking-[0.2em] uppercase font-medium">
                   Rosewood Phnom Penh • Feb 2025
                 </p>
               </motion.div>
 
               <motion.div variants={itemVariants} className="max-w-md mx-auto lg:mx-0">
-                <p className="text-attire-silver text-sm lg:text-lg font-light leading-relaxed border-l-0 lg:border-l border-white/10 lg:pl-8 py-1 lg:py-2">
+                <p className="text-attire-silver text-sm lg:text-lg font-normal leading-relaxed border-l-0 lg:border-l border-white/20 lg:pl-8 py-1 lg:py-2">
                   An exclusive evening where traditional craftsmanship met contemporary street refinement, setting a new standard for Cambodia.
                 </p>
               </motion.div>

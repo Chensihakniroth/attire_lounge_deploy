@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { 
-    User, Mail, Key, Shield, Check, Loader, AlertCircle, 
+    User, Mail, Key, Shield, Check, AlertCircle, 
     ChevronLeft, Edit, Save, Trash2, ShieldCheck, Lock, Info
 } from 'lucide-react';
+import { LumaSpin } from '@/components/ui/luma-spin';
 import axios from 'axios';
 import { motion, AnimatePresence } from 'framer-motion';
 import ErrorBoundary from '../../common/ErrorBoundary.jsx';
@@ -83,9 +84,9 @@ const ProfileEditor = () => {
 
     if (loading) {
         return (
-            <div className="min-h-[60vh] flex flex-col items-center justify-center gap-4">
-                <Loader className="animate-spin text-attire-accent" size={32} />
-                <p className="text-[10px] font-black uppercase tracking-[0.3em] text-white/20 text-center">Fetching Identity Dossier...</p>
+            <div className="min-h-[60vh] flex flex-col items-center justify-center gap-6">
+                <LumaSpin size="lg" />
+                <p className="text-[11px] font-black uppercase tracking-[0.4em] text-white/20 text-center">Fetching Identity Dossier...</p>
             </div>
         );
     }
@@ -99,7 +100,7 @@ const ProfileEditor = () => {
                         <h1 className="text-4xl font-serif text-gray-900 dark:text-white mb-2">My Profile</h1>
                         <p className="text-gray-400 dark:text-attire-silver text-sm uppercase tracking-widest">Manage Your Professional Identity</p>
                     </div>
-                    <div className="flex items-center gap-3 bg-attire-accent/10 p-4 rounded-2xl border border-attire-accent/20 shadow-sm">
+                    <div className="flex items-center gap-3 bg-attire-accent/10 p-4 rounded-2xl border border-attire-accent/20 shadow-none">
                         <ShieldCheck size={18} className="text-attire-accent" />
                         <div>
                             <p className="text-[9px] font-black text-attire-accent uppercase tracking-widest leading-none mb-1">Authorization Level</p>
@@ -111,8 +112,8 @@ const ProfileEditor = () => {
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-10">
                     {/* Left Info Sidebar */}
                     <div className="lg:col-span-1 space-y-6">
-                        <div className="bg-white dark:bg-black/20 backdrop-blur-xl p-8 rounded-[2.5rem] border border-black/5 dark:border-white/10 shadow-xl">
-                            <div className="w-24 h-24 rounded-[2rem] bg-gradient-to-br from-attire-accent to-attire-accent/40 flex items-center justify-center text-black mx-auto mb-6 shadow-2xl shadow-attire-accent/20">
+                        <div className="bg-white dark:bg-black/20 backdrop-blur-xl p-8 rounded-[2.5rem] border border-black/5 dark:border-white/10 shadow-none">
+                            <div className="w-24 h-24 rounded-[2rem] bg-gradient-to-br from-attire-accent to-attire-accent/40 flex items-center justify-center text-black mx-auto mb-6 shadow-none">
                                 {formData.name ? (
                                     <span className="text-3xl font-serif">{formData.name.substring(0, 1)}</span>
                                 ) : (
@@ -124,24 +125,23 @@ const ProfileEditor = () => {
                                 <p className="text-xs text-gray-400 dark:text-white/20 truncate">{formData.email}</p>
                             </div>
                         </div>
-
-                        <div className="p-6 bg-blue-500/5 rounded-[2rem] border border-blue-500/10 space-y-3">
-                            <div className="flex items-center gap-2 text-blue-500">
-                                <Info size={14} />
-                                <span className="text-[10px] font-black uppercase tracking-widest">Security Notice</span>
-                            </div>
-                            <p className="text-[11px] text-blue-600/60 dark:text-blue-400/40 leading-relaxed italic">
-                                To ensure the security of the styling house, changing your email or password requires your current credentials.
-                            </p>
-                        </div>
                     </div>
 
                     {/* Right Main Form */}
-                    <div className="lg:col-span-2">
-                        <motion.form 
+                    <motion.div 
+                        initial={{ opacity: 0, x: 20 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        className="lg:col-span-2 space-y-6"
+                    >
+                        <form 
                             onSubmit={handleSubmit}
-                            className="bg-white dark:bg-black/20 backdrop-blur-xl p-10 rounded-[3rem] border border-black/5 dark:border-white/10 shadow-xl space-y-10"
+                            className="bg-white dark:bg-[#161b22] border border-black/5 dark:border-white/10 rounded-[2.5rem] p-10 overflow-hidden relative space-y-10"
                         >
+                            <div className="flex items-center gap-4 mb-10">
+                                <div className="w-1.5 h-8 bg-[#0d3542] dark:bg-[#58a6ff] rounded-full" />
+                                <h2 className="text-2xl font-serif text-gray-900 dark:text-white">Account Details</h2>
+                            </div>
+
                             <AnimatePresence mode="wait">
                                 {error && (
                                     <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} className="p-4 bg-red-500/10 border border-red-500/20 rounded-2xl flex items-center gap-3 text-red-500 text-xs">
@@ -163,37 +163,31 @@ const ProfileEditor = () => {
                                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                         <div className="space-y-2">
                                             <label className="text-[10px] font-bold text-gray-400 dark:text-white/20 uppercase tracking-widest ml-1">Display Name</label>
-                                            <div className="relative group">
-                                                <User className="absolute left-5 top-1/2 -translate-y-1/2 text-gray-400 dark:text-white/10 group-focus-within:text-attire-accent transition-colors" size={16} />
-                                                <input type="text" required value={formData.name} onChange={e => setFormData({...formData, name: e.target.value})} className="w-full bg-black/5 dark:bg-white/5 border border-black/5 dark:border-white/10 rounded-2xl py-4 pl-14 pr-6 text-gray-900 dark:text-white text-sm focus:border-attire-accent outline-none transition-all" />
-                                            </div>
+                                            <input type="text" required value={formData.name} onChange={e => setFormData({...formData, name: e.target.value})} className="w-full bg-black/5 dark:bg-white/5 border border-black/5 dark:border-white/10 rounded-2xl py-4 px-6 text-gray-900 dark:text-white text-sm focus:border-[#0d3542] dark:focus:border-[#58a6ff] outline-none transition-all" />
                                         </div>
                                         <div className="space-y-2">
-                                            <label className="text-[10px] font-bold text-gray-400 dark:text-white/20 uppercase tracking-widest ml-1">Email Address</label>
-                                            <div className="relative group">
-                                                <Mail className="absolute left-5 top-1/2 -translate-y-1/2 text-gray-400 dark:text-white/10 group-focus-within:text-attire-accent transition-colors" size={16} />
-                                                <input type="email" required value={formData.email} onChange={e => setFormData({...formData, email: e.target.value})} className="w-full bg-black/5 dark:bg-white/5 border border-black/5 dark:border-white/10 rounded-2xl py-4 pl-14 pr-6 text-gray-900 dark:text-white text-sm focus:border-attire-accent outline-none transition-all" />
-                                            </div>
+                                            <label className="text-[10px] font-black uppercase tracking-[0.2em] text-gray-400 ml-2">Email Address</label>
+                                            <input type="email" required value={formData.email} onChange={e => setFormData({...formData, email: e.target.value})} className="w-full bg-black/5 dark:bg-white/5 border border-black/5 dark:border-white/10 rounded-2xl py-4 px-6 text-gray-900 dark:text-white text-sm focus:border-[#0d3542] dark:focus:border-[#58a6ff] outline-none transition-all" />
                                         </div>
                                     </div>
                                 </div>
 
                                 <div className="space-y-6">
-                                    <p className="text-[10px] font-black text-attire-accent uppercase tracking-[0.3em] ml-1">Access Credentials</p>
+                                    <p className="text-[10px] font-black text-[#0d3542] dark:text-[#58a6ff] uppercase tracking-[0.3em] ml-1">Access Credentials</p>
                                     <div className="space-y-6">
                                         <div className="space-y-2">
                                             <label className="text-[10px] font-bold text-gray-400 dark:text-white/20 uppercase tracking-widest ml-1">New Password (Optional)</label>
                                             <div className="relative group">
-                                                <Lock className="absolute left-5 top-1/2 -translate-y-1/2 text-gray-400 dark:text-white/10 group-focus-within:text-attire-accent transition-colors" size={16} />
-                                                <input type="password" placeholder="Leave blank to keep current" value={formData.password} onChange={e => setFormData({...formData, password: e.target.value})} className="w-full bg-black/5 dark:bg-white/5 border border-black/5 dark:border-white/10 rounded-2xl py-4 pl-14 pr-6 text-gray-900 dark:text-white text-sm focus:border-attire-accent outline-none transition-all" />
+                                                <Lock className="absolute left-5 top-1/2 -translate-y-1/2 text-gray-400 dark:text-white/10 group-focus-within:text-[#0d3542] dark:group-focus-within:text-[#58a6ff] transition-colors" size={16} />
+                                                <input type="password" placeholder="Leave blank to keep current" value={formData.password} onChange={e => setFormData({...formData, password: e.target.value})} className="w-full bg-black/5 dark:bg-white/5 border border-black/5 dark:border-white/10 rounded-2xl py-4 pl-14 pr-6 text-gray-900 dark:text-white text-sm focus:border-[#0d3542] dark:focus:border-[#58a6ff] outline-none transition-all" />
                                             </div>
                                         </div>
                                         {formData.password && (
                                             <div className="space-y-2">
                                                 <label className="text-[10px] font-bold text-gray-400 dark:text-white/20 uppercase tracking-widest ml-1">Confirm New Password</label>
                                                 <div className="relative group">
-                                                    <Lock className="absolute left-5 top-1/2 -translate-y-1/2 text-gray-400 dark:text-white/10 group-focus-within:text-attire-accent transition-colors" size={16} />
-                                                    <input type="password" required={!!formData.password} value={formData.password_confirmation} onChange={e => setFormData({...formData, password_confirmation: e.target.value})} className="w-full bg-black/5 dark:bg-white/5 border border-black/5 dark:border-white/10 rounded-2xl py-4 pl-14 pr-6 text-gray-900 dark:text-white text-sm focus:border-attire-accent outline-none transition-all" />
+                                                    <Lock className="absolute left-5 top-1/2 -translate-y-1/2 text-gray-400 dark:text-white/10 group-focus-within:text-[#0d3542] dark:group-focus-within:text-[#58a6ff] transition-colors" size={16} />
+                                                    <input type="password" required={!!formData.password} value={formData.password_confirmation} onChange={e => setFormData({...formData, password_confirmation: e.target.value})} className="w-full bg-black/5 dark:bg-white/5 border border-black/5 dark:border-white/10 rounded-2xl py-4 pl-14 pr-6 text-gray-900 dark:text-white text-sm focus:border-[#0d3542] dark:focus:border-[#58a6ff] outline-none transition-all" />
                                                 </div>
                                             </div>
                                         )}
@@ -202,25 +196,25 @@ const ProfileEditor = () => {
 
                                 <div className="pt-6 border-t border-black/5 dark:border-white/5 space-y-6">
                                     <div className="space-y-2">
-                                        <label className="text-[10px] font-bold text-red-500 uppercase tracking-widest ml-1">Verification Required</label>
+                                        <label className="text-[10px] font-bold text-rose-500 uppercase tracking-widest ml-1">Verification Required</label>
                                         <div className="relative group">
-                                            <Key className="absolute left-5 top-1/2 -translate-y-1/2 text-red-500/30 group-focus-within:text-red-500 transition-colors" size={16} />
-                                            <input type="password" required placeholder="Enter CURRENT password to save changes" value={formData.current_password} onChange={e => setFormData({...formData, current_password: e.target.value})} className="w-full bg-red-500/[0.02] border-2 border-red-500/10 rounded-2xl py-4 pl-14 pr-6 text-gray-900 dark:text-white text-sm focus:border-red-500 outline-none transition-all" />
+                                            <Key className="absolute left-5 top-1/2 -translate-y-1/2 text-rose-500/30 group-focus-within:text-rose-500 transition-colors" size={16} />
+                                            <input type="password" required placeholder="Enter CURRENT password to save changes" value={formData.current_password} onChange={e => setFormData({...formData, current_password: e.target.value})} className="w-full bg-rose-500/[0.02] border border-rose-500/20 rounded-2xl py-4 pl-14 pr-6 text-gray-900 dark:text-white text-sm focus:border-rose-500 outline-none transition-all" />
                                         </div>
                                     </div>
 
                                     <button 
                                         type="submit" 
                                         disabled={saving}
-                                        className="w-full py-5 bg-black dark:bg-white text-white dark:text-black rounded-2xl text-[11px] font-black uppercase tracking-[0.3em] hover:bg-attire-accent dark:hover:bg-attire-accent transition-all flex items-center justify-center gap-3 disabled:opacity-50 shadow-2xl shadow-black/10"
+                                        className="w-full py-4 bg-black dark:bg-white text-white dark:text-black rounded-2xl text-[11px] font-black uppercase tracking-widest hover:bg-[#0d3542] dark:hover:bg-[#58a6ff] hover:text-white dark:hover:text-black transition-all flex items-center justify-center gap-2 group disabled:opacity-50 shadow-none"
                                     >
-                                        {saving ? <Loader className="animate-spin" size={16} /> : <Save size={16} />}
+                                        {saving ? <LumaSpin size="sm" /> : <Save size={16} />}
                                         {saving ? 'Processing changes...' : 'Save Profile Changes'}
                                     </button>
                                 </div>
                             </div>
-                        </motion.form>
-                    </div>
+                        </form>
+                    </motion.div>
                 </div>
             </div>
         </ErrorBoundary>

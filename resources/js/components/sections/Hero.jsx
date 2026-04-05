@@ -98,7 +98,7 @@ const Hero = () => {
                         <span className="text-attire-silver font-light">Modern Sophistication</span>
                     </h1>
 
-                    <p className="text-lg text-attire-silver/90 max-w-2xl mx-auto mb-12 leading-relaxed drop-shadow-md">
+                    <p className="text-lg text-attire-silver/95 max-w-2xl mx-auto mb-12 leading-relaxed drop-shadow-md font-medium">
                         Curated gentlemen's attire that blends heritage craftsmanship
                         with contemporary design. Experience the Ralph Lauren inspired
                         aesthetic in every detail.

@@ -30,9 +30,9 @@ const InvoicePanel = () => {
     const [showPaymentModal, setShowPaymentModal] = useState(false);
 
     return (
-        <div className="flex-1 flex flex-col h-full bg-white dark:bg-[#0a0a0a] border-l border-black/5 dark:border-white/5 transition-colors duration-300 font-sans">
+        <div className="flex-1 flex flex-col h-full bg-background dark:bg-[#0d1117] border-l border-black/5 dark:border-[#30363d] transition-colors duration-300 font-sans">
             {/* Customer Section */}
-            <div className="p-5 border-b border-black/5 dark:border-white/5 bg-black/[0.01] dark:bg-white/[0.01]">
+            <div className="p-5 border-b border-black/5 dark:border-[#30363d] bg-black/[0.01] dark:bg-white/[0.01]">
                 {!activeTab.customer ? (
                     <div className="space-y-4">
                         <InlineCustomerSearch />
@@ -41,7 +41,7 @@ const InvoicePanel = () => {
                     <motion.div 
                         initial={{ opacity: 0, scale: 0.98 }}
                         animate={{ opacity: 1, scale: 1 }}
-                        className="flex items-center gap-4 p-4 bg-white dark:bg-white/[0.03] border border-attire-accent/20 rounded-2xl relative group overflow-hidden shadow-sm"
+                        className="flex items-center gap-4 p-4 bg-background dark:bg-[#161b22] border border-[#0d3542]/20 dark:border-[#30363d] rounded-2xl relative group overflow-hidden shadow-none"
                     >
                         {/* Status Light */}
                         <div className="absolute top-2 right-4 flex items-center gap-1.5 opacity-60">
@@ -83,7 +83,7 @@ const InvoicePanel = () => {
             </div>
 
             {/* Totals & Checkout */}
-            <div className="mt-auto p-6 border-t border-black/5 dark:border-white/5 bg-gray-50/30 dark:bg-white/[0.01] space-y-6">
+            <div className="mt-auto p-6 border-t border-black/5 dark:border-[#30363d] bg-[#0d3542]/5 dark:bg-[#161b22] space-y-6">
                 <div className="space-y-3">
                     <div className="flex items-center justify-between text-[11px] font-black uppercase tracking-[0.3em] text-gray-400/80">
                         <span>Subtotal ({activeTab.cartItems.length} items)</span>
@@ -107,7 +107,7 @@ const InvoicePanel = () => {
                         )}
                     </AnimatePresence>
 
-                    <div className="h-px bg-black/5 dark:bg-white/5" />
+                    <div className="h-px bg-black/5 dark:bg-[#30363d]" />
 
                     <div className="flex items-center justify-between py-1">
                         <div className="space-y-1">
@@ -134,7 +134,7 @@ const InvoicePanel = () => {
                         onClick={() => setShowPaymentModal(true)}
                         className={`w-full flex items-center justify-center gap-4 h-16 rounded-2xl text-[13px] font-black uppercase tracking-[0.4em] transition-all relative overflow-hidden group ${
                             activeTab.cartItems.length > 0 
-                                ? 'bg-[#00C4B4] text-black border-2 border-black/10 shadow-lg' 
+                                ? 'bg-[#00C4B4] text-black border-2 border-black/10 shadow-none' 
                                 : 'bg-gray-100 dark:bg-white/5 text-gray-400 cursor-not-allowed grayscale'
                         }`}
                     >

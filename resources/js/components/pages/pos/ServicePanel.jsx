@@ -34,7 +34,7 @@ const ServicePanel = ({ onClose }) => {
             {/* Functional Header */}
             <div className="flex items-center justify-between mb-4 px-1">
                 <div className="flex items-center gap-2">
-                    <div className="p-1.5 rounded-lg bg-attire-accent text-black">
+                    <div className="p-1.5 rounded-lg bg-attire-accent text-white">
                         <Zap size={14} fill="currentColor" />
                     </div>
                     <div>
@@ -46,7 +46,7 @@ const ServicePanel = ({ onClose }) => {
                 </div>
                 <button 
                     onClick={onClose}
-                    className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-black/5 dark:bg-white/5 border border-black/5 dark:border-white/10 text-[9px] font-black uppercase tracking-widest hover:bg-red-500/10 hover:text-red-500 transition-all group"
+                    className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-black/10 dark:bg-white/5 border border-black/15 dark:border-white/10 text-[9px] font-black uppercase tracking-widest hover:bg-red-500/10 hover:text-red-500 transition-all group"
                 >
                     Close Deck <ChevronDown size={14} className="group-hover:translate-y-0.5 transition-transform" />
                 </button>
@@ -61,7 +61,7 @@ const ServicePanel = ({ onClose }) => {
                         onClick={() => {
                             addItem(service);
                         }}
-                        className="flex flex-col items-start justify-center text-left p-4 w-[160px] min-h-[90px] rounded-2xl bg-black/[0.03] dark:bg-white/[0.03] border border-black/5 dark:border-white/10 hover:border-attire-accent/60 hover:bg-white dark:hover:bg-white/[0.06] transition-all group shadow-sm hover:shadow-attire-accent/5"
+                        className="flex flex-col items-start justify-center text-left p-4 w-[160px] min-h-[90px] rounded-2xl bg-black/[0.04] dark:bg-white/[0.03] border border-black/10 dark:border-white/10 hover:border-attire-accent/60 hover:bg-background dark:hover:bg-white/[0.06] transition-all group shadow-none"
                     >
                         <p className="text-[12px] font-black uppercase tracking-[0.05em] text-gray-900 dark:text-white leading-tight mb-2 group-hover:text-attire-accent transition-colors line-clamp-2 w-full">
                             {service.name}

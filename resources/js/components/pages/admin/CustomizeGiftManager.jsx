@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
-import { User, Mail, Phone, Gift, Loader, CheckCircle, XCircle, Trash2, ChevronDown } from 'lucide-react';
+import { User, Mail, Phone, Gift, CheckCircle, XCircle, Trash2, ChevronDown } from 'lucide-react';
+import { LumaSpin } from '@/components/ui/luma-spin';
 import { useAdmin } from './AdminContext';
 import OptimizedImage from '../../common/OptimizedImage.jsx';
-import Skeleton from '../../common/Skeleton.jsx';
 import { motion, AnimatePresence } from 'framer-motion';
 
 const GiftRequestCard = React.forwardRef(({ request, onUpdate, onDelete }, ref) => {
@@ -29,7 +29,7 @@ const GiftRequestCard = React.forwardRef(({ request, onUpdate, onDelete }, ref) 
             initial={{ opacity: 0, y: 15 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.95 }}
-            className="group p-6 rounded-3xl backdrop-blur-xl bg-white dark:bg-black/20 border border-black/5 dark:border-white/10 shadow-lg dark:shadow-none transition-all duration-300 hover:bg-gray-50 dark:hover:bg-black/30 hover:border-black/10 dark:hover:border-attire-accent/30"
+            className="group p-6 rounded-3xl backdrop-blur-xl bg-white dark:bg-black/20 border border-black/5 dark:border-white/10 transition-all duration-300 hover:bg-gray-50 dark:hover:bg-black/30 hover:border-black/10 dark:hover:border-attire-accent/30 shadow-none"
         >
             <div className="flex justify-between items-start pb-4 mb-6 border-b border-black/5 dark:border-white/5">
                 <div className="flex items-center gap-4">
@@ -95,10 +95,10 @@ const GiftRequestCard = React.forwardRef(({ request, onUpdate, onDelete }, ref) 
                 {request.status === 'Pending' ? (
                     <>
                         <button onClick={() => handleUpdate('Completed')} disabled={isUpdating} className="px-4 py-2 text-xs font-bold uppercase tracking-widest text-green-600 dark:text-green-400 bg-green-400/10 border border-green-400/20 rounded-xl hover:bg-green-400/20 transition-all flex items-center gap-2" title="Mark as Completed">
-                            <CheckCircle size={14} /> Complete
+                            {isUpdating ? <LumaSpin size="sm" /> : <CheckCircle size={14} />} Complete
                         </button>
                         <button onClick={() => handleUpdate('Cancelled')} disabled={isUpdating} className="px-4 py-2 text-xs font-bold uppercase tracking-widest text-red-600 dark:text-red-400 bg-red-400/10 border border-red-400/20 rounded-xl hover:bg-red-400/20 transition-all flex items-center gap-2" title="Mark as Cancelled">
-                            <XCircle size={14} /> Cancel
+                            {isUpdating ? <LumaSpin size="sm" /> : <XCircle size={14} />} Cancel
                         </button>
                     </>
                 ) : (
@@ -111,23 +111,10 @@ const GiftRequestCard = React.forwardRef(({ request, onUpdate, onDelete }, ref) 
     );
 });
 
-const GiftSkeleton = () => (
-    <div className="p-6 rounded-3xl bg-white dark:bg-white/5 border border-black/5 dark:border-white/5 shadow-lg dark:shadow-none space-y-6">
-        <div className="flex items-center justify-between border-b border-black/5 dark:border-white/5 pb-4">
-            <div className="flex items-center gap-4">
-                <Skeleton className="h-12 w-12 rounded-full" />
-                <div className="space-y-2">
-                    <Skeleton className="h-5 w-24" />
-                    <Skeleton className="h-3 w-32" />
-                </div>
-            </div>
-            <Skeleton className="h-6 w-20 rounded-full" />
-        </div>
-        <Skeleton className="h-24 w-full rounded-2xl" />
-        <div className="flex justify-end gap-3 pt-2">
-            <Skeleton className="h-10 w-24 rounded-xl" />
-            <Skeleton className="h-10 w-24 rounded-xl" />
-        </div>
+const LoadingState = () => (
+    <div className="col-span-full py-32 flex flex-col items-center justify-center space-y-4">
+        <LumaSpin size="xl" />
+        <p className="text-[10px] font-black uppercase tracking-[0.4em] text-gray-400 dark:text-[#8b949e]/40">Gathering Gift Tokens...</p>
     </div>
 );
 
@@ -169,7 +156,7 @@ const CustomizeGiftManager = () => {
 
             {giftRequestsLoading && giftRequests.length === 0 ? (
                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                    {[...Array(4)].map((_, i) => <Skeleton key={i} className="h-64 w-full rounded-3xl" />)}
+                    <LoadingState />
                 </div>
             ) : giftRequests.length === 0 ? (
                 <div className="text-center py-20 bg-black/5 dark:bg-black/20 rounded-3xl border border-black/5 dark:border-white/5">

@@ -140,7 +140,7 @@ export default function QuickCustomerModal({ isOpen, onClose, onSuccess }) {
                     <button 
                         type="submit" 
                         disabled={isSaving}
-                        className="flex-1 py-4 bg-attire-accent text-black rounded-2xl text-[11px] font-black uppercase tracking-[0.2em] hover:bg-white transition-all flex items-center justify-center gap-3 disabled:opacity-50 shadow-lg shadow-attire-accent/10"
+                        className="flex-1 py-4 bg-attire-accent text-black rounded-2xl text-[11px] font-black uppercase tracking-[0.2em] hover:bg-white transition-all flex items-center justify-center gap-3 disabled:opacity-50 shadow-none border border-black/5 dark:border-white/5"
                     >
                         {isSaving ? <Loader2 size={16} className="animate-spin" /> : <Check size={16} />}
                         {isSaving ? 'Saving...' : 'Confirm Identity'}

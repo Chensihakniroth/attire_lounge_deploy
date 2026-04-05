@@ -62,7 +62,7 @@ const CustomerSearch = ({ onClose }) => {
                     initial={{ scale: 0.9, y: 20 }}
                     animate={{ scale: 1, y: 0 }}
                     exit={{ scale: 0.9, y: 20 }}
-                    className="w-full max-w-lg bg-white dark:bg-[#0a0a0a] rounded-[2rem] shadow-2xl border border-black/5 dark:border-white/10 overflow-hidden flex flex-col max-h-[80vh]"
+                    className="w-full max-w-lg bg-white dark:bg-[#0a0a0a] rounded-[2rem] shadow-none border border-black/5 dark:border-white/10 overflow-hidden flex flex-col max-h-[80vh]"
                     onClick={(e) => e.stopPropagation()}
                 >
                     {/* Header */}
@@ -113,11 +113,11 @@ const CustomerSearch = ({ onClose }) => {
 
                         <button
                             onClick={() => setIsRegisterModalOpen(true)}
-                            className="p-5 bg-attire-accent text-black rounded-2xl hover:scale-105 active:scale-95 transition-all shadow-lg shadow-attire-accent/10 group relative"
+                            className="p-5 bg-attire-accent text-black rounded-2xl hover:scale-105 active:scale-95 transition-all shadow-none border border-black/5 dark:border-white/10 group relative"
                             title="Quick VIP Registration"
                         >
                             <UserPlus size={20} />
-                            <span className="absolute -top-1 -right-1 w-3 h-3 bg-white rounded-full border-2 border-attire-accent flex items-center justify-center">
+                            <span className="absolute -top-1 -right-1 w-3 h-3 bg-white rounded-sm border-2 border-[#0d3542] flex items-center justify-center">
                                 <Sparkles
                                     size={6}
                                     className="text-attire-accent"
@@ -175,7 +175,7 @@ const CustomerSearch = ({ onClose }) => {
                                 </p>
                                 <button
                                     onClick={() => setIsRegisterModalOpen(true)}
-                                    className="flex items-center gap-2 px-6 py-3 bg-attire-accent text-black text-[9px] font-bold uppercase tracking-widest rounded-xl mx-auto hover:scale-105 transition-all active:scale-95 shadow-xl shadow-attire-accent/20 font-sans"
+                                    className="flex items-center gap-2 px-6 py-3 bg-attire-accent text-black text-[9px] font-bold uppercase tracking-widest rounded-xl mx-auto hover:scale-105 transition-all active:scale-95 shadow-none border border-black/5 dark:border-white/5 font-sans"
                                 >
                                     <UserPlus size={14} /> Register New Customer
                                 </button>

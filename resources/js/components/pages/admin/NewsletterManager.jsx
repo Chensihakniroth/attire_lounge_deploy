@@ -2,7 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { Mail, Search, Trash2, ChevronLeft, ChevronRight, Phone, Download, AlertCircle, Check } from 'lucide-react';
 import axios from 'axios';
 import { motion, AnimatePresence } from 'framer-motion';
-import Skeleton from '../../common/Skeleton.jsx';
+import { LumaSpin } from "@/components/ui/luma-spin";
 import ErrorBoundary from '../../common/ErrorBoundary.jsx';
 
 const NewsletterManager = () => {
@@ -93,20 +93,10 @@ const NewsletterManager = () => {
                     </div>
 
                     <div className="flex flex-wrap items-center gap-4">
-                        <div className="relative group">
-                            <Search className="absolute left-5 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-attire-accent transition-colors" size={16} />
-                            <input
-                                type="text"
-                                placeholder="Search numbers..."
-                                value={search}
-                                onChange={(e) => setSearch(e.target.value)}
-                                className="bg-white dark:bg-black/20 border border-black/5 dark:border-white/10 rounded-2xl py-3.5 pl-12 pr-6 text-sm font-bold uppercase tracking-widest text-gray-900 dark:text-white focus:border-attire-accent outline-none transition-all w-64 shadow-sm"
-                            />
-                        </div>
                         <motion.button
                             whileTap={{ scale: 0.95 }}
                             onClick={handleExport}
-                            className="flex items-center gap-3 bg-black dark:bg-white text-white dark:text-black rounded-2xl py-3.5 px-6 text-xs font-bold uppercase tracking-widest hover:bg-attire-accent dark:hover:bg-attire-accent transition-all shadow-lg"
+                            className="flex items-center gap-3 bg-black dark:bg-white text-white dark:text-black rounded-2xl py-3.5 px-6 text-xs font-bold uppercase tracking-widest hover:bg-attire-accent dark:hover:bg-attire-accent transition-all shadow-none"
                         >
                             <Download size={14} />
                             <span>Export CSV</span>
@@ -114,7 +104,7 @@ const NewsletterManager = () => {
                     </div>
                 </div>
 
-                <div className="bg-white dark:bg-black/20 backdrop-blur-xl rounded-[2rem] shadow-xl border border-black/5 dark:border-white/10 overflow-hidden">
+                <div className="bg-white dark:bg-black/20 backdrop-blur-xl rounded-[2rem] shadow-none border border-black/5 dark:border-white/10 overflow-hidden">
                     <div className="overflow-x-auto">
                         <table className="w-full text-left border-collapse">
                             <thead>
@@ -127,13 +117,14 @@ const NewsletterManager = () => {
                             </thead>
                             <tbody>
                                 {loading ? (
-                                    [...Array(5)].map((_, i) => (
-                                        <tr key={i} className="border-b border-black/5 dark:border-white/5 last:border-0">
-                                            {[...Array(4)].map((_, j) => (
-                                                <td key={j} className="px-8 py-6"><Skeleton className="h-4 w-full rounded" /></td>
-                                            ))}
-                                        </tr>
-                                    ))
+                                    <tr>
+                                        <td colSpan="4" className="py-32 text-center">
+                                            <div className="flex flex-col items-center justify-center space-y-4">
+                                                <LumaSpin size="xl" />
+                                                <p className="text-[10px] font-black uppercase tracking-[0.4em] text-gray-400 dark:text-[#8b949e]/40">Gathering Subscribers...</p>
+                                            </div>
+                                        </td>
+                                    </tr>
                                 ) : subscribers.length > 0 ? (
                                     subscribers.map((sub) => (
                                         <tr key={sub.id} className="border-b border-black/5 dark:border-white/5 last:border-0 group hover:bg-black/[0.01] dark:hover:bg-white/[0.01] transition-colors">

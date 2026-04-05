@@ -13,6 +13,9 @@ export const AdminProvider = ({ children }) => {
     const [user, setUser] = useState(null);
     const [userRoles, setUserRoles] = useState([]);
     const [userPermissions, setUserPermissions] = useState([]);
+    const [performanceMode, setPerformanceMode] = useState(() => {
+        return localStorage.getItem('sovereign_sync') === 'true';
+    });
 
     // Function to set user data after login
     const setUserData = useCallback((userData, persistent = false) => {
@@ -39,6 +42,16 @@ export const AdminProvider = ({ children }) => {
         if (storedRoles) setUserRoles(JSON.parse(storedRoles));
         if (storedPermissions) setUserPermissions(JSON.parse(storedPermissions));
     }, []);
+
+    // Persist Performance Mode & Synchronize with DOM
+    useEffect(() => {
+        localStorage.setItem('sovereign_sync', performanceMode);
+        if (performanceMode) {
+            document.documentElement.classList.add('performance-mode');
+        } else {
+            document.documentElement.classList.remove('performance-mode');
+        }
+    }, [performanceMode]);
 
     // Helper to check if user has a specific permission
     const hasPermission = useCallback((permission) => {
@@ -166,12 +179,12 @@ export const AdminProvider = ({ children }) => {
         }
     };
 
-    const clearCompletedAppointments = async () => {
+    const clearClosedAppointments = async () => {
         try {
             await axios.delete('/api/v1/admin/appointments/completed');
             queryClient.invalidateQueries();
         } catch (err) {
-            console.error('Failed to clear completed appointments:', err);
+            console.error('Failed to clear closed appointments:', err);
             throw err;
         }
     };
@@ -205,7 +218,7 @@ export const AdminProvider = ({ children }) => {
             createAppointment,
             appointmentsPagination,
             updateAppointmentStatus,
-            clearCompletedAppointments,
+            clearClosedAppointments,
             
             giftRequests,
             giftRequestsLoading,
@@ -214,6 +227,8 @@ export const AdminProvider = ({ children }) => {
             giftRequestsPagination,
             updateGiftRequestStatus,
             deleteGiftRequest,
+
+
 
             stats,
             fetchStats,
@@ -239,7 +254,9 @@ export const AdminProvider = ({ children }) => {
             userRoles,
             userPermissions,
             setUserData,
-            hasPermission
+            hasPermission,
+            performanceMode,
+            setPerformanceMode
         }}>
             {children}
         </AdminContext.Provider>

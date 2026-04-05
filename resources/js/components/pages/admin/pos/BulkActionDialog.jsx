@@ -84,7 +84,7 @@ const BulkActionDialog = ({ isOpen, onClose, selectedCount, products, onApply })
                                     onClick={() => handleActionSelect(act.id)}
                                     className="flex items-center gap-4 p-5 rounded-[1.5rem] border border-black/5 dark:border-white/5 bg-black/[0.01] dark:bg-[#1a1a1a]/40 hover:border-attire-navy dark:hover:border-attire-accent hover:bg-attire-navy/5 transition-all text-left group"
                                 >
-                                    <div className={`p-3 bg-white dark:bg-white/5 rounded-xl transition-colors shadow-sm ${act.color}`}>
+                                    <div className={`p-3 bg-white dark:bg-white/5 rounded-xl transition-colors shadow-none ${act.color}`}>
                                         <act.icon size={24} />
                                     </div>
                                     <div className="flex-1">
@@ -112,7 +112,7 @@ const BulkActionDialog = ({ isOpen, onClose, selectedCount, products, onApply })
                                             <button 
                                                 key={t}
                                                 onClick={() => setConfig({...config, priceType: t})}
-                                                className={`flex-1 py-3 text-[10px] font-black uppercase tracking-widest transition-all rounded-xl ${config.priceType === t ? 'bg-white dark:bg-white/10 shadow-sm text-attire-navy dark:text-attire-accent' : 'text-gray-500'}`}
+                                                className={`flex-1 py-3 text-[10px] font-black uppercase tracking-widest transition-all rounded-xl ${config.priceType === t ? 'bg-white dark:bg-white/10 shadow-none text-attire-navy dark:text-attire-accent' : 'text-gray-500'}`}
                                             >
                                                 {t}
                                             </button>
@@ -175,7 +175,7 @@ const BulkActionDialog = ({ isOpen, onClose, selectedCount, products, onApply })
 
                             <div className="pt-4 flex gap-3">
                                 <Button variant="outline" onClick={() => setStep('select')} className="flex-1 h-14 rounded-[1.2rem] text-[10px] font-black uppercase tracking-widest border-black/10 dark:border-white/10 text-gray-400">BACK</Button>
-                                <Button onClick={() => setStep('preview')} className="flex-1 h-14 rounded-[1.2rem] bg-attire-navy dark:bg-attire-accent text-white dark:text-black text-[10px] font-black uppercase tracking-widest hover:scale-[1.02] transition-transform shadow-xl">PREVIEW CHANGES</Button>
+                                <Button onClick={() => setStep('preview')} className="flex-1 h-14 rounded-[1.2rem] bg-attire-navy dark:bg-attire-accent text-white dark:text-black text-[10px] font-black uppercase tracking-widest hover:scale-[1.02] transition-transform shadow-none">PREVIEW CHANGES</Button>
                             </div>
                         </motion.div>
                     )}
@@ -192,7 +192,7 @@ const BulkActionDialog = ({ isOpen, onClose, selectedCount, products, onApply })
                                 <h4 className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Proposed Transformations (Top 5)</h4>
                                 <div className="space-y-2">
                                     {calculatePreview().map((item, idx) => (
-                                        <div key={idx} className="flex items-center justify-between p-3 bg-white dark:bg-[#1a1a1a] rounded-xl border border-black/[0.03] dark:border-white/[0.03] shadow-sm">
+                                        <div key={idx} className="flex items-center justify-between p-3 bg-white dark:bg-[#1a1a1a] rounded-xl border border-black/[0.03] dark:border-white/[0.03] shadow-none">
                                             <span className="text-[10px] font-bold uppercase tracking-tight text-[#0d3542] dark:text-white truncate max-w-[200px]">{item.name}</span>
                                             <div className="flex items-center gap-3">
                                                 <span className="text-[9px] text-gray-400 line-through font-mono">${item.old}</span>
@@ -206,7 +206,7 @@ const BulkActionDialog = ({ isOpen, onClose, selectedCount, products, onApply })
 
                             <div className="pt-4 flex gap-3">
                                 <Button variant="outline" onClick={() => setStep('configure')} className="flex-1 h-14 rounded-[1.2rem] text-[10px] font-black uppercase tracking-widest border-black/10 dark:border-white/10 text-gray-400">EDIT CONFIG</Button>
-                                <Button onClick={() => onApply(action, config)} className="flex-1 h-14 rounded-[1.2rem] bg-emerald-600 hover:bg-emerald-700 text-white text-[10px] font-black uppercase tracking-widest shadow-xl shadow-emerald-500/20 hover:scale-[1.02] transition-transform">
+                                <Button onClick={() => onApply(action, config)} className="flex-1 h-14 rounded-[1.2rem] bg-emerald-600 hover:bg-emerald-700 text-white text-[10px] font-black uppercase tracking-widest shadow-none hover:scale-[1.02] transition-transform">
                                     <Check size={14} className="mr-2" /> CONFIRM & APPLY
                                 </Button>
                             </div>

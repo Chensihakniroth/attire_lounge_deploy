@@ -6,11 +6,11 @@ import {
     Trash2,
     X,
     Check,
-    Loader,
     Image as ImageIcon,
     Upload,
     AlertCircle,
 } from 'lucide-react';
+import { LumaSpin } from '@/components/ui/luma-spin';
 import axios from 'axios';
 import { useAdmin } from './AdminContext';
 import OptimizedImage from '../../common/OptimizedImage.jsx';
@@ -37,7 +37,7 @@ const Toggle = ({ value, onChange, color = 'bg-green-500' }) => (
         className={`w-10 h-5 rounded-full transition-all relative flex-shrink-0 ${value ? color : 'bg-gray-200 dark:bg-white/10'}`}
     >
         <div
-            className={`absolute top-0.5 w-4 h-4 bg-white rounded-full shadow transition-all ${value ? 'left-5' : 'left-0.5'}`}
+            className={`absolute top-0.5 w-4 h-4 bg-white rounded-full shadow-none border border-black/5 transition-all ${value ? 'left-5' : 'left-0.5'}`}
         />
     </button>
 );
@@ -180,7 +180,7 @@ const CollectionManager = () => {
                 <motion.button
                     whileTap={{ scale: 0.95 }}
                     onClick={() => openModal()}
-                    className="flex items-center gap-2 bg-attire-accent text-black rounded-2xl py-3 px-6 text-xs font-bold uppercase tracking-widest hover:bg-white transition-all"
+                    className="flex items-center gap-2 bg-black dark:bg-white text-white dark:text-black rounded-2xl py-3 px-6 text-xs font-bold uppercase tracking-widest hover:bg-[#0d3542] dark:hover:bg-[#58a6ff] hover:text-white dark:hover:text-black transition-all"
                 >
                     <Plus size={14} /> New Collection
                 </motion.button>
@@ -211,7 +211,7 @@ const CollectionManager = () => {
                                 animate={{ opacity: 1, scale: 1 }}
                                 exit={{ opacity: 0, scale: 0.95 }}
                                 transition={{ delay: idx * 0.04 }}
-                                className="group relative h-72 rounded-3xl overflow-hidden border border-black/5 dark:border-white/10 hover:border-attire-accent/30 shadow-xl shadow-black/5 transition-all duration-500"
+                                className="group relative h-72 rounded-3xl overflow-hidden border border-black/5 dark:border-white/10 hover:border-[#0d3542]/30 dark:hover:border-[#58a6ff]/30 shadow-none transition-all duration-500"
                             >
                                 {/* Image */}
                                 <div className="absolute inset-0">
@@ -236,7 +236,7 @@ const CollectionManager = () => {
                                 {/* Status Badges */}
                                 <div className="absolute top-4 left-4 flex gap-2 z-10">
                                     {col.is_new && (
-                                        <span className="px-2.5 py-1 bg-attire-accent text-black text-[11px] font-black uppercase tracking-widest rounded-full">
+                                        <span className="px-2.5 py-1 bg-[#58a6ff] text-black text-[11px] font-black uppercase tracking-widest rounded-full">
                                             New
                                         </span>
                                     )}
@@ -251,7 +251,7 @@ const CollectionManager = () => {
                                 <div className="absolute top-4 right-4 flex gap-2 z-10 opacity-0 group-hover:opacity-100 transition-all translate-y-1 group-hover:translate-y-0 pointer-events-none group-hover:pointer-events-auto">
                                     <button
                                         onClick={() => openModal(col)}
-                                        className="p-2.5 bg-white/10 backdrop-blur-md border border-white/20 text-white rounded-xl hover:bg-white hover:text-black transition-all"
+                                        className="p-2.5 bg-black/40 dark:bg-white/10 border border-white/20 text-white rounded-xl hover:bg-white hover:text-black transition-all"
                                     >
                                         <Edit2 size={14} />
                                     </button>
@@ -259,7 +259,7 @@ const CollectionManager = () => {
                                         onClick={() =>
                                             handleDelete(col.id, col.name)
                                         }
-                                        className="p-2.5 bg-red-500/20 backdrop-blur-md border border-red-500/30 text-red-400 rounded-xl hover:bg-red-500 hover:text-white transition-all"
+                                        className="p-2.5 bg-red-500/80 dark:bg-red-500/20 border border-red-500/30 text-white dark:text-red-400 rounded-xl hover:bg-red-500 hover:text-white transition-all"
                                     >
                                         <Trash2 size={14} />
                                     </button>
@@ -267,7 +267,7 @@ const CollectionManager = () => {
 
                                 {/* Content */}
                                 <div className="absolute inset-x-0 bottom-0 p-6 z-10">
-                                    <span className="text-attire-accent text-[11px] font-bold uppercase tracking-[0.3em] mb-1 block">
+                                    <span className="text-[#58a6ff] text-[11px] font-bold uppercase tracking-[0.3em] mb-1 block">
                                         {col.year}
                                     </span>
                                     <h3 className="text-2xl font-serif text-white mb-1">
@@ -324,9 +324,9 @@ const CollectionManager = () => {
                                 )}
                                 <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-all flex items-center justify-center text-white">
                                     {uploading ? (
-                                        <Loader
+                                        <LumaSpin
                                             className="animate-spin"
-                                            size={18}
+                                            size="sm"
                                         />
                                     ) : (
                                         <Upload size={18} />
@@ -354,7 +354,7 @@ const CollectionManager = () => {
                                                     .value
                                             )
                                         }
-                                        className="w-full bg-black/5 dark:bg-white/5 border border-black/5 dark:border-white/10 rounded-xl py-3 px-4 text-gray-900 dark:text-white text-sm focus:border-attire-accent outline-none transition-all"
+                                        className="w-full bg-black/5 dark:bg-white/5 border border-black/5 dark:border-white/10 rounded-xl py-3 px-4 text-gray-900 dark:text-white text-sm focus:border-[#0d3542] dark:focus:border-[#58a6ff] outline-none transition-all"
                                         placeholder="e.g. Summer Essentials"
                                     />
                                 </div>
@@ -378,7 +378,7 @@ const CollectionManager = () => {
                                                 })
                                             )
                                         }
-                                        className="w-full bg-black/5 dark:bg-white/5 border border-black/5 dark:border-white/10 rounded-xl py-3 px-4 text-gray-900 dark:text-white/60 text-sm focus:border-attire-accent outline-none transition-all font-mono"
+                                        className="w-full bg-black/5 dark:bg-white/5 border border-black/5 dark:border-white/10 rounded-xl py-3 px-4 text-gray-900 dark:text-white/60 text-sm focus:border-[#0d3542] dark:focus:border-[#58a6ff] outline-none transition-all font-mono"
                                     />
                                 </div>
                                 <div className="space-y-1.5">
@@ -401,7 +401,7 @@ const CollectionManager = () => {
                                                 })
                                             )
                                         }
-                                        className="w-full bg-black/5 dark:bg-white/5 border border-black/5 dark:border-white/10 rounded-xl py-3 px-4 text-gray-900 dark:text-white text-sm focus:border-attire-accent outline-none transition-all font-mono"
+                                        className="w-full bg-black/5 dark:bg-white/5 border border-black/5 dark:border-white/10 rounded-xl py-3 px-4 text-gray-900 dark:text-white text-sm focus:border-[#0d3542] dark:focus:border-[#58a6ff] outline-none transition-all font-mono"
                                     />
                                 </div>
                             </div>
@@ -418,7 +418,7 @@ const CollectionManager = () => {
                                             description: e.target.value,
                                         }))
                                     }
-                                    className="w-full bg-black/5 dark:bg-white/5 border border-black/5 dark:border-white/10 rounded-xl py-3 px-4 text-gray-900 dark:text-white text-sm focus:border-attire-accent outline-none transition-all resize-none leading-relaxed"
+                                    className="w-full bg-black/5 dark:bg-white/5 border border-black/5 dark:border-white/10 rounded-xl py-3 px-4 text-gray-900 dark:text-white text-sm focus:border-[#0d3542] dark:focus:border-[#58a6ff] outline-none transition-all resize-none leading-relaxed"
                                     placeholder="A brief description of this collection..."
                                 />
                             </div>
@@ -444,7 +444,7 @@ const CollectionManager = () => {
                                         rows={1}
                                         value={formData.meta_description}
                                         onChange={(e) => setFormData(p => ({ ...p, meta_description: e.target.value }))}
-                                        className="w-full bg-black/5 dark:bg-white/5 border border-black/5 dark:border-white/10 rounded-xl py-3 px-4 text-gray-900 dark:text-white text-sm focus:border-attire-accent outline-none transition-all resize-none leading-relaxed"
+                                        className="w-full bg-black/5 dark:bg-white/5 border border-black/5 dark:border-white/10 rounded-xl py-3 px-4 text-gray-900 dark:text-white text-sm focus:border-[#0d3542] dark:focus:border-[#58a6ff] outline-none transition-all resize-none leading-relaxed"
                                         placeholder="Search engine snippet..."
                                     />
                                 </div>
@@ -465,7 +465,7 @@ const CollectionManager = () => {
                                 key: 'is_new',
                                 label: 'New Arrival Badge',
                                 sub: 'Display "New" label',
-                                color: 'bg-attire-accent',
+                                color: 'bg-[#58a6ff]',
                             },
                         ].map(
                             ({
@@ -525,12 +525,12 @@ const CollectionManager = () => {
                         <button
                             type="submit"
                             disabled={saving || uploading}
-                            className="flex-grow py-3.5 bg-black dark:bg-white text-white dark:text-black rounded-xl text-xs font-bold uppercase tracking-widest hover:bg-attire-accent dark:hover:bg-attire-accent transition-all flex items-center justify-center gap-2 disabled:opacity-50"
+                            className="flex-grow py-3.5 bg-black dark:bg-white text-white dark:text-black rounded-xl text-xs font-bold uppercase tracking-widest hover:bg-[#0d3542] dark:hover:bg-[#58a6ff] hover:text-white transition-all flex items-center justify-center gap-2 disabled:opacity-50"
                         >
                             {saving ? (
-                                <Loader
+                                <LumaSpin
                                     className="animate-spin"
-                                    size={12}
+                                    size="sm"
                                 />
                             ) : (
                                 <Check size={12} />

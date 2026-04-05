@@ -2,7 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { History, User, Clock, Activity, Search, Filter, ChevronLeft, ChevronRight, Eye, Info, AlertCircle, PlusCircle, RefreshCw, Trash2 } from 'lucide-react';
 import axios from 'axios';
 import { motion, AnimatePresence } from 'framer-motion';
-import Skeleton from '../../common/Skeleton.jsx';
+import { LumaSpin } from "@/components/ui/luma-spin";
 import ErrorBoundary from '../../common/ErrorBoundary.jsx';
 
 const ActionFilter = ({ value, onChange }) => {
@@ -21,7 +21,7 @@ const ActionFilter = ({ value, onChange }) => {
             <motion.button
                 whileTap={{ scale: 0.98 }}
                 onClick={() => setIsOpen(!isOpen)}
-                className="flex items-center gap-4 bg-white dark:bg-black/20 border border-black/5 dark:border-white/10 rounded-2xl py-3.5 px-6 text-xs font-bold uppercase tracking-[0.2em] text-gray-900 dark:text-white hover:border-attire-accent/30 transition-all shadow-sm"
+                className="flex items-center gap-4 bg-white dark:bg-[#161b22] border border-black/5 dark:border-[#30363d] rounded-2xl py-3.5 px-6 text-xs font-bold uppercase tracking-[0.2em] text-gray-900 dark:text-[#c9d1d9] hover:border-[#0d3542]/30 dark:hover:border-[#58a6ff]/30 transition-all shadow-none"
             >
                 <currentOption.icon size={14} className={currentOption.color || 'text-gray-400'} />
                 <span>{currentOption.label}</span>
@@ -37,7 +37,7 @@ const ActionFilter = ({ value, onChange }) => {
                             animate={{ opacity: 1, y: 0, scale: 1 }}
                             exit={{ opacity: 0, y: 10, scale: 0.95 }}
                             transition={{ duration: 0.2, ease: "easeOut" }}
-                            className="absolute right-0 mt-3 w-56 bg-white dark:bg-[#0d0d0d] border border-black/5 dark:border-white/10 rounded-2xl shadow-[0_20px_50px_rgba(0,0,0,0.3)] dark:shadow-[0_20px_50px_rgba(0,0,0,0.7)] overflow-hidden py-2 backdrop-blur-xl z-[100]"
+                            className="absolute right-0 mt-3 w-56 bg-white dark:bg-[#161b22] border border-black/5 dark:border-[#30363d] rounded-2xl overflow-hidden py-2 z-[100]"
                         >
                             {options.map((option) => (
                                 <button
@@ -119,11 +119,11 @@ const AuditLog = () => {
     const getActionColor = (action) => {
         switch (action) {
             case 'created': return 'text-green-500 bg-green-500/10 border-green-500/20';
-            case 'updated': return 'text-blue-500 bg-blue-500/10 border-blue-500/20';
+            case 'updated': return 'text-[#0d3542] dark:text-[#58a6ff] bg-[#0d3542]/10 dark:bg-[#58a6ff]/10 border-[#0d3542]/20 dark:border-[#58a6ff]/20';
             case 'deleted': return 'text-red-500 bg-red-500/10 border-red-500/20';
             case 'failed_login':
             case 'unauthorized_access_attempt':
-                return 'text-orange-500 bg-orange-500/10 border-orange-500/20 shadow-[0_0_15px_rgba(249,115,22,0.2)] animate-pulse';
+                return 'text-orange-500 bg-orange-500/10 border-orange-500/20 animate-pulse';
             case 'logged_in': return 'text-purple-500 bg-purple-500/10 border-purple-500/20';
             default: return 'text-gray-500 bg-gray-500/10 border-gray-500/20';
         }
@@ -134,17 +134,17 @@ const AuditLog = () => {
         
         return (
             <div className="mt-4 space-y-3">
-                <p className="text-xs font-bold text-gray-400 dark:text-attire-silver/40 uppercase tracking-widest border-b border-black/5 dark:border-white/5 pb-2">Changes</p>
+                <p className="text-xs font-bold text-gray-400 dark:text-[#8b949e]/40 uppercase tracking-widest border-b border-black/5 dark:border-[#30363d] pb-2">Changes</p>
                 <div className="grid grid-cols-1 gap-2">
                     {Object.entries(changes).map(([key, value]) => (
-                        <div key={key} className="text-[11px] bg-black/5 dark:bg-white/5 p-3 rounded-xl border border-black/5 dark:border-white/5">
-                            <span className="font-bold text-gray-900 dark:text-white uppercase tracking-wider">{key.replace(/_/g, ' ')}:</span>
+                        <div key={key} className="text-[11px] bg-black/5 dark:bg-[#0d1117] p-3 rounded-xl border border-black/5 dark:border-[#30363d]">
+                            <span className="font-bold text-gray-900 dark:text-[#c9d1d9] uppercase tracking-wider">{key.replace(/_/g, ' ')}:</span>
                             <div className="mt-2 flex flex-col gap-1">
                                 <div className="flex items-center gap-2">
                                     <span className="px-2 py-0.5 bg-red-500/10 text-red-500 rounded border border-red-500/10 line-through opacity-60">
                                         {value.old === null ? 'null' : String(value.old)}
                                     </span>
-                                    <ChevronRight size={10} className="text-gray-300 dark:text-white/20" />
+                                    <ChevronRight size={10} className="text-gray-300 dark:text-[#30363d]" />
                                     <span className="px-2 py-0.5 bg-green-500/10 text-green-500 rounded border border-green-500/10">
                                         {value.new === null ? 'null' : String(value.new)}
                                     </span>
@@ -162,8 +162,8 @@ const AuditLog = () => {
             <div className="space-y-10 pb-24">
                 <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
                     <div>
-                        <h1 className="text-4xl font-serif text-gray-900 dark:text-white mb-2">Audit Logs</h1>
-                        <p className="text-gray-400 dark:text-attire-silver text-sm uppercase tracking-widest">System Activity Tracking</p>
+                        <h1 className="text-4xl font-serif text-gray-900 dark:text-[#c9d1d9] mb-2">Audit Logs</h1>
+                        <p className="text-gray-400 dark:text-[#8b949e]/60 text-sm uppercase tracking-widest">System Activity Tracking</p>
                     </div>
 
                     <div className="flex flex-wrap items-center gap-3">
@@ -174,39 +174,40 @@ const AuditLog = () => {
                     </div>
                 </div>
 
-                <div className="bg-white dark:bg-black/20 backdrop-blur-xl rounded-[2rem] shadow-xl border border-black/5 dark:border-white/10 overflow-hidden">
+                <div className="bg-white dark:bg-[#161b22] rounded-[2rem] shadow-none border border-black/5 dark:border-[#30363d] overflow-hidden">
                     <div className="overflow-x-auto">
                         <table className="w-full text-left border-collapse">
                             <thead>
-                                <tr className="border-b border-black/5 dark:border-white/5 bg-black/[0.02] dark:bg-white/[0.02]">
-                                    <th className="px-8 py-6 text-xs font-bold text-gray-400 dark:text-attire-silver/40 uppercase tracking-[0.2em]">User</th>
-                                    <th className="px-8 py-6 text-xs font-bold text-gray-400 dark:text-attire-silver/40 uppercase tracking-[0.2em]">Action</th>
-                                    <th className="px-8 py-6 text-xs font-bold text-gray-400 dark:text-attire-silver/40 uppercase tracking-[0.2em]">Details</th>
-                                    <th className="px-8 py-6 text-xs font-bold text-gray-400 dark:text-attire-silver/40 uppercase tracking-[0.2em]">IP Address</th>
-                                    <th className="px-8 py-6 text-xs font-bold text-gray-400 dark:text-attire-silver/40 uppercase tracking-[0.2em]">Time</th>
-                                    <th className="px-8 py-6 text-xs font-bold text-gray-400 dark:text-attire-silver/40 uppercase tracking-[0.2em]">Actions</th>
+                                <tr className="border-b border-black/5 dark:border-[#30363d] bg-black/[0.02] dark:bg-[#0d1117]">
+                                    <th className="px-8 py-6 text-xs font-bold text-gray-400 dark:text-[#8b949e]/40 uppercase tracking-[0.2em]">User</th>
+                                    <th className="px-8 py-6 text-xs font-bold text-gray-400 dark:text-[#8b949e]/40 uppercase tracking-[0.2em]">Action</th>
+                                    <th className="px-8 py-6 text-xs font-bold text-gray-400 dark:text-[#8b949e]/40 uppercase tracking-[0.2em]">Details</th>
+                                    <th className="px-8 py-6 text-xs font-bold text-gray-400 dark:text-[#8b949e]/40 uppercase tracking-[0.2em]">IP Address</th>
+                                    <th className="px-8 py-6 text-xs font-bold text-gray-400 dark:text-[#8b949e]/40 uppercase tracking-[0.2em]">Time</th>
+                                    <th className="px-8 py-6 text-xs font-bold text-gray-400 dark:text-[#8b949e]/40 uppercase tracking-[0.2em]">Actions</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 {loading ? (
-                                    [...Array(5)].map((_, i) => (
-                                        <tr key={i} className="border-b border-black/5 dark:border-white/5 last:border-0">
-                                            {[...Array(6)].map((_, j) => (
-                                                <td key={j} className="px-8 py-6"><Skeleton className="h-4 w-full rounded" /></td>
-                                            ))}
-                                        </tr>
-                                    ))
+                                    <tr>
+                                        <td colSpan="6" className="py-32">
+                                            <div className="flex flex-col items-center justify-center space-y-4">
+                                                <LumaSpin size="xl" />
+                                                <p className="text-[10px] font-black uppercase tracking-[0.4em] text-gray-400 dark:text-[#8b949e]/40">Syncing Audit Trails...</p>
+                                            </div>
+                                        </td>
+                                    </tr>
                                 ) : activities.length > 0 ? (
                                     activities.map((activity) => (
-                                        <tr key={activity.id} className="border-b border-black/5 dark:border-white/5 last:border-0 group hover:bg-black/[0.01] dark:hover:bg-white/[0.01] transition-colors">
+                                        <tr key={activity.id} className="border-b border-black/5 dark:border-[#30363d] last:border-0 group hover:bg-black/[0.01] dark:hover:bg-white/[0.01] transition-colors">
                                             <td className="px-8 py-6">
                                                 <div className="flex items-center gap-3">
-                                                    <div className="h-8 w-8 rounded-full bg-black/5 dark:bg-white/5 flex items-center justify-center border border-black/5 dark:border-white/5">
-                                                        <User size={14} className="text-gray-400 dark:text-attire-silver" />
+                                                    <div className="h-8 w-8 rounded-full bg-black/5 dark:bg-[#0d1117] flex items-center justify-center border border-black/5 dark:border-[#30363d]">
+                                                        <User size={14} className="text-gray-400 dark:text-[#8b949e]/60" />
                                                     </div>
                                                     <div>
-                                                        <p className="text-xs font-bold text-gray-900 dark:text-white uppercase tracking-wider">{activity.user?.name || 'System'}</p>
-                                                        <p className="text-xs text-gray-400 dark:text-attire-silver/40 font-mono">{activity.user?.email || 'N/A'}</p>
+                                                        <p className="text-xs font-bold text-gray-900 dark:text-[#c9d1d9] uppercase tracking-wider">{activity.user?.name || 'System'}</p>
+                                                        <p className="text-xs text-gray-400 dark:text-[#8b949e]/40 font-mono">{activity.user?.email || 'N/A'}</p>
                                                     </div>
                                                 </div>
                                             </td>
@@ -216,21 +217,21 @@ const AuditLog = () => {
                                                 </span>
                                             </td>
                                             <td className="px-8 py-6">
-                                                <p className="text-xs text-gray-600 dark:text-attire-silver/80 line-clamp-1 max-w-xs">{activity.details}</p>
+                                                <p className="text-xs text-gray-600 dark:text-[#c9d1d9]/80 line-clamp-1 max-w-xs">{activity.details}</p>
                                             </td>
                                             <td className="px-8 py-6">
                                                 <span className="text-xs font-mono text-gray-400 dark:text-attire-silver/40">{activity.ip_address}</span>
                                             </td>
                                             <td className="px-8 py-6">
                                                 <div className="flex flex-col">
-                                                    <span className="text-xs text-gray-900 dark:text-white font-medium">{new Date(activity.created_at).toLocaleDateString()}</span>
-                                                    <span className="text-xs text-gray-400 dark:text-attire-silver/40 font-mono">{new Date(activity.created_at).toLocaleTimeString()}</span>
+                                                    <span className="text-xs text-gray-900 dark:text-[#c9d1d9] font-medium">{new Date(activity.created_at).toLocaleDateString()}</span>
+                                                    <span className="text-xs text-gray-400 dark:text-[#8b949e]/40 font-mono">{new Date(activity.created_at).toLocaleTimeString()}</span>
                                                 </div>
                                             </td>
                                             <td className="px-8 py-6">
                                                 <button 
                                                     onClick={() => setSelectedActivity(activity)}
-                                                    className="p-3 bg-black/5 dark:bg-white/5 rounded-xl text-gray-400 dark:text-attire-silver hover:bg-black dark:hover:bg-white hover:text-white dark:hover:text-black transition-all"
+                                                    className="p-3 bg-black/5 dark:bg-[#0d1117] rounded-xl text-gray-400 dark:text-[#8b949e]/60 hover:text-[#0d3542] dark:hover:text-[#58a6ff] hover:bg-[#0d3542]/10 dark:hover:bg-[#58a6ff]/10 transition-all border border-transparent dark:border-[#30363d]"
                                                 >
                                                     <Eye size={16} />
                                                 </button>
@@ -240,10 +241,10 @@ const AuditLog = () => {
                                 ) : (
                                     <tr>
                                         <td colSpan="6" className="px-8 py-20 text-center">
-                                            <div className="w-16 h-16 bg-black/5 dark:bg-white/5 rounded-full flex items-center justify-center mx-auto mb-4 border border-black/5 dark:border-white/5">
-                                                <Activity className="text-gray-400 dark:text-attire-silver/30" />
+                                            <div className="w-16 h-16 bg-black/5 dark:bg-[#0d1117] rounded-full flex items-center justify-center mx-auto mb-4 border border-black/5 dark:border-[#30363d]">
+                                                <Activity className="text-gray-400 dark:text-[#8b949e]/20" />
                                             </div>
-                                            <p className="text-gray-400 dark:text-attire-silver/60 text-xs uppercase tracking-widest">No activities recorded yet.</p>
+                                            <p className="text-gray-400 dark:text-[#8b949e]/40 text-xs uppercase tracking-widest">No activities recorded yet.</p>
                                         </td>
                                     </tr>
                                 )}
@@ -252,25 +253,25 @@ const AuditLog = () => {
                     </div>
 
                     {pagination.last_page > 1 && (
-                        <div className="px-8 py-6 border-t border-black/5 dark:border-white/5 bg-black/[0.01] dark:bg-white/[0.01] flex items-center justify-between">
-                            <p className="text-xs font-bold text-gray-400 dark:text-attire-silver/40 uppercase tracking-widest">
+                        <div className="px-8 py-6 border-t border-black/5 dark:border-[#30363d] bg-black/[0.01] dark:bg-[#0d1117] flex items-center justify-between">
+                            <p className="text-xs font-bold text-gray-400 dark:text-[#8b949e]/40 uppercase tracking-widest">
                                 Total: {pagination.total} activities
                             </p>
                             <div className="flex items-center gap-2">
                                 <button
                                     onClick={() => handlePageChange(pagination.current_page - 1)}
                                     disabled={pagination.current_page === 1}
-                                    className="p-2 border border-black/5 dark:border-white/10 rounded-xl disabled:opacity-30 hover:bg-black/5 dark:hover:bg-white/5 transition-all"
+                                    className="p-2 border border-black/5 dark:border-[#30363d] rounded-xl disabled:opacity-30 hover:bg-[#0d3542]/10 dark:hover:bg-[#58a6ff]/10 hover:text-[#0d3542] dark:hover:text-[#58a6ff] transition-all"
                                 >
                                     <ChevronLeft size={16} />
                                 </button>
-                                <span className="text-xs font-bold text-gray-900 dark:text-white uppercase tracking-[0.2em] px-4">
+                                <span className="text-xs font-bold text-gray-900 dark:text-[#c9d1d9] uppercase tracking-[0.2em] px-4">
                                     Page {pagination.current_page} of {pagination.last_page}
                                 </span>
                                 <button
                                     onClick={() => handlePageChange(pagination.current_page + 1)}
                                     disabled={pagination.current_page === pagination.last_page}
-                                    className="p-2 border border-black/5 dark:border-white/10 rounded-xl disabled:opacity-30 hover:bg-black/5 dark:hover:bg-white/5 transition-all"
+                                    className="p-2 border border-black/5 dark:border-[#30363d] rounded-xl disabled:opacity-30 hover:bg-[#0d3542]/10 dark:hover:bg-[#58a6ff]/10 hover:text-[#0d3542] dark:hover:text-[#58a6ff] transition-all"
                                 >
                                     <ChevronRight size={16} />
                                 </button>
@@ -288,28 +289,28 @@ const AuditLog = () => {
                                 animate={{ opacity: 1 }}
                                 exit={{ opacity: 0 }}
                                 onClick={() => setSelectedActivity(null)}
-                                className="absolute inset-0 bg-black/80 backdrop-blur-xl"
+                                className="absolute inset-0 bg-black/80"
                             />
                             
                             <motion.div
                                 initial={{ opacity: 0, scale: 0.95, y: 20 }}
                                 animate={{ opacity: 1, scale: 1, y: 0 }}
                                 exit={{ opacity: 0, scale: 0.95, y: 20 }}
-                                className="relative w-full max-w-2xl bg-white dark:bg-[#0d0d0d] border border-black/5 dark:border-white/10 rounded-[2.5rem] overflow-hidden shadow-2xl z-[10000]"
+                                className="relative w-full max-w-2xl bg-white dark:bg-[#161b22] border border-black/5 dark:border-[#30363d] rounded-[2.5rem] overflow-hidden shadow-none z-[10000]"
                             >
-                                <div className="p-8 border-b border-black/5 dark:border-white/5 bg-black/[0.02] dark:bg-white/[0.02] flex justify-between items-center">
+                                <div className="p-8 border-b border-black/5 dark:border-[#30363d] bg-black/[0.02] dark:bg-[#0d1117] flex justify-between items-center">
                                     <div className="flex items-center gap-4">
                                         <div className={`p-3 rounded-2xl border ${getActionColor(selectedActivity.action)}`}>
                                             <Activity size={20} />
                                         </div>
                                         <div>
-                                            <h2 className="text-xl font-serif text-gray-900 dark:text-white">Activity Detail</h2>
-                                            <p className="text-xs font-bold text-gray-400 dark:text-attire-silver/40 uppercase tracking-widest mt-0.5">Reference ID: #{selectedActivity.id}</p>
+                                            <h2 className="text-xl font-serif text-gray-900 dark:text-[#c9d1d9]">Activity Detail</h2>
+                                            <p className="text-xs font-bold text-gray-400 dark:text-[#8b949e]/40 uppercase tracking-widest mt-0.5">Reference ID: #{selectedActivity.id}</p>
                                         </div>
                                     </div>
                                     <button 
                                         onClick={() => setSelectedActivity(null)} 
-                                        className="p-3 bg-black/5 dark:bg-white/5 rounded-full text-gray-400 hover:text-gray-900 dark:hover:text-white transition-all"
+                                        className="p-3 bg-black/5 dark:bg-[#0d1117] rounded-full text-gray-400 hover:text-gray-900 dark:hover:text-[#c9d1d9] transition-all border border-transparent dark:border-[#30363d]"
                                     >
                                         <ChevronRight size={20} className="rotate-90 md:rotate-0" />
                                     </button>
@@ -319,28 +320,28 @@ const AuditLog = () => {
                                     <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                                         <div className="space-y-4">
                                             <div>
-                                                <p className="text-xs font-bold text-gray-400 dark:text-attire-silver/30 uppercase tracking-[0.2em] mb-2">Performed By</p>
-                                                <div className="flex items-center gap-3 bg-black/5 dark:bg-white/5 p-4 rounded-2xl border border-black/5 dark:border-white/5">
-                                                    <div className="h-10 w-10 rounded-full bg-black/5 dark:bg-white/5 flex items-center justify-center border border-black/5 dark:border-white/5">
-                                                        <User size={18} className="text-gray-400 dark:text-attire-silver" />
+                                                <p className="text-xs font-bold text-gray-400 dark:text-[#8b949e]/20 uppercase tracking-[0.2em] mb-2">Performed By</p>
+                                                <div className="flex items-center gap-3 bg-black/5 dark:bg-[#0d1117] p-4 rounded-2xl border border-black/5 dark:border-[#30363d]">
+                                                    <div className="h-10 w-10 rounded-full bg-black/5 dark:bg-[#161b22] flex items-center justify-center border border-black/5 dark:border-[#30363d]">
+                                                        <User size={18} className="text-gray-400 dark:text-[#8b949e]/60" />
                                                     </div>
                                                     <div>
-                                                        <p className="text-sm font-bold text-gray-900 dark:text-white uppercase tracking-wider">{selectedActivity.user?.name || 'System'}</p>
-                                                        <p className="text-xs text-gray-400 dark:text-attire-silver/40 font-mono">{selectedActivity.user?.email || 'automated-system'}</p>
+                                                        <p className="text-sm font-bold text-gray-900 dark:text-[#c9d1d9] uppercase tracking-wider">{selectedActivity.user?.name || 'System'}</p>
+                                                        <p className="text-xs text-gray-400 dark:text-[#8b949e]/40 font-mono">{selectedActivity.user?.email || 'automated-system'}</p>
                                                     </div>
                                                 </div>
                                             </div>
 
                                             <div>
-                                                <p className="text-xs font-bold text-gray-400 dark:text-attire-silver/30 uppercase tracking-[0.2em] mb-2">Contextual Data</p>
+                                                <p className="text-xs font-bold text-gray-400 dark:text-[#8b949e]/20 uppercase tracking-[0.2em] mb-2">Contextual Data</p>
                                                 <div className="space-y-2">
-                                                    <div className="flex items-center justify-between p-3 bg-black/5 dark:bg-white/5 rounded-xl border border-black/5 dark:border-white/5">
+                                                    <div className="flex items-center justify-between p-3 bg-black/5 dark:bg-[#0d1117] rounded-xl border border-black/5 dark:border-[#30363d]">
                                                         <span className="text-xs font-bold text-gray-400 uppercase tracking-widest">Model</span>
-                                                        <span className="text-xs font-mono text-gray-900 dark:text-white">{selectedActivity.model_type.split('\\').pop()}</span>
+                                                        <span className="text-xs font-mono text-gray-900 dark:text-[#c9d1d9]">{selectedActivity.model_type.split('\\').pop()}</span>
                                                     </div>
-                                                    <div className="flex items-center justify-between p-3 bg-black/5 dark:bg-white/5 rounded-xl border border-black/5 dark:border-white/5">
+                                                    <div className="flex items-center justify-between p-3 bg-black/5 dark:bg-[#0d1117] rounded-xl border border-black/5 dark:border-[#30363d]">
                                                         <span className="text-xs font-bold text-gray-400 uppercase tracking-widest">Object ID</span>
-                                                        <span className="text-xs font-mono text-gray-900 dark:text-white">#{selectedActivity.model_id}</span>
+                                                        <span className="text-xs font-mono text-gray-900 dark:text-[#c9d1d9]">#{selectedActivity.model_id}</span>
                                                     </div>
                                                 </div>
                                             </div>
@@ -348,19 +349,19 @@ const AuditLog = () => {
 
                                         <div className="space-y-4">
                                             <div>
-                                                <p className="text-xs font-bold text-gray-400 dark:text-attire-silver/30 uppercase tracking-[0.2em] mb-2">Metadata</p>
+                                                <p className="text-xs font-bold text-gray-400 dark:text-[#8b949e]/20 uppercase tracking-[0.2em] mb-2">Metadata</p>
                                                 <div className="space-y-2">
-                                                    <div className="flex items-center gap-3 p-3 bg-black/5 dark:bg-white/5 rounded-xl border border-black/5 dark:border-white/5">
-                                                        <Clock size={12} className="text-attire-accent" />
-                                                        <span className="text-xs font-mono text-gray-900 dark:text-white">{new Date(selectedActivity.created_at).toLocaleString()}</span>
+                                                    <div className="flex items-center gap-3 p-3 bg-black/5 dark:bg-[#0d1117] rounded-xl border border-black/5 dark:border-[#30363d]">
+                                                        <Clock size={12} className="text-[#0d3542] dark:text-[#58a6ff]" />
+                                                        <span className="text-xs font-mono text-gray-900 dark:text-[#c9d1d9]">{new Date(selectedActivity.created_at).toLocaleString()}</span>
                                                     </div>
-                                                    <div className="flex items-center gap-3 p-3 bg-black/5 dark:bg-white/5 rounded-xl border border-black/5 dark:border-white/5">
-                                                        <Info size={12} className="text-attire-accent" />
-                                                        <span className="text-xs font-mono text-gray-900 dark:text-white">{selectedActivity.ip_address}</span>
+                                                    <div className="flex items-center gap-3 p-3 bg-black/5 dark:bg-[#0d1117] rounded-xl border border-black/5 dark:border-[#30363d]">
+                                                        <Info size={12} className="text-[#0d3542] dark:text-[#58a6ff]" />
+                                                        <span className="text-xs font-mono text-gray-900 dark:text-[#c9d1d9]">{selectedActivity.ip_address}</span>
                                                     </div>
-                                                    <div className="p-3 bg-black/5 dark:bg-white/5 rounded-xl border border-black/5 dark:border-white/5 overflow-hidden">
+                                                    <div className="p-3 bg-black/5 dark:bg-[#0d1117] rounded-xl border border-black/5 dark:border-[#30363d] overflow-hidden">
                                                         <p className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-1">User Agent</p>
-                                                        <p className="text-[11px] font-mono text-gray-600 dark:text-attire-silver/40 break-all leading-tight">{selectedActivity.user_agent}</p>
+                                                        <p className="text-[11px] font-mono text-gray-600 dark:text-[#8b949e]/40 break-all leading-tight">{selectedActivity.user_agent}</p>
                                                     </div>
                                                 </div>
                                             </div>
@@ -369,8 +370,8 @@ const AuditLog = () => {
 
                                     <div className="space-y-4">
                                         <div>
-                                            <p className="text-xs font-bold text-gray-400 dark:text-attire-silver/30 uppercase tracking-[0.2em] mb-2">Description</p>
-                                            <div className="p-4 bg-black/5 dark:bg-white/5 rounded-2xl border border-black/5 dark:border-white/5 italic text-sm text-gray-700 dark:text-attire-silver/80">
+                                            <p className="text-xs font-bold text-gray-400 dark:text-[#8b949e]/20 uppercase tracking-[0.2em] mb-2">Description</p>
+                                            <div className="p-4 bg-black/5 dark:bg-[#0d1117] rounded-2xl border border-black/5 dark:border-[#30363d] italic text-sm text-gray-700 dark:text-[#c9d1d9]/80">
                                                 "{selectedActivity.details}"
                                             </div>
                                         </div>
@@ -381,7 +382,7 @@ const AuditLog = () => {
                                     <div className="pt-4">
                                         <button 
                                             onClick={() => setSelectedActivity(null)}
-                                            className="w-full py-4 bg-black dark:bg-white text-white dark:text-black rounded-2xl text-[11px] font-bold uppercase tracking-[0.3em] hover:bg-attire-accent dark:hover:bg-attire-accent transition-all"
+                                            className="w-full py-4 bg-[#0d3542] dark:bg-[#58a6ff] text-white dark:text-black rounded-2xl text-[11px] font-bold uppercase tracking-[0.3em] hover:scale-[1.02] active:scale-[0.98] transition-all shadow-none"
                                         >
                                             Close Record
                                         </button>

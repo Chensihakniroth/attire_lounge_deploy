@@ -3,24 +3,26 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import axios from 'axios';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
-    Package, Search, X, Plus, Edit, Trash2, 
+    X, Plus, Edit, Trash2, 
     Hash, DollarSign, Layers, Check, 
-    Loader, Filter, ChevronDown, Archive, ChevronLeft,
+    Filter, ChevronDown, Archive, ChevronLeft,
     Download, Upload, Settings, Tag, Smartphone, Scissors,
     Menu, ShoppingBag, ShoppingCart, Command, AlertCircle,
     ArrowUp, ArrowDown, Keyboard, Save
 } from 'lucide-react';
+import { LumaSpin } from '@/components/ui/luma-spin';
 import { Button } from '@/components/ui/button';
 import BulkActionDialog from './pos/BulkActionDialog';
 import ModernModal from '../../common/ModernModal';
 import { formatPrice } from '@/helpers/format';
+import { useAdmin } from './AdminContext';
 
 const SidebarSection = ({ title, children }) => (
-    <div className="mb-0 border-b border-black/5 dark:border-white/5 transition-[background-color,border-color] duration-150">
-        <div className="bg-gray-200 dark:bg-[#1a1a1a] border-y border-[#0d3542]/10 text-[#0d3542] dark:text-attire-accent px-8 py-3.5 text-[12.5px] font-black uppercase tracking-[0.3em] transition-colors duration-200">
+    <div className="mb-0 border-b border-black/5 dark:border-[#30363d] transition-[background-color,border-color] duration-150">
+        <div className="bg-black/[0.02] dark:bg-[#161b22] border-y border-black/5 dark:border-[#30363d] text-[#0d3542] dark:text-[#58a6ff] px-8 py-3.5 text-[12.5px] font-black uppercase tracking-[0.3em] transition-colors duration-200">
             {title}
         </div>
-        <div className="px-6 py-4 bg-white dark:bg-[#121212]">
+        <div className="px-6 py-4 bg-[#fdfdfc] dark:bg-[#0d1117]">
             {children}
         </div>
     </div>
@@ -44,8 +46,8 @@ const QuickEditCell = ({ value, prefix, onSave, onClose }) => {
     };
 
     return (
-        <div className="absolute inset-0 z-50 bg-[#f8f8f6] dark:bg-[#222] flex items-center px-4 ring-2 ring-[#0d3542] shadow-[0_0_30px_rgba(13,53,66,0.2)] translate-y-[-2px]">
-            {prefix && <span className="text-[14px] font-black text-[#0d3542] mr-2">{prefix}</span>}
+        <div className="absolute inset-0 z-50 bg-[#fdfdfc] dark:bg-[#161b22] flex items-center px-4 ring-2 ring-[#0d3542] dark:ring-[#58a6ff] translate-y-[-2px]">
+            {prefix && <span className="text-[14px] font-black text-[#0d3542] dark:text-[#58a6ff] mr-2">{prefix}</span>}
             <input 
                 ref={inputRef}
                 value={val}
@@ -55,17 +57,16 @@ const QuickEditCell = ({ value, prefix, onSave, onClose }) => {
                 className="flex-1 bg-transparent border-none outline-none text-[15.5px] font-black text-gray-900 dark:text-white"
             />
             <div className="flex items-center gap-1 ml-2">
-                <div className="px-2 py-1 bg-white/5 rounded text-[10px] font-black uppercase text-[#0d3542]">Enter: Save</div>
+                <div className="px-2 py-1 bg-black/5 dark:bg-[#0d1117] rounded text-[10px] font-black uppercase text-[#0d3542] dark:text-[#58a6ff]">Enter: Save</div>
             </div>
         </div>
     );
 };
 
-// --- Memoized Product Row Component ---
 const ProductRow = React.memo(({ 
     product, isSelected, isFocused, quickEditField, 
     onToggleSelect, onFocus, onEdit, onQuickEdit, onUpdateField,
-    formatPrice 
+    formatPrice, performanceMode
 }) => {
     const p = product;
     return (
@@ -73,11 +74,11 @@ const ProductRow = React.memo(({
             key={p.id} id={`row-${p.id}`}
             onClick={() => { onFocus(p.id); onToggleSelect(p.id); }}
             onDoubleClick={() => onEdit(p)}
-            className={`group cursor-pointer border-b border-black/[0.03] dark:border-white/[0.03] ${isSelected ? 'bg-[#0d3542]/10' : 'hover:bg-black/[0.02] dark:hover:bg-white/[0.02]'} ${isFocused ? 'bg-black/[0.04] dark:bg-white/[0.08] ring-1 ring-inset ring-[#0d3542]/30' : ''}`}
+            className={`group cursor-pointer border-b border-black/[0.03] dark:border-white/[0.03] ${isSelected ? 'bg-[#0d3542]/10' : 'hover:bg-black/[0.02] dark:hover:bg-white/[0.02]'} ${isFocused ? 'bg-black/[0.04] dark:bg-white/[0.08] ring-1 ring-inset ring-[#0d3542]/30' : ''} ${performanceMode ? 'transition-none' : 'transition-colors duration-200'}`}
         >
             <td className="px-8 py-4 text-center">
-                <div className={`w-5 h-5 rounded border flex items-center justify-center transition-colors duration-200 ${isSelected ? 'bg-[#0d3542] border-[#0d3542]' : 'border-black/20 dark:border-white/20 bg-transparent'}`}>
-                    {isSelected && <Check size={12} className="text-black" />}
+                <div className={`w-5 h-5 rounded border flex items-center justify-center transition-colors duration-200 ${isSelected ? 'bg-[#0d3542] dark:bg-[#58a6ff] border-[#0d3542] dark:border-[#58a6ff]' : 'border-black/20 dark:border-[#30363d] bg-transparent'}`}>
+                    {isSelected && <Check size={12} className="text-white dark:text-black" />}
                 </div>
             </td>
             <td className="px-8 py-5 font-mono font-bold tracking-tighter text-gray-500 dark:text-white/50 uppercase text-[15px]">{p.sku}</td>
@@ -114,6 +115,7 @@ const ProductRow = React.memo(({
 
 const ProductsPage = () => {
     const queryClient = useQueryClient();
+    const { performanceMode } = useAdmin();
     const [view, setView] = useState('list'); // 'list' | 'form'
     const [activeTab, setActiveTab] = useState('general');
     const [selectedIds, setSelectedIds] = useState(new Set());
@@ -304,7 +306,7 @@ const ProductsPage = () => {
     useEffect(() => {
         if (focusedId) {
             const el = document.getElementById(`row-${focusedId}`);
-            el?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+            el?.scrollIntoView({ behavior: performanceMode ? 'auto' : 'smooth', block: 'nearest' });
         }
     }, [focusedId]);
 
@@ -390,21 +392,21 @@ const ProductsPage = () => {
     // (isLoading removed for full-page, moved inside table)
 
     return (
-        <div className="flex flex-row w-full h-full bg-[#fcfcfa] dark:bg-[#111111] font-sans selection:bg-[#0d3542]/20 overflow-hidden relative text-gray-900 dark:text-white transition-[background-color,border-color] duration-150">
+        <div className="flex flex-row w-full h-full bg-background dark:bg-[#111111] font-sans selection:bg-[#0d3542]/20 relative text-gray-900 dark:text-white transition-colors duration-300">
             
             {/* --- Persistent Sidebar --- */}
-            <div className="w-[240px] shrink-0 flex flex-col p-0 overflow-y-auto no-scrollbar border-r border-black/5 dark:border-white/5 bg-white dark:bg-[#111] transition-[background-color,border-color] duration-150">
+            <div className="w-[240px] shrink-0 flex flex-col p-0 overflow-y-auto attire-scrollbar border-r border-black/[0.08] dark:border-white/5 bg-background dark:bg-[#111] transition-colors duration-300">
                 <SidebarSection title="System Access">
                     <div className="flex flex-col gap-2">
                         <Button 
                             onClick={handleAddClick}
-                            className="w-full bg-[#00C4B4] text-black hover:bg-[#00A89A] text-xs font-black uppercase tracking-widest h-12 transition-all shadow-[0_0_20px_rgba(0,196,180,0.15)] rounded-xl"
+                            className="w-full bg-[#0d3542] dark:bg-[#58a6ff] text-white dark:text-black hover:opacity-90 text-xs font-black uppercase tracking-widest h-12 transition-all rounded-xl"
                         >
                             <Plus size={14} className="mr-2" /> ADD PRODUCT
                         </Button>
                         <div className="flex gap-2">
-                            <Button variant="outline" className="flex-1 h-10 border-black/10 dark:border-white/10 text-[10px] font-black uppercase tracking-widest text-[#00C4B4] hover:bg-black/5 dark:hover:bg-white/5 rounded-xl"><Download size={12} className="mr-1" /> EXPORT</Button>
-                            <Button variant="outline" className="flex-1 h-10 border-black/10 dark:border-white/10 text-[10px] font-black uppercase tracking-widest text-[#00C4B4] hover:bg-black/5 dark:hover:bg-white/5 rounded-xl"><Upload size={12} className="mr-1" /> IMPORT</Button>
+                            <Button variant="outline" className="flex-1 h-10 border-black/10 dark:border-[#30363d] text-[10px] font-black uppercase tracking-widest text-[#0d3542] dark:text-[#58a6ff] hover:bg-black/5 dark:hover:bg-[#161b22] rounded-xl"><Download size={12} className="mr-1" /> EXPORT</Button>
+                            <Button variant="outline" className="flex-1 h-10 border-black/10 dark:border-[#30363d] text-[10px] font-black uppercase tracking-widest text-[#0d3542] dark:text-[#58a6ff] hover:bg-black/5 dark:hover:bg-[#161b22] rounded-xl"><Upload size={12} className="mr-1" /> IMPORT</Button>
                         </div>
                     </div>
                 </SidebarSection>
@@ -440,13 +442,13 @@ const ProductsPage = () => {
                         <select 
                             value={filters.group}
                             onChange={e => setFilters({...filters, group: e.target.value})}
-                            className="w-full bg-black/5 dark:bg-[#222] border-b-2 border-black/5 dark:border-white/10 px-3 py-3.5 text-[14px] font-black tracking-widest outline-none focus:border-[#00C4B4] transition-all uppercase text-gray-900 dark:text-white cursor-pointer appearance-none rounded-xl"
+                            className="w-full bg-black/5 dark:bg-[#161b22] border-b-2 border-black/5 dark:border-[#30363d] px-3 py-3.5 text-[14px] font-black tracking-widest outline-none focus:border-[#0d3542] dark:focus:border-[#58a6ff] transition-all uppercase text-gray-900 dark:text-white cursor-pointer appearance-none rounded-xl"
                         >
                             {categories.map(cat => (
                                 <option key={cat} value={cat}>{cat}</option>
                             ))}
                         </select>
-                        <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-gray-400 group-hover:text-[#00C4B4] transition-colors">
+                        <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-gray-400 group-hover:text-[#0d3542] dark:group-hover:text-[#58a6ff] transition-colors">
                             <ChevronDown size={16} />
                         </div>
                     </div>
@@ -454,16 +456,23 @@ const ProductsPage = () => {
             </div>
 
             {/* --- Content Area --- */}
-            <div className="flex-1 flex flex-col overflow-hidden bg-[#fcfcfa] dark:bg-[#111111] transition-[background-color,border-color] duration-150">
+            <div className="flex-1 flex flex-col overflow-hidden bg-background dark:bg-[#111111] transition-colors duration-300">
                 <AnimatePresence mode="wait">
                     {view === 'list' ? (
-                        <motion.div key="list" initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: 20 }} className="flex-1 flex flex-col overflow-hidden">
-                            {/* --- Dashboard Metrics Bar --- */}
-                            <div className="grid grid-cols-1 md:grid-cols-3 gap-8 p-8 border-b border-black/5 dark:border-white/5 bg-white/40 dark:bg-[#111] backdrop-blur-sm transition-[background-color,border-color] duration-150 rounded-2xl mx-4 mt-4 mb-2">
-                                <div className="border-l-4 border-[#00C4B4] pl-6 py-2 bg-gradient-to-r from-[#00C4B4]/5 to-transparent">
-                                    <p className="text-xs font-black text-slate-900/40 dark:text-white/30 uppercase tracking-widest mb-1">Total Vault Value</p>
+                        <motion.div 
+                            key="list" 
+                            initial={performanceMode ? { opacity: 0 } : { opacity: 0, x: -20 }} 
+                            animate={{ opacity: 1, x: 0 }} 
+                            exit={performanceMode ? { opacity: 0 } : { opacity: 0, x: 20 }} 
+                            transition={performanceMode ? { duration: 0 } : { duration: 0.3 }}
+                            className="flex-1 flex flex-col overflow-hidden"
+                        >
+                             {/* --- Dashboard Metrics Bar --- */}
+                            <div className="grid grid-cols-1 md:grid-cols-3 gap-8 p-6 border-b border-black/[0.08] dark:border-[#30363d] bg-background dark:bg-[#161b22] transition-colors duration-300">
+                                <div className="border-l-4 border-[#0d3542] dark:border-[#58a6ff] pl-6 py-2 bg-gradient-to-r from-[#0d3542]/5 dark:from-[#58a6ff]/5 to-transparent">
+                                    <p className="text-xs font-black text-slate-900/40 dark:text-[#8b949e] uppercase tracking-widest mb-1">Total Vault Value</p>
                                     <div className="flex items-baseline gap-2">
-                                        <span className="text-3xl font-mono font-black text-[#00C4B4] dark:text-white drop-shadow-[0_0_10px_rgba(0,196,180,0.1)] transition-colors duration-150">{formatPrice(metrics.totalValue)}</span>
+                                        <span className="text-3xl font-mono font-black text-[#0d3542] dark:text-[#58a6ff] transition-colors duration-150">{formatPrice(metrics.totalValue)}</span>
                                         <span className="text-xs text-emerald-500 font-bold uppercase tracking-widest">Digital Assets</span>
                                     </div>
                                 </div>
@@ -483,33 +492,34 @@ const ProductsPage = () => {
                                 </div>
                             </div>
 
-                             <div className="h-24 shrink-0 border-b border-black/5 dark:border-white/5 flex items-center justify-between px-10 bg-[#fcfcfa]/95 dark:bg-[#0d0d0d] transition-[background-color,border-color] duration-150 rounded-xl mx-4 mb-2">
+                             <div className={`h-20 shrink-0 border-b border-black/[0.08] dark:border-[#30363d] flex items-center justify-between px-10 bg-background dark:bg-[#0d1117] transition-colors duration-300`}>
                                 <div className="flex items-center gap-4">
-                                    <h2 className="text-xl font-black text-[#00C4B4] dark:text-attire-accent tracking-[0.4em] uppercase">Sovereign Ledger</h2>
-                                    {isFetching && <motion.div animate={{ opacity: [0.3, 1, 0.3] }} transition={{ repeat: Infinity, duration: 1.5 }} className="w-2 h-2 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)]" />}
+                                    <h2 className="text-xl font-black text-[#0d3542] dark:text-[#c9d1d9] tracking-[0.4em] uppercase">Sovereign Ledger</h2>
+                                    {isFetching && !performanceMode && <motion.div animate={{ opacity: [0.3, 1, 0.3] }} transition={{ repeat: Infinity, duration: 1.5 }} className="w-2 h-2 rounded-full bg-[#0d3542] dark:bg-[#58a6ff]" />}
+                                    {isFetching && performanceMode && <div className="w-2 h-2 rounded-full bg-[#0d3542] dark:bg-[#58a6ff]" />}
                                 </div>
-                                <div className="flex items-center gap-4 px-6 py-2.5 bg-black/5 dark:bg-white/5 rounded-xl text-[13px] font-black text-slate-900/40 dark:text-white/40 tracking-widest">
+                                <div className="flex items-center gap-4 px-6 py-2.5 bg-black/5 dark:bg-[#161b22] rounded-xl text-[13px] font-black text-slate-900/40 dark:text-[#8b949e] tracking-widest">
                                     <Command size={14} /> SYSTEM NOMENCLATURE: '/' SEARCH | 'SPACE' SELECT | 'CMD+K' BULK
                                 </div>
                             </div>
-                            <div className="flex-1 overflow-auto no-scrollbar relative min-h-0 mx-4 bg-white/40 dark:bg-black/20 rounded-2xl backdrop-blur-sm border border-black/5 dark:border-white/5">
+                             <div className={`flex-1 overflow-auto attire-scrollbar relative min-h-0 bg-background dark:bg-[#0f0f0f] border-t border-black/[0.08] dark:border-white/5`}>
                                 {(isLoading && !productsData) && (
-                                    <div className="absolute inset-0 z-50 flex items-center justify-center bg-white/50 dark:bg-black/50 backdrop-blur-[2px]">
-                                        <Loader className="animate-spin text-[#00C4B4] dark:text-attire-accent" size={30} />
+                                    <div className={`absolute inset-0 z-50 flex items-center justify-center bg-white/50 dark:bg-black/50 ${performanceMode ? '' : 'backdrop-blur-[2px]'}`}>
+                                        <LumaSpin size="lg" />
                                     </div>
                                 )}
                                 <table className="w-full text-left border-separate border-spacing-0 min-w-[800px] bg-transparent transition-colors duration-300">
                                     <thead className="sticky top-0 z-40">
-                                        <tr className="bg-gray-100/80 dark:bg-[#1a1a1a]/80 backdrop-blur-xl text-[#00C4B4] dark:text-white/80 uppercase text-xs tracking-[0.3em] font-black border-b border-black/5 dark:border-white/5 transition-[background-color,border-color] duration-150">
-                                            <th className="px-8 py-6 w-14 text-center border-b border-black/5 dark:border-white/5">
-                                                <input type="checkbox" checked={selectedIds.size === products.length && products.length > 0} onChange={handleSelectAll} className="accent-[#00C4B4] scale-125" />
+                                        <tr className="bg-black/[0.02] dark:bg-[#161b22] text-[#0d3542] dark:text-[#c9d1d9] uppercase text-xs tracking-[0.3em] font-black border-b border-black/5 dark:border-[#30363d] transition-[background-color,border-color] duration-150">
+                                            <th className="px-8 py-6 w-14 text-center border-b border-black/5 dark:border-[#30363d]">
+                                                <input type="checkbox" checked={selectedIds.size === products.length && products.length > 0} onChange={handleSelectAll} className="accent-[#0d3542] dark:accent-[#58a6ff] scale-125" />
                                             </th>
-                                            <th className="px-8 py-6 w-40 border-b border-black/5 dark:border-white/5">SKU / IDENTITY</th>
-                                            <th className="px-8 py-6 border-b border-black/5 dark:border-white/5">DESIGNATION</th>
-                                            <th className="px-8 py-6 w-48 border-b border-black/5 dark:border-white/5">COLLECTION</th>
-                                            <th className="px-8 py-6 w-36 border-b border-black/5 dark:border-white/5 text-right">VALUATION</th>
-                                            <th className="px-8 py-6 w-36 border-b border-black/5 dark:border-white/5 text-right">LEDGER</th>
-                                            <th className="px-8 py-6 w-36 border-b border-black/5 dark:border-white/5 text-center">STATUS</th>
+                                            <th className="px-8 py-6 w-40 border-b border-black/5 dark:border-[#30363d]">SKU / IDENTITY</th>
+                                            <th className="px-8 py-6 border-b border-black/5 dark:border-[#30363d]">DESIGNATION</th>
+                                            <th className="px-8 py-6 w-48 border-b border-black/5 dark:border-[#30363d]">COLLECTION</th>
+                                            <th className="px-8 py-6 w-36 border-b border-black/5 dark:border-[#30363d] text-right">VALUATION</th>
+                                            <th className="px-8 py-6 w-36 border-b border-black/5 dark:border-[#30363d] text-right">LEDGER</th>
+                                            <th className="px-8 py-6 w-36 border-b border-black/5 dark:border-[#30363d] text-center">STATUS</th>
                                         </tr>
                                     </thead>
                                     <tbody className="text-[13px] font-medium">
@@ -529,6 +539,7 @@ const ProductsPage = () => {
                                                     onQuickEdit={setQuickEditField}
                                                     onUpdateField={(id, data) => updateMutation.mutate({ id, data })}
                                                     formatPrice={formatPrice}
+                                                    performanceMode={performanceMode}
                                                 />
                                             ))
                                         )}
@@ -539,7 +550,7 @@ const ProductsPage = () => {
                     ) : (
                         <motion.div key="form" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} className="flex-1 flex flex-col overflow-hidden bg-[#fcfcfa] dark:bg-[#0d0d0d]">
                             {/* --- Form Header --- */}
-                            <div className="h-24 shrink-0 border-b border-black/5 dark:border-white/5 flex items-center justify-between px-12 bg-white/80 dark:bg-[#0d0d0d]/80 backdrop-blur-xl">
+                            <div className="h-24 shrink-0 border-b border-black/5 dark:border-white/5 flex items-center justify-between px-12 bg-white dark:bg-[#0a0a0a]">
                                 <div className="flex items-center gap-6">
                                     <button 
                                         onClick={() => { setView('list'); setEditingProduct(null); }}
@@ -548,31 +559,31 @@ const ProductsPage = () => {
                                         <ChevronLeft size={20} />
                                     </button>
                                     <div>
-                                        <h2 className="text-xl font-black text-[#00C4B4] tracking-[0.4em] uppercase">{editingProduct ? 'Edit Identity' : 'Establish New Identity'}</h2>
-                                        <p className="text-[11px] font-bold text-gray-400 uppercase tracking-widest mt-1">Product Configuration Module</p>
+                                        <h2 className="text-xl font-black text-[#0d3542] dark:text-[#58a6ff] tracking-[0.4em] uppercase">{editingProduct ? 'Edit Identity' : 'Establish New Identity'}</h2>
+                                        <p className="text-[11px] font-bold text-gray-400 dark:text-[#8b949e] uppercase tracking-widest mt-1">Product Configuration Module</p>
                                     </div>
                                 </div>
                                 <div className="flex items-center gap-4">
-                                    <Button variant="outline" onClick={() => setView('list')} className="h-12 px-8 text-xs font-black uppercase tracking-widest border-black/10 dark:border-white/10 text-gray-400 rounded-xl hover:bg-black/5 dark:hover:bg-white/5">CANCEL</Button>
-                                    <Button onClick={handleSubmit} disabled={isSaving} className="h-12 px-10 bg-[#00C4B4] text-black text-xs font-black uppercase tracking-widest hover:scale-[1.05] transition-all shadow-2xl rounded-xl">
-                                        {isSaving ? <Loader size={14} className="animate-spin mr-2" /> : <Save size={14} className="mr-2" />}
+                                    <Button variant="outline" onClick={() => setView('list')} className="h-12 px-8 text-xs font-black uppercase tracking-widest border-black/10 dark:border-[#30363d] text-gray-400 rounded-xl hover:bg-black/5 dark:hover:bg-[#161b22]">CANCEL</Button>
+                                    <Button onClick={handleSubmit} disabled={isSaving} className="h-12 px-10 bg-[#0d3542] dark:bg-[#58a6ff] text-white dark:text-black text-xs font-black uppercase tracking-widest hover:scale-[1.05] transition-all rounded-xl">
+                                        {isSaving ? <LumaSpin size="sm" className="mr-2" /> : <Save size={14} className="mr-2" />}
                                         CONFIRM & RECORD
                                     </Button>
                                 </div>
                             </div>
 
                             {/* --- Form Tabs --- */}
-                            <div className="px-12 h-16 border-b border-black/5 dark:border-white/5 flex items-center gap-12 bg-black/[0.01] dark:bg-white/[0.01]">
+                            <div className="px-12 h-16 border-b border-black/5 dark:border-[#30363d] flex items-center gap-12 bg-black/[0.01] dark:bg-[#161b22]">
                                 {['General', 'Attributes'].map((tab) => {
                                     const id = tab.toLowerCase();
                                     const active = activeTab === id;
                                     return (
                                         <button 
                                             key={id} onClick={() => setActiveTab(id)}
-                                            className={`h-full px-2 text-[11px] font-black uppercase tracking-[0.3em] transition-all relative ${active ? 'text-[#00C4B4]' : 'text-gray-400 dark:text-white/20 hover:text-gray-600 dark:hover:text-white/40'}`}
+                                            className={`h-full px-2 text-[11px] font-black uppercase tracking-[0.3em] transition-all relative ${active ? 'text-[#0d3542] dark:text-[#58a6ff]' : 'text-gray-400 dark:text-[#8b949e] hover:text-[#0d3542] dark:hover:text-[#58a6ff]'}`}
                                         >
                                             {tab}
-                                            {active && <motion.div layoutId="tabUnderline" className="absolute bottom-0 left-0 right-0 h-1 bg-[#00C4B4] rounded-t-full" />}
+                                            {active && <motion.div layoutId="tabUnderline" className="absolute bottom-0 left-0 right-0 h-1 bg-[#0d3542] dark:bg-[#58a6ff] rounded-t-full" />}
                                         </button>
                                     );
                                 })}
@@ -585,21 +596,21 @@ const ProductsPage = () => {
                                         <>
                                             <section className="animate-in fade-in slide-in-from-bottom-4 duration-500">
                                                 <div className="flex items-center gap-4 mb-10">
-                                                    <div className="h-1 w-10 bg-[#00C4B4] rounded-full" />
-                                                    <h3 className="text-xs font-black uppercase tracking-[0.4em] text-[#00C4B4]">Base Metadata</h3>
+                                                    <div className="h-1 w-10 bg-[#0d3542] dark:bg-[#58a6ff] rounded-full" />
+                                                    <h3 className="text-xs font-black uppercase tracking-[0.4em] text-[#0d3542] dark:text-[#58a6ff]">Base Metadata</h3>
                                                 </div>
                                                 <div className="grid grid-cols-2 gap-16">
                                                     <div className="space-y-3">
                                                         <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">PRIMARY SKU / CODE</label>
-                                                        <input value={formData.sku} onChange={e => setFormData({...formData, sku: e.target.value.toUpperCase()})} className="w-full bg-black/5 dark:bg-white/5 p-5 text-sm font-mono font-bold tracking-widest outline-none border border-black/5 dark:border-white/5 focus:border-[#00C4B4] transition-all uppercase text-gray-900 dark:text-white rounded-2xl" placeholder="AUTO-GEN ON EMPTY" />
+                                                        <input value={formData.sku} onChange={e => setFormData({...formData, sku: e.target.value.toUpperCase()})} className="w-full bg-black/5 dark:bg-[#161b22] p-5 text-sm font-mono font-bold tracking-widest outline-none border border-black/5 dark:border-[#30363d] focus:border-[#0d3542] dark:focus:border-[#58a6ff] transition-all uppercase text-gray-900 dark:text-white rounded-2xl" placeholder="AUTO-GEN ON EMPTY" />
                                                     </div>
                                                     <div className="space-y-3">
                                                         <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">PRODUCT NAME *</label>
-                                                        <input required value={formData.name} onChange={e => setFormData({...formData, name: e.target.value})} className="w-full bg-black/5 dark:bg-white/5 p-5 text-sm font-black outline-none border border-black/5 dark:border-white/5 focus:border-[#00C4B4] transition-all uppercase text-gray-900 dark:text-white rounded-2xl" />
+                                                        <input required value={formData.name} onChange={e => setFormData({...formData, name: e.target.value})} className="w-full bg-black/5 dark:bg-[#161b22] p-5 text-sm font-black outline-none border border-black/5 dark:border-[#30363d] focus:border-[#0d3542] dark:focus:border-[#58a6ff] transition-all uppercase text-gray-900 dark:text-white rounded-2xl" />
                                                         
                                                         {/* Name Preview */}
-                                                        <div className="mt-4 px-4 py-3 bg-black/[0.03] dark:bg-white/[0.03] rounded-xl border border-dashed border-black/10 dark:border-white/10">
-                                                            <div className="text-[10px] font-black text-[#00C4B4]/50 uppercase tracking-widest mb-1">Name Preview</div>
+                                                        <div className="mt-4 px-4 py-3 bg-black/[0.03] dark:bg-[#161b22] rounded-xl border border-dashed border-black/10 dark:border-[#30363d]">
+                                                            <div className="text-[10px] font-black text-[#0d3542]/50 dark:text-[#58a6ff]/50 uppercase tracking-widest mb-1">Name Preview</div>
                                                             <div className="text-sm font-mono font-bold text-gray-400 dark:text-white/40 break-all uppercase">
                                                                 {formData.name} {(formData.attributes || []).filter(a => a.value).map(a => `-${a.value.toUpperCase()}`).join(' ')}
                                                             </div>
@@ -608,8 +619,8 @@ const ProductsPage = () => {
                                                     <div className="space-y-3">
                                                         <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">ITEM PRICE</label>
                                                         <div className="relative">
-                                                            <input type="number" value={formData.price} onChange={e => setFormData({...formData, price: e.target.value})} className="w-full bg-black/5 dark:bg-white/5 p-5 pl-14 text-lg font-mono font-bold tracking-tight outline-none border border-black/5 dark:border-white/5 focus:border-[#00C4B4] transition-all text-gray-900 dark:text-white rounded-2xl" />
-                                                            <span className="absolute left-5 top-1/2 -translate-y-1/2 text-[#00C4B4] font-black text-xl">$</span>
+                                                            <input type="number" value={formData.price} onChange={e => setFormData({...formData, price: e.target.value})} className="w-full bg-black/5 dark:bg-[#161b22] p-5 pl-14 text-lg font-mono font-bold tracking-tight outline-none border border-black/5 dark:border-[#30363d] focus:border-[#0d3542] dark:focus:border-[#58a6ff] transition-all text-gray-900 dark:text-white rounded-2xl" />
+                                                            <span className="absolute left-5 top-1/2 -translate-y-1/2 text-[#0d3542] dark:text-[#58a6ff] font-black text-xl">$</span>
                                                         </div>
                                                     </div>
                                                     <div className="space-y-3">
@@ -618,7 +629,7 @@ const ProductsPage = () => {
                                                             <select 
                                                                 value={formData.category} 
                                                                 onChange={e => setFormData({...formData, category: e.target.value})} 
-                                                                className="w-full bg-black/5 dark:bg-white/5 p-5 text-sm font-black outline-none border border-black/5 dark:border-white/5 focus:border-[#00C4B4] transition-all uppercase text-gray-900 dark:text-white appearance-none cursor-pointer rounded-2xl"
+                                                                className="w-full bg-black/5 dark:bg-[#161b22] p-5 text-sm font-black outline-none border border-black/5 dark:border-[#30363d] focus:border-[#0d3542] dark:focus:border-[#58a6ff] transition-all uppercase text-gray-900 dark:text-white appearance-none cursor-pointer rounded-2xl"
                                                             >
                                                                 <option value="">SELECT GROUP</option>
                                                                 {categories.filter(c => c !== 'ALL GROUPS').map(cat => (
@@ -626,7 +637,7 @@ const ProductsPage = () => {
                                                                 ))}
                                                                 <option value="NEW_GROUP">+ CREATE NEW GROUP</option>
                                                             </select>
-                                                            <ChevronDown className="absolute right-5 top-1/2 -translate-y-1/2 text-[#00C4B4]" size={16} />
+                                                            <ChevronDown className="absolute right-5 top-1/2 -translate-y-1/2 text-[#0d3542] dark:text-[#58a6ff]" size={16} />
                                                         </div>
                                                     </div>
                                                 </div>
@@ -634,21 +645,21 @@ const ProductsPage = () => {
 
                                             <section className="animate-in fade-in slide-in-from-bottom-4 duration-700">
                                                 <div className="flex items-center gap-4 mb-10">
-                                                    <div className="h-1 w-10 bg-[#00C4B4] rounded-full" />
-                                                    <h3 className="text-xs font-black uppercase tracking-[0.4em] text-[#00C4B4]">Inventory Thresholds</h3>
+                                                    <div className="h-1 w-10 bg-[#0d3542] dark:bg-[#58a6ff] rounded-full" />
+                                                    <h3 className="text-xs font-black uppercase tracking-[0.4em] text-[#0d3542] dark:text-[#58a6ff]">Inventory Thresholds</h3>
                                                 </div>
                                                 <div className="grid grid-cols-3 gap-12">
                                                     <div className="space-y-3">
                                                         <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">CURRENT RECORD</label>
-                                                        <input type="number" value={formData.stock_qty} onChange={e => setFormData({...formData, stock_qty: e.target.value})} className="w-full bg-black/5 dark:bg-white/5 p-5 text-sm font-mono font-bold outline-none border border-black/5 dark:border-white/5 focus:border-[#00C4B4] transition-all text-gray-900 dark:text-white rounded-2xl" />
+                                                        <input type="number" value={formData.stock_qty} onChange={e => setFormData({...formData, stock_qty: e.target.value})} className="w-full bg-black/5 dark:bg-[#161b22] p-5 text-sm font-mono font-bold outline-none border border-black/5 dark:border-[#30363d] focus:border-[#0d3542] dark:focus:border-[#58a6ff] transition-all text-gray-900 dark:text-white rounded-2xl" />
                                                     </div>
                                                     <div className="space-y-3">
                                                         <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">MIN THRESHOLD</label>
-                                                        <input type="number" value={formData.min_stock} onChange={e => setFormData({...formData, min_stock: e.target.value})} className="w-full bg-black/5 dark:bg-white/5 p-5 text-sm font-mono font-bold outline-none border border-black/5 dark:border-white/5 focus:border-[#00C4B4] transition-all text-gray-900 dark:text-white rounded-2xl" />
+                                                        <input type="number" value={formData.min_stock} onChange={e => setFormData({...formData, min_stock: e.target.value})} className="w-full bg-black/5 dark:bg-[#161b22] p-5 text-sm font-mono font-bold outline-none border border-black/5 dark:border-[#30363d] focus:border-[#0d3542] dark:focus:border-[#58a6ff] transition-all text-gray-900 dark:text-white rounded-2xl" />
                                                     </div>
                                                     <div className="space-y-3">
                                                         <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">MAX THRESHOLD</label>
-                                                        <input type="number" value={formData.max_stock} onChange={e => setFormData({...formData, max_stock: e.target.value})} className="w-full bg-black/5 dark:bg-white/5 p-5 text-sm font-mono font-bold outline-none border border-black/5 dark:border-white/5 focus:border-[#00C4B4] transition-all text-gray-900 dark:text-white rounded-2xl" />
+                                                        <input type="number" value={formData.max_stock} onChange={e => setFormData({...formData, max_stock: e.target.value})} className="w-full bg-black/5 dark:bg-[#161b22] p-5 text-sm font-mono font-bold outline-none border border-black/5 dark:border-[#30363d] focus:border-[#0d3542] dark:focus:border-[#58a6ff] transition-all text-gray-900 dark:text-white rounded-2xl" />
                                                     </div>
                                                 </div>
                                             </section>
@@ -657,10 +668,10 @@ const ProductsPage = () => {
                                         <section className="animate-in fade-in slide-in-from-bottom-4 duration-500">
                                             <div className="flex items-center justify-between mb-10">
                                                 <div className="flex items-center gap-4">
-                                                    <div className="h-1 w-10 bg-[#00C4B4] rounded-full" />
-                                                    <h3 className="text-xs font-black uppercase tracking-[0.4em] text-[#00C4B4]">Technical Matrix</h3>
+                                                    <div className="h-1 w-10 bg-[#0d3542] dark:bg-[#58a6ff] rounded-full" />
+                                                    <h3 className="text-xs font-black uppercase tracking-[0.4em] text-[#0d3542] dark:text-[#58a6ff]">Technical Matrix</h3>
                                                 </div>
-                                                <Button variant="outline" onClick={() => setFormData({...formData, attributes: [...(formData.attributes || []), { key: '', value: '' }]})} className="h-10 text-[10px] font-black uppercase tracking-widest border-black/10 dark:border-white/10 text-gray-400 hover:text-white hover:bg-[#00C4B4] hover:border-[#00C4B4] transition-all rounded-xl">
+                                                <Button variant="outline" onClick={() => setFormData({...formData, attributes: [...(formData.attributes || []), { key: '', value: '' }]})} className="h-10 text-[10px] font-black uppercase tracking-widest border-black/10 dark:border-[#30363d] text-gray-400 hover:text-[#0d3542] dark:hover:text-[#58a6ff] transition-all rounded-xl">
                                                     <Plus size={14} className="mr-2" /> ADD PARAMETER
                                                 </Button>
                                             </div>
@@ -673,7 +684,7 @@ const ProductsPage = () => {
                                                                 const newAttrs = [...formData.attributes];
                                                                 newAttrs[idx].key = e.target.value.toUpperCase();
                                                                 setFormData({...formData, attributes: newAttrs});
-                                                            }} className="w-full bg-black/5 dark:bg-white/5 p-5 text-xs font-bold uppercase outline-none border border-black/5 dark:border-white/5 focus:border-[#00C4B4] transition-all text-gray-900 dark:text-white rounded-2xl" placeholder="E.G. FABRIC" />
+                                                            }} className="w-full bg-black/5 dark:bg-[#161b22] p-5 text-xs font-bold uppercase outline-none border border-black/5 dark:border-[#30363d] focus:border-[#0d3542] dark:focus:border-[#58a6ff] transition-all text-gray-900 dark:text-white rounded-2xl" placeholder="E.G. FABRIC" />
                                                         </div>
                                                         <div className="flex-[2] space-y-3">
                                                             <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">VALUE</label>
@@ -681,7 +692,7 @@ const ProductsPage = () => {
                                                                 const newAttrs = [...formData.attributes];
                                                                 newAttrs[idx].value = e.target.value.toUpperCase();
                                                                 setFormData({...formData, attributes: newAttrs});
-                                                            }} className="w-full bg-black/5 dark:bg-white/5 p-5 text-xs font-bold uppercase outline-none border border-black/5 dark:border-white/5 focus:border-[#00C4B4] transition-all text-gray-900 dark:text-white rounded-2xl" placeholder="E.G. SCABAL DIAMOND CHIP" />
+                                                            }} className="w-full bg-black/5 dark:bg-[#161b22] p-5 text-xs font-bold uppercase outline-none border border-black/5 dark:border-[#30363d] focus:border-[#0d3542] dark:focus:border-[#58a6ff] transition-all text-gray-900 dark:text-white rounded-2xl" placeholder="E.G. SCABAL DIAMOND CHIP" />
                                                         </div>
                                                         <button onClick={() => setFormData({...formData, attributes: formData.attributes.filter((_, i) => i !== idx)})} className="h-[60px] w-[60px] flex items-center justify-center text-gray-400 hover:text-white transition-all bg-black/5 dark:bg-white/5 rounded-2xl border border-black/5 dark:border-white/5 hover:bg-rose-500 hover:border-rose-500">
                                                             <Trash2 size={18} />
@@ -702,17 +713,17 @@ const ProductsPage = () => {
             <AnimatePresence>
                 {selectedIds.size > 0 && view === 'list' && (
                     <motion.div initial={{ y: 100, opacity: 0 }} animate={{ y: 0, opacity: 1 }} exit={{ y: 100, opacity: 0 }} className="fixed bottom-10 left-[calc(50%+120px)] -translate-x-1/2 z-[80]">
-                        <div className="bg-[#f8f8f6]/90 dark:bg-[#1a1a1a]/90 shadow-2xl rounded-2xl px-8 h-20 flex items-center gap-10 border border-[#00C4B4]/30 backdrop-blur-xl transition-all duration-300">
-                            <div className="flex items-center gap-4 pr-10 border-r border-black/10 dark:border-white/10">
-                                <div className="bg-[#00C4B4] text-black text-xs font-black h-7 w-7 rounded-lg flex items-center justify-center shadow-[0_0_15px_rgba(0,196,180,0.5)]">{selectedIds.size}</div>
-                                <span className="text-[#00C4B4] text-xs font-black uppercase tracking-[0.3em] whitespace-nowrap">Ledger Items</span>
+                                <div className="bg-[#fdfdfc] dark:bg-[#161b22] rounded-2xl px-8 h-20 flex items-center gap-10 border border-[#0d3542]/30 dark:border-[#58a6ff]/30 transition-all duration-300">
+                            <div className="flex items-center gap-4 pr-10 border-r border-black/10 dark:border-[#30363d]">
+                                <div className="bg-[#0d3542] dark:bg-[#58a6ff] text-white dark:text-black text-xs font-black h-7 w-7 rounded-lg flex items-center justify-center">{selectedIds.size}</div>
+                                <span className="text-[#0d3542] dark:text-[#58a6ff] text-xs font-black uppercase tracking-[0.3em] whitespace-nowrap">Ledger Items</span>
                             </div>
                             <div className="flex items-center gap-10">
-                                <button onClick={() => setIsBulkDialogOpen(true)} className="flex items-center gap-2 text-gray-500 dark:text-white/70 hover:text-[#00C4B4] transition-colors group">
+                                <button onClick={() => setIsBulkDialogOpen(true)} className="flex items-center gap-2 text-gray-500 dark:text-[#8b949e] hover:text-[#0d3542] dark:hover:text-[#58a6ff] transition-colors group">
                                     <Command size={16} className="group-hover:scale-110 transition-transform" />
                                     <span className="text-xs font-black uppercase tracking-[0.2em]">Bulk Override</span>
                                 </button>
-                                <button onClick={() => setSelectedIds(new Set())} className="text-gray-400 dark:text-white/40 hover:text-gray-900 dark:hover:text-white text-[11px] font-black uppercase tracking-[0.2em]">Clear Ledger</button>
+                                <button onClick={() => setSelectedIds(new Set())} className="text-gray-400 dark:text-[#8b949e]/40 hover:text-[#0d3542] dark:hover:text-[#58a6ff] text-[11px] font-black uppercase tracking-[0.2em]">Clear Ledger</button>
                             </div>
                         </div>
                     </motion.div>

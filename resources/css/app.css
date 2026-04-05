@@ -1,30 +1,115 @@
-/* resources/css/app.css - OPTIMIZED SMOOTH SCROLL VERSION */
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss";
+
+@theme {
+  /* Core Theme Variables (mapped to HSL CSS variables in :root) */
+  --color-border: hsl(var(--border));
+  --color-input: hsl(var(--input));
+  --color-ring: hsl(var(--ring));
+  --color-background: hsl(var(--background));
+  --color-foreground: hsl(var(--foreground));
+
+  --color-primary: hsl(var(--primary));
+  --color-primary-foreground: hsl(var(--primary-foreground));
+
+  --color-secondary: hsl(var(--secondary));
+  --color-secondary-foreground: hsl(var(--secondary-foreground));
+
+  --color-destructive: hsl(var(--destructive));
+  --color-destructive-foreground: hsl(var(--destructive-foreground));
+
+  --color-muted: hsl(var(--muted));
+  --color-muted-foreground: hsl(var(--muted-foreground));
+
+  --color-accent: hsl(var(--accent));
+  --color-accent-foreground: hsl(var(--accent-foreground));
+
+  --color-popover: hsl(var(--popover));
+  --color-popover-foreground: hsl(var(--popover-foreground));
+
+  --color-card: hsl(var(--card));
+  --color-card-foreground: hsl(var(--card-foreground));
+
+  /* Original Attire Lounge Palette */
+  --color-attire-charcoal: #333333;
+  --color-attire-stone: #8b6b4d;
+  --color-attire-silver: #E5E7EB;
+  --color-attire-cream: #f8f9fa;
+  --color-attire-light: #f8f9fa;
+  --color-attire-gold: #8B6B4D;
+  --color-attire-navy: #0d3542;
+  --color-attire-midnight: #0d1117;
+  --color-attire-dark: #0d1117;
+
+  /* Fonts */
+  --font-serif: "Playfair Display", serif;
+  --font-sans: "Inter", sans-serif;
+  --font-open-sans: "Open Sans", sans-serif;
+  --font-khmer: "Bayon", sans-serif;
+
+  /* Animations */
+  --animate-float: float 6s ease-in-out infinite;
+  --animate-fade-in: fadeIn 0.5s ease-out;
+  --animate-fade-in-up: fadeInUp 0.8s ease-out forwards;
+  --animate-slide-down: slideDown 0.3s ease-out;
+  --animate-bounce-smooth: bounceSmooth 2s ease-in-out infinite;
+  --animate-pulse-soft: pulseSoft 2s ease-in-out infinite;
+  --animate-shimmer: shimmer 2s infinite linear;
+
+  @keyframes float {
+    0%, 100% { transform: translateY(0px) rotate(0deg); }
+    50% { transform: translateY(-20px) rotate(1deg); }
+  }
+  @keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+  @keyframes fadeInUp {
+    from { opacity: 0; transform: translateY(30px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes slideDown {
+    from { transform: translateY(-10px); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+  }
+  @keyframes bounceSmooth {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-5px); }
+  }
+  @keyframes pulseSoft {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.7; }
+  }
+  @keyframes shimmer {
+    0% { background-position: -1000px 0; }
+    100% { background-position: 1000px 0; }
+  }
+
+  /* Custom Box Shadows */
+  --shadow-mirror-xl: 0 25px 50px -12px rgba(0, 0, 0, 0.1);
+}
 
 :root {
-    --background: 0 0% 100%;
-    --foreground: 222.2 84% 4.9%;
+    --background: 210 20% 98%; /* Cool Canvas #f8f9fa */
+    --foreground: 222.2 47.4% 11.2%; /* Deep charcoal */
     --card: 0 0% 100%;
-    --card-foreground: 222.2 84% 4.9%;
+    --card-foreground: 222.2 47.4% 11.2%;
     --popover: 0 0% 100%;
-    --popover-foreground: 222.2 84% 4.9%;
-    --primary: 222.2 47.4% 11.2%;
+    --popover-foreground: 222.2 47.4% 11.2%;
+    --primary: 195 67% 15%; /* Attire Navy #0d3542 */
     --primary-foreground: 210 40% 98%;
-    --secondary: 210 40% 96.1%;
-    --secondary-foreground: 222.2 47.4% 11.2%;
+    --secondary: 195 67% 15% / 0.08%; /* Navy wash */
+    --secondary-foreground: 195 67% 15%;
     --muted: 210 40% 96.1%;
     --muted-foreground: 215.4 16.3% 46.9%;
-    --accent: 210 40% 96.1%;
-    --accent-foreground: 222.2 47.4% 11.2%;
+    --accent: 38 92% 54%; /* Attire Gold #f5a81c */
+    --accent-foreground: 210 40% 98%;
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 210 40% 98%;
-    --border: 214.3 31.8% 91.4%;
+    --border: 214.3 31.8% 91.4%; 
     --input: 214.3 31.8% 91.4%;
-    --ring: 222.2 84% 4.9%;
+    --ring: 195 67% 15%;
     --radius: 0.5rem;
-    --chart-1: 12 76% 61%;
+    --chart-1: 195 67% 15.3%;
     --chart-2: 173 58% 39%;
     --chart-3: 197 37% 24%;
     --chart-4: 43 74% 66%;
@@ -32,26 +117,26 @@
 }
 
 .dark {
-    --background: 222.2 84% 4.9%;
-    --foreground: 210 40% 98%;
-    --card: 222.2 84% 4.9%;
-    --card-foreground: 210 40% 98%;
-    --popover: 222.2 84% 4.9%;
-    --popover-foreground: 210 40% 98%;
-    --primary: 210 40% 98%;
-    --primary-foreground: 222.2 47.4% 11.2%;
-    --secondary: 217.2 32.6% 17.5%;
-    --secondary-foreground: 210 40% 98%;
-    --muted: 217.2 32.6% 17.5%;
-    --muted-foreground: 215 20.2% 65.1%;
-    --accent: 217.2 32.6% 17.5%;
+    --background: 210 15% 7.1%; /* GitHub Dark #0d1117 */
+    --foreground: 210 17% 82.7%; /* #c9d1d9 */
+    --card: 210 15% 10.6%; /* GitHub Card #161b22 */
+    --card-foreground: 210 17% 82.7%;
+    --popover: 210 15% 10.6%;
+    --popover-foreground: 210 17% 82.7%;
+    --primary: 212 100% 67.3%; /* GitHub Blue #58a6ff */
+    --primary-foreground: 210 40% 98%;
+    --secondary: 210 15% 15% / 0.1%; /* Darker wash */
+    --secondary-foreground: 210 100% 67.3%;
+    --muted: 210 15% 20%;
+    --muted-foreground: 210 10% 60%;
+    --accent: 212 100% 67.3%;
     --accent-foreground: 210 40% 98%;
-    --destructive: 0 62.8% 30.6%;
+    --destructive: 0 84% 44%;
     --destructive-foreground: 210 40% 98%;
-    --border: 217.2 32.6% 17.5%;
-    --input: 217.2 32.6% 17.5%;
-    --ring: 212.7 26.8% 83.9%;
-    --chart-1: 220 70% 50%;
+    --border: 210 10% 21.2%; /* GitHub Border #30363d */
+    --input: 210 10% 21.2%;
+    --ring: 212 100% 67.3%;
+    --chart-1: 212 100% 67.3%;
     --chart-2: 160 60% 45%;
     --chart-3: 30 80% 55%;
     --chart-4: 280 65% 60%;
@@ -644,3 +729,103 @@ img {
 /* .debug-performance {
     outline: 1px solid red !important;
 } */
+/* ============ LUMA SPIN LOADER ============ */
+@keyframes loaderAnim {
+    0% {
+        inset: 0 35px 35px 0;
+    }
+    12.5% {
+        inset: 0 35px 0 0;
+    }
+    25% {
+        inset: 35px 35px 0 0;
+    }
+    37.5% {
+        inset: 35px 0 0 0;
+    }
+    50% {
+        inset: 35px 0 0 35px;
+    }
+    62.5% {
+        inset: 0 0 0 35px;
+    }
+    75% {
+        inset: 0 0 35px 35px;
+    }
+    87.5% {
+        inset: 0 0 35px 0;
+    }
+    100% {
+        inset: 0 35px 35px 0;
+    }
+}
+
+.animate-loaderAnim {
+    animation: loaderAnim 2.5s infinite;
+}
+
+.animation-delay {
+    animation-delay: -1.25s;
+}
+
+/* ============ SOVEREIGN SYNC: PERFORMANCE MODE OVERRIDES ============ */
+.performance-mode *, 
+.performance-mode *::before, 
+.performance-mode *::after {
+    /* 1. Disable expensive filters */
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+    filter: none !important;
+    
+    /* 2. Disable layout-triggering blend modes */
+    mix-blend-mode: normal !important;
+    
+    /* 3. Simplify shadows to basic versions */
+    box-shadow: none !important;
+}
+
+.performance-mode .shadow-sm,
+.performance-mode .shadow-md,
+.performance-mode .shadow-lg,
+.performance-mode .shadow-xl,
+.performance-mode .shadow-2xl {
+    box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05) !important; /* Extremely light single layer */
+}
+
+/* 4. Disable expensive transition properties */
+.performance-mode .backdrop-blur-sm,
+.performance-mode .backdrop-blur-md,
+.performance-mode .backdrop-blur-lg,
+.performance-mode .backdrop-blur-xl,
+.performance-mode .backdrop-blur-2xl,
+.performance-mode .backdrop-blur-3xl {
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+}
+
+/* Fallback backgrounds for tinted elements in performance mode */
+.performance-mode .bg-white\/80,
+.performance-mode .bg-white\/60,
+.performance-mode .bg-black\/80,
+.performance-mode .bg-black\/60 {
+    opacity: 0.95; /* Ensure readability without blur */
+}
+
+/* 5. Reduce animation intensity */
+.performance-mode .animate-pulse,
+.performance-mode .animate-pulse-glow,
+.performance-mode .animate-loaderAnim {
+    animation-duration: 0.1s !important; /* Effectively making it static or near-instant */
+    animation-iteration-count: 1 !important;
+}
+
+.performance-mode .transition-all,
+.performance-mode .transition-colors,
+.performance-mode .transition-transform {
+    transition-duration: 0s !important;
+}
+
+/* 6. Specifically target the LumaSpin within performance mode to be a simple static state if needed, 
+   but usually just slowing it down or making it a simple spinner is better. 
+   Keeping it subtle. */
+

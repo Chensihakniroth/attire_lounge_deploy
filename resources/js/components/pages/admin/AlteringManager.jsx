@@ -18,10 +18,10 @@ import {
     User, 
     AlertCircle, 
     CheckCircle2, 
-    Loader,
     Mail,
     ExternalLink
 } from 'lucide-react';
+import { LumaSpin } from '@/components/ui/luma-spin';
 import { Card, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { BorderBeam } from '@/components/ui/border-beam';
@@ -69,35 +69,10 @@ const containerVariants = {
     },
 };
 
-const TableSkeleton = () => (
-    <div className="flex flex-col">
-        {[1, 2, 3, 4, 5].map((i) => (
-            <div
-                key={i}
-                className="px-5 py-8 border-b border-black/5 dark:border-white/5 animate-pulse"
-                style={{
-                    display: 'grid',
-                    gridTemplateColumns: '40px 200px 160px 140px 120px 160px 1fr 60px',
-                    columnGap: '10px',
-                    alignItems: 'center',
-                }}
-            >
-                <div className="h-4 w-4 bg-gray-200 dark:bg-white/5 rounded mx-auto" />
-                <div className="flex items-center gap-3">
-                    <div className="h-8 w-8 rounded-full bg-gray-200 dark:bg-white/5" />
-                    <div className="h-4 w-32 bg-gray-200 dark:bg-white/5 rounded" />
-                </div>
-                <div className="space-y-2">
-                    <div className="h-3 w-24 bg-gray-200 dark:bg-white/5 rounded" />
-                    <div className="h-2 w-16 bg-gray-200 dark:bg-white/5 rounded" />
-                </div>
-                <div className="h-6 w-20 bg-gray-200 dark:bg-white/5 rounded-lg" />
-                <div className="h-4 w-12 bg-gray-200 dark:bg-white/5 rounded" />
-                <div className="h-4 w-28 bg-gray-200 dark:bg-white/5 rounded" />
-                <div className="h-4 w-20 bg-gray-200 dark:bg-white/5 rounded" />
-                <div className="h-8 w-8 bg-gray-200 dark:bg-white/5 rounded mx-auto" />
-            </div>
-        ))}
+const LoadingState = () => (
+    <div className="flex flex-col items-center justify-center py-32 space-y-4">
+        <LumaSpin size="xl" />
+        <p className="text-[10px] font-black uppercase tracking-[0.4em] text-gray-400 dark:text-[#8b949e]/40">Gathering Alteration Logs...</p>
     </div>
 );
 
@@ -139,8 +114,8 @@ const AlteringRow = React.memo(({
             </div>
 
             <div className="flex items-center gap-4 border-r border-black/5 dark:border-white/5 px-4 h-full overflow-hidden">
-                <div className="w-10 h-10 rounded-full bg-attire-accent/10 border border-attire-accent/20 flex items-center justify-center shrink-0">
-                    <span className="text-sm font-black text-attire-accent">
+                <div className="w-10 h-10 rounded-xl bg-[#0d3542]/10 border border-[#0d3542]/20 flex items-center justify-center shrink-0">
+                    <span className="text-sm font-black text-[#0d3542]">
                         {altering.customer_name?.charAt(0) || 'U'}
                     </span>
                 </div>
@@ -163,7 +138,7 @@ const AlteringRow = React.memo(({
             </div>
 
             <div className="px-4 border-r border-black/5 dark:border-white/5 h-full flex items-center">
-                <div className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[12px] font-black uppercase tracking-widest border ${status.bgColor} ${status.textColor} ${status.borderColor} shadow-sm w-fit`}>
+                <div className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[12px] font-black uppercase tracking-widest border ${status.bgColor} ${status.textColor} ${status.borderColor} w-fit`}>
                     <status.icon className="w-3.5 h-3.5" />
                     {status.label}
                 </div>
@@ -217,7 +192,7 @@ const AlteringTable = React.memo(({
         <div className="min-w-[1100px]">
             {/* Table Header */}
             <div
-                className="px-5 py-5 text-[12.5px] font-black uppercase tracking-[0.2em] text-gray-400 dark:text-white/40 bg-black/[0.02] dark:bg-white/[0.02] border-b border-black/5 dark:border-white/10 text-left"
+                className="px-5 py-5 text-[12.5px] font-black uppercase tracking-[0.2em] text-gray-400 dark:text-[#8b949e] bg-black/[0.01] dark:bg-[#161b22] border-b border-black/5 dark:border-[#30363d] text-left"
                 style={{
                     display: 'grid',
                     gridTemplateColumns: '40px 200px 160px 140px 120px 160px 1fr 60px',
@@ -559,7 +534,7 @@ export default function AlteringManager() {
             <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-10">
                 <div>
                     <h1 className="text-4xl font-serif text-attire-charcoal dark:text-white tracking-tight flex items-center gap-4">
-                        <div className="p-3 bg-attire-accent/10 rounded-2xl border border-attire-accent/20 shadow-[0_0_20px_rgba(245,168,28,0.1)]">
+                        <div className="p-3 bg-attire-accent/10 rounded-2xl border border-attire-accent/20">
                             <Scissors className="w-8 h-8 text-attire-accent" />
                         </div>
                         Altering Manager
@@ -643,14 +618,14 @@ export default function AlteringManager() {
                                     className="fixed inset-0 z-10"
                                     onClick={() => setShowFilterMenu(false)}
                                 />
-                                <div className="absolute right-0 mt-2 w-48 bg-[#0a0a0a] border border-white/10 shadow-xl rounded-xl z-20 overflow-hidden py-2">
+                                <div className="absolute right-0 mt-2 w-48 bg-white dark:bg-[#161b22] border border-black/10 dark:border-[#30363d] rounded-xl z-20 overflow-hidden py-2">
                                     <button
                                         onClick={() => {
                                             setStatusFilter('');
                                             setShowFilterMenu(false);
                                             setPage(1);
                                         }}
-                                        className={`w-full px-4 py-2.5 text-left text-sm text-white/80 hover:bg-white/5 transition-colors ${!statusFilter ? 'bg-white/5' : ''}`}
+                                        className={`w-full px-4 py-2.5 text-left text-sm text-gray-700 dark:text-[#c9d1d9] hover:bg-black/5 dark:hover:bg-white/5 transition-colors ${!statusFilter ? 'bg-black/5 dark:bg-white/5' : ''}`}
                                     >
                                         All Records
                                     </button>
@@ -681,7 +656,7 @@ export default function AlteringManager() {
                     <div className="relative">
                         <button
                             onClick={() => setShowSortMenu(!showSortMenu)}
-                            className="px-4 py-2.5 bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 text-attire-charcoal dark:text-white hover:bg-black/10 dark:hover:bg-white/10 transition-colors flex items-center gap-2 rounded-xl text-sm font-mono tracking-widest text-xs"
+                            className="px-4 py-2.5 bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 text-attire-charcoal dark:text-white hover:bg-black/10 dark:hover:bg-white/10 transition-colors flex items-center gap-2 rounded-xl font-mono tracking-widest text-xs"
                         >
                             <svg
                                 width="14"
@@ -706,7 +681,7 @@ export default function AlteringManager() {
                                     className="fixed inset-0 z-10"
                                     onClick={() => setShowSortMenu(false)}
                                 />
-                                <div className="absolute right-0 mt-2 w-48 bg-[#0a0a0a] border border-white/10 shadow-xl rounded-xl z-20 py-2">
+                                <div className="absolute right-0 mt-2 w-48 bg-white dark:bg-[#161b22] border border-black/10 dark:border-[#30363d] rounded-xl z-20 py-2">
                                     <button
                                         onClick={() =>
                                             handleSort('customer_name')
@@ -760,7 +735,7 @@ export default function AlteringManager() {
                                     className="fixed inset-0 z-10"
                                     onClick={() => setShowExportMenu(false)}
                                 />
-                                <div className="absolute right-0 mt-2 w-32 bg-[#0a0a0a] border border-white/10 shadow-xl rounded-xl z-20 py-2">
+                                <div className="absolute right-0 mt-2 w-32 bg-white dark:bg-[#161b22] border border-black/10 dark:border-[#30363d] rounded-xl z-20 py-2">
                                     <button
                                         onClick={() => {
                                             exportToCSV();
@@ -802,7 +777,7 @@ export default function AlteringManager() {
                                 className="bg-red-500/10 hover:bg-red-500/20 text-red-500 transition-all px-4 py-2.5 rounded-xl font-bold uppercase tracking-widest text-[9px] border border-red-500/20 flex items-center gap-2 disabled:opacity-50"
                             >
                                 {bulkDeleteMutation.isPending ? (
-                                    <Loader className="w-3 h-3 animate-spin" />
+                                    <LumaSpin className="animate-spin" size="sm" />
                                 ) : (
                                     <svg width="12" height="12" viewBox="0 0 16 16" fill="none">
                                         <path d="M3 4H13M5 4V3C5 2.44772 5.44772 2 6 2H10C10.5523 2 11 2.44772 11 3V4M6.5 7V11M9.5 7V11M4 4V13C4 13.5523 4.44772 14 5 14H11C11.5523 14 12 13.5523 12 13V4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
@@ -830,11 +805,11 @@ export default function AlteringManager() {
                 </div>
             </div>
 
-            {/* Table Area - Optimized with Suspense and Memoization */}
-            <div className="bg-white/80 dark:bg-[#0a0a0a]/80 backdrop-blur-xl border border-black/10 dark:border-white/10 rounded-3xl overflow-hidden relative shadow-2xl">
-                <Suspense fallback={<TableSkeleton />}>
+            {/* Table Area - Optimized for performance */}
+            <div className="bg-[#fdfdfc] dark:bg-[#0d1117] border border-black/10 dark:border-[#30363d] rounded-3xl overflow-hidden relative shadow-none">
+                <Suspense fallback={<LoadingState />}>
                     {isLoading ? (
-                        <TableSkeleton />
+                        <LoadingState />
                     ) : (
                         <div className="overflow-x-auto">
                             <AlteringTable 
@@ -853,8 +828,8 @@ export default function AlteringManager() {
 
                 {/* Pagination Details */}
                 {!isLoading && pagination.total > 0 && (
-                    <div className="flex items-center justify-between p-5 border-t border-black/5 dark:border-white/10 bg-black/[0.01] dark:bg-white/[0.01]">
-                        <div className="text-[10px] uppercase font-black tracking-widest text-gray-400 dark:text-white/40">
+                    <div className="flex items-center justify-between p-5 border-t border-black/5 dark:border-[#30363d] bg-black/[0.01] dark:bg-[#161b22]">
+                        <div className="text-[10px] uppercase font-black tracking-widest text-gray-400 dark:text-[#8b949e]">
                             Page {pagination.currentPage} of{' '}
                             {pagination.lastPage}{' '}
                             <span className="mx-2 opacity-30">•</span>{' '}
@@ -895,7 +870,7 @@ export default function AlteringManager() {
                     <div className="space-y-8 relative z-10 px-2 pb-2">
                         {/* Header */}
                         <div className="flex items-center gap-4">
-                            <div className="w-16 h-16 rounded-3xl bg-attire-accent/10 border border-attire-accent/20 flex items-center justify-center shadow-[0_0_20px_rgba(245,168,28,0.1)]">
+                            <div className="w-16 h-16 rounded-3xl bg-attire-accent/10 border border-attire-accent/20 flex items-center justify-center">
                                 <User className="w-8 h-8 text-attire-accent" />
                             </div>
                             <div>
@@ -918,7 +893,7 @@ export default function AlteringManager() {
                                         );
                                     })()}
                                     {selectedDetail.order_no && (
-                                        <div className="inline-flex items-center px-2 py-0.5 text-[9px] font-mono uppercase tracking-widest bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 text-gray-500 dark:text-white/50 rounded-md">
+                                        <div className="inline-flex items-center px-2 py-0.5 text-[9px] font-mono uppercase tracking-widest bg-black/5 dark:bg-[#161b22] border border-black/10 dark:border-[#30363d] text-gray-500 dark:text-[#8b949e] rounded-md">
                                             #{selectedDetail.order_no}
                                         </div>
                                     )}
@@ -927,7 +902,7 @@ export default function AlteringManager() {
                         </div>
 
                         {/* Information Matrix */}
-                        <div className="grid gap-4 bg-black/[0.02] dark:bg-white/[0.02] border border-black/5 dark:border-white/5 p-5 rounded-3xl">
+                        <div className="grid gap-4 bg-black/[0.01] dark:bg-[#161b22] border border-black/5 dark:border-[#30363d] p-5 rounded-3xl">
                             <div className="flex gap-4 items-start">
                                 <Smartphone
                                     size={16}
@@ -968,7 +943,7 @@ export default function AlteringManager() {
                                         <p className="text-[10px] uppercase font-black tracking-widest text-gray-400 dark:text-white/30 mb-0.5">
                                             Notes
                                         </p>
-                                        <p className="text-sm text-gray-600 dark:text-white/60 leading-relaxed bg-black/5 dark:bg-black/20 p-3 rounded-xl border border-black/5 dark:border-white/5 mt-1">
+                                        <p className="text-sm text-gray-600 dark:text-[#c9d1d9] leading-relaxed bg-black/5 dark:bg-[#0d1117] p-3 rounded-xl border border-black/5 dark:border-[#30363d] mt-1">
                                             {selectedDetail.remark}
                                         </p>
                                     </div>
@@ -1014,7 +989,7 @@ export default function AlteringManager() {
                                             });
                                             setSelectedDetail(null);
                                         }}
-                                        className="flex-1 bg-attire-charcoal dark:bg-white text-white dark:text-black hover:bg-attire-accent dark:hover:bg-attire-accent transition-colors py-4 rounded-xl text-[10px] font-black uppercase tracking-[0.2em] shadow-xl flex justify-center items-center gap-2"
+                                        className="flex-1 bg-attire-charcoal dark:bg-white text-white dark:text-black hover:bg-attire-accent dark:hover:bg-attire-accent transition-colors py-4 rounded-xl text-[10px] font-black uppercase tracking-[0.2em] flex justify-center items-center gap-2"
                                     >
                                         <CheckCircle2 size={14} /> Mark
                                         Complete
@@ -1032,9 +1007,9 @@ export default function AlteringManager() {
                                 >
                                     {isNotifying ===
                                     selectedDetail.id ? (
-                                        <Loader
+                                        <LumaSpin
                                             className="animate-spin"
-                                            size={14}
+                                            size="sm"
                                         />
                                     ) : (
                                         <Mail size={14} />
@@ -1114,7 +1089,7 @@ export default function AlteringManager() {
                                                 })
                                             }
                                             placeholder="Full Name"
-                                            className="w-full bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 hover:border-black/20 dark:hover:border-white/20 rounded-2xl p-4 text-gray-900 dark:text-white text-sm outline-none focus:border-attire-accent/50 focus:bg-black/[0.07] dark:focus:bg-white/[0.07] transition-all"
+                                            className="w-full bg-[#fdfdfc] dark:bg-[#161b22] border border-black/10 dark:border-[#30363d] hover:border-black/20 dark:hover:border-white/20 rounded-2xl p-4 text-gray-900 dark:text-[#c9d1d9] text-sm outline-none focus:border-[#0d3542]/50 dark:focus:border-[#58a6ff]/50 focus:bg-[#fdfdfc] dark:focus:bg-[#0d1117] transition-all"
                                         />
                                     </div>
                                     <div className="space-y-2">
@@ -1344,10 +1319,10 @@ export default function AlteringManager() {
                                     createMutation.mutate(formData);
                                 }}
                                 disabled={createMutation.isPending}
-                                className="px-8 py-6 bg-attire-accent text-black hover:bg-[#ffb940] transition-colors shadow-[0_0_20px_rgba(245,168,28,0.3)] rounded-2xl text-[10px] font-black uppercase tracking-widest"
+                                className="px-8 py-6 bg-attire-accent text-black hover:bg-[#ffb940] transition-colors rounded-2xl text-[10px] font-black uppercase tracking-widest"
                             >
                                 {createMutation.isPending ? (
-                                    <Loader className="animate-spin mr-2" />
+                                    <LumaSpin className="animate-spin" size="sm" />
                                 ) : (
                                     <CheckCircle2 className="mr-2 w-4 h-4" />
                                 )}
@@ -1366,7 +1341,7 @@ export default function AlteringManager() {
             >
                 <div className="space-y-6 px-2 pb-2">
                     <div className="flex flex-col items-center text-center mb-8">
-                        <div className="w-20 h-20 bg-attire-accent/10 rounded-3xl flex items-center justify-center mb-6 border border-attire-accent/20 shadow-[0_0_40px_rgba(245,168,28,0.1)]">
+                        <div className="w-20 h-20 bg-attire-accent/10 rounded-3xl flex items-center justify-center mb-6 border border-attire-accent/20">
                             <RefreshCw
                                 size={32}
                                 className={`text-attire-accent ${isSyncing ? 'animate-spin' : ''}`}
@@ -1394,7 +1369,7 @@ export default function AlteringManager() {
                                     placeholder="https://docs.google.com/spreadsheets/d/..."
                                     value={syncUrl}
                                     onChange={(e) => setSyncUrl(e.target.value)}
-                                    className="w-full bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 rounded-2xl py-4 pl-12 pr-4 text-gray-900 dark:text-white text-sm outline-none focus:border-attire-accent/50 focus:bg-black/[0.08] dark:focus:bg-white/[0.08] transition-all font-mono"
+                                    className="w-full bg-[#fdfdfc] dark:bg-[#161b22] border border-black/10 dark:border-[#30363d] rounded-2xl py-4 pl-12 pr-4 text-gray-900 dark:text-[#c9d1d9] text-sm outline-none focus:border-[#0d3542]/50 dark:focus:border-[#58a6ff]/50 focus:bg-[#fdfdfc] dark:focus:bg-[#0d1117] transition-all font-mono"
                                 />
                             </div>
                         </div>
@@ -1415,7 +1390,7 @@ export default function AlteringManager() {
                         <Button
                             onClick={handleSync}
                             disabled={isSyncing || !syncUrl}
-                            className="w-full py-6 bg-attire-accent text-black hover:bg-[#ffb940] transition-all shadow-[0_10px_30px_rgba(245,168,28,0.2)] rounded-2xl text-[11px] font-black uppercase tracking-[0.2em] relative overflow-hidden group"
+                            className="w-full py-6 bg-attire-accent text-black hover:bg-[#ffb940] transition-all rounded-2xl text-[11px] font-black uppercase tracking-[0.2em] relative overflow-hidden group"
                         >
                             {isSyncing ? (
                                 'Syncing Master Data...'

@@ -4,9 +4,9 @@ import { Sparkles, Trophy, Star } from 'lucide-react';
 
 const SpendProgressBar = ({ currentSpend, isVip }) => {
     if (isVip) return (
-        <div className="p-3 bg-attire-accent/10 border border-attire-accent/20 rounded-xl flex items-center gap-3">
-            <Trophy size={16} className="text-attire-accent animate-bounce" />
-            <span className="text-[9px] font-bold uppercase tracking-[0.2em] text-attire-accent">
+        <div className="p-3 bg-[#0d3542]/10 dark:bg-[#58a6ff]/10 border border-[#0d3542]/20 dark:border-[#30363d] rounded-xl flex items-center gap-3">
+            <Trophy size={16} className="text-[#0d3542] dark:text-[#58a6ff] animate-bounce" />
+            <span className="text-[9px] font-bold uppercase tracking-[0.2em] text-[#0d3542] dark:text-[#58a6ff]">
                 Loyal VIP Member · 15% Max Tier Ready
             </span>
         </div>
@@ -22,7 +22,7 @@ const SpendProgressBar = ({ currentSpend, isVip }) => {
     const percentage = Math.min(100, (currentSpend / maxThreshold) * 100);
 
     return (
-        <div className="space-y-3 p-4 bg-black/[0.02] dark:bg-white/[0.02] rounded-2xl border border-black/5 dark:border-white/5">
+        <div className="space-y-3 p-4 bg-black/[0.01] dark:bg-[#161b22] rounded-2xl border border-black/5 dark:border-[#30363d]">
             <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
                     <Sparkles size={14} className="text-attire-accent" />
@@ -40,7 +40,7 @@ const SpendProgressBar = ({ currentSpend, isVip }) => {
                 <motion.div 
                     initial={{ width: 0 }}
                     animate={{ width: `${percentage}%` }}
-                    className="absolute inset-y-0 left-0 bg-gradient-to-r from-attire-accent/50 to-attire-accent shadow-[0_0_10px_rgba(212,175,55,0.5)] transition-all duration-1000"
+                    className="absolute inset-y-0 left-0 bg-gradient-to-r from-[#0d3542]/50 to-[#0d3542] dark:from-[#58a6ff]/50 dark:to-[#58a6ff] transition-all duration-1000 shadow-none border-r border-[#0d3542] dark:border-[#58a6ff]"
                 />
                 
                 {/* Tier Markers */}
@@ -53,7 +53,7 @@ const SpendProgressBar = ({ currentSpend, isVip }) => {
                             className={`absolute top-0 bottom-0 w-1 z-10 transition-colors ${isReached ? 'bg-white' : 'bg-white/20'}`}
                             style={{ left: `${markerPos}%` }}
                         >
-                            <div className={`absolute -top-1 -left-1.5 w-4 h-4 rounded-full border-2 border-[#0a0a0a] transition-all flex items-center justify-center ${isReached ? 'bg-attire-accent scale-110 shadow-lg shadow-attire-accent/50' : 'bg-gray-800'}`}>
+                            <div className={`absolute -top-1 -left-1.5 w-4 h-4 rounded-sm border-2 border-[#0a0a0a] transition-all flex items-center justify-center ${isReached ? 'bg-teal-500 scale-110 shadow-none border-white/40' : 'bg-gray-800 border-white/5'}`}>
                                 <div className="w-1 h-1 bg-white rounded-full" />
                             </div>
                         </div>

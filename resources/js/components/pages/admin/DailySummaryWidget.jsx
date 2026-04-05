@@ -9,12 +9,16 @@ import {
     ArrowUpRight
 } from 'lucide-react';
 import { motion } from 'framer-motion';
+import { useAdmin } from './AdminContext';
+import { LumaSpin } from "@/components/ui/luma-spin";
 
 const DailySummaryWidget = ({ stats, loading }) => {
+    const { performanceMode } = useAdmin();
     if (loading) {
         return (
-            <div className="h-64 bg-white dark:bg-white/5 rounded-[2.5rem] border border-black/5 dark:border-white/10 animate-pulse flex items-center justify-center">
-                <p className="text-[10px] font-black uppercase tracking-[0.4em] text-gray-400">Syncing Ledger...</p>
+            <div className="h-64 bg-[#fdfdfc] dark:bg-[#161b22] rounded-[2.5rem] border border-black/5 dark:border-[#30363d] flex flex-col items-center justify-center gap-4">
+                <LumaSpin size="lg" />
+                <p className="text-[10px] font-black uppercase tracking-[0.4em] text-gray-400 dark:text-[#8b949e]/40">Syncing Ledger...</p>
             </div>
         );
     }
@@ -30,57 +34,58 @@ const DailySummaryWidget = ({ stats, loading }) => {
 
     return (
         <motion.div 
-            initial={{ opacity: 0, y: 20 }}
+            initial={performanceMode ? { opacity: 0 } : { opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            className="bg-white dark:bg-black/20 backdrop-blur-xl p-8 rounded-[2.5rem] border border-black/5 dark:border-white/10 shadow-xl shadow-black/[0.02]"
+            transition={performanceMode ? { duration: 0 } : {}}
+            className="bg-[#fdfdfc] dark:bg-[#161b22] p-10 rounded-[3rem] border border-black/5 dark:border-[#30363d] shadow-none"
         >
-            <div className="flex items-center justify-between mb-8">
-                <div className="flex items-center gap-4">
-                    <div className="p-3 bg-attire-accent text-black rounded-2xl shadow-[0_10px_20px_rgba(245,168,28,0.2)]">
-                        <DollarSign size={20} />
+            <div className="flex items-center justify-between mb-10">
+                <div className="flex items-center gap-5">
+                    <div className="p-4 bg-[#0d3542] dark:bg-[#58a6ff] text-white dark:text-black rounded-2xl">
+                        <DollarSign size={24} />
                     </div>
                     <div>
-                        <h3 className="text-xl font-serif text-gray-900 dark:text-white tracking-tight">Daily POS Insights</h3>
-                        <p className="text-[10px] font-black text-gray-400 dark:text-white/20 uppercase tracking-[0.2em]">Transaction Ledger</p>
+                        <h3 className="text-2xl font-serif text-gray-900 dark:text-[#c9d1d9] tracking-tight">Sales</h3>
+                        <p className="text-[11px] font-black text-gray-400 dark:text-[#8b949e]/40 uppercase tracking-[0.2em] mt-1">Logs</p>
                     </div>
                 </div>
-                <div className="flex items-center gap-1.5 px-3 py-1 bg-green-500/10 text-green-500 rounded-full text-[9px] font-black uppercase tracking-widest border border-green-500/20">
-                    <TrendingUp size={10} /> +14%
+                <div className="flex items-center gap-1.5 px-4 py-2 bg-green-500/10 text-green-500 rounded-full text-[10px] font-black uppercase tracking-widest border border-green-500/20">
+                    <TrendingUp size={12} /> +14%
                 </div>
             </div>
 
-            <div className="grid grid-cols-2 gap-4">
-                <div className="p-5 bg-black/[0.02] dark:bg-white/[0.02] rounded-3xl border border-black/5 dark:border-white/5">
-                    <p className="text-[9px] font-black text-gray-400 dark:text-white/20 uppercase tracking-widest mb-1">Gross Revenue</p>
-                    <p className="text-2xl font-bold tracking-tighter text-gray-900 dark:text-white">${parseFloat(dailyData.total_revenue).toLocaleString()}</p>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                <div className="p-6 bg-black/[0.01] dark:bg-[#0d1117] rounded-3xl border border-black/[0.04] dark:border-[#30363d] shadow-none">
+                    <p className="text-[10px] font-black text-gray-400 dark:text-[#8b949e]/40 uppercase tracking-widest mb-2">Gross</p>
+                    <p className="text-3xl font-black tracking-tight text-gray-900 dark:text-[#c9d1d9]">${parseFloat(dailyData.total_revenue).toLocaleString()}</p>
                 </div>
-                <div className="p-5 bg-black/[0.02] dark:bg-white/[0.02] rounded-3xl border border-black/5 dark:border-white/5">
-                    <p className="text-[9px] font-black text-gray-400 dark:text-white/20 uppercase tracking-widest mb-1">Net Revenue</p>
-                    <p className="text-2xl font-bold tracking-tighter text-attire-accent">${parseFloat(netRevenue).toLocaleString()}</p>
+                <div className="p-6 bg-black/[0.01] dark:bg-[#0d1117] rounded-3xl border border-black/[0.04] dark:border-[#30363d] shadow-none">
+                    <p className="text-[10px] font-black text-gray-400 dark:text-[#8b949e]/40 uppercase tracking-widest mb-2">Net</p>
+                    <p className="text-3xl font-black tracking-tight text-[#0d3542] dark:text-[#58a6ff]">${parseFloat(netRevenue).toLocaleString()}</p>
                 </div>
-                <div className="p-5 bg-black/[0.02] dark:bg-white/[0.02] rounded-3xl border border-black/5 dark:border-white/5">
-                    <p className="text-[9px] font-black text-gray-400 dark:text-white/20 uppercase tracking-widest mb-1">Avg. Ticket</p>
-                    <p className="text-xl font-bold tracking-tighter text-gray-900 dark:text-white">${parseFloat(avgOrder).toLocaleString()}</p>
+                <div className="p-6 bg-black/[0.01] dark:bg-[#0d1117] rounded-3xl border border-black/[0.04] dark:border-[#30363d] shadow-none">
+                    <p className="text-[10px] font-black text-gray-400 dark:text-[#8b949e]/40 uppercase tracking-widest mb-2">Average</p>
+                    <p className="text-2xl font-black tracking-tight text-gray-900 dark:text-[#c9d1d9]">${parseFloat(avgOrder).toLocaleString()}</p>
                 </div>
-                <div className="p-5 bg-black/[0.02] dark:bg-white/[0.02] rounded-3xl border border-black/5 dark:border-white/5">
-                    <p className="text-[9px] font-black text-gray-400 dark:text-white/20 uppercase tracking-widest mb-1">Invoice Count</p>
-                    <p className="text-xl font-bold tracking-tighter text-gray-900 dark:text-white">{dailyData.invoice_count}</p>
+                <div className="p-6 bg-black/[0.01] dark:bg-[#0d1117] rounded-3xl border border-black/[0.04] dark:border-[#30363d] shadow-none">
+                    <p className="text-[10px] font-black text-gray-400 dark:text-[#8b949e]/40 uppercase tracking-widest mb-2">Orders</p>
+                    <p className="text-2xl font-black tracking-tight text-gray-900 dark:text-[#c9d1d9]">{dailyData.invoice_count}</p>
                 </div>
             </div>
 
-            <div className="mt-8 pt-8 border-t border-black/5 dark:border-white/5 flex items-center justify-between">
+            <div className="mt-8 pt-8 border-t border-black/[0.03] dark:border-[#30363d] flex items-center justify-between shadow-none">
                 <div className="flex items-center gap-3">
                     <div className="flex -space-x-2">
                         {[Wallet, CreditCard, ShoppingBag].map((Icon, i) => (
-                            <div key={i} className="w-8 h-8 rounded-full bg-white dark:bg-[#1a1a1a] border-2 border-gray-50 dark:border-[#0a0a0a] flex items-center justify-center text-gray-400">
+                            <div key={i} className="w-8 h-8 rounded-full bg-[#fdfdfc] dark:bg-[#0d1117] border-2 border-black/[0.03] dark:border-[#30363d] flex items-center justify-center text-gray-400 dark:text-[#8b949e]/40 shadow-none">
                                 <Icon size={12} />
                             </div>
                         ))}
                     </div>
-                    <span className="text-[9px] font-black uppercase tracking-widest text-gray-400">Multi-Channel Active</span>
+                    <span className="text-[10px] font-black uppercase tracking-widest text-gray-400 dark:text-[#8b949e]/40">Active</span>
                 </div>
-                <button className="flex items-center gap-2 text-[9px] font-black uppercase tracking-widest text-attire-accent hover:text-white transition-colors">
-                    Report Details <ArrowUpRight size={12} />
+                <button className="flex items-center gap-2 text-[9px] font-black uppercase tracking-widest text-[#0d3542] dark:text-[#58a6ff] hover:gap-3 transition-all">
+                    Report <ArrowUpRight size={12} />
                 </button>
             </div>
         </motion.div>

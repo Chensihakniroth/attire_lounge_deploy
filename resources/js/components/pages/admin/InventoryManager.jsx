@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { Package, AlertTriangle, CheckCircle, XCircle, Loader } from 'lucide-react';
+import { Package, AlertTriangle, CheckCircle, XCircle } from 'lucide-react';
+import { LumaSpin } from '../../ui/luma-spin';
 import giftOptions from '../../../data/giftOptions';
 import api from '../../../api';
 import OptimizedImage from '../../common/OptimizedImage.jsx';
-import Skeleton from '../../common/Skeleton.jsx';
 import { motion } from 'framer-motion';
 import { useAdmin } from './AdminContext';
 
@@ -38,7 +38,7 @@ const InventoryManager = () => {
 
     const renderSection = (title, items) => (
         <section className="space-y-4">
-            <h2 className="text-xl font-serif text-gray-900 dark:text-white border-b border-black/5 dark:border-white/10 pb-2">{title}</h2>
+            <h2 className="text-xl font-serif text-gray-900 dark:text-[#c9d1d9] border-b border-black/5 dark:border-[#30363d] pb-2">{title}</h2>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
                 {items.map(item => {
                     const isOutOfStock = outOfStockItems.includes(item.id);
@@ -51,11 +51,11 @@ const InventoryManager = () => {
                             className={`p-4 rounded-2xl border transition-all duration-300 cursor-pointer group hover:scale-[1.02] active:scale-[0.98] ${
                                 isOutOfStock 
                                     ? 'bg-red-500/5 border-red-500/20 hover:border-red-500/40' 
-                                    : 'bg-white dark:bg-black/20 border-black/5 dark:border-white/10 hover:border-attire-accent/30 shadow-sm dark:shadow-none'
+                                    : 'bg-white dark:bg-[#161b22] border-black/5 dark:border-[#30363d] hover:border-[#0d3542]/30 dark:hover:border-[#58a6ff]/30 shadow-none'
                             } ${isUpdating ? 'opacity-70 pointer-events-none' : ''}`}
                         >
                             <div className="flex items-center gap-4">
-                                <div className="h-16 w-16 rounded-xl overflow-hidden border border-black/5 dark:border-white/10 flex-shrink-0">
+                                <div className="h-16 w-16 rounded-xl overflow-hidden border border-black/5 dark:border-[#30363d] flex-shrink-0">
                                     <OptimizedImage 
                                         src={item.image} 
                                         alt={item.name} 
@@ -64,8 +64,8 @@ const InventoryManager = () => {
                                     />
                                 </div>
                                 <div className="flex-grow min-w-0">
-                                    <h3 className="text-sm font-medium text-gray-900 dark:text-white truncate group-hover:text-attire-accent transition-colors">{item.name}</h3>
-                                    <p className="text-xs text-gray-500 dark:text-attire-silver">{item.color || 'Default'}</p>
+                                    <h3 className="text-sm font-medium text-gray-900 dark:text-[#c9d1d9] truncate group-hover:text-[#0d3542] dark:group-hover:text-[#58a6ff] transition-colors">{item.name}</h3>
+                                    <p className="text-xs text-gray-500 dark:text-[#8b949e]">{item.color || 'Default'}</p>
                                 </div>
                                 <div
                                     className={`flex-shrink-0 p-2 rounded-full transition-colors ${
@@ -74,7 +74,7 @@ const InventoryManager = () => {
                                             : 'bg-green-500/20 text-green-600 dark:text-green-400 group-hover:bg-green-500/30'
                                     }`}
                                 >
-                                    {isUpdating ? <Loader className="animate-spin" size={20} /> : (isOutOfStock ? <XCircle size={20} /> : <CheckCircle size={20} />)}
+                                    {isUpdating ? <LumaSpin size="sm" /> : (isOutOfStock ? <XCircle size={20} /> : <CheckCircle size={20} />)}
                                 </div>
                             </div>
                         </motion.div>
@@ -86,24 +86,18 @@ const InventoryManager = () => {
 
     if (loading) {
         return (
-            <div className="space-y-12">
-                {[1, 2].map(i => (
-                    <div key={i} className="space-y-4">
-                        <Skeleton className="h-8 w-48" />
-                        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-                            {[...Array(4)].map((_, j) => <Skeleton key={j} className="h-24 w-full rounded-2xl" />)}
-                        </div>
-                    </div>
-                ))}
+            <div className="flex flex-col items-center justify-center py-48 space-y-4">
+                <LumaSpin size="xl" />
+                <p className="text-[10px] font-black uppercase tracking-[0.4em] text-gray-400 dark:text-[#8b949e]/40">Scanning Inventory...</p>
             </div>
         );
     }
 
     return (
         <div className="space-y-8 pb-20">
-            <div className="pb-4 border-b border-black/5 dark:border-white/10">
-                <h1 className="text-4xl font-serif text-gray-900 dark:text-white mb-2">Inventory</h1>
-                <p className="text-gray-500 dark:text-attire-silver text-sm uppercase tracking-widest">Manage gift item availability</p>
+            <div className="pb-4 border-b border-black/5 dark:border-[#30363d]">
+                <h1 className="text-4xl font-serif text-gray-900 dark:text-[#c9d1d9] mb-2">Inventory</h1>
+                <p className="text-gray-500 dark:text-[#8b949e] text-sm uppercase tracking-widest">Manage gift item availability</p>
             </div>
 
             <div className="space-y-12">
