@@ -220,9 +220,30 @@ const PaymentModal = ({ totals, onClose }) => {
                         <h3 className="text-[10px] font-bold uppercase tracking-[0.2em] text-gray-500 mb-8">Checkout Summary</h3>
                         
                         <div className="space-y-4 flex-1">
+                            <div className="space-y-2">
+                                <div className="flex justify-between items-center text-[10px] uppercase tracking-widest text-gray-400 dark:text-[#8b949e]/40">
+                                    <span>Product Subtotal</span>
+                                    <span className="font-bold text-gray-900 dark:text-[#c9d1d9]">${totals.productSubtotal.toLocaleString()}</span>
+                                </div>
+                                {totals.tierDiscountAmount > 0 && (
+                                    <div className="flex justify-between items-center text-[10px] uppercase tracking-widest text-attire-accent">
+                                        <span>Discount ({totals.tierDiscountPercent}%)</span>
+                                        <span className="font-bold">-${totals.tierDiscountAmount.toLocaleString()}</span>
+                                    </div>
+                                )}
+                                {totals.serviceSubtotal > 0 && (
+                                    <div className="flex justify-between items-center text-[10px] uppercase tracking-widest text-[#0d3542] dark:text-[#58a6ff]">
+                                        <span>Service Add-ons</span>
+                                        <span className="font-bold">+${totals.serviceSubtotal.toLocaleString()}</span>
+                                    </div>
+                                )}
+                            </div>
+                            
+                            <div className="h-px bg-black/5 dark:bg-[#30363d]" />
+
                             <div className="flex justify-between items-center text-[10px] uppercase tracking-widest text-gray-400 dark:text-[#8b949e]/40">
-                                <span>Total Payable</span>
-                                <span className="font-bold text-gray-900 dark:text-[#c9d1d9]">${totals.finalTotal.toLocaleString()}</span>
+                                <span className="font-black text-[#0d3542] dark:text-[#58a6ff]">Total Payable</span>
+                                <span className="font-black text-gray-900 dark:text-[#c9d1d9] text-[16px] tracking-tighter">${totals.finalTotal.toLocaleString()}</span>
                             </div>
                             
                             <div className="h-px bg-black/5 dark:bg-[#30363d]" />

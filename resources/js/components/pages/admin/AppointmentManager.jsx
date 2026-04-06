@@ -11,6 +11,7 @@ import OptimizedImage from '../../common/OptimizedImage.jsx';
 import { motion, AnimatePresence } from 'framer-motion';
 import ModernModal from '../../common/ModernModal';
 import { formatTime } from '@/helpers/format';
+import DatePicker from '@/components/ui/DatePicker';
 
 /**
  * --- Status Labels ---
@@ -406,7 +407,15 @@ const AppointmentManager = () => {
                             </select>
                         </div>
 
-                        <InputField label="Scheduled Date *" type="date" name="date" value={formData.date} onChange={handleInputChange} required />
+                        <div className="flex flex-col gap-3">
+                            <label className="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] ml-1">Scheduled Date *</label>
+                            <DatePicker 
+                                required
+                                name="date"
+                                value={formData.date}
+                                onChange={(e) => setFormData(prev => ({ ...prev, date: e.target.value }))}
+                            />
+                        </div>
                         <InputField label="Scheduled Time *" type="time" name="time" value={formData.time} onChange={handleInputChange} required />
                         
                         <div className="sm:col-span-2 flex flex-col gap-3">

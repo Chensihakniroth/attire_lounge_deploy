@@ -18,11 +18,11 @@ import { formatPrice } from '@/helpers/format';
 import { useAdmin } from './AdminContext';
 
 const SidebarSection = ({ title, children }) => (
-    <div className="mb-0 border-b border-black/5 dark:border-[#30363d] transition-[background-color,border-color] duration-150">
-        <div className="bg-black/[0.02] dark:bg-[#161b22] border-y border-black/5 dark:border-[#30363d] text-[#0d3542] dark:text-[#58a6ff] px-8 py-3.5 text-[12.5px] font-black uppercase tracking-[0.3em] transition-colors duration-200">
+    <div className="mb-0 border-b border-black/5 dark:border-white/5 transition-[background-color,border-color] duration-150">
+        <div className="bg-black/3 dark:bg-white/3 backdrop-blur-sm border-y border-black/5 dark:border-white/10 text-[#0d3542] dark:text-[#58a6ff] px-8 py-3.5 text-[12.5px] font-black uppercase tracking-[0.3em] transition-colors duration-200">
             {title}
         </div>
-        <div className="px-6 py-4 bg-[#fdfdfc] dark:bg-[#0d1117]">
+        <div className="px-6 py-4 bg-[#fdfdfc] dark:bg-[#111]">
             {children}
         </div>
     </div>
@@ -46,7 +46,7 @@ const QuickEditCell = ({ value, prefix, onSave, onClose }) => {
     };
 
     return (
-        <div className="absolute inset-0 z-50 bg-[#fdfdfc] dark:bg-[#161b22] flex items-center px-4 ring-2 ring-[#0d3542] dark:ring-[#58a6ff] translate-y-[-2px]">
+        <div className="absolute inset-0 z-50 bg-[#fdfdfc] dark:bg-[#111] flex items-center px-4 ring-2 ring-inset ring-[#0d3542] dark:ring-[#58a6ff] translate-y-0">
             {prefix && <span className="text-[14px] font-black text-[#0d3542] dark:text-[#58a6ff] mr-2">{prefix}</span>}
             <input 
                 ref={inputRef}
@@ -57,7 +57,7 @@ const QuickEditCell = ({ value, prefix, onSave, onClose }) => {
                 className="flex-1 bg-transparent border-none outline-none text-[15.5px] font-black text-gray-900 dark:text-white"
             />
             <div className="flex items-center gap-1 ml-2">
-                <div className="px-2 py-1 bg-black/5 dark:bg-[#0d1117] rounded text-[10px] font-black uppercase text-[#0d3542] dark:text-[#58a6ff]">Enter: Save</div>
+                <div className="px-2 py-1 bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 rounded text-[10px] font-black uppercase text-[#0d3542] dark:text-[#58a6ff]">Enter: Save</div>
             </div>
         </div>
     );
@@ -74,40 +74,35 @@ const ProductRow = React.memo(({
             key={p.id} id={`row-${p.id}`}
             onClick={() => { onFocus(p.id); onToggleSelect(p.id); }}
             onDoubleClick={() => onEdit(p)}
-            className={`group cursor-pointer border-b border-black/[0.03] dark:border-white/[0.03] ${isSelected ? 'bg-[#0d3542]/10' : 'hover:bg-black/[0.02] dark:hover:bg-white/[0.02]'} ${isFocused ? 'bg-black/[0.04] dark:bg-white/[0.08] ring-1 ring-inset ring-[#0d3542]/30' : ''} ${performanceMode ? 'transition-none' : 'transition-colors duration-200'}`}
+            className={`group cursor-pointer border-b border-black/5 dark:border-white/5 ${isSelected ? 'bg-[#0d3542]/10' : 'hover:bg-black/2 dark:hover:bg-white/2'} ${isFocused ? 'bg-black/4 dark:bg-white/6' : ''} ${performanceMode ? 'transition-none' : 'transition-colors duration-200'}`}
         >
-            <td className="px-8 py-4 text-center">
-                <div className={`w-5 h-5 rounded border flex items-center justify-center transition-colors duration-200 ${isSelected ? 'bg-[#0d3542] dark:bg-[#58a6ff] border-[#0d3542] dark:border-[#58a6ff]' : 'border-black/20 dark:border-[#30363d] bg-transparent'}`}>
-                    {isSelected && <Check size={12} className="text-white dark:text-black" />}
+            <td className="px-4 py-1.5 text-center">
+                <div className={`inline-flex items-center gap-2 px-2 py-0.5 rounded-full text-[9px] font-black uppercase tracking-widest ${p.stock_qty > 0 ? 'bg-emerald-500/10 text-emerald-400' : 'bg-rose-500/10 text-rose-500'}`}>
+                    <div className={`w-1 h-1 rounded-full ${p.stock_qty > 0 ? 'bg-emerald-400' : 'bg-rose-500'}`} />
+                    {p.stock_qty > 0 ? 'IN STOCK' : 'OUT STOCK'}
                 </div>
             </td>
-            <td className="px-8 py-5 font-mono font-bold tracking-tighter text-gray-500 dark:text-white/50 uppercase text-[15px]">{p.sku}</td>
-            <td className="px-8 py-5">
-                <div className="flex flex-col">
-                    <span className="font-black text-gray-900 dark:text-white uppercase tracking-wide group-hover:text-[#0d3542] transition-colors text-[17.5px]">{p.name}</span>
-                    <span className="text-[13px] text-gray-400 dark:text-white/30 uppercase font-black tracking-widest">{p.variant || 'STANDARD EDITION'}</span>
+            <td className="px-4 py-1.5 font-mono font-bold tracking-tighter text-[#0d3542] dark:text-[#58a6ff]/60 uppercase text-[10px] border-l border-black/5 dark:border-white/5">{p.sku}</td>
+            <td className="px-4 py-1.5 border-l border-black/5 dark:border-white/5">
+                <div className="flex flex-col leading-tight">
+                    <span className="font-black text-gray-900 dark:text-white uppercase tracking-wide group-hover:text-[#0d3542] dark:group-hover:text-[#58a6ff] transition-colors text-[13px]">{p.name}</span>
+                    <span className="text-[8px] text-gray-400 dark:text-white/30 uppercase font-black tracking-widest leading-none mt-0.5">{p.variant || 'STANDARD EDITION'}</span>
                 </div>
             </td>
-            <td className="px-8 py-5">
-                <span className="px-4 py-1.5 bg-black/5 dark:bg-white/5 text-[12.5px] font-black text-gray-500 dark:text-white/60 rounded-sm uppercase tracking-widest">{p.category}</span>
+            <td className="px-4 py-1.5 border-l border-black/5 dark:border-white/5">
+                <span className="px-1.5 py-0 bg-black/5 dark:bg-white/5 text-[8.5px] font-black text-gray-400 dark:text-[#8b949e] rounded-sm uppercase tracking-widest border border-black/5 dark:border-white/10">{p.category}</span>
             </td>
-            <td className="px-8 py-5 text-right font-mono font-bold text-[#0d3542] text-xl relative">
-                {isFocused && quickEditField === 'price' ? (
-                    <QuickEditCell value={p.price} prefix="$" onSave={(val) => onUpdateField(p.id, { price: val })} onClose={() => onQuickEdit(null)} />
-                ) : formatPrice(p.price)}
-            </td>
-            <td className={`px-8 py-5 text-right font-mono font-bold relative text-xl ${p.stock_qty <= (p.min_stock || 5) ? 'text-rose-500' : 'text-gray-600 dark:text-white/70'}`}>
+            <td className={`px-4 py-1.5 text-right font-mono font-black relative text-[14.5px] border-l border-black/5 dark:border-white/5 ${p.stock_qty <= (p.min_stock || 5) ? 'text-rose-500' : 'text-gray-600 dark:text-white/70'}`}>
                 {isFocused && quickEditField === 'stock' ? (
                     <QuickEditCell value={p.stock_qty} onSave={(val) => onUpdateField(p.id, { stock_qty: val })} onClose={() => onQuickEdit(null)} />
                 ) : (
-                    <>{p.stock_qty} <span className="text-[12.5px] opacity-30 ml-1">UNITS</span></>
+                    <>{p.stock_qty} <span className="text-[9px] opacity-30 ml-0.5">U</span></>
                 )}
             </td>
-            <td className="px-8 py-5 text-center border-l border-black/5 dark:border-white/5">
-                <div className={`inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-[12.5px] font-black uppercase tracking-widest ${p.is_active ? 'bg-emerald-500/10 text-emerald-400' : 'bg-black/5 dark:bg-white/5 text-gray-400 dark:text-white/30'}`}>
-                    <div className={`w-2 h-2 rounded-full ${p.is_active ? 'bg-emerald-400' : 'bg-black/20 dark:bg-white/30'}`} />
-                    {p.is_active ? 'Active' : 'Archived'}
-                </div>
+            <td className="px-4 py-1.5 text-right font-mono font-black text-[#0d3542] dark:text-[#58a6ff] text-[14.5px] relative border-l border-black/5 dark:border-white/5">
+                {isFocused && quickEditField === 'price' ? (
+                    <QuickEditCell value={p.price} prefix="$" onSave={(val) => onUpdateField(p.id, { price: val })} onClose={() => onQuickEdit(null)} />
+                ) : formatPrice(p.price)}
             </td>
         </tr>
     );
@@ -153,12 +148,12 @@ const ProductsPage = () => {
 
     // --- Data Fetching ---
     const { data: productsData, isLoading, isFetching } = useQuery({
-        queryKey: ['admin-pos-products', debouncedFilters.nameBarcode, debouncedFilters.code, debouncedFilters.group],
+        queryKey: ['admin-pos-products', debouncedFilters.nameBarcode, debouncedFilters.code, debouncedFilters.attribute, debouncedFilters.group],
         keepPreviousData: true, // Keep the UI stable while fetching new results
         queryFn: async () => {
             const { data } = await axios.get('/api/v1/admin/pos/products', {
                 params: { 
-                    search: debouncedFilters.nameBarcode || debouncedFilters.code, 
+                    search: debouncedFilters.nameBarcode || debouncedFilters.code || debouncedFilters.attribute, 
                     category: debouncedFilters.group !== 'ALL GROUPS' ? debouncedFilters.group : '',
                     per_page: 100 
                 }
@@ -395,18 +390,18 @@ const ProductsPage = () => {
         <div className="flex flex-row w-full h-full bg-background dark:bg-[#111111] font-sans selection:bg-[#0d3542]/20 relative text-gray-900 dark:text-white transition-colors duration-300">
             
             {/* --- Persistent Sidebar --- */}
-            <div className="w-[240px] shrink-0 flex flex-col p-0 overflow-y-auto attire-scrollbar border-r border-black/[0.08] dark:border-white/5 bg-background dark:bg-[#111] transition-colors duration-300">
+            <div className="w-60 shrink-0 flex flex-col p-0 overflow-y-auto attire-scrollbar border-r border-black/8 dark:border-white/5 bg-background dark:bg-[#111] transition-colors duration-300 sticky top-0 h-screen">
                 <SidebarSection title="System Access">
                     <div className="flex flex-col gap-2">
                         <Button 
                             onClick={handleAddClick}
-                            className="w-full bg-[#0d3542] dark:bg-[#58a6ff] text-white dark:text-black hover:opacity-90 text-xs font-black uppercase tracking-widest h-12 transition-all rounded-xl"
+                            className="w-full bg-[#0d3542] dark:bg-[#58a6ff] text-white dark:text-black hover:opacity-90 text-[11px] font-black uppercase tracking-[0.2em] h-12 shadow-sm ring-1 ring-inset ring-white/10 dark:ring-black/10 transition-all rounded-xl"
                         >
                             <Plus size={14} className="mr-2" /> ADD PRODUCT
                         </Button>
                         <div className="flex gap-2">
-                            <Button variant="outline" className="flex-1 h-10 border-black/10 dark:border-[#30363d] text-[10px] font-black uppercase tracking-widest text-[#0d3542] dark:text-[#58a6ff] hover:bg-black/5 dark:hover:bg-[#161b22] rounded-xl"><Download size={12} className="mr-1" /> EXPORT</Button>
-                            <Button variant="outline" className="flex-1 h-10 border-black/10 dark:border-[#30363d] text-[10px] font-black uppercase tracking-widest text-[#0d3542] dark:text-[#58a6ff] hover:bg-black/5 dark:hover:bg-[#161b22] rounded-xl"><Upload size={12} className="mr-1" /> IMPORT</Button>
+                            <Button variant="outline" className="flex-1 h-10 border-black/10 dark:border-white/10 text-[10px] font-black uppercase tracking-widest text-[#0d3542] dark:text-[#58a6ff] hover:bg-black/5 dark:hover:bg-white/5 rounded-xl"><Download size={12} className="mr-1" /> EXPORT</Button>
+                            <Button variant="outline" className="flex-1 h-10 border-black/10 dark:border-white/10 text-[10px] font-black uppercase tracking-widest text-[#0d3542] dark:text-[#58a6ff] hover:bg-black/5 dark:hover:bg-white/5 rounded-xl"><Upload size={12} className="mr-1" /> IMPORT</Button>
                         </div>
                     </div>
                 </SidebarSection>
@@ -414,24 +409,34 @@ const ProductsPage = () => {
                 <SidebarSection title="Search">
                     <div className="space-y-5">
                         <div className="space-y-1.5">
-                            <label className="text-xs font-bold text-slate-900/50 dark:text-white/40 uppercase tracking-widest ml-1 transition-colors duration-200">By Code</label>
+                            <label className="text-[10px] font-black text-slate-900/40 dark:text-white/30 uppercase tracking-widest ml-1 transition-colors duration-200">By Code</label>
                             <input 
                                 type="text"
                                 value={filters.code}
                                 onChange={e => setFilters({...filters, code: e.target.value.toUpperCase()})}
-                                className="w-full bg-black/5 dark:bg-[#222] border-b-2 border-black/5 dark:border-white/10 px-3 py-2.5 text-sm font-bold tracking-widest outline-none focus:border-[#0d3542] transition-all uppercase text-gray-900 dark:text-white placeholder:text-gray-400 dark:placeholder:text-white/20"
+                                className="w-full bg-black/5 dark:bg-white/5 border-b-2 border-black/5 dark:border-white/10 px-3 py-2.5 text-[13px] font-bold tracking-widest outline-none focus:border-[#0d3542] dark:focus:border-[#58a6ff] transition-all uppercase text-gray-900 dark:text-white placeholder:text-gray-400 dark:placeholder:text-white/10 rounded-xl shadow-inner ring-1 ring-inset ring-black/5 dark:ring-white/5"
                                 placeholder="LEDGER-00"
                             />
                         </div>
                         <div className="space-y-1.5">
-                            <label className="text-xs font-bold text-slate-900/50 dark:text-white/40 uppercase tracking-widest ml-1 transition-colors duration-200">By Name / Barcode</label>
+                            <label className="text-[10px] font-black text-slate-900/40 dark:text-white/30 uppercase tracking-widest ml-1 transition-colors duration-200">By Name / Barcode</label>
                             <input 
                                 id="filter-name"
                                 type="text"
                                 value={filters.nameBarcode}
                                 onChange={e => setFilters({...filters, nameBarcode: e.target.value})}
-                                className="w-full bg-black/5 dark:bg-[#222] border-b-2 border-black/5 dark:border-white/10 px-3 py-2.5 text-sm font-bold outline-none focus:border-[#0d3542] transition-all uppercase text-gray-900 dark:text-white placeholder:text-gray-400 dark:placeholder:text-white/20"
+                                className="w-full bg-black/5 dark:bg-white/5 border-b-2 border-black/5 dark:border-white/10 px-4 py-2.5 text-[13px] font-bold outline-none focus:border-[#0d3542] dark:focus:border-[#58a6ff] transition-all uppercase text-gray-900 dark:text-white placeholder:text-gray-400 dark:placeholder:text-white/10 rounded-xl shadow-inner ring-1 ring-inset ring-black/5 dark:ring-white/5"
                                 placeholder="PRODUCT NAME"
+                            />
+                        </div>
+                        <div className="space-y-1.5">
+                            <label className="text-[10px] font-black text-slate-900/40 dark:text-white/30 uppercase tracking-widest ml-1 transition-colors duration-200">By Attribute</label>
+                            <input 
+                                type="text"
+                                value={filters.attribute}
+                                onChange={e => setFilters({...filters, attribute: e.target.value.toUpperCase()})}
+                                className="w-full bg-black/5 dark:bg-white/5 border-b-2 border-black/5 dark:border-white/10 px-4 py-2.5 text-[13px] font-bold outline-none focus:border-[#0d3542] dark:focus:border-[#58a6ff] transition-all uppercase text-gray-900 dark:text-white placeholder:text-gray-400 dark:placeholder:text-white/10 rounded-xl shadow-inner ring-1 ring-inset ring-black/5 dark:ring-white/5"
+                                placeholder="SIZE / FABRIC / COLOR"
                             />
                         </div>
                     </div>
@@ -442,14 +447,14 @@ const ProductsPage = () => {
                         <select 
                             value={filters.group}
                             onChange={e => setFilters({...filters, group: e.target.value})}
-                            className="w-full bg-black/5 dark:bg-[#161b22] border-b-2 border-black/5 dark:border-[#30363d] px-3 py-3.5 text-[14px] font-black tracking-widest outline-none focus:border-[#0d3542] dark:focus:border-[#58a6ff] transition-all uppercase text-gray-900 dark:text-white cursor-pointer appearance-none rounded-xl"
+                            className="w-full bg-black/5 dark:bg-white/5 border-b-2 border-black/5 dark:border-white/10 px-3 py-3.5 text-[13px] font-black tracking-widest outline-none focus:border-[#0d3542] dark:focus:border-[#58a6ff] transition-all uppercase text-gray-900 dark:text-white cursor-pointer appearance-none rounded-xl shadow-inner ring-1 ring-inset ring-black/5 dark:ring-white/5"
                         >
                             {categories.map(cat => (
                                 <option key={cat} value={cat}>{cat}</option>
                             ))}
                         </select>
                         <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-gray-400 group-hover:text-[#0d3542] dark:group-hover:text-[#58a6ff] transition-colors">
-                            <ChevronDown size={16} />
+                            <ChevronDown size={14} />
                         </div>
                     </div>
                 </SidebarSection>
@@ -467,59 +472,56 @@ const ProductsPage = () => {
                             transition={performanceMode ? { duration: 0 } : { duration: 0.3 }}
                             className="flex-1 flex flex-col overflow-hidden"
                         >
-                             {/* --- Dashboard Metrics Bar --- */}
-                            <div className="grid grid-cols-1 md:grid-cols-3 gap-8 p-6 border-b border-black/[0.08] dark:border-[#30363d] bg-background dark:bg-[#161b22] transition-colors duration-300">
-                                <div className="border-l-4 border-[#0d3542] dark:border-[#58a6ff] pl-6 py-2 bg-gradient-to-r from-[#0d3542]/5 dark:from-[#58a6ff]/5 to-transparent">
-                                    <p className="text-xs font-black text-slate-900/40 dark:text-[#8b949e] uppercase tracking-widest mb-1">Total Vault Value</p>
+
+                            <div className="grid grid-cols-1 md:grid-cols-3 gap-8 p-6 border-b border-black/8 dark:border-white/5 bg-background dark:bg-[#111] transition-colors duration-300">
+                                <div className="border-l-4 border-[#0d3542] dark:border-[#58a6ff] pl-6 py-2 bg-black/2 dark:bg-white/2">
+                                    <p className="text-[10px] font-black text-slate-900/40 dark:text-white/30 uppercase tracking-widest mb-1">Total Vault Value</p>
                                     <div className="flex items-baseline gap-2">
                                         <span className="text-3xl font-mono font-black text-[#0d3542] dark:text-[#58a6ff] transition-colors duration-150">{formatPrice(metrics.totalValue)}</span>
-                                        <span className="text-xs text-emerald-500 font-bold uppercase tracking-widest">Digital Assets</span>
+                                        <span className="text-[10px] text-emerald-500 font-bold uppercase tracking-widest">Digital Assets</span>
                                     </div>
                                 </div>
-                                <div className="border-l-4 border-white/20 dark:border-white/10 pl-6 py-2 bg-gradient-to-r from-white/5 to-transparent">
-                                    <p className="text-xs font-black text-slate-900/40 dark:text-white/30 uppercase tracking-widest mb-1">Active Ledger SKUs</p>
+                                <div className="border-l-4 border-black/20 dark:border-white/10 pl-6 py-2 bg-black/1 dark:bg-white/1">
+                                    <p className="text-[10px] font-black text-slate-900/40 dark:text-white/30 uppercase tracking-widest mb-1">Active Ledger SKUs</p>
                                     <div className="flex items-baseline gap-2">
                                         <span className="text-3xl font-mono font-black text-slate-900 dark:text-white transition-colors duration-150">{metrics.totalSkus}</span>
-                                        <span className="text-xs text-slate-900/30 dark:text-white/20 font-bold uppercase tracking-widest">Master Records</span>
+                                        <span className="text-[10px] text-slate-900/30 dark:text-white/20 font-bold uppercase tracking-widest">Master Records</span>
                                     </div>
                                 </div>
-                                <div className="border-l-4 border-rose-500 pl-6 py-2 bg-gradient-to-r from-rose-500/5 to-transparent">
-                                    <p className="text-xs font-black text-slate-900/40 dark:text-white/30 uppercase tracking-widest mb-1">Critical Stock Alerts</p>
+                                <div className="border-l-4 border-rose-500 pl-6 py-2 bg-rose-500/5">
+                                    <p className="text-[10px] font-black text-slate-900/40 dark:text-white/30 uppercase tracking-widest mb-1">Critical Stock Alerts</p>
                                     <div className="flex items-baseline gap-2">
                                         <span className="text-3xl font-mono font-black text-rose-500 transition-colors duration-150">{metrics.criticalCount}</span>
-                                        <span className="text-xs text-rose-500/40 font-bold uppercase tracking-widest">Below Threshold</span>
+                                        <span className="text-[10px] text-rose-500/40 font-bold uppercase tracking-widest">Below Threshold</span>
                                     </div>
                                 </div>
                             </div>
 
-                             <div className={`h-20 shrink-0 border-b border-black/[0.08] dark:border-[#30363d] flex items-center justify-between px-10 bg-background dark:bg-[#0d1117] transition-colors duration-300`}>
+                             <div className="h-20 shrink-0 border-b border-black/8 dark:border-white/10 flex items-center justify-between px-10 bg-background dark:bg-[#111] transition-colors duration-300">
                                 <div className="flex items-center gap-4">
-                                    <h2 className="text-xl font-black text-[#0d3542] dark:text-[#c9d1d9] tracking-[0.4em] uppercase">Sovereign Ledger</h2>
+                                    <h2 className="text-xl font-black text-[#0d3542] dark:text-[#58a6ff] tracking-[0.4em] uppercase">Sovereign Ledger</h2>
                                     {isFetching && !performanceMode && <motion.div animate={{ opacity: [0.3, 1, 0.3] }} transition={{ repeat: Infinity, duration: 1.5 }} className="w-2 h-2 rounded-full bg-[#0d3542] dark:bg-[#58a6ff]" />}
                                     {isFetching && performanceMode && <div className="w-2 h-2 rounded-full bg-[#0d3542] dark:bg-[#58a6ff]" />}
                                 </div>
-                                <div className="flex items-center gap-4 px-6 py-2.5 bg-black/5 dark:bg-[#161b22] rounded-xl text-[13px] font-black text-slate-900/40 dark:text-[#8b949e] tracking-widest">
-                                    <Command size={14} /> SYSTEM NOMENCLATURE: '/' SEARCH | 'SPACE' SELECT | 'CMD+K' BULK
-                                </div>
                             </div>
-                             <div className={`flex-1 overflow-auto attire-scrollbar relative min-h-0 bg-background dark:bg-[#0f0f0f] border-t border-black/[0.08] dark:border-white/5`}>
+                             <div className={`flex-1 overflow-auto attire-scrollbar relative min-h-0 bg-background dark:bg-[#0f0f0f] border-t border-black/8 dark:border-white/5`}>
                                 {(isLoading && !productsData) && (
                                     <div className={`absolute inset-0 z-50 flex items-center justify-center bg-white/50 dark:bg-black/50 ${performanceMode ? '' : 'backdrop-blur-[2px]'}`}>
                                         <LumaSpin size="lg" />
                                     </div>
                                 )}
-                                <table className="w-full text-left border-separate border-spacing-0 min-w-[800px] bg-transparent transition-colors duration-300">
-                                    <thead className="sticky top-0 z-40">
-                                        <tr className="bg-black/[0.02] dark:bg-[#161b22] text-[#0d3542] dark:text-[#c9d1d9] uppercase text-xs tracking-[0.3em] font-black border-b border-black/5 dark:border-[#30363d] transition-[background-color,border-color] duration-150">
-                                            <th className="px-8 py-6 w-14 text-center border-b border-black/5 dark:border-[#30363d]">
-                                                <input type="checkbox" checked={selectedIds.size === products.length && products.length > 0} onChange={handleSelectAll} className="accent-[#0d3542] dark:accent-[#58a6ff] scale-125" />
+                                <table className="w-full text-left border-separate border-spacing-0 min-w-200 bg-transparent transition-colors duration-300">
+                                    <thead className="sticky top-0 z-40 bg-background dark:bg-[#111]">
+                                        <tr className="bg-black/3 dark:bg-white/5 text-[#0d3542] dark:text-[#58a6ff] uppercase text-[9px] tracking-[0.3em] font-black transition-[background-color,border-color] duration-150">
+                                            <th className="px-4 py-1.5 w-14 text-center border-b border-black/5 dark:border-white/10 rounded-tl-2xl">
+                                                <input type="checkbox" checked={selectedIds.size === products.length && products.length > 0} onChange={handleSelectAll} className="accent-[#0d3542] dark:accent-[#58a6ff] scale-110" />
                                             </th>
-                                            <th className="px-8 py-6 w-40 border-b border-black/5 dark:border-[#30363d]">SKU / IDENTITY</th>
-                                            <th className="px-8 py-6 border-b border-black/5 dark:border-[#30363d]">DESIGNATION</th>
-                                            <th className="px-8 py-6 w-48 border-b border-black/5 dark:border-[#30363d]">COLLECTION</th>
-                                            <th className="px-8 py-6 w-36 border-b border-black/5 dark:border-[#30363d] text-right">VALUATION</th>
-                                            <th className="px-8 py-6 w-36 border-b border-black/5 dark:border-[#30363d] text-right">LEDGER</th>
-                                            <th className="px-8 py-6 w-36 border-b border-black/5 dark:border-[#30363d] text-center">STATUS</th>
+                                            <th className="px-4 py-1.5 w-24 border-b border-l border-black/5 dark:border-white/10 text-center">STATUS</th>
+                                            <th className="px-4 py-1.5 w-32 border-b border-l border-black/5 dark:border-white/10">IDENTITY (SKU)</th>
+                                            <th className="px-4 py-1.5 border-b border-l border-black/5 dark:border-white/10">DESIGNATION</th>
+                                            <th className="px-4 py-1.5 w-28 border-b border-l border-black/5 dark:border-white/10">COLLECTION</th>
+                                            <th className="px-4 py-1.5 w-24 border-b border-l border-black/5 dark:border-white/10 text-right">IN STOCK</th>
+                                            <th className="px-4 py-1.5 w-28 border-b border-l border-black/5 dark:border-white/10 text-right rounded-tr-2xl">PRICE</th>
                                         </tr>
                                     </thead>
                                     <tbody className="text-[13px] font-medium">
@@ -548,24 +550,24 @@ const ProductsPage = () => {
                             </div>
                         </motion.div>
                     ) : (
-                        <motion.div key="form" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} className="flex-1 flex flex-col overflow-hidden bg-[#fcfcfa] dark:bg-[#0d0d0d]">
+                        <motion.div key="form" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} className="flex-1 flex flex-col overflow-hidden bg-[#fcfcfa] dark:bg-[#0f0f0f]">
                             {/* --- Form Header --- */}
-                            <div className="h-24 shrink-0 border-b border-black/5 dark:border-white/5 flex items-center justify-between px-12 bg-white dark:bg-[#0a0a0a]">
+                            <div className="h-24 shrink-0 border-b border-black/5 dark:border-white/5 flex items-center justify-between px-12 bg-white dark:bg-[#111]">
                                 <div className="flex items-center gap-6">
                                     <button 
                                         onClick={() => { setView('list'); setEditingProduct(null); }}
-                                        className="h-12 w-12 rounded-2xl bg-black/5 dark:bg-white/5 flex items-center justify-center text-gray-500 hover:text-[#00C4B4] transition-all hover:bg-[#00C4B4]/10"
+                                        className="h-12 w-12 rounded-2xl bg-black/5 dark:bg-white/5 flex items-center justify-center text-gray-500 hover:text-[#0d3542] dark:hover:text-[#58a6ff] transition-all hover:bg-[#0d3542]/10 dark:hover:bg-[#58a6ff]/10"
                                     >
                                         <ChevronLeft size={20} />
                                     </button>
                                     <div>
                                         <h2 className="text-xl font-black text-[#0d3542] dark:text-[#58a6ff] tracking-[0.4em] uppercase">{editingProduct ? 'Edit Identity' : 'Establish New Identity'}</h2>
-                                        <p className="text-[11px] font-bold text-gray-400 dark:text-[#8b949e] uppercase tracking-widest mt-1">Product Configuration Module</p>
+                                        <p className="text-[10px] font-bold text-gray-400 dark:text-white/30 uppercase tracking-widest mt-1">Product Configuration Module</p>
                                     </div>
                                 </div>
                                 <div className="flex items-center gap-4">
-                                    <Button variant="outline" onClick={() => setView('list')} className="h-12 px-8 text-xs font-black uppercase tracking-widest border-black/10 dark:border-[#30363d] text-gray-400 rounded-xl hover:bg-black/5 dark:hover:bg-[#161b22]">CANCEL</Button>
-                                    <Button onClick={handleSubmit} disabled={isSaving} className="h-12 px-10 bg-[#0d3542] dark:bg-[#58a6ff] text-white dark:text-black text-xs font-black uppercase tracking-widest hover:scale-[1.05] transition-all rounded-xl">
+                                    <Button variant="outline" onClick={() => setView('list')} className="h-12 px-8 text-[11px] font-black uppercase tracking-[0.2em] border-black/10 dark:border-white/10 text-gray-400 rounded-xl hover:bg-black/5 dark:hover:bg-white/5">CANCEL</Button>
+                                    <Button onClick={handleSubmit} disabled={isSaving} className="h-12 px-10 bg-[#0d3542] dark:bg-[#58a6ff] text-white dark:text-black text-[11px] font-black uppercase tracking-[0.2em] shadow-lg ring-1 ring-inset ring-white/10 dark:ring-black/10 hover:opacity-90 transition-all rounded-xl">
                                         {isSaving ? <LumaSpin size="sm" className="mr-2" /> : <Save size={14} className="mr-2" />}
                                         CONFIRM & RECORD
                                     </Button>
@@ -573,14 +575,14 @@ const ProductsPage = () => {
                             </div>
 
                             {/* --- Form Tabs --- */}
-                            <div className="px-12 h-16 border-b border-black/5 dark:border-[#30363d] flex items-center gap-12 bg-black/[0.01] dark:bg-[#161b22]">
+                            <div className="px-12 h-16 border-b border-black/5 dark:border-white/5 flex items-center gap-12 bg-black/1 dark:bg-white/1">
                                 {['General', 'Attributes'].map((tab) => {
                                     const id = tab.toLowerCase();
                                     const active = activeTab === id;
                                     return (
                                         <button 
                                             key={id} onClick={() => setActiveTab(id)}
-                                            className={`h-full px-2 text-[11px] font-black uppercase tracking-[0.3em] transition-all relative ${active ? 'text-[#0d3542] dark:text-[#58a6ff]' : 'text-gray-400 dark:text-[#8b949e] hover:text-[#0d3542] dark:hover:text-[#58a6ff]'}`}
+                                            className={`h-full px-2 text-[10px] font-black uppercase tracking-[0.3em] transition-all relative ${active ? 'text-[#0d3542] dark:text-[#58a6ff]' : 'text-gray-400 dark:text-white/20 hover:text-[#0d3542] dark:hover:text-[#58a6ff]'}`}
                                         >
                                             {tab}
                                             {active && <motion.div layoutId="tabUnderline" className="absolute bottom-0 left-0 right-0 h-1 bg-[#0d3542] dark:bg-[#58a6ff] rounded-t-full" />}
@@ -602,16 +604,16 @@ const ProductsPage = () => {
                                                 <div className="grid grid-cols-2 gap-16">
                                                     <div className="space-y-3">
                                                         <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">PRIMARY SKU / CODE</label>
-                                                        <input value={formData.sku} onChange={e => setFormData({...formData, sku: e.target.value.toUpperCase()})} className="w-full bg-black/5 dark:bg-[#161b22] p-5 text-sm font-mono font-bold tracking-widest outline-none border border-black/5 dark:border-[#30363d] focus:border-[#0d3542] dark:focus:border-[#58a6ff] transition-all uppercase text-gray-900 dark:text-white rounded-2xl" placeholder="AUTO-GEN ON EMPTY" />
+                                                        <input value={formData.sku} onChange={e => setFormData({...formData, sku: e.target.value.toUpperCase()})} className="w-full bg-black/5 dark:bg-white/5 p-5 text-[13px] font-mono font-bold tracking-widest outline-none border border-black/5 dark:border-white/10 focus:border-[#0d3542] dark:focus:border-[#58a6ff] ring-inset focus:ring-1 focus:ring-[#0d3542] dark:focus:ring-[#58a6ff] transition-all uppercase text-gray-900 dark:text-white rounded-2xl" placeholder="AUTO-GEN ON EMPTY" />
                                                     </div>
                                                     <div className="space-y-3">
                                                         <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">PRODUCT NAME *</label>
-                                                        <input required value={formData.name} onChange={e => setFormData({...formData, name: e.target.value})} className="w-full bg-black/5 dark:bg-[#161b22] p-5 text-sm font-black outline-none border border-black/5 dark:border-[#30363d] focus:border-[#0d3542] dark:focus:border-[#58a6ff] transition-all uppercase text-gray-900 dark:text-white rounded-2xl" />
+                                                        <input required value={formData.name} onChange={e => setFormData({...formData, name: e.target.value})} className="w-full bg-black/5 dark:bg-white/5 p-5 text-[13px] font-black outline-none border border-black/5 dark:border-white/10 focus:border-[#0d3542] dark:focus:border-[#58a6ff] ring-inset focus:ring-1 focus:ring-[#0d3542] dark:focus:ring-[#58a6ff] transition-all uppercase text-gray-900 dark:text-white rounded-2xl" />
                                                         
                                                         {/* Name Preview */}
-                                                        <div className="mt-4 px-4 py-3 bg-black/[0.03] dark:bg-[#161b22] rounded-xl border border-dashed border-black/10 dark:border-[#30363d]">
+                                                        <div className="mt-4 px-4 py-3 bg-black/3 dark:bg-white/3 rounded-xl border border-dashed border-black/10 dark:border-white/10">
                                                             <div className="text-[10px] font-black text-[#0d3542]/50 dark:text-[#58a6ff]/50 uppercase tracking-widest mb-1">Name Preview</div>
-                                                            <div className="text-sm font-mono font-bold text-gray-400 dark:text-white/40 break-all uppercase">
+                                                            <div className="text-[12px] font-mono font-bold text-gray-400 dark:text-white/40 break-all uppercase">
                                                                 {formData.name} {(formData.attributes || []).filter(a => a.value).map(a => `-${a.value.toUpperCase()}`).join(' ')}
                                                             </div>
                                                         </div>
@@ -619,7 +621,7 @@ const ProductsPage = () => {
                                                     <div className="space-y-3">
                                                         <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">ITEM PRICE</label>
                                                         <div className="relative">
-                                                            <input type="number" value={formData.price} onChange={e => setFormData({...formData, price: e.target.value})} className="w-full bg-black/5 dark:bg-[#161b22] p-5 pl-14 text-lg font-mono font-bold tracking-tight outline-none border border-black/5 dark:border-[#30363d] focus:border-[#0d3542] dark:focus:border-[#58a6ff] transition-all text-gray-900 dark:text-white rounded-2xl" />
+                                                            <input type="number" value={formData.price} onChange={e => setFormData({...formData, price: e.target.value})} className="w-full bg-black/5 dark:bg-white/5 p-5 pl-14 text-lg font-mono font-bold tracking-tight outline-none border border-black/5 dark:border-white/10 focus:border-[#0d3542] dark:focus:border-[#58a6ff] ring-inset focus:ring-1 focus:ring-[#0d3542] dark:focus:ring-[#58a6ff] transition-all text-gray-900 dark:text-white rounded-2xl" />
                                                             <span className="absolute left-5 top-1/2 -translate-y-1/2 text-[#0d3542] dark:text-[#58a6ff] font-black text-xl">$</span>
                                                         </div>
                                                     </div>
@@ -629,7 +631,7 @@ const ProductsPage = () => {
                                                             <select 
                                                                 value={formData.category} 
                                                                 onChange={e => setFormData({...formData, category: e.target.value})} 
-                                                                className="w-full bg-black/5 dark:bg-[#161b22] p-5 text-sm font-black outline-none border border-black/5 dark:border-[#30363d] focus:border-[#0d3542] dark:focus:border-[#58a6ff] transition-all uppercase text-gray-900 dark:text-white appearance-none cursor-pointer rounded-2xl"
+                                                                className="w-full bg-black/5 dark:bg-white/5 p-5 text-[13px] font-black outline-none border border-black/5 dark:border-white/10 focus:border-[#0d3542] dark:focus:border-[#58a6ff] ring-inset focus:ring-1 focus:ring-[#0d3542] dark:focus:ring-[#58a6ff] transition-all uppercase text-gray-900 dark:text-white appearance-none cursor-pointer rounded-2xl"
                                                             >
                                                                 <option value="">SELECT GROUP</option>
                                                                 {categories.filter(c => c !== 'ALL GROUPS').map(cat => (
@@ -651,15 +653,15 @@ const ProductsPage = () => {
                                                 <div className="grid grid-cols-3 gap-12">
                                                     <div className="space-y-3">
                                                         <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">CURRENT RECORD</label>
-                                                        <input type="number" value={formData.stock_qty} onChange={e => setFormData({...formData, stock_qty: e.target.value})} className="w-full bg-black/5 dark:bg-[#161b22] p-5 text-sm font-mono font-bold outline-none border border-black/5 dark:border-[#30363d] focus:border-[#0d3542] dark:focus:border-[#58a6ff] transition-all text-gray-900 dark:text-white rounded-2xl" />
+                                                        <input type="number" value={formData.stock_qty} onChange={e => setFormData({...formData, stock_qty: e.target.value})} className="w-full bg-black/5 dark:bg-white/5 p-5 text-[13px] font-mono font-bold outline-none border border-black/5 dark:border-white/10 focus:border-[#0d3542] dark:focus:border-[#58a6ff] ring-inset focus:ring-1 focus:ring-[#0d3542] dark:focus:ring-[#58a6ff] transition-all text-gray-900 dark:text-white rounded-2xl" />
                                                     </div>
                                                     <div className="space-y-3">
                                                         <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">MIN THRESHOLD</label>
-                                                        <input type="number" value={formData.min_stock} onChange={e => setFormData({...formData, min_stock: e.target.value})} className="w-full bg-black/5 dark:bg-[#161b22] p-5 text-sm font-mono font-bold outline-none border border-black/5 dark:border-[#30363d] focus:border-[#0d3542] dark:focus:border-[#58a6ff] transition-all text-gray-900 dark:text-white rounded-2xl" />
+                                                        <input type="number" value={formData.min_stock} onChange={e => setFormData({...formData, min_stock: e.target.value})} className="w-full bg-black/5 dark:bg-white/5 p-5 text-[13px] font-mono font-bold outline-none border border-black/5 dark:border-white/10 focus:border-[#0d3542] dark:focus:border-[#58a6ff] ring-inset focus:ring-1 focus:ring-[#0d3542] dark:focus:ring-[#58a6ff] transition-all text-gray-900 dark:text-white rounded-2xl" />
                                                     </div>
                                                     <div className="space-y-3">
                                                         <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">MAX THRESHOLD</label>
-                                                        <input type="number" value={formData.max_stock} onChange={e => setFormData({...formData, max_stock: e.target.value})} className="w-full bg-black/5 dark:bg-[#161b22] p-5 text-sm font-mono font-bold outline-none border border-black/5 dark:border-[#30363d] focus:border-[#0d3542] dark:focus:border-[#58a6ff] transition-all text-gray-900 dark:text-white rounded-2xl" />
+                                                        <input type="number" value={formData.max_stock} onChange={e => setFormData({...formData, max_stock: e.target.value})} className="w-full bg-black/5 dark:bg-white/5 p-5 text-[13px] font-mono font-bold outline-none border border-black/5 dark:border-white/10 focus:border-[#0d3542] dark:focus:border-[#58a6ff] ring-inset focus:ring-1 focus:ring-[#0d3542] dark:focus:ring-[#58a6ff] transition-all text-gray-900 dark:text-white rounded-2xl" />
                                                     </div>
                                                 </div>
                                             </section>
@@ -671,7 +673,7 @@ const ProductsPage = () => {
                                                     <div className="h-1 w-10 bg-[#0d3542] dark:bg-[#58a6ff] rounded-full" />
                                                     <h3 className="text-xs font-black uppercase tracking-[0.4em] text-[#0d3542] dark:text-[#58a6ff]">Technical Matrix</h3>
                                                 </div>
-                                                <Button variant="outline" onClick={() => setFormData({...formData, attributes: [...(formData.attributes || []), { key: '', value: '' }]})} className="h-10 text-[10px] font-black uppercase tracking-widest border-black/10 dark:border-[#30363d] text-gray-400 hover:text-[#0d3542] dark:hover:text-[#58a6ff] transition-all rounded-xl">
+                                                <Button variant="outline" onClick={() => setFormData({...formData, attributes: [...(formData.attributes || []), { key: '', value: '' }]})} className="h-10 px-4 text-[10px] font-black uppercase tracking-widest border-black/10 dark:border-white/10 text-gray-400 hover:text-[#0d3542] dark:hover:text-[#58a6ff] transition-all rounded-xl">
                                                     <Plus size={14} className="mr-2" /> ADD PARAMETER
                                                 </Button>
                                             </div>
@@ -684,17 +686,17 @@ const ProductsPage = () => {
                                                                 const newAttrs = [...formData.attributes];
                                                                 newAttrs[idx].key = e.target.value.toUpperCase();
                                                                 setFormData({...formData, attributes: newAttrs});
-                                                            }} className="w-full bg-black/5 dark:bg-[#161b22] p-5 text-xs font-bold uppercase outline-none border border-black/5 dark:border-[#30363d] focus:border-[#0d3542] dark:focus:border-[#58a6ff] transition-all text-gray-900 dark:text-white rounded-2xl" placeholder="E.G. FABRIC" />
+                                                            }} className="w-full bg-black/5 dark:bg-white/5 p-5 text-[11px] font-bold uppercase outline-none border border-black/5 dark:border-white/10 focus:border-[#0d3542] dark:focus:border-[#58a6ff] ring-inset focus:ring-1 focus:ring-[#0d3542] dark:focus:ring-[#58a6ff] transition-all text-gray-900 dark:text-white rounded-2xl" placeholder="E.G. FABRIC" />
                                                         </div>
-                                                        <div className="flex-[2] space-y-3">
+                                                        <div className="flex-2 space-y-3">
                                                             <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">VALUE</label>
                                                             <input value={attr.value} onChange={e => {
                                                                 const newAttrs = [...formData.attributes];
                                                                 newAttrs[idx].value = e.target.value.toUpperCase();
                                                                 setFormData({...formData, attributes: newAttrs});
-                                                            }} className="w-full bg-black/5 dark:bg-[#161b22] p-5 text-xs font-bold uppercase outline-none border border-black/5 dark:border-[#30363d] focus:border-[#0d3542] dark:focus:border-[#58a6ff] transition-all text-gray-900 dark:text-white rounded-2xl" placeholder="E.G. SCABAL DIAMOND CHIP" />
+                                                            }} className="w-full bg-black/5 dark:bg-white/5 p-5 text-[11px] font-bold uppercase outline-none border border-black/5 dark:border-white/10 focus:border-[#0d3542] dark:focus:border-[#58a6ff] ring-inset focus:ring-1 focus:ring-[#0d3542] dark:focus:ring-[#58a6ff] transition-all text-gray-900 dark:text-white rounded-2xl" placeholder="E.G. SCABAL DIAMOND CHIP" />
                                                         </div>
-                                                        <button onClick={() => setFormData({...formData, attributes: formData.attributes.filter((_, i) => i !== idx)})} className="h-[60px] w-[60px] flex items-center justify-center text-gray-400 hover:text-white transition-all bg-black/5 dark:bg-white/5 rounded-2xl border border-black/5 dark:border-white/5 hover:bg-rose-500 hover:border-rose-500">
+                                                        <button onClick={() => setFormData({...formData, attributes: formData.attributes.filter((_, i) => i !== idx)})} className="h-15 w-15 flex items-center justify-center text-gray-400 hover:text-white transition-all bg-black/5 dark:bg-white/5 rounded-2xl border border-black/5 dark:border-white/5 hover:bg-rose-500 hover:border-rose-500">
                                                             <Trash2 size={18} />
                                                         </button>
                                                     </div>
@@ -709,21 +711,21 @@ const ProductsPage = () => {
                 </AnimatePresence>
             </div>
 
-            {/* --- Floating Command Bar --- */}
+             {/* --- Floating Command Bar --- */}
             <AnimatePresence>
                 {selectedIds.size > 0 && view === 'list' && (
-                    <motion.div initial={{ y: 100, opacity: 0 }} animate={{ y: 0, opacity: 1 }} exit={{ y: 100, opacity: 0 }} className="fixed bottom-10 left-[calc(50%+120px)] -translate-x-1/2 z-[80]">
-                                <div className="bg-[#fdfdfc] dark:bg-[#161b22] rounded-2xl px-8 h-20 flex items-center gap-10 border border-[#0d3542]/30 dark:border-[#58a6ff]/30 transition-all duration-300">
-                            <div className="flex items-center gap-4 pr-10 border-r border-black/10 dark:border-[#30363d]">
-                                <div className="bg-[#0d3542] dark:bg-[#58a6ff] text-white dark:text-black text-xs font-black h-7 w-7 rounded-lg flex items-center justify-center">{selectedIds.size}</div>
-                                <span className="text-[#0d3542] dark:text-[#58a6ff] text-xs font-black uppercase tracking-[0.3em] whitespace-nowrap">Ledger Items</span>
+                    <motion.div initial={{ y: 100, opacity: 0 }} animate={{ y: 0, opacity: 1 }} exit={{ y: 100, opacity: 0 }} className="fixed bottom-10 left-1/2 ml-30 -translate-x-1/2 z-80">
+                        <div className="bg-[#fdfdfc] dark:bg-[#111] rounded-2xl px-8 h-20 flex items-center gap-10 shadow-2xl border border-[#0d3542]/30 dark:border-[#58a6ff]/30 ring-1 ring-inset ring-white/10 dark:ring-black/10 transition-all duration-300">
+                            <div className="flex items-center gap-4 pr-10 border-r border-black/10 dark:border-white/10">
+                                <div className="bg-[#0d3542] dark:bg-[#58a6ff] text-white dark:text-black text-[11px] font-black h-8 w-8 rounded-lg flex items-center justify-center shadow-lg ring-1 ring-white/20">{selectedIds.size}</div>
+                                <span className="text-[#0d3542] dark:text-[#58a6ff] text-[11px] font-black uppercase tracking-[0.3em] whitespace-nowrap">Ledger Items</span>
                             </div>
                             <div className="flex items-center gap-10">
-                                <button onClick={() => setIsBulkDialogOpen(true)} className="flex items-center gap-2 text-gray-500 dark:text-[#8b949e] hover:text-[#0d3542] dark:hover:text-[#58a6ff] transition-colors group">
-                                    <Command size={16} className="group-hover:scale-110 transition-transform" />
-                                    <span className="text-xs font-black uppercase tracking-[0.2em]">Bulk Override</span>
+                                <button onClick={() => setIsBulkDialogOpen(true)} className="flex items-center gap-2 text-gray-500 dark:text-white/40 hover:text-[#0d3542] dark:hover:text-[#58a6ff] transition-colors group">
+                                    <Command size={14} className="group-hover:scale-110 transition-transform" />
+                                    <span className="text-[10px] font-black uppercase tracking-[0.2em]">Bulk Override</span>
                                 </button>
-                                <button onClick={() => setSelectedIds(new Set())} className="text-gray-400 dark:text-[#8b949e]/40 hover:text-[#0d3542] dark:hover:text-[#58a6ff] text-[11px] font-black uppercase tracking-[0.2em]">Clear Ledger</button>
+                                <button onClick={() => setSelectedIds(new Set())} className="text-gray-400 dark:text-white/20 hover:text-[#0d3542] dark:hover:text-[#58a6ff] text-[10px] font-black uppercase tracking-[0.2em]">Clear Ledger</button>
                             </div>
                         </div>
                     </motion.div>

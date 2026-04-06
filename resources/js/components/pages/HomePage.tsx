@@ -746,48 +746,33 @@ const HomePage: React.FC = () => {
 
         window.clearTimeout(snapTimeout);
 
-        // Wait longer on Safari to ensure the user has truly stopped scrolling
-        const delay = isSafariBrowser ? 150 : 100;
+        // Standardized delay for a more natural snap feel across browsers
+        const delay = 250; 
 
         snapTimeout = window.setTimeout(() => {
-            // Re-verify conditions inside timeout
             if (!window.lenis || isMenuOpen || window.innerWidth < 1024) return;
 
             const scrollY = window.lenis.scroll;
             const viewportHeight = window.innerHeight;
 
-            let closestIndex = -1;
-            let minDistance = Infinity;
+            // Simplified: snap to the index indicated by IntersectionObserver if we're close enough
+            const targetSection = sectionsRef.current[activeSection];
+            if (!targetSection) return;
 
-            // Simple distance check for closest section
-            sectionsRef.current.forEach((section, index) => {
-                if (!section) return;
-                const distance = Math.abs(section.offsetTop - scrollY);
-                if (distance < minDistance) {
-                    minDistance = distance;
-                    closestIndex = index;
-                }
-            });
+            const distance = Math.abs(targetSection.offsetTop - scrollY);
 
-            if (closestIndex !== -1) {
-                const targetSection = sectionsRef.current[closestIndex];
-                if (!targetSection) return;
+            // If we're already perfectly aligned or far from the target center, don't force snap
+            if (distance < 5) return;
 
-                const distance = Math.abs(targetSection.offsetTop - scrollY);
+            // Only snap if we're within 30% of the viewport to keep the scroll feeling free
+            const snapThreshold = viewportHeight * 0.3;
 
-                // If we're already very close, don't snap to avoid loop/jitter
-                if (distance < 10) return;
-
-                // Only snap if we're within a reasonable threshold (30% of viewport)
-                const snapThreshold = viewportHeight * 0.35;
-
-                if (distance < snapThreshold) {
-                    window.lenis.scrollTo(targetSection, {
-                        duration: isSafariBrowser ? 1.0 : 0.8,
-                        easing: (t: number) => 1 - Math.pow(1 - t, 4), // Quartic out for smoother end
-                        lock: true // Temporarily lock scroll during snap
-                    });
-                }
+            if (distance < snapThreshold) {
+                window.lenis.scrollTo(targetSection, {
+                    duration: 1.2,
+                    easing: (t: number) => 1 - Math.pow(1 - t, 4), 
+                    lock: true 
+                });
             }
         }, delay);
     };

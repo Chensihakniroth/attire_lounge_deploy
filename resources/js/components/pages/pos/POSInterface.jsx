@@ -43,7 +43,7 @@ const POSInterface = () => {
                         animate={{ y: 0, opacity: 1 }}
                         transition={{ delay: 0.5 }}
                         onClick={() => setIsServiceOpen(true)}
-                        className="absolute bottom-6 left-6 p-4 rounded-2xl bg-attire-accent text-white shadow-none border border-white/20 hover:scale-105 active:scale-95 transition-all z-30 group flex items-center gap-3"
+                        className="absolute bottom-6 left-6 p-4 rounded-2xl bg-attire-accent text-gray-900 dark:text-white shadow-none border border-white/20 hover:scale-105 active:scale-95 transition-all z-30 group flex items-center gap-3"
                     >
                         <Zap size={20} fill="currentColor" />
                         <span className="text-[12px] font-black uppercase tracking-[0.2em] pr-2">Quick Services</span>

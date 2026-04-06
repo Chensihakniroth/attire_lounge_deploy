@@ -27,6 +27,7 @@ import { Button } from '@/components/ui/button';
 import { BorderBeam } from '@/components/ui/border-beam';
 import ModernModal from '../../common/ModernModal.jsx';
 import { formatDate } from '@/helpers/format';
+import DatePicker from '@/components/ui/DatePicker';
 
 const statusConfig = {
     pending: {
@@ -1222,42 +1223,22 @@ export default function AlteringManager() {
                                             <label className="text-[10px] font-black text-gray-400 dark:text-white/40 uppercase tracking-widest pl-1">
                                                 Start Date
                                             </label>
-                                            <input
+                                            <DatePicker 
                                                 required
-                                                type="date"
-                                                value={
-                                                    formData.start_date
-                                                }
-                                                onChange={(e) =>
-                                                    setFormData({
-                                                        ...formData,
-                                                        start_date:
-                                                            e.target
-                                                                .value,
-                                                    })
-                                                }
-                                                className="w-full bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 hover:border-black/20 dark:hover:border-white/20 rounded-2xl p-4 text-gray-900 dark:text-white text-sm outline-none focus:border-attire-accent/50 focus:bg-black/[0.07] dark:focus:bg-white/[0.07] transition-all [color-scheme:light] dark:[color-scheme:dark]"
+                                                value={formData.start_date}
+                                                onChange={(e) => setFormData({ ...formData, start_date: e.target.value })}
+                                                name="start_date"
                                             />
                                         </div>
                                         <div className="space-y-2">
                                             <label className="text-[10px] font-black text-gray-400 dark:text-white/40 uppercase tracking-widest pl-1">
                                                 Target Ready
                                             </label>
-                                            <input
+                                            <DatePicker 
                                                 required
-                                                type="date"
-                                                value={
-                                                    formData.ready_at
-                                                }
-                                                onChange={(e) =>
-                                                    setFormData({
-                                                        ...formData,
-                                                        ready_at:
-                                                            e.target
-                                                                .value,
-                                                    })
-                                                }
-                                                className="w-full bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 hover:border-black/20 dark:hover:border-white/20 rounded-2xl p-4 text-gray-900 dark:text-white text-sm outline-none focus:border-attire-accent/50 focus:bg-black/[0.07] dark:focus:bg-white/[0.07] transition-all [color-scheme:light] dark:[color-scheme:dark]"
+                                                value={formData.ready_at}
+                                                onChange={(e) => setFormData({ ...formData, ready_at: e.target.value })}
+                                                name="ready_at"
                                             />
                                         </div>
                                     </div>

@@ -11,6 +11,7 @@ import { useAdmin } from './AdminContext';
 import { motion, AnimatePresence } from 'framer-motion';
 import ErrorBoundary from '../../common/ErrorBoundary.jsx';
 import ModernModal from '../../common/ModernModal.jsx';
+import DatePicker from '@/components/ui/DatePicker';
 
 const CustomDropdown = ({ label, selected, options, onChange, icon: Icon }) => {
     const [isOpen, setIsOpen] = useState(false);
@@ -184,6 +185,8 @@ const CustomerProfileManager = () => {
         preferred_color: '',
         color_notes: '',
         remarks: '',
+        birthday: '',
+        is_vip: false,
     });
 
     const SHIRT_SIZES = ['XS', 'S', 'M', 'L', 'XL', '2XL', '3XL', '4XL', '5XL'];
@@ -272,6 +275,8 @@ const CustomerProfileManager = () => {
                 preferred_color: profile.preferred_color,
                 color_notes: profile.color_notes,
                 remarks: profile.remarks,
+                birthday: profile.birthday || '',
+                is_vip: profile.is_vip || false,
             });
             setShowCustomHost(profile.host && !STAFF_NAMES.includes(profile.host));
             setShowCustomAssistant(profile.assistant && !STAFF_NAMES.includes(profile.assistant));
@@ -293,6 +298,8 @@ const CustomerProfileManager = () => {
                 preferred_color: '',
                 color_notes: '',
                 remarks: '',
+                birthday: '',
+                is_vip: false,
             });
             setShowCustomHost(false);
             setShowCustomAssistant(false);
@@ -521,8 +528,21 @@ const CustomerProfileManager = () => {
                                         <input type="text" value={formData.phone} onChange={e => setFormData({...formData, phone: e.target.value})} className="w-full bg-black/[0.02] dark:bg-white/[0.02] border border-black/10 dark:border-white/10 rounded-xl py-3 px-5 text-gray-900 dark:text-white text-sm focus:border-attire-accent outline-none transition-all font-mono" placeholder="012 345 678" />
                                     </div>
                                     <div className="space-y-1.5">
-                                        <label className="text-[10px] font-black text-gray-400 dark:text-white/20 uppercase tracking-widest ml-1">Date</label>
-                                        <input type="date" required value={formData.date} onChange={e => setFormData({...formData, date: e.target.value})} className="w-full bg-black/[0.02] dark:bg-white/[0.02] border border-black/10 dark:border-white/10 rounded-xl py-3 px-5 text-gray-900 dark:text-white text-sm focus:border-attire-accent outline-none transition-all font-mono" />
+                                        <label className="text-[10px] font-black text-gray-400 dark:text-white/20 uppercase tracking-widest ml-1">Archive Date</label>
+                                        <DatePicker 
+                                            required
+                                            value={formData.date}
+                                            onChange={(e) => setFormData({...formData, date: e.target.value})}
+                                            name="date"
+                                        />
+                                    </div>
+                                    <div className="space-y-1.5">
+                                        <label className="text-[10px] font-black text-gray-400 dark:text-white/20 uppercase tracking-widest ml-1">Birthday</label>
+                                        <DatePicker 
+                                            value={formData.birthday}
+                                            onChange={(e) => setFormData({...formData, birthday: e.target.value})}
+                                            name="birthday"
+                                        />
                                     </div>
                                     <CustomDropdown 
                                         label="Status"
@@ -535,6 +555,22 @@ const CustomerProfileManager = () => {
                                         onChange={val => setFormData({...formData, client_status: val})}
                                         icon={UserCheck}
                                     />
+                                    <div className="flex items-center gap-4 bg-black/[0.02] dark:bg-white/[0.02] p-4 rounded-xl border border-black/10 dark:border-white/10">
+                                        <div className="flex-1">
+                                            <p className="text-[10px] font-black text-gray-400 dark:text-white/20 uppercase tracking-widest">VIP Member</p>
+                                            <p className="text-[8px] text-gray-500 uppercase tracking-tighter">Enable Elite Rewards Tier</p>
+                                        </div>
+                                        <button 
+                                            type="button"
+                                            onClick={() => setFormData(prev => ({ ...prev, is_vip: !prev.is_vip }))}
+                                            className={`w-12 h-6 rounded-full transition-all relative ${formData.is_vip ? 'bg-attire-accent' : 'bg-gray-700'}`}
+                                        >
+                                            <motion.div 
+                                                animate={{ x: formData.is_vip ? 24 : 4 }}
+                                                className="absolute top-1 left-0 w-4 h-4 rounded-full bg-white shadow-sm"
+                                            />
+                                        </button>
+                                    </div>
                                     <CustomDropdown 
                                         label="Nationality"
                                         selected={formData.nationality}

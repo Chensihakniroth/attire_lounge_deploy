@@ -208,7 +208,7 @@ const ProductDetailPage: React.FC = () => {
                                 {product.is_new && (
                                     <motion.span 
                                         variants={slideUp}
-                                        className="inline-block px-3 py-1 bg-blue-500/10 border border-blue-500/20 text-blue-400 text-[9px] uppercase tracking-[0.3em] font-bold rounded-full mb-2"
+                                        className="inline-block px-3 py-1 bg-attire-accent/10 border border-attire-accent/20 text-attire-accent text-[9px] uppercase tracking-[0.3em] font-bold rounded-full mb-2"
                                     >
                                         New Arrival
                                     </motion.span>
@@ -274,12 +274,6 @@ const ProductDetailPage: React.FC = () => {
                 </section>
             </main>
 
-            <div className="fixed inset-0 pointer-events-none z-[200] opacity-[0.02] mix-blend-overlay">
-                <svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
-                    <filter id="noise"><feTurbulence type="fractalNoise" baseFrequency="0.65" numOctaves="3" /></filter>
-                    <rect width="100%" height="100%" filter="url(#noise)" />
-                </svg>
-            </div>
         </motion.div>
     );
 };

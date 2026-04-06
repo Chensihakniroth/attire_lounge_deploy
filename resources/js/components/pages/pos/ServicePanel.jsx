@@ -41,12 +41,12 @@ const ServicePanel = ({ onClose }) => {
                         <h3 className="text-[12px] font-black uppercase tracking-[0.3em] text-gray-900 dark:text-white leading-none mb-0.5">
                             Tactical Services
                         </h3>
-                        <p className="text-[8px] text-gray-500 uppercase tracking-widest font-bold">Quick-add to current invoice</p>
+                        <p className="text-[8px] text-gray-500 dark:text-[#8b949e] uppercase tracking-widest font-bold">Quick-add to current invoice</p>
                     </div>
                 </div>
                 <button 
                     onClick={onClose}
-                    className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-black/10 dark:bg-white/5 border border-black/15 dark:border-white/10 text-[9px] font-black uppercase tracking-widest hover:bg-red-500/10 hover:text-red-500 transition-all group"
+                    className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-black/10 dark:bg-white/5 border border-black/15 dark:border-white/10 text-[9px] font-black uppercase tracking-widest text-gray-500 dark:text-[#8b949e] hover:bg-red-500/10 hover:text-red-500 transition-all group"
                 >
                     Close Deck <ChevronDown size={14} className="group-hover:translate-y-0.5 transition-transform" />
                 </button>
@@ -59,7 +59,7 @@ const ServicePanel = ({ onClose }) => {
                         key={service.id}
                         whileTap={{ scale: 0.95 }}
                         onClick={() => {
-                            addItem(service);
+                            addItem({ ...service, is_service: true });
                         }}
                         className="flex flex-col items-start justify-center text-left p-4 w-[160px] min-h-[90px] rounded-2xl bg-black/[0.04] dark:bg-white/[0.03] border border-black/10 dark:border-white/10 hover:border-attire-accent/60 hover:bg-background dark:hover:bg-white/[0.06] transition-all group shadow-none"
                     >

@@ -5,33 +5,8 @@ import { LumaSpin } from '@/components/ui/luma-spin';
 import axios from 'axios';
 import Swal from 'sweetalert2';
 import ModernModal from '../../common/ModernModal';
+import DatePicker from '@/components/ui/DatePicker';
 
-// ----------------------------------------------------------------------
-// Styled Date Picker Component
-// ----------------------------------------------------------------------
-const CustomDatePicker = ({ value, onChange, label, required }) => {
-    return (
-        <div className="relative group">
-            {label && (
-                <label className="block text-xs font-semibold text-attire-charcoal/50 dark:text-white/50 uppercase tracking-wider mb-2 transition-colors group-focus-within:text-[#0d3542]">
-                    {label} {required && <span className="text-[#0d3542] dark:text-[#58a6ff]">*</span>}
-                </label>
-            )}
-            <div className="relative flex items-center">
-                <div className="absolute left-4 top-1/2 -translate-y-1/2 text-attire-charcoal/40 dark:text-white/40 pointer-events-none group-focus-within:text-[#0d3542] dark:group-focus-within:text-[#58a6ff] transition-colors z-10">
-                    <Calendar size={18} />
-                </div>
-                <input
-                    type="date"
-                    value={value}
-                    onChange={onChange}
-                    required={required}
-                    className="w-full bg-black/5 dark:bg-white/[0.03] border border-black/10 dark:border-white/10 rounded-xl py-3 pl-12 pr-4 text-gray-900 dark:text-white font-medium focus:outline-none focus:border-[#0d3542] dark:focus:border-[#58a6ff] focus:ring-1 focus:ring-[#0d3542]/20 dark:focus:ring-[#58a6ff]/20 transition-all cursor-pointer placeholder-transparent hover:border-black/20 dark:hover:border-white/20"
-                />
-            </div>
-        </div>
-    );
-};
 
 // ----------------------------------------------------------------------
 // Main Component
@@ -282,7 +257,15 @@ const PromocodeManager = () => {
                         </div>
                     </div>
 
-                    <CustomDatePicker value={formData.expires_at} onChange={(e) => setFormData(p => ({ ...p, expires_at: e.target.value }))} label="Expiry Date" required />
+                    <div className="group">
+                        <label className="block text-[11.5px] font-black text-gray-400 dark:text-white/40 uppercase tracking-wider mb-2 transition-colors group-focus-within:text-[#0d3542] dark:group-focus-within:text-[#58a6ff]">Expiry Date *</label>
+                        <DatePicker 
+                            required
+                            value={formData.expires_at}
+                            onChange={(e) => setFormData(p => ({ ...p, expires_at: e.target.value }))}
+                            name="expires_at"
+                        />
+                    </div>
 
                     <div className="pt-4">
                         <button type="submit" className="w-full bg-black dark:bg-white text-white dark:text-black py-4 rounded-2xl text-sm font-black uppercase tracking-[0.2em] hover:bg-[#0d3542] dark:hover:bg-[#58a6ff] hover:text-white dark:hover:text-black transition-all shadow-none active:scale-95">

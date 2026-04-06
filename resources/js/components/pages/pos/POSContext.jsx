@@ -78,39 +78,58 @@ export const POSProvider = ({ children }) => {
         setInvoiceTabs(newTabs);
     };
 
-    const addItem = (product) => {
-        const currentCart = [...activeTab.cartItems];
-        const existingIdx = currentCart.findIndex(item => item.product_id === product.id);
+    const addItems = (products) => {
+        setInvoiceTabs(prevTabs => {
+            const nextTabs = [...prevTabs];
+            const tab = { ...nextTabs[activeTabIndex] };
+            const currentCart = [...tab.cartItems];
 
-        if (existingIdx > -1) {
-            currentCart[existingIdx].quantity += 1;
-        } else {
-            currentCart.push({
-                product_id: product.id,
-                product_name: product.name,
-                product_variant: product.variant,
-                product_sku: product.sku,
-                is_service: product.is_service,
-                quantity: 1,
-                unit_price: product.price,
-                discount_type: 'none',
-                discount_value: 0,
-                gift_wrap: false,
-                is_accessory: product.is_accessory
+            products.forEach(product => {
+                const existingIdx = !product.is_service 
+                    ? currentCart.findIndex(item => item.product_id === product.id)
+                    : -1; // Services NEVER stack, always add as new "Add-on" row
+
+                if (existingIdx > -1) {
+                    currentCart[existingIdx] = {
+                        ...currentCart[existingIdx],
+                        quantity: currentCart[existingIdx].quantity + 1
+                    };
+                } else {
+                    currentCart.push({
+                        cart_item_id: `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+                        product_id: product.id,
+                        product_name: product.name,
+                        product_variant: product.variant,
+                        product_sku: product.sku,
+                        is_service: product.is_service,
+                        quantity: 1,
+                        unit_price: product.price,
+                        discount_type: 'none',
+                        discount_value: 0,
+                        gift_wrap: false,
+                        is_accessory: product.is_accessory
+                    });
+                }
             });
-        }
 
-        updateActiveTab({ cartItems: currentCart });
+            tab.cartItems = currentCart;
+            nextTabs[activeTabIndex] = tab;
+            return nextTabs;
+        });
     };
 
-    const removeItem = (productId) => {
-        const newCart = activeTab.cartItems.filter(item => item.product_id !== productId);
+    const addItem = (product) => {
+        addItems([product]);
+    };
+
+    const removeItem = (cartItemId) => {
+        const newCart = activeTab.cartItems.filter(item => item.cart_item_id !== cartItemId);
         updateActiveTab({ cartItems: newCart });
     };
 
-    const updateQty = (productId, delta) => {
+    const updateQty = (cartItemId, delta) => {
         const newCart = activeTab.cartItems.map(item => {
-            if (item.product_id === productId) {
+            if (item.cart_item_id === cartItemId) {
                 const newQty = Math.max(1, item.quantity + delta);
                 return { ...item, quantity: newQty };
             }
@@ -119,9 +138,9 @@ export const POSProvider = ({ children }) => {
         updateActiveTab({ cartItems: newCart });
     };
 
-    const updateItemDiscount = (productId, type, value) => {
+    const updateItemDiscount = (cartItemId, type, value) => {
         const newCart = activeTab.cartItems.map(item => {
-            if (item.product_id === productId) {
+            if (item.cart_item_id === cartItemId) {
                 return { ...item, discount_type: type, discount_value: parseFloat(value) || 0 };
             }
             return item;
@@ -129,9 +148,9 @@ export const POSProvider = ({ children }) => {
         updateActiveTab({ cartItems: newCart });
     };
 
-    const toggleGiftWrap = (productId) => {
+    const toggleGiftWrap = (cartItemId) => {
         const newCart = activeTab.cartItems.map(item => {
-            if (item.product_id === productId && item.is_accessory) {
+            if (item.cart_item_id === cartItemId && item.is_accessory) {
                 return { ...item, gift_wrap: !item.gift_wrap };
             }
             return item;
@@ -171,42 +190,55 @@ export const POSProvider = ({ children }) => {
 
     // Centralized Totals Calculation
     const totals = useMemo(() => {
-        if (!activeTab) return { subtotal: 0, productSubtotalForDiscount: 0, tierDiscountPercent: 0, tierDiscountAmount: 0, finalTotal: 0 };
+        if (!activeTab) return { subtotal: 0, productSubtotal: 0, serviceSubtotal: 0, productSubtotalForDiscount: 0, tierDiscountPercent: 0, tierDiscountAmount: 0, finalTotal: 0 };
         
-        let subtotal = 0;
-        let productSubtotalForDiscount = 0;
+        let productSubtotal = 0;
+        let serviceSubtotal = 0;
+        let productSubtotalForDiscountThreshold = 0;
         
         activeTab.cartItems.forEach(item => {
             const itemTotal = item.unit_price * item.quantity;
             let finalPrice = itemTotal;
 
-            if (item.discount_type === 'percentage') {
-                finalPrice = itemTotal * (1 - item.discount_value / 100);
-            } else if (item.discount_type === 'price') {
-                finalPrice = itemTotal - item.discount_value;
+            // Only apply individual discounts to regular products, NEVER services
+            if (!item.is_service) {
+                if (item.discount_type === 'percentage') {
+                    finalPrice = itemTotal * (1 - item.discount_value / 100);
+                } else if (item.discount_type === 'price') {
+                    finalPrice = itemTotal - item.discount_value;
+                }
             }
 
-            subtotal += Math.max(0, finalPrice);
+            const processedPrice = Math.max(0, finalPrice);
             
-            if (!item.is_service) {
-                productSubtotalForDiscount += item.unit_price * item.quantity;
+            if (!!item.is_service) {
+                serviceSubtotal += itemTotal; // Services are always added at their full unit price * quantity
+            } else {
+                productSubtotal += processedPrice;
+                // Threshold based on the net product subtotal (after item-level discounts)
+                productSubtotalForDiscountThreshold += processedPrice;
             }
         });
 
+        // Determine Tier Discount Percent (Products only)
         let tierDiscountPercent = 0;
-        if (productSubtotalForDiscount >= 1500) tierDiscountPercent = 15;
-        else if (productSubtotalForDiscount >= 1000) tierDiscountPercent = 10;
-        else if (productSubtotalForDiscount >= 500) tierDiscountPercent = 8;
+        if (productSubtotalForDiscountThreshold >= 1500) tierDiscountPercent = 15;
+        else if (productSubtotalForDiscountThreshold >= 1000) tierDiscountPercent = 10;
+        else if (productSubtotalForDiscountThreshold >= 500) tierDiscountPercent = 8;
 
-        const tierDiscountAmount = subtotal * (tierDiscountPercent / 100);
-        const finalTotal = subtotal - tierDiscountAmount;
+        const tierDiscountAmount = productSubtotal * (tierDiscountPercent / 100);
+        
+        // Final Total: Product Subtotal (net of tier discount) + Service Add-ons
+        const finalTotal = (productSubtotal - tierDiscountAmount) + serviceSubtotal;
 
         const currentPaid = (activeTab?.payments || []).reduce((sum, p) => sum + p.amount, 0);
         const changeDue = Math.max(0, currentPaid - finalTotal);
 
         return {
-            subtotal,
-            productSubtotalForDiscount,
+            subtotal: productSubtotal + serviceSubtotal,
+            productSubtotal,
+            serviceSubtotal,
+            productSubtotalForDiscount: productSubtotalForDiscountThreshold,
             tierDiscountPercent,
             tierDiscountAmount,
             finalTotal,
@@ -224,6 +256,7 @@ export const POSProvider = ({ children }) => {
         addNewTab,
         closeTab,
         addItem,
+        addItems,
         removeItem,
         updateQty,
         updateItemDiscount,

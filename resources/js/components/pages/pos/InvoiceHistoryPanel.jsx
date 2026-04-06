@@ -19,6 +19,7 @@ import {
 import axios from 'axios';
 import { motion, AnimatePresence } from 'framer-motion';
 import RefundModal from './RefundModal';
+import DatePicker from '@/components/ui/DatePicker';
 
 const InvoiceHistoryPanel = ({ onClose }) => {
     const [invoices, setInvoices] = useState([]);
@@ -87,7 +88,7 @@ const InvoiceHistoryPanel = ({ onClose }) => {
                             <History size={20} />
                         </div>
                         <div>
-                            <h2 className="text-[14px] font-bold uppercase tracking-[0.3em] text-gray-900 dark:text-white leading-none mb-1">
+                            <h2 className="text-[14px] font-bold uppercase tracking-[0.3em] text-foreground dark:text-white leading-none mb-1">
                                 Sales History
                             </h2>
                             <p className="text-[9px] text-gray-500 uppercase tracking-widest">Review past transactions & refunds</p>
@@ -100,22 +101,19 @@ const InvoiceHistoryPanel = ({ onClose }) => {
 
                 {/* Filters Area */}
                 <div className="p-6 space-y-4 border-b border-black/5 dark:border-white/5 bg-gray-50/50 dark:bg-white/[0.01]">
-                    <div className="relative group">
-                        <Calendar size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-attire-accent" />
-                        <input 
-                            type="date" 
-                            className="w-full bg-white dark:bg-white/[0.03] border border-black/10 dark:border-white/10 rounded-xl py-3 pl-12 pr-4 text-[11px] font-bold uppercase tracking-widest outline-none focus:border-attire-accent/50 transition-all shadow-none"
-                            value={date}
-                            onChange={(e) => setDate(e.target.value)}
-                        />
-                    </div>
+                    <DatePicker 
+                        value={date}
+                        onChange={(e) => setDate(e.target.value)}
+                        placeholder="Filter by date..."
+                        inputClassName="bg-white dark:bg-white/[0.03] border-black/10 dark:border-white/10 rounded-xl py-3 text-[11px] font-bold uppercase tracking-widest pl-10"
+                    />
                     
                     <div className="relative group">
                         <Search size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-attire-accent" />
                         <input 
                             type="text" 
                             placeholder="Search invoice # or customer..."
-                            className="w-full bg-white dark:bg-white/[0.03] border border-black/10 dark:border-white/10 rounded-xl py-3 pl-12 pr-4 text-[11px] font-bold uppercase tracking-widest outline-none focus:border-attire-accent/50 transition-all shadow-none"
+                            className="w-full bg-white dark:bg-white/[0.03] border border-black/10 dark:border-white/10 rounded-xl py-3 pl-12 pr-4 text-[11px] font-bold uppercase tracking-widest outline-none focus:border-attire-accent/50 text-foreground dark:text-white transition-all shadow-none"
                             value={search}
                             onChange={(e) => setSearch(e.target.value)}
                             onKeyDown={(e) => e.key === 'Enter' && fetchHistory()}
@@ -130,9 +128,18 @@ const InvoiceHistoryPanel = ({ onClose }) => {
                             <RefreshCcw className="animate-spin text-attire-accent" size={24} />
                         </div>
                     ) : invoices.length === 0 ? (
-                        <div className="h-full flex flex-col items-center justify-center text-center opacity-30 italic">
-                            <Receipt size={48} className="mb-4" />
-                            <p className="text-[10px] font-bold uppercase tracking-widest">No records for this date</p>
+                        <div className="h-full flex flex-col items-center justify-center text-center p-8">
+                            <div className="w-24 h-24 mb-6 relative">
+                                <img 
+                                    src="/images/logo.png" 
+                                    alt="Attire Lounge" 
+                                    className="w-full h-full object-contain opacity-20 dark:opacity-10 grayscale filter brightness-0 dark:brightness-100" 
+                                />
+                            </div>
+                            <Receipt size={32} className="mb-4 text-gray-300 dark:text-[#8b949e]/20" />
+                            <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-gray-400 dark:text-[#8b949e]/40">
+                                No records discovered for this date
+                            </p>
                         </div>
                     ) : (
                         invoices.map((inv) => (
@@ -142,7 +149,7 @@ const InvoiceHistoryPanel = ({ onClose }) => {
                             >
                                 <div className="flex items-center justify-between mb-3">
                                     <div className="flex items-center gap-2">
-                                        <span className="text-[10px] font-bold text-gray-900 dark:text-white uppercase tracking-tighter">
+                                        <span className="text-[10px] font-bold text-foreground dark:text-white uppercase tracking-tighter">
                                             {inv.invoice_number}
                                         </span>
                                         <span className={`px-1.5 py-0.5 rounded text-[7px] font-bold uppercase tracking-widest ${

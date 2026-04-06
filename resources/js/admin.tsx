@@ -1,7 +1,6 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import './bootstrap';
-import '../css/app.css';
 import AdminApp from './components/AdminApp.tsx';
 import ErrorBoundary from './components/common/ErrorBoundary.jsx';
 

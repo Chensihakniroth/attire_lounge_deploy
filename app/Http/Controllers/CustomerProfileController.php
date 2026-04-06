@@ -40,6 +40,8 @@ class CustomerProfileController extends Controller
             'preferred_color' => 'nullable|string',
             'color_notes' => 'nullable|string',
             'remarks' => 'nullable|string',
+            'birthday' => 'nullable|date',
+            'is_vip' => 'nullable|boolean',
         ]);
 
         $customerProfile = $this->customerProfileService->createCustomerProfile($validatedData);
@@ -71,6 +73,8 @@ class CustomerProfileController extends Controller
             'preferred_color' => 'nullable|string',
             'color_notes' => 'nullable|string',
             'remarks' => 'nullable|string',
+            'birthday' => 'nullable|date',
+            'is_vip' => 'nullable|boolean',
         ]);
 
         $customerProfile = $this->customerProfileService->updateCustomerProfile($id, $validatedData);

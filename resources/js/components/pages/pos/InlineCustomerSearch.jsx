@@ -22,8 +22,11 @@ const InlineCustomerSearch = () => {
         }
         setLoading(true);
         try {
-            const response = await axios.get(`/api/v1/search?q=${val}&type=customer`);
-            const customers = response.data.data.filter(item => item.type === 'customer' || item.name);
+            const token = localStorage.getItem('admin_token') || sessionStorage.getItem('admin_token');
+            const response = await axios.get(`/api/v1/admin/customer-profiles?search=${val}`, {
+                headers: { Authorization: `Bearer ${token}` }
+            });
+            const customers = response.data.data || [];
             setResults(customers);
             setShowResults(customers.length > 0);
         } catch (error) {

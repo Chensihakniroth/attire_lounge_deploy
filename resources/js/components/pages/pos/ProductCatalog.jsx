@@ -58,17 +58,20 @@ const ProductLogRow = React.forwardRef(({ product, isSelected, onToggleSelect },
             onClick={onToggleSelect}
         >
             <div
-                className={`w-full min-h-[70px] flex items-center transition-all cursor-pointer hover:bg-black/[0.02] dark:hover:bg-[#161b22] active:bg-black/[0.04] dark:active:bg-[#0d1117] ${isSelected ? 'bg-[#0d3542]/10 dark:bg-[#58a6ff]/10 pr-5' : 'pr-5'}`}
+                className={`w-full min-h-13 flex items-center transition-all cursor-pointer hover:bg-black/[0.02] dark:hover:bg-[#161b22] active:bg-black/[0.04] dark:active:bg-[#0d1117] ${isSelected ? 'bg-[#0d3542]/10 dark:bg-[#58a6ff]/10' : ''}`}
             >
+                {/* Selection Indicator Bar - Absolute to prevent shifting */}
+                {isSelected && <div className="absolute left-0 top-0 bottom-0 w-1 bg-[#0d3542] dark:bg-[#58a6ff] z-10" />}
+
                 {/* Custom Checkbox */}
-                <div className={`w-16 h-[70px] border-r border-black/5 dark:border-[#30363d] flex items-center justify-center transition-all flex-shrink-0 ${isSelected ? 'border-l-[4px] border-[#0d3542] dark:border-[#58a6ff]' : ''}`}>
-                    <div className={`w-5 h-5 rounded-md border-2 flex items-center justify-center transition-all ${isSelected ? 'bg-[#0d3542] dark:bg-[#58a6ff] border-[#0d3542] dark:border-[#58a6ff]' : 'border-black/10 dark:border-[#30363d] group-hover:border-[#0d3542]/40 dark:group-hover:border-[#58a6ff]/40'}`}>
-                        {isSelected && <Check size={12} className="text-white dark:text-black font-black" />}
+                <div className="w-16 h-13 border-r border-black/5 dark:border-[#30363d] flex items-center justify-center transition-all flex-shrink-0">
+                    <div className={`w-4 h-4 rounded-md border-2 flex items-center justify-center transition-all ${isSelected ? 'bg-[#0d3542] dark:bg-[#58a6ff] border-[#0d3542] dark:border-[#58a6ff]' : 'border-black/10 dark:border-[#30363d] group-hover:border-[#0d3542]/40 dark:group-hover:border-[#58a6ff]/40'}`}>
+                        {isSelected && <Check size={10} className="text-white dark:text-black font-black" />}
                     </div>
                 </div>
 
-                <div className="w-32 border-r border-black/5 dark:border-[#30363d] px-4 h-[70px] flex items-center flex-shrink-0">
-                    <div className={`px-2.5 py-1 rounded-lg text-[10px] font-black uppercase tracking-widest ${
+                <div className="w-32 border-r border-black/5 dark:border-[#30363d] px-4 h-13 flex items-center flex-shrink-0">
+                    <div className={`px-2 py-0.5 rounded-lg text-[11px] font-black uppercase tracking-widest ${
                         product.stock_qty > 0 
                             ? 'bg-green-500/10 text-green-500 dark:text-green-400' 
                             : 'bg-red-500/10 text-red-500 dark:text-red-400'
@@ -77,23 +80,23 @@ const ProductLogRow = React.forwardRef(({ product, isSelected, onToggleSelect },
                     </div>
                 </div>
 
-                <div className="w-40 border-r border-black/5 dark:border-[#30363d] px-5 h-[70px] flex items-center flex-shrink-0 font-mono text-[13px] font-black text-[#0d3542] dark:text-[#58a6ff] tracking-tighter truncate">
+                <div className="w-40 border-r border-black/5 dark:border-[#30363d] px-5 h-13 flex items-center flex-shrink-0 font-mono text-[13px] font-black text-[#0d3542] dark:text-[#58a6ff] tracking-tighter truncate">
                     {product.sku}
                 </div>
 
-                <div className="flex-1 border-r border-black/5 dark:border-[#30363d] px-6 h-[70px] flex items-center min-w-0 overflow-hidden">
-                    <p className={`text-[15px] font-black uppercase tracking-wider truncate transition-colors ${isSelected ? 'text-[#0d3542] dark:text-[#58a6ff]' : 'text-gray-900 dark:text-[#c9d1d9]'}`}>
+                <div className="flex-1 border-r border-black/5 dark:border-[#30363d] px-6 h-13 flex items-center min-w-0 overflow-hidden">
+                    <p className={`text-[14px] font-black uppercase tracking-wider truncate transition-colors ${isSelected ? 'text-[#0d3542] dark:text-[#58a6ff]' : 'text-gray-900 dark:text-[#c9d1d9]'}`}>
                         {product.display_name || product.name}
                     </p>
                 </div>
 
-                <div className="w-28 border-r border-black/5 dark:border-[#30363d] px-4 h-[70px] flex items-center justify-center">
-                    <span className={`font-mono text-[14px] font-black px-4 py-1.5 rounded-xl border ${product.stock_qty <= 5 ? 'bg-red-500/10 border-red-500/20 text-red-500' : 'bg-black/5 dark:bg-[#0d1117] border-black/10 dark:border-[#30363d] text-gray-500/60 dark:text-[#8b949e]/40'}`}>
+                <div className="w-28 border-r border-black/5 dark:border-[#30363d] px-4 h-13 flex items-center justify-center">
+                    <span className={`font-mono text-[12px] font-black px-3 py-1 rounded-xl border ${product.stock_qty <= 5 ? 'bg-red-500/10 border-red-500/20 text-red-500' : 'bg-black/5 dark:bg-[#0d1117] border-black/10 dark:border-[#30363d] text-gray-500/60 dark:text-[#8b949e]/40'}`}>
                         {product.stock_qty}
                     </span>
                 </div>
 
-                <div className="w-36 px-6 h-[70px] flex items-center justify-end font-mono text-[18px] font-black text-gray-900 dark:text-[#c9d1d9]">
+                <div className="w-36 px-6 h-13 flex items-center justify-end font-mono text-[16px] font-black text-gray-900 dark:text-[#c9d1d9] pr-8">
                     ${parseFloat(product.price).toLocaleString()}
                 </div>
             </div>
@@ -147,7 +150,7 @@ const FilterPanel = ({ filters, categories, onChange, totalResults, searchQuery,
         >
             <div className="flex items-center justify-between">
                 <div>
-                    <h3 className="text-[14px] font-black uppercase tracking-[0.25em] text-gray-900 dark:text-[#c9d1d9]">Filter</h3>
+                    <h3 className="text-[18px] font-black uppercase tracking-[0.25em] text-gray-900 dark:text-[#c9d1d9]">Filter</h3>
                     <p className="text-[10px] font-bold text-gray-400 dark:text-[#8b949e]/40 uppercase tracking-widest mt-1">{totalResults} matches</p>
                 </div>
                 {hasActiveFilters && (
@@ -316,7 +319,7 @@ const FilterPanel = ({ filters, categories, onChange, totalResults, searchQuery,
 // --- Product Catalog ---
 
 const ProductCatalog = ({ onSearchClick }) => {
-    const { addItem } = usePOS();
+    const { addItem, addItems } = usePOS();
     const [products, setProducts] = useState([]);
     const [categories, setCategories] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -393,7 +396,7 @@ const ProductCatalog = ({ onSearchClick }) => {
     }, [selectedProducts]);
 
     const handleBatchAdd = () => {
-        selectedProducts.forEach(product => addItem(product));
+        addItems(Array.from(selectedProducts.values()));
         setSelectedProducts(new Map());
         if (onSearchClick) onSearchClick();
     };
@@ -401,12 +404,12 @@ const ProductCatalog = ({ onSearchClick }) => {
     return (
         <div className="h-full w-full flex flex-col bg-[#fdfdfc] dark:bg-[#0d1117] overflow-hidden rounded-2xl border border-black/10 dark:border-[#30363d] shadow-none">
             {/* Header - Clean & Minimalist */}
-            <div className="border-b-2 border-black/5 dark:border-[#30363d] bg-[#fdfdfc] dark:bg-[#0d1117] p-8 sticky top-0 z-30">
+            <div className="border-b-2 border-black/5 dark:border-[#30363d] bg-[#fdfdfc] dark:bg-[#0d1117] p-6 sticky top-0 z-30">
                 <div className="flex items-center justify-between">
                     <div>
-                        <h1 className="text-[28px] font-black uppercase tracking-[0.4em] text-gray-900 dark:text-[#c9d1d9] leading-none">Catalog</h1>
-                        <p className="text-[12px] font-bold text-gray-400 dark:text-[#8b949e]/40 uppercase tracking-widest mt-3 flex items-center gap-3">
-                            <Hash size={14} className="text-[#0d3542] dark:text-[#58a6ff]" /> Product Inventory System
+                        <h1 className="text-[20px] font-black uppercase tracking-[0.4em] text-gray-900 dark:text-[#c9d1d9] leading-none">Catalog</h1>
+                        <p className="text-[11px] font-bold text-gray-400 dark:text-[#8b949e]/40 uppercase tracking-widest mt-2 flex items-center gap-3">
+                            <Hash size={12} className="text-[#0d3542] dark:text-[#58a6ff]" /> Product Inventory System
                         </p>
                     </div>
                 </div>
@@ -447,7 +450,7 @@ const ProductCatalog = ({ onSearchClick }) => {
                         <div className="w-40 border-r border-black/5 dark:border-[#30363d] px-5 py-4">SKU</div>
                         <div className="flex-1 border-r border-black/5 dark:border-[#30363d] px-6 py-4">Product Name</div>
                         <div className="w-28 border-r border-black/5 dark:border-[#30363d] px-4 py-4 text-center">In Stock</div>
-                        <div className="w-36 px-6 py-4 text-right">Price</div>
+                        <div className="w-36 px-6 py-4 text-right pr-8">Price</div>
                     </div>
 
                     <div className="flex-1 overflow-y-auto attire-scrollbar relative">
@@ -517,8 +520,8 @@ const ProductCatalog = ({ onSearchClick }) => {
                             <div className="absolute left-0 top-0 bottom-0 w-3 bg-[#0d3542] dark:bg-[#58a6ff]" />
                             
                             <div className="flex flex-col">
-                                <span className="text-[11px] font-black uppercase tracking-[0.3em] text-[#0d3542] dark:text-[#58a6ff] leading-none mb-2">Ready to add</span>
-                                <span className="text-[24px] font-black text-gray-900 dark:text-[#c9d1d9] leading-none tracking-tight">{selectedProducts.size} items selected</span>
+                                <span className="text-[10px] font-black uppercase tracking-[0.3em] text-[#0d3542] dark:text-[#58a6ff] leading-none mb-1.5">Ready to add</span>
+                                <span className="text-[18px] font-black text-gray-900 dark:text-[#c9d1d9] leading-none tracking-tight">{selectedProducts.size} items selected</span>
                             </div>
                             
                             <div className="h-12 w-px bg-black/10 dark:bg-[#30363d] flex-shrink-0" />

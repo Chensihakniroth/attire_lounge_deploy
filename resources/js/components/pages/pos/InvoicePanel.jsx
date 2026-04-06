@@ -85,9 +85,9 @@ const InvoicePanel = () => {
             {/* Totals & Checkout */}
             <div className="mt-auto p-6 border-t border-black/5 dark:border-[#30363d] bg-[#0d3542]/5 dark:bg-[#161b22] space-y-6">
                 <div className="space-y-3">
-                    <div className="flex items-center justify-between text-[11px] font-black uppercase tracking-[0.3em] text-gray-400/80">
-                        <span>Subtotal ({activeTab.cartItems.length} items)</span>
-                        <span className="font-mono text-gray-900 dark:text-white text-[14px]">${totals.subtotal.toLocaleString()}</span>
+                    <div className="flex items-center justify-between text-[11px] font-black uppercase tracking-[0.3em] text-gray-400/80 dark:text-[#8b949e]/80">
+                        <span>Product Subtotal</span>
+                        <span className="font-mono text-gray-900 dark:text-white text-[14px]">${totals.productSubtotal.toLocaleString()}</span>
                     </div>
 
                     <AnimatePresence>
@@ -100,9 +100,26 @@ const InvoicePanel = () => {
                             >
                                 <div className="flex items-center gap-2">
                                     <Tag size={14} />
-                                    <span>Discount ({totals.tierDiscountPercent}%)</span>
+                                    <span>Elite Discount ({totals.tierDiscountPercent}%)</span>
                                 </div>
                                 <span className="font-mono text-[14px]">-${totals.tierDiscountAmount.toLocaleString()}</span>
+                            </motion.div>
+                        )}
+                    </AnimatePresence>
+
+                    <AnimatePresence>
+                        {totals.serviceSubtotal > 0 && (
+                            <motion.div 
+                                initial={{ opacity: 0, height: 0 }}
+                                animate={{ opacity: 1, height: 'auto' }}
+                                exit={{ opacity: 0, height: 0 }}
+                                className="flex items-center justify-between text-[11px] font-black uppercase tracking-[0.2em] text-[#0d3542] dark:text-[#58a6ff]"
+                            >
+                                <div className="flex items-center gap-2">
+                                    <Plus size={14} />
+                                    <span>Service Add-ons</span>
+                                </div>
+                                <span className="font-mono text-[14px]">+${totals.serviceSubtotal.toLocaleString()}</span>
                             </motion.div>
                         )}
                     </AnimatePresence>
@@ -112,14 +129,14 @@ const InvoicePanel = () => {
                     <div className="flex items-center justify-between py-1">
                         <div className="space-y-1">
                             <span className="block text-[13px] font-black uppercase tracking-[0.4em] text-gray-900 dark:text-white leading-none">Grand Total</span>
-                            <span className="block text-[9px] text-gray-400 uppercase tracking-widest leading-none font-bold">Final Total</span>
+                            <span className="block text-[9px] text-gray-400 dark:text-[#8b949e]/40 uppercase tracking-widest leading-none font-bold">Final Total</span>
                         </div>
                         <span className="text-5xl font-black text-attire-accent tracking-tighter leading-none font-mono">
                             ${totals.finalTotal.toLocaleString()}
                         </span>
                     </div>
 
-                    <div className={`flex items-center justify-between text-[11px] font-black uppercase tracking-[0.3em] transition-all duration-700 ${totals.changeDue > 0 ? 'text-emerald-500' : 'text-gray-400/30'}`}>
+                    <div className={`flex items-center justify-between text-[11px] font-black uppercase tracking-[0.3em] transition-all duration-700 ${totals.changeDue > 0 ? 'text-emerald-500' : 'text-gray-400/30 dark:text-[#8b949e]/20'}`}>
                         <span>{totals.changeDue > 0 ? 'Change Due' : 'Awaiting Payment'}</span>
                         <span className="font-mono text-[14px]">${totals.changeDue.toLocaleString(undefined, { minimumFractionDigits: 2 })}</span>
                     </div>
@@ -150,7 +167,7 @@ const InvoicePanel = () => {
                         <input 
                             type="text" 
                             placeholder="Add note..."
-                            className="w-full bg-transparent border-b border-black/5 dark:border-white/5 py-3 text-[11px] font-black text-gray-500 uppercase tracking-[0.15em] outline-none focus:border-attire-accent transition-all placeholder:text-gray-300 dark:placeholder:text-white/10"
+                            className="w-full bg-transparent border-b border-black/5 dark:border-white/5 py-3 text-[11px] font-black text-gray-500 dark:text-[#c9d1d9] uppercase tracking-[0.15em] outline-none focus:border-attire-accent transition-all placeholder:text-gray-300 dark:placeholder:text-[#8b949e]/20"
                             value={activeTab.note || ''}
                             onChange={(e) => updateNote(e.target.value)}
                         />

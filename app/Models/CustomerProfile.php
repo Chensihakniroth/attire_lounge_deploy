@@ -26,5 +26,7 @@ class CustomerProfile extends Model
         'preferred_color',
         'color_notes',
         'remarks',
+        'birthday',
+        'is_vip',
     ];
 }

@@ -13,6 +13,7 @@ import axios from 'axios';
 import OptimizedImage from '../common/OptimizedImage.jsx';
 import { isSafari } from '../../helpers/browserUtils.js';
 import { useProducts } from '../../hooks/useProducts';
+import DatePicker from '@/components/ui/DatePicker';
 
 // --- Premium Animation Constants ---
 const fadeUp = {
@@ -347,7 +348,17 @@ const ContactPage = () => {
                                         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                                             <SelectField name="service" label="Service Type" value={formData.service} onChange={e => setFormData({...formData, service: e.target.value})} options={appointmentTypes} />
                                             <div className="grid grid-cols-2 gap-6">
-                                                <InputField name="date" type="date" label="Preferred Date" value={formData.date} onChange={e => setFormData({...formData, date: e.target.value})} error={errors.date} min={new Date().toISOString().split('T')[0]} />
+                                                <div className="space-y-2">
+                                                    <label className="block text-[10px] font-black text-white/80 uppercase tracking-[0.3em] ml-1">Preferred Date</label>
+                                                    <DatePicker 
+                                                        name="date"
+                                                        value={formData.date}
+                                                        onChange={(e) => setFormData({...formData, date: e.target.value})}
+                                                        error={errors.date}
+                                                        minDate={new Date().toISOString().split('T')[0]}
+                                                        inputClassName="py-5 rounded-2xl border-white/10 bg-white/[0.02] text-sm text-white pl-14"
+                                                    />
+                                                </div>
                                                 <SelectField name="time" label="Time" value={formData.time} onChange={e => setFormData({...formData, time: e.target.value})} options={timeSlots} />
                                             </div>
                                         </div>

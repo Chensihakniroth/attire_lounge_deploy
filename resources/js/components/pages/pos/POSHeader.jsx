@@ -34,7 +34,7 @@ const POSHeader = () => {
             {/* Logo & Admin Switcher */}
             <div className="flex items-center gap-6 mr-8">
                 <div className="flex flex-col">
-                    <h1 className="text-sm font-bold tracking-[0.2em] uppercase text-gray-900 dark:text-white leading-tight">
+                    <h1 className="text-sm font-bold tracking-[0.2em] uppercase text-foreground dark:text-white leading-tight">
                         Attire Lounge
                     </h1>
                     <span className="text-[10px] text-attire-accent font-bold uppercase tracking-widest">
@@ -69,8 +69,8 @@ const POSHeader = () => {
                                 onClick={() => setActiveTabIndex(index)}
                                 className={`flex items-center gap-3 px-4 py-2 rounded-xl text-[10px] font-bold uppercase tracking-widest transition-all whitespace-nowrap group ${
                                     activeTabIndex === index
-                                        ? 'bg-attire-accent text-white shadow-none border border-black/5 dark:border-white/5'
-                                        : 'bg-black/5 dark:bg-white/5 text-gray-500 dark:text-gray-400 hover:bg-black/10 dark:hover:bg-white/10'
+                                        ? 'bg-attire-accent text-gray-900 dark:text-white shadow-none border border-black/5 dark:border-white/5'
+                                        : 'bg-black/5 dark:bg-white/5 text-foreground dark:text-[#8b949e] hover:bg-black/10 dark:hover:bg-white/10'
                                 }`}
                             >
                                 <span className="opacity-50">#{(index + 1).toString().padStart(2, '0')}</span>
@@ -79,8 +79,8 @@ const POSHeader = () => {
                                 
                                 <X 
                                     size={12} 
-                                    className={`ml-2 hover:bg-black/20 rounded-full p-0.5 transition-all ${
-                                        activeTabIndex === index ? 'text-black/60 hover:text-black' : 'text-gray-400 hover:text-white'
+                                    className={`ml-2 hover:bg-black/20 dark:hover:bg-white/10 rounded-full p-0.5 transition-all outline-none border-none ${
+                                        activeTabIndex === index ? 'text-gray-900/60 dark:text-black/60 hover:text-gray-900 dark:hover:text-black' : 'text-gray-400 dark:text-[#8b949e] hover:text-foreground dark:hover:text-[#c9d1d9]'
                                     }`}
                                     onClick={(e) => {
                                         e.stopPropagation();
@@ -94,7 +94,7 @@ const POSHeader = () => {
 
                 <button 
                     onClick={addNewTab}
-                    className="p-2 rounded-xl bg-black/5 dark:bg-white/5 hover:bg-attire-accent hover:text-black text-gray-500 dark:text-gray-400 transition-all active:scale-95 ml-2"
+                    className="p-2 rounded-xl bg-black/10 dark:bg-white/5 hover:bg-attire-accent hover:text-black text-gray-900 dark:text-[#8b949e] transition-all active:scale-95 ml-2 border border-black/5 dark:border-white/5"
                     title="Add new sale tab"
                 >
                     <Plus size={16} />
@@ -104,10 +104,10 @@ const POSHeader = () => {
             {/* Right Side Actions */}
             <div className="flex items-center gap-4 ml-6">
                 <div className="hidden lg:flex flex-col text-right">
-                    <p className="text-[10px] font-bold uppercase tracking-widest text-gray-900 dark:text-white">
+                    <p className="text-[10px] font-bold uppercase tracking-widest text-foreground dark:text-white">
                         {new Date().toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' })}
                     </p>
-                    <p className="text-[9px] text-gray-400 uppercase tracking-widest">
+                    <p className="text-[9px] text-gray-400 dark:text-[#8b949e]/40 uppercase tracking-widest">
                         Ready for Sale
                     </p>
                 </div>
@@ -116,7 +116,7 @@ const POSHeader = () => {
 
                 <button 
                     onClick={() => setIsHistoryOpen(true)}
-                    className="p-2.5 rounded-xl bg-black/5 dark:bg-white/5 hover:bg-black/10 dark:hover:bg-white/10 text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-all group"
+                    className="p-2.5 rounded-xl bg-black/5 dark:bg-white/5 hover:bg-black/10 dark:hover:bg-white/10 text-gray-500 dark:text-[#8b949e] hover:text-gray-900 dark:hover:text-white transition-all group"
                     title="Invoice History"
                 >
                     <History size={18} className="group-hover:rotate-[360deg] transition-transform duration-700" />
@@ -124,7 +124,7 @@ const POSHeader = () => {
 
                 <button 
                     onClick={toggleDarkMode}
-                    className="p-2.5 rounded-xl bg-black/5 dark:bg-white/5 hover:bg-black/10 dark:hover:bg-white/10 text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-all"
+                    className="p-2.5 rounded-xl bg-black/5 dark:bg-white/5 hover:bg-black/10 dark:hover:bg-white/10 text-gray-500 dark:text-[#8b949e] hover:text-gray-900 dark:hover:text-white transition-all"
                 >
                     {isDarkMode ? <Sun size={18} /> : <Moon size={18} />}
                 </button>

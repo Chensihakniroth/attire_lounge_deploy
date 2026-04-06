@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}" class="dark">
     <head>
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -19,7 +19,7 @@
             };
         </script>
     </head>
-    <body>
+    <body class="bg-background text-foreground antialiased" style="background-color: #0d1117;">
         <div id="app"></div>
         <script type="module" src="{{ asset('/js/app.js') }}?v={{ time() }}"></script>
     </body>

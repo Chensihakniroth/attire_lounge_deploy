@@ -35,7 +35,7 @@ const CartItem = ({ item }) => {
                 {/* Quantity Controls */}
                 <div className="flex flex-col items-center gap-1 bg-black/[0.03] dark:bg-white/[0.03] rounded-xl p-1 border border-black/15 dark:border-white/10 flex-shrink-0 group-hover:bg-background dark:group-hover:bg-black transition-colors">
                     <button 
-                        onClick={() => updateQty(item.product_id, 1)}
+                        onClick={() => updateQty(item.cart_item_id, 1)}
                         className="p-1 hover:text-attire-accent transition-colors active:scale-110"
                     >
                         <Plus size={10} />
@@ -44,7 +44,7 @@ const CartItem = ({ item }) => {
                         {item.quantity}
                     </span>
                     <button 
-                        onClick={() => updateQty(item.product_id, -1)}
+                        onClick={() => updateQty(item.cart_item_id, -1)}
                         className="p-1 hover:text-red-400 transition-colors active:scale-110"
                     >
                         <Minus size={10} />
@@ -92,7 +92,7 @@ const CartItem = ({ item }) => {
 
                 {/* Remove Button (Top corner) */}
                 <button 
-                    onClick={() => removeItem(item.product_id)}
+                    onClick={() => removeItem(item.cart_item_id)}
                     className="absolute top-2 right-2 p-1.5 text-gray-400 hover:text-red-500 hover:bg-red-500/10 rounded-lg transition-all opacity-0 group-hover:opacity-100"
                 >
                     <Trash2 size={12} />
@@ -122,27 +122,31 @@ const CartItem = ({ item }) => {
                                 <span className="text-[8px] font-bold uppercase tracking-widest text-gray-500 dark:text-gray-400 flex items-center gap-1">
                                     <Tag size={8} /> Item Discount
                                 </span>
-                                <div className="flex items-center bg-background dark:bg-black rounded-lg border border-black/15 dark:border-white/10 overflow-hidden">
-                                    <button 
-                                        onClick={() => updateItemDiscount(item.product_id, item.discount_type === 'percentage' ? 'none' : 'percentage', item.discount_value)}
-                                        className={`p-2 transition-colors ${item.discount_type === 'percentage' ? 'bg-attire-accent text-black' : 'text-gray-400'}`}
-                                    >
-                                        <Percent size={10} />
-                                    </button>
-                                    <button 
-                                        onClick={() => updateItemDiscount(item.product_id, item.discount_type === 'price' ? 'none' : 'price', item.discount_value)}
-                                        className={`p-2 transition-colors border-l border-black/5 dark:border-white/10 ${item.discount_type === 'price' ? 'bg-attire-accent text-black' : 'text-gray-400'}`}
-                                    >
-                                        <DollarSign size={10} />
-                                    </button>
-                                    <input 
-                                        type="number"
-                                        placeholder="0"
-                                        className="w-full bg-transparent border-none outline-none text-[10px] font-bold px-2 text-center"
-                                        value={item.discount_value || ''}
-                                        onChange={(e) => updateItemDiscount(item.product_id, item.discount_type, e.target.value)}
-                                    />
-                                </div>
+                                {item.is_service ? (
+                                    <div className="p-2 text-[8px] uppercase tracking-widest text-gray-400/60 italic border border-black/5 dark:border-white/5 rounded-lg bg-black/5 dark:bg-black/20">Fixed Pricing: Services</div>
+                                ) : (
+                                    <div className="flex items-center bg-background dark:bg-black rounded-lg border border-black/15 dark:border-white/10 overflow-hidden">
+                                        <button 
+                                            onClick={() => updateItemDiscount(item.cart_item_id, item.discount_type === 'percentage' ? 'none' : 'percentage', item.discount_value)}
+                                            className={`p-2 transition-colors ${item.discount_type === 'percentage' ? 'bg-attire-accent text-black' : 'text-gray-400'}`}
+                                        >
+                                            <Percent size={10} />
+                                        </button>
+                                        <button 
+                                            onClick={() => updateItemDiscount(item.cart_item_id, item.discount_type === 'price' ? 'none' : 'price', item.discount_value)}
+                                            className={`p-2 transition-colors border-l border-black/5 dark:border-white/10 ${item.discount_type === 'price' ? 'bg-attire-accent text-black' : 'text-gray-400'}`}
+                                        >
+                                            <DollarSign size={10} />
+                                        </button>
+                                        <input 
+                                            type="number"
+                                            placeholder="0"
+                                            className="w-full bg-transparent border-none outline-none text-[10px] font-bold px-2 text-center"
+                                            value={item.discount_value || ''}
+                                            onChange={(e) => updateItemDiscount(item.cart_item_id, item.discount_type, e.target.value)}
+                                        />
+                                    </div>
+                                )}
                             </div>
 
                             {/* Options Control */}
@@ -154,7 +158,7 @@ const CartItem = ({ item }) => {
                                     <div className="p-2 text-[8px] uppercase tracking-widest text-gray-400 italic">No options available</div>
                                 ) : (
                                     <button 
-                                        onClick={() => toggleGiftWrap(item.product_id)}
+                                        onClick={() => toggleGiftWrap(item.cart_item_id)}
                                         className={`w-full flex items-center justify-center gap-2 py-2 px-3 rounded-lg border transition-all text-[9px] font-bold uppercase tracking-widest ${
                                             item.gift_wrap 
                                                 ? 'bg-attire-accent border-attire-accent text-black shadow-none' 

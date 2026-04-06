@@ -10,7 +10,7 @@ const POSLayout = () => {
     
     return (
         <POSProvider>
-            <div className={`h-screen w-screen flex flex-col font-sans transition-colors duration-300 relative overflow-hidden ${isDarkMode ? 'bg-[#050505] text-white' : 'bg-background text-gray-900'}`}>
+            <div className={`h-screen w-screen flex flex-col font-sans transition-colors duration-300 relative overflow-hidden ${isDarkMode ? 'bg-[#050505] text-white' : 'bg-background text-foreground'}`}>
                 {/* Scoped Reset for Full Screen */}
                 <style dangerouslySetInnerHTML={{ __html: `
                     html, body, #app { height: 100% !important; width: 100% !important; overflow: hidden !important; margin: 0; padding: 0; }
@@ -19,7 +19,7 @@ const POSLayout = () => {
                 {/* Background Decoration */}
                 <div className="fixed inset-0 pointer-events-none opacity-20 overflow-hidden z-0">
 
-                    <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-white/[0.02] blur-[150px] rounded-full" />
+                    <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-200 h-200 bg-white/2 blur-[150px] rounded-full" />
                 </div>
 
                 {/* POS Header */}

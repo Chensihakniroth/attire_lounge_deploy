@@ -1,7 +1,6 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import './bootstrap';
-import '../css/app.css';
 import MainApp from './components/MainApp.jsx';
 import ErrorBoundary from './components/common/ErrorBoundary.jsx';
 import { FavoritesProvider } from './context/FavoritesContext.jsx';

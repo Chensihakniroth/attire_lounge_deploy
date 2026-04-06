@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
-import { X, User, Phone, Mail, FileText, Check, Loader2, Sparkles } from 'lucide-react';
+import { X, User, Phone, Mail, FileText, Check, Loader2, Sparkles, Calendar } from 'lucide-react';
 import axios from 'axios';
 import ModernModal from '../../common/ModernModal';
+import DatePicker from '@/components/ui/DatePicker';
 
 export default function QuickCustomerModal({ isOpen, onClose, onSuccess }) {
     const [isSaving, setIsSaving] = useState(false);
@@ -10,6 +11,7 @@ export default function QuickCustomerModal({ isOpen, onClose, onSuccess }) {
         phone: '',
         email: '',
         is_vip: false,
+        birthday: '',
         notes: ''
     });
 
@@ -99,6 +101,16 @@ export default function QuickCustomerModal({ isOpen, onClose, onSuccess }) {
                                 />
                             </div>
                         </div>
+                    </div>
+
+                    <div className="space-y-1.5">
+                        <label className="text-[9px] font-black text-gray-400 uppercase tracking-[0.2em] ml-1">Birthday</label>
+                        <DatePicker 
+                            value={formData.birthday}
+                            onChange={(e) => setFormData({...formData, birthday: e.target.value})}
+                            name="birthday"
+                            inputClassName="bg-black/5 dark:bg-white/5 border-black/10 dark:border-white/10 rounded-2xl py-3.5 pr-4 pl-10"
+                        />
                     </div>
 
                     <div className="space-y-1.5">
