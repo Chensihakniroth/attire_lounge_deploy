@@ -171,10 +171,12 @@ export const AdminProvider = ({ children }) => {
 
     const updateAppointmentStatus = async (id, status) => {
         try {
-            await axios.patch(`/api/v1/admin/appointments/${id}/status`, { status });
+            console.log('[AdminContext] Updating appointment:', id, status);
+            const response = await axios.patch(`/api/v1/admin/appointments/${id}/status`, { status });
+            console.log('[AdminContext] Status update response:', response.data);
             queryClient.invalidateQueries(); // Invalidate all since stats might change too
         } catch (err) {
-            console.error('Failed to update status:', err);
+            console.error('[AdminContext] Failed to update status:', err);
             throw err;
         }
     };

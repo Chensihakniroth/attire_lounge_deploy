@@ -14,6 +14,9 @@ import OptimizedImage from '../common/OptimizedImage.jsx';
 import { isSafari } from '../../helpers/browserUtils.js';
 import { useProducts } from '../../hooks/useProducts';
 import DatePicker from '@/components/ui/DatePicker';
+import { TimePicker } from '@/components/ui/time-picker';
+import { format, parse } from 'date-fns';
+import { cn } from '@/lib/utils';
 
 // --- Premium Animation Constants ---
 const fadeUp = {
@@ -202,12 +205,6 @@ const ContactPage = () => {
         { value: 'accessories', label: 'Accessorized' }
     ];
 
-    const timeSlots = [
-        { value: '11:00', label: '11:00 AM' }, { value: '12:00', label: '12:00 PM' },
-        { value: '13:00', label: '01:00 PM' }, { value: '14:00', label: '02:00 PM' },
-        { value: '15:00', label: '03:00 PM' }, { value: '16:00', label: '04:00 PM' },
-        { value: '17:00', label: '05:00 PM' },
-    ];
 
     const validateForm = () => {
         const newErrors = {};
@@ -356,10 +353,18 @@ const ContactPage = () => {
                                                         onChange={(e) => setFormData({...formData, date: e.target.value})}
                                                         error={errors.date}
                                                         minDate={new Date().toISOString().split('T')[0]}
-                                                        inputClassName="py-5 rounded-2xl border-white/10 bg-white/[0.02] text-sm text-white pl-14"
+                                                        inputClassName="py-4 rounded-2xl border-white/10 bg-white/[0.02] text-sm text-white pl-14 h-[60px]"
                                                     />
                                                 </div>
-                                                <SelectField name="time" label="Time" value={formData.time} onChange={e => setFormData({...formData, time: e.target.value})} options={timeSlots} />
+                                                 <div className="space-y-2">
+                                                    <label className="block text-[10px] font-black text-white/80 uppercase tracking-[0.3em] ml-1">Time</label>
+                                                    <TimePicker 
+                                                        use12HourFormat={true}
+                                                        value={formData.time ? parse(formData.time, 'HH:mm', new Date()) : new Date()}
+                                                        onChange={(date) => setFormData({...formData, time: format(date, 'HH:mm')})}
+                                                        className="py-5 rounded-2xl border-white/10 bg-white/[0.02] text-sm text-white pl-14"
+                                                    />
+                                                </div>
                                             </div>
                                         </div>
 

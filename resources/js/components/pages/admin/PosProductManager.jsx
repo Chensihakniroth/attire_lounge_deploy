@@ -5,28 +5,198 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { 
     X, Plus, Edit, Trash2, 
     Hash, DollarSign, Layers, Check, 
-    Filter, ChevronDown, Archive, ChevronLeft,
+    Filter, ChevronDown, Archive, ChevronLeft, Search, Package,
     Download, Upload, Settings, Tag, Smartphone, Scissors,
     Menu, ShoppingBag, ShoppingCart, Command, AlertCircle,
-    ArrowUp, ArrowDown, Keyboard, Save
+    ArrowUp, ArrowDown, Keyboard, Save, Box
 } from 'lucide-react';
 import { LumaSpin } from '@/components/ui/luma-spin';
 import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
 import BulkActionDialog from './pos/BulkActionDialog';
 import ModernModal from '../../common/ModernModal';
 import { formatPrice } from '@/helpers/format';
 import { useAdmin } from './AdminContext';
 
-const SidebarSection = ({ title, children }) => (
-    <div className="mb-0 border-b border-black/5 dark:border-white/5 transition-[background-color,border-color] duration-150">
-        <div className="bg-black/3 dark:bg-white/3 backdrop-blur-sm border-y border-black/5 dark:border-white/10 text-[#0d3542] dark:text-[#58a6ff] px-8 py-3.5 text-[12.5px] font-black uppercase tracking-[0.3em] transition-colors duration-200">
-            {title}
+const SidebarSection = ({ title, icon: Icon, children }) => (
+    <div className="mb-0 border-b-2 border-black/5 dark:border-[#30363d] transition-all last:border-b-0">
+        <div className="bg-black/2 dark:bg-[#161b22] px-8 py-5 flex items-center gap-3">
+            {Icon && <Icon size={14} className="text-[#0d3542] dark:text-[#58a6ff]" />}
+            <h3 className="text-[12px] font-black uppercase tracking-[0.3em] text-gray-900 dark:text-[#c9d1d9] leading-none">
+                {title}
+            </h3>
         </div>
-        <div className="px-6 py-4 bg-[#fdfdfc] dark:bg-[#111]">
+        <div className="px-8 py-6 bg-[#fdfdfc] dark:bg-[#0d1117]">
             {children}
         </div>
     </div>
 );
+
+const BespokeSelect = ({ value, options, onChange, onAction, placeholder = "Select...", className = "", direction = "down" }) => {
+    const [isOpen, setIsOpen] = useState(false);
+    const containerRef = useRef(null);
+
+    useEffect(() => {
+        const handleClickOutside = (event) => {
+            if (containerRef.current && !containerRef.current.contains(event.target)) {
+                setIsOpen(false);
+            }
+        };
+        document.addEventListener('mousedown', handleClickOutside);
+        return () => document.removeEventListener('mousedown', handleClickOutside);
+    }, []);
+
+    const handleOptionClick = (val, isActionItem) => {
+        if (isActionItem && onAction) {
+            onAction(val);
+        } else {
+            onChange(val);
+            setIsOpen(false);
+        }
+    };
+
+    return (
+        <div ref={containerRef} className={`relative ${className}`}>
+            <button
+                type="button"
+                onClick={() => setIsOpen(!isOpen)}
+                className="w-full bg-black/5 dark:bg-white/5 p-5 text-[13px] font-black outline-none border border-black/5 dark:border-white/10 focus:border-[#0d3542] dark:focus:border-[#58a6ff] ring-inset focus:ring-1 focus:ring-[#0d3542] dark:focus:ring-[#58a6ff] transition-all uppercase text-gray-900 dark:text-white flex items-center justify-between rounded-2xl group"
+            >
+                <span className={!value ? 'text-gray-400 dark:text-white/10' : ''}>
+                    {value || placeholder}
+                </span>
+                <ChevronDown size={16} className={`text-[#0d3542] dark:text-[#58a6ff] transition-transform duration-300 ${isOpen ? 'rotate-180' : ''}`} />
+            </button>
+            <AnimatePresence>
+                {isOpen && (
+                    <motion.div
+                        initial={{ opacity: 0, y: direction === "up" ? 10 : -10, scale: 0.95 }}
+                        animate={{ opacity: 1, y: 0, scale: 1 }}
+                        exit={{ opacity: 0, y: direction === "up" ? 10 : -10, scale: 0.95 }}
+                        transition={{ duration: 0.2, ease: "easeOut" }}
+                        className={`absolute z-100 w-full mt-2 bg-white dark:bg-[#161b22] border-2 border-black/5 dark:border-[#30363d] shadow-2xl rounded-2xl overflow-hidden py-2 ${direction === "up" ? "bottom-full mb-2" : ""}`}
+                    >
+                        <div className="max-h-75 overflow-y-auto attire-scrollbar">
+                            {options.map((option, i) => {
+                                const isString = typeof option === 'string';
+                                const label = isString ? option : option.label;
+                                const val = isString ? option : option.value;
+                                const isAction = !isString && option.isAction;
+
+                                return (
+                                    <button
+                                        key={i}
+                                        type="button"
+                                        onClick={() => handleOptionClick(val, isAction)}
+                                        className={`w-full px-5 py-4 text-left text-[11px] font-black uppercase tracking-widest transition-colors flex items-center justify-between group
+                                            ${val === value 
+                                                ? 'bg-[#0d3542]/5 dark:bg-[#58a6ff]/10 text-[#0d3542] dark:text-[#58a6ff]' 
+                                                : isAction 
+                                                    ? 'text-[#0d3542] dark:text-[#58a6ff] border-t-2 border-black/5 dark:border-[#30363d] mt-2'
+                                                    : 'text-gray-600 dark:text-[#8b949e] hover:bg-black/5 dark:hover:bg-white/5'
+                                            }`}
+                                    >
+                                        <span>{label}</span>
+                                        {val === value && <Check size={14} />}
+                                        {isAction && <Plus size={14} />}
+                                    </button>
+                                );
+                            })}
+                        </div>
+                    </motion.div>
+                )}
+            </AnimatePresence>
+        </div>
+    );
+};
+
+const IntelligencePanel = ({ product, onClose, onEdit }) => {
+    if (!product) return null;
+
+    return (
+        <motion.div 
+            initial={{ x: 20, opacity: 0 }}
+            animate={{ x: 0, opacity: 1 }}
+            exit={{ x: 20, opacity: 0 }}
+            className="w-[400px] shrink-0 border-l-2 border-black/5 dark:border-[#30363d] bg-[#fdfdfc] dark:bg-[#0d1117] flex flex-col overflow-hidden relative z-40"
+        >
+            <div className="p-8 flex flex-col h-full overflow-y-auto no-scrollbar">
+                {/* Panel Header */}
+                <div className="flex items-center justify-between mb-10">
+                    <div className="flex items-center gap-3">
+                        <div className="h-1 w-8 bg-[#0d3542] dark:bg-[#58a6ff] rounded-full" />
+                        <span className="text-[10px] font-black uppercase tracking-[0.4em] text-[#0d3542] dark:text-[#58a6ff]">Preview</span>
+                    </div>
+                    <button onClick={onClose} className="p-2 hover:bg-black/5 dark:hover:bg-white/5 rounded-xl text-gray-400 transition-colors">
+                        <X size={18} />
+                    </button>
+                </div>
+
+                {/* Product Visual Area */}
+                <div className="w-full aspect-square rounded-3xl bg-black/[0.03] dark:bg-white/[0.02] border-2 border-dashed border-black/5 dark:border-white/5 flex flex-col items-center justify-center p-10 mb-10 group relative overflow-hidden">
+                    <div className="absolute inset-0 bg-gradient-to-br from-[#0d3542]/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+                    <Package size={64} className="text-black/5 dark:text-white/5 mb-6 group-hover:scale-110 transition-transform duration-500" />
+                    <p className="text-[10px] font-black text-gray-300 dark:text-white/10 uppercase tracking-[0.3em] text-center px-4 leading-relaxed">Product Image Placeholder</p>
+                </div>
+
+                {/* Product Info */}
+                <div className="space-y-2 mb-10">
+                    <div className="flex items-center gap-2 flex-wrap">
+                        <span className="px-2 py-0.5 rounded-md bg-black/5 dark:bg-[#161b22] text-[9px] font-black text-gray-400 dark:text-[#8b949e] border border-black/5 dark:border-[#30363d] uppercase tracking-widest">{product.category}</span>
+                        <Badge variant={product.stock_qty > 0 ? 'inStock' : 'outOfStock'} className="gap-1.5">
+                            <div className={`w-2 h-2 rounded-full ${product.stock_qty > 0 ? 'bg-white' : 'bg-white'}`} />
+                            {product.stock_qty > 0 ? 'In Stock' : 'Out of Stock'}
+                        </Badge>
+                    </div>
+                    <h2 className="text-[22px] font-black text-gray-900 dark:text-[#c9d1d9] leading-tight uppercase tracking-tight">{product.name}</h2>
+                    <p className="font-mono text-[13px] font-black text-[#0d3542] dark:text-[#58a6ff] tracking-tighter uppercase">{product.sku}</p>
+                </div>
+
+                {/* Stats */}
+                <div className="grid grid-cols-2 gap-4 mb-10">
+                    <div className="bg-black/[0.02] dark:bg-[#161b22] p-5 rounded-2xl border border-black/5 dark:border-[#30363d]">
+                        <p className="text-[9px] font-black text-gray-400 dark:text-[#8b949e]/40 uppercase tracking-widest mb-2">Price</p>
+                        <p className="text-[20px] font-mono font-black text-gray-900 dark:text-[#c9d1d9]">{formatPrice(product.price)}</p>
+                    </div>
+                    <div className="bg-black/[0.02] dark:bg-[#161b22] p-5 rounded-2xl border border-black/5 dark:border-[#30363d]">
+                        <p className="text-[9px] font-black text-gray-400 dark:text-[#8b949e]/40 uppercase tracking-widest mb-2">Stock</p>
+                        <div className="flex items-center gap-1">
+                            <p className={`text-[24px] font-mono font-black ${product.stock_qty > 0 ? 'text-emerald-600 dark:text-emerald-400' : 'text-red-500'}`}>{product.stock_qty}</p>
+                            <Box size={18} className={`${product.stock_qty > 0 ? 'text-emerald-600 dark:text-emerald-400' : 'text-red-500'} opacity-60`} />
+                        </div>
+                    </div>
+                </div>
+
+                {/* Attributes Grid */}
+                {product.attributes && product.attributes.length > 0 && (
+                    <div className="space-y-4 mb-10">
+                        <p className="text-[10px] font-black text-gray-400 dark:text-[#8b949e]/40 uppercase tracking-[0.2em] flex items-center gap-2">
+                             <Layers size={12} /> Product Details
+                        </p>
+                        <div className="grid grid-cols-1 gap-2">
+                            {product.attributes.map((attr, i) => (
+                                <div key={i} className="flex items-center justify-between py-3 border-b border-black/5 dark:border-[#30363d] last:border-0">
+                                    <span className="text-[11px] font-black text-gray-400 dark:text-[#8b949e] uppercase tracking-widest">{attr.key}</span>
+                                    <span className="text-[11px] font-black text-gray-900 dark:text-[#c9d1d9] uppercase tracking-widest">{attr.value}</span>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                )}
+
+                {/* Primary Action */}
+                <div className="mt-auto">
+                    <Button 
+                        onClick={() => onEdit(product)}
+                        className="w-full h-14 bg-[#0d3542] dark:bg-[#58a6ff] text-white dark:text-black text-[12px] font-black uppercase tracking-[0.3em] rounded-2xl hover:scale-[1.02] active:scale-95 transition-all shadow-none ring-1 ring-inset ring-white/10"
+                    >
+                        Edit Product
+                    </Button>
+                </div>
+            </div>
+        </motion.div>
+    );
+};
 
 const QuickEditCell = ({ value, prefix, onSave, onClose }) => {
     const [val, setVal] = useState(value);
@@ -72,34 +242,57 @@ const ProductRow = React.memo(({
     return (
         <tr 
             key={p.id} id={`row-${p.id}`}
-            onClick={() => { onFocus(p.id); onToggleSelect(p.id); }}
-            onDoubleClick={() => onEdit(p)}
-            className={`group cursor-pointer border-b border-black/5 dark:border-white/5 ${isSelected ? 'bg-[#0d3542]/10' : 'hover:bg-black/2 dark:hover:bg-white/2'} ${isFocused ? 'bg-black/4 dark:bg-white/6' : ''} ${performanceMode ? 'transition-none' : 'transition-colors duration-200'}`}
+            onClick={(e) => { e.stopPropagation(); onFocus(p.id); }}
+            onDoubleClick={(e) => { e.stopPropagation(); onEdit(p); }}
+            className={`group cursor-pointer border-b border-black/5 dark:border-[#30363d] ${isSelected ? 'bg-[#0d3542]/5 dark:bg-[#58a6ff]/5' : 'hover:bg-black/[0.01] dark:hover:bg-white/[0.02]'} ${isFocused ? 'bg-black/[0.03] dark:bg-white/[0.04]' : ''} ${performanceMode ? 'transition-none' : 'transition-colors duration-150'}`}
         >
-            <td className="px-4 py-1.5 text-center">
-                <div className={`inline-flex items-center gap-2 px-2 py-0.5 rounded-full text-[9px] font-black uppercase tracking-widest ${p.stock_qty > 0 ? 'bg-emerald-500/10 text-emerald-400' : 'bg-rose-500/10 text-rose-500'}`}>
-                    <div className={`w-1 h-1 rounded-full ${p.stock_qty > 0 ? 'bg-emerald-400' : 'bg-rose-500'}`} />
-                    {p.stock_qty > 0 ? 'IN STOCK' : 'OUT STOCK'}
+            <td className="px-4 py-3 text-center relative">
+                {isFocused && <div className="absolute left-0 top-0 bottom-0 w-1 bg-[#0d3542] dark:bg-[#58a6ff]" />}
+                <button 
+                    onClick={(e) => { e.stopPropagation(); onToggleSelect(p.id); }}
+                    className={`w-5 h-5 rounded-md border-2 flex items-center justify-center transition-all mx-auto ${isSelected ? 'bg-[#0d3542] dark:bg-[#58a6ff] border-[#0d3542] dark:border-[#58a6ff]' : 'border-black/10 dark:border-[#30363d] group-hover:border-[#0d3542]/40 dark:group-hover:border-[#58a6ff]/40'}`}
+                >
+                    {isSelected && <Check size={12} className="text-white dark:text-black" />}
+                </button>
+            </td>
+            <td className="px-4 py-3 text-center border-l-2 border-black/5 dark:border-[#30363d]">
+                <div className="flex items-center justify-center gap-2">
+                    <div className={`w-2 h-2 rounded-full ring-2 ${p.stock_qty > 0 ? 'bg-emerald-500 ring-emerald-500/30' : 'bg-red-500 ring-red-500/30'}`} />
                 </div>
             </td>
-            <td className="px-4 py-1.5 font-mono font-bold tracking-tighter text-[#0d3542] dark:text-[#58a6ff]/60 uppercase text-[10px] border-l border-black/5 dark:border-white/5">{p.sku}</td>
-            <td className="px-4 py-1.5 border-l border-black/5 dark:border-white/5">
-                <div className="flex flex-col leading-tight">
-                    <span className="font-black text-gray-900 dark:text-white uppercase tracking-wide group-hover:text-[#0d3542] dark:group-hover:text-[#58a6ff] transition-colors text-[13px]">{p.name}</span>
-                    <span className="text-[8px] text-gray-400 dark:text-white/30 uppercase font-black tracking-widest leading-none mt-0.5">{p.variant || 'STANDARD EDITION'}</span>
+            <td className="px-5 py-3 font-mono font-black tracking-tighter text-[#0d3542] dark:text-[#58a6ff] uppercase text-[12px] border-l-2 border-black/5 dark:border-[#30363d] text-center">{p.sku}</td>
+            <td className="px-6 py-3 border-l-2 border-black/5 dark:border-[#30363d] overflow-hidden">
+                <div className="flex items-center gap-2 leading-tight truncate">
+                    <span className="font-black text-gray-900 dark:text-[#c9d1d9] uppercase tracking-wider group-hover:text-[#0d3542] dark:group-hover:text-[#58a6ff] transition-colors text-[14px] truncate">{p.name}</span>
+                    {(p.attributes || []).map((attr, idx) => {
+                        const isSize = attr.key?.toUpperCase() === 'SIZE';
+                        return (
+                            <span 
+                                key={idx}
+                                className={`inline-flex items-center gap-1 px-2 py-0.5 rounded text-[10px] font-black uppercase tracking-widest ${isSize ? 'bg-red-500/10 text-red-500 border border-red-500/20' : attr.color ? '' : 'bg-black/5 dark:bg-white/5 text-gray-500 dark:text-white/60'}`}
+                                style={attr.color ? { backgroundColor: attr.color + '20', borderColor: attr.color, color: attr.color } : {}}
+                            >
+                                {attr.color && <div className="w-2 h-2 rounded-full" style={{ backgroundColor: attr.color }} />}
+                                {attr.value}
+                            </span>
+                        );
+                    })}
                 </div>
             </td>
-            <td className="px-4 py-1.5 border-l border-black/5 dark:border-white/5">
-                <span className="px-1.5 py-0 bg-black/5 dark:bg-white/5 text-[8.5px] font-black text-gray-400 dark:text-[#8b949e] rounded-sm uppercase tracking-widest border border-black/5 dark:border-white/10">{p.category}</span>
+            <td className="px-5 py-3 border-l-2 border-black/5 dark:border-[#30363d] text-center">
+                <span className="px-2 py-0.5 bg-black/5 dark:bg-[#161b22] text-[9px] font-black text-gray-400 dark:text-[#8b949e] rounded-md uppercase tracking-[0.2em] border border-black/5 dark:border-[#30363d]">{p.category}</span>
             </td>
-            <td className={`px-4 py-1.5 text-right font-mono font-black relative text-[14.5px] border-l border-black/5 dark:border-white/5 ${p.stock_qty <= (p.min_stock || 5) ? 'text-rose-500' : 'text-gray-600 dark:text-white/70'}`}>
+            <td className={`px-6 py-3 text-right font-mono font-black relative text-[20px] border-l-2 border-black/5 dark:border-[#30363d] ${p.stock_qty <= (p.min_stock || 5) ? 'text-red-500' : 'text-emerald-600 dark:text-emerald-400'}`}>
                 {isFocused && quickEditField === 'stock' ? (
                     <QuickEditCell value={p.stock_qty} onSave={(val) => onUpdateField(p.id, { stock_qty: val })} onClose={() => onQuickEdit(null)} />
                 ) : (
-                    <>{p.stock_qty} <span className="text-[9px] opacity-30 ml-0.5">U</span></>
+                    <div className="flex items-center justify-end gap-1">
+                        <span className="drop-shadow-sm">{p.stock_qty}</span>
+                        <Box size={14} className="opacity-60" />
+                    </div>
                 )}
             </td>
-            <td className="px-4 py-1.5 text-right font-mono font-black text-[#0d3542] dark:text-[#58a6ff] text-[14.5px] relative border-l border-black/5 dark:border-white/5">
+            <td className="px-8 py-3 text-center font-mono font-black text-gray-900 dark:text-[#c9d1d9] text-[16px] relative border-l-2 border-black/5 dark:border-[#30363d]">
                 {isFocused && quickEditField === 'price' ? (
                     <QuickEditCell value={p.price} prefix="$" onSave={(val) => onUpdateField(p.id, { price: val })} onClose={() => onQuickEdit(null)} />
                 ) : formatPrice(p.price)}
@@ -134,6 +327,8 @@ const ProductsPage = () => {
         barcode: '', status: 'available', min_stock: '0', max_stock: '99999',
         watch_threshold: false, variant: '', attributes: []
     });
+    const [isCreatingGroup, setIsCreatingGroup] = useState(false);
+    const [newGroupName, setNewGroupName] = useState('');
 
     // --- Debounced Filters for API ---
     const [debouncedFilters, setDebouncedFilters] = useState(filters);
@@ -369,7 +564,7 @@ const ProductsPage = () => {
         if (e) e.preventDefault();
         setIsSaving(true);
 
-        // --- Bespoke Nomenclature Engine ---
+        // --- Name Builder ---
         // Compiles attributes into a standardized string: "-VAL1 -VAL2 ..."
         const attributeString = (formData.attributes || [])
             .filter(attr => attr.value?.trim())
@@ -389,74 +584,77 @@ const ProductsPage = () => {
     return (
         <div className="flex flex-row w-full h-full bg-background dark:bg-[#111111] font-sans selection:bg-[#0d3542]/20 relative text-gray-900 dark:text-white transition-colors duration-300">
             
-            {/* --- Persistent Sidebar --- */}
-            <div className="w-60 shrink-0 flex flex-col p-0 overflow-y-auto attire-scrollbar border-r border-black/8 dark:border-white/5 bg-background dark:bg-[#111] transition-colors duration-300 sticky top-0 h-screen">
-                <SidebarSection title="System Access">
-                    <div className="flex flex-col gap-2">
+            {/* --- Persistent Sidebar Filter Hub --- */}
+            <div className="w-[340px] shrink-0 flex flex-col p-0 overflow-y-auto no-scrollbar border-r-2 border-black/5 dark:border-[#30363d] bg-[#fdfdfc] dark:bg-[#0d1117] transition-colors sticky top-0 h-screen z-50">
+                <div className="p-8 border-b-2 border-black/5 dark:border-[#30363d] bg-[#fdfdfc] dark:bg-[#0d1117]">
+                    <div className="flex flex-col gap-1.5 mb-8">
+                        <h1 className="text-[20px] font-black uppercase tracking-[0.4em] text-gray-900 dark:text-[#c9d1d9] leading-none">Settings</h1>
+                        <p className="text-[10px] font-black text-gray-400 dark:text-[#8b949e]/30 uppercase tracking-[0.3em] mt-1">Product Manager</p>
+                    </div>
+                    
+                    <div className="space-y-4">
                         <Button 
                             onClick={handleAddClick}
-                            className="w-full bg-[#0d3542] dark:bg-[#58a6ff] text-white dark:text-black hover:opacity-90 text-[11px] font-black uppercase tracking-[0.2em] h-12 shadow-sm ring-1 ring-inset ring-white/10 dark:ring-black/10 transition-all rounded-xl"
+                            className="w-full bg-[#0d3542] dark:bg-[#58a6ff] text-white dark:text-black hover:opacity-90 text-[12px] font-black uppercase tracking-[0.3em] h-14 shadow-none ring-1 ring-inset ring-white/10 transition-all rounded-2xl"
                         >
-                            <Plus size={14} className="mr-2" /> ADD PRODUCT
+                            <Plus size={16} className="mr-3" /> Add Product
                         </Button>
-                        <div className="flex gap-2">
-                            <Button variant="outline" className="flex-1 h-10 border-black/10 dark:border-white/10 text-[10px] font-black uppercase tracking-widest text-[#0d3542] dark:text-[#58a6ff] hover:bg-black/5 dark:hover:bg-white/5 rounded-xl"><Download size={12} className="mr-1" /> EXPORT</Button>
-                            <Button variant="outline" className="flex-1 h-10 border-black/10 dark:border-white/10 text-[10px] font-black uppercase tracking-widest text-[#0d3542] dark:text-[#58a6ff] hover:bg-black/5 dark:hover:bg-white/5 rounded-xl"><Upload size={12} className="mr-1" /> IMPORT</Button>
+                        <div className="flex gap-3">
+                            <Button variant="outline" className="flex-1 h-12 border-2 border-black/5 dark:border-[#30363d] text-[10px] font-black uppercase tracking-widest text-gray-400 dark:text-[#8b949e] hover:bg-black/5 dark:hover:bg-white/5 rounded-2xl transition-all"><Download size={14} className="mr-2" /> Export</Button>
+                            <Button variant="outline" className="flex-1 h-12 border-2 border-black/5 dark:border-[#30363d] text-[10px] font-black uppercase tracking-widest text-gray-400 dark:text-[#8b949e] hover:bg-black/5 dark:hover:bg-white/5 rounded-2xl transition-all"><Upload size={14} className="mr-2" /> Import</Button>
                         </div>
                     </div>
-                </SidebarSection>
+                </div>
 
-                <SidebarSection title="Search">
-                    <div className="space-y-5">
-                        <div className="space-y-1.5">
-                            <label className="text-[10px] font-black text-slate-900/40 dark:text-white/30 uppercase tracking-widest ml-1 transition-colors duration-200">By Code</label>
+                <SidebarSection title="Search" icon={Search}>
+                    <div className="space-y-6">
+                        <div className="space-y-3">
+                            <label className="text-[11px] font-black text-gray-400 dark:text-[#8b949e]/40 uppercase tracking-[0.2em] flex items-center gap-3">
+                                <Hash size={12} /> Code
+                            </label>
                             <input 
                                 type="text"
                                 value={filters.code}
                                 onChange={e => setFilters({...filters, code: e.target.value.toUpperCase()})}
-                                className="w-full bg-black/5 dark:bg-white/5 border-b-2 border-black/5 dark:border-white/10 px-3 py-2.5 text-[13px] font-bold tracking-widest outline-none focus:border-[#0d3542] dark:focus:border-[#58a6ff] transition-all uppercase text-gray-900 dark:text-white placeholder:text-gray-400 dark:placeholder:text-white/10 rounded-xl shadow-inner ring-1 ring-inset ring-black/5 dark:ring-white/5"
-                                placeholder="LEDGER-00"
+                                className="w-full bg-white dark:bg-[#161b22] border-2 border-black/5 dark:border-[#30363d] focus:border-[#0d3542] dark:focus:border-[#58a6ff] px-5 py-4 text-[13px] font-bold tracking-widest outline-none transition-all uppercase text-gray-900 dark:text-white placeholder:text-gray-300 dark:placeholder:text-[#8b949e]/10 rounded-2xl"
+                                placeholder="LEDGER-00..."
                             />
                         </div>
-                        <div className="space-y-1.5">
-                            <label className="text-[10px] font-black text-slate-900/40 dark:text-white/30 uppercase tracking-widest ml-1 transition-colors duration-200">By Name / Barcode</label>
+                        <div className="space-y-3">
+                            <label className="text-[11px] font-black text-gray-400 dark:text-[#8b949e]/40 uppercase tracking-[0.2em] flex items-center gap-3">
+                                <Tag size={12} /> Search Name
+                            </label>
                             <input 
                                 id="filter-name"
                                 type="text"
                                 value={filters.nameBarcode}
                                 onChange={e => setFilters({...filters, nameBarcode: e.target.value})}
-                                className="w-full bg-black/5 dark:bg-white/5 border-b-2 border-black/5 dark:border-white/10 px-4 py-2.5 text-[13px] font-bold outline-none focus:border-[#0d3542] dark:focus:border-[#58a6ff] transition-all uppercase text-gray-900 dark:text-white placeholder:text-gray-400 dark:placeholder:text-white/10 rounded-xl shadow-inner ring-1 ring-inset ring-black/5 dark:ring-white/5"
-                                placeholder="PRODUCT NAME"
+                                className="w-full bg-white dark:bg-[#161b22] border-2 border-black/5 dark:border-[#30363d] focus:border-[#0d3542] dark:focus:border-[#58a6ff] px-5 py-4 text-[13px] font-bold outline-none transition-all uppercase text-gray-900 dark:text-white placeholder:text-gray-300 dark:placeholder:text-[#8b949e]/10 rounded-2xl"
+                                placeholder="PRODUCT NAME..."
                             />
                         </div>
-                        <div className="space-y-1.5">
-                            <label className="text-[10px] font-black text-slate-900/40 dark:text-white/30 uppercase tracking-widest ml-1 transition-colors duration-200">By Attribute</label>
+                        <div className="space-y-3">
+                            <label className="text-[11px] font-black text-gray-400 dark:text-[#8b949e]/40 uppercase tracking-[0.2em] flex items-center gap-3">
+                                <Layers size={12} /> Attributes
+                            </label>
                             <input 
                                 type="text"
                                 value={filters.attribute}
                                 onChange={e => setFilters({...filters, attribute: e.target.value.toUpperCase()})}
-                                className="w-full bg-black/5 dark:bg-white/5 border-b-2 border-black/5 dark:border-white/10 px-4 py-2.5 text-[13px] font-bold outline-none focus:border-[#0d3542] dark:focus:border-[#58a6ff] transition-all uppercase text-gray-900 dark:text-white placeholder:text-gray-400 dark:placeholder:text-white/10 rounded-xl shadow-inner ring-1 ring-inset ring-black/5 dark:ring-white/5"
-                                placeholder="SIZE / FABRIC / COLOR"
+                                className="w-full bg-white dark:bg-[#161b22] border-2 border-black/5 dark:border-[#30363d] focus:border-[#0d3542] dark:focus:border-[#58a6ff] px-5 py-4 text-[13px] font-bold outline-none transition-all uppercase text-gray-900 dark:text-white placeholder:text-gray-300 dark:placeholder:text-[#8b949e]/10 rounded-2xl"
+                                placeholder="SIZE / FABRIC..."
                             />
                         </div>
                     </div>
                 </SidebarSection>
 
-                <SidebarSection title="Product Groups">
-                    <div className="space-y-1.5 relative group">
-                        <select 
-                            value={filters.group}
-                            onChange={e => setFilters({...filters, group: e.target.value})}
-                            className="w-full bg-black/5 dark:bg-white/5 border-b-2 border-black/5 dark:border-white/10 px-3 py-3.5 text-[13px] font-black tracking-widest outline-none focus:border-[#0d3542] dark:focus:border-[#58a6ff] transition-all uppercase text-gray-900 dark:text-white cursor-pointer appearance-none rounded-xl shadow-inner ring-1 ring-inset ring-black/5 dark:ring-white/5"
-                        >
-                            {categories.map(cat => (
-                                <option key={cat} value={cat}>{cat}</option>
-                            ))}
-                        </select>
-                        <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-gray-400 group-hover:text-[#0d3542] dark:group-hover:text-[#58a6ff] transition-colors">
-                            <ChevronDown size={14} />
-                        </div>
-                    </div>
+                <SidebarSection title="Group" icon={Layers}>
+                    <BespokeSelect 
+                        value={filters.group}
+                        options={categories}
+                        onChange={val => setFilters({...filters, group: val})}
+                        direction="up"
+                    />
                 </SidebarSection>
             </div>
 
@@ -473,33 +671,39 @@ const ProductsPage = () => {
                             className="flex-1 flex flex-col overflow-hidden"
                         >
 
-                            <div className="grid grid-cols-1 md:grid-cols-3 gap-8 p-6 border-b border-black/8 dark:border-white/5 bg-background dark:bg-[#111] transition-colors duration-300">
-                                <div className="border-l-4 border-[#0d3542] dark:border-[#58a6ff] pl-6 py-2 bg-black/2 dark:bg-white/2">
-                                    <p className="text-[10px] font-black text-slate-900/40 dark:text-white/30 uppercase tracking-widest mb-1">Total Vault Value</p>
-                                    <div className="flex items-baseline gap-2">
-                                        <span className="text-3xl font-mono font-black text-[#0d3542] dark:text-[#58a6ff] transition-colors duration-150">{formatPrice(metrics.totalValue)}</span>
-                                        <span className="text-[10px] text-emerald-500 font-bold uppercase tracking-widest">Digital Assets</span>
+                            <div className="grid grid-cols-3 gap-4 p-6 border-b border-black/8 dark:border-white/5 bg-background dark:bg-[#111] transition-colors duration-300">
+                                <div className="flex items-center gap-4 px-4 py-3 rounded-2xl bg-emerald-500/5 border border-emerald-500/10">
+                                    <div className="w-10 h-10 rounded-xl bg-emerald-500/10 flex items-center justify-center">
+                                        <DollarSign size={20} className="text-emerald-500" />
+                                    </div>
+                                    <div>
+                                        <p className="text-2xl font-mono font-black text-[#0d3542] dark:text-white">{formatPrice(metrics.totalValue)}</p>
+                                        <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Stock Value</p>
                                     </div>
                                 </div>
-                                <div className="border-l-4 border-black/20 dark:border-white/10 pl-6 py-2 bg-black/1 dark:bg-white/1">
-                                    <p className="text-[10px] font-black text-slate-900/40 dark:text-white/30 uppercase tracking-widest mb-1">Active Ledger SKUs</p>
-                                    <div className="flex items-baseline gap-2">
-                                        <span className="text-3xl font-mono font-black text-slate-900 dark:text-white transition-colors duration-150">{metrics.totalSkus}</span>
-                                        <span className="text-[10px] text-slate-900/30 dark:text-white/20 font-bold uppercase tracking-widest">Master Records</span>
+                                <div className="flex items-center gap-4 px-4 py-3 rounded-2xl bg-black/5 dark:bg-white/5 border border-black/5 dark:border-white/5">
+                                    <div className="w-10 h-10 rounded-xl bg-black/5 dark:bg-white/5 flex items-center justify-center">
+                                        <Package size={20} className="text-gray-500 dark:text-white/60" />
+                                    </div>
+                                    <div>
+                                        <p className="text-2xl font-mono font-black text-gray-900 dark:text-white">{metrics.totalSkus}</p>
+                                        <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Products</p>
                                     </div>
                                 </div>
-                                <div className="border-l-4 border-rose-500 pl-6 py-2 bg-rose-500/5">
-                                    <p className="text-[10px] font-black text-slate-900/40 dark:text-white/30 uppercase tracking-widest mb-1">Critical Stock Alerts</p>
-                                    <div className="flex items-baseline gap-2">
-                                        <span className="text-3xl font-mono font-black text-rose-500 transition-colors duration-150">{metrics.criticalCount}</span>
-                                        <span className="text-[10px] text-rose-500/40 font-bold uppercase tracking-widest">Below Threshold</span>
+                                <div className="flex items-center gap-4 px-4 py-3 rounded-2xl bg-rose-500/5 border border-rose-500/10">
+                                    <div className="w-10 h-10 rounded-xl bg-rose-500/10 flex items-center justify-center">
+                                        <AlertCircle size={20} className="text-rose-500" />
+                                    </div>
+                                    <div>
+                                        <p className="text-2xl font-mono font-black text-rose-500">{metrics.criticalCount}</p>
+                                        <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Low Stock</p>
                                     </div>
                                 </div>
                             </div>
 
                              <div className="h-20 shrink-0 border-b border-black/8 dark:border-white/10 flex items-center justify-between px-10 bg-background dark:bg-[#111] transition-colors duration-300">
                                 <div className="flex items-center gap-4">
-                                    <h2 className="text-xl font-black text-[#0d3542] dark:text-[#58a6ff] tracking-[0.4em] uppercase">Sovereign Ledger</h2>
+                                    <h2 className="text-xl font-black text-[#0d3542] dark:text-[#58a6ff] tracking-[0.4em] uppercase">Product Manager</h2>
                                     {isFetching && !performanceMode && <motion.div animate={{ opacity: [0.3, 1, 0.3] }} transition={{ repeat: Infinity, duration: 1.5 }} className="w-2 h-2 rounded-full bg-[#0d3542] dark:bg-[#58a6ff]" />}
                                     {isFetching && performanceMode && <div className="w-2 h-2 rounded-full bg-[#0d3542] dark:bg-[#58a6ff]" />}
                                 </div>
@@ -511,22 +715,27 @@ const ProductsPage = () => {
                                     </div>
                                 )}
                                 <table className="w-full text-left border-separate border-spacing-0 min-w-200 bg-transparent transition-colors duration-300">
-                                    <thead className="sticky top-0 z-40 bg-background dark:bg-[#111]">
-                                        <tr className="bg-black/3 dark:bg-white/5 text-[#0d3542] dark:text-[#58a6ff] uppercase text-[9px] tracking-[0.3em] font-black transition-[background-color,border-color] duration-150">
-                                            <th className="px-4 py-1.5 w-14 text-center border-b border-black/5 dark:border-white/10 rounded-tl-2xl">
-                                                <input type="checkbox" checked={selectedIds.size === products.length && products.length > 0} onChange={handleSelectAll} className="accent-[#0d3542] dark:accent-[#58a6ff] scale-110" />
+                                    <thead className="sticky top-0 z-40 bg-[#fdfdfc] dark:bg-[#0d1117]">
+                                        <tr className="bg-black/2 dark:bg-[#161b22] text-gray-400 dark:text-[#8b949e]/40 uppercase text-[10px] tracking-[0.3em] font-black transition-colors border-b-2 border-black/5 dark:border-[#30363d]">
+                                            <th className="px-4 py-4 w-14 text-center">
+                                                <button 
+                                                    onClick={handleSelectAll}
+                                                    className={`w-5 h-5 rounded-md border-2 flex items-center justify-center transition-all mx-auto ${selectedIds.size === products.length && products.length > 0 ? 'bg-[#0d3542] dark:bg-[#58a6ff] border-[#0d3542] dark:border-[#58a6ff]' : 'border-black/10 dark:border-[#30363d]'}`}
+                                                >
+                                                    {selectedIds.size === products.length && products.length > 0 && <Check size={12} className="text-white dark:text-black" />}
+                                                </button>
                                             </th>
-                                            <th className="px-4 py-1.5 w-24 border-b border-l border-black/5 dark:border-white/10 text-center">STATUS</th>
-                                            <th className="px-4 py-1.5 w-32 border-b border-l border-black/5 dark:border-white/10">IDENTITY (SKU)</th>
-                                            <th className="px-4 py-1.5 border-b border-l border-black/5 dark:border-white/10">DESIGNATION</th>
-                                            <th className="px-4 py-1.5 w-28 border-b border-l border-black/5 dark:border-white/10">COLLECTION</th>
-                                            <th className="px-4 py-1.5 w-24 border-b border-l border-black/5 dark:border-white/10 text-right">IN STOCK</th>
-                                            <th className="px-4 py-1.5 w-28 border-b border-l border-black/5 dark:border-white/10 text-right rounded-tr-2xl">PRICE</th>
+                                            <th className="px-4 py-4 w-28 border-l-2 border-black/5 dark:border-[#30363d] text-center">Status</th>
+                                            <th className="px-5 py-4 w-36 border-l-2 border-black/5 dark:border-[#30363d] text-center">SKU</th>
+                                            <th className="px-6 py-4 border-l-2 border-black/5 dark:border-[#30363d]">Product Name</th>
+                                            <th className="px-5 py-4 w-32 border-l-2 border-black/5 dark:border-[#30363d]">Category</th>
+                                            <th className="px-6 py-4 w-28 border-l-2 border-black/5 dark:border-[#30363d] text-right">In Stock</th>
+                                            <th className="px-8 py-4 w-36 border-l-2 border-black/5 dark:border-[#30363d] text-center">Price</th>
                                         </tr>
                                     </thead>
-                                    <tbody className="text-[13px] font-medium">
+                                    <tbody className="divide-y-2 divide-black/5 dark:divide-[#30363d]/30">
                                         {products.length === 0 ? (
-                                            <tr><td colSpan="7" className="py-20 text-center opacity-30 italic uppercase tracking-widest font-bold text-gray-400 dark:text-white transition-colors duration-300">No products detected in archive</td></tr>
+                                            <tr><td colSpan="7" className="py-32 text-center opacity-30 italic uppercase tracking-[0.4em] font-black text-gray-400 dark:text-[#8b949e] transition-colors">No products found</td></tr>
                                         ) : (
                                             products.map((p) => (
                                                 <ProductRow 
@@ -548,6 +757,17 @@ const ProductsPage = () => {
                                     </tbody>
                                 </table>
                             </div>
+
+                            {/* --- Right Intelligence Preview Panel --- */}
+                            <AnimatePresence>
+                                {focusedId && (
+                                    <IntelligencePanel 
+                                        product={products.find(p => p.id === focusedId)} 
+                                        onClose={() => setFocusedId(null)}
+                                        onEdit={handleEditClick}
+                                    />
+                                )}
+                            </AnimatePresence>
                         </motion.div>
                     ) : (
                         <motion.div key="form" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} className="flex-1 flex flex-col overflow-hidden bg-[#fcfcfa] dark:bg-[#0f0f0f]">
@@ -561,8 +781,8 @@ const ProductsPage = () => {
                                         <ChevronLeft size={20} />
                                     </button>
                                     <div>
-                                        <h2 className="text-xl font-black text-[#0d3542] dark:text-[#58a6ff] tracking-[0.4em] uppercase">{editingProduct ? 'Edit Identity' : 'Establish New Identity'}</h2>
-                                        <p className="text-[10px] font-bold text-gray-400 dark:text-white/30 uppercase tracking-widest mt-1">Product Configuration Module</p>
+                                        <h2 className="text-xl font-black text-[#0d3542] dark:text-[#58a6ff] tracking-[0.4em] uppercase">{editingProduct ? 'Edit Product' : 'Add New Product'}</h2>
+                                        <p className="text-[10px] font-bold text-gray-400 dark:text-white/30 uppercase tracking-widest mt-1">Product Settings</p>
                                     </div>
                                 </div>
                                 <div className="flex items-center gap-4">
@@ -599,27 +819,27 @@ const ProductsPage = () => {
                                             <section className="animate-in fade-in slide-in-from-bottom-4 duration-500">
                                                 <div className="flex items-center gap-4 mb-10">
                                                     <div className="h-1 w-10 bg-[#0d3542] dark:bg-[#58a6ff] rounded-full" />
-                                                    <h3 className="text-xs font-black uppercase tracking-[0.4em] text-[#0d3542] dark:text-[#58a6ff]">Base Metadata</h3>
+                                                    <h3 className="text-xs font-black uppercase tracking-[0.4em] text-[#0d3542] dark:bg-[#58a6ff]">General Info</h3>
                                                 </div>
                                                 <div className="grid grid-cols-2 gap-16">
                                                     <div className="space-y-3">
-                                                        <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">PRIMARY SKU / CODE</label>
-                                                        <input value={formData.sku} onChange={e => setFormData({...formData, sku: e.target.value.toUpperCase()})} className="w-full bg-black/5 dark:bg-white/5 p-5 text-[13px] font-mono font-bold tracking-widest outline-none border border-black/5 dark:border-white/10 focus:border-[#0d3542] dark:focus:border-[#58a6ff] ring-inset focus:ring-1 focus:ring-[#0d3542] dark:focus:ring-[#58a6ff] transition-all uppercase text-gray-900 dark:text-white rounded-2xl" placeholder="AUTO-GEN ON EMPTY" />
+                                                        <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">SKU / Code</label>
+                                                        <input value={formData.sku} onChange={e => setFormData({...formData, sku: e.target.value.toUpperCase()})} className="w-full bg-black/5 dark:bg-white/5 p-5 text-[13px] font-mono font-bold tracking-widest outline-none border border-black/5 dark:border-white/10 focus:border-[#0d3542] dark:focus:border-[#58a6ff] ring-inset focus:ring-1 focus:ring-[#0d3542] dark:focus:ring-[#58a6ff] transition-all uppercase text-gray-900 dark:text-white rounded-2xl" placeholder="AUTO-GENERATE" />
                                                     </div>
                                                     <div className="space-y-3">
-                                                        <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">PRODUCT NAME *</label>
+                                                        <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Name *</label>
                                                         <input required value={formData.name} onChange={e => setFormData({...formData, name: e.target.value})} className="w-full bg-black/5 dark:bg-white/5 p-5 text-[13px] font-black outline-none border border-black/5 dark:border-white/10 focus:border-[#0d3542] dark:focus:border-[#58a6ff] ring-inset focus:ring-1 focus:ring-[#0d3542] dark:focus:ring-[#58a6ff] transition-all uppercase text-gray-900 dark:text-white rounded-2xl" />
                                                         
                                                         {/* Name Preview */}
                                                         <div className="mt-4 px-4 py-3 bg-black/3 dark:bg-white/3 rounded-xl border border-dashed border-black/10 dark:border-white/10">
-                                                            <div className="text-[10px] font-black text-[#0d3542]/50 dark:text-[#58a6ff]/50 uppercase tracking-widest mb-1">Name Preview</div>
+                                                            <div className="text-[10px] font-black text-[#0d3542]/50 dark:text-[#58a6ff]/50 uppercase tracking-widest mb-1">Preview</div>
                                                             <div className="text-[12px] font-mono font-bold text-gray-400 dark:text-white/40 break-all uppercase">
                                                                 {formData.name} {(formData.attributes || []).filter(a => a.value).map(a => `-${a.value.toUpperCase()}`).join(' ')}
                                                             </div>
                                                         </div>
                                                     </div>
                                                     <div className="space-y-3">
-                                                        <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">ITEM PRICE</label>
+                                                        <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">PRICE</label>
                                                         <div className="relative">
                                                             <input type="number" value={formData.price} onChange={e => setFormData({...formData, price: e.target.value})} className="w-full bg-black/5 dark:bg-white/5 p-5 pl-14 text-lg font-mono font-bold tracking-tight outline-none border border-black/5 dark:border-white/10 focus:border-[#0d3542] dark:focus:border-[#58a6ff] ring-inset focus:ring-1 focus:ring-[#0d3542] dark:focus:ring-[#58a6ff] transition-all text-gray-900 dark:text-white rounded-2xl" />
                                                             <span className="absolute left-5 top-1/2 -translate-y-1/2 text-[#0d3542] dark:text-[#58a6ff] font-black text-xl">$</span>
@@ -627,20 +847,61 @@ const ProductsPage = () => {
                                                     </div>
                                                     <div className="space-y-3">
                                                         <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">PRODUCT GROUP</label>
-                                                        <div className="relative group">
-                                                            <select 
-                                                                value={formData.category} 
-                                                                onChange={e => setFormData({...formData, category: e.target.value})} 
-                                                                className="w-full bg-black/5 dark:bg-white/5 p-5 text-[13px] font-black outline-none border border-black/5 dark:border-white/10 focus:border-[#0d3542] dark:focus:border-[#58a6ff] ring-inset focus:ring-1 focus:ring-[#0d3542] dark:focus:ring-[#58a6ff] transition-all uppercase text-gray-900 dark:text-white appearance-none cursor-pointer rounded-2xl"
-                                                            >
-                                                                <option value="">SELECT GROUP</option>
-                                                                {categories.filter(c => c !== 'ALL GROUPS').map(cat => (
-                                                                    <option key={cat} value={cat}>{cat}</option>
-                                                                ))}
-                                                                <option value="NEW_GROUP">+ CREATE NEW GROUP</option>
-                                                            </select>
-                                                            <ChevronDown className="absolute right-5 top-1/2 -translate-y-1/2 text-[#0d3542] dark:text-[#58a6ff]" size={16} />
-                                                        </div>
+                                                        {isCreatingGroup ? (
+                                                            <div className="flex gap-2">
+                                                                <input
+                                                                    type="text"
+                                                                    value={newGroupName}
+                                                                    onChange={e => setNewGroupName(e.target.value.toUpperCase())}
+                                                                    onKeyDown={e => {
+                                                                        if (e.key === 'Enter' && newGroupName.trim()) {
+                                                                            setFormData({...formData, category: newGroupName.trim()});
+                                                                            setIsCreatingGroup(false);
+                                                                            setNewGroupName('');
+                                                                        }
+                                                                        if (e.key === 'Escape') {
+                                                                            setIsCreatingGroup(false);
+                                                                            setNewGroupName('');
+                                                                        }
+                                                                    }}
+                                                                    autoFocus
+                                                                    className="flex-1 bg-white dark:bg-[#161b22] border-2 border-[#0d3542] dark:border-[#58a6ff] focus:border-[#0d3542] dark:focus:border-[#58a6ff] px-4 py-3 text-[13px] font-black uppercase outline-none transition-all text-gray-900 dark:text-white placeholder:text-gray-300 dark:placeholder:text-[#8b949e]/10 rounded-2xl"
+                                                                    placeholder="ENTER GROUP NAME..."
+                                                                />
+                                                                <button
+                                                                    onClick={() => {
+                                                                        if (newGroupName.trim()) {
+                                                                            setFormData({...formData, category: newGroupName.trim()});
+                                                                            setIsCreatingGroup(false);
+                                                                            setNewGroupName('');
+                                                                        }
+                                                                    }}
+                                                                    className="px-4 py-3 bg-[#0d3542] dark:bg-[#58a6ff] text-white dark:text-black text-[11px] font-black uppercase tracking-widest rounded-2xl hover:opacity-90 transition-all"
+                                                                >
+                                                                    <Check size={16} />
+                                                                </button>
+                                                                <button
+                                                                    onClick={() => {
+                                                                        setIsCreatingGroup(false);
+                                                                        setNewGroupName('');
+                                                                    }}
+                                                                    className="px-4 py-3 bg-black/5 dark:bg-white/5 text-gray-500 hover:bg-red-500/10 hover:text-red-500 text-[11px] font-black uppercase tracking-widest rounded-2xl transition-all"
+                                                                >
+                                                                    <X size={16} />
+                                                                </button>
+                                                            </div>
+                                                        ) : (
+                                                            <BespokeSelect 
+                                                                value={formData.category}
+                                                                options={[
+                                                                    ...categories.filter(c => c !== 'ALL GROUPS'),
+                                                                    { label: '+ Create New Group', value: 'NEW_GROUP', isAction: true }
+                                                                ]}
+                                                                onChange={val => setFormData({...formData, category: val})}
+                                                                onAction={() => setIsCreatingGroup(true)}
+                                                                placeholder="SELECT GROUP"
+                                                            />
+                                                        )}
                                                     </div>
                                                 </div>
                                             </section>
@@ -648,20 +909,12 @@ const ProductsPage = () => {
                                             <section className="animate-in fade-in slide-in-from-bottom-4 duration-700">
                                                 <div className="flex items-center gap-4 mb-10">
                                                     <div className="h-1 w-10 bg-[#0d3542] dark:bg-[#58a6ff] rounded-full" />
-                                                    <h3 className="text-xs font-black uppercase tracking-[0.4em] text-[#0d3542] dark:text-[#58a6ff]">Inventory Thresholds</h3>
+                                                    <h3 className="text-xs font-black uppercase tracking-[0.4em] text-[#0d3542] dark:text-[#58a6ff]">Stock</h3>
                                                 </div>
-                                                <div className="grid grid-cols-3 gap-12">
+                                                <div className="grid grid-cols-1 gap-12">
                                                     <div className="space-y-3">
-                                                        <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">CURRENT RECORD</label>
+                                                        <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Current Stock</label>
                                                         <input type="number" value={formData.stock_qty} onChange={e => setFormData({...formData, stock_qty: e.target.value})} className="w-full bg-black/5 dark:bg-white/5 p-5 text-[13px] font-mono font-bold outline-none border border-black/5 dark:border-white/10 focus:border-[#0d3542] dark:focus:border-[#58a6ff] ring-inset focus:ring-1 focus:ring-[#0d3542] dark:focus:ring-[#58a6ff] transition-all text-gray-900 dark:text-white rounded-2xl" />
-                                                    </div>
-                                                    <div className="space-y-3">
-                                                        <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">MIN THRESHOLD</label>
-                                                        <input type="number" value={formData.min_stock} onChange={e => setFormData({...formData, min_stock: e.target.value})} className="w-full bg-black/5 dark:bg-white/5 p-5 text-[13px] font-mono font-bold outline-none border border-black/5 dark:border-white/10 focus:border-[#0d3542] dark:focus:border-[#58a6ff] ring-inset focus:ring-1 focus:ring-[#0d3542] dark:focus:ring-[#58a6ff] transition-all text-gray-900 dark:text-white rounded-2xl" />
-                                                    </div>
-                                                    <div className="space-y-3">
-                                                        <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">MAX THRESHOLD</label>
-                                                        <input type="number" value={formData.max_stock} onChange={e => setFormData({...formData, max_stock: e.target.value})} className="w-full bg-black/5 dark:bg-white/5 p-5 text-[13px] font-mono font-bold outline-none border border-black/5 dark:border-white/10 focus:border-[#0d3542] dark:focus:border-[#58a6ff] ring-inset focus:ring-1 focus:ring-[#0d3542] dark:focus:ring-[#58a6ff] transition-all text-gray-900 dark:text-white rounded-2xl" />
                                                     </div>
                                                 </div>
                                             </section>
@@ -671,10 +924,10 @@ const ProductsPage = () => {
                                             <div className="flex items-center justify-between mb-10">
                                                 <div className="flex items-center gap-4">
                                                     <div className="h-1 w-10 bg-[#0d3542] dark:bg-[#58a6ff] rounded-full" />
-                                                    <h3 className="text-xs font-black uppercase tracking-[0.4em] text-[#0d3542] dark:text-[#58a6ff]">Technical Matrix</h3>
+                                                    <h3 className="text-xs font-black uppercase tracking-[0.4em] text-[#0d3542] dark:text-[#58a6ff]">More Details</h3>
                                                 </div>
                                                 <Button variant="outline" onClick={() => setFormData({...formData, attributes: [...(formData.attributes || []), { key: '', value: '' }]})} className="h-10 px-4 text-[10px] font-black uppercase tracking-widest border-black/10 dark:border-white/10 text-gray-400 hover:text-[#0d3542] dark:hover:text-[#58a6ff] transition-all rounded-xl">
-                                                    <Plus size={14} className="mr-2" /> ADD PARAMETER
+                                                    <Plus size={14} className="mr-2" /> Add Detail
                                                 </Button>
                                             </div>
                                             <div className="space-y-6">
@@ -718,14 +971,14 @@ const ProductsPage = () => {
                         <div className="bg-[#fdfdfc] dark:bg-[#111] rounded-2xl px-8 h-20 flex items-center gap-10 shadow-2xl border border-[#0d3542]/30 dark:border-[#58a6ff]/30 ring-1 ring-inset ring-white/10 dark:ring-black/10 transition-all duration-300">
                             <div className="flex items-center gap-4 pr-10 border-r border-black/10 dark:border-white/10">
                                 <div className="bg-[#0d3542] dark:bg-[#58a6ff] text-white dark:text-black text-[11px] font-black h-8 w-8 rounded-lg flex items-center justify-center shadow-lg ring-1 ring-white/20">{selectedIds.size}</div>
-                                <span className="text-[#0d3542] dark:text-[#58a6ff] text-[11px] font-black uppercase tracking-[0.3em] whitespace-nowrap">Ledger Items</span>
+                                <span className="text-[#0d3542] dark:text-[#58a6ff] text-[11px] font-black uppercase tracking-[0.3em] whitespace-nowrap">Selected Items</span>
                             </div>
                             <div className="flex items-center gap-10">
                                 <button onClick={() => setIsBulkDialogOpen(true)} className="flex items-center gap-2 text-gray-500 dark:text-white/40 hover:text-[#0d3542] dark:hover:text-[#58a6ff] transition-colors group">
                                     <Command size={14} className="group-hover:scale-110 transition-transform" />
-                                    <span className="text-[10px] font-black uppercase tracking-[0.2em]">Bulk Override</span>
+                                    <span className="text-[10px] font-black uppercase tracking-[0.2em]">Bulk Edit</span>
                                 </button>
-                                <button onClick={() => setSelectedIds(new Set())} className="text-gray-400 dark:text-white/20 hover:text-[#0d3542] dark:hover:text-[#58a6ff] text-[10px] font-black uppercase tracking-[0.2em]">Clear Ledger</button>
+                                <button onClick={() => setSelectedIds(new Set())} className="text-gray-400 dark:text-white/20 hover:text-[#0d3542] dark:hover:text-[#58a6ff] text-[10px] font-black uppercase tracking-[0.2em]">Clear All</button>
                             </div>
                         </div>
                     </motion.div>

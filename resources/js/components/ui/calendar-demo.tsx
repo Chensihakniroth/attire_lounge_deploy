@@ -10,7 +10,6 @@ export function CalendarDemo() {
     <div className="flex flex-col items-center gap-4 p-8 bg-[#fdfdfc] dark:bg-[#0d1117] rounded-3xl border border-[#0d3542]/10 dark:border-[#f5a81c]/10 shadow-lg w-fit mx-auto">
       <div className="flex flex-col items-center gap-1 mb-4">
         <h3 className="text-sm font-black uppercase tracking-widest text-[#0d3542] dark:text-[#f5a81c]">Date Selection</h3>
-        <p className="text-[10px] text-gray-400 font-bold uppercase tracking-widest">Sovereign Ledger v4</p>
       </div>
       <Calendar
         mode="single"

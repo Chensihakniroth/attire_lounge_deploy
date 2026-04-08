@@ -1,3 +1,5 @@
+import { format, parse } from 'date-fns';
+
 /**
  * Format a number as currency (USD)
  * @param {number} price
@@ -58,14 +60,9 @@ export const formatChanges = (changes) => {
 export const formatTime = (timeStr) => {
   if (!timeStr) return '';
   try {
-    const [hours, minutes] = timeStr.split(':');
-    const date = new Date();
-    date.setHours(parseInt(hours), parseInt(minutes));
-    return date.toLocaleTimeString('en-US', {
-      hour: 'numeric',
-      minute: '2-digit',
-      hour12: true,
-    });
+    // Expects HH:mm format
+    const date = parse(timeStr, 'HH:mm', new Date());
+    return format(date, 'h:mm a');
   } catch {
     return timeStr;
   }

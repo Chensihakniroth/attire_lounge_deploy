@@ -108,15 +108,10 @@ export default function DatePicker({
                         exit={{ opacity: 0, y: 10, scale: 0.95 }}
                         transition={{ type: 'spring', damping: 20, stiffness: 300 }}
                         className={cn(
-                            "absolute top-full left-0 mt-2 z-[100] origin-top",
-                            "bg-[#fdfdfc] dark:bg-[#0d1117] rounded-3xl border border-[#0d3542]/10 dark:border-[#f5a81c]/10 shadow-2xl p-4 min-w-[280px]"
+                            "absolute top-full left-0 mt-3 z-[100] origin-top",
+                            "bg-white/95 dark:bg-[#0d1117]/95 backdrop-blur-xl rounded-[2.5rem] border border-black/10 dark:border-[#f5a81c]/10 shadow-[0_20px_50px_rgba(0,0,0,0.2)] p-6 min-w-[320px] overflow-hidden"
                         )}
                     >
-                        {/* Demo Header Style */}
-                        <div className="flex flex-col items-center gap-1 mb-4 pb-4 border-b border-black/5 dark:border-white/5">
-                            <h3 className="text-[10px] font-black uppercase tracking-[0.3em] text-[#0d3542] dark:text-[#f5a81c]">Date Selection</h3>
-                            <p className="text-[8px] text-gray-400 font-bold uppercase tracking-widest italic">Sovereign Ledger v4</p>
-                        </div>
 
                         <Calendar
                             mode="single"

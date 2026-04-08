@@ -12,6 +12,8 @@ import { motion, AnimatePresence } from 'framer-motion';
 import ModernModal from '../../common/ModernModal';
 import { formatTime } from '@/helpers/format';
 import DatePicker from '@/components/ui/DatePicker';
+import { TimePicker } from '@/components/ui/time-picker';
+import { format, parse } from 'date-fns';
 
 /**
  * --- Status Labels ---
@@ -73,7 +75,7 @@ const AppointmentHistoryRow = memo(({ appointment }) => {
 /**
  * --- Active Record Card ---
  */
-const AppointmentCard = memo(({ appointment, onUpdateStatus }) => {
+const AppointmentCard = memo(({ appointment, onUpdateStatus, closingId }) => {
     return (
         <motion.div 
             layout="position"
@@ -198,9 +200,12 @@ const AppointmentCard = memo(({ appointment, onUpdateStatus }) => {
                     </button>
                     <button 
                         onClick={() => onUpdateStatus(appointment.id, 'done')}
-                        className="px-7 py-2.5 bg-[#0d3542] dark:bg-[#58a6ff] text-white dark:text-black rounded-xl text-[10px] font-black uppercase tracking-widest transition-all hover:scale-[1.02] active:scale-95"
+                        disabled={closingId === appointment.id}
+                        className="px-7 py-2.5 bg-[#0d3542] dark:bg-[#58a6ff] text-white dark:text-black rounded-xl text-[10px] font-black uppercase tracking-widest transition-all hover:scale-[1.02] active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
                     >
-                        Close
+                        {closingId === appointment.id ? (
+                            <span className="flex items-center gap-2"><LumaSpin size="xs" /> Closing...</span>
+                        ) : 'Close'}
                     </button>
                 </div>
             </div>
@@ -229,6 +234,7 @@ const AppointmentManager = () => {
     const [visibleCount, setVisibleRows] = useState(12);
     const [isAdding, setIsAdding] = useState(false);
     const [isSubmitting, setIsSubmitting] = useState(false);
+    const [closingId, setClosingId] = useState(null);
     const [formData, setFormData] = useState({
         name: '', email: '', phone: '', service: 'consultation', date: '', time: '', message: ''
     });
@@ -253,10 +259,13 @@ const AppointmentManager = () => {
     };
 
     const handleUpdateStatus = async (id, status) => {
+        setClosingId(id);
         try {
             await updateAppointmentStatus(id, status);
         } catch (err) {
             alert('Failed to update status.');
+        } finally {
+            setClosingId(null);
         }
     };
 
@@ -365,7 +374,8 @@ const AppointmentManager = () => {
                                 <AppointmentCard 
                                     key={app.id} 
                                     appointment={enhancedApp} 
-                                    onUpdateStatus={handleUpdateStatus} 
+                                    onUpdateStatus={handleUpdateStatus}
+                                    closingId={closingId}
                                 />
                             ) : (
                                 <AppointmentHistoryRow 
@@ -416,7 +426,14 @@ const AppointmentManager = () => {
                                 onChange={(e) => setFormData(prev => ({ ...prev, date: e.target.value }))}
                             />
                         </div>
-                        <InputField label="Scheduled Time *" type="time" name="time" value={formData.time} onChange={handleInputChange} required />
+                        <div className="flex flex-col gap-3">
+                            <label className="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] ml-1">Scheduled Time *</label>
+                            <TimePicker 
+                                use12HourFormat={true}
+                                value={formData.time ? parse(formData.time, 'HH:mm', new Date()) : new Date()}
+                                onChange={(date) => setFormData(prev => ({ ...prev, time: format(date, 'HH:mm') }))}
+                            />
+                        </div>
                         
                         <div className="sm:col-span-2 flex flex-col gap-3">
                             <label className="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] ml-1">Notes / Instructions</label>

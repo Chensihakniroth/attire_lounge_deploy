@@ -28,6 +28,7 @@ import { BorderBeam } from '@/components/ui/border-beam';
 import ModernModal from '../../common/ModernModal.jsx';
 import { formatDate } from '@/helpers/format';
 import DatePicker from '@/components/ui/DatePicker';
+import MorphingPageDots from '@/components/ui/morphing-page-dots';
 
 const statusConfig = {
     pending: {
@@ -827,37 +828,14 @@ export default function AlteringManager() {
                 </Suspense>
             </div>
 
-                {/* Pagination Details */}
+                {/* Pagination */}
                 {!isLoading && pagination.total > 0 && (
-                    <div className="flex items-center justify-between p-5 border-t border-black/5 dark:border-[#30363d] bg-black/[0.01] dark:bg-[#161b22]">
-                        <div className="text-[10px] uppercase font-black tracking-widest text-gray-400 dark:text-[#8b949e]">
-                            Page {pagination.currentPage} of{' '}
-                            {pagination.lastPage}{' '}
-                            <span className="mx-2 opacity-30">•</span>{' '}
-                            {pagination.total} records
-                        </div>
-                        <div className="flex gap-2">
-                            <button
-                                onClick={() =>
-                                    setPage((p) => Math.max(1, p - 1))
-                                }
-                                disabled={page === 1}
-                                className="px-4 py-2 bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 text-attire-charcoal dark:text-white text-[10px] font-black uppercase tracking-[0.2em] hover:bg-black/10 dark:hover:bg-white/10 disabled:opacity-30 transition-colors rounded-xl"
-                            >
-                                Previous
-                            </button>
-                            <button
-                                onClick={() =>
-                                    setPage((p) =>
-                                        Math.min(pagination.lastPage, p + 1)
-                                    )
-                                }
-                                disabled={page === pagination.lastPage}
-                                className="px-4 py-2 bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 text-attire-charcoal dark:text-white text-[10px] font-black uppercase tracking-[0.2em] hover:bg-black/10 dark:hover:bg-white/10 disabled:opacity-30 transition-colors rounded-xl"
-                            >
-                                Next
-                            </button>
-                        </div>
+                    <div className="flex items-center justify-center p-5 border-t border-black/5 dark:border-[#30363d] bg-black/[0.01] dark:bg-[#161b22]">
+                        <MorphingPageDots
+                            total={pagination.lastPage}
+                            activeIndex={pagination.currentPage - 1}
+                            onChange={(index) => handlePageChange(index + 1)}
+                        />
                     </div>
                 )}
 
