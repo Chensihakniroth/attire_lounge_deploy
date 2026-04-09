@@ -55,6 +55,35 @@ class PosProductController extends Controller
     }
 
     /**
+     * Store multiple new products/services.
+     */
+    public function bulkStore(Request $request): JsonResponse
+    {
+        $validated = $request->validate([
+            'products' => 'required|array',
+            'products.*.sku' => 'required|string|unique:pos_products,sku',
+            'products.*.name' => 'required|string',
+            'products.*.variant' => 'nullable|string',
+            'products.*.price' => 'required|numeric|min:0',
+            'products.*.category' => 'required|string',
+            'products.*.is_service' => 'boolean',
+            'products.*.stock_qty' => 'integer|min:0',
+            'products.*.tier' => 'nullable|string',
+        ]);
+
+        $created = [];
+        foreach ($validated['products'] as $productData) {
+            $created[] = PosProduct::create($productData);
+        }
+
+        return response()->json([
+            'message' => 'Bulk products created successfully',
+            'count' => count($created),
+            'products' => $created
+        ], 201);
+    }
+
+    /**
      * Store a new product/service.
      */
     public function store(Request $request): JsonResponse

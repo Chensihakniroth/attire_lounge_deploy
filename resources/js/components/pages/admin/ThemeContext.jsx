@@ -1,13 +1,39 @@
-import React, { createContext, useState, useEffect, useContext } from 'react';
+import React, { createContext, useState, useEffect, useContext, useSyncExternalStore } from 'react';
 
 export const ThemeContext = createContext();
 
+const darkModeStore = {
+    subscribe: (callback) => {
+        window.addEventListener('storage', callback);
+        window.addEventListener('theme-toggle', callback);
+        return () => {
+            window.removeEventListener('storage', callback);
+            window.removeEventListener('theme-toggle', callback);
+        };
+    },
+    getSnapshot: () => {
+        const saved = localStorage.getItem('admin-theme');
+        return saved ? saved === 'dark' : document.documentElement.classList.contains('dark');
+    },
+    getServerSnapshot: () => true,
+};
+
 export const useTheme = () => useContext(ThemeContext);
+
+export const useIsDarkMode = () => useSyncExternalStore(
+    darkModeStore.subscribe,
+    darkModeStore.getSnapshot,
+    darkModeStore.getServerSnapshot
+);
 
 export const ThemeProvider = ({ children }) => {
     const [isDarkMode, setIsDarkMode] = useState(() => {
+        if (typeof window === 'undefined') return true;
         const saved = localStorage.getItem('admin-theme');
-        return saved ? saved === 'dark' : true; // Default to dark
+        if (saved) {
+            return saved === 'dark';
+        }
+        return document.documentElement.classList.contains('dark');
     });
 
     useEffect(() => {
@@ -19,7 +45,6 @@ export const ThemeProvider = ({ children }) => {
             root.classList.remove('dark');
         }
         
-        // Also sync admin-root if it exists
         const adminRoot = document.getElementById('admin-root');
         if (adminRoot) {
             if (isDarkMode) {
@@ -28,6 +53,8 @@ export const ThemeProvider = ({ children }) => {
                 adminRoot.classList.remove('dark');
             }
         }
+        
+        window.dispatchEvent(new Event('theme-toggle'));
     }, [isDarkMode]);
 
     const toggleDarkMode = () => setIsDarkMode(prev => !prev);

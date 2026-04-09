@@ -121,6 +121,7 @@ Route::prefix('v1')->group(function () {
             // Products
             Route::get('/pos/products', [PosProductController::class, 'index']);
             Route::post('/pos/products', [PosProductController::class, 'store']);
+            Route::post('/pos/products/bulk', [PosProductController::class, 'bulkStore']);
             Route::put('/pos/products/{id}', [PosProductController::class, 'update']);
             Route::delete('/pos/products/{id}', [PosProductController::class, 'destroy']);
             Route::get('/pos/products/services', [PosProductController::class, 'services']);
