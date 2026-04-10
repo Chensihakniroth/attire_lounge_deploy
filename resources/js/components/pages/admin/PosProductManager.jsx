@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback, useMemo, useRef } from 'react';
+import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import axios from 'axios';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -13,11 +13,11 @@ import {
 import { LumaSpin } from '@/components/ui/luma-spin';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import PaginationAnt from '@/components/ui/pagination-ant';
 import BulkActionDialog from './pos/BulkActionDialog';
 import ModernModal from '../../common/ModernModal';
 import { formatPrice } from '@/helpers/format';
 import { useAdmin } from './AdminContext';
+import MorphingPageDots from '@/components/ui/morphing-page-dots';
 
 const SidebarSection = ({ title, icon: Icon, children }) => (
     <div className="mb-0 border-b-2 border-black/15 dark:border-[#30363d] transition-all last:border-b-0">
@@ -108,94 +108,6 @@ const BespokeSelect = ({ value, options, onChange, onAction, placeholder = "Sele
                 )}
             </AnimatePresence>
         </div>
-    );
-};
-
-const IntelligencePanel = ({ product, onClose, onEdit }) => {
-    if (!product) return null;
-
-    return (
-        <motion.div 
-            initial={{ x: 20, opacity: 0 }}
-            animate={{ x: 0, opacity: 1 }}
-            exit={{ x: 20, opacity: 0 }}
-            className="w-[400px] shrink-0 border-l-2 border-black/15 dark:border-[#30363d] bg-[#fdfdfc] dark:bg-[#0d1117] flex flex-col overflow-hidden relative z-40"
-        >
-            <div className="p-8 flex flex-col h-full overflow-y-auto no-scrollbar">
-                {/* Panel Header */}
-                <div className="flex items-center justify-between mb-10">
-                    <div className="flex items-center gap-3">
-                        <div className="h-1 w-8 bg-[#0d3542] dark:bg-[#58a6ff] rounded-full" />
-                        <span className="text-[10px] font-black uppercase tracking-[0.4em] text-[#0d3542] dark:text-[#58a6ff]">Preview</span>
-                    </div>
-                    <button onClick={onClose} className="p-2 hover:bg-black/5 dark:hover:bg-white/5 rounded-xl text-gray-400 transition-colors">
-                        <X size={18} />
-                    </button>
-                </div>
-
-                {/* Product Visual Area */}
-                <div className="w-full aspect-square rounded-3xl bg-black/[0.03] dark:bg-white/[0.02] border-2 border-dashed border-black/15 dark:border-white/5 flex flex-col items-center justify-center p-10 mb-10 group relative overflow-hidden">
-                    <div className="absolute inset-0 bg-gradient-to-br from-[#0d3542]/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
-                    <Package size={64} className="text-black/5 dark:text-white/5 mb-6 group-hover:scale-110 transition-transform duration-500" />
-                    <p className="text-[10px] font-black text-gray-300 dark:text-white/10 uppercase tracking-[0.3em] text-center px-4 leading-relaxed">Product Image Placeholder</p>
-                </div>
-
-                {/* Product Info */}
-                <div className="space-y-2 mb-10">
-                    <div className="flex items-center gap-2 flex-wrap">
-                        <span className="px-2 py-0.5 rounded-md bg-black/5 dark:bg-[#161b22] text-[9px] font-black text-gray-400 dark:text-[#8b949e] border border-black/15 dark:border-[#30363d] uppercase tracking-widest">{product.category}</span>
-                        <Badge variant={product.stock_qty > 0 ? 'inStock' : 'outOfStock'} className="gap-1.5">
-                            <div className={`w-2 h-2 rounded-full ${product.stock_qty > 0 ? 'bg-white' : 'bg-white'}`} />
-                            {product.stock_qty > 0 ? 'In Stock' : 'Out of Stock'}
-                        </Badge>
-                    </div>
-                    <h2 className="text-[22px] font-black text-gray-900 dark:text-[#c9d1d9] leading-tight uppercase tracking-tight">{product.name}</h2>
-                    <p className="font-mono text-[13px] font-black text-[#0d3542] dark:text-[#58a6ff] tracking-tighter uppercase">{product.sku}</p>
-                </div>
-
-                {/* Stats */}
-                <div className="grid grid-cols-2 gap-4 mb-10">
-                    <div className="bg-black/[0.02] dark:bg-[#161b22] p-5 rounded-2xl border border-black/15 dark:border-[#30363d]">
-                        <p className="text-[9px] font-black text-gray-400 dark:text-[#8b949e]/40 uppercase tracking-widest mb-2">Price</p>
-                        <p className="text-[20px] font-mono font-black text-gray-900 dark:text-[#c9d1d9]">{formatPrice(product.price)}</p>
-                    </div>
-                    <div className="bg-black/[0.02] dark:bg-[#161b22] p-5 rounded-2xl border border-black/15 dark:border-[#30363d]">
-                        <p className="text-[9px] font-black text-gray-400 dark:text-[#8b949e]/40 uppercase tracking-widest mb-2">Stock</p>
-                        <div className="flex items-center gap-1">
-                            <p className={`text-[24px] font-mono font-black ${product.stock_qty > 0 ? 'text-emerald-600 dark:text-emerald-400' : 'text-red-500'}`}>{product.stock_qty}</p>
-                            <Box size={18} className={`${product.stock_qty > 0 ? 'text-emerald-600 dark:text-emerald-400' : 'text-red-500'} opacity-60`} />
-                        </div>
-                    </div>
-                </div>
-
-                {/* Attributes Grid */}
-                {product.attributes && product.attributes.length > 0 && (
-                    <div className="space-y-4 mb-10">
-                        <p className="text-[10px] font-black text-gray-400 dark:text-[#8b949e]/40 uppercase tracking-[0.2em] flex items-center gap-2">
-                             <Layers size={12} /> Product Details
-                        </p>
-                        <div className="grid grid-cols-1 gap-2">
-                            {product.attributes.map((attr, i) => (
-                                <div key={i} className="flex items-center justify-between py-3 border-b border-black/15 dark:border-[#30363d] last:border-0">
-                                    <span className="text-[11px] font-black text-gray-400 dark:text-[#8b949e] uppercase tracking-widest">{attr.key}</span>
-                                    <span className="text-[11px] font-black text-gray-900 dark:text-[#c9d1d9] uppercase tracking-widest">{attr.value}</span>
-                                </div>
-                            ))}
-                        </div>
-                    </div>
-                )}
-
-                {/* Primary Action */}
-                <div className="mt-auto">
-                    <Button 
-                        onClick={() => onEdit(product)}
-                        className="w-full h-14 bg-[#0d3542] dark:bg-[#58a6ff] text-white dark:text-black text-[12px] font-black uppercase tracking-[0.3em] rounded-2xl hover:scale-[1.02] active:scale-95 transition-all shadow-none ring-1 ring-inset ring-white/10"
-                    >
-                        Edit Product
-                    </Button>
-                </div>
-            </div>
-        </motion.div>
     );
 };
 
@@ -300,61 +212,6 @@ const ProductRow = React.memo(({
                     ) : formatPrice(p.price)}
                 </td>
             </tr>
-            {isFocused && (
-                <tr className="bg-black/[0.01] dark:bg-white/[0.01] border-b border-black/15 dark:border-[#30363d]">
-                    <td colSpan="7" className="p-0">
-                        <motion.div 
-                            initial={{ height: 0, opacity: 0 }}
-                            animate={{ height: "auto", opacity: 1 }}
-                            exit={{ height: 0, opacity: 0 }}
-                            transition={{ duration: 0.3 }}
-                            className="overflow-hidden"
-                        >
-                            <div className="p-8 flex items-start gap-12">
-                                <div className="w-32 h-32 shrink-0 rounded-2xl bg-black/[0.03] dark:bg-white/[0.02] border-2 border-dashed border-black/15 dark:border-white/5 flex flex-col items-center justify-center p-4">
-                                    <Package size={32} className="text-black/10 dark:text-white/10 mb-2" />
-                                    <p className="text-[8px] font-black text-gray-400 dark:text-white/20 uppercase tracking-[0.2em] text-center leading-tight">Image</p>
-                                </div>
-                                <div className="flex-1 grid grid-cols-2 gap-8">
-                                    <div>
-                                        <h4 className="text-[10px] font-black uppercase tracking-[0.3em] text-gray-400 mb-4">Quick Details</h4>
-                                        <div className="space-y-2">
-                                            <div className="flex justify-between items-center py-2 border-b border-black/5 dark:border-white/5">
-                                                <span className="text-[11px] font-black text-gray-500 uppercase tracking-widest">Base SKU</span>
-                                                <span className="text-[11px] font-black text-gray-900 dark:text-white uppercase tracking-widest">{p.sku.split('-')[0]}</span>
-                                            </div>
-                                            <div className="flex justify-between items-center py-2 border-b border-black/5 dark:border-white/5">
-                                                <span className="text-[11px] font-black text-gray-500 uppercase tracking-widest">Min Stock</span>
-                                                <span className="text-[11px] font-black text-gray-900 dark:text-white uppercase tracking-widest">{p.min_stock || 0}</span>
-                                            </div>
-                                            <div className="flex justify-between items-center py-2 border-b border-black/5 dark:border-white/5">
-                                                <span className="text-[11px] font-black text-gray-500 uppercase tracking-widest">Added</span>
-                                                <span className="text-[11px] font-black text-gray-900 dark:text-white uppercase tracking-widest">{new Date(p.created_at).toLocaleDateString()}</span>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div>
-                                        <h4 className="text-[10px] font-black uppercase tracking-[0.3em] text-gray-400 mb-4">Quick Actions</h4>
-                                        <div className="flex flex-col gap-2">
-                                            <Button onClick={(e) => { e.stopPropagation(); onEdit(p); }} className="w-full bg-[#0d3542] dark:bg-[#58a6ff] text-white dark:text-black text-[10px] font-black uppercase tracking-widest shadow-none rounded-xl">
-                                                <Edit size={14} className="mr-2" /> Full Edit
-                                            </Button>
-                                            <div className="grid grid-cols-2 gap-2">
-                                                <Button onClick={(e) => { e.stopPropagation(); setQuickEditField('stock'); }} variant="outline" className="w-full text-[10px] font-black uppercase tracking-widest border-black/15 dark:border-white/10 shadow-none rounded-xl">
-                                                    Stock
-                                                </Button>
-                                                <Button onClick={(e) => { e.stopPropagation(); setQuickEditField('price'); }} variant="outline" className="w-full text-[10px] font-black uppercase tracking-widest border-black/15 dark:border-white/10 shadow-none rounded-xl">
-                                                    Price
-                                                </Button>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </motion.div>
-                    </td>
-                </tr>
-            )}
         </React.Fragment>
     );
 });
@@ -370,7 +227,9 @@ const ProductsPage = () => {
     const [quickEditField, setQuickEditField] = useState(null); // 'price' | 'stock' | null
     const [isSaving, setIsSaving] = useState(false);
     const [currentPage, setCurrentPage] = useState(1);
-    const pageSize = 100;
+    const [groupPage, setGroupPage] = useState(0);
+    const pageSize = 500;
+    const itemsPerGroupPage = 20;
 
     // Sidebar Filter States
     const [filters, setFilters] = useState({
@@ -404,7 +263,8 @@ const ProductsPage = () => {
     useEffect(() => {
         const timer = setTimeout(() => {
             setDebouncedFilters(filters);
-            setCurrentPage(1); // Reset page when filters change
+            setCurrentPage(1);
+            setGroupPage(0);
         }, 300);
         return () => clearTimeout(timer);
     }, [filters]);
@@ -444,10 +304,68 @@ const ProductsPage = () => {
 
     const products = useMemo(() => productsData?.data || [], [productsData]);
 
+    const groupedProducts = useMemo(() => {
+        const groups = {};
+        products.forEach(p => {
+            const baseName = (p.name || '').trim().toUpperCase();
+            if (!groups[baseName]) {
+                groups[baseName] = {
+                    name: baseName,
+                    items: []
+                };
+            }
+            groups[baseName].items.push(p);
+        });
+        
+        Object.values(groups).forEach(group => {
+            group.items.sort((a, b) => {
+                const aAttrs = a.attributes || [];
+                const bAttrs = b.attributes || [];
+                
+                const aColor = aAttrs.find(attr => attr.key?.toUpperCase() === 'COLOR')?.value?.toUpperCase() || '';
+                const bColor = bAttrs.find(attr => attr.key?.toUpperCase() === 'COLOR')?.value?.toUpperCase() || '';
+                
+                if (aColor !== bColor) {
+                    return aColor.localeCompare(bColor);
+                }
+                
+                const aSize = aAttrs.find(attr => attr.key?.toUpperCase() === 'SIZE')?.value?.toUpperCase() || '';
+                const bSize = bAttrs.find(attr => attr.key?.toUpperCase() === 'SIZE')?.value?.toUpperCase() || '';
+                
+                const sizeOrder = ['XXS', 'XS', 'S', 'M', 'L', 'XL', 'XXL', 'XXXL'];
+                const aIdx = sizeOrder.indexOf(aSize);
+                const bIdx = sizeOrder.indexOf(bSize);
+                
+                if (aIdx !== -1 && bIdx !== -1) return aIdx - bIdx;
+                if (aIdx !== -1) return -1;
+                if (bIdx !== -1) return 1;
+                
+                const aNum = parseInt(aSize);
+                const bNum = parseInt(bSize);
+                if (!isNaN(aNum) && !isNaN(bNum)) return aNum - bNum;
+                
+                return aSize.localeCompare(bSize);
+            });
+        });
+        
+        return Object.values(groups).sort((a, b) => a.name.localeCompare(b.name));
+    }, [products]);
+
+    const paginatedGroups = useMemo(() => {
+        const start = groupPage * itemsPerGroupPage;
+        return groupedProducts.slice(start, start + itemsPerGroupPage);
+    }, [groupedProducts, groupPage]);
+
+    const totalGroupPages = Math.ceil(groupedProducts.length / itemsPerGroupPage);
+
     const categories = useMemo(() => {
         const unique = Array.from(new Set(products.map(p => p.category).filter(Boolean)));
         return ['ALL GROUPS', ...unique.sort()];
     }, [products]);
+
+    const selectedProducts = useMemo(() => 
+        products.filter(p => selectedIds.has(p.id)),
+    [products, selectedIds]);
 
     // --- Mutations ---
     const mutation = useMutation({
@@ -641,6 +559,35 @@ const ProductsPage = () => {
             sku: '', name: '', price: '', stock_qty: '', category: '', is_service: false,
             barcode: '', status: 'available', min_stock: '0', max_stock: '99999',
             watch_threshold: false, variant: '', attributes: []
+        });
+        setMatrixConfig({
+            primaryKey: 'COLOR',
+            primaryValues: '',
+            secondaryKey: 'SIZE',
+            secondaryValues: ''
+        });
+        setMatrixData({});
+        setView('form');
+        setActiveTab('general');
+    };
+
+    const handleAddSimilar = (group) => {
+        const firstItem = group.items[0];
+        setEditingProduct(null);
+        setFormData({
+            sku: '',
+            name: group.name,
+            price: firstItem?.price || '',
+            stock_qty: '',
+            category: firstItem?.category || '',
+            is_service: false,
+            barcode: '',
+            status: 'available',
+            min_stock: firstItem?.min_stock || '0',
+            max_stock: firstItem?.max_stock || '99999',
+            watch_threshold: firstItem?.watch_threshold || false,
+            variant: '',
+            attributes: []
         });
         setMatrixConfig({
             primaryKey: 'COLOR',
@@ -1051,41 +998,60 @@ const ProductsPage = () => {
                                                 ) : products.length === 0 ? (
                                                     <tr><td colSpan="7" className="py-32 text-center opacity-30 italic uppercase tracking-[0.4em] font-black text-gray-400 dark:text-[#8b949e] transition-colors">No products found</td></tr>
                                                 ) : (
-                                                    products.map((p) => (
-                                                        <ProductRow 
-                                                            key={p.id}
-                                                            product={p}
-                                                            isSelected={selectedIds.has(p.id)}
-                                                            isFocused={focusedId === p.id}
-                                                            quickEditField={quickEditField}
-                                                            onToggleSelect={toggleSelect}
-                                                            onFocus={setFocusedId}
-                                                            onEdit={handleEditClick}
-                                                            onQuickEdit={setQuickEditField}
-                                                            onUpdateField={(id, data) => updateMutation.mutate({ id, data })}
-                                                            formatPrice={formatPrice}
-                                                            performanceMode={performanceMode}
-                                                        />
-                                                    ))
+                                                    <React.Fragment>
+                                                        {paginatedGroups.map((group) => (
+                                                            <React.Fragment key={group.name}>
+                                                                <tr className="bg-[#0d3542]/5 dark:bg-[#58a6ff]/5 border-b-2 border-[#0d3542]/20 dark:border-[#58a6ff]/20">
+                                                                    <td colSpan="7" className="px-6 py-4">
+                                                                        <div className="flex items-center justify-between gap-3">
+                                                                            <div className="flex items-center gap-3">
+                                                                                <div className="h-1 w-8 bg-[#0d3542] dark:bg-[#58a6ff] rounded-full" />
+                                                                                <span className="text-[12px] font-black uppercase tracking-[0.3em] text-[#0d3542] dark:text-[#58a6ff]">{group.name}</span>
+                                                                                <span className="px-2 py-0.5 bg-black/10 dark:bg-white/10 text-[9px] font-black text-gray-500 dark:text-white/40 uppercase tracking-widest rounded">{group.items.length} variants</span>
+                                                                            </div>
+                                                                            <button 
+                                                                                onClick={() => handleAddSimilar(group)}
+                                                                                className="flex items-center gap-2 px-3 py-1.5 bg-[#0d3542] dark:bg-[#58a6ff] text-white dark:text-black text-[9px] font-black uppercase tracking-widest rounded-lg hover:opacity-90 transition-all"
+                                                                            >
+                                                                                <Plus size={12} /> Add Similar
+                                                                            </button>
+                                                                        </div>
+                                                                    </td>
+                                                                </tr>
+                                                                {group.items.map((p) => (
+                                                                    <ProductRow 
+                                                                        key={p.id}
+                                                                        product={p}
+                                                                        isSelected={selectedIds.has(p.id)}
+                                                                        isFocused={focusedId === p.id}
+                                                                        quickEditField={quickEditField}
+                                                                        onToggleSelect={toggleSelect}
+                                                                        onFocus={setFocusedId}
+                                                                        onEdit={handleEditClick}
+                                                                        onQuickEdit={setQuickEditField}
+                                                                        onUpdateField={(id, data) => updateMutation.mutate({ id, data })}
+                                                                        formatPrice={formatPrice}
+                                                                        performanceMode={performanceMode}
+                                                                    />
+                                                                ))}
+                                                            </React.Fragment>
+                                                        ))}
+                                                        {totalGroupPages > 1 && (
+                                                            <tr>
+                                                                <td colSpan="7" className="py-4">
+                                                                    <MorphingPageDots 
+                                                                        total={totalGroupPages} 
+                                                                        activeIndex={groupPage}
+                                                                        onChange={setGroupPage}
+                                                                    />
+                                                                </td>
+                                                            </tr>
+                                                        )}
+                                                    </React.Fragment>
                                                 )}
                                             </tbody>
                                         </table>
                                     </div>
-                                    
-                                    {productsData?.total > pageSize && (
-                                        <div className="px-6 py-4 flex items-center justify-between border-t border-black/20 dark:border-white/5 bg-background dark:bg-[#111]">
-                                            <div className="text-[10px] font-black text-gray-500 uppercase tracking-widest">
-                                                Showing {(currentPage - 1) * pageSize + 1} to {Math.min(currentPage * pageSize, productsData.total)} of {productsData.total} products
-                                            </div>
-                                            <PaginationAnt
-                                                current={currentPage}
-                                                total={productsData.total}
-                                                pageSize={pageSize}
-                                                onChange={(page) => setCurrentPage(page)}
-                                                showSizeChanger={false}
-                                            />
-                                        </div>
-                                    )}
                         </motion.div>
                     ) : (
                         <motion.div key="form" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} className="flex-1 flex flex-col overflow-hidden bg-[#fcfcfa] dark:bg-[#0f0f0f]">
@@ -1307,6 +1273,14 @@ const ProductsPage = () => {
                     </motion.div>
                 )}
             </AnimatePresence>
+
+            <BulkActionDialog 
+                isOpen={isBulkDialogOpen}
+                onClose={() => setIsBulkDialogOpen(false)}
+                selectedCount={selectedIds.size}
+                products={selectedProducts}
+                onApply={handleBulkApply}
+            />
 
         </div>
     );

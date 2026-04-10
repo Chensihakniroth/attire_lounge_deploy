@@ -50,6 +50,10 @@ import {
     Tooltip,
     XAxis,
     YAxis,
+    Pie,
+    PieChart,
+    Cell,
+    Sector,
 } from 'recharts';
 
 // ----------------------------------------------------------------------
@@ -105,13 +109,15 @@ const MultiTrendChart = ({
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={performanceMode ? { duration: 0 } : { duration: 0.6 }}
-            className="h-[450px] w-full mt-0 text-[#0d3542] dark:text-[#58a6ff]"
+            className="h-[450px] w-full mt-0 text-[#0d3542] dark:text-[#58a6ff] outline-none"
+            tabIndex={-1}
         >
-            <ResponsiveContainer width="100%" height="100%">
+            <ResponsiveContainer width="100%" height="100%" style={{ outline: 'none' }}>
                 <AreaChart
                     data={data}
                     margin={{ top: 10, right: 30, left: 0, bottom: 40 }}
                     style={{ outline: 'none' }}
+                    tabIndex={-1}
                 >
                     <defs>
                         <linearGradient
@@ -360,7 +366,8 @@ const GlassyStatCard = ({
 // ----------------------------------------------------------------------
 const DemographicPieChart = ({ data }) => {
     const { performanceMode } = useAdmin();
-    const [hoveredIndex, setHoveredIndex] = useState(null);
+    const [activeIndex, setActiveIndex] = useState(null);
+
     if (!data || data.length === 0)
         return (
             <div className="h-[220px] flex items-center justify-center text-gray-400 dark:text-white/10 text-[10px] uppercase font-black tracking-widest italic">
@@ -369,11 +376,6 @@ const DemographicPieChart = ({ data }) => {
         );
 
     const total = data.reduce((sum, item) => sum + item.value, 0);
-    let cumulativePercent = 0;
-    const getCoordinatesForPercent = (percent) => [
-        Math.cos(2 * Math.PI * percent),
-        Math.sin(2 * Math.PI * percent),
-    ];
     const colors = [
         '#0d3542',
         '#3b82f6',
@@ -384,80 +386,50 @@ const DemographicPieChart = ({ data }) => {
     ];
 
     return (
-        <div className="flex flex-col lg:flex-row items-center gap-16 py-8">
-            <div className="relative w-64 h-64">
-                <svg
-                    viewBox="-1.1 -1.1 2.2 2.2"
-                    className="w-full h-full -rotate-90"
-                >
-                    {data.map((item, i) => {
-                        const [startX, startY] =
-                            getCoordinatesForPercent(cumulativePercent);
-                        const percent = item.value / total;
-                        cumulativePercent += percent;
-                        const [endX, endY] =
-                            getCoordinatesForPercent(cumulativePercent);
-                        const largeArcFlag = percent > 0.5 ? 1 : 0;
-                        const isHovered = hoveredIndex === i;
-
-                        return (
-                            <motion.path
-                                key={item.label}
-                                d={`M ${startX} ${startY} A 1 1 0 ${largeArcFlag} 1 ${endX} ${endY} L 0 0`}
-                                fill={colors[i % colors.length]}
-                                initial={{ opacity: 0, scale: 0.8 }}
-                                animate={{
-                                    opacity:
-                                        hoveredIndex !== null && !isHovered
-                                            ? 0.3
-                                            : 1,
-                                    scale: isHovered ? 1.05 : 1,
-                                }}
-                                transition={
-                                    performanceMode
-                                        ? { duration: 0 }
-                                        : {
-                                              type: 'spring',
-                                              stiffness: 200,
-                                              damping: 20,
-                                          }
-                                }
-                                onMouseEnter={() => setHoveredIndex(i)}
-                                onMouseLeave={() => setHoveredIndex(null)}
-                                className="cursor-pointer transition-all duration-300"
-                            />
-                        );
-                    })}
-                    <circle
-                        cx="0"
-                        cy="0"
-                        r="0.75"
-                        className="fill-white dark:fill-[#0d0d0d]"
-                    />
-                </svg>
+        <div className="flex flex-col lg:flex-row items-center gap-16 py-8 outline-none" tabIndex={-1}>
+            <div className="relative w-72 h-72 outline-none" tabIndex={-1}>
+                <ResponsiveContainer width="100%" height="100%" style={{ outline: 'none' }}>
+                    <PieChart style={{ outline: 'none' }} tabIndex={-1}>
+                        <Pie
+                            data={data}
+                            cx="50%"
+                            cy="50%"
+                            innerRadius={75}
+                            outerRadius={100}
+                            paddingAngle={5}
+                            dataKey="value"
+                            stroke="none"
+                            isAnimationActive={!performanceMode}
+                            animationDuration={800}
+                        >
+                            {data.map((entry, index) => (
+                                <Cell 
+                                    key={`cell-${index}`} 
+                                    fill={colors[index % colors.length]} 
+                                    className="transition-all duration-300"
+                                    opacity={activeIndex === null || activeIndex === index ? 1 : 0.4}
+                                    style={{ outline: 'none' }}
+                                />
+                            ))}
+                        </Pie>
+                    </PieChart>
+                </ResponsiveContainer>
+                
                 <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
                     <AnimatePresence mode="wait">
                         <motion.div
-                            key={hoveredIndex ?? 'total'}
-                            initial={
-                                performanceMode
-                                    ? { opacity: 0 }
-                                    : { opacity: 0, y: 20 }
-                            }
-                            animate={{ opacity: 1, y: 0 }}
-                            exit={{ opacity: 0, y: performanceMode ? 0 : -10 }}
-                            transition={performanceMode ? { duration: 0 } : {}}
+                            key={activeIndex ?? 'total'}
+                            initial={performanceMode ? { opacity: 0 } : { opacity: 0, scale: 0.9, y: 10 }}
+                            animate={{ opacity: 1, scale: 1, y: 0 }}
+                            exit={{ opacity: 0, scale: 0.9, y: -10 }}
+                            transition={{ duration: 0.2 }}
                             className="text-center"
                         >
                             <span className="text-4xl font-serif text-gray-900 dark:text-white block leading-none">
-                                {hoveredIndex !== null
-                                    ? data[hoveredIndex].value
-                                    : total}
+                                {activeIndex !== null ? data[activeIndex].value : total}
                             </span>
-                            <span className="text-xs font-black text-gray-400 dark:text-white/20 uppercase tracking-[0.2em] mt-2 block">
-                                {hoveredIndex !== null
-                                    ? data[hoveredIndex].label
-                                    : 'Total Reach'}
+                            <span className="text-[10px] font-black text-gray-400 dark:text-[#8b949e] uppercase tracking-[0.2em] mt-2 block">
+                                {activeIndex !== null ? data[activeIndex].label : 'Total Reach'}
                             </span>
                         </motion.div>
                     </AnimatePresence>
@@ -468,11 +440,11 @@ const DemographicPieChart = ({ data }) => {
                 {data.map((item, i) => (
                     <motion.div
                         key={item.label}
-                        onMouseEnter={() => setHoveredIndex(i)}
-                        onMouseLeave={() => setHoveredIndex(null)}
-                        className={`flex items-center justify-between p-5 rounded-3xl border transition-all duration-500 ${
-                            hoveredIndex === i
-                                ? 'bg-white dark:bg-[#161b22] border-[#0d3542]/30 dark:border-[#58a6ff]/30'
+                        onMouseEnter={() => setActiveIndex(i)}
+                        onMouseLeave={() => setActiveIndex(null)}
+                        className={`flex items-center justify-between p-5 rounded-3xl border transition-all duration-300 ${
+                            activeIndex === i
+                                ? 'bg-white dark:bg-[#161b22] border-[#0d3542]/30 dark:border-[#58a6ff]/30 shadow-sm'
                                 : 'bg-black/[0.02] dark:bg-[#0d1117] border-black/5 dark:border-[#30363d] opacity-70'
                         }`}
                     >
@@ -572,6 +544,12 @@ const AdminDashboard = () => {
 
     return (
         <ErrorBoundary>
+            <style>{`
+                .recharts-wrapper, .recharts-surface, .recharts-sector, .recharts-curve, .recharts-dot {
+                    outline: none !important;
+                    -webkit-tap-highlight-color: transparent;
+                }
+            `}</style>
             <motion.div
                 className="space-y-10 pb-24 font-sans dashboard-page"
                 initial="hidden"

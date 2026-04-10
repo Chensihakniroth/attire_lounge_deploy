@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Ticket, Plus, Trash2, Calendar, Percent, Tag, X, Check, Search, Copy, CheckCheck, Sparkles } from 'lucide-react';
+import { Ticket, Plus, Trash2, Calendar, Percent, Tag, X, Check, Search, Copy, CheckCheck, Sparkles, Activity } from 'lucide-react';
 import { LumaSpin } from '@/components/ui/luma-spin';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
 import axios from 'axios';
 import Swal from 'sweetalert2';
 import ModernModal from '../../common/ModernModal';
@@ -35,10 +37,10 @@ const PromocodeManager = () => {
         } catch (error) {
             Swal.fire({
                 icon: 'error',
-                title: 'Error',
-                text: 'Load failed.',
-                background: document.documentElement.classList.contains('dark') ? '#1a1a1a' : '#fff',
-                color: document.documentElement.classList.contains('dark') ? '#fff' : '#151515',
+                title: 'Access Denied',
+                text: 'Authentication required for ledger access.',
+                background: document.documentElement.classList.contains('dark') ? '#161b22' : '#fdfdfc',
+                color: document.documentElement.classList.contains('dark') ? '#c9d1d9' : '#0d3542',
                 confirmButtonColor: '#0d3542'
             });
         } finally {
@@ -60,10 +62,10 @@ const PromocodeManager = () => {
 
         try {
             Swal.fire({
-                title: 'Creating...',
+                title: 'Encoding...',
                 allowOutsideClick: false,
-                background: document.documentElement.classList.contains('dark') ? '#1a1a1a' : '#fff',
-                color: document.documentElement.classList.contains('dark') ? '#fff' : '#151515',
+                background: document.documentElement.classList.contains('dark') ? '#161b22' : '#fdfdfc',
+                color: document.documentElement.classList.contains('dark') ? '#c9d1d9' : '#0d3542',
                 didOpen: () => Swal.showLoading()
             });
 
@@ -79,10 +81,10 @@ const PromocodeManager = () => {
         } catch (error) {
             Swal.fire({
                 icon: 'error',
-                title: 'Failed',
-                text: error.response?.data?.message || 'Error occurred.',
-                background: document.documentElement.classList.contains('dark') ? '#1a1a1a' : '#fff',
-                color: document.documentElement.classList.contains('dark') ? '#fff' : '#151515',
+                title: 'Protocol Failed',
+                text: error.response?.data?.message || 'Conflict detected in ledger.',
+                background: document.documentElement.classList.contains('dark') ? '#161b22' : '#fdfdfc',
+                color: document.documentElement.classList.contains('dark') ? '#c9d1d9' : '#0d3542',
                 confirmButtonColor: '#0d3542'
             });
         }
@@ -90,18 +92,19 @@ const PromocodeManager = () => {
 
     const handleDelete = async (id, code) => {
         const result = await Swal.fire({
-            title: 'Revoke',
-            text: `Remove ${code}?`,
+            title: 'Revoke Protocol',
+            text: `Permanent removal of ${code}?`,
             icon: 'warning',
             showCancelButton: true,
             confirmButtonColor: '#ef4444',
-            cancelButtonColor: document.documentElement.classList.contains('dark') ? '#262626' : '#f4f4f4',
-            confirmButtonText: 'Revoke',
-            background: document.documentElement.classList.contains('dark') ? '#1a1a1a' : '#fff',
-            color: document.documentElement.classList.contains('dark') ? '#fff' : '#151515',
+            cancelButtonColor: 'transparent',
+            confirmButtonText: 'REVOKE',
+            cancelButtonText: 'ABORT',
+            background: document.documentElement.classList.contains('dark') ? '#161b22' : '#fdfdfc',
+            color: document.documentElement.classList.contains('dark') ? '#c9d1d9' : '#0d3542',
             customClass: {
-                confirmButton: 'px-6 py-2 rounded-xl text-sm font-semibold tracking-wide',
-                cancelButton: `px-6 py-2 rounded-xl text-sm font-semibold tracking-wide border ${document.documentElement.classList.contains('dark') ? 'border-white/10' : 'border-black/10'}`
+                confirmButton: 'px-8 py-3 rounded-xl text-xs font-black uppercase tracking-widest',
+                cancelButton: 'px-8 py-3 rounded-xl text-xs font-black uppercase tracking-widest text-gray-400'
             }
         });
 
@@ -112,10 +115,9 @@ const PromocodeManager = () => {
             } catch (error) {
                 Swal.fire({
                     icon: 'error',
-                    title: 'Error',
-                    background: document.documentElement.classList.contains('dark') ? '#1a1a1a' : '#fff',
-                    color: document.documentElement.classList.contains('dark') ? '#fff' : '#151515',
-                    confirmButtonColor: '#0d3542'
+                    title: 'System Error',
+                    background: document.documentElement.classList.contains('dark') ? '#161b22' : '#fdfdfc',
+                    color: document.documentElement.classList.contains('dark') ? '#c9d1d9' : '#0d3542',
                 });
             }
         }
@@ -142,34 +144,41 @@ const PromocodeManager = () => {
     });
 
     return (
-        <div className="w-full space-y-8 pb-12">
+        <div className="w-full space-y-12 pb-24">
             
             {/* Header Section */}
-            <div className="flex flex-col md:flex-row justify-between flex-wrap gap-4 items-end">
-                <div>
-                    <h1 className="text-4xl font-light text-attire-charcoal dark:text-white tracking-[0.2em] uppercase">
-                        Promocode Ledger
-                    </h1>
+            <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-8 bg-[#fdfdfc] dark:bg-[#161b22] p-10 rounded-[2.5rem] border border-black/5 dark:border-[#30363d] shadow-sm">
+                <div className="flex items-center gap-6">
+                    <div className="p-4 bg-[#0d3542] dark:bg-[#58a6ff] text-white dark:text-black rounded-3xl shadow-lg shadow-[#0d3542]/10 dark:shadow-[#58a6ff]/10">
+                        <Ticket size={28} />
+                    </div>
+                    <div>
+                        <h1 className="text-3xl font-serif text-gray-900 dark:text-white tracking-tight">
+                            Promocode Ledger
+                        </h1>
+                        <p className="text-xs font-black text-gray-400 dark:text-[#8b949e]/40 uppercase tracking-[0.3em] mt-1">
+                            Campaign Management Hub
+                        </p>
+                    </div>
                 </div>
 
-                <div className="flex flex-col sm:flex-row gap-4 w-full md:w-auto">
-                    <div className="relative flex-1 sm:w-64 group">
-                        <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 dark:text-white/40 group-focus-within:text-[#0d3542] dark:group-focus-within:text-[#58a6ff] transition-colors" />
+                <div className="flex flex-col sm:flex-row gap-4">
+                    <div className="relative group">
+                        <Search className="absolute left-5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 dark:text-white/20 group-focus-within:text-[#0d3542] dark:group-focus-within:text-[#58a6ff] transition-colors" />
                         <input
                             type="text"
-                            placeholder="Search..."
+                            placeholder="SEARCH VAULT..."
                             value={searchTerm}
                             onChange={(e) => setSearchTerm(e.target.value)}
-                            className="w-full bg-black/5 dark:bg-[#151515] border border-black/10 dark:border-white/10 rounded-full py-2.5 pl-11 pr-4 text-sm text-gray-900 dark:text-white focus:outline-none focus:border-[#0d3542]/60 dark:focus:border-[#58a6ff]/60 focus:ring-1 focus:ring-[#0d3542]/60 dark:focus:ring-[#58a6ff]/60 transition-all placeholder:text-gray-400 dark:placeholder:text-white/30"
+                            className="w-full sm:w-64 bg-black/5 dark:bg-[#0d1117] border-2 border-black/5 dark:border-white/5 rounded-2xl py-3.5 pl-12 pr-4 text-[11px] font-black tracking-widest text-gray-900 dark:text-white focus:outline-none focus:border-[#0d3542]/20 dark:focus:border-[#58a6ff]/20 transition-all uppercase placeholder:text-gray-300 dark:placeholder:text-white/5"
                         />
-                        <motion.button
-                            whileTap={{ scale: 0.95 }}
-                            onClick={() => setIsCreating(true)}
-                            className="flex items-center gap-2 bg-black dark:bg-white text-white dark:text-black rounded-2xl py-3.5 px-6 text-xs font-bold uppercase tracking-widest hover:bg-[#0d3542] dark:hover:bg-[#58a6ff] hover:text-white dark:hover:text-black transition-all shadow-none"
-                        >
-                            <Plus size={16} /> New Promocode
-                        </motion.button>
                     </div>
+                    <Button
+                        onClick={() => setIsCreating(true)}
+                        className="bg-[#0d3542] dark:bg-[#58a6ff] text-white dark:text-black rounded-2xl py-6 px-8 text-xs font-black uppercase tracking-[0.2em] hover:opacity-90 transition-all shadow-xl shadow-[#0d3542]/10 dark:shadow-[#58a6ff]/10"
+                    >
+                        <Plus size={16} className="mr-2" /> New Protocol
+                    </Button>
                 </div>
             </div>
 
@@ -179,98 +188,127 @@ const PromocodeManager = () => {
                     <LumaSpin size="lg" />
                 </div>
             ) : (
-                <div className="grid grid-cols-1 xl:grid-cols-2 gap-8">
+                <div className="grid grid-cols-1 xl:grid-cols-2 gap-12">
                     
                     {/* Active */}
-                    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-4">
-                        <h2 className="text-[11.5px] font-black text-attire-charcoal/40 dark:text-white/40 uppercase tracking-[0.3em] flex items-center gap-3">
-                            <span className="relative flex h-2.5 w-2.5">
-                                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#0d3542] dark:bg-[#58a6ff] opacity-20"></span>
-                                <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-[#0d3542] dark:bg-[#58a6ff] ring-4 ring-[#0d3542]/10 dark:ring-[#58a6ff]/10"></span>
-                            </span>
-                            Active Repository
-                        </h2>
+                    <div className="space-y-6">
+                        <div className="flex items-center gap-4 px-2">
+                            <div className="h-1 w-8 bg-[#0d3542] dark:bg-[#58a6ff] rounded-full" />
+                            <h2 className="text-[11px] font-black text-gray-400 dark:text-[#8b949e]/40 uppercase tracking-[0.4em]">
+                                Live Repository
+                            </h2>
+                            <Badge className="bg-[#0d3542]/5 dark:bg-[#58a6ff]/5 text-[#0d3542] dark:text-[#58a6ff] border-none text-[10px] font-black">{activeCodes.length}</Badge>
+                        </div>
                         
-                        <div className="space-y-3">
+                        <div className="space-y-4">
                             <AnimatePresence mode="popLayout">
                                 {activeCodes.length === 0 ? (
-                                    <div className="py-10 text-center text-attire-charcoal/30 dark:text-white/30 text-sm border border-black/5 dark:border-white/5 rounded-2xl bg-black/5 dark:bg-[#1a1a1a]/40">No active codes</div>
+                                    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="py-20 text-center text-gray-400/30 dark:text-white/10 text-[10px] font-black uppercase tracking-[0.3em] border-2 border-dashed border-black/5 dark:border-white/5 rounded-[2.5rem] bg-black/[0.01]">Empty Set</motion.div>
                                 ) : (
                                     activeCodes.map((code) => (
-                                        <motion.div layout key={code.id} initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
+                                        <motion.div layout key={code.id} initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.95 }}>
                                             <PromocodeCard code={code} onDelete={handleDelete} status="active" />
                                         </motion.div>
                                     ))
                                 )}
                             </AnimatePresence>
                         </div>
-                    </motion.div>
+                    </div>
 
                     {/* Expired */}
-                    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-4">
-                        <h2 className="text-[11.5px] font-black text-attire-charcoal/30 dark:text-white/20 uppercase tracking-[0.3em] flex items-center gap-3">
-                            <span className="relative flex h-2.5 w-2.5 opacity-50">
-                                <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-red-500/50 ring-4 ring-red-500/5"></span>
-                            </span>
-                            Expired Archive
-                        </h2>
+                    <div className="space-y-6">
+                        <div className="flex items-center gap-4 px-2">
+                            <div className="h-1 w-8 bg-gray-200 dark:bg-[#30363d] rounded-full" />
+                            <h2 className="text-[11px] font-black text-gray-400 dark:text-[#8b949e]/40 uppercase tracking-[0.4em]">
+                                Archive Vault
+                            </h2>
+                            <Badge className="bg-black/5 dark:bg-white/5 text-gray-400 dark:text-[#8b949e]/40 border-none text-[10px] font-black">{expiredCodes.length}</Badge>
+                        </div>
                         
-                        <div className="space-y-3">
+                        <div className="space-y-4">
                             <AnimatePresence mode="popLayout">
                                 {expiredCodes.length === 0 ? (
-                                    <div className="py-10 text-center text-attire-charcoal/20 dark:text-white/20 text-sm border border-black/5 dark:border-white/5 rounded-2xl bg-black/5 dark:bg-[#1a1a1a]/40">No expired codes</div>
+                                    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="py-20 text-center text-gray-400/30 dark:text-white/10 text-[10px] font-black uppercase tracking-[0.3em] border-2 border-dashed border-black/5 dark:border-white/5 rounded-[2.5rem] bg-black/[0.01]">Void State</motion.div>
                                 ) : (
                                     expiredCodes.map((code) => (
-                                        <motion.div layout key={code.id} initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
+                                        <motion.div layout key={code.id} initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.95 }}>
                                             <PromocodeCard code={code} onDelete={handleDelete} status="expired" />
                                         </motion.div>
                                     ))
                                 )}
                             </AnimatePresence>
                         </div>
-                    </motion.div>
+                    </div>
 
                 </div>
             )}
 
             {/* Creation Modal */}
-            <ModernModal isOpen={isCreating} onClose={() => setIsCreating(false)} maxWidth="max-w-md" title="NEW CODE">
-                <form onSubmit={handleCreateSubmit} className="space-y-6 pt-2">
-                    <div className="group">
-                        <label className="block text-[11.5px] font-black text-gray-400 dark:text-white/40 uppercase tracking-wider mb-2 transition-colors group-focus-within:text-[#0d3542] dark:group-focus-within:text-[#58a6ff]">Campaign Designation</label>
+            <ModernModal isOpen={isCreating} onClose={() => setIsCreating(false)} maxWidth="max-w-xl" showCloseButton={false}>
+                <div className="px-10 py-8 border-b border-black/5 dark:border-white/5 bg-black/[0.02] dark:bg-white/[0.02] flex items-center justify-between">
+                    <div className="flex items-center gap-5">
+                        <div className="p-3 bg-[#0d3542]/10 dark:bg-[#58a6ff]/10 rounded-2xl border border-[#0d3542]/20 dark:border-[#58a6ff]/20 text-[#0d3542] dark:text-[#58a6ff]">
+                            <Plus size={24} />
+                        </div>
+                        <div>
+                            <h3 className="text-lg font-serif text-gray-900 dark:text-white leading-none">New Protocol</h3>
+                            <p className="text-[10px] text-gray-400 dark:text-[#8b949e]/40 font-black uppercase tracking-widest mt-1.5">Asset Encoding</p>
+                        </div>
+                    </div>
+                    <button onClick={() => setIsCreating(false)} className="p-2 hover:bg-black/5 dark:hover:bg-white/10 rounded-full transition-colors text-gray-400">
+                        <X size={20} />
+                    </button>
+                </div>
+
+                <form onSubmit={handleCreateSubmit} className="p-10 space-y-8">
+                    <div className="space-y-3">
+                        <label className="block text-[10px] font-black text-gray-400 dark:text-[#8b949e]/40 uppercase tracking-[0.2em] ml-1">Campaign Designation</label>
                         <input
                             type="text" name="name" value={formData.name} onChange={handleInputChange} required
-                            className="w-full bg-black/5 dark:bg-white/[0.03] border border-black/10 dark:border-white/10 rounded-xl py-4 px-5 text-gray-900 dark:text-white text-[16px] font-black focus:border-[#0d3542] dark:focus:border-[#58a6ff] focus:ring-1 focus:ring-[#0d3542]/20 dark:focus:ring-[#58a6ff]/20 focus:outline-none transition-all"
-                            placeholder="SUMMER SALE"
+                            className="w-full bg-black/5 dark:bg-[#0d1117] border-2 border-black/5 dark:border-white/5 rounded-[1.5rem] py-5 px-6 text-gray-900 dark:text-white text-[15px] font-black focus:border-[#0d3542] dark:focus:border-[#58a6ff] focus:bg-white dark:focus:bg-[#111] focus:outline-none transition-all uppercase placeholder:text-gray-300 dark:placeholder:text-white/5"
+                            placeholder="E.G. ANNIVERSARY EVENT"
                         />
                     </div>
 
-                    <div className="group">
-                        <label className="block text-[11.5px] font-black text-gray-400 dark:text-white/40 uppercase tracking-wider mb-2 transition-colors group-focus-within:text-[#0d3542] dark:group-focus-within:text-[#58a6ff]">Discount Ratio (%)</label>
-                        <div className="relative">
-                            <input
-                                type="number" name="discount_percentage" value={formData.discount_percentage} onChange={handleInputChange} required min="1" max="100"
-                                className="w-full bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 rounded-2xl py-4 px-5 text-gray-900 dark:text-white text-lg font-black tracking-[0.2em] focus:border-[#0d3542] dark:focus:border-[#58a6ff] outline-none transition-all uppercase placeholder:opacity-20"
-                                placeholder="WELCOME10"
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                        <div className="space-y-3">
+                            <label className="block text-[10px] font-black text-gray-400 dark:text-[#8b949e]/40 uppercase tracking-[0.2em] ml-1">Discount Ratio</label>
+                            <div className="relative group">
+                                <input
+                                    type="number" name="discount_percentage" value={formData.discount_percentage} onChange={handleInputChange} required min="1" max="100"
+                                    className="w-full bg-black/5 dark:bg-[#0d1117] border-2 border-black/5 dark:border-white/5 rounded-[1.5rem] py-5 px-6 text-gray-900 dark:text-white text-xl font-mono font-black focus:border-[#0d3542] dark:focus:border-[#58a6ff] focus:bg-white dark:focus:bg-[#111] outline-none transition-all"
+                                    placeholder="0"
+                                />
+                                <span className="absolute right-6 top-1/2 -translate-y-1/2 text-lg font-black text-[#0d3542] dark:text-[#58a6ff]">%</span>
+                            </div>
+                        </div>
+
+                        <div className="space-y-3">
+                            <label className="block text-[10px] font-black text-gray-400 dark:text-[#8b949e]/40 uppercase tracking-[0.2em] ml-1">Expiry Protocol</label>
+                            <DatePicker 
+                                required
+                                value={formData.expires_at}
+                                onChange={(e) => setFormData(p => ({ ...p, expires_at: e.target.value }))}
+                                name="expires_at"
                             />
-                            <Percent size={16} className="absolute right-5 top-1/2 -translate-y-1/2 text-attire-charcoal/30 dark:text-white/30" />
                         </div>
                     </div>
 
-                    <div className="group">
-                        <label className="block text-[11.5px] font-black text-gray-400 dark:text-white/40 uppercase tracking-wider mb-2 transition-colors group-focus-within:text-[#0d3542] dark:group-focus-within:text-[#58a6ff]">Expiry Date *</label>
-                        <DatePicker 
-                            required
-                            value={formData.expires_at}
-                            onChange={(e) => setFormData(p => ({ ...p, expires_at: e.target.value }))}
-                            name="expires_at"
-                        />
-                    </div>
+                    {/* Code Preview */}
+                    {formData.name && formData.discount_percentage && (
+                        <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="p-6 bg-[#0d3542]/5 dark:bg-[#58a6ff]/5 rounded-[1.5rem] border border-[#0d3542]/10 dark:border-[#58a6ff]/10">
+                            <span className="text-[10px] font-black text-[#0d3542] dark:text-[#58a6ff] uppercase tracking-[0.2em]">Generated Asset Code</span>
+                            <p className="font-mono text-2xl font-black text-gray-900 dark:text-white tracking-[0.3em] mt-2 truncate">
+                                {formData.name.replace(/\s+/g, '').toUpperCase()}{formData.discount_percentage}
+                            </p>
+                        </motion.div>
+                    )}
 
-                    <div className="pt-4">
-                        <button type="submit" className="w-full bg-black dark:bg-white text-white dark:text-black py-4 rounded-2xl text-sm font-black uppercase tracking-[0.2em] hover:bg-[#0d3542] dark:hover:bg-[#58a6ff] hover:text-white dark:hover:text-black transition-all shadow-none active:scale-95">
-                            Create Ledger Asset
-                        </button>
+                    <div className="pt-4 flex gap-4">
+                        <Button variant="outline" type="button" onClick={() => setIsCreating(false)} className="flex-1 py-7 rounded-2xl text-[11px] font-black uppercase tracking-[0.2em] border-2 border-black/15 dark:border-[#30363d] text-gray-400">ABORT</Button>
+                        <Button type="submit" className="flex-[2] py-7 bg-[#0d3542] dark:bg-[#58a6ff] text-white dark:text-black rounded-2xl text-[11px] font-black uppercase tracking-[0.2em] hover:opacity-90 transition-all shadow-xl shadow-[#0d3542]/10 dark:shadow-[#58a6ff]/10">
+                            AUTHORIZE & COMMIT
+                        </Button>
                     </div>
                 </form>
             </ModernModal>
@@ -294,61 +332,83 @@ const PromocodeCard = ({ code, status, onDelete }) => {
     const isActive = status === 'active';
 
     return (
-        <div className={`group relative bg-white dark:bg-[#161b22] border border-black/5 dark:border-white/10 rounded-3xl overflow-hidden hover:border-[#0d3542]/30 dark:hover:border-[#58a6ff]/30 transition-all duration-300 shadow-none ${!isActive && 'opacity-50 grayscale'}`}>
+        <div className={`group relative bg-[#fdfdfc] dark:bg-[#161b22] border border-black/5 dark:border-[#30363d] rounded-[2.5rem] overflow-hidden hover:border-[#0d3542]/30 dark:hover:border-[#58a6ff]/30 transition-all duration-500 shadow-none ${!isActive && 'opacity-40 grayscale pointer-events-none'}`}>
             {/* Ticket Cut-outs */}
-            <div className="absolute top-1/2 -left-3 -translate-y-1/2 w-6 h-6 bg-[#fdfdfc] dark:bg-[#0d1117] border-r border-black/5 dark:border-white/5 rounded-full z-10" />
-            <div className="absolute top-1/2 -right-3 -translate-y-1/2 w-6 h-6 bg-[#fdfdfc] dark:bg-[#0d1117] border-l border-black/5 dark:border-white/5 rounded-full z-10" />
+            <div className="absolute top-1/2 -left-3 -translate-y-1/2 w-6 h-6 bg-background dark:bg-[#111111] border-r border-black/5 dark:border-[#30363d] rounded-full z-10" />
+            <div className="absolute top-1/2 -right-3 -translate-y-1/2 w-6 h-6 bg-background dark:bg-[#111111] border-l border-black/5 dark:border-[#30363d] rounded-full z-10" />
             
-            <div className="p-4 bg-black/5 dark:bg-white/5 border-b border-black/5 dark:border-white/10 flex items-center justify-between">
-                <span className="text-[10px] font-black uppercase tracking-[0.2em] text-[#0d3542] dark:text-[#58a6ff]">
-                    {isActive ? 'Active Pass' : 'Expired'}
-                </span>
-                <div className="flex gap-2">
-                    <button onClick={() => onDelete(code.id, code.code)} className="p-1.5 text-gray-400 hover:text-rose-500 transition-colors">
-                        <Trash2 size={14} />
-                    </button>
+            <div className="p-5 bg-black/[0.02] dark:bg-white/[0.02] border-b border-black/5 dark:border-white/5 flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                    <div className={`w-2 h-2 rounded-full ${isActive ? 'bg-[#0d3542] dark:bg-[#58a6ff] animate-pulse' : 'bg-gray-400'}`} />
+                    <span className="text-[10px] font-black uppercase tracking-[0.3em] text-[#0d3542] dark:text-[#58a6ff]">
+                        {isActive ? 'PROTOCOL ACTIVE' : 'EXPIRED ARCHIVE'}
+                    </span>
                 </div>
+                <button onClick={() => onDelete(code.id, code.code)} className="p-2 text-gray-400 hover:text-rose-500 transition-colors bg-white dark:bg-black/20 rounded-xl border border-black/5 dark:border-white/5">
+                    <Trash2 size={14} />
+                </button>
             </div>
 
-            <div className="p-6">
-                <div className="flex items-center gap-4 mb-2">
-                    <span 
-                        onClick={handleCopy} 
-                        className={`font-mono text-[26px] font-black tracking-[0.3em] cursor-pointer transition-colors truncate ${
-                            isActive ? 'text-[#0d3542] dark:text-white hover:text-[#0d3542]/80 dark:hover:text-[#58a6ff]' : 'text-gray-400'
-                        }`}
-                    >
-                        {code.code}
-                    </span>
-                    <div className={`px-4 py-2 rounded-full text-[12.5px] font-black tracking-widest flex items-center gap-2 shadow-none ${
-                        isActive ? 'bg-[#0d3542]/10 text-[#0d3542] dark:bg-[#58a6ff]/10 dark:text-[#58a6ff]' : 'bg-gray-200 dark:bg-gray-800 text-gray-500'
-                    }`}>
-                        <Sparkles size={14} className="animate-pulse" />
-                        {code.discount_percentage}% OFF
+            <div className="p-8">
+                <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-8">
+                    <div className="space-y-2">
+                        <div className="flex items-center gap-3">
+                            <span 
+                                onClick={isActive ? handleCopy : undefined} 
+                                className={`font-mono text-3xl font-black tracking-[0.2em] transition-colors block ${
+                                    isActive ? 'cursor-pointer text-gray-900 dark:text-white hover:text-[#0d3542] dark:hover:text-[#58a6ff]' : 'text-gray-400'
+                                }`}
+                            >
+                                {code.code}
+                            </span>
+                            {isActive && (
+                                <button 
+                                    onClick={handleCopy}
+                                    className={`p-2 rounded-xl transition-all ${
+                                        copied 
+                                        ? 'bg-[#0d3542] dark:bg-[#58a6ff] text-white dark:text-black' 
+                                        : 'bg-black/5 dark:bg-white/5 hover:bg-[#0d3542]/10 dark:hover:bg-[#58a6ff]/10 text-gray-500 hover:text-[#0d3542] dark:hover:text-[#58a6ff]'
+                                    }`}
+                                    title="Copy Protocol"
+                                >
+                                    {copied ? <CheckCheck size={16} className="animate-pulse" /> : <Copy size={16} />}
+                                </button>
+                            )}
+                        </div>
+                        <div className="flex items-center gap-3">
+                            <span className="text-[11px] font-black uppercase tracking-widest text-gray-400 dark:text-[#8b949e]/40">{code.name}</span>
+                            <span className="opacity-20">•</span>
+                            <span className="flex items-center gap-2 text-[11px] font-black uppercase tracking-widest text-gray-400 dark:text-[#8b949e]/40">
+                                <Calendar size={12} />
+                                {dateFormatted}
+                            </span>
+                        </div>
                     </div>
-                </div>
-                <div className="flex items-center gap-3 text-[12px] font-black uppercase tracking-[0.3em] text-gray-400 dark:text-white/30">
-                    <span className="truncate max-w-[200px] text-gray-900 dark:text-white">{code.name}</span>
-                    <span className="opacity-30">•</span>
-                    <span className="flex items-center gap-2">
-                        <Calendar size={14} className="opacity-50" />
-                        {dateFormatted}
-                    </span>
+                    <div className={`h-20 w-20 shrink-0 rounded-3xl flex flex-col items-center justify-center border-2 transition-all duration-500 ${
+                        isActive ? 'bg-[#0d3542]/5 border-[#0d3542]/10 text-[#0d3542] dark:bg-[#58a6ff]/5 dark:border-[#58a6ff]/10 dark:text-[#58a6ff]' : 'bg-gray-100 border-gray-200 text-gray-400'
+                    }`}>
+                        <span className="text-2xl font-black leading-none">{code.discount_percentage}</span>
+                        <span className="text-[9px] font-black uppercase tracking-widest mt-1 opacity-60">% OFF</span>
+                    </div>
                 </div>
                 
-                <div className="pt-4 mt-4 border-t border-dashed border-black/10 dark:border-white/10">
-                    <div className="flex items-center justify-between text-[10px] font-bold text-gray-400 uppercase tracking-widest">
-                        <span>Usage</span>
-                        <span className="text-gray-900 dark:text-white">{code.times_used || 0} / {code.max_usage || '∞'}</span>
+                <div className="pt-6 border-t border-dashed border-black/10 dark:border-white/10">
+                    <div className="flex items-center justify-between text-[10px] font-black text-gray-400 dark:text-[#8b949e]/40 uppercase tracking-widest mb-3 px-1">
+                        <span className="flex items-center gap-2"><Activity size={12} /> Utilization</span>
+                        <span className="text-gray-900 dark:text-white font-mono">{code.times_used || 0} <span className="opacity-30">/</span> {code.max_usage || '∞'}</span>
                     </div>
-                    <div className="mt-2 h-1 bg-black/5 dark:bg-white/5 rounded-full overflow-hidden">
-                        <div 
+                    <div className="h-1.5 bg-black/5 dark:bg-white/5 rounded-full overflow-hidden">
+                        <motion.div 
+                            initial={{ width: 0 }}
+                            animate={{ width: `${code.max_usage ? (code.times_used / code.max_usage) * 100 : 0}%` }}
+                            transition={{ duration: 1, ease: "easeOut" }}
                             className="h-full bg-[#0d3542] dark:bg-[#58a6ff]" 
-                            style={{ width: `${code.max_usage ? (code.times_used / code.max_usage) * 100 : 0}%` }}
                         />
                     </div>
                 </div>
             </div>
+            
+
         </div>
     );
 };

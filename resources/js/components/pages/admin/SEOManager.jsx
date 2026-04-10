@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Search, Globe, AlertCircle, Check, Filter, ExternalLink, Edit3, Save, X } from 'lucide-react';
+import { Search, Globe, AlertCircle, Check, Filter, ExternalLink, Edit3, Save, X, ChevronLeft, ChevronRight } from 'lucide-react';
 import { LumaSpin } from '@/components/ui/luma-spin';
 import axios from 'axios';
 import { useAdmin } from './AdminContext';
@@ -15,6 +15,8 @@ const SEOManager = () => {
     const [editData, setEditData] = useState({ meta_title: '', meta_description: '' });
     const [saving, setSaving] = useState(false);
     const [success, setSuccess] = useState(null);
+    const [currentPage, setCurrentPage] = useState(1);
+    const ITEMS_PER_PAGE = 15;
 
     useEffect(() => {
         setLoading(true);
@@ -35,6 +37,27 @@ const SEOManager = () => {
         
         return true;
     });
+
+    // Reset page on filter/search/tab change
+    useEffect(() => {
+        setCurrentPage(1);
+    }, [search, filter, activeTab]);
+
+    // Pagination
+    const totalPages = Math.max(1, Math.ceil(filteredItems.length / ITEMS_PER_PAGE));
+    const paginatedItems = filteredItems.slice(
+        (currentPage - 1) * ITEMS_PER_PAGE,
+        currentPage * ITEMS_PER_PAGE
+    );
+    const pageRange = (() => {
+        const range = [];
+        const maxVisible = 5;
+        let start = Math.max(1, currentPage - Math.floor(maxVisible / 2));
+        let end = Math.min(totalPages, start + maxVisible - 1);
+        if (end - start + 1 < maxVisible) start = Math.max(1, end - maxVisible + 1);
+        for (let i = start; i <= end; i++) range.push(i);
+        return range;
+    })();
 
     const startEditing = (item) => {
         setEditId(item.id);
@@ -134,7 +157,8 @@ const SEOManager = () => {
                         <p className="text-gray-400 dark:text-attire-silver/30 text-xs uppercase tracking-widest">No matching assets found.</p>
                     </div>
                 ) : (
-                    filteredItems.map(item => (
+                    <>
+                    {paginatedItems.map(item => (
                         <motion.div 
                             key={item.id}
                             initial={{ opacity: 0, y: 10 }}
@@ -242,7 +266,58 @@ const SEOManager = () => {
                                 </div>
                             </div>
                         </motion.div>
-                    ))
+                    ))}
+
+                    {/* Pagination Controls */}
+                    {totalPages > 1 && (
+                        <div className="flex items-center justify-between mt-6 px-2">
+                            <p className="text-[10px] font-bold uppercase tracking-widest text-gray-400 dark:text-[#8b949e]/50 tabular-nums">
+                                {((currentPage - 1) * ITEMS_PER_PAGE) + 1}–{Math.min(currentPage * ITEMS_PER_PAGE, filteredItems.length)} of {filteredItems.length}
+                            </p>
+                            <div className="flex items-center gap-1">
+                                <button
+                                    onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+                                    disabled={currentPage === 1}
+                                    className="p-2 rounded-lg text-gray-400 dark:text-[#8b949e] hover:bg-black/5 dark:hover:bg-[#1c2128] hover:text-gray-900 dark:hover:text-white disabled:opacity-30 disabled:pointer-events-none transition-all"
+                                >
+                                    <ChevronLeft size={16} />
+                                </button>
+                                {pageRange[0] > 1 && (
+                                    <>
+                                        <button onClick={() => setCurrentPage(1)} className="w-8 h-8 rounded-lg text-[10px] font-bold text-gray-500 dark:text-[#8b949e] hover:bg-black/5 dark:hover:bg-[#1c2128] transition-all">1</button>
+                                        {pageRange[0] > 2 && <span className="text-[10px] text-gray-300 dark:text-[#8b949e]/30 px-0.5">…</span>}
+                                    </>
+                                )}
+                                {pageRange.map(p => (
+                                    <button
+                                        key={p}
+                                        onClick={() => setCurrentPage(p)}
+                                        className={`w-8 h-8 rounded-lg text-[10px] font-bold transition-all ${
+                                            p === currentPage
+                                                ? 'bg-[#0d3542] dark:bg-[#58a6ff] text-white dark:text-black'
+                                                : 'text-gray-500 dark:text-[#8b949e] hover:bg-black/5 dark:hover:bg-[#1c2128]'
+                                        }`}
+                                    >
+                                        {p}
+                                    </button>
+                                ))}
+                                {pageRange[pageRange.length - 1] < totalPages && (
+                                    <>
+                                        {pageRange[pageRange.length - 1] < totalPages - 1 && <span className="text-[10px] text-gray-300 dark:text-[#8b949e]/30 px-0.5">…</span>}
+                                        <button onClick={() => setCurrentPage(totalPages)} className="w-8 h-8 rounded-lg text-[10px] font-bold text-gray-500 dark:text-[#8b949e] hover:bg-black/5 dark:hover:bg-[#1c2128] transition-all">{totalPages}</button>
+                                    </>
+                                )}
+                                <button
+                                    onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+                                    disabled={currentPage === totalPages}
+                                    className="p-2 rounded-lg text-gray-400 dark:text-[#8b949e] hover:bg-black/5 dark:hover:bg-[#1c2128] hover:text-gray-900 dark:hover:text-white disabled:opacity-30 disabled:pointer-events-none transition-all"
+                                >
+                                    <ChevronRight size={16} />
+                                </button>
+                            </div>
+                        </div>
+                    )}
+                    </>
                 )}
             </div>
         </div>

@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback, useMemo, memo, useTransition } from 'react';
-import { ShoppingBag, Search, Filter, Edit2, Trash2, ExternalLink, Plus, FolderPlus, Check, X, Star, Tag, Save, AlertCircle, Eye, EyeOff, ChevronDown, Sparkles } from 'lucide-react';
+import { ShoppingBag, Search, Filter, Edit2, Trash2, ExternalLink, Plus, FolderPlus, Check, X, Star, Tag, Save, AlertCircle, Eye, EyeOff, ChevronDown, ChevronLeft, ChevronRight, Sparkles } from 'lucide-react';
 import { LumaSpin } from '@/components/ui/luma-spin';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
@@ -107,18 +107,12 @@ const ProductManager = () => {
     const [searchInput, setSearchInput] = useState('');
     const [searchTerm, setSearchTerm] = useState('');
     const [selectedCollection, setSelectedCollection] = useState('all');
-    const [gridSize, setGridSize] = useState('medium'); // Default to 5 columns ✨
-    const [visibleRows, setVisibleRows] = useState(3); // Show only 3 rows initially ✨
+    const [currentPage, setCurrentPage] = useState(1);
+    const ITEMS_PER_PAGE = 25;
 
     const containerVariants = useMemo(() => getContainerVariants(performanceMode), [performanceMode]);
     const layoutTransition = useMemo(() => getLayoutTransition(performanceMode), [performanceMode]);
     const cardVariants = useMemo(() => getCardVariants(performanceMode), [performanceMode]);
-    
-    const itemsPerRow = useMemo(() => ({
-        large: 3,
-        medium: 5,
-        small: 7
-    }), []);
 
     const { data: allProducts = [], isLoading: loading } = useQuery({
         queryKey: ['admin-products'],
@@ -150,9 +144,9 @@ const ProductManager = () => {
         navigate(`/admin/products/${slug}/edit`);
     }, [navigate]);
 
-    // Handle smooth search transition and reset pagination
+    // Reset to page 1 on filter change
     useEffect(() => {
-        setVisibleRows(3); // Reset rows on filter change
+        setCurrentPage(1);
     }, [searchTerm, selectedCollection]);
 
     // Handle debounced search transition
@@ -179,16 +173,23 @@ const ProductManager = () => {
         });
     }, [allProducts, searchTerm, selectedCollection]);
 
-    // Paginated subset of filtered products
+    // Pagination computed values
+    const totalPages = Math.max(1, Math.ceil(filteredProducts.length / ITEMS_PER_PAGE));
     const visibleProducts = useMemo(() => {
-        return filteredProducts.slice(0, visibleRows * itemsPerRow[gridSize]);
-    }, [filteredProducts, visibleRows, gridSize]);
+        const start = (currentPage - 1) * ITEMS_PER_PAGE;
+        return filteredProducts.slice(start, start + ITEMS_PER_PAGE);
+    }, [filteredProducts, currentPage]);
 
-    const hasMore = filteredProducts.length > visibleProducts.length;
-
-    const handleLoadMore = useCallback(() => {
-        setVisibleRows(prev => prev + 3); // Load 3 more rows
-    }, []);
+    // Generate page range for pagination buttons
+    const pageRange = useMemo(() => {
+        const range = [];
+        const maxVisible = 5;
+        let start = Math.max(1, currentPage - Math.floor(maxVisible / 2));
+        let end = Math.min(totalPages, start + maxVisible - 1);
+        if (end - start + 1 < maxVisible) start = Math.max(1, end - maxVisible + 1);
+        for (let i = start; i <= end; i++) range.push(i);
+        return range;
+    }, [currentPage, totalPages]);
 
     const toggleVisibility = useCallback(async (productId, currentVisibility) => {
         const nextStatus = !currentVisibility;
@@ -237,40 +238,14 @@ const ProductManager = () => {
         }
     }, [queryClient]);
 
-    const gridClasses = {
-        large: "grid-cols-1 md:grid-cols-2 xl:grid-cols-3",
-        medium: "grid-cols-2 md:grid-cols-3 xl:grid-cols-5",
-        small: "grid-cols-3 md:grid-cols-5 xl:grid-cols-7"
-    };
-
     return (
-        <div className="space-y-8 pb-20">
+        <div className="space-y-4 pb-20 font-sans">
             <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-6 pb-6 border-b border-black/5 dark:border-[#30363d]">
                 <div>
                     <h1 className="text-4xl font-serif text-gray-900 dark:text-[#c9d1d9] mb-2">Product Library</h1>
                     <p className="text-gray-500 dark:text-[#8b949e] text-sm">Manage styling house collections and products.</p>
                 </div>
                 <div className="flex flex-wrap gap-3 items-center">
-                    <div className="flex bg-black/5 dark:bg-[#161b22] border border-black/5 dark:border-[#30363d] p-1 rounded-xl mr-2">
-                        {['large', 'medium', 'small'].map((size, idx) => (
-                            <button 
-                                key={size}
-                                onClick={() => setGridSize(size)}
-                                className={`px-3 py-2 rounded-lg text-[10px] font-bold transition-all ${gridSize === size ? 'bg-white dark:bg-[#0d3542] text-black dark:text-white' : 'text-gray-400 dark:text-[#8b949e] hover:text-gray-900 dark:hover:text-white'}`}
-                            >
-                                {[3, 5, 7][idx]}
-                            </button>
-                        ))}
-                    </div>
-
-                    <button 
-                        onClick={() => fetchData(false)}
-                        disabled={loading}
-                        className="flex items-center gap-2 px-6 py-3 bg-black/5 dark:bg-[#161b22] text-gray-900 dark:text-[#c9d1d9] text-xs font-bold uppercase tracking-widest rounded-xl hover:bg-black/10 dark:hover:bg-[#1c2128] transition-all border border-black/5 dark:border-[#30363d] disabled:opacity-50"
-                    >
-                        {loading ? <LumaSpin size="sm" /> : <LumaSpin size="sm" className="opacity-0 group-hover:opacity-100 transition-opacity" style={{ animation: 'none' }} />}
-                        Sync
-                    </button>
                     <button 
                         onClick={() => navigate('/admin/collections')}
                         className="flex items-center gap-2 px-6 py-3 bg-white/5 dark:bg-[#161b22] text-gray-900 dark:text-[#c9d1d9] text-xs font-bold uppercase tracking-widest rounded-xl hover:bg-black/10 dark:hover:bg-[#1c2128] transition-all border border-black/5 dark:border-[#30363d]"
@@ -292,7 +267,7 @@ const ProductManager = () => {
                 </div>
             </div>
 
-            <div className="flex flex-col md:flex-row gap-4">
+            <div className="flex flex-col md:flex-row gap-4 pb-4">
                 <div className="relative flex-grow">
                     <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 dark:text-[#8b949e]/40" size={18} />
                     <input 
@@ -345,15 +320,25 @@ const ProductManager = () => {
                         variants={containerVariants}
                         initial="hidden"
                         animate="visible"
-                        className={`grid ${gridClasses[gridSize]} gap-4 md:gap-6 ${isFiltering ? 'opacity-50 grayscale-[0.5]' : 'opacity-100'} transition-all duration-300`}
+                        className={`border border-black/5 dark:border-[#30363d] rounded-3xl bg-white/50 dark:bg-[#161b22]/50 overflow-hidden ${isFiltering ? 'opacity-50' : 'opacity-100'} transition-all duration-300`}
                     >
+                        {/* Table Header (Cyber-Bespoke Grid Setup) */}
+                        <div className="hidden md:grid md:grid-cols-[48px_minmax(150px,1fr)_80px_110px_80px_80px_140px] md:gap-4 md:items-center px-6 py-4 border-b border-black/5 dark:border-[#30363d] text-[10px] font-bold uppercase tracking-widest text-gray-500 dark:text-[#8b949e]">
+                            <div className="opacity-50">Ref</div>
+                            <div className="opacity-50">Product Name</div>
+                            <div className="text-center opacity-50">Rank</div>
+                            <div className="opacity-50">Collection</div>
+                            <div className="text-right opacity-50">Price</div>
+                            <div className="text-right opacity-50">State</div>
+                            <div className="text-right pr-2 opacity-50">Actions</div>
+                        </div>
+
                         <AnimatePresence mode="popLayout" initial={false}>
                             {visibleProducts.length > 0 ? (
                                 visibleProducts.map(product => (
                                     <ProductCard 
                                         key={product.id} 
                                         product={product} 
-                                        size={gridSize}
                                         onEdit={handleEdit}
                                         onDelete={handleDeleteProduct}
                                         onToggleVisibility={toggleVisibility}
@@ -365,30 +350,63 @@ const ProductManager = () => {
                                     initial={{ opacity: 0 }}
                                     animate={{ opacity: 1 }}
                                     exit={{ opacity: 0 }}
-                                    className="col-span-full text-center py-32 bg-black/5 dark:bg-[#161b22] rounded-3xl border border-black/5 dark:border-[#30363d]"
+                                    className="p-16 text-center border-b border-black/5 dark:border-[#30363d]"
                                 >
                                     <ShoppingBag className="mx-auto text-gray-300 dark:text-[#8b949e]/20 mb-4" size={48} />
-                                    <p className="text-gray-500 dark:text-[#8b949e]/60">No products match your filters.</p>
+                                    <p className="text-xs font-bold uppercase tracking-widest text-gray-400 dark:text-[#8b949e]/60">No products match your filters</p>
                                 </motion.div>
                             )}
                         </AnimatePresence>
                     </motion.div>
 
-                    {/* Load More Button ✨ */}
-                    {hasMore && !isFiltering && (
-                        <motion.div 
-                            initial={{ opacity: 0, y: 20 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            className="flex justify-center mt-12"
-                        >
-                            <button 
-                                onClick={handleLoadMore}
-                                className="group flex items-center gap-3 px-8 py-4 bg-black/5 dark:bg-[#161b22] hover:bg-black/10 dark:hover:bg-[#1c2128] border border-black/5 dark:border-[#30363d] rounded-2xl transition-all duration-300"
-                            >
-                                <span className="text-[10px] font-bold uppercase tracking-[0.3em] text-gray-900 dark:text-white">Show More Products</span>
-                                <ChevronDown size={16} className="text-[#0d3542] dark:text-[#58a6ff] group-hover:translate-y-1 transition-transform" />
-                            </button>
-                        </motion.div>
+                    {/* Pagination Controls ✨ */}
+                    {totalPages > 1 && !isFiltering && (
+                        <div className="flex items-center justify-between mt-6 px-2">
+                            <p className="text-[10px] font-bold uppercase tracking-widest text-gray-400 dark:text-[#8b949e]/50 tabular-nums">
+                                {((currentPage - 1) * ITEMS_PER_PAGE) + 1}–{Math.min(currentPage * ITEMS_PER_PAGE, filteredProducts.length)} of {filteredProducts.length}
+                            </p>
+                            <div className="flex items-center gap-1">
+                                <button
+                                    onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+                                    disabled={currentPage === 1}
+                                    className="p-2 rounded-lg text-gray-400 dark:text-[#8b949e] hover:bg-black/5 dark:hover:bg-[#1c2128] hover:text-gray-900 dark:hover:text-white disabled:opacity-30 disabled:pointer-events-none transition-all"
+                                >
+                                    <ChevronLeft size={16} />
+                                </button>
+                                {pageRange[0] > 1 && (
+                                    <>
+                                        <button onClick={() => setCurrentPage(1)} className="w-8 h-8 rounded-lg text-[10px] font-bold text-gray-500 dark:text-[#8b949e] hover:bg-black/5 dark:hover:bg-[#1c2128] transition-all">1</button>
+                                        {pageRange[0] > 2 && <span className="text-[10px] text-gray-300 dark:text-[#8b949e]/30 px-0.5">…</span>}
+                                    </>
+                                )}
+                                {pageRange.map(p => (
+                                    <button
+                                        key={p}
+                                        onClick={() => setCurrentPage(p)}
+                                        className={`w-8 h-8 rounded-lg text-[10px] font-bold transition-all ${
+                                            p === currentPage
+                                                ? 'bg-[#0d3542] dark:bg-[#58a6ff] text-white dark:text-black'
+                                                : 'text-gray-500 dark:text-[#8b949e] hover:bg-black/5 dark:hover:bg-[#1c2128]'
+                                        }`}
+                                    >
+                                        {p}
+                                    </button>
+                                ))}
+                                {pageRange[pageRange.length - 1] < totalPages && (
+                                    <>
+                                        {pageRange[pageRange.length - 1] < totalPages - 1 && <span className="text-[10px] text-gray-300 dark:text-[#8b949e]/30 px-0.5">…</span>}
+                                        <button onClick={() => setCurrentPage(totalPages)} className="w-8 h-8 rounded-lg text-[10px] font-bold text-gray-500 dark:text-[#8b949e] hover:bg-black/5 dark:hover:bg-[#1c2128] transition-all">{totalPages}</button>
+                                    </>
+                                )}
+                                <button
+                                    onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+                                    disabled={currentPage === totalPages}
+                                    className="p-2 rounded-lg text-gray-400 dark:text-[#8b949e] hover:bg-black/5 dark:hover:bg-[#1c2128] hover:text-gray-900 dark:hover:text-white disabled:opacity-30 disabled:pointer-events-none transition-all"
+                                >
+                                    <ChevronRight size={16} />
+                                </button>
+                            </div>
+                        </div>
                     )}
                 </div>
             )}
@@ -396,13 +414,11 @@ const ProductManager = () => {
     );
 };
 
-const ProductCard = memo(React.forwardRef(({ product, onEdit, onDelete, onToggleVisibility, size }, ref) => {
+const ProductCard = memo(React.forwardRef(({ product, onEdit, onDelete, onToggleVisibility }, ref) => {
     const { performanceMode } = useAdmin();
-    const isSmall = size === 'small';
     
     const cardVariants = useMemo(() => getCardVariants(performanceMode), [performanceMode]);
     const layoutTransition = useMemo(() => getLayoutTransition(performanceMode), [performanceMode]);
-
 
     return (
         <motion.div 
@@ -413,80 +429,101 @@ const ProductCard = memo(React.forwardRef(({ product, onEdit, onDelete, onToggle
             initial="hidden"
             animate="visible"
             exit="exit"
-            className={`bg-white dark:bg-[#161b22] border rounded-3xl overflow-hidden group transition-colors duration-500 shadow-none ${!product.is_visible ? 'border-black/5 dark:border-[#30363d] opacity-60 grayscale' : 'border-black/5 dark:border-[#30363d] hover:border-[#0d3542]/30 dark:hover:border-[#58a6ff]/30'}`}
+            className={`group flex flex-col md:grid md:grid-cols-[48px_minmax(150px,1fr)_80px_110px_80px_80px_140px] px-5 py-4 md:px-6 md:py-3 md:items-center bg-white dark:bg-[#161b22] border-b border-black/5 dark:border-[#30363d] hover:bg-black/[0.02] dark:hover:bg-[#1c2128] transition-colors gap-3 md:gap-4 last:border-0 ${!product.is_visible ? 'opacity-60 grayscale' : ''}`}
         >
-            <div className="aspect-[4/3] relative overflow-hidden">
-                <OptimizedImage 
-                    src={product.images[0]} 
-                    alt={product.name} 
-                    containerClassName="w-full h-full"
-                    className="w-full h-full group-hover:scale-110 transition-transform duration-1000 object-cover"
-                />
-                <div className={`absolute ${isSmall ? 'top-2 left-2 gap-1' : 'top-4 left-4 gap-2'} flex z-20`}>
-                    {product.is_featured && (
-                        <div className={`bg-[#0d3542] dark:bg-[#58a6ff] text-white dark:text-black ${isSmall ? 'p-1' : 'p-2'} rounded-full`} title="Featured Product">
-                            <Star size={isSmall ? 10 : 12} fill="currentColor" />
-                        </div>
-                    )}
-                    {product.is_new && !isSmall && (
-                        <div className="bg-blue-500 text-white px-2 py-1 rounded text-[10px] font-bold uppercase tracking-widest">
-                            New
-                        </div>
-                    )}
-                </div>
-                
-                <div className={`absolute ${isSmall ? 'top-2 right-2' : 'top-4 right-4'} opacity-0 group-hover:opacity-100 transition-all z-20 translate-y-2 group-hover:translate-y-0`}>
-                    <button 
-                        onClick={(e) => { e.stopPropagation(); onToggleVisibility(product.id, product.is_visible); }}
-                        className={`${isSmall ? 'p-2' : 'p-3'} rounded-xl transition-all ${product.is_visible ? 'bg-black/20 border-white/10 text-white hover:bg-black/40' : 'bg-red-500/20 border-red-500/20 text-red-400 hover:bg-red-500/30'}`}
-                    >
-                        {product.is_visible ? <Eye size={isSmall ? 14 : 16} /> : <EyeOff size={14} />}
-                    </button>
+            {/* --- MOBILE TOP ROW / DESKTOP DIRECT ITEMS --- */}
+            <div className="flex items-center gap-3 md:contents">
+                {/* THUMBNAIL */}
+                <div className={`relative shrink-0 w-12 h-12 overflow-hidden rounded-xl border border-black/5 dark:border-[#30363d] bg-black/5 dark:bg-white/5 transition-all duration-500`}>
+                    <OptimizedImage 
+                        src={product.images[0]} 
+                        alt={product.name} 
+                        containerClassName="w-full h-full"
+                        className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                    />
                 </div>
 
-                <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 flex items-end p-4 md:p-6">
-                    <div className="flex gap-2 md:gap-3 w-full translate-y-4 group-hover:translate-y-0 transition-transform duration-500">
-                        <button 
-                            onClick={(e) => { e.stopPropagation(); onEdit(product.slug); }}
-                            className={`flex-grow flex items-center justify-center gap-2 bg-white text-black ${isSmall ? 'py-2 px-1' : 'py-3'} rounded-xl text-[10px] font-bold uppercase tracking-widest hover:bg-[#58a6ff] transition-colors`}
-                        >
-                            <Edit2 size={isSmall ? 10 : 12} /> {isSmall ? 'Edit' : 'Edit Details'}
-                        </button>
-                        {!isSmall && (
-                            <button 
-                                onClick={(e) => { e.stopPropagation(); onDelete(product.id); }}
-                                className="w-12 h-12 flex items-center justify-center bg-red-500/20 text-red-500 rounded-xl hover:bg-red-500 hover:text-white transition-all border border-red-500/20"
-                            >
-                                <Trash2 size={16} />
-                            </button>
-                        )}
-                    </div>
+                {/* DESIGNATION */}
+                <div className="flex-1 min-w-0 flex flex-col justify-center">
+                    <h3 className={`font-serif text-sm truncate transition-colors ${!product.is_visible ? 'text-gray-500 dark:text-[#8b949e]/60' : 'text-gray-900 dark:text-[#c9d1d9] group-hover:text-[#0d3542] dark:group-hover:text-[#58a6ff]'}`}>
+                        {product.name}
+                    </h3>
+                    <p className="font-mono text-[9px] uppercase tracking-widest text-gray-400 dark:text-[#8b949e]/40 truncate mt-0.5">
+                        {product.slug}
+                    </p>
+                </div>
+
+                {/* MOBILE PRICE (Visible only on mobile, hides on md) */}
+                <div className="md:hidden font-mono text-sm font-bold text-gray-900 dark:text-[#c9d1d9] shrink-0">
+                    ${product.price}
                 </div>
             </div>
-            <div className={`${isSmall ? 'p-3' : 'p-6'}`}>
-                <div className="flex justify-between items-start mb-2 gap-2">
-                    <h3 className={`${isSmall ? 'text-xs' : 'text-lg'} font-serif group-hover:text-[#0d3542] dark:group-hover:text-[#58a6ff] transition-colors truncate ${!product.is_visible ? 'text-gray-400 dark:text-[#8b949e]/40' : 'text-gray-900 dark:text-[#c9d1d9]'}`}>{product.name}</h3>
-                    <span className={`font-mono ${isSmall ? 'text-[10px]' : 'text-sm'} font-medium ${!product.is_visible ? 'text-gray-300 dark:text-white/30' : 'text-[#0d3542] dark:text-[#58a6ff]'}`}>${product.price}</span>
-                </div>
-                {!isSmall && (
-                    <div className="flex items-center gap-2 mb-4">
-                        <Tag size={12} className={!product.is_visible ? 'text-gray-300 dark:text-white/20' : 'text-[#0d3542] dark:text-[#58a6ff]'} />
-                        <span className={`text-[10px] uppercase tracking-[0.2em] font-bold ${!product.is_visible ? 'text-gray-300 dark:text-white/20' : 'text-gray-500 dark:text-[#8b949e]/60'}`}>{product.collection || 'Elite Collection'}</span>
-                    </div>
-                )}
-                <div className={`flex items-center justify-between ${isSmall ? '' : 'pt-4 border-t border-black/5 dark:border-white/5'}`}>
-                    <div className="flex items-center gap-2">
-                        <div className={`w-1.5 h-1.5 rounded-full ${!product.is_visible ? 'bg-gray-200 dark:bg-white/10' : 'bg-green-500'}`} />
-                        <span className={`text-[9px] uppercase tracking-[0.2em] font-bold ${!product.is_visible ? 'text-gray-300 dark:text-white/20' : 'text-gray-400 dark:text-[#8b949e]/40'}`}>
-                            {!product.is_visible ? 'Hidden' : product.availability}
+
+            {/* --- MOBILE MIDDLE BITS / DESKTOP COLUMNS --- */}
+            <div className="flex items-center flex-wrap gap-2 md:contents mt-1 md:mt-0">
+                {/* RANK/FEAT */}
+                <div className="flex items-center justify-start md:justify-center">
+                    {product.is_featured ? (
+                        <span className="text-[9px] px-2 py-1 rounded-md border border-[#0d3542]/20 dark:border-[#58a6ff]/20 text-[#0d3542] dark:text-[#58a6ff] uppercase tracking-widest bg-[#0d3542]/5 dark:bg-[#58a6ff]/5 font-bold">
+                            Featured
                         </span>
-                    </div>
-                    {product.is_visible && !isSmall && (
-                        <a href={`/product/${product.slug}`} target="_blank" rel="noopener noreferrer" className="text-gray-400 dark:text-[#8b949e]/40 hover:text-gray-900 dark:hover:text-[#c9d1d9] transition-colors p-1">
-                            <ExternalLink size={14} />
-                        </a>
+                    ) : (
+                        <span className="hidden md:inline text-[10px] text-gray-300 dark:text-[#8b949e]/20">-</span>
                     )}
                 </div>
+
+                {/* CLASS */}
+                <div className="flex items-center justify-start">
+                    <span className="text-[9px] md:text-[10px] font-bold uppercase tracking-widest px-2 md:px-3 py-1 rounded-lg bg-black/5 dark:bg-[#1c2128] text-gray-600 dark:text-[#8b949e] border border-black/5 dark:border-[#30363d] truncate max-w-[150px] md:max-w-full">
+                        {product.collection || 'Default'}
+                    </span>
+                </div>
+
+                {/* DESKTOP VALUE */}
+                <div className="hidden md:block font-mono text-sm text-right text-gray-900 dark:text-[#c9d1d9]">
+                    ${product.price}
+                </div>
+
+                {/* STATUS */}
+                <div className="flex items-center justify-start md:justify-end gap-1.5 shrink-0 ml-auto md:ml-0">
+                    <div className={`w-1.5 h-1.5 rounded-full ${product.is_visible ? 'bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)]' : 'bg-red-500'}`} />
+                    <span className="text-[9px] md:text-[10px] font-bold uppercase tracking-widest opacity-70 text-gray-700 dark:text-[#c9d1d9]">
+                        {product.is_visible ? (product.availability || 'Active') : 'Hidden'}
+                    </span>
+                </div>
+            </div>
+
+            {/* CMD (ACTIONS) */}
+            <div className="flex items-center justify-between md:justify-end gap-1.5 pt-3 md:pt-0 mt-1 md:mt-0 border-t border-black/5 dark:border-[#30363d] md:border-t-0 md:opacity-0 md:group-hover:opacity-100 transition-opacity duration-300 shrink-0">
+                <button 
+                    onClick={(e) => { e.stopPropagation(); onToggleVisibility(product.id, product.is_visible); }}
+                    className={`flex-1 md:flex-none flex justify-center items-center gap-2 p-2.5 md:p-2 rounded-xl transition-all border border-black/5 dark:border-[#30363d] md:border-transparent ${product.is_visible ? 'text-gray-500 hover:bg-black/5 dark:hover:bg-[#1c2128] hover:text-gray-900 dark:hover:text-white' : 'text-gray-500 hover:bg-black/5 dark:hover:bg-[#1c2128] hover:text-gray-900 dark:hover:text-white'}`}
+                    title="Toggle Visibility"
+                >
+                    {product.is_visible ? <Eye size={16} className="md:w-3.5 md:h-3.5" /> : <EyeOff size={16} className="md:w-3.5 md:h-3.5" />}
+                    <span className="md:hidden text-[10px] font-bold uppercase tracking-widest">{product.is_visible ? 'Hide' : 'Show'}</span>
+                </button>
+                <button 
+                    onClick={(e) => { e.stopPropagation(); onEdit(product.slug); }}
+                    className="flex-1 md:flex-none flex justify-center items-center gap-2 p-2.5 md:p-2 rounded-xl text-gray-500 hover:bg-[#0d3542]/10 dark:hover:bg-[#58a6ff]/10 hover:text-[#0d3542] dark:hover:text-[#58a6ff] transition-all border border-black/5 dark:border-[#30363d] md:border-transparent"
+                    title="Modify"
+                >
+                    <Edit2 size={16} className="md:w-3.5 md:h-3.5" />
+                    <span className="md:hidden text-[10px] font-bold uppercase tracking-widest">Edit</span>
+                </button>
+                {product.is_visible && (
+                    <a href={`/product/${product.slug}`} target="_blank" rel="noopener noreferrer" className="flex-1 md:flex-none flex justify-center items-center gap-2 p-2.5 md:p-2 rounded-xl text-gray-500 hover:bg-black/5 dark:hover:bg-[#1c2128] hover:text-gray-900 dark:hover:text-[#c9d1d9] transition-all border border-black/5 dark:border-[#30363d] md:border-transparent hidden sm:flex md:block">
+                        <ExternalLink size={16} className="md:w-3.5 md:h-3.5" />
+                        <span className="md:hidden text-[10px] font-bold uppercase tracking-widest">View</span>
+                    </a>
+                )}
+                <button 
+                    onClick={(e) => { e.stopPropagation(); onDelete(product.id); }}
+                    className="flex-none p-2.5 md:p-2 rounded-xl text-gray-500 hover:bg-red-500/10 hover:text-red-500 transition-all border border-black/5 dark:border-[#30363d] md:border-transparent ml-2 md:ml-0"
+                    title="Purge"
+                >
+                    <Trash2 size={16} className="md:w-3.5 md:h-3.5" />
+                </button>
             </div>
         </motion.div>
     );

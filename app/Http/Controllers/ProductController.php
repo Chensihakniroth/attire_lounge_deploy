@@ -71,7 +71,7 @@ class ProductController extends Controller
             $results[] = $this->productService->createProduct($productData);
         }
 
-        broadcast(new \App\Events\ProductUpdated());
+        try { broadcast(new \App\Events\ProductUpdated()); } catch (\Throwable $e) { \Log::warning('Broadcast failed (ProductUpdated): ' . $e->getMessage()); }
 
         return response()->json([
             'success' => true,
@@ -205,7 +205,7 @@ class ProductController extends Controller
 
         $collection = Collection::create($validated);
         Cache::forget('product_collections');
-        broadcast(new \App\Events\CollectionUpdated());
+        try { broadcast(new \App\Events\CollectionUpdated()); } catch (\Throwable $e) { \Log::warning('Broadcast failed (CollectionUpdated): ' . $e->getMessage()); }
 
         return response()->json([
             'success' => true,
@@ -238,7 +238,7 @@ class ProductController extends Controller
 
         $collection->update($validated);
         Cache::forget('product_collections');
-        broadcast(new \App\Events\CollectionUpdated());
+        try { broadcast(new \App\Events\CollectionUpdated()); } catch (\Throwable $e) { \Log::warning('Broadcast failed (CollectionUpdated): ' . $e->getMessage()); }
 
         return response()->json([
             'success' => true,
@@ -267,7 +267,7 @@ class ProductController extends Controller
 
         $collection->delete();
         Cache::forget('product_collections');
-        broadcast(new \App\Events\CollectionUpdated());
+        try { broadcast(new \App\Events\CollectionUpdated()); } catch (\Throwable $e) { \Log::warning('Broadcast failed (CollectionUpdated): ' . $e->getMessage()); }
 
         return response()->json([
             'success' => true,
@@ -329,7 +329,7 @@ class ProductController extends Controller
         }
 
         $product = $this->productService->createProduct($validated);
-        broadcast(new \App\Events\ProductUpdated());
+        try { broadcast(new \App\Events\ProductUpdated()); } catch (\Throwable $e) { \Log::warning('Broadcast failed (ProductUpdated): ' . $e->getMessage()); }
 
         return response()->json([
             'success' => true,
@@ -366,7 +366,7 @@ class ProductController extends Controller
             return response()->json(['success' => false, 'message' => 'Product not found'], 404);
         }
 
-        broadcast(new \App\Events\ProductUpdated());
+        try { broadcast(new \App\Events\ProductUpdated()); } catch (\Throwable $e) { \Log::warning('Broadcast failed (ProductUpdated): ' . $e->getMessage()); }
 
         return response()->json([
             'success' => true,
@@ -385,7 +385,7 @@ class ProductController extends Controller
             return response()->json(['success' => false, 'message' => 'Product not found or could not be deleted'], 404);
         }
 
-        broadcast(new \App\Events\ProductUpdated());
+        try { broadcast(new \App\Events\ProductUpdated()); } catch (\Throwable $e) { \Log::warning('Broadcast failed (ProductUpdated): ' . $e->getMessage()); }
 
         return response()->json([
             'success' => true,
