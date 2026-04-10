@@ -16,7 +16,8 @@ import {
     MoreVertical,
     ShoppingBag,
     Tag,
-    Edit3
+    Edit3,
+    Undo2
 } from 'lucide-react';
 import InlineCustomerSearch from './InlineCustomerSearch';
 import PaymentModal from './PaymentModal';
@@ -100,7 +101,7 @@ const InvoicePanel = () => {
                             >
                                 <div className="flex items-center gap-2">
                                     <Tag size={14} />
-                                    <span>Elite Discount ({totals.tierDiscountPercent}%)</span>
+                                    <span>VIP Discount ({totals.tierDiscountPercent}%)</span>
                                 </div>
                                 <span className="font-mono text-[14px]">-${totals.tierDiscountAmount.toLocaleString()}</span>
                             </motion.div>
@@ -128,16 +129,20 @@ const InvoicePanel = () => {
 
                     <div className="flex items-center justify-between py-1">
                         <div className="space-y-1">
-                            <span className="block text-[13px] font-black uppercase tracking-[0.4em] text-gray-900 dark:text-white leading-none">Grand Total</span>
-                            <span className="block text-[9px] text-gray-400 dark:text-[#8b949e]/40 uppercase tracking-widest leading-none font-bold">Final Total</span>
+                            <span className="block text-[13px] font-black uppercase tracking-[0.4em] text-gray-900 dark:text-white leading-none">
+                                {activeTab.isRefundMode ? 'Refund Amount' : 'Grand Total'}
+                            </span>
+                            <span className="block text-[9px] text-gray-400 dark:text-[#8b949e]/40 uppercase tracking-widest leading-none font-bold">
+                                {activeTab.isRefundMode ? 'Total to Return' : 'Final Total'}
+                            </span>
                         </div>
-                        <span className="text-5xl font-black text-attire-accent tracking-tighter leading-none font-mono">
+                        <span className={`text-5xl font-black tracking-tighter leading-none font-mono ${activeTab.isRefundMode ? 'text-red-500' : 'text-attire-accent'}`}>
                             ${totals.finalTotal.toLocaleString()}
                         </span>
                     </div>
 
                     <div className={`flex items-center justify-between text-[11px] font-black uppercase tracking-[0.3em] transition-all duration-700 ${totals.changeDue > 0 ? 'text-emerald-500' : 'text-gray-400/30 dark:text-[#8b949e]/20'}`}>
-                        <span>{totals.changeDue > 0 ? 'Change Due' : 'Awaiting Payment'}</span>
+                        <span>{activeTab.isRefundMode ? 'Return Balance' : (totals.changeDue > 0 ? 'Change Due' : 'Awaiting Payment')}</span>
                         <span className="font-mono text-[14px]">${totals.changeDue.toLocaleString(undefined, { minimumFractionDigits: 2 })}</span>
                     </div>
                 </div>
@@ -145,18 +150,18 @@ const InvoicePanel = () => {
                 {/* Checkout Button */}
                 <div className="space-y-4">
                     <motion.button 
-                        whileHover={{ scale: 1.01, backgroundColor: activeTab.cartItems.length > 0 ? '#00C4B4' : '' }}
+                        whileHover={{ scale: 1.01, backgroundColor: activeTab.cartItems.length > 0 ? (activeTab.isRefundMode ? '#ef4444' : '#00C4B4') : '' }}
                         whileTap={{ scale: 0.99 }}
                         disabled={activeTab.cartItems.length === 0}
                         onClick={() => setShowPaymentModal(true)}
                         className={`w-full flex items-center justify-center gap-4 h-16 rounded-2xl text-[13px] font-black uppercase tracking-[0.4em] transition-all relative overflow-hidden group ${
                             activeTab.cartItems.length > 0 
-                                ? 'bg-[#00C4B4] text-black border-2 border-black/10 shadow-none' 
+                                ? (activeTab.isRefundMode ? 'bg-red-500 text-white shadow-lg shadow-red-500/20' : 'bg-[#00C4B4] text-black border-2 border-black/10 shadow-none') 
                                 : 'bg-gray-100 dark:bg-white/5 text-gray-400 cursor-not-allowed grayscale'
                         }`}
                     >
-                        <Wallet size={18} className="group-hover:scale-110 transition-transform" />
-                        Checkout
+                        {activeTab.isRefundMode ? <Undo2 size={18} /> : <Wallet size={18} className="group-hover:scale-110 transition-transform" />}
+                        {activeTab.isRefundMode ? 'Process Refund' : 'Checkout'}
                         {activeTab.cartItems.length > 0 && (
                             <div className="absolute inset-0 bg-white/20 opacity-0 group-hover:opacity-100 transition-opacity" />
                         )}

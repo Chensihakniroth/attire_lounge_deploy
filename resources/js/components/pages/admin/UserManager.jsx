@@ -169,13 +169,12 @@ const UserManager = () => {
                             {ROLES.length} roles
                         </p>
                     </div>
-                    <motion.button
-                        whileTap={{ scale: 0.95 }}
+                    <button
                         onClick={() => openModal()}
-                        className="flex items-center gap-2 bg-black dark:bg-white text-white dark:text-black rounded-2xl py-3 px-6 text-xs font-bold uppercase tracking-widest hover:bg-[#0d3542] dark:hover:bg-[#58a6ff] hover:text-white dark:hover:text-black transition-all"
+                        className="flex items-center gap-2 bg-black dark:bg-white text-white dark:text-black rounded-2xl py-3 px-6 text-xs font-bold uppercase tracking-widest hover:bg-[#0d3542] dark:hover:bg-[#58a6ff] hover:text-white dark:hover:text-black transition-all active:scale-95"
                     >
                         <Plus size={14} /> Invite Member
-                    </motion.button>
+                    </button>
                 </div>
 
                 {/* Role Reference Cards */}
@@ -216,16 +215,12 @@ const UserManager = () => {
                             No team members yet. Invite someone to get started.
                         </div>
                     ) : (
-                        <AnimatePresence>
+                        <div className="space-y-3">
                             {users.map((user, index) => {
                                 const role = getUserRole(user);
                                 return (
-                                    <motion.div
+                                    <div
                                         key={user.id}
-                                        initial={{ opacity: 0, y: 10 }}
-                                        animate={{ opacity: 1, y: 0 }}
-                                        exit={{ opacity: 0, x: -20 }}
-                                        transition={{ delay: index * 0.04 }}
                                         className="flex items-center gap-4 p-4 bg-white dark:bg-[#161b22] border border-black/5 dark:border-white/10 rounded-2xl hover:border-[#0d3542]/20 transition-all group"
                                     >
                                         {/* Avatar */}
@@ -273,10 +268,10 @@ const UserManager = () => {
                                                 <Trash2 size={14} />
                                             </button>
                                         </div>
-                                    </motion.div>
+                                    </div>
                                 );
                             })}
-                        </AnimatePresence>
+                        </div>
                     )}
                 </div>
 

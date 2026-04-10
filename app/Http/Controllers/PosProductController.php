@@ -268,4 +268,109 @@ class PosProductController extends Controller
 
         return response()->json(['message' => 'Products archived successfully', 'count' => count($validated['product_ids'])]);
     }
+
+    /**
+     * Export products to CSV.
+     * GET /api/v1/admin/pos/products/export
+     */
+    public function export()
+    {
+        $products = PosProduct::active()->get([
+            'sku', 'barcode', 'name', 'variant', 'price', 
+            'stock_qty', 'min_stock', 'category', 'tier', 'is_service'
+        ]);
+
+        $callback = function() use ($products) {
+            $file = fopen('php://output', 'w');
+            fputcsv($file, ['SKU', 'Barcode', 'Name', 'Variant', 'Price', 'Stock Qty', 'Min Stock', 'Category', 'Tier', 'Is Service']);
+
+            foreach ($products as $p) {
+                fputcsv($file, [
+                    $p->sku, $p->barcode, $p->name, $p->variant, $p->price,
+                    $p->stock_qty, $p->min_stock, $p->category, $p->tier, $p->is_service ? '1' : '0'
+                ]);
+            }
+            fclose($file);
+        };
+
+        return response()->stream($callback, 200, [
+            "Content-type"        => "text/csv",
+            "Content-Disposition" => "attachment; filename=pos_products_" . date('Y-m-d') . ".csv",
+            "Pragma"              => "no-cache",
+            "Cache-Control"       => "must-revalidate, post-check=0, pre-check=0",
+            "Expires"             => "0"
+        ]);
+    }
+
+    /**
+     * Import products from CSV.
+     * POST /api/v1/admin/pos/products/import
+     */
+    public function import(Request $request): JsonResponse
+    {
+        $request->validate([
+            'file' => 'required|file|mimes:csv,txt'
+        ]);
+
+        $file = $request->file('file');
+        $handle = fopen($file->getRealPath(), "r");
+        
+        // Skip header
+        $header = fgetcsv($handle);
+        
+        $imported = 0;
+        $errors = [];
+        $line = 1;
+
+        while (($data = fgetcsv($handle)) !== FALSE) {
+            $line++;
+            if (count($data) < 5) continue; // Basic validation
+
+            try {
+                // Map columns
+                // Expected: SKU, Barcode, Name, Variant, Price, Stock Qty, Min Stock, Category, Tier, Is Service
+                $sku        = $data[0] ?? null;
+                $barcode    = $data[1] ?? null;
+                $name       = $data[2] ?? null;
+                $variant    = $data[3] ?? null;
+                $price      = floatval($data[4] ?? 0);
+                $stock      = intval($data[5] ?? 0);
+                $minStock   = intval($data[6] ?? 0);
+                $category   = $data[7] ?? 'General';
+                $tier       = $data[8] ?? null;
+                $isService  = ($data[9] ?? '0') === '1';
+
+                if (!$sku || !$name) {
+                    $errors[] = "Line $line: SKU and Name are required.";
+                    continue;
+                }
+
+                PosProduct::updateOrCreate(
+                    ['sku' => $sku],
+                    [
+                        'barcode'    => $barcode,
+                        'name'       => $name,
+                        'variant'    => $variant,
+                        'price'      => $price,
+                        'stock_qty'  => $stock,
+                        'min_stock'  => $minStock,
+                        'category'   => $category,
+                        'tier'       => $tier,
+                        'is_service' => $isService,
+                        'is_active'  => true
+                    ]
+                );
+                $imported++;
+            } catch (\Exception $e) {
+                $errors[] = "Line $line: " . $e->getMessage();
+            }
+        }
+        fclose($handle);
+
+        return response()->json([
+            'message' => 'Import completed',
+            'imported' => $imported,
+            'errors' => $errors
+        ]);
+    }
 }

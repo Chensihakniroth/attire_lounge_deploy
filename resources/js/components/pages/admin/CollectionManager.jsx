@@ -30,6 +30,18 @@ const DEFAULT_FORM = {
     meta_description: '',
 };
 
+/* ─── Cyber-Bespoke Form Components ────────────────────────────────────── */
+const Field = ({ label, children, hint }) => (
+    <div className="space-y-1.5 w-full">
+        <label className="text-[10px] font-bold text-gray-400 dark:text-[#8b949e]/50 uppercase tracking-[0.15em] ml-0.5">{label}</label>
+        {children}
+        {hint && <p className="text-[9px] text-gray-300 dark:text-[#8b949e]/20 uppercase tracking-widest ml-0.5">{hint}</p>}
+    </div>
+);
+
+const inputBase = "w-full bg-black/5 dark:bg-[#0d1117] border border-black/5 dark:border-[#30363d] rounded-xl py-3 px-4 text-gray-900 dark:text-[#c9d1d9] text-sm focus:border-[#0d3542] dark:focus:border-[#58a6ff] outline-none transition-all placeholder:text-gray-300 dark:placeholder:text-white/10";
+
+
 const Toggle = ({ value, onChange, color = 'bg-green-500' }) => (
     <button
         type="button"
@@ -163,27 +175,25 @@ const CollectionManager = () => {
     };
 
     return (
-        <div className="space-y-8 pb-24">
+        <div className="space-y-8 pb-24 font-sans">
             {/* Header */}
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-6 border-b border-black/5 dark:border-white/10">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-6 pb-6 border-b border-black/5 dark:border-[#30363d]">
                 <div>
-                    <h1 className="text-4xl font-serif text-gray-900 dark:text-white mb-1">
+                    <h1 className="text-4xl font-serif text-gray-900 dark:text-[#c9d1d9] mb-2">
                         Collections
                     </h1>
-                    <p className="text-gray-400 dark:text-attire-silver/50 text-xs uppercase tracking-widest">
-                        {collections.length} active{' '}
-                        {collections.length === 1
-                            ? 'collection'
-                            : 'collections'}
+                    <p className="text-gray-500 dark:text-[#8b949e] text-sm">
+                        Manage styling house collections and products.
                     </p>
                 </div>
-                <motion.button
-                    whileTap={{ scale: 0.95 }}
-                    onClick={() => openModal()}
-                    className="flex items-center gap-2 bg-black dark:bg-white text-white dark:text-black rounded-2xl py-3 px-6 text-xs font-bold uppercase tracking-widest hover:bg-[#0d3542] dark:hover:bg-[#58a6ff] hover:text-white dark:hover:text-black transition-all"
-                >
-                    <Plus size={14} /> New Collection
-                </motion.button>
+                <div className="flex flex-wrap gap-3 items-center">
+                    <button
+                        onClick={() => openModal()}
+                        className="flex items-center gap-2 px-6 py-2.5 bg-[#0d3542] dark:bg-[#58a6ff] text-white dark:text-black font-black uppercase tracking-[0.2em] text-[11px] rounded-xl hover:opacity-90 transition-all shadow-lg shadow-black/10 dark:shadow-[#58a6ff]/20"
+                    >
+                        <Plus size={14} /> New Collection
+                    </button>
+                </div>
             </div>
 
             {/* Collection Grid */}
@@ -202,86 +212,79 @@ const CollectionManager = () => {
                 </div>
             ) : (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    <AnimatePresence>
-                        {collections.map((col, idx) => (
-                            <motion.div
-                                key={col.id}
-                                layout
-                                initial={{ opacity: 0, scale: 0.95 }}
-                                animate={{ opacity: 1, scale: 1 }}
-                                exit={{ opacity: 0, scale: 0.95 }}
-                                transition={{ delay: idx * 0.04 }}
-                                className="group relative h-72 rounded-3xl overflow-hidden border border-black/5 dark:border-white/10 hover:border-[#0d3542]/30 dark:hover:border-[#58a6ff]/30 shadow-none transition-all duration-500"
-                            >
-                                {/* Image */}
-                                <div className="absolute inset-0">
-                                    {col.image_url ? (
-                                        <OptimizedImage
-                                            src={col.image_url}
-                                            alt={col.name}
-                                            containerClassName="w-full h-full"
-                                            className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-1000"
+                    {collections.map((col, idx) => (
+                        <div
+                            key={col.id}
+                            className="group relative h-72 rounded-xl overflow-hidden border border-black/5 dark:border-[#30363d] bg-black/5 dark:bg-[#161b22] hover:border-[#0d3542] dark:hover:border-[#58a6ff] transition-all duration-500"
+                        >
+                            {/* Image */}
+                            <div className="absolute inset-0">
+                                {col.image_url ? (
+                                    <OptimizedImage
+                                        src={col.image_url}
+                                        alt={col.name}
+                                        containerClassName="w-full h-full"
+                                        className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-1000"
+                                    />
+                                ) : (
+                                    <div className="w-full h-full flex items-center justify-center bg-black/5 dark:bg-white/5">
+                                        <ImageIcon
+                                            size={40}
+                                            className="text-gray-300 dark:text-white/10"
                                         />
-                                    ) : (
-                                        <div className="w-full h-full flex items-center justify-center bg-black/5 dark:bg-white/5">
-                                            <ImageIcon
-                                                size={40}
-                                                className="text-gray-300 dark:text-white/10"
-                                            />
-                                        </div>
-                                    )}
-                                    <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent" />
-                                </div>
+                                    </div>
+                                )}
+                                <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent" />
+                            </div>
 
-                                {/* Status Badges */}
-                                <div className="absolute top-4 left-4 flex gap-2 z-10">
-                                    {col.is_new && (
-                                        <span className="px-2.5 py-1 bg-[#58a6ff] text-black text-[11px] font-black uppercase tracking-widest rounded-full">
-                                            New
-                                        </span>
-                                    )}
-                                    {!col.is_active && (
-                                        <span className="px-2.5 py-1 bg-red-500 text-white text-[11px] font-black uppercase tracking-widest rounded-full">
-                                            Hidden
-                                        </span>
-                                    )}
-                                </div>
-
-                                {/* Action Buttons */}
-                                <div className="absolute top-4 right-4 flex gap-2 z-10 opacity-0 group-hover:opacity-100 transition-all translate-y-1 group-hover:translate-y-0 pointer-events-none group-hover:pointer-events-auto">
-                                    <button
-                                        onClick={() => openModal(col)}
-                                        className="p-2.5 bg-black/40 dark:bg-white/10 border border-white/20 text-white rounded-xl hover:bg-white hover:text-black transition-all"
-                                    >
-                                        <Edit2 size={14} />
-                                    </button>
-                                    <button
-                                        onClick={() =>
-                                            handleDelete(col.id, col.name)
-                                        }
-                                        className="p-2.5 bg-red-500/80 dark:bg-red-500/20 border border-red-500/30 text-white dark:text-red-400 rounded-xl hover:bg-red-500 hover:text-white transition-all"
-                                    >
-                                        <Trash2 size={14} />
-                                    </button>
-                                </div>
-
-                                {/* Content */}
-                                <div className="absolute inset-x-0 bottom-0 p-6 z-10">
-                                    <span className="text-[#58a6ff] text-[11px] font-bold uppercase tracking-[0.3em] mb-1 block">
-                                        {col.year}
+                            {/* Status Badges */}
+                            <div className="absolute top-4 left-4 flex gap-2 z-10">
+                                {col.is_new && (
+                                    <span className="px-2.5 py-1 bg-[#58a6ff] text-black text-[11px] font-black uppercase tracking-widest rounded-full">
+                                        New
                                     </span>
-                                    <h3 className="text-2xl font-serif text-white mb-1">
-                                        {col.name}
-                                    </h3>
-                                    {col.description && (
-                                        <p className="text-white/50 text-xs line-clamp-1 group-hover:text-white/70 transition-colors">
-                                            {col.description}
-                                        </p>
-                                    )}
-                                </div>
-                            </motion.div>
-                        ))}
-                    </AnimatePresence>
+                                )}
+                                {!col.is_active && (
+                                    <span className="px-2.5 py-1 bg-red-500 text-white text-[11px] font-black uppercase tracking-widest rounded-full">
+                                        Hidden
+                                    </span>
+                                )}
+                            </div>
+
+                            {/* Action Buttons */}
+                            <div className="absolute top-4 right-4 flex gap-2 z-10 opacity-0 group-hover:opacity-100 transition-all pointer-events-none group-hover:pointer-events-auto">
+                                <button
+                                    onClick={() => openModal(col)}
+                                    className="p-2.5 bg-black/50 dark:bg-[#161b22] border border-white/20 dark:border-[#30363d] text-white dark:text-[#8b949e] rounded-lg hover:text-white hover:bg-[#0d3542] dark:hover:bg-[#58a6ff] dark:hover:text-black transition-all"
+                                >
+                                    <Edit2 size={14} />
+                                </button>
+                                <button
+                                    onClick={() =>
+                                        handleDelete(col.id, col.name)
+                                    }
+                                    className="p-2.5 bg-rose-500 dark:bg-rose-500/20 border border-rose-500/30 text-white dark:text-rose-400 rounded-lg hover:bg-rose-500 hover:text-white transition-all"
+                                >
+                                    <Trash2 size={14} />
+                                </button>
+                            </div>
+
+                            {/* Content */}
+                            <div className="absolute inset-x-0 bottom-0 p-6 z-10 bg-gradient-to-t from-black/90 via-black/50 to-transparent">
+                                <span className="text-[#58a6ff] text-[10px] font-black uppercase tracking-[0.3em] mb-1 block">
+                                    {col.year}
+                                </span>
+                                <h3 className="text-2xl font-serif text-white dark:text-[#c9d1d9] mb-1">
+                                    {col.name}
+                                </h3>
+                                {col.description && (
+                                    <p className="text-gray-300 dark:text-[#8b949e] text-xs line-clamp-1 group-hover:text-white transition-colors">
+                                        {col.description}
+                                    </p>
+                                )}
+                            </div>
+                        </div>
+                    ))}
                 </div>
             )}
 
@@ -297,10 +300,10 @@ const CollectionManager = () => {
                     <div className="flex gap-6">
                         {/* Image Uploader */}
                         <div className="flex-shrink-0">
-                            <label className="text-xs font-bold text-gray-400 uppercase tracking-widest block mb-2">
+                            <label className="text-[10px] font-bold text-gray-400 dark:text-[#8b949e]/50 uppercase tracking-[0.15em] ml-0.5 block mb-1.5">
                                 Cover
                             </label>
-                            <label className="relative w-28 h-36 rounded-2xl overflow-hidden block cursor-pointer bg-black/5 dark:bg-white/5 border border-black/5 dark:border-white/10 group">
+                            <label className="relative w-28 h-36 rounded-xl overflow-hidden block cursor-pointer bg-black/5 dark:bg-[#0d1117] border border-black/5 dark:border-[#30363d] group">
                                 <input
                                     type="file"
                                     className="hidden"
@@ -338,116 +341,67 @@ const CollectionManager = () => {
                         {/* Right Fields */}
                         <div className="flex-1 space-y-4">
                             <div className="grid grid-cols-2 gap-4">
-                                <div className="col-span-2 space-y-1.5">
-                                    <label className="text-xs font-bold text-gray-400 uppercase tracking-widest">
-                                        Name
-                                    </label>
+                                <div className="col-span-2">
+                                    <Field label="Name" hint="* Required. The main collection title.">
+                                        <input
+                                            type="text"
+                                            required
+                                            value={formData.name}
+                                            onChange={(e) => handleNameChange(e.target.value)}
+                                            className={`${inputBase} font-bold`}
+                                            placeholder="e.g. Summer Essentials"
+                                        />
+                                    </Field>
+                                </div>
+                                <Field label="Slug">
                                     <input
                                         type="text"
                                         required
-                                        value={
-                                            formData.name
-                                        }
-                                        onChange={(e) =>
-                                            handleNameChange(
-                                                e.target
-                                                    .value
-                                            )
-                                        }
-                                        className="w-full bg-black/5 dark:bg-white/5 border border-black/5 dark:border-white/10 rounded-xl py-3 px-4 text-gray-900 dark:text-white text-sm focus:border-[#0d3542] dark:focus:border-[#58a6ff] outline-none transition-all"
-                                        placeholder="e.g. Summer Essentials"
+                                        value={formData.slug}
+                                        onChange={(e) => setFormData((p) => ({ ...p, slug: e.target.value }))}
+                                        className={`${inputBase} font-mono text-[13px] opacity-80`}
                                     />
-                                </div>
-                                <div className="space-y-1.5">
-                                    <label className="text-xs font-bold text-gray-400 uppercase tracking-widest">
-                                        Slug
-                                    </label>
-                                    <input
-                                        type="text"
-                                        required
-                                        value={
-                                            formData.slug
-                                        }
-                                        onChange={(e) =>
-                                            setFormData(
-                                                (p) => ({
-                                                    ...p,
-                                                    slug: e
-                                                        .target
-                                                        .value,
-                                                })
-                                            )
-                                        }
-                                        className="w-full bg-black/5 dark:bg-white/5 border border-black/5 dark:border-white/10 rounded-xl py-3 px-4 text-gray-900 dark:text-white/60 text-sm focus:border-[#0d3542] dark:focus:border-[#58a6ff] outline-none transition-all font-mono"
-                                    />
-                                </div>
-                                <div className="space-y-1.5">
-                                    <label className="text-xs font-bold text-gray-400 uppercase tracking-widest">
-                                        Year
-                                    </label>
+                                </Field>
+                                <Field label="Year">
                                     <input
                                         type="number"
                                         required
-                                        value={
-                                            formData.year
-                                        }
-                                        onChange={(e) =>
-                                            setFormData(
-                                                (p) => ({
-                                                    ...p,
-                                                    year: e
-                                                        .target
-                                                        .value,
-                                                })
-                                            )
-                                        }
-                                        className="w-full bg-black/5 dark:bg-white/5 border border-black/5 dark:border-white/10 rounded-xl py-3 px-4 text-gray-900 dark:text-white text-sm focus:border-[#0d3542] dark:focus:border-[#58a6ff] outline-none transition-all font-mono"
+                                        value={formData.year}
+                                        onChange={(e) => setFormData((p) => ({ ...p, year: e.target.value }))}
+                                        className={`${inputBase} font-mono`}
                                     />
-                                </div>
+                                </Field>
                             </div>
-                            <div className="space-y-1.5">
-                                <label className="text-xs font-bold text-gray-400 uppercase tracking-widest">
-                                    Description
-                                </label>
+                            
+                            <Field label="Description">
                                 <textarea
                                     rows={2}
                                     value={formData.description}
-                                    onChange={(e) =>
-                                        setFormData((p) => ({
-                                            ...p,
-                                            description: e.target.value,
-                                        }))
-                                    }
-                                    className="w-full bg-black/5 dark:bg-white/5 border border-black/5 dark:border-white/10 rounded-xl py-3 px-4 text-gray-900 dark:text-white text-sm focus:border-[#0d3542] dark:focus:border-[#58a6ff] outline-none transition-all resize-none leading-relaxed"
+                                    onChange={(e) => setFormData((p) => ({ ...p, description: e.target.value }))}
+                                    className={`${inputBase} resize-none leading-relaxed`}
                                     placeholder="A brief description of this collection..."
                                 />
-                            </div>
+                            </Field>
 
-                            <div className="grid grid-cols-2 gap-4 pt-2 border-t border-black/5 dark:border-white/5">
-                                <div className="space-y-1.5">
-                                    <label className="text-xs font-bold text-gray-400 uppercase tracking-widest">
-                                        SEO Title
-                                    </label>
+                            <div className="grid grid-cols-2 gap-4 pt-4 mt-2 border-t border-black/5 dark:border-[#30363d]/50">
+                                <Field label="SEO Title">
                                     <input
                                         type="text"
                                         value={formData.meta_title}
                                         onChange={(e) => setFormData(p => ({ ...p, meta_title: e.target.value }))}
-                                        className="w-full bg-black/5 dark:bg-white/5 border border-black/5 dark:border-white/10 rounded-xl py-3 px-4 text-gray-900 dark:text-white text-sm focus:border-attire-accent outline-none transition-all"
+                                        className={`${inputBase} font-mono text-[12px] opacity-70`}
                                         placeholder={formData.name + " | Collection"}
                                     />
-                                </div>
-                                <div className="space-y-1.5">
-                                    <label className="text-xs font-bold text-gray-400 uppercase tracking-widest">
-                                        SEO Description
-                                    </label>
+                                </Field>
+                                <Field label="SEO Description">
                                     <textarea
                                         rows={1}
                                         value={formData.meta_description}
                                         onChange={(e) => setFormData(p => ({ ...p, meta_description: e.target.value }))}
-                                        className="w-full bg-black/5 dark:bg-white/5 border border-black/5 dark:border-white/10 rounded-xl py-3 px-4 text-gray-900 dark:text-white text-sm focus:border-[#0d3542] dark:focus:border-[#58a6ff] outline-none transition-all resize-none leading-relaxed"
+                                        className={`${inputBase} font-mono text-[12px] opacity-70 resize-none`}
                                         placeholder="Search engine snippet..."
                                     />
-                                </div>
+                                </Field>
                             </div>
                         </div>
                     </div>
@@ -476,13 +430,13 @@ const CollectionManager = () => {
                             }) => (
                                 <div
                                     key={key}
-                                    className="flex items-center justify-between p-4 bg-black/[0.02] dark:bg-white/[0.02] rounded-2xl border border-black/5 dark:border-white/5"
+                                    className="flex items-center justify-between p-4 bg-black/5 dark:bg-[#0d1117] rounded-xl border border-black/5 dark:border-[#30363d]"
                                 >
                                     <div>
-                                        <p className="text-xs font-bold text-gray-900 dark:text-white uppercase tracking-wider">
+                                        <p className="text-[11px] font-black text-gray-900 dark:text-[#c9d1d9] uppercase tracking-wider">
                                             {label}
                                         </p>
-                                        <p className="text-[11px] text-gray-400 mt-0.5">
+                                        <p className="text-[9px] text-gray-500 mt-0.5 tracking-widest uppercase">
                                             {sub}
                                         </p>
                                     </div>
@@ -514,18 +468,18 @@ const CollectionManager = () => {
                     )}
 
                     {/* Actions */}
-                    <div className="mt-6 flex gap-3">
+                    <div className="mt-8 flex gap-3">
                         <button
                             type="button"
                             onClick={closeModal}
-                            className="flex-grow py-3.5 border border-black/5 dark:border-white/10 rounded-xl text-xs font-bold uppercase tracking-widest text-gray-400 hover:text-gray-900 dark:hover:text-white transition-all"
+                            className="flex-grow py-3.5 border border-black/10 dark:border-[#30363d] rounded-xl text-[10px] font-black uppercase tracking-[0.2em] text-gray-500 hover:text-gray-900 dark:hover:text-[#c9d1d9] transition-all"
                         >
                             Cancel
                         </button>
                         <button
                             type="submit"
                             disabled={saving || uploading}
-                            className="flex-grow py-3.5 bg-black dark:bg-white text-white dark:text-black rounded-xl text-xs font-bold uppercase tracking-widest hover:bg-[#0d3542] dark:hover:bg-[#58a6ff] hover:text-white transition-all flex items-center justify-center gap-2 disabled:opacity-50"
+                            className="flex-grow py-3.5 bg-[#0d3542] dark:bg-[#58a6ff] text-white dark:text-black rounded-xl text-[10px] font-black uppercase tracking-[0.2em] hover:opacity-90 transition-all flex items-center justify-center gap-2 disabled:opacity-50 shadow-lg shadow-black/10 dark:shadow-[#58a6ff]/20"
                         >
                             {saving ? (
                                 <LumaSpin

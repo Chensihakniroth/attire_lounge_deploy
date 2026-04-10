@@ -40,6 +40,7 @@ import {
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
 import DailySummaryWidget from './DailySummaryWidget';
+import RecentActivityWidget from './RecentActivityWidget';
 
 // Recharts
 import {
@@ -505,27 +506,22 @@ const DemographicPieChart = ({ data }) => {
 };
 
 const QuickAction = ({ icon, title, description, link }) => (
-    <Link to={link} className="block">
-        <div className="flex items-center gap-4 p-4 bg-black/[0.02] dark:bg-[#161b22] rounded-2xl border border-black/5 dark:border-[#30363d] hover:border-[#0d3542]/30 dark:hover:border-[#58a6ff]/30 hover:bg-white dark:hover:bg-[#21262d] transition-all duration-300 group">
-            <div className="h-10 w-10 flex items-center justify-center bg-white dark:bg-[#0d1117] rounded-xl border border-black/5 dark:border-[#30363d] group-hover:border-[#0d3542]/20 dark:group-hover:border-[#58a6ff]/20 transition-colors">
-                {React.cloneElement(icon, {
-                    size: 18,
-                    className:
-                        'text-gray-400 dark:text-[#8b949e]/40 group-hover:text-[#0d3542] dark:group-hover:text-[#58a6ff] transition-colors',
-                })}
+    <Link to={link} className="block group">
+        <div className="flex items-center gap-5 p-5 bg-black/[0.02] dark:bg-white/[0.02] rounded-[1.5rem] border border-black/5 dark:border-white/5 group-hover:bg-white dark:group-hover:bg-[#1c2128] group-hover:border-indigo-500/20 group-hover:-translate-y-1 transition-all duration-500">
+            <div className="w-12 h-12 flex items-center justify-center bg-white dark:bg-[#0d1117] rounded-2xl border border-black/5 dark:border-white/5 group-hover:scale-110 group-hover:border-indigo-500/10 transition-all duration-500 text-gray-400 group-hover:text-indigo-500">
+                {React.cloneElement(icon, { size: 20, strokeWidth: 2 })}
             </div>
             <div className="flex-grow">
-                <p className="text-xs font-black text-gray-900 dark:text-[#c9d1d9] uppercase tracking-wider">
+                <p className="text-[11px] font-black text-gray-900 dark:text-white uppercase tracking-wider group-hover:text-indigo-500 transition-colors">
                     {title}
                 </p>
-                <p className="text-[11px] text-gray-400 dark:text-[#8b949e]/40 uppercase tracking-widest font-medium">
+                <p className="text-[10px] text-gray-400 dark:text-[#8b949e]/40 uppercase tracking-[0.2em] mt-0.5 font-medium">
                     {description}
                 </p>
             </div>
-            <ArrowRight
-                size={12}
-                className="text-gray-300 dark:text-[#30363d] group-hover:text-[#0d3542] dark:group-hover:text-[#58a6ff] group-hover:translate-x-1 transition-all"
-            />
+            <div className="w-8 h-8 rounded-full flex items-center justify-center bg-black/5 dark:bg-white/5 opacity-0 group-hover:opacity-100 group-hover:bg-indigo-500/10 transition-all duration-500">
+                <ArrowRight size={12} className="text-indigo-500" />
+            </div>
         </div>
     </Link>
 );
@@ -543,32 +539,7 @@ const AdminDashboard = () => {
 
     const cardVariants = getCardVariants(performanceMode);
 
-    const { data: recentCustomers = [], isLoading: customersLoading } =
-        useQuery({
-            queryKey: ['admin-recent-customers'],
-            queryFn: async () => {
-                const token =
-                    localStorage.getItem('admin_token') ||
-                    sessionStorage.getItem('admin_token');
-                const res = await axios.get(
-                    '/api/v1/admin/customer-profiles?per_page=5',
-                    {
-                        headers: { Authorization: `Bearer ${token}` },
-                    }
-                );
-                return res.data.data;
-            },
-            enabled: dashboardMode === 'registry',
-        });
-
-    const displayItems =
-        dashboardMode === 'services'
-            ? appointments.slice(0, 5)
-            : recentCustomers;
-    const isLoadingActivity =
-        dashboardMode === 'services'
-            ? appointmentsLoading && appointments.length === 0
-            : customersLoading;
+    // Note: Activity data now handled inside RecentActivityWidget
 
     return (
         <ErrorBoundary>
@@ -916,10 +887,10 @@ const AdminDashboard = () => {
                     </div>
                 </motion.div>
 
-                <div className="grid grid-cols-1 lg:grid-cols-3 gap-10">
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
                     <motion.div
                         variants={cardVariants}
-                        className="lg:col-span-2"
+                        className="bg-[#fdfdfc] dark:bg-[#161b22] p-8 rounded-[2.5rem] border border-black/5 dark:border-[#30363d] shadow-none"
                     >
                         <DailySummaryWidget
                             stats={stats}
@@ -927,152 +898,63 @@ const AdminDashboard = () => {
                         />
                     </motion.div>
 
-                    <div className="flex flex-col gap-10">
-                        <motion.div
-                            variants={cardVariants}
-                            className="bg-[#fdfdfc] dark:bg-[#161b22] p-8 rounded-[2.5rem] border border-black/5 dark:border-[#30363d] shadow-none"
-                        >
-                            <div className="flex items-center justify-between mb-8 px-2">
-                                <div className="flex flex-col gap-1">
-                                    <h2 className="text-sm font-black text-gray-900 dark:text-white uppercase tracking-[0.2em]">
-                                        {dashboardMode === 'services'
-                                            ? 'Recent Journal'
-                                            : 'Registry Entries'}
-                                    </h2>
-                                    <p className="text-[10px] text-gray-400 uppercase tracking-widest leading-none">
-                                        Latest
-                                    </p>
-                                </div>
-                                <Link
-                                    to={
-                                        dashboardMode === 'services'
-                                            ? '/admin/appointments'
-                                            : '/admin/customer-profiles'
-                                    }
-                                    className="text-[10px] font-black text-[#0d3542] dark:text-[#58a6ff] hover:opacity-70 transition-opacity uppercase tracking-widest border border-black/5 dark:border-white/5 px-4 py-2 rounded-xl"
-                                >
-                                    All
-                                </Link>
-                            </div>
-                            {isLoadingActivity ? (
-                                <div className="flex items-center justify-center py-12">
-                                    <LumaSpin size="lg" />
-                                </div>
-                            ) : displayItems.length > 0 ? (
-                                <ul className="space-y-1">
-                                    {displayItems.slice(0, 4).map((item) => (
-                                        <li
-                                            key={item.id}
-                                            className="p-3 rounded-2xl hover:bg-black/[0.02] dark:hover:bg-white/[0.02] transition-colors group"
-                                        >
-                                            <div className="flex items-center justify-between">
-                                                <div className="flex flex-col gap-1">
-                                                    <div className="flex items-center gap-2">
-                                                        <span className="text-xs font-black text-gray-900 dark:text-white uppercase tracking-tight truncate max-w-[140px]">
-                                                            {dashboardMode ===
-                                                            'registry'
-                                                                ? item.customer_name
-                                                                : item.client_name}
-                                                        </span>
-                                                        <span
-                                                            className={`px-2 py-0.5 rounded-full text-[8px] font-black uppercase tracking-widest ${
-                                                                item.status ===
-                                                                'completed'
-                                                                    ? 'bg-green-500/10 text-green-600'
-                                                                    : 'bg-black/5 dark:bg-white/5 text-gray-400'
-                                                            }`}
-                                                        >
-                                                            {item.status}
-                                                        </span>
-                                                    </div>
-                                                    <span className="text-[10px] text-gray-400 dark:text-white/20 uppercase tracking-widest">
-                                                        {dashboardMode ===
-                                                        'registry'
-                                                            ? item.mobile
-                                                            : item.service_type}
-                                                    </span>
-                                                </div>
-                                                <div className="text-right flex flex-col items-end gap-1">
-                                                    <span className="text-[10px] font-mono text-gray-300 dark:text-white/10">
-                                                        {new Date(
-                                                            item.created_at
-                                                        ).toLocaleTimeString(
-                                                            [],
-                                                            {
-                                                                hour: '2-digit',
-                                                                minute: '2-digit',
-                                                            }
-                                                        )}
-                                                    </span>
-                                                    {dashboardMode ===
-                                                        'services' && (
-                                                        <span className="text-[8px] font-black uppercase tracking-[0.2em] text-[#0d3542]/40 dark:text-[#58a6ff]/40">
-                                                            CONSULT
-                                                        </span>
-                                                    )}
-                                                </div>
-                                            </div>
-                                        </li>
-                                    ))}
-                                </ul>
-                            ) : (
-                                <p className="text-[10px] text-gray-400 uppercase tracking-widest italic px-2 text-center py-10">
-                                    Stable State
-                                </p>
-                            )}
-                        </motion.div>
+                    <motion.div
+                        variants={cardVariants}
+                        className="bg-[#fdfdfc] dark:bg-[#161b22] p-8 rounded-[2.5rem] border border-black/5 dark:border-[#30363d] shadow-none"
+                    >
+                        <RecentActivityWidget />
+                    </motion.div>
 
-                        <motion.div
-                            variants={cardVariants}
-                            className="bg-[#fdfdfc] dark:bg-[#161b22] p-10 rounded-[3rem] border border-black/5 dark:border-[#30363d] shadow-none flex flex-col"
-                        >
-                            <div className="flex items-center gap-4 mb-10">
-                                <div className="p-3 bg-purple-500/10 rounded-2xl text-purple-500">
-                                    <ShieldCheck size={24} />
-                                </div>
-                                <div>
-                                    <h2 className="text-2xl font-serif text-gray-900 dark:text-white tracking-tight">
-                                        Tools
-                                    </h2>
-                                    <p className="text-xs font-black text-gray-400 dark:text-white/20 uppercase tracking-[0.2em] mt-1">
-                                        Direct access
-                                    </p>
-                                </div>
+                    <motion.div
+                        variants={cardVariants}
+                        className="bg-[#fdfdfc] dark:bg-[#161b22] p-8 rounded-[2.5rem] border border-black/5 dark:border-[#30363d] shadow-none flex flex-col"
+                    >
+                        <div className="flex items-center gap-4 mb-10">
+                            <div className="w-10 h-10 rounded-2xl bg-indigo-500/10 flex items-center justify-center text-indigo-500">
+                                <ShieldCheck size={20} />
                             </div>
-                            <div className="flex flex-col gap-4">
-                                <QuickAction
-                                    icon={<Users />}
-                                    title="Clients"
-                                    description="Registry"
-                                    link="/admin/customer-profiles"
-                                />
-                                <QuickAction
-                                    icon={<Package />}
-                                    title="Products"
-                                    description="Items"
-                                    link="/admin/products"
-                                />
-                                <QuickAction
-                                    icon={<Plus />}
-                                    title="Add New"
-                                    description="Create Item"
-                                    link="/admin/products/new"
-                                />
-                                <QuickAction
-                                    icon={<Calendar />}
-                                    title="Sessions"
-                                    description="Appointments"
-                                    link="/admin/appointments"
-                                />
-                                <QuickAction
-                                    icon={<Gift />}
-                                    title="Gifts"
-                                    description="Requests"
-                                    link="/admin/customize-gift"
-                                />
+                            <div>
+                                <h2 className="text-sm font-black text-gray-900 dark:text-white uppercase tracking-wider">
+                                    Tools
+                                </h2>
+                                <p className="text-[9px] text-gray-400 dark:text-[#8b949e]/40 uppercase tracking-[0.2em] mt-0.5">
+                                    Shortcuts
+                                </p>
                             </div>
-                        </motion.div>
-                    </div>
+                        </div>
+                        <div className="flex flex-col gap-3">
+                            <QuickAction
+                                icon={<Users />}
+                                title="Clients"
+                                description="Registry"
+                                link="/admin/customer-profiles"
+                            />
+                            <QuickAction
+                                icon={<Package />}
+                                title="Catalog"
+                                description="Inventory"
+                                link="/admin/products"
+                            />
+                            <QuickAction
+                                icon={<Plus />}
+                                title="Creation"
+                                description="New Item"
+                                link="/admin/products/new"
+                            />
+                            <QuickAction
+                                icon={<Calendar />}
+                                title="Bookings"
+                                description="Sessions"
+                                link="/admin/appointments"
+                            />
+                            <QuickAction
+                                icon={<Gift />}
+                                title="Gifting"
+                                description="Requests"
+                                link="/admin/customize-gift"
+                            />
+                        </div>
+                    </motion.div>
                 </div>
             </motion.div>
         </ErrorBoundary>

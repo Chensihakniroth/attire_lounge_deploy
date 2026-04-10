@@ -43,21 +43,17 @@ import { isSafari } from '../../../helpers/browserUtils';
 
 const NavItem = ({ item, isCollapsed, setOpen }) => {
     return (
-        <motion.div
-            whileHover={{ x: isCollapsed ? 0 : 4 }}
-            whileTap={{ scale: 0.98 }}
-            transition={{ type: 'spring', stiffness: 400, damping: 17 }}
-        >
+        <div className="group/nav">
             <NavLink
                 to={item.to}
                 end={item.to === '/admin'}
                 onClick={() => setOpen && setOpen(false)}
                 className={({ isActive }) =>
-                    `flex items-center px-4 py-2.5 text-[11px] font-black uppercase tracking-[0.2em] rounded-lg transition-all duration-300 ${
+                    `flex items-center px-4 py-2.5 text-[11px] font-black uppercase tracking-[0.2em] rounded-lg transition-colors duration-200 ${
                         isActive
                             ? 'bg-[#0d3542] dark:bg-[#58a6ff] text-white dark:text-black'
                             : 'text-gray-400 dark:text-[#8b949e]/40 hover:bg-black/5 dark:hover:bg-[#21262d] hover:text-gray-900 dark:hover:text-[#c9d1d9]'
-                    } ${isCollapsed ? 'justify-center px-2' : ''}`
+                    } ${isCollapsed ? 'justify-center px-2' : ''} active:scale-[0.98] transform group-hover/nav:translate-x-1 transition-transform`
                 }
                 title={isCollapsed ? item.name : ''}
             >
@@ -70,7 +66,7 @@ const NavItem = ({ item, isCollapsed, setOpen }) => {
                     </span>
                 )}
             </NavLink>
-        </motion.div>
+        </div>
     );
 };
 
@@ -403,22 +399,9 @@ const AdminLayoutContent = ({
                     </header>
                 )}
 
-                <main className="flex-1 overflow-y-auto relative p-6 bg-background dark:bg-[#0d1117] transition-colors duration-300">
+                <main className="flex-1 overflow-y-auto relative p-6 bg-background dark:bg-[#0d1117]">
                     <div className="relative z-10 w-full max-w-none">
-                        <AnimatePresence mode="wait">
-                            <motion.div
-                                key={location.pathname}
-                                initial={performanceMode ? { opacity: 0 } : { opacity: 0, y: 15 }}
-                                animate={{ opacity: 1, y: 0 }}
-                                exit={performanceMode ? { opacity: 0 } : { opacity: 0, y: -15 }}
-                                transition={performanceMode ? { duration: 0 } : {
-                                    duration: 0.3,
-                                    ease: [0.22, 1, 0.36, 1],
-                                }}
-                            >
-                                {currentOutlet}
-                            </motion.div>
-                        </AnimatePresence>
+                        {currentOutlet}
                     </div>
                 </main>
             </div>

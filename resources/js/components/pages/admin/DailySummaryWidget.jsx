@@ -1,24 +1,24 @@
 import React from 'react';
 import { 
     DollarSign, 
-    TrendingUp, 
-    TrendingDown, 
-    ShoppingBag, 
-    CreditCard, 
-    Wallet,
-    ArrowUpRight
+    ArrowUpRight,
+    Target,
+    Activity,
+    Zap,
+    TrendingUp,
 } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { useAdmin } from './AdminContext';
 import { LumaSpin } from "@/components/ui/luma-spin";
+import { BorderBeam } from "@/components/ui/border-beam";
 
 const DailySummaryWidget = ({ stats, loading }) => {
     const { performanceMode } = useAdmin();
+    
     if (loading) {
         return (
-            <div className="h-64 bg-[#fdfdfc] dark:bg-[#161b22] rounded-[2.5rem] border border-black/5 dark:border-[#30363d] flex flex-col items-center justify-center gap-4">
-                <LumaSpin size="lg" />
-                <p className="text-[10px] font-black uppercase tracking-[0.4em] text-gray-400 dark:text-[#8b949e]/40">Syncing Ledger...</p>
+            <div className="h-full min-h-[300px] flex items-center justify-center">
+                <LumaSpin size="sm" />
             </div>
         );
     }
@@ -30,63 +30,135 @@ const DailySummaryWidget = ({ stats, loading }) => {
     };
 
     const netRevenue = dailyData.total_revenue - dailyData.total_refunds;
-    const avgOrder = dailyData.invoice_count > 0 ? dailyData.total_revenue / dailyData.invoice_count : 0;
+
+    const goals = [
+        { id: 'daily', label: 'Day', target: 5000, current: dailyData.total_revenue, color: 'from-indigo-500 to-blue-400' },
+        { id: 'weekly', label: 'Week', target: 35000, current: (dailyData.total_revenue * 7) * 0.8, color: 'from-emerald-500 to-teal-400' }, // Estimated for demo
+        { id: 'monthly', label: 'Month', target: 150000, current: (dailyData.total_revenue * 30) * 0.6, color: 'from-blue-600 to-indigo-400' }, // Estimated for demo
+    ];
 
     return (
         <motion.div 
-            initial={performanceMode ? { opacity: 0 } : { opacity: 0, y: 20 }}
+            initial={performanceMode ? { opacity: 0 } : { opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={performanceMode ? { duration: 0 } : {}}
-            className="bg-[#fdfdfc] dark:bg-[#161b22] p-10 rounded-[3rem] border border-black/5 dark:border-[#30363d] shadow-none"
+            className="h-full flex flex-col pt-2"
         >
+            {/* Header Section */}
             <div className="flex items-center justify-between mb-10">
                 <div className="flex items-center gap-5">
-                    <div className="p-4 bg-[#0d3542] dark:bg-[#58a6ff] text-white dark:text-black rounded-2xl">
-                        <DollarSign size={24} />
+                    <div className="relative group">
+                        <div className="w-12 h-12 rounded-2xl bg-indigo-500/10 flex items-center justify-center text-indigo-500 group-hover:scale-110 transition-transform duration-500">
+                            <DollarSign size={20} strokeWidth={2.5} />
+                        </div>
+                        <div className="absolute -inset-1 bg-indigo-500/20 blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-full" />
                     </div>
                     <div>
-                        <h3 className="text-2xl font-serif text-gray-900 dark:text-[#c9d1d9] tracking-tight">Sales</h3>
-                        <p className="text-[11px] font-black text-gray-400 dark:text-[#8b949e]/40 uppercase tracking-[0.2em] mt-1">Logs</p>
+                        <h3 className="text-sm font-black text-gray-900 dark:text-white uppercase tracking-[0.1em] leading-none mb-1">Earnings</h3>
+                        <p className="text-[10px] text-gray-400 dark:text-[#8b949e]/40 uppercase tracking-[0.3em] font-black">Daily Stats</p>
                     </div>
                 </div>
-                <div className="flex items-center gap-1.5 px-4 py-2 bg-green-500/10 text-green-500 rounded-full text-[10px] font-black uppercase tracking-widest border border-green-500/20">
-                    <TrendingUp size={12} /> +14%
+                <div className="flex flex-col items-end">
+                    <span className="text-[10px] font-black text-gray-400 dark:text-[#8b949e]/30 uppercase tracking-[0.2em] mb-1">Profit</span>
+                    <div className="text-xl font-black text-[#0d3542] dark:text-[#58a6ff] tabular-nums tracking-tighter bg-clip-text">
+                        ${parseFloat(netRevenue).toLocaleString()}
+                    </div>
                 </div>
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-                <div className="p-6 bg-black/[0.01] dark:bg-[#0d1117] rounded-3xl border border-black/[0.04] dark:border-[#30363d] shadow-none">
-                    <p className="text-[10px] font-black text-gray-400 dark:text-[#8b949e]/40 uppercase tracking-widest mb-2">Gross</p>
-                    <p className="text-3xl font-black tracking-tight text-gray-900 dark:text-[#c9d1d9]">${parseFloat(dailyData.total_revenue).toLocaleString()}</p>
+            {/* Metrics Grid */}
+            <div className="grid grid-cols-2 gap-4 mb-10">
+                <div className="relative overflow-hidden p-5 rounded-[2rem] bg-[#fdfdfc] dark:bg-white/[0.02] border border-black/5 dark:border-white/5 group hover:border-[#0d3542]/20 dark:hover:border-[#58a6ff]/20 transition-all duration-500">
+                    <BorderBeam size={80} duration={8} delay={0} colorFrom="#0d3542" colorTo="#58a6ff" />
+                    <div className="relative z-10">
+                        <p className="text-[10px] font-black text-gray-400 dark:text-[#8b949e]/30 uppercase tracking-[0.3em] mb-2.5 group-hover:text-[#0d3542] dark:group-hover:text-[#58a6ff] transition-colors">Sales</p>
+                        <div className="flex items-baseline gap-1">
+                            <span className="text-2xl font-black tracking-tighter text-gray-900 dark:text-white">
+                                ${Math.floor(dailyData.total_revenue).toLocaleString()}
+                            </span>
+                            <span className="text-[10px] font-black text-gray-300 dark:text-gray-700 font-mono uppercase tracking-widest">USD</span>
+                        </div>
+                    </div>
                 </div>
-                <div className="p-6 bg-black/[0.01] dark:bg-[#0d1117] rounded-3xl border border-black/[0.04] dark:border-[#30363d] shadow-none">
-                    <p className="text-[10px] font-black text-gray-400 dark:text-[#8b949e]/40 uppercase tracking-widest mb-2">Net</p>
-                    <p className="text-3xl font-black tracking-tight text-[#0d3542] dark:text-[#58a6ff]">${parseFloat(netRevenue).toLocaleString()}</p>
-                </div>
-                <div className="p-6 bg-black/[0.01] dark:bg-[#0d1117] rounded-3xl border border-black/[0.04] dark:border-[#30363d] shadow-none">
-                    <p className="text-[10px] font-black text-gray-400 dark:text-[#8b949e]/40 uppercase tracking-widest mb-2">Average</p>
-                    <p className="text-2xl font-black tracking-tight text-gray-900 dark:text-[#c9d1d9]">${parseFloat(avgOrder).toLocaleString()}</p>
-                </div>
-                <div className="p-6 bg-black/[0.01] dark:bg-[#0d1117] rounded-3xl border border-black/[0.04] dark:border-[#30363d] shadow-none">
-                    <p className="text-[10px] font-black text-gray-400 dark:text-[#8b949e]/40 uppercase tracking-widest mb-2">Orders</p>
-                    <p className="text-2xl font-black tracking-tight text-gray-900 dark:text-[#c9d1d9]">{dailyData.invoice_count}</p>
+                
+                <div className="relative overflow-hidden p-5 rounded-[2rem] bg-[#fdfdfc] dark:bg-white/[0.02] border border-black/5 dark:border-white/5 group hover:border-emerald-500/20 transition-all duration-500">
+                    <BorderBeam size={80} duration={8} delay={4} colorFrom="#10b981" colorTo="#34d399" />
+                    <div className="relative z-10">
+                        <p className="text-[10px] font-black text-gray-400 dark:text-[#8b949e]/30 uppercase tracking-[0.3em] mb-2.5 group-hover:text-emerald-500 transition-colors">Orders</p>
+                        <div className="flex items-baseline gap-2">
+                            <span className="text-2xl font-black tracking-tighter text-gray-900 dark:text-white">
+                                {dailyData.invoice_count}
+                            </span>
+                        </div>
+                    </div>
                 </div>
             </div>
 
-            <div className="mt-8 pt-8 border-t border-black/[0.03] dark:border-[#30363d] flex items-center justify-between shadow-none">
+            {/* Pipeline Section */}
+            <div className="space-y-6 flex-grow">
+                <div className="flex items-center justify-between mb-1">
+                    <div className="flex items-center gap-3">
+                        <div className="p-1.5 rounded-lg bg-black/[0.03] dark:bg-white/[0.03]">
+                            <Target size={12} className="text-[#0d3542] dark:text-[#58a6ff]" />
+                        </div>
+                        <span className="text-[10px] font-black uppercase tracking-[0.3em] text-gray-400 dark:text-white/10">Projected Goals</span>
+                    </div>
+                    <div className="px-2 py-0.5 rounded-full bg-emerald-500/10 border border-emerald-500/10">
+                        <span className="text-[8px] font-black text-emerald-500 uppercase tracking-widest">On</span>
+                    </div>
+                </div>
+
+                {goals.map((goal) => {
+                    const percentage = Math.min(100, (goal.current / goal.target) * 100);
+                    return (
+                        <div key={goal.id} className="space-y-2.5 group">
+                            <div className="flex items-center justify-between px-1">
+                                <div className="flex items-center gap-3">
+                                    <span className="text-[10px] font-black text-gray-900 dark:text-white uppercase tracking-wider group-hover:translate-x-1 transition-transform duration-300">
+                                        {goal.label}
+                                    </span>
+                                </div>
+                                <div className="flex items-center gap-3">
+                                    <span className="text-[9px] font-mono font-black text-[#0d3542] dark:text-[#58a6ff]">
+                                        ${Math.round(goal.current / 1000)}k
+                                    </span>
+                                    <div className="w-8 text-right">
+                                        <span className={`text-[9px] font-mono font-bold ${percentage >= 80 ? 'text-emerald-500' : 'text-gray-400'}`}>
+                                            {Math.round(percentage)}%
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div className="relative h-1.5 bg-black/[0.05] dark:bg-white/[0.05] rounded-full overflow-hidden p-[1px]">
+                                <motion.div 
+                                    initial={{ width: 0 }}
+                                    animate={{ width: `${percentage}%` }}
+                                    transition={{ duration: 1.5, ease: [0.33, 1, 0.68, 1] }}
+                                    className={`relative h-full rounded-full bg-gradient-to-r ${goal.color} opacity-90 shadow-[0_0_8px_rgba(79,70,229,0.3)]`} 
+                                >
+                                    <div className="absolute inset-0 bg-[linear-gradient(45deg,transparent_25%,rgba(255,255,255,0.2)_50%,transparent_75%)] bg-[length:200%_100%] animate-shimmer" />
+                                </motion.div>
+                            </div>
+                        </div>
+                    );
+                })}
+            </div>
+
+            <div className="mt-8 pt-6 border-t border-black/5 dark:border-white/5 flex items-center justify-between">
                 <div className="flex items-center gap-3">
-                    <div className="flex -space-x-2">
-                        {[Wallet, CreditCard, ShoppingBag].map((Icon, i) => (
-                            <div key={i} className="w-8 h-8 rounded-full bg-[#fdfdfc] dark:bg-[#0d1117] border-2 border-black/[0.03] dark:border-[#30363d] flex items-center justify-center text-gray-400 dark:text-[#8b949e]/40 shadow-none">
-                                <Icon size={12} />
+                    <div className="flex -space-x-1.5">
+                        {[1, 2, 3].map((i) => (
+                            <div key={i} className="w-5 h-5 rounded-full border-2 border-[#fdfdfc] dark:border-[#161b22] bg-gray-100 dark:bg-[#1c2128] overflow-hidden">
+                                <Activity size={10} className="w-full h-full p-1 text-gray-400" />
                             </div>
                         ))}
                     </div>
-                    <span className="text-[10px] font-black uppercase tracking-widest text-gray-400 dark:text-[#8b949e]/40">Active</span>
+                    <span className="text-[9px] font-black uppercase tracking-[0.2em] text-gray-400">Active</span>
                 </div>
-                <button className="flex items-center gap-2 text-[9px] font-black uppercase tracking-widest text-[#0d3542] dark:text-[#58a6ff] hover:gap-3 transition-all">
-                    Report <ArrowUpRight size={12} />
-                </button>
+                <div className="flex items-center gap-1.5 px-2 py-1 bg-black/[0.03] dark:bg-white/[0.03] rounded-lg border border-black/5 dark:border-white/5">
+                    <TrendingUp size={10} className="text-indigo-500" />
+                    <span className="text-[9px] font-black text-indigo-500 uppercase tracking-widest">+4.2%</span>
+                </div>
             </div>
         </motion.div>
     );

@@ -72,13 +72,13 @@ const SalesHistoryManager = () => {
                     { label: 'Completed Invoices', value: '0', icon: <CheckCircle size={20} />, color: 'text-green-500' },
                     { label: 'Pending/Refunded', value: '0', icon: <AlertCircle size={20} />, color: 'text-red-500' }
                 ].map((stat, idx) => (
-                    <div key={idx} className="p-6 bg-white dark:bg-[#161b22] border border-black/5 dark:border-[#30363d] rounded-[2rem] shadow-none relative overflow-hidden group">
+                    <div key={idx} className="p-6 bg-white dark:bg-[#161b22] border border-black/5 dark:border-[#30363d] rounded-xl shadow-none relative overflow-hidden group">
                         <div className="flex items-center justify-between relative z-10">
                             <div className="space-y-1">
                                 <p className="text-xs font-bold text-gray-500 dark:text-[#8b949e]/40 uppercase tracking-widest">{stat.label}</p>
                                 <p className={`text-2xl font-bold tracking-tighter ${stat.color}`}>{stat.value}</p>
                             </div>
-                            <div className={`p-4 rounded-2xl bg-black/[0.03] dark:bg-[#0d1117] ${stat.color} group-hover:scale-110 transition-transform`}>
+                            <div className={`p-4 rounded-lg bg-black/[0.03] dark:bg-[#0d1117] ${stat.color} group-hover:scale-110 transition-transform border border-black/5 dark:border-[#30363d]`}>
                                 {stat.icon}
                             </div>
                         </div>
@@ -87,25 +87,25 @@ const SalesHistoryManager = () => {
             </div>
 
             {/* Filter Bar */}
-            <div className="flex flex-col md:flex-row gap-4 items-center bg-white dark:bg-[#161b22] p-4 rounded-[2rem] border border-black/5 dark:border-[#30363d] shadow-none">
+            <div className="flex flex-col md:flex-row gap-4 items-center bg-white dark:bg-[#161b22] p-4 rounded-xl border border-black/5 dark:border-[#30363d] shadow-none">
                 <div className="relative flex-1 w-full group">
                     <Search size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-[#0d3542] dark:group-focus-within:text-[#58a6ff] transition-colors" />
                     <input 
                         type="text"
                         placeholder="Search invoice number, customer name, or phone..."
-                        className="w-full bg-black/[0.02] dark:bg-[#0d1117] border border-black/5 dark:border-[#30363d] rounded-xl py-3 pl-12 pr-4 text-sm font-bold uppercase tracking-widest outline-none focus:border-[#0d3542]/50 dark:focus:border-[#58a6ff]/50 transition-all placeholder:text-gray-400 dark:placeholder:text-[#8b949e]/20"
+                        className="w-full bg-black/[0.02] dark:bg-[#0d1117] border border-black/5 dark:border-[#30363d] rounded-lg py-3 pl-12 pr-4 text-sm font-bold uppercase tracking-widest outline-none focus:border-[#0d3542]/50 dark:focus:border-[#58a6ff]/50 transition-all placeholder:text-gray-400 dark:placeholder:text-[#8b949e]/20"
                         value={search}
                         onChange={(e) => setSearch(e.target.value)}
                         onKeyDown={(e) => e.key === 'Enter' && fetchInvoices()}
                     />
                 </div>
                 <div className="flex gap-2 w-full md:w-auto">
-                    <button className="flex items-center gap-2 px-6 py-3 bg-white dark:bg-[#0d1117] border border-black/5 dark:border-[#30363d] rounded-xl text-xs font-bold uppercase tracking-widest text-gray-500 dark:text-[#8b949e]/60 hover:text-[#0d3542] dark:hover:text-[#58a6ff] transition-all whitespace-nowrap">
+                    <button className="flex items-center gap-2 px-6 py-3 bg-white dark:bg-[#0d1117] border border-black/5 dark:border-[#30363d] rounded-lg text-xs font-bold uppercase tracking-widest text-gray-500 dark:text-[#8b949e]/60 hover:text-[#0d3542] dark:hover:text-[#58a6ff] transition-all whitespace-nowrap">
                         <Calendar size={14} /> Filter Date
                     </button>
                     <button 
                         onClick={fetchInvoices}
-                        className="p-3 bg-white dark:bg-[#0d1117] border border-black/5 dark:border-[#30363d] rounded-xl text-gray-400 hover:text-[#0d3542] dark:hover:text-[#58a6ff] transition-all"
+                        className="p-3 bg-white dark:bg-[#0d1117] border border-black/5 dark:border-[#30363d] rounded-lg text-gray-400 hover:text-[#0d3542] dark:hover:text-[#58a6ff] transition-all"
                     >
                         <RefreshCw size={16} className={loading ? 'animate-spin' : ''} />
                     </button>
@@ -113,7 +113,7 @@ const SalesHistoryManager = () => {
             </div>
 
             {/* Invoices Table */}
-            <div className="bg-white dark:bg-[#161b22] border border-black/5 dark:border-[#30363d] rounded-[2.5rem] shadow-none overflow-hidden min-h-[400px]">
+            <div className="bg-white dark:bg-[#161b22] border border-black/5 dark:border-[#30363d] rounded-xl shadow-none overflow-hidden min-h-[400px]">
                 <table className="w-full text-left border-collapse">
                     <thead>
                         <tr className="bg-black/[0.02] dark:bg-[#0d1117] border-b border-black/5 dark:border-[#30363d]">
@@ -177,13 +177,13 @@ const SalesHistoryManager = () => {
                                         <div className="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
                                             <button 
                                                 title="View Details"
-                                                className="p-2.5 rounded-xl bg-black/5 dark:bg-[#0d1117] text-gray-400 hover:text-[#0d3542] dark:hover:text-[#58a6ff] hover:bg-[#0d3542]/10 dark:hover:bg-[#58a6ff]/10 transition-all border border-transparent dark:border-[#30363d]"
+                                                className="p-2.5 rounded-lg bg-black/5 dark:bg-[#0d1117] text-gray-400 hover:text-[#0d3542] dark:hover:text-[#58a6ff] hover:bg-[#0d3542]/10 dark:hover:bg-[#58a6ff]/10 transition-all border border-transparent dark:border-[#30363d]"
                                             >
                                                 <Eye size={14} />
                                             </button>
                                             <button 
                                                 title="Initiate Refund"
-                                                className="p-2.5 rounded-xl bg-black/5 dark:bg-white/5 text-gray-400 hover:text-red-500 hover:bg-red-500/10 transition-all"
+                                                className="p-2.5 rounded-lg bg-black/5 dark:bg-[#0d1117] text-gray-400 hover:text-red-500 hover:bg-red-500/10 transition-all border border-transparent dark:border-[#30363d]"
                                             >
                                                 <Undo2 size={14} />
                                             </button>

@@ -10,7 +10,8 @@ import {
     ShoppingBag, 
     User,
     Sun,
-    Moon
+    Moon,
+    Undo2
 } from 'lucide-react';
 import { usePOS } from './POSContext';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -74,7 +75,12 @@ const POSHeader = () => {
                                 }`}
                             >
                                 <span className="opacity-50">#{(index + 1).toString().padStart(2, '0')}</span>
-                                <span>{tab.customer ? tab.customer.name : 'New Sale'}</span>
+                                <span className={tab.isRefundMode ? "text-red-500 font-black" : ""}>
+                                    {tab.isRefundMode 
+                                        ? 'Refund' 
+                                        : (tab.customer ? tab.customer.name : 'New Sale')
+                                    }
+                                </span>
                                 {tab.status === 'held' && <Pause size={10} className="text-red-500" />}
                                 
                                 <X 
@@ -129,8 +135,21 @@ const POSHeader = () => {
                     {isDarkMode ? <Sun size={18} /> : <Moon size={18} />}
                 </button>
 
-                <div className="w-10 h-10 rounded-xl bg-attire-accent/10 border border-attire-accent/20 flex items-center justify-center overflow-hidden">
-                    <User size={18} className="text-attire-accent" />
+                <div className={`w-10 h-10 rounded-xl flex items-center justify-center overflow-hidden transition-all duration-500 ${
+                    invoiceTabs[activeTabIndex]?.isRefundMode 
+                        ? 'bg-red-500 text-white shadow-lg shadow-red-500/20 active:scale-95' 
+                        : 'bg-attire-accent/10 border border-attire-accent/20 text-attire-accent'
+                }`}>
+                    {invoiceTabs[activeTabIndex]?.isRefundMode ? (
+                        <motion.div
+                            initial={{ rotate: -180, opacity: 0 }}
+                            animate={{ rotate: 0, opacity: 1 }}
+                        >
+                            <Undo2 size={18} />
+                        </motion.div>
+                    ) : (
+                        <User size={18} />
+                    )}
                 </div>
             </div>
         </header>

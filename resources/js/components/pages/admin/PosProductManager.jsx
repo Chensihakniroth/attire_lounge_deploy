@@ -5,10 +5,10 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { 
     X, Plus, Edit, Trash2, 
     Hash, DollarSign, Layers, Check, 
-    Filter, ChevronDown, Archive, ChevronLeft, Search, Package,
+    Filter, ChevronDown, Archive, ChevronLeft, ChevronRight, Search, Package,
     Download, Upload, Settings, Tag, Smartphone, Scissors,
     Menu, ShoppingBag, ShoppingCart, Command, AlertCircle,
-    ArrowUp, ArrowDown, Keyboard, Save, Box
+    ArrowUp, ArrowDown, Keyboard, Save, Box, Eye, FolderPlus
 } from 'lucide-react';
 import { LumaSpin } from '@/components/ui/luma-spin';
 import { Button } from '@/components/ui/button';
@@ -18,6 +18,37 @@ import ModernModal from '../../common/ModernModal';
 import { formatPrice } from '@/helpers/format';
 import { useAdmin } from './AdminContext';
 import MorphingPageDots from '@/components/ui/morphing-page-dots';
+
+/* ─── Cyber-Bespoke Form Components ────────────────────────────────────── */
+const Section = ({ title, subtitle, icon: Icon, children, accent = false }) => (
+    <div className={`rounded-2xl border transition-colors ${accent ? 'border-[#0d3542]/15 dark:border-[#58a6ff]/15 bg-[#0d3542]/[0.02] dark:bg-[#58a6ff]/[0.02]' : 'border-black/5 dark:border-[#30363d] bg-white/50 dark:bg-[#161b22]/50'}`}>
+        <div className="px-5 py-4 border-b border-black/5 dark:border-[#30363d]/50 flex items-center gap-3">
+            {Icon && (
+                <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${accent ? 'bg-[#0d3542]/10 dark:bg-[#58a6ff]/10' : 'bg-black/5 dark:bg-white/5'}`}>
+                    <Icon size={16} className={accent ? 'text-[#0d3542] dark:text-[#58a6ff]' : 'text-gray-400 dark:text-[#8b949e]'} />
+                </div>
+            )}
+            <div>
+                <h3 className="text-xs font-bold text-gray-900 dark:text-[#c9d1d9] uppercase tracking-[0.15em]">{title}</h3>
+                {subtitle && <p className="text-[9px] text-gray-400 dark:text-[#8b949e]/40 uppercase tracking-widest mt-0.5">{subtitle}</p>}
+            </div>
+        </div>
+        <div className="p-5">
+            {children}
+        </div>
+    </div>
+);
+
+const Field = ({ label, children, hint }) => (
+    <div className="space-y-1.5">
+        <label className="text-[10px] font-bold text-gray-400 dark:text-[#8b949e]/50 uppercase tracking-[0.15em] ml-0.5">{label}</label>
+        {children}
+        {hint && <p className="text-[9px] text-gray-300 dark:text-[#8b949e]/20 uppercase tracking-widest ml-0.5">{hint}</p>}
+    </div>
+);
+
+const inputBase = "w-full bg-black/5 dark:bg-[#0d1117] border border-black/5 dark:border-[#30363d] rounded-xl py-3.5 px-4 text-gray-900 dark:text-[#c9d1d9] text-sm focus:border-[#0d3542] dark:focus:border-[#58a6ff] outline-none transition-all placeholder:text-gray-300 dark:placeholder:text-white/10";
+
 
 const SidebarSection = ({ title, icon: Icon, children }) => (
     <div className="mb-0 border-b-2 border-black/15 dark:border-[#30363d] transition-all last:border-b-0">
@@ -158,7 +189,7 @@ const ProductRow = React.memo(({
                 key={p.id} id={`row-${p.id}`}
                 onClick={(e) => { e.stopPropagation(); onFocus(isFocused ? null : p.id); }}
                 onDoubleClick={(e) => { e.stopPropagation(); onEdit(p); }}
-                className={`group cursor-pointer border-b border-black/15 dark:border-[#30363d] ${isSelected ? 'bg-[#0d3542]/5 dark:bg-[#58a6ff]/5' : 'hover:bg-black/[0.01] dark:hover:bg-white/[0.02]'} ${isFocused ? 'bg-black/[0.03] dark:bg-white/[0.04]' : ''} ${performanceMode ? 'transition-none' : 'transition-colors duration-150'}`}
+                className={`group cursor-pointer border-b border-black/15 dark:border-[#30363d] ${isSelected ? 'bg-[#0d3542]/5 dark:bg-[#58a6ff]/5' : 'hover:bg-black/[0.01] dark:hover:bg-white/[0.02]'} ${isFocused ? 'bg-black/[0.03] dark:bg-white/[0.04]' : ''}`}
             >
                 <td className="px-4 py-3 text-center relative">
                     {isFocused && <div className="absolute left-0 top-0 bottom-0 w-1 bg-[#0d3542] dark:bg-[#58a6ff]" />}
@@ -178,19 +209,25 @@ const ProductRow = React.memo(({
                 <td className="px-6 py-3 border-l-2 border-black/15 dark:border-[#30363d] overflow-hidden">
                     <div className="flex items-center gap-2 leading-tight truncate">
                         <span className="font-black text-gray-900 dark:text-[#c9d1d9] uppercase tracking-wider group-hover:text-[#0d3542] dark:group-hover:text-[#58a6ff] transition-colors text-[14px] truncate">{p.name}</span>
-                        {(p.attributes || []).map((attr, idx) => {
-                            const isSize = attr.key?.toUpperCase() === 'SIZE';
-                            return (
-                                <span 
-                                    key={idx}
-                                    className={`inline-flex items-center gap-1 px-2 py-0.5 rounded text-[10px] font-black uppercase tracking-widest ${isSize ? 'bg-red-500/10 text-red-500 border border-red-500/20' : attr.color ? '' : 'bg-black/5 dark:bg-white/5 text-gray-500 dark:text-white/60'}`}
-                                    style={attr.color ? { backgroundColor: attr.color + '20', borderColor: attr.color, color: attr.color } : {}}
-                                >
-                                    {attr.color && <div className="w-2 h-2 rounded-full" style={{ backgroundColor: attr.color }} />}
-                                    {attr.value}
-                                </span>
-                            );
-                        })}
+                        {p.attributes && p.attributes.length > 0 ? (
+                            p.attributes.map((attr, idx) => {
+                                const isSize = attr.key?.toUpperCase() === 'SIZE';
+                                return (
+                                    <span 
+                                        key={idx}
+                                        className={`inline-flex items-center gap-1 px-2 py-0.5 rounded text-[10px] font-black uppercase tracking-widest ${isSize ? 'bg-red-500/10 text-red-500 border border-red-500/20' : attr.color ? '' : 'bg-black/5 dark:bg-white/5 text-gray-500 dark:text-white/60'}`}
+                                        style={attr.color ? { backgroundColor: attr.color + '20', borderColor: attr.color, color: attr.color } : {}}
+                                    >
+                                        {attr.color && <div className="w-2 h-2 rounded-full" style={{ backgroundColor: attr.color }} />}
+                                        {attr.value}
+                                    </span>
+                                );
+                            })
+                        ) : p.variant ? (
+                            <span className="inline-flex items-center px-2 py-0.5 bg-black/5 dark:bg-white/5 text-gray-400 dark:text-[#8b949e]/40 text-[9px] font-black uppercase tracking-widest rounded border border-black/5 dark:border-white/5">
+                                {p.variant}
+                            </span>
+                        ) : null}
                     </div>
                 </td>
                 <td className="px-5 py-3 border-l-2 border-black/15 dark:border-[#30363d] text-center">
@@ -227,7 +264,7 @@ const ProductsPage = () => {
     const [quickEditField, setQuickEditField] = useState(null); // 'price' | 'stock' | null
     const [isSaving, setIsSaving] = useState(false);
     const [currentPage, setCurrentPage] = useState(1);
-    const [groupPage, setGroupPage] = useState(0);
+    const [currentGroupPage, setCurrentGroupPage] = useState(1);
     const pageSize = 500;
     const itemsPerGroupPage = 20;
 
@@ -264,7 +301,7 @@ const ProductsPage = () => {
         const timer = setTimeout(() => {
             setDebouncedFilters(filters);
             setCurrentPage(1);
-            setGroupPage(0);
+            setCurrentGroupPage(1);
         }, 300);
         return () => clearTimeout(timer);
     }, [filters]);
@@ -352,11 +389,21 @@ const ProductsPage = () => {
     }, [products]);
 
     const paginatedGroups = useMemo(() => {
-        const start = groupPage * itemsPerGroupPage;
+        const start = (currentGroupPage - 1) * itemsPerGroupPage;
         return groupedProducts.slice(start, start + itemsPerGroupPage);
-    }, [groupedProducts, groupPage]);
+    }, [groupedProducts, currentGroupPage]);
 
-    const totalGroupPages = Math.ceil(groupedProducts.length / itemsPerGroupPage);
+    const totalGroupPages = Math.max(1, Math.ceil(groupedProducts.length / itemsPerGroupPage));
+
+    const groupPageRange = useMemo(() => {
+        const range = [];
+        const maxVisible = 5;
+        let start = Math.max(1, currentGroupPage - Math.floor(maxVisible / 2));
+        let end = Math.min(totalGroupPages, start + maxVisible - 1);
+        if (end - start + 1 < maxVisible) start = Math.max(1, end - maxVisible + 1);
+        for (let i = start; i <= end; i++) range.push(i);
+        return range;
+    }, [currentGroupPage, totalGroupPages]);
 
     const categories = useMemo(() => {
         const unique = Array.from(new Set(products.map(p => p.category).filter(Boolean)));
@@ -513,8 +560,11 @@ const ProductsPage = () => {
     };
 
     const handleSelectAll = (e) => {
-        if (e.target.checked) setSelectedIds(new Set(products.map(p => p.id)));
-        else setSelectedIds(new Set());
+        if (selectedIds.size === products.length && products.length > 0) {
+            setSelectedIds(new Set());
+        } else {
+            setSelectedIds(new Set(products.map(p => p.id)));
+        }
     };
 
     const handleBulkApply = (action, config) => {
@@ -571,6 +621,49 @@ const ProductsPage = () => {
         setActiveTab('general');
     };
 
+    const fileInputRef = useRef(null);
+
+    const handleExport = async () => {
+        try {
+            const res = await axios.get('/api/v1/admin/pos/products/export', {
+                responseType: 'blob'
+            });
+            const url = window.URL.createObjectURL(new Blob([res.data]));
+            const link = document.createElement('a');
+            link.href = url;
+            link.setAttribute('download', `pos_products_${new Date().toISOString().split('T')[0]}.csv`);
+            document.body.appendChild(link);
+            link.click();
+            link.remove();
+        } catch (err) {
+            console.error('Export failed:', err);
+            alert('Export failed. Please try again.');
+        }
+    };
+
+    const handleImport = async (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+
+        const formData = new FormData();
+        formData.append('file', file);
+
+        try {
+            const res = await axios.post('/api/v1/admin/pos/products/import', formData, {
+                headers: { 'Content-Type': 'multipart/form-data' }
+            });
+            alert(`Import completed! ${res.data.imported} products processed.`);
+            if (res.data.errors && res.data.errors.length > 0) {
+                console.warn('Import errors:', res.data.errors);
+            }
+            queryClient.invalidateQueries(['admin-pos-products']);
+        } catch (err) {
+            console.error('Import failed:', err);
+            alert('Import failed: ' + (err.response?.data?.message || err.message));
+        } finally {
+            if (fileInputRef.current) fileInputRef.current.value = '';
+        }
+    };
     const handleAddSimilar = (group) => {
         const firstItem = group.items[0];
         setEditingProduct(null);
@@ -843,10 +936,7 @@ const ProductsPage = () => {
             {/* --- Persistent Sidebar Filter Hub --- */}
             <div className="w-[340px] shrink-0 flex flex-col p-0 overflow-y-auto no-scrollbar border-r-2 border-black/15 dark:border-[#30363d] bg-[#fdfdfc] dark:bg-[#0d1117] transition-colors sticky top-0 h-screen z-50">
                 <div className="p-8 border-b-2 border-black/15 dark:border-[#30363d] bg-[#fdfdfc] dark:bg-[#0d1117]">
-                    <div className="flex flex-col gap-1.5 mb-8">
-                        <h1 className="text-[20px] font-black uppercase tracking-[0.4em] text-gray-900 dark:text-[#c9d1d9] leading-none">Settings</h1>
-                        <p className="text-[10px] font-black text-gray-400 dark:text-[#8b949e]/30 uppercase tracking-[0.3em] mt-1">Product Manager</p>
-                    </div>
+
                     
                     <div className="space-y-4">
                         <Button 
@@ -856,8 +946,27 @@ const ProductsPage = () => {
                             <Plus size={16} className="mr-3" /> Add Product
                         </Button>
                         <div className="flex gap-3">
-                            <Button variant="outline" className="flex-1 h-12 border-2 border-black/15 dark:border-[#30363d] text-[10px] font-black uppercase tracking-widest text-gray-400 dark:text-[#8b949e] hover:bg-black/5 dark:hover:bg-white/5 rounded-2xl transition-all"><Download size={14} className="mr-2" /> Export</Button>
-                            <Button variant="outline" className="flex-1 h-12 border-2 border-black/15 dark:border-[#30363d] text-[10px] font-black uppercase tracking-widest text-gray-400 dark:text-[#8b949e] hover:bg-black/5 dark:hover:bg-white/5 rounded-2xl transition-all"><Upload size={14} className="mr-2" /> Import</Button>
+                            <input 
+                                type="file" 
+                                ref={fileInputRef} 
+                                onChange={handleImport} 
+                                accept=".csv" 
+                                className="hidden" 
+                            />
+                            <Button 
+                                onClick={handleExport}
+                                variant="outline" 
+                                className="flex-1 h-12 border-2 border-black/15 dark:border-[#30363d] text-[10px] font-black uppercase tracking-widest text-gray-400 dark:text-[#8b949e] hover:bg-black/5 dark:hover:bg-white/5 rounded-2xl transition-all"
+                            >
+                                <Download size={14} className="mr-2" /> Export
+                            </Button>
+                            <Button 
+                                onClick={() => fileInputRef.current?.click()}
+                                variant="outline" 
+                                className="flex-1 h-12 border-2 border-black/15 dark:border-[#30363d] text-[10px] font-black uppercase tracking-widest text-gray-400 dark:text-[#8b949e] hover:bg-black/5 dark:hover:bg-white/5 rounded-2xl transition-all"
+                            >
+                                <Upload size={14} className="mr-2" /> Import
+                            </Button>
                         </div>
                     </div>
                 </div>
@@ -957,20 +1066,14 @@ const ProductsPage = () => {
                                 </div>
                             </div>
 
-                             <div className="h-20 shrink-0 border-b border-black/20 dark:border-white/10 flex items-center justify-between px-10 bg-background dark:bg-[#111] transition-colors duration-300">
-                                <div className="flex items-center gap-4">
-                                    <h2 className="text-xl font-black text-[#0d3542] dark:text-[#58a6ff] tracking-[0.4em] uppercase">Product Manager</h2>
-                                    {isFetching && !performanceMode && <motion.div animate={{ opacity: [0.3, 1, 0.3] }} transition={{ repeat: Infinity, duration: 1.5 }} className="w-2 h-2 rounded-full bg-[#0d3542] dark:bg-[#58a6ff]" />}
-                                    {isFetching && performanceMode && <div className="w-2 h-2 rounded-full bg-[#0d3542] dark:bg-[#58a6ff]" />}
-                                </div>
-                            </div>
+
                              <div className={`flex-1 overflow-auto attire-scrollbar relative min-h-0 bg-background dark:bg-[#0f0f0f] border-t border-black/20 dark:border-white/5`}>
                                         {(isLoading && !productsData) && (
-                                            <div className={`absolute inset-0 z-50 flex items-center justify-center bg-white/50 dark:bg-black/50 ${performanceMode ? '' : 'backdrop-blur-[2px]'}`}>
+                                            <div className="absolute inset-0 z-50 flex items-center justify-center bg-white/50 dark:bg-black/80">
                                                 <LumaSpin size="lg" />
                                             </div>
                                         )}
-                                        <table className="w-full text-left border-separate border-spacing-0 min-w-200 bg-transparent transition-colors duration-300">
+                                        <table className="w-full text-left border-separate border-spacing-0 min-w-200 bg-transparent">
                                             <thead className="sticky top-0 z-40 bg-[#fdfdfc] dark:bg-[#0d1117]">
                                                 <tr className="bg-black/2 dark:bg-[#161b22] text-gray-400 dark:text-[#8b949e]/40 uppercase text-[10px] tracking-[0.3em] font-black transition-colors border-b-2 border-black/15 dark:border-[#30363d]">
                                                     <th className="px-4 py-4 w-14 text-center">
@@ -1005,6 +1108,20 @@ const ProductsPage = () => {
                                                                     <td colSpan="7" className="px-6 py-4">
                                                                         <div className="flex items-center justify-between gap-3">
                                                                             <div className="flex items-center gap-3">
+                                                                                <button
+                                                                                    onClick={() => {
+                                                                                        const newSet = new Set(selectedIds);
+                                                                                        const isGroupSelected = group.items.every(p => newSet.has(p.id));
+                                                                                        group.items.forEach(p => {
+                                                                                            if (isGroupSelected) newSet.delete(p.id);
+                                                                                            else newSet.add(p.id);
+                                                                                        });
+                                                                                        setSelectedIds(newSet);
+                                                                                    }}
+                                                                                    className={`w-5 h-5 rounded-md border-2 flex items-center justify-center transition-all ${group.items.every(p => selectedIds.has(p.id)) ? 'bg-[#0d3542] dark:bg-[#58a6ff] border-[#0d3542] dark:border-[#58a6ff]' : 'border-black/25 dark:border-[#30363d]'}`}
+                                                                                >
+                                                                                    {group.items.every(p => selectedIds.has(p.id)) && <Check size={12} className="text-white dark:text-black" />}
+                                                                                </button>
                                                                                 <div className="h-1 w-8 bg-[#0d3542] dark:bg-[#58a6ff] rounded-full" />
                                                                                 <span className="text-[12px] font-black uppercase tracking-[0.3em] text-[#0d3542] dark:text-[#58a6ff]">{group.name}</span>
                                                                                 <span className="px-2 py-0.5 bg-black/10 dark:bg-white/10 text-[9px] font-black text-gray-500 dark:text-white/40 uppercase tracking-widest rounded">{group.items.length} variants</span>
@@ -1038,15 +1155,57 @@ const ProductsPage = () => {
                                                         ))}
                                                         {totalGroupPages > 1 && (
                                                             <tr>
-                                                                <td colSpan="7" className="py-4">
-                                                                    <MorphingPageDots 
-                                                                        total={totalGroupPages} 
-                                                                        activeIndex={groupPage}
-                                                                        onChange={setGroupPage}
-                                                                    />
+                                                                <td colSpan="7" className="py-6 px-6 relative border-t-2 border-black/5 dark:border-[#30363d]">
+                                                                    <div className="flex items-center justify-between">
+                                                                        <p className="text-[10px] font-bold uppercase tracking-widest text-gray-400 dark:text-[#8b949e]/50 tabular-nums">
+                                                                            {((currentGroupPage - 1) * itemsPerGroupPage) + 1}–{Math.min(currentGroupPage * itemsPerGroupPage, groupedProducts.length)} of {groupedProducts.length}
+                                                                        </p>
+                                                                        <div className="flex items-center gap-1">
+                                                                            <button
+                                                                                onClick={() => setCurrentGroupPage(p => Math.max(1, p - 1))}
+                                                                                disabled={currentGroupPage === 1}
+                                                                                className="p-2 rounded-lg text-gray-400 dark:text-[#8b949e] hover:bg-black/5 dark:hover:bg-[#1c2128] hover:text-gray-900 dark:hover:text-white disabled:opacity-30 disabled:pointer-events-none transition-all"
+                                                                            >
+                                                                                <ChevronLeft size={16} />
+                                                                            </button>
+                                                                            {groupPageRange[0] > 1 && (
+                                                                                <>
+                                                                                    <button onClick={() => setCurrentGroupPage(1)} className="w-8 h-8 rounded-lg text-[10px] font-bold text-gray-500 dark:text-[#8b949e] hover:bg-black/5 dark:hover:bg-[#1c2128] transition-all">1</button>
+                                                                                    {groupPageRange[0] > 2 && <span className="text-[10px] text-gray-300 dark:text-[#8b949e]/30 px-0.5">…</span>}
+                                                                                </>
+                                                                            )}
+                                                                            {groupPageRange.map(p => (
+                                                                                <button
+                                                                                    key={p}
+                                                                                    onClick={() => setCurrentGroupPage(p)}
+                                                                                    className={`w-8 h-8 rounded-lg text-[10px] font-bold transition-all ${
+                                                                                        p === currentGroupPage
+                                                                                            ? 'bg-[#0d3542] dark:bg-[#58a6ff] text-white dark:text-black'
+                                                                                            : 'text-gray-500 dark:text-[#8b949e] hover:bg-black/5 dark:hover:bg-[#1c2128]'
+                                                                                    }`}
+                                                                                >
+                                                                                    {p}
+                                                                                </button>
+                                                                            ))}
+                                                                            {groupPageRange[groupPageRange.length - 1] < totalGroupPages && (
+                                                                                <>
+                                                                                    {groupPageRange[groupPageRange.length - 1] < totalGroupPages - 1 && <span className="text-[10px] text-gray-300 dark:text-[#8b949e]/30 px-0.5">…</span>}
+                                                                                    <button onClick={() => setCurrentGroupPage(totalGroupPages)} className="w-8 h-8 rounded-lg text-[10px] font-bold text-gray-500 dark:text-[#8b949e] hover:bg-black/5 dark:hover:bg-[#1c2128] transition-all">{totalGroupPages}</button>
+                                                                                </>
+                                                                            )}
+                                                                            <button
+                                                                                onClick={() => setCurrentGroupPage(p => Math.min(totalGroupPages, p + 1))}
+                                                                                disabled={currentGroupPage === totalGroupPages}
+                                                                                className="p-2 rounded-lg text-gray-400 dark:text-[#8b949e] hover:bg-black/5 dark:hover:bg-[#1c2128] hover:text-gray-900 dark:hover:text-white disabled:opacity-30 disabled:pointer-events-none transition-all"
+                                                                            >
+                                                                                <ChevronRight size={16} />
+                                                                            </button>
+                                                                        </div>
+                                                                    </div>
                                                                 </td>
                                                             </tr>
                                                         )}
+
                                                     </React.Fragment>
                                                 )}
                                             </tbody>
@@ -1078,176 +1237,136 @@ const ProductsPage = () => {
                                 </div>
                             </div>
 
-                            {/* --- Form Tabs --- */}
-                            <div className="px-12 h-16 border-b border-black/15 dark:border-white/5 flex items-center gap-12 bg-black/1 dark:bg-white/1">
-                                {['General', 'Attributes', !editingProduct && 'Bulk Matrix'].filter(Boolean).map((tab) => {
-                                    const id = tab.toLowerCase().replace(' ', '');
-                                    const active = activeTab === id;
-                                    return (
-                                        <button 
-                                            key={id} onClick={() => setActiveTab(id)}
-                                            className={`h-full px-2 text-[10px] font-black uppercase tracking-[0.3em] transition-all relative ${active ? 'text-[#0d3542] dark:text-[#58a6ff]' : 'text-gray-400 dark:text-white/20 hover:text-[#0d3542] dark:hover:text-[#58a6ff]'}`}
-                                        >
-                                            {tab}
-                                            {active && <motion.div layoutId="tabUnderline" className="absolute bottom-0 left-0 right-0 h-1 bg-[#0d3542] dark:bg-[#58a6ff] rounded-t-full" />}
-                                        </button>
-                                    );
-                                })}
-                            </div>
-
-                            {/* --- Form Content --- */}
-                            <div className="flex-1 overflow-y-auto p-16 no-scrollbar">
-                                <div className="max-w-5xl mx-auto space-y-20">
-                                    {activeTab === 'general' && (
-                                        <>
-                                            <section className="animate-in fade-in slide-in-from-bottom-4 duration-500">
-                                                <div className="flex items-center gap-4 mb-10">
-                                                    <div className="h-1 w-10 bg-[#0d3542] dark:bg-[#58a6ff] rounded-full" />
-                                                    <h3 className="text-xs font-black uppercase tracking-[0.4em] text-[#0d3542] dark:bg-[#58a6ff]">General Info</h3>
-                                                </div>
-                                                <div className="grid grid-cols-2 gap-16">
-                                                    <div className="space-y-3">
-                                                        <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">SKU / Code</label>
-                                                        <input value={formData.sku} onChange={e => setFormData({...formData, sku: e.target.value.toUpperCase()})} className="w-full bg-black/5 dark:bg-white/5 p-5 text-[13px] font-mono font-bold tracking-widest outline-none border border-black/15 dark:border-white/10 focus:border-[#0d3542] dark:focus:border-[#58a6ff] ring-inset focus:ring-1 focus:ring-[#0d3542] dark:focus:ring-[#58a6ff] transition-all uppercase text-gray-900 dark:text-white rounded-2xl" placeholder="AUTO-GENERATE" />
+                            {/* --- 2-Panel Form Layout --- */}
+                            <div className="flex-1 flex overflow-hidden bg-[#fdfdfc] dark:bg-[#0d1117]">
+                                {/* Main Content Area (Left) */}
+                                <div className="flex-[2.5] overflow-y-auto p-8 attire-scrollbar space-y-6">
+                                    <div className="grid xl:grid-cols-2 gap-6">
+                                        <Section title="General Information" icon={Package}>
+                                            <div className="space-y-4">
+                                                <Field label="SKU Code" hint="AUTO-GENERATE IF LEFT EMPTY">
+                                                    <input value={formData.sku} onChange={e => setFormData({...formData, sku: e.target.value.toUpperCase()})} className={`${inputBase} uppercase font-mono tracking-widest`} placeholder="AUTO-GENERATE" />
+                                                </Field>
+                                                <Field label="Product Name" hint="* Required">
+                                                    <input required value={formData.name} onChange={e => setFormData({...formData, name: e.target.value})} className={`${inputBase} uppercase font-black`} placeholder="ENTER PRODUCT NAME..." />
+                                                </Field>
+                                                <Field label="Product Price" hint="Base product price">
+                                                    <div className="relative">
+                                                        <input type="number" value={formData.price} onChange={e => setFormData({...formData, price: e.target.value})} className={`${inputBase} pl-10 text-lg font-mono tracking-tight`} />
+                                                        <span className="absolute left-4 top-1/2 -translate-y-1/2 text-[#0d3542] dark:text-[#58a6ff] font-black text-lg">$</span>
                                                     </div>
-                                                    <div className="space-y-3">
-                                                        <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Name *</label>
-                                                        <input required value={formData.name} onChange={e => setFormData({...formData, name: e.target.value})} className="w-full bg-black/5 dark:bg-white/5 p-5 text-[13px] font-black outline-none border border-black/15 dark:border-white/10 focus:border-[#0d3542] dark:focus:border-[#58a6ff] ring-inset focus:ring-1 focus:ring-[#0d3542] dark:focus:ring-[#58a6ff] transition-all uppercase text-gray-900 dark:text-white rounded-2xl" />
-                                                        
-                                                        {/* Name Preview */}
-                                                        <div className="mt-4 px-4 py-3 bg-black/3 dark:bg-white/3 rounded-xl border border-dashed border-black/25 dark:border-white/10">
-                                                            <div className="text-[10px] font-black text-[#0d3542]/50 dark:text-[#58a6ff]/50 uppercase tracking-widest mb-1">Preview</div>
-                                                            <div className="text-[12px] font-mono font-bold text-gray-400 dark:text-white/40 break-all uppercase">
-                                                                {formData.name} {(formData.attributes || []).filter(a => a.value).map(a => `-${a.value.toUpperCase()}`).join(' ')}
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                    <div className="space-y-3">
-                                                        <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">PRICE</label>
-                                                        <div className="relative">
-                                                            <input type="number" value={formData.price} onChange={e => setFormData({...formData, price: e.target.value})} className="w-full bg-black/5 dark:bg-white/5 p-5 pl-14 text-lg font-mono font-bold tracking-tight outline-none border border-black/15 dark:border-white/10 focus:border-[#0d3542] dark:focus:border-[#58a6ff] ring-inset focus:ring-1 focus:ring-[#0d3542] dark:focus:ring-[#58a6ff] transition-all text-gray-900 dark:text-white rounded-2xl" />
-                                                            <span className="absolute left-5 top-1/2 -translate-y-1/2 text-[#0d3542] dark:text-[#58a6ff] font-black text-xl">$</span>
-                                                        </div>
-                                                    </div>
-                                                    <div className="space-y-3">
-                                                        <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">PRODUCT GROUP</label>
-                                                        {isCreatingGroup ? (
-                                                            <div className="flex gap-2">
-                                                                <input
-                                                                    type="text"
-                                                                    value={newGroupName}
-                                                                    onChange={e => setNewGroupName(e.target.value.toUpperCase())}
-                                                                    onKeyDown={e => {
-                                                                        if (e.key === 'Enter' && newGroupName.trim()) {
-                                                                            setFormData({...formData, category: newGroupName.trim()});
-                                                                            setIsCreatingGroup(false);
-                                                                            setNewGroupName('');
-                                                                        }
-                                                                        if (e.key === 'Escape') {
-                                                                            setIsCreatingGroup(false);
-                                                                            setNewGroupName('');
-                                                                        }
-                                                                    }}
-                                                                    autoFocus
-                                                                    className="flex-1 bg-white dark:bg-[#161b22] border-2 border-[#0d3542] dark:border-[#58a6ff] focus:border-[#0d3542] dark:focus:border-[#58a6ff] px-4 py-3 text-[13px] font-black uppercase outline-none transition-all text-gray-900 dark:text-white placeholder:text-gray-300 dark:placeholder:text-[#8b949e]/10 rounded-2xl"
-                                                                    placeholder="ENTER GROUP NAME..."
-                                                                />
-                                                                <button
-                                                                    onClick={() => {
-                                                                        if (newGroupName.trim()) {
-                                                                            setFormData({...formData, category: newGroupName.trim()});
-                                                                            setIsCreatingGroup(false);
-                                                                            setNewGroupName('');
-                                                                        }
-                                                                    }}
-                                                                    className="px-4 py-3 bg-[#0d3542] dark:bg-[#58a6ff] text-white dark:text-black text-[11px] font-black uppercase tracking-widest rounded-2xl hover:opacity-90 transition-all"
-                                                                >
-                                                                    <Check size={16} />
-                                                                </button>
-                                                                <button
-                                                                    onClick={() => {
-                                                                        setIsCreatingGroup(false);
-                                                                        setNewGroupName('');
-                                                                    }}
-                                                                    className="px-4 py-3 bg-black/5 dark:bg-white/5 text-gray-500 hover:bg-red-500/10 hover:text-red-500 text-[11px] font-black uppercase tracking-widest rounded-2xl transition-all"
-                                                                >
-                                                                    <X size={16} />
-                                                                </button>
-                                                            </div>
-                                                        ) : (
-                                                            <BespokeSelect 
-                                                                value={formData.category}
-                                                                options={[
-                                                                    ...categories.filter(c => c !== 'ALL GROUPS'),
-                                                                    { label: '+ Create New Group', value: 'NEW_GROUP', isAction: true }
-                                                                ]}
-                                                                onChange={val => setFormData({...formData, category: val})}
-                                                                onAction={() => setIsCreatingGroup(true)}
-                                                                placeholder="SELECT GROUP"
-                                                            />
-                                                        )}
-                                                    </div>
-                                                </div>
-                                            </section>
-                                            <section className="animate-in fade-in slide-in-from-bottom-4 duration-500">
-                                                <div className="flex items-center gap-4 mb-10">
-                                                    <div className="h-1 w-10 bg-[#0d3542] dark:bg-[#58a6ff] rounded-full" />
-                                                    <h3 className="text-xs font-black uppercase tracking-[0.4em] text-[#0d3542] dark:text-[#58a6ff]">Stock</h3>
-                                                </div>
-                                                <div className="grid grid-cols-1 gap-12">
-                                                    <div className="space-y-3">
-                                                        <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Current Stock</label>
-                                                        <input type="number" value={formData.stock_qty} onChange={e => setFormData({...formData, stock_qty: e.target.value})} className="w-full bg-black/5 dark:bg-white/5 p-5 text-[13px] font-mono font-bold outline-none border border-black/15 dark:border-white/10 focus:border-[#0d3542] dark:focus:border-[#58a6ff] ring-inset focus:ring-1 focus:ring-[#0d3542] dark:focus:ring-[#58a6ff] transition-all text-gray-900 dark:text-white rounded-2xl" />
-                                                    </div>
-                                                </div>
-                                            </section>
-                                        </>
-                                    )}
-
-                                    {activeTab === 'attributes' && (
-                                        <section className="animate-in fade-in slide-in-from-bottom-4 duration-500">
-                                            <div className="flex items-center justify-between mb-10">
-                                                <div className="flex items-center gap-4">
-                                                    <div className="h-1 w-10 bg-[#0d3542] dark:bg-[#58a6ff] rounded-full" />
-                                                    <h3 className="text-xs font-black uppercase tracking-[0.4em] text-[#0d3542] dark:text-[#58a6ff]">More Details</h3>
-                                                </div>
-                                                <Button variant="outline" onClick={() => setFormData({...formData, attributes: [...(formData.attributes || []), { key: '', value: '' }]})} className="h-10 px-4 text-[10px] font-black uppercase tracking-widest border-black/25 dark:border-white/10 text-gray-400 hover:text-[#0d3542] dark:hover:text-[#58a6ff] transition-all rounded-xl">
-                                                    <Plus size={14} className="mr-2" /> Add Detail
-                                                </Button>
+                                                </Field>
                                             </div>
-                                            <div className="space-y-6">
-                                                {(formData.attributes || []).map((attr, idx) => (
-                                                    <div key={idx} className="flex gap-6 items-end animate-in fade-in slide-in-from-left-2 transition-all">
-                                                        <div className="flex-1 space-y-3">
-                                                            <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">KEY</label>
+                                        </Section>
+                                        
+                                        <Section title="Name Preview" icon={Eye}>
+                                            <div className="p-6 bg-black/3 dark:bg-white/3 rounded-xl border border-dashed border-black/25 dark:border-white/10 h-full min-h-32 flex flex-col justify-center text-center space-y-2">
+                                                <div className="text-[10px] font-black text-[#0d3542]/50 dark:text-[#58a6ff]/50 uppercase tracking-widest mb-2">Generated Name</div>
+                                                <div className="text-xl font-mono font-black text-gray-900 dark:text-white uppercase leading-snug">
+                                                    {formData.name || 'PRODUCT NAME'} 
+                                                    <br/>
+                                                    <span className="text-[#0d3542] dark:text-[#58a6ff] text-base mt-1">{(formData.attributes || []).filter(a => a.value).map(a => `-${a.value.toUpperCase()}`).join(' ')}</span>
+                                                </div>
+                                            </div>
+                                        </Section>
+                                    </div>
+
+                                    <Section title="Variants & Details" icon={Layers}>
+                                        <div className="space-y-4">
+                                            {(formData.attributes || []).map((attr, idx) => (
+                                                <div key={idx} className="flex gap-4 items-end animate-in fade-in slide-in-from-left-2 transition-all">
+                                                    <div className="flex-1">
+                                                        <Field label="Variant Type">
                                                             <input value={attr.key} onChange={e => {
                                                                 const newAttrs = [...formData.attributes];
                                                                 newAttrs[idx].key = e.target.value.toUpperCase();
                                                                 setFormData({...formData, attributes: newAttrs});
-                                                            }} className="w-full bg-black/5 dark:bg-white/5 p-5 text-[11px] font-bold uppercase outline-none border border-black/15 dark:border-white/10 focus:border-[#0d3542] dark:focus:border-[#58a6ff] ring-inset focus:ring-1 focus:ring-[#0d3542] dark:focus:ring-[#58a6ff] transition-all text-gray-900 dark:text-white rounded-2xl" placeholder="E.G. FABRIC" />
-                                                        </div>
-                                                        <div className="flex-2 space-y-3">
-                                                            <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">VALUE</label>
+                                                            }} className={`${inputBase} font-bold uppercase text-xs`} placeholder="E.G. FABRIC" />
+                                                        </Field>
+                                                    </div>
+                                                    <div className="flex-2">
+                                                        <Field label="Variant Option">
                                                             <input value={attr.value} onChange={e => {
                                                                 const newAttrs = [...formData.attributes];
                                                                 newAttrs[idx].value = e.target.value.toUpperCase();
                                                                 setFormData({...formData, attributes: newAttrs});
-                                                            }} className="w-full bg-black/5 dark:bg-white/5 p-5 text-[11px] font-bold uppercase outline-none border border-black/15 dark:border-white/10 focus:border-[#0d3542] dark:focus:border-[#58a6ff] ring-inset focus:ring-1 focus:ring-[#0d3542] dark:focus:ring-[#58a6ff] transition-all text-gray-900 dark:text-white rounded-2xl" placeholder="E.G. SCABAL DIAMOND CHIP" />
-                                                        </div>
-                                                        <button onClick={() => setFormData({...formData, attributes: formData.attributes.filter((_, i) => i !== idx)})} className="h-15 w-15 flex items-center justify-center text-gray-400 hover:text-white transition-all bg-black/5 dark:bg-white/5 rounded-2xl border border-black/15 dark:border-white/5 hover:bg-rose-500 hover:border-rose-500">
-                                                            <Trash2 size={18} />
-                                                        </button>
+                                                            }} className={`${inputBase} font-bold uppercase text-xs`} placeholder="E.G. SCABAL DIAMOND CHIP" />
+                                                        </Field>
                                                     </div>
-                                                ))}
-                                            </div>
-                                        </section>
-                                    )}
+                                                    <button onClick={() => setFormData({...formData, attributes: formData.attributes.filter((_, i) => i !== idx)})} className="h-[48px] w-[48px] flex items-center justify-center text-gray-400 hover:text-white transition-all bg-black/5 dark:bg-white/5 rounded-xl border border-black/15 dark:border-white/5 hover:bg-rose-500 hover:border-rose-500 shrink-0">
+                                                        <Trash2 size={16} />
+                                                    </button>
+                                                </div>
+                                            ))}
+                                            <button 
+                                                onClick={() => setFormData({...formData, attributes: [...(formData.attributes || []), { key: '', value: '' }]})}
+                                                className="w-full flex items-center justify-center gap-2 bg-black/5 dark:bg-white/5 hover:bg-black/10 dark:hover:bg-white/10 text-gray-500 hover:text-gray-900 dark:hover:text-white py-4 rounded-xl text-xs font-black uppercase tracking-widest transition-all border border-dashed border-black/20 dark:border-white/10"
+                                            >
+                                                <Plus size={14} /> Add Detail
+                                            </button>
+                                        </div>
+                                    </Section>
 
-                                    {activeTab === 'bulkmatrix' && !editingProduct && (
-                                        <MatrixGrid />
+                                    {!editingProduct && (
+                                        <div className="pt-2">
+                                            <MatrixGrid />
+                                        </div>
                                     )}
                                 </div>
+
+                                {/* Sidebar Config Area (Right) */}
+                                <div className="w-[340px] shrink-0 border-l border-black/5 dark:border-[#30363d]/50 bg-white/30 dark:bg-[#161b22]/30 overflow-y-auto attire-scrollbar p-6 space-y-6">
+                                    <Section title="Organization" icon={FolderPlus}>
+                                        <div className="space-y-4">
+                                            <Field label="Product Group">
+                                                {isCreatingGroup ? (
+                                                    <div className="flex gap-2">
+                                                        <input
+                                                            type="text"
+                                                            value={newGroupName}
+                                                            onChange={e => setNewGroupName(e.target.value.toUpperCase())}
+                                                            onKeyDown={e => {
+                                                                if (e.key === 'Enter' && newGroupName.trim()) {
+                                                                    setFormData({...formData, category: newGroupName.trim()});
+                                                                    setIsCreatingGroup(false);
+                                                                    setNewGroupName('');
+                                                                }
+                                                                if (e.key === 'Escape') {
+                                                                    setIsCreatingGroup(false);
+                                                                    setNewGroupName('');
+                                                                }
+                                                            }}
+                                                            autoFocus
+                                                            className="flex-1 min-w-0 bg-white dark:bg-[#0d1117] border border-black/5 dark:border-[#30363d] focus:border-[#0d3542] dark:focus:border-[#58a6ff] px-4 py-3 text-[13px] font-black uppercase outline-none transition-all text-gray-900 dark:text-white rounded-xl"
+                                                            placeholder="ENTER GROUP NAME..."
+                                                        />
+                                                        <button onClick={() => { if (newGroupName.trim()) { setFormData({...formData, category: newGroupName.trim()}); setIsCreatingGroup(false); setNewGroupName(''); } }} className="px-3 py-3 bg-[#0d3542] dark:bg-[#58a6ff] text-white dark:text-black rounded-xl hover:opacity-90 transition-all"><Check size={16} /></button>
+                                                        <button onClick={() => { setIsCreatingGroup(false); setNewGroupName(''); }} className="px-3 py-3 bg-black/5 dark:bg-white/5 text-gray-500 hover:bg-red-500/10 hover:text-red-500 rounded-xl transition-all"><X size={16} /></button>
+                                                    </div>
+                                                ) : (
+                                                    <BespokeSelect 
+                                                        value={formData.category}
+                                                        options={[
+                                                            ...categories.filter(c => c !== 'ALL GROUPS'),
+                                                            { label: '+ Create New Group', value: 'NEW_GROUP', isAction: true }
+                                                        ]}
+                                                        onChange={val => setFormData({...formData, category: val})}
+                                                        onAction={() => setIsCreatingGroup(true)}
+                                                        placeholder="SELECT GROUP"
+                                                    />
+                                                )}
+                                            </Field>
+                                        </div>
+                                    </Section>
+
+                                    <Section title="Inventory" icon={Archive}>
+                                        <Field label="Current Stock" hint="Physical stock count">
+                                            <input type="number" value={formData.stock_qty} onChange={e => setFormData({...formData, stock_qty: e.target.value})} className={`${inputBase} font-mono font-bold`} />
+                                        </Field>
+                                    </Section>
+                                </div>
                             </div>
+
                         </motion.div>
                     )}
                 </AnimatePresence>

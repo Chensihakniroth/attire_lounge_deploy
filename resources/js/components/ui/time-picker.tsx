@@ -213,7 +213,7 @@ export function TimePicker({
           <Clock className="ml-2 size-4 opacity-40 group-hover:opacity-100 transition-opacity shrink-0" />
         </button>
       </PopoverTrigger>
-      <PopoverContent className="p-0 z-[500] border-0 bg-transparent shadow-none" side="top" align="start">
+      <PopoverContent className="p-0 z-[100001] border-0 bg-transparent shadow-none" side="top" align="start">
         <div className="flex flex-col p-1.5 bg-white/95 dark:bg-[#0d1117]/95 backdrop-blur-xl border border-black/10 dark:border-white/10 rounded-[2.5rem] shadow-[0_20px_50px_rgba(0,0,0,0.2)] overflow-hidden">
           <div className="flex h-64">
             <ScrollArea className="h-full grow border-r border-black/5 dark:border-white/5">

@@ -49,6 +49,7 @@ class PosInvoiceController extends Controller
             'customer',
             'cashier',
             'items.product',
+            'items.refunds',
             'payments',
             'refunds.invoiceItem',
             'refunds.processedBy',

@@ -130,11 +130,24 @@ export const POSProvider = ({ children }) => {
     const updateQty = (cartItemId, delta) => {
         const newCart = activeTab.cartItems.map(item => {
             if (item.cart_item_id === cartItemId) {
-                const newQty = Math.max(1, item.quantity + delta);
+                // If in refund mode, allow 0 min and enforce max_quantity cap
+                const min = activeTab.isRefundMode ? 0 : 1;
+                const max = activeTab.isRefundMode ? (item.max_quantity || item.quantity) : Infinity;
+                
+                const newQty = Math.max(min, Math.min(max, item.quantity + delta));
                 return { ...item, quantity: newQty };
             }
             return item;
         });
+        updateActiveTab({ cartItems: newCart });
+    };
+
+    const selectAllRefundItems = () => {
+        if (!activeTab.isRefundMode) return;
+        const newCart = activeTab.cartItems.map(item => ({
+            ...item,
+            quantity: item.max_quantity
+        }));
         updateActiveTab({ cartItems: newCart });
     };
 
@@ -171,9 +184,12 @@ export const POSProvider = ({ children }) => {
             customer: null,
             cartItems: [],
             notes: '',
+            note: '',
             heldAt: null,
             status: 'active',
-            payments: []
+            payments: [],
+            isRefundMode: false,
+            originalInvoice: null
         });
     };
 
@@ -247,6 +263,46 @@ export const POSProvider = ({ children }) => {
         };
     }, [activeTab.cartItems, activeTab.payments]);
 
+    const loadInvoiceIntoCart = (invoice) => {
+        const newTab = {
+            id: Date.now(),
+            customer: invoice.customer,
+            cartItems: invoice.items.map(item => {
+                const pastRefundedQty = (item.refunds || []).reduce((sum, r) => sum + (r.quantity || 0), 0);
+                const remainingQty = Math.max(0, item.quantity - pastRefundedQty);
+                
+                return {
+                    cart_item_id: `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+                    original_item_id: item.id,
+                    product_id: item.product_id,
+                    product_name: item.product_name,
+                    product_variant: item.product_variant,
+                    product_sku: item.product_sku,
+                    is_service: !!item.is_service,
+                    quantity: 0, 
+                    max_quantity: remainingQty,
+                    past_refunded_qty: pastRefundedQty,
+                    is_fully_refunded: remainingQty <= 0,
+                    total_original_qty: item.quantity,
+                    unit_price: item.unit_price,
+                    discount_type: item.discount_type === 'percent' ? 'percentage' : (item.discount_type === 'amount' ? 'price' : 'none'),
+                    discount_value: item.discount_value,
+                    gift_wrap: !!item.gift_wrap,
+                    is_accessory: false
+                };
+            }),
+            notes: `REFUND: ${invoice.invoice_number}`,
+            note: `REFUND: ${invoice.invoice_number}`,
+            isRefundMode: true,
+            originalInvoice: invoice,
+            heldAt: null,
+            status: 'active',
+            payments: []
+        };
+        setInvoiceTabs(prev => [...prev, newTab]);
+        setActiveTabIndex(invoiceTabs.length);
+    };
+
     const value = {
         invoiceTabs,
         activeTabIndex,
@@ -266,6 +322,8 @@ export const POSProvider = ({ children }) => {
         updatePayments,
         clearInvoice,
         holdInvoice,
+        loadInvoiceIntoCart,
+        selectAllRefundItems,
         isHistoryOpen,
         setIsHistoryOpen,
         isServiceOpen,

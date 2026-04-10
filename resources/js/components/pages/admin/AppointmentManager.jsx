@@ -2,7 +2,7 @@ import React, { useState, useEffect, useCallback, useMemo, memo } from 'react';
 import { 
     User, Mail, Phone, Calendar, Clock, MessageSquare, 
     AlertTriangle, Check, X, Trash2, ChevronDown, Plus, 
-    Filter, ArrowUpRight, History
+    Filter, ArrowUpRight, History, Tag as TagIcon
 } from 'lucide-react';
 import { LumaSpin } from '@/components/ui/luma-spin';
 import { Button } from '@/components/ui/button';
@@ -13,6 +13,13 @@ import ModernModal from '../../common/ModernModal';
 import { formatTime } from '@/helpers/format';
 import DatePicker from '@/components/ui/DatePicker';
 import { TimePicker } from '@/components/ui/time-picker';
+import { 
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+} from "@/components/ui/select";
 import { format, parse } from 'date-fns';
 
 /**
@@ -403,41 +410,108 @@ const AppointmentManager = () => {
             {/* Modal */}
             <ModernModal isOpen={isAdding} onClose={() => setIsAdding(false)} title="New Appointment" maxWidth="max-w-2xl">
                 <form onSubmit={handleCreateAppointment} className="p-10 space-y-10 bg-[#fdfdfc] dark:bg-[#111111]">
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-10">
-                        <InputField label="Full Name *" name="name" value={formData.name} onChange={handleInputChange} placeholder="Name" required />
-                        <InputField label="Email Address" type="email" name="email" value={formData.email} onChange={handleInputChange} placeholder="Email" />
-                        <InputField label="Phone Number *" name="phone" value={formData.phone} onChange={handleInputChange} placeholder="Phone" required />
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-12 gap-y-10">
+                        {/* Customer Identity Section */}
+                        <div className="sm:col-span-2 flex items-center gap-3 mb-2">
+                             <div className="h-px bg-black/5 dark:bg-white/5 flex-1" />
+                             <span className="text-[9px] font-black uppercase tracking-[0.4em] text-gray-400">Customer Identity</span>
+                             <div className="h-px bg-black/5 dark:bg-white/5 flex-1" />
+                        </div>
+
+                        <InputField 
+                            label="Full Name *" 
+                            name="name" 
+                            value={formData.name} 
+                            onChange={handleInputChange} 
+                            placeholder="e.g. Jean-Luc" 
+                            required 
+                            icon={<User size={14} />}
+                        />
+                        <InputField 
+                            label="Email Address" 
+                            type="email" 
+                            name="email" 
+                            value={formData.email} 
+                            onChange={handleInputChange} 
+                            placeholder="e.g. contact@bespoke.com" 
+                            icon={<Mail size={14} />}
+                        />
+                        <InputField 
+                            label="Phone Number *" 
+                            name="phone" 
+                            value={formData.phone} 
+                            onChange={handleInputChange} 
+                            placeholder="e.g. +33 00 000 0000" 
+                            required 
+                            icon={<Phone size={14} />}
+                        />
                         
                         <div className="flex flex-col gap-3">
-                            <label className="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] ml-1">Service Type *</label>
-                            <select required name="service" value={formData.service} onChange={handleInputChange} className="bg-black/[0.03] dark:bg-white/[0.03] p-4 text-[14px] font-bold border-b border-black/10 dark:border-white/10 outline-none focus:border-[#0d3542] dark:focus:border-[#58a6ff] transition-all rounded-xl uppercase">
-                                <option value="consultation">Consultation</option>
-                                <option value="fitting">Fitting session</option>
-                                <option value="pickup">Order pickup</option>
-                            </select>
+                            <label className="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] ml-1 flex items-center gap-2">
+                                <TagIcon size={12} className="opacity-40" />
+                                Service Type *
+                            </label>
+                            <Select 
+                                value={formData.service} 
+                                onValueChange={(val) => setFormData(prev => ({ ...prev, service: val }))}
+                            >
+                                <SelectTrigger className="h-14 bg-black/[0.03] dark:bg-white/[0.03] border-0 border-b border-black/10 dark:border-white/10 rounded-xl px-4 text-[13px] font-bold uppercase tracking-widest focus:ring-0 focus:ring-offset-0 focus:border-[#0d3542] dark:focus:border-[#58a6ff]">
+                                    <SelectValue placeholder="Select Service" />
+                                </SelectTrigger>
+                                <SelectContent className="rounded-2xl border-black/10 dark:border-white/10 bg-white/95 dark:bg-[#0d1117]/95 backdrop-blur-xl">
+                                    <SelectItem value="consultation" className="text-[11px] font-black uppercase tracking-widest p-3">Consultation</SelectItem>
+                                    <SelectItem value="fitting" className="text-[11px] font-black uppercase tracking-widest p-3">Fitting session</SelectItem>
+                                    <SelectItem value="pickup" className="text-[11px] font-black uppercase tracking-widest p-3">Order pickup</SelectItem>
+                                </SelectContent>
+                            </Select>
+                        </div>
+
+                        {/* Timing Section */}
+                        <div className="sm:col-span-2 flex items-center gap-3 mt-4 mb-2">
+                             <div className="h-px bg-black/5 dark:bg-white/5 flex-1" />
+                             <span className="text-[9px] font-black uppercase tracking-[0.4em] text-gray-400">Scheduling Details</span>
+                             <div className="h-px bg-black/5 dark:bg-white/5 flex-1" />
                         </div>
 
                         <div className="flex flex-col gap-3">
-                            <label className="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] ml-1">Scheduled Date *</label>
+                            <label className="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] ml-1 flex items-center gap-2">
+                                <Calendar size={12} className="opacity-40" />
+                                Scheduled Date *
+                            </label>
                             <DatePicker 
                                 required
                                 name="date"
                                 value={formData.date}
                                 onChange={(e) => setFormData(prev => ({ ...prev, date: e.target.value }))}
+                                inputClassName="h-14 bg-black/[0.03] dark:bg-white/[0.03] border-0 border-b border-black/10 dark:border-white/10 rounded-xl py-0"
                             />
                         </div>
                         <div className="flex flex-col gap-3">
-                            <label className="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] ml-1">Scheduled Time *</label>
+                            <label className="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] ml-1 flex items-center gap-2">
+                                <Clock size={12} className="opacity-40" />
+                                Scheduled Time *
+                            </label>
                             <TimePicker 
                                 use12HourFormat={true}
                                 value={formData.time ? parse(formData.time, 'HH:mm', new Date()) : new Date()}
                                 onChange={(date) => setFormData(prev => ({ ...prev, time: format(date, 'HH:mm') }))}
+                                className="h-14 bg-black/[0.03] dark:bg-white/[0.03] border-0 border-b border-black/10 dark:border-white/10 rounded-xl"
                             />
                         </div>
                         
                         <div className="sm:col-span-2 flex flex-col gap-3">
-                            <label className="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] ml-1">Notes / Instructions</label>
-                            <textarea name="message" value={formData.message} onChange={handleInputChange} rows="4" className="bg-black/[0.03] dark:bg-white/[0.03] p-5 text-[14px] font-medium border-b border-black/10 dark:border-white/10 outline-none focus:border-[#0d3542] dark:focus:border-[#58a6ff] transition-all rounded-2xl resize-none" placeholder="Details..."></textarea>
+                            <label className="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] ml-1 flex items-center gap-2">
+                                <MessageSquare size={12} className="opacity-40" />
+                                Notes / Instructions
+                            </label>
+                            <textarea 
+                                name="message" 
+                                value={formData.message} 
+                                onChange={handleInputChange} 
+                                rows="3" 
+                                className="bg-black/[0.03] dark:bg-white/[0.03] p-5 text-[13px] font-medium border-0 border-b border-black/10 dark:border-white/10 outline-none focus:border-[#0d3542] dark:focus:border-[#58a6ff] transition-all rounded-2xl resize-none" 
+                                placeholder="Any specific requirements for this session..."
+                            ></textarea>
                         </div>
                     </div>
 
@@ -467,13 +541,16 @@ const TabButton = ({ active, label, count, onClick, activeBg = "bg-white dark:bg
     </button>
 );
 
-const InputField = ({ label, type = "text", ...props }) => (
+const InputField = ({ label, type = "text", icon, ...props }) => (
     <div className="flex flex-col gap-3">
-        <label className="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] ml-1">{label}</label>
+        <label className="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] ml-1 flex items-center gap-2">
+            {icon && <span className="opacity-40">{icon}</span>}
+            {label}
+        </label>
         <input 
             type={type} 
             {...props} 
-            className="bg-black/[0.03] dark:bg-white/[0.03] p-4 text-[14px] font-bold border-b border-black/10 dark:border-white/10 outline-none focus:border-[#0d3542] dark:focus:border-[#58a6ff] transition-all rounded-xl" 
+            className="bg-black/[0.03] dark:bg-white/[0.03] h-14 px-4 text-[13px] font-bold border-b border-black/10 dark:border-white/10 outline-none focus:border-[#0d3542] dark:focus:border-[#58a6ff] transition-all rounded-xl placeholder:text-gray-300 dark:placeholder:text-[#8b949e]/20" 
         />
     </div>
 );

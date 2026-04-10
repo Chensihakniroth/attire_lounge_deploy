@@ -13,6 +13,7 @@ class PosRefund extends Model
         'invoice_id',
         'type',
         'invoice_item_id',
+        'quantity',
         'amount',
         'reason',
         'processed_by',

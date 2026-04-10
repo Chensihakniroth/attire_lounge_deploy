@@ -16,12 +16,14 @@ import {
     Undo2,
     Check
 } from 'lucide-react';
+import { usePOS } from './POSContext';
 import axios from 'axios';
 import { motion, AnimatePresence } from 'framer-motion';
 import RefundModal from './RefundModal';
 import DatePicker from '@/components/ui/DatePicker';
 
 const InvoiceHistoryPanel = ({ onClose }) => {
+    const { loadInvoiceIntoCart, setIsHistoryOpen } = usePOS();
     const [invoices, setInvoices] = useState([]);
     const [loading, setLoading] = useState(true);
     const [date, setDate] = useState(new Date().toISOString().split('T')[0]);
@@ -47,10 +49,19 @@ const InvoiceHistoryPanel = ({ onClose }) => {
         setLoading(true);
         try {
             const response = await axios.get(`/api/v1/admin/pos/invoices/${invoice.id}`);
-            setSelectedInvoice(response.data.data);
-            setShowRefund(true);
+            const invoiceData = response.data; // Invoice detail is at the root of the response
+            
+            if (!invoiceData) {
+                throw new Error('Invoice data is empty');
+            }
+
+            // Clone invoice into current POS cart for refund processing
+            loadInvoiceIntoCart(invoiceData);
+            
+            // Close the history panel so user can see items in cart
+            onClose();
         } catch (err) {
-            console.error('Failed to fetch invoice details');
+            console.error('Failed to fetch invoice details:', err);
         } finally {
             setLoading(false);
         }

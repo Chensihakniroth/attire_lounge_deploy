@@ -86,7 +86,7 @@ const ProfileEditor = () => {
         return (
             <div className="min-h-[60vh] flex flex-col items-center justify-center gap-6">
                 <LumaSpin size="lg" />
-                <p className="text-[11px] font-black uppercase tracking-[0.4em] text-white/20 text-center">Fetching Identity Dossier...</p>
+                <p className="text-[11px] font-black uppercase tracking-[0.4em] text-gray-400 dark:text-[#8b949e]/40 text-center">Loading Profile...</p>
             </div>
         );
     }
@@ -97,14 +97,14 @@ const ProfileEditor = () => {
                 {/* Header */}
                 <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
                     <div>
-                        <h1 className="text-4xl font-serif text-gray-900 dark:text-white mb-2">My Profile</h1>
-                        <p className="text-gray-400 dark:text-attire-silver text-sm uppercase tracking-widest">Manage Your Professional Identity</p>
+                        <h1 className="text-4xl font-serif text-gray-900 dark:text-[#c9d1d9] mb-2">My Profile</h1>
+                        <p className="text-gray-400 dark:text-[#8b949e] text-sm tracking-widest">Manage your account information</p>
                     </div>
-                    <div className="flex items-center gap-3 bg-attire-accent/10 p-4 rounded-2xl border border-attire-accent/20 shadow-none">
-                        <ShieldCheck size={18} className="text-attire-accent" />
+                    <div className="flex items-center gap-3 bg-black/5 dark:bg-[#161b22] p-4 rounded-xl border border-black/5 dark:border-[#30363d] shadow-none">
+                        <ShieldCheck size={18} className="text-[#0d3542] dark:text-[#58a6ff]" />
                         <div>
-                            <p className="text-[9px] font-black text-attire-accent uppercase tracking-widest leading-none mb-1">Authorization Level</p>
-                            <p className="text-gray-900 dark:text-white font-bold text-xs uppercase tracking-wider">{userRoles[0] || 'Member'}</p>
+                            <p className="text-[9px] font-black text-gray-500 uppercase tracking-widest leading-none mb-1">Account Role</p>
+                            <p className="text-gray-900 dark:text-[#c9d1d9] font-bold text-xs uppercase tracking-wider">{userRoles[0] || 'Member'}</p>
                         </div>
                     </div>
                 </div>
@@ -112,8 +112,8 @@ const ProfileEditor = () => {
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-10">
                     {/* Left Info Sidebar */}
                     <div className="lg:col-span-1 space-y-6">
-                        <div className="bg-white dark:bg-black/20 backdrop-blur-xl p-8 rounded-[2.5rem] border border-black/5 dark:border-white/10 shadow-none">
-                            <div className="w-24 h-24 rounded-[2rem] bg-gradient-to-br from-attire-accent to-attire-accent/40 flex items-center justify-center text-black mx-auto mb-6 shadow-none">
+                        <div className="bg-white dark:bg-[#161b22] p-8 rounded-xl border border-black/5 dark:border-[#30363d] shadow-none">
+                            <div className="w-24 h-24 rounded-lg bg-black/5 dark:bg-[#0d1117] flex items-center justify-center text-[#0d3542] dark:text-[#58a6ff] mx-auto mb-6 shadow-none border border-black/5 dark:border-[#30363d]">
                                 {formData.name ? (
                                     <span className="text-3xl font-serif">{formData.name.substring(0, 1)}</span>
                                 ) : (
@@ -121,8 +121,8 @@ const ProfileEditor = () => {
                                 )}
                             </div>
                             <div className="text-center space-y-1">
-                                <h3 className="text-lg font-bold text-gray-900 dark:text-white uppercase tracking-wider">{formData.name}</h3>
-                                <p className="text-xs text-gray-400 dark:text-white/20 truncate">{formData.email}</p>
+                                <h3 className="text-lg font-bold text-gray-900 dark:text-[#c9d1d9] uppercase tracking-wider">{formData.name}</h3>
+                                <p className="text-xs text-gray-400 dark:text-[#8b949e] truncate">{formData.email}</p>
                             </div>
                         </div>
                     </div>
@@ -135,11 +135,11 @@ const ProfileEditor = () => {
                     >
                         <form 
                             onSubmit={handleSubmit}
-                            className="bg-white dark:bg-[#161b22] border border-black/5 dark:border-white/10 rounded-[2.5rem] p-10 overflow-hidden relative space-y-10"
+                            className="bg-white dark:bg-[#161b22] border border-black/5 dark:border-[#30363d] rounded-xl p-10 overflow-hidden relative space-y-10"
                         >
                             <div className="flex items-center gap-4 mb-10">
                                 <div className="w-1.5 h-8 bg-[#0d3542] dark:bg-[#58a6ff] rounded-full" />
-                                <h2 className="text-2xl font-serif text-gray-900 dark:text-white">Account Details</h2>
+                                <h2 className="text-2xl font-serif text-gray-900 dark:text-[#c9d1d9]">Account Details</h2>
                             </div>
 
                             <AnimatePresence mode="wait">
@@ -159,57 +159,57 @@ const ProfileEditor = () => {
 
                             <div className="space-y-8">
                                 <div className="space-y-6">
-                                    <p className="text-[10px] font-black text-attire-accent uppercase tracking-[0.3em] ml-1">Identity Details</p>
+                                    <p className="text-[10px] font-black text-[#0d3542] dark:text-[#58a6ff] uppercase tracking-[0.3em] ml-1">Personal Information</p>
                                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                         <div className="space-y-2">
-                                            <label className="text-[10px] font-bold text-gray-400 dark:text-white/20 uppercase tracking-widest ml-1">Display Name</label>
-                                            <input type="text" required value={formData.name} onChange={e => setFormData({...formData, name: e.target.value})} className="w-full bg-black/5 dark:bg-white/5 border border-black/5 dark:border-white/10 rounded-2xl py-4 px-6 text-gray-900 dark:text-white text-sm focus:border-[#0d3542] dark:focus:border-[#58a6ff] outline-none transition-all" />
+                                            <label className="text-[10px] font-bold text-gray-400 dark:text-[#8b949e]/50 uppercase tracking-widest ml-1">Name</label>
+                                            <input type="text" required value={formData.name} onChange={e => setFormData({...formData, name: e.target.value})} className="w-full bg-black/5 dark:bg-[#0d1117] border border-black/5 dark:border-[#30363d] rounded-xl py-3.5 px-6 text-gray-900 dark:text-[#c9d1d9] text-sm focus:border-[#0d3542] dark:focus:border-[#58a6ff] outline-none transition-all placeholder:text-gray-300 dark:placeholder-[white/10]" />
                                         </div>
                                         <div className="space-y-2">
-                                            <label className="text-[10px] font-black uppercase tracking-[0.2em] text-gray-400 ml-2">Email Address</label>
-                                            <input type="email" required value={formData.email} onChange={e => setFormData({...formData, email: e.target.value})} className="w-full bg-black/5 dark:bg-white/5 border border-black/5 dark:border-white/10 rounded-2xl py-4 px-6 text-gray-900 dark:text-white text-sm focus:border-[#0d3542] dark:focus:border-[#58a6ff] outline-none transition-all" />
+                                            <label className="text-[10px] font-black uppercase tracking-[0.2em] text-gray-400 dark:text-[#8b949e]/50 ml-1">Email</label>
+                                            <input type="email" required value={formData.email} onChange={e => setFormData({...formData, email: e.target.value})} className="w-full bg-black/5 dark:bg-[#0d1117] border border-black/5 dark:border-[#30363d] rounded-xl py-3.5 px-6 text-gray-900 dark:text-[#c9d1d9] text-sm focus:border-[#0d3542] dark:focus:border-[#58a6ff] outline-none transition-all placeholder:text-gray-300 dark:placeholder-[white/10]" />
                                         </div>
                                     </div>
                                 </div>
 
                                 <div className="space-y-6">
-                                    <p className="text-[10px] font-black text-[#0d3542] dark:text-[#58a6ff] uppercase tracking-[0.3em] ml-1">Access Credentials</p>
+                                    <p className="text-[10px] font-black text-gray-500 uppercase tracking-[0.3em] ml-1">Change Password</p>
                                     <div className="space-y-6">
                                         <div className="space-y-2">
-                                            <label className="text-[10px] font-bold text-gray-400 dark:text-white/20 uppercase tracking-widest ml-1">New Password (Optional)</label>
+                                            <label className="text-[10px] font-bold text-gray-400 dark:text-[#8b949e]/50 uppercase tracking-widest ml-1">New Password</label>
                                             <div className="relative group">
-                                                <Lock className="absolute left-5 top-1/2 -translate-y-1/2 text-gray-400 dark:text-white/10 group-focus-within:text-[#0d3542] dark:group-focus-within:text-[#58a6ff] transition-colors" size={16} />
-                                                <input type="password" placeholder="Leave blank to keep current" value={formData.password} onChange={e => setFormData({...formData, password: e.target.value})} className="w-full bg-black/5 dark:bg-white/5 border border-black/5 dark:border-white/10 rounded-2xl py-4 pl-14 pr-6 text-gray-900 dark:text-white text-sm focus:border-[#0d3542] dark:focus:border-[#58a6ff] outline-none transition-all" />
+                                                <Lock className="absolute left-5 top-1/2 -translate-y-1/2 text-gray-400 dark:text-[#8b949e]/30 group-focus-within:text-[#0d3542] dark:group-focus-within:text-[#58a6ff] transition-colors" size={16} />
+                                                <input type="password" placeholder="Leave empty to keep current password" value={formData.password} onChange={e => setFormData({...formData, password: e.target.value})} className="w-full bg-black/5 dark:bg-[#0d1117] border border-black/5 dark:border-[#30363d] rounded-xl py-3.5 pl-14 pr-6 text-gray-900 dark:text-[#c9d1d9] text-sm focus:border-[#0d3542] dark:focus:border-[#58a6ff] outline-none transition-all placeholder:text-gray-400 dark:placeholder:text-[#8b949e]/30" />
                                             </div>
                                         </div>
                                         {formData.password && (
                                             <div className="space-y-2">
-                                                <label className="text-[10px] font-bold text-gray-400 dark:text-white/20 uppercase tracking-widest ml-1">Confirm New Password</label>
+                                                <label className="text-[10px] font-bold text-gray-400 dark:text-[#8b949e]/50 uppercase tracking-widest ml-1">Confirm New Password</label>
                                                 <div className="relative group">
-                                                    <Lock className="absolute left-5 top-1/2 -translate-y-1/2 text-gray-400 dark:text-white/10 group-focus-within:text-[#0d3542] dark:group-focus-within:text-[#58a6ff] transition-colors" size={16} />
-                                                    <input type="password" required={!!formData.password} value={formData.password_confirmation} onChange={e => setFormData({...formData, password_confirmation: e.target.value})} className="w-full bg-black/5 dark:bg-white/5 border border-black/5 dark:border-white/10 rounded-2xl py-4 pl-14 pr-6 text-gray-900 dark:text-white text-sm focus:border-[#0d3542] dark:focus:border-[#58a6ff] outline-none transition-all" />
+                                                    <Lock className="absolute left-5 top-1/2 -translate-y-1/2 text-gray-400 dark:text-[#8b949e]/30 group-focus-within:text-[#0d3542] dark:group-focus-within:text-[#58a6ff] transition-colors" size={16} />
+                                                    <input type="password" required={!!formData.password} value={formData.password_confirmation} onChange={e => setFormData({...formData, password_confirmation: e.target.value})} className="w-full bg-black/5 dark:bg-[#0d1117] border border-black/5 dark:border-[#30363d] rounded-xl py-3.5 pl-14 pr-6 text-gray-900 dark:text-[#c9d1d9] text-sm focus:border-[#0d3542] dark:focus:border-[#58a6ff] outline-none transition-all" />
                                                 </div>
                                             </div>
                                         )}
                                     </div>
                                 </div>
 
-                                <div className="pt-6 border-t border-black/5 dark:border-white/5 space-y-6">
+                                <div className="pt-6 border-t border-black/5 dark:border-[#30363d] space-y-6">
                                     <div className="space-y-2">
-                                        <label className="text-[10px] font-bold text-rose-500 uppercase tracking-widest ml-1">Verification Required</label>
+                                        <label className="text-[10px] font-bold text-rose-500 uppercase tracking-widest ml-1">Current Password</label>
                                         <div className="relative group">
                                             <Key className="absolute left-5 top-1/2 -translate-y-1/2 text-rose-500/30 group-focus-within:text-rose-500 transition-colors" size={16} />
-                                            <input type="password" required placeholder="Enter CURRENT password to save changes" value={formData.current_password} onChange={e => setFormData({...formData, current_password: e.target.value})} className="w-full bg-rose-500/[0.02] border border-rose-500/20 rounded-2xl py-4 pl-14 pr-6 text-gray-900 dark:text-white text-sm focus:border-rose-500 outline-none transition-all" />
+                                            <input type="password" required placeholder="Type your current password to save changes" value={formData.current_password} onChange={e => setFormData({...formData, current_password: e.target.value})} className="w-full bg-rose-500/5 dark:bg-[#0d1117] border border-rose-500/20 dark:border-rose-500/10 rounded-xl py-3.5 pl-14 pr-6 text-gray-900 dark:text-[#c9d1d9] text-sm focus:border-rose-500 outline-none transition-all placeholder:text-gray-400 dark:placeholder:text-[#8b949e]/30" />
                                         </div>
                                     </div>
 
                                     <button 
                                         type="submit" 
                                         disabled={saving}
-                                        className="w-full py-4 bg-black dark:bg-white text-white dark:text-black rounded-2xl text-[11px] font-black uppercase tracking-widest hover:bg-[#0d3542] dark:hover:bg-[#58a6ff] hover:text-white dark:hover:text-black transition-all flex items-center justify-center gap-2 group disabled:opacity-50 shadow-none"
+                                        className="w-full py-4 bg-[#0d3542] dark:bg-[#58a6ff] text-white dark:text-black rounded-xl text-[11px] font-black uppercase tracking-[0.2em] hover:opacity-90 transition-all flex items-center justify-center gap-2 group disabled:opacity-50 shadow-none border-none"
                                     >
                                         {saving ? <LumaSpin size="sm" /> : <Save size={16} />}
-                                        {saving ? 'Processing changes...' : 'Save Profile Changes'}
+                                        {saving ? 'Saving...' : 'Save Profile'}
                                     </button>
                                 </div>
                             </div>

@@ -1,4 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Calendar as CalendarIcon, ChevronDown, X } from 'lucide-react';
 import { Calendar } from './calendar';
@@ -6,7 +7,7 @@ import { cn } from '@/lib/utils';
 
 /**
  * DatePicker - A premium, Cyber-Bespoke date selection component.
- * Replaces standard HTML date inputs with a high-end floating calendar.
+ * Features: Centered 'Pop-out' modal with backdrop blur for focused selection.
  */
 export default function DatePicker({ 
     value, 
@@ -23,16 +24,15 @@ export default function DatePicker({
     const [isOpen, setIsOpen] = useState(false);
     const containerRef = useRef(null);
 
-    // Close on click outside
+    // Lock body scroll when open
     useEffect(() => {
-        const handleClickOutside = (event) => {
-            if (containerRef.current && !containerRef.current.contains(event.target)) {
-                setIsOpen(false);
-            }
-        };
-        document.addEventListener('mousedown', handleClickOutside);
-        return () => document.removeEventListener('mousedown', handleClickOutside);
-    }, []);
+        if (isOpen) {
+            document.body.style.overflow = 'hidden';
+        } else {
+            document.body.style.overflow = '';
+        }
+        return () => { document.body.style.overflow = ''; };
+    }, [isOpen]);
 
     // Format display date: "April 6, 2026"
     const displayDate = value ? new Date(value).toLocaleDateString('en-US', {
@@ -72,7 +72,7 @@ export default function DatePicker({
                 
                 <button
                     type="button"
-                    onClick={() => setIsOpen(!isOpen)}
+                    onClick={() => setIsOpen(true)}
                     className={cn(
                         "w-full bg-black/5 dark:bg-white/5 border rounded-2xl py-3.5 pl-10 pr-10 text-left transition-all duration-300",
                         "border-black/10 dark:border-white/10 group-hover:border-black/20 dark:group-hover:border-white/20",
@@ -100,40 +100,67 @@ export default function DatePicker({
 
             {error && <p className="text-[9px] text-red-500 font-bold uppercase tracking-widest ml-1">{error}</p>}
 
-            <AnimatePresence>
-                {isOpen && (
-                    <motion.div
-                        initial={{ opacity: 0, y: 10, scale: 0.95 }}
-                        animate={{ opacity: 1, y: 0, scale: 1 }}
-                        exit={{ opacity: 0, y: 10, scale: 0.95 }}
-                        transition={{ type: 'spring', damping: 20, stiffness: 300 }}
-                        className={cn(
-                            "absolute top-full left-0 mt-3 z-[100] origin-top",
-                            "bg-white/95 dark:bg-[#0d1117]/95 backdrop-blur-xl rounded-[2.5rem] border border-black/10 dark:border-[#f5a81c]/10 shadow-[0_20px_50px_rgba(0,0,0,0.2)] p-6 min-w-[320px] overflow-hidden"
-                        )}
-                    >
+            {/* Centered 'Pop-out' Portal */}
+            {typeof document !== 'undefined' && createPortal(
+                <AnimatePresence>
+                    {isOpen && (
+                        <div className="fixed inset-0 z-[200000] flex items-center justify-center p-4">
+                            {/* Backdrop */}
+                            <motion.div 
+                                initial={{ opacity: 0 }}
+                                animate={{ opacity: 1 }}
+                                exit={{ opacity: 0 }}
+                                onClick={() => setIsOpen(false)}
+                                className="absolute inset-0 bg-black/40 backdrop-blur-md cursor-pointer"
+                            />
 
-                        <Calendar
-                            mode="single"
-                            selected={value ? new Date(value) : undefined}
-                            onSelect={handleSelect}
-                            disabled={(date) => minDate ? date < new Date(minDate) : false}
-                            initialFocus
-                        />
-
-                        {/* Demo Footer Style */}
-                        {value && (
-                            <div className="mt-4 pt-4 border-t border-black/5 dark:border-white/5 flex justify-center">
-                                <div className="px-5 py-2 bg-[#0d3542]/5 dark:bg-[#f5a81c]/5 rounded-full border border-[#0d3542]/10 dark:border-[#f5a81c]/10">
-                                    <span className="text-[9px] font-black uppercase tracking-widest text-[#0d3542] dark:text-[#f5a81c]">
-                                        Selected: {new Date(value).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}
-                                    </span>
+                            {/* Calendar Pop-out */}
+                            <motion.div
+                                initial={{ opacity: 0, scale: 0.9, y: 10 }}
+                                animate={{ opacity: 1, scale: 1, y: 0 }}
+                                exit={{ opacity: 0, scale: 0.9, y: 10 }}
+                                transition={{ type: 'spring', damping: 25, stiffness: 400 }}
+                                className="relative bg-white/95 dark:bg-[#0d1117]/95 backdrop-blur-2xl rounded-[3rem] border border-black/10 dark:border-white/10 shadow-[0_30px_100px_rgba(0,0,0,0.4)] p-8 overflow-hidden w-full max-w-sm"
+                            >
+                                <div className="flex justify-between items-center mb-6">
+                                    <span className="text-[10px] font-black uppercase tracking-[0.3em] text-gray-400">Select Date</span>
+                                    <button 
+                                        onClick={() => setIsOpen(false)}
+                                        className="p-2.5 bg-black/5 dark:bg-white/5 rounded-full text-gray-400 hover:text-gray-900 dark:hover:text-white transition-all shadow-sm"
+                                    >
+                                        <X size={16} />
+                                    </button>
                                 </div>
-                            </div>
-                        )}
-                    </motion.div>
-                )}
-            </AnimatePresence>
+
+                                <Calendar
+                                    mode="single"
+                                    selected={value ? new Date(value) : undefined}
+                                    onSelect={handleSelect}
+                                    disabled={(date) => minDate ? date < new Date(minDate) : false}
+                                    initialFocus
+                                />
+
+                                {value && (
+                                    <div className="mt-8 pt-6 border-t border-black/5 dark:border-white/5 flex flex-col items-center gap-4">
+                                        <div className="px-6 py-2.5 bg-[#0d3542]/5 dark:bg-[#f5a81c]/5 rounded-full border border-[#0d3542]/10 dark:border-[#f5a81c]/10">
+                                            <span className="text-[10px] font-black uppercase tracking-widest text-[#0d3542] dark:text-[#f5a81c]">
+                                                {new Date(value).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}
+                                            </span>
+                                        </div>
+                                        <button
+                                            onClick={() => setIsOpen(false)}
+                                            className="w-full h-12 bg-[#0d3542] dark:bg-[#f5a81c] text-white dark:text-black rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all hover:scale-[1.02] active:scale-95 shadow-lg shadow-[#0d3542]/20 dark:shadow-[#f5a81c]/20"
+                                        >
+                                            Confirm Selection
+                                        </button>
+                                    </div>
+                                )}
+                            </motion.div>
+                        </div>
+                    )}
+                </AnimatePresence>,
+                document.body
+            )}
         </div>
     );
 }
