@@ -142,7 +142,7 @@ const BulkActionDialog = ({ isOpen, onClose, selectedCount, products, onApply })
 
                             {action === 'category' && (
                                 <div className="space-y-3">
-                                    <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-2">New Category Name</label>
+                                    <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-2">Product Group</label>
                                     <input 
                                         type="text"
                                         value={config.category}

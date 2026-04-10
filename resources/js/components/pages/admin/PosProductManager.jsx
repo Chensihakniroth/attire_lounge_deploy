@@ -1375,18 +1375,18 @@ const ProductsPage = () => {
              {/* --- Floating Command Bar --- */}
             <AnimatePresence>
                 {selectedIds.size > 0 && view === 'list' && (
-                    <motion.div initial={{ y: 100, opacity: 0 }} animate={{ y: 0, opacity: 1 }} exit={{ y: 100, opacity: 0 }} className="fixed bottom-10 left-1/2 ml-30 -translate-x-1/2 z-80">
-                        <div className="bg-[#fdfdfc] dark:bg-[#111] rounded-2xl px-8 h-20 flex items-center gap-10 shadow-2xl border border-[#0d3542]/30 dark:border-[#58a6ff]/30 ring-1 ring-inset ring-white/10 dark:ring-black/10 transition-all duration-300">
-                            <div className="flex items-center gap-4 pr-10 border-r border-black/25 dark:border-white/10">
-                                <div className="bg-[#0d3542] dark:bg-[#58a6ff] text-white dark:text-black text-[11px] font-black h-8 w-8 rounded-lg flex items-center justify-center shadow-lg ring-1 ring-white/20">{selectedIds.size}</div>
-                                <span className="text-[#0d3542] dark:text-[#58a6ff] text-[11px] font-black uppercase tracking-[0.3em] whitespace-nowrap">Selected Items</span>
+                    <motion.div initial={{ y: 50, opacity: 0 }} animate={{ y: 0, opacity: 1 }} exit={{ y: 50, opacity: 0 }} className="fixed bottom-6 left-1/2 -translate-x-1/2 z-80">
+                        <div className="bg-[#fdfdfc] dark:bg-[#111] rounded-xl px-6 h-14 flex items-center gap-6 shadow-xl border border-[#0d3542]/20 dark:border-[#58a6ff]/20 ring-1 ring-inset ring-white/10 dark:ring-black/10 transition-all duration-300">
+                            <div className="flex items-center gap-3 pr-6 border-r border-black/10 dark:border-white/10">
+                                <div className="bg-[#0d3542] dark:bg-[#58a6ff] text-white dark:text-black text-[10px] font-black h-6 w-6 rounded-md flex items-center justify-center shadow-lg">{selectedIds.size}</div>
+                                <span className="text-[#0d3542] dark:text-[#58a6ff] text-[10px] font-black uppercase tracking-[0.2em] whitespace-nowrap">Selected</span>
                             </div>
-                            <div className="flex items-center gap-10">
+                            <div className="flex items-center gap-6">
                                 <button onClick={() => setIsBulkDialogOpen(true)} className="flex items-center gap-2 text-gray-500 dark:text-white/40 hover:text-[#0d3542] dark:hover:text-[#58a6ff] transition-colors group">
-                                    <Command size={14} className="group-hover:scale-110 transition-transform" />
-                                    <span className="text-[10px] font-black uppercase tracking-[0.2em]">Bulk Edit</span>
+                                    <Command size={12} className="group-hover:scale-110 transition-transform" />
+                                    <span className="text-[9px] font-black uppercase tracking-[0.2em]">Bulk Edit</span>
                                 </button>
-                                <button onClick={() => setSelectedIds(new Set())} className="text-gray-400 dark:text-white/20 hover:text-[#0d3542] dark:hover:text-[#58a6ff] text-[10px] font-black uppercase tracking-[0.2em]">Clear All</button>
+                                <button onClick={() => setSelectedIds(new Set())} className="text-gray-400 dark:text-white/20 hover:text-[#0d3542] dark:hover:text-[#58a6ff] text-[9px] font-black uppercase tracking-[0.2em]">Clear</button>
                             </div>
                         </div>
                     </motion.div>
