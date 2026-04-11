@@ -55,14 +55,6 @@
                 z-index: 9999;
                 transition: opacity 0.4s ease-out;
             }
-            .loader-logo {
-                width: 70px;
-                height: 70px;
-                margin-bottom: 30px;
-                opacity: 0.9;
-                animation: pulse-logo 2.5s ease-in-out infinite;
-                filter: drop-shadow(0 0 20px rgba(212, 175, 55, 0.1));
-            }
             .loader-line-container {
                 width: 120px;
                 height: 2px;
@@ -77,12 +69,7 @@
                 width: 100%;
                 height: 100%;
                 background: #d4af37;
-                box-shadow: 0 0 10px rgba(212, 175, 55, 0.5);
                 animation: loading-bar 1.8s cubic-bezier(0.65, 0, 0.35, 1) infinite;
-            }
-            @keyframes pulse-logo {
-                0%, 100% { opacity: 0.8; transform: scale(1); }
-                50% { opacity: 0.4; transform: scale(0.96); }
             }
             @keyframes loading-bar {
                 0% { left: -100%; }
@@ -98,7 +85,6 @@
     <body class="bg-gray-50 dark:bg-[#050505]">
         <div id="admin-app">
             <div class="initial-loader">
-                <img src="https://bucket-production-4ca0.up.railway.app/product-assets/uploads/asset/ALO.png" class="loader-logo" alt="Logo">
                 <div class="loader-line-container">
                     <div class="loader-line-progress"></div>
                 </div>

@@ -217,7 +217,6 @@ const ProductManager = () => {
 
     const handleDeleteProduct = useCallback(async (id) => {
         if (window.confirm('Are you sure you want to permanently delete this product? This will also remove all associated images from MinIO.')) {
-            console.log(`Initiating permanent deletion for Product ID: ${id}`);
             
             try {
                 const token = localStorage.getItem('admin_token') || sessionStorage.getItem('admin_token');
@@ -227,7 +226,6 @@ const ProductManager = () => {
                 
                 if (response.data.success) {
                     queryClient.invalidateQueries(['admin-products']);
-                    console.log("Deletion Successful!");
                 } else {
                     throw new Error(response.data.message || 'Unknown error');
                 }

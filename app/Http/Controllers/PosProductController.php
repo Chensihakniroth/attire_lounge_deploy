@@ -213,6 +213,53 @@ class PosProductController extends Controller
      */
     public function bulkUpdate(Request $request): JsonResponse
     {
+        // Support full product updates array format
+        if ($request->has('products')) {
+            $validated = $request->validate([
+                'products' => 'required|array',
+                'products.*.id' => 'required|exists:pos_products,id',
+                'products.*.sku' => 'nullable|string',
+                'products.*.name' => 'nullable|string',
+                'products.*.price' => 'nullable|numeric|min:0',
+                'products.*.stock_qty' => 'nullable|integer|min:0',
+                'products.*.category' => 'nullable|string',
+                'products.*.variant' => 'nullable|string',
+                'products.*.min_stock' => 'nullable|integer|min:0',
+                'products.*.max_stock' => 'nullable|integer|min:0',
+                'products.*.status' => 'nullable|string|in:available,unavailable,discontinued',
+                'products.*.barcode' => 'nullable|string',
+            ]);
+
+            $count = 0;
+            foreach ($validated['products'] as $productData) {
+                $product = PosProduct::find($productData['id']);
+                if ($product) {
+                    $updates = array_filter([
+                        'sku' => $productData['sku'] ?? null,
+                        'name' => $productData['name'] ?? null,
+                        'price' => isset($productData['price']) ? $productData['price'] : null,
+                        'stock_qty' => isset($productData['stock_qty']) ? $productData['stock_qty'] : null,
+                        'category' => $productData['category'] ?? null,
+                        'variant' => $productData['variant'] ?? null,
+                        'min_stock' => isset($productData['min_stock']) ? $productData['min_stock'] : null,
+                        'max_stock' => isset($productData['max_stock']) ? $productData['max_stock'] : null,
+                        'status' => $productData['status'] ?? null,
+                        'barcode' => $productData['barcode'] ?? null,
+                    ], function($value) {
+                        return $value !== null;
+                    });
+
+                    if (!empty($updates)) {
+                        $product->update($updates);
+                        $count++;
+                    }
+                }
+            }
+
+            return response()->json(['message' => 'Bulk update completed successfully', 'count' => $count]);
+        }
+
+        // Legacy format for simple bulk operations
         $validated = $request->validate([
             'product_ids' => 'required|array',
             'product_ids.*' => 'exists:pos_products,id',
@@ -237,7 +284,6 @@ class PosProductController extends Controller
                 } else {
                     $updates['price'] = $product->price + $validated['price_change_value'];
                 }
-                // Ensure price doesn't go negative
                 $updates['price'] = max(0, $updates['price']);
             }
 

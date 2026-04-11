@@ -5,19 +5,17 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { 
     X, Plus, Edit, Trash2, 
     Hash, DollarSign, Layers, Check, 
-    Filter, ChevronDown, Archive, ChevronLeft, ChevronRight, Search, Package,
-    Download, Upload, Settings, Tag, Smartphone, Scissors,
-    Menu, ShoppingBag, ShoppingCart, Command, AlertCircle,
+    ChevronDown, Archive, ChevronLeft, ChevronRight, Search, Package,
+    Download, Upload, Tag, 
+    Command, AlertCircle,
     ArrowUp, ArrowDown, Keyboard, Save, Box, Eye, FolderPlus
 } from 'lucide-react';
 import { LumaSpin } from '@/components/ui/luma-spin';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import BulkActionDialog from './pos/BulkActionDialog';
-import ModernModal from '../../common/ModernModal';
 import { formatPrice } from '@/helpers/format';
 import { useAdmin } from './AdminContext';
-import MorphingPageDots from '@/components/ui/morphing-page-dots';
 
 /* ─── Cyber-Bespoke Form Components ────────────────────────────────────── */
 const Section = ({ title, subtitle, icon: Icon, children, accent = false }) => (
@@ -51,14 +49,12 @@ const inputBase = "w-full bg-black/5 dark:bg-[#0d1117] border border-black/5 dar
 
 
 const SidebarSection = ({ title, icon: Icon, children }) => (
-    <div className="mb-0 border-b-2 border-black/15 dark:border-[#30363d] transition-all last:border-b-0">
-        <div className="bg-black/2 dark:bg-[#161b22] px-8 py-5 flex items-center gap-3">
-            {Icon && <Icon size={14} className="text-[#0d3542] dark:text-[#58a6ff]" />}
-            <h3 className="text-[12px] font-black uppercase tracking-[0.3em] text-gray-900 dark:text-[#c9d1d9] leading-none">
-                {title}
-            </h3>
+    <div className="border-b border-black/5 dark:border-[#30363d]/50">
+        <div className="px-5 py-3 flex items-center gap-2.5">
+            {Icon && <Icon size={12} className="text-[#0d3542] dark:text-[#58a6ff]" />}
+            <h3 className="text-[10px] font-black text-gray-900 dark:text-[#c9d1d9] uppercase tracking-[0.2em]">{title}</h3>
         </div>
-        <div className="px-8 py-6 bg-[#fdfdfc] dark:bg-[#0d1117]">
+        <div className="px-5 pb-4">
             {children}
         </div>
     </div>
@@ -66,6 +62,7 @@ const SidebarSection = ({ title, icon: Icon, children }) => (
 
 const BespokeSelect = ({ value, options, onChange, onAction, placeholder = "Select...", className = "", direction = "down" }) => {
     const [isOpen, setIsOpen] = useState(false);
+    const [calculatedDirection, setCalculatedDirection] = useState(direction);
     const containerRef = useRef(null);
 
     useEffect(() => {
@@ -77,6 +74,20 @@ const BespokeSelect = ({ value, options, onChange, onAction, placeholder = "Sele
         document.addEventListener('mousedown', handleClickOutside);
         return () => document.removeEventListener('mousedown', handleClickOutside);
     }, []);
+
+    // Dynamic direction detection
+    useEffect(() => {
+        if (isOpen && containerRef.current) {
+            const rect = containerRef.current.getBoundingClientRect();
+            const spaceBelow = window.innerHeight - rect.bottom;
+            // If space below is less than 300px, open upwards
+            if (spaceBelow < 300) {
+                setCalculatedDirection("up");
+            } else {
+                setCalculatedDirection("down");
+            }
+        }
+    }, [isOpen]);
 
     const handleOptionClick = (val, isActionItem) => {
         if (isActionItem && onAction) {
@@ -92,21 +103,21 @@ const BespokeSelect = ({ value, options, onChange, onAction, placeholder = "Sele
             <button
                 type="button"
                 onClick={() => setIsOpen(!isOpen)}
-                className="w-full bg-black/5 dark:bg-white/5 p-5 text-[13px] font-black outline-none border border-black/15 dark:border-white/10 focus:border-[#0d3542] dark:focus:border-[#58a6ff] ring-inset focus:ring-1 focus:ring-[#0d3542] dark:focus:ring-[#58a6ff] transition-all uppercase text-gray-900 dark:text-white flex items-center justify-between rounded-2xl group"
+                className="w-full bg-black/5 dark:bg-white/5 p-4 text-[11px] font-black outline-none border border-black/15 dark:border-white/10 focus:border-[#0d3542] dark:focus:border-[#58a6ff] transition-all uppercase text-gray-900 dark:text-white flex items-center justify-between rounded-xl group"
             >
-                <span className={!value ? 'text-gray-400 dark:text-white/10' : ''}>
+                <span className={!value ? 'text-gray-400 dark:text-white/10 truncate' : 'truncate'}>
                     {value || placeholder}
                 </span>
-                <ChevronDown size={16} className={`text-[#0d3542] dark:text-[#58a6ff] transition-transform duration-300 ${isOpen ? 'rotate-180' : ''}`} />
+                <ChevronDown size={14} className={`text-[#0d3542] dark:text-[#58a6ff] shrink-0 transition-transform duration-300 ${isOpen ? 'rotate-180' : ''}`} />
             </button>
             <AnimatePresence>
                 {isOpen && (
                     <motion.div
-                        initial={{ opacity: 0, y: direction === "up" ? 10 : -10, scale: 0.95 }}
+                        initial={{ opacity: 0, y: calculatedDirection === "up" ? 10 : -10, scale: 0.95 }}
                         animate={{ opacity: 1, y: 0, scale: 1 }}
-                        exit={{ opacity: 0, y: direction === "up" ? 10 : -10, scale: 0.95 }}
+                        exit={{ opacity: 0, y: calculatedDirection === "up" ? 10 : -10, scale: 0.95 }}
                         transition={{ duration: 0.2, ease: "easeOut" }}
-                        className={`absolute z-100 w-full mt-2 bg-white dark:bg-[#161b22] border-2 border-black/15 dark:border-[#30363d] shadow-2xl rounded-2xl overflow-hidden py-2 ${direction === "up" ? "bottom-full mb-2" : ""}`}
+                        className={`absolute z-100 min-w-full w-max max-w-[300px] mt-2 bg-white dark:bg-[#161b22] border-2 border-black/15 dark:border-[#30363d] shadow-2xl rounded-2xl overflow-hidden py-2 ${calculatedDirection === "up" ? "bottom-full mb-2" : ""}`}
                     >
                         <div className="max-h-75 overflow-y-auto attire-scrollbar">
                             {options.map((option, i) => {
@@ -257,7 +268,33 @@ const ProductsPage = () => {
     const queryClient = useQueryClient();
     const { performanceMode } = useAdmin();
     const [view, setView] = useState('list'); // 'list' | 'form'
-    const [activeTab, setActiveTab] = useState('general');
+
+    // Browser History Integration for Back Button
+    useEffect(() => {
+        const handlePopState = (event) => {
+            if (event.state && event.state.view) {
+                setView(event.state.view);
+            } else {
+                setView('list');
+            }
+        };
+
+        window.addEventListener('popstate', handlePopState);
+        // Push initial state
+        if (!window.history.state || !window.history.state.view) {
+            window.history.replaceState({ view: 'list' }, '');
+        }
+
+        return () => window.removeEventListener('popstate', handlePopState);
+    }, []);
+
+    const navigateToView = (newView) => {
+        setView(newView);
+        if (window.history.state?.view !== newView) {
+            window.history.pushState({ view: newView }, '');
+        }
+    };
+
     const [selectedIds, setSelectedIds] = useState(new Set());
     const [focusedId, setFocusedId] = useState(null);
     const [isBulkDialogOpen, setIsBulkDialogOpen] = useState(false);
@@ -273,7 +310,8 @@ const ProductsPage = () => {
         code: '',
         nameBarcode: '',
         attribute: '',
-        group: 'ALL GROUPS'
+        group: 'ALL GROUPS',
+        stockStatus: 'all' // 'all' | 'in' | 'out' | 'low'
     });
     
     // Form State
@@ -306,10 +344,9 @@ const ProductsPage = () => {
         return () => clearTimeout(timer);
     }, [filters]);
 
-    const searchRef = useRef(null);
 
     // --- Data Fetching ---
-    const { data: productsData, isLoading, isFetching, isError, error } = useQuery({
+    const { data: productsData, isLoading, isError, error } = useQuery({
         queryKey: ['admin-pos-products', debouncedFilters.nameBarcode, debouncedFilters.code, debouncedFilters.attribute, debouncedFilters.group, currentPage],
         keepPreviousData: true,
         retry: 1,
@@ -339,7 +376,20 @@ const ProductsPage = () => {
         };
     }, [productsData]);
 
-    const products = useMemo(() => productsData?.data || [], [productsData]);
+    const products = useMemo(() => {
+        let list = productsData?.data || [];
+        
+        // Apply Stock Status Filter
+        if (filters.stockStatus === 'in') {
+            list = list.filter(p => (p.stock_qty || 0) > 0);
+        } else if (filters.stockStatus === 'out') {
+            list = list.filter(p => (p.stock_qty || 0) <= 0);
+        } else if (filters.stockStatus === 'low') {
+            list = list.filter(p => (p.stock_qty || 0) > 0 && (p.stock_qty || 0) <= (p.min_stock || 5));
+        }
+        
+        return list;
+    }, [productsData, filters.stockStatus]);
 
     const groupedProducts = useMemo(() => {
         const groups = {};
@@ -425,7 +475,10 @@ const ProductsPage = () => {
             setView('list');
             setIsSaving(false);
         },
-        onError: () => setIsSaving(false)
+        onError: (err) => {
+            setIsSaving(false);
+            alert('Save failed: ' + (err.response?.data?.message || err.message));
+        }
     });
 
     const updateMutation = useMutation({
@@ -582,6 +635,114 @@ const ProductsPage = () => {
         }
     };
 
+    const handleBulkEditClick = () => {
+        if (selectedIds.size === 0) return;
+        
+        const selectedProds = products.filter(p => selectedIds.has(p.id));
+        if (selectedProds.length === 0) return;
+        
+        const firstProductName = (selectedProds[0].name || '').trim().toUpperCase();
+        const allSameGroup = selectedProds.every(p => (p.name || '').trim().toUpperCase() === firstProductName);
+        
+        if (allSameGroup && selectedProds.length > 1) {
+            // Use the existing Add Product form with pre-loaded data
+            setEditingProduct(null);
+            setFormData({
+                sku: selectedProds[0].sku?.substring(0, 5) || '',
+                name: firstProductName,
+                price: '',
+                stock_qty: '',
+                category: selectedProds[0].category || '',
+                is_service: false,
+                barcode: '',
+                status: 'available',
+                min_stock: '0',
+                max_stock: '99999',
+                watch_threshold: false,
+                variant: '',
+                attributes: []
+            });
+            
+            // Extract attribute dimensions from selected products
+            const primaryAttrs = new Set();
+            const secondaryAttrs = new Set();
+            const editData = {};
+            
+            selectedProds.forEach(p => {
+                const variant = (p.variant || '').trim();
+                let primary = '';
+                let secondary = '';
+                
+                // Split by spaces and clean up each part
+                const parts = variant.split(/\s+/)
+                    .map(v => v.replace(/^-/, '').trim().toUpperCase()) // Strip leading dash and clean
+                    .filter(Boolean);
+                
+                if (parts.length >= 2) {
+                    primary = parts[0];
+                    secondary = parts[1];
+                } else if (parts.length === 1) {
+                    primary = parts[0];
+                }
+                
+                if (primary) primaryAttrs.add(primary);
+                if (secondary) secondaryAttrs.add(secondary);
+                
+                // Build key for matrix data
+                if (primary && secondary) {
+                    editData[`${primary}-${secondary}`] = parseInt(p.stock_qty || p.stock || 0);
+                } else if (primary) {
+                    // Single attribute — key format: "VALUE-QTY" (no secondary column)
+                    editData[`${primary}-QTY`] = parseInt(p.stock_qty || p.stock || 0);
+                }
+            });
+            
+            // Determine attribute labels
+            let primaryKey = 'ATTRIBUTE';
+            let secondaryKey = '';
+            const primaryVals = Array.from(primaryAttrs);
+            const secondaryVals = Array.from(secondaryAttrs);
+            
+            const sizeOrder = ['XXS', 'XS', 'S', 'M', 'L', 'XL', 'XXL', 'XXXL', '3XL', '4XL', '5XL'];
+            const looksLikeSize = (vals) => vals.some(v => sizeOrder.includes(v) || !isNaN(parseInt(v)));
+            
+            if (secondaryVals.length > 0) {
+                // Two dimensions — guess labels
+                primaryKey = looksLikeSize(primaryVals) ? 'SIZE' : 'COLOR';
+                secondaryKey = looksLikeSize(secondaryVals) ? 'SIZE' : 'COLOR';
+                if (primaryKey === secondaryKey) secondaryKey = 'VARIANT';
+            } else {
+                // Single dimension
+                primaryKey = looksLikeSize(primaryVals) ? 'SIZE' : 'ATTRIBUTE';
+                secondaryKey = '';
+            }
+            
+            const sortAttrValues = (vals) => vals.sort((a, b) => {
+                const aIdx = sizeOrder.indexOf(a);
+                const bIdx = sizeOrder.indexOf(b);
+                if (aIdx !== -1 && bIdx !== -1) return aIdx - bIdx;
+                if (aIdx !== -1) return -1;
+                if (bIdx !== -1) return 1;
+                const aNum = parseInt(a);
+                const bNum = parseInt(b);
+                if (!isNaN(aNum) && !isNaN(bNum)) return aNum - bNum;
+                return a.localeCompare(b);
+            });
+            
+            setMatrixConfig({
+                primaryKey: primaryKey,
+                primaryValues: sortAttrValues(primaryVals).join(', '),
+                secondaryKey: secondaryKey || 'SIZE',
+                secondaryValues: secondaryVals.length > 0 ? sortAttrValues(secondaryVals).join(', ') : ''
+            });
+            setMatrixData(editData);
+            
+            navigateToView('form');
+        } else {
+            setIsBulkDialogOpen(true);
+        }
+    };
+
     const handleEditClick = (product) => {
         setEditingProduct(product);
         setFormData({
@@ -599,8 +760,7 @@ const ProductsPage = () => {
             variant: product.variant || '',
             attributes: product.attributes || []
         });
-        setView('form');
-        setActiveTab('general');
+        navigateToView('form');
     };
 
     const handleAddClick = () => {
@@ -617,8 +777,7 @@ const ProductsPage = () => {
             secondaryValues: ''
         });
         setMatrixData({});
-        setView('form');
-        setActiveTab('general');
+        navigateToView('form');
     };
 
     const fileInputRef = useRef(null);
@@ -653,9 +812,6 @@ const ProductsPage = () => {
                 headers: { 'Content-Type': 'multipart/form-data' }
             });
             alert(`Import completed! ${res.data.imported} products processed.`);
-            if (res.data.errors && res.data.errors.length > 0) {
-                console.warn('Import errors:', res.data.errors);
-            }
             queryClient.invalidateQueries(['admin-pos-products']);
         } catch (err) {
             console.error('Import failed:', err);
@@ -689,40 +845,58 @@ const ProductsPage = () => {
             secondaryValues: ''
         });
         setMatrixData({});
-        setView('form');
-        setActiveTab('general');
+        navigateToView('form');
     };
 
     const handleSubmit = (e) => {
         if (e) e.preventDefault();
         setIsSaving(true);
 
-        if (activeTab === 'bulkmatrix') {
-            const pVals = (matrixConfig.primaryValues || '').split(',').map(v => v.trim()).filter(Boolean);
-            const sVals = (matrixConfig.secondaryValues || '').split(',').map(v => v.trim()).filter(Boolean);
-            
+        // --- Check if Matrix Grid has data (works regardless of activeTab) ---
+        const pVals = (matrixConfig.primaryValues || '').split(',').map(v => v.trim()).filter(Boolean);
+        const sVals = (matrixConfig.secondaryValues || '').split(',').map(v => v.trim()).filter(Boolean);
+        const hasMatrixEntries = Object.values(matrixData).some(v => parseInt(v) > 0);
+
+        if (hasMatrixEntries && pVals.length > 0 && !editingProduct) {
+            // --- Matrix Grid submission (1D or 2D) ---
             const products = [];
-            pVals.forEach(p => {
-                sVals.forEach(s => {
-                    const qty = parseInt(matrixData[`${p}-${s}`] || 0);
+            const baseSku = formData.sku || formData.name.substring(0, 5).replace(/\s+/g, '').toUpperCase();
+
+            if (sVals.length > 0) {
+                // 2D grid: primary × secondary
+                pVals.forEach(p => {
+                    sVals.forEach(s => {
+                        const qty = parseInt(matrixData[`${p}-${s}`] || 0);
+                        if (qty > 0) {
+                            products.push({
+                                sku: `${baseSku}-${p.toUpperCase()}-${s.toUpperCase()}`,
+                                name: formData.name,
+                                price: formData.price,
+                                stock_qty: qty,
+                                category: formData.category,
+                                is_service: formData.is_service || false,
+                                variant: `-${p.toUpperCase()} -${s.toUpperCase()}`,
+                            });
+                        }
+                    });
+                });
+            } else {
+                // 1D grid: primary only (single attribute products)
+                pVals.forEach(p => {
+                    const qty = parseInt(matrixData[`${p}-QTY`] || 0);
                     if (qty > 0) {
-                        const variant = `-${p.toUpperCase()} -${s.toUpperCase()}`;
-                        // Generate SKU: BASE-ATTR1-ATTR2
-                        const baseSku = formData.sku || formData.name.substring(0, 5).replace(/\s+/g, '').toUpperCase();
-                        const finalSku = `${baseSku}-${p.toUpperCase()}-${s.toUpperCase()}`;
-                        
                         products.push({
-                            sku: finalSku,
+                            sku: `${baseSku}-${p.toUpperCase()}`,
                             name: formData.name,
                             price: formData.price,
                             stock_qty: qty,
                             category: formData.category,
                             is_service: formData.is_service || false,
-                            variant: variant,
+                            variant: `-${p.toUpperCase()}`,
                         });
                     }
                 });
-            });
+            }
 
             if (products.length === 0) {
                 alert('Please enter quantities in the matrix.');
@@ -734,7 +908,7 @@ const ProductsPage = () => {
             return;
         }
 
-        // --- Name Builder ---
+        // --- Single product submission ---
         // Compiles attributes into a standardized string: "-VAL1 -VAL2 ..."
         const attributeString = (formData.attributes || [])
             .filter(attr => attr.value?.trim())
@@ -756,44 +930,46 @@ const ProductsPage = () => {
 
     // (isLoading removed for full-page, moved inside table)
 
-    const MatrixGrid = () => {
+    // --- Matrix Grid (render function, NOT a component — prevents focus loss) ---
+    const matrixPresets = {
+        sizes: 'S, M, L, XL, XXL',
+        numbers: '28, 30, 32, 34, 36, 38',
+        colors: 'BLACK, WHITE, NAVY, GREY, BEIGE'
+    };
+
+    const applyMatrixPreset = (key, val) => {
+        setMatrixConfig(prev => ({ ...prev, [key]: val }));
+    };
+
+    const updateMatrixQty = (p, s, qty) => {
+        setMatrixData(prev => ({ ...prev, [`${p}-${s}`]: qty }));
+    };
+
+    const handleGridKeyDown = (e, rIdx, cIdx) => {
+        let nextR = rIdx;
+        let nextC = cIdx;
+
+        if (e.key === 'ArrowDown') nextR++;
+        else if (e.key === 'ArrowUp') nextR--;
+        else if (e.key === 'ArrowRight') nextC++;
+        else if (e.key === 'ArrowLeft') nextC--;
+        else return;
+
+        const nextEl = document.querySelector(`input[data-pos="${nextR}-${nextC}"]`);
+        if (nextEl) {
+            e.preventDefault();
+            nextEl.focus();
+            nextEl.select();
+        }
+    };
+
+    const renderMatrixGrid = () => {
         const pVals = (matrixConfig.primaryValues || '').split(',').map(v => v.trim()).filter(Boolean);
         const sVals = (matrixConfig.secondaryValues || '').split(',').map(v => v.trim()).filter(Boolean);
-
-        const updateQty = (p, s, qty) => {
-            setMatrixData(prev => ({ ...prev, [`${p}-${s}`]: qty }));
-        };
+        const is1D = pVals.length > 0 && sVals.length === 0;
+        const is2D = pVals.length > 0 && sVals.length > 0;
 
         const totalToCreate = Object.values(matrixData).filter(v => parseInt(v) > 0).length;
-
-        const presets = {
-            sizes: 'S, M, L, XL, XXL',
-            numbers: '28, 30, 32, 34, 36, 38',
-            colors: 'BLACK, WHITE, NAVY, GREY, BEIGE'
-        };
-
-        const applyPreset = (key, val) => {
-            setMatrixConfig(prev => ({ ...prev, [key]: val }));
-        };
-
-        // Handle Arrow Key Navigation in Grid
-        const handleGridKeyDown = (e, rIdx, cIdx) => {
-            let nextR = rIdx;
-            let nextC = cIdx;
-
-            if (e.key === 'ArrowDown') nextR++;
-            else if (e.key === 'ArrowUp') nextR--;
-            else if (e.key === 'ArrowRight') nextC++;
-            else if (e.key === 'ArrowLeft') nextC--;
-            else return;
-
-            const nextEl = document.querySelector(`input[data-pos="${nextR}-${nextC}"]`);
-            if (nextEl) {
-                e.preventDefault();
-                nextEl.focus();
-                nextEl.select();
-            }
-        };
 
         return (
             <div className="space-y-16 animate-in fade-in slide-in-from-bottom-4 duration-500">
@@ -802,45 +978,47 @@ const ProductsPage = () => {
                     {/* Primary Attribute */}
                     <div className="space-y-6">
                         <div className="flex items-center justify-between px-1">
-                            <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Primary (e.g. COLOR)</label>
+                            <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Primary (e.g. SIZE)</label>
                             <div className="flex gap-2">
-                                <button onClick={() => applyPreset('primaryValues', presets.colors)} className="text-[9px] font-black text-[#0d3542] dark:text-[#58a6ff] hover:underline uppercase tracking-tighter">Colors</button>
+                                <button type="button" onClick={() => applyMatrixPreset('primaryValues', matrixPresets.colors)} className="text-[9px] font-black text-[#0d3542] dark:text-[#58a6ff] hover:underline uppercase tracking-tighter">Colors</button>
+                                <span className="text-gray-300">|</span>
+                                <button type="button" onClick={() => applyMatrixPreset('primaryValues', matrixPresets.sizes)} className="text-[9px] font-black text-[#0d3542] dark:text-[#58a6ff] hover:underline uppercase tracking-tighter">Sizes</button>
                             </div>
                         </div>
                         <input 
                             value={matrixConfig.primaryKey} 
-                            onChange={e => setMatrixConfig({...matrixConfig, primaryKey: e.target.value.toUpperCase()})} 
+                            onChange={e => setMatrixConfig(prev => ({...prev, primaryKey: e.target.value.toUpperCase()}))} 
                             className="w-full bg-black/5 dark:bg-white/5 p-5 text-[13px] font-black outline-none border border-black/15 dark:border-white/10 focus:border-[#0d3542] dark:focus:border-[#58a6ff] rounded-2xl transition-all" 
                             placeholder="ATTRIBUTE NAME"
                         />
                         <textarea 
                             placeholder="Enter values separated by commas..." 
                             value={matrixConfig.primaryValues} 
-                            onChange={e => setMatrixConfig({...matrixConfig, primaryValues: e.target.value})} 
+                            onChange={e => setMatrixConfig(prev => ({...prev, primaryValues: e.target.value}))} 
                             className="w-full bg-black/5 dark:bg-white/5 p-5 text-[13px] font-bold outline-none border border-black/15 dark:border-white/10 focus:border-[#0d3542] dark:focus:border-[#58a6ff] rounded-2xl min-h-24 attire-scrollbar uppercase" 
                         />
                     </div>
 
-                    {/* Secondary Attribute */}
+                    {/* Secondary Attribute (Optional) */}
                     <div className="space-y-6">
                         <div className="flex items-center justify-between px-1">
-                            <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Secondary (e.g. SIZE)</label>
+                            <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Secondary — Optional (e.g. COLOR)</label>
                             <div className="flex gap-2">
-                                <button onClick={() => applyPreset('secondaryValues', presets.sizes)} className="text-[9px] font-black text-[#0d3542] dark:text-[#58a6ff] hover:underline uppercase tracking-tighter">Sizes</button>
+                                <button type="button" onClick={() => applyMatrixPreset('secondaryValues', matrixPresets.sizes)} className="text-[9px] font-black text-[#0d3542] dark:text-[#58a6ff] hover:underline uppercase tracking-tighter">Sizes</button>
                                 <span className="text-gray-300">|</span>
-                                <button onClick={() => applyPreset('secondaryValues', presets.numbers)} className="text-[9px] font-black text-[#0d3542] dark:text-[#58a6ff] hover:underline uppercase tracking-tighter">Numbers</button>
+                                <button type="button" onClick={() => applyMatrixPreset('secondaryValues', matrixPresets.numbers)} className="text-[9px] font-black text-[#0d3542] dark:text-[#58a6ff] hover:underline uppercase tracking-tighter">Numbers</button>
                             </div>
                         </div>
                         <input 
                             value={matrixConfig.secondaryKey} 
-                            onChange={e => setMatrixConfig({...matrixConfig, secondaryKey: e.target.value.toUpperCase()})} 
+                            onChange={e => setMatrixConfig(prev => ({...prev, secondaryKey: e.target.value.toUpperCase()}))} 
                             className="w-full bg-black/5 dark:bg-white/5 p-5 text-[13px] font-black outline-none border border-black/15 dark:border-white/10 focus:border-[#0d3542] dark:focus:border-[#58a6ff] rounded-2xl transition-all" 
                             placeholder="ATTRIBUTE NAME"
                         />
                         <textarea 
-                            placeholder="Enter values separated by commas..." 
+                            placeholder="Leave empty for single-attribute grid..." 
                             value={matrixConfig.secondaryValues} 
-                            onChange={e => setMatrixConfig({...matrixConfig, secondaryValues: e.target.value})} 
+                            onChange={e => setMatrixConfig(prev => ({...prev, secondaryValues: e.target.value}))} 
                             className="w-full bg-black/5 dark:bg-white/5 p-5 text-[13px] font-bold outline-none border border-black/15 dark:border-white/10 focus:border-[#0d3542] dark:focus:border-[#58a6ff] rounded-2xl min-h-24 attire-scrollbar uppercase" 
                         />
                     </div>
@@ -859,18 +1037,18 @@ const ProductsPage = () => {
                         )}
                     </div>
                     <p className="font-mono text-[12px] text-gray-500 dark:text-white/40">
-                        {formData.name || 'PRODUCT'} - [VALUE1] - [VALUE2] → <span className="text-[#0d3542] dark:text-[#58a6ff] font-bold">
-                            {(formData.sku || (formData.name || 'PROD').substring(0, 5)).toUpperCase()}-{pVals[0] || 'VAL1'}-{sVals[0] || 'VAL2'}
+                        {formData.name || 'PRODUCT'} {is2D ? `- [${matrixConfig.primaryKey}] - [${matrixConfig.secondaryKey}]` : is1D ? `- [${matrixConfig.primaryKey}]` : '- [VALUE1] - [VALUE2]'} → <span className="text-[#0d3542] dark:text-[#58a6ff] font-bold">
+                            {(formData.sku || (formData.name || 'PROD').substring(0, 5)).toUpperCase()}-{pVals[0] || 'VAL1'}{is2D ? `-${sVals[0] || 'VAL2'}` : ''}
                         </span>
                     </p>
                 </div>
 
-                {/* The Matrix Grid */}
-                {pVals.length > 0 && sVals.length > 0 ? (
+                {/* The Matrix Grid — 2D (rows × columns) */}
+                {is2D ? (
                     <div className="space-y-6 animate-in zoom-in-95 duration-500">
                         <div className="flex items-center gap-4">
                             <div className="h-1 w-10 bg-[#0d3542] dark:bg-[#58a6ff] rounded-full" />
-                            <h3 className="text-xs font-black uppercase tracking-[0.4em] text-[#0d3542] dark:text-[#58a6ff]">Stock Grid</h3>
+                            <h3 className="text-xs font-black uppercase tracking-[0.4em] text-[#0d3542] dark:bg-[#58a6ff]">Stock Grid</h3>
                         </div>
                         
                         <div className="overflow-x-auto border-2 border-black/15 dark:border-white/5 rounded-[2rem] bg-white dark:bg-[#0d1117] shadow-xl">
@@ -899,7 +1077,7 @@ const ProductsPage = () => {
                                                         type="number" 
                                                         data-pos={`${rIdx}-${cIdx}`}
                                                         value={matrixData[`${p}-${s}`] || ''} 
-                                                        onChange={e => updateQty(p, s, e.target.value)}
+                                                        onChange={e => updateMatrixQty(p, s, e.target.value)}
                                                         onKeyDown={e => handleGridKeyDown(e, rIdx, cIdx)}
                                                         className="w-full bg-black/5 dark:bg-white/5 border-2 border-transparent p-4 text-center font-mono font-black text-lg rounded-xl focus:border-[#0d3542] dark:focus:border-[#58a6ff] focus:bg-white dark:focus:bg-[#161b22] outline-none transition-all placeholder:text-gray-300 dark:placeholder:text-white/5 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                                                         placeholder="0"
@@ -920,10 +1098,62 @@ const ProductsPage = () => {
                             <span className="text-[9px] font-bold text-gray-400 uppercase tracking-widest">Only entries with stock will be created</span>
                         </div>
                     </div>
+                ) : is1D ? (
+                    /* The Matrix Grid — 1D (single attribute, flat list) */
+                    <div className="space-y-6 animate-in zoom-in-95 duration-500">
+                        <div className="flex items-center gap-4">
+                            <div className="h-1 w-10 bg-[#0d3542] dark:bg-[#58a6ff] rounded-full" />
+                            <h3 className="text-xs font-black uppercase tracking-[0.4em] text-[#0d3542] dark:text-[#58a6ff]">Stock List</h3>
+                            <span className="text-[9px] font-bold text-gray-400 uppercase tracking-widest ml-2">Single attribute mode</span>
+                        </div>
+                        
+                        <div className="overflow-x-auto border-2 border-black/15 dark:border-white/5 rounded-[2rem] bg-white dark:bg-[#0d1117] shadow-xl">
+                            <table className="w-full border-collapse">
+                                <thead>
+                                    <tr>
+                                        <th className="p-6 border-b-2 border-r-2 border-black/15 dark:border-white/10 text-[9px] font-black uppercase tracking-[0.2em] text-gray-400 bg-black/[0.02] dark:bg-white/[0.02] sticky left-0 z-10 min-w-40">
+                                            {matrixConfig.primaryKey}
+                                        </th>
+                                        <th className="p-6 border-b-2 border-black/15 dark:border-white/10 text-[11px] font-black uppercase tracking-[0.1em] text-[#0d3542] dark:text-[#58a6ff] min-w-36">
+                                            QTY
+                                        </th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {pVals.map((p, rIdx) => (
+                                        <tr key={p} className="group">
+                                            <td className="p-6 border-r-2 border-black/15 dark:border-white/10 text-[11px] font-black uppercase tracking-wider text-[#0d3542] dark:text-[#58a6ff] bg-black/[0.01] dark:bg-white/[0.01] group-hover:bg-black/[0.03] dark:group-hover:bg-white/[0.03] transition-colors sticky left-0 z-10">
+                                                {p}
+                                            </td>
+                                            <td className="p-2 border-b border-black/15 dark:border-white/5 group-hover:bg-black/[0.01] dark:group-hover:bg-white/[0.01] transition-colors">
+                                                <input 
+                                                    type="number" 
+                                                    data-pos={`${rIdx}-0`}
+                                                    value={matrixData[`${p}-QTY`] || ''} 
+                                                    onChange={e => updateMatrixQty(p, 'QTY', e.target.value)}
+                                                    onKeyDown={e => handleGridKeyDown(e, rIdx, 0)}
+                                                    className="w-full bg-black/5 dark:bg-white/5 border-2 border-transparent p-4 text-center font-mono font-black text-lg rounded-xl focus:border-[#0d3542] dark:focus:border-[#58a6ff] focus:bg-white dark:focus:bg-[#161b22] outline-none transition-all placeholder:text-gray-300 dark:placeholder:text-white/5 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                                                    placeholder="0"
+                                                />
+                                            </td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
+                        </div>
+                        <div className="flex items-center justify-center gap-6">
+                            <div className="flex items-center gap-2">
+                                <Keyboard size={14} className="text-gray-400" />
+                                <span className="text-[9px] font-bold text-gray-400 uppercase tracking-widest">Use arrow keys to navigate</span>
+                            </div>
+                            <div className="w-1.5 h-1.5 rounded-full bg-gray-200" />
+                            <span className="text-[9px] font-bold text-gray-400 uppercase tracking-widest">Only entries with stock will be created</span>
+                        </div>
+                    </div>
                 ) : (
                     <div className="py-20 text-center border-2 border-dashed border-black/15 dark:border-white/5 rounded-[3rem] bg-black/[0.01] dark:bg-white/[0.01]">
                         <Layers size={40} className="mx-auto text-gray-300 mb-4 opacity-20" />
-                        <p className="text-[11px] font-black text-gray-400 uppercase tracking-[0.3em]">Enter attributes above to unlock the grid</p>
+                        <p className="text-[11px] font-black text-gray-400 uppercase tracking-[0.3em]">Enter primary attribute values to unlock the grid</p>
                     </div>
                 )}
             </div>
@@ -934,18 +1164,16 @@ const ProductsPage = () => {
         <div className="flex flex-row w-full h-full bg-background dark:bg-[#111111] font-sans selection:bg-[#0d3542]/20 relative text-gray-900 dark:text-white transition-colors duration-300">
             
             {/* --- Persistent Sidebar Filter Hub --- */}
-            <div className="w-[340px] shrink-0 flex flex-col p-0 overflow-y-auto no-scrollbar border-r-2 border-black/15 dark:border-[#30363d] bg-[#fdfdfc] dark:bg-[#0d1117] transition-colors sticky top-0 h-screen z-50">
-                <div className="p-8 border-b-2 border-black/15 dark:border-[#30363d] bg-[#fdfdfc] dark:bg-[#0d1117]">
-
-                    
-                    <div className="space-y-4">
+            <div className="w-[280px] shrink-0 flex flex-col p-0 border-r-2 border-black/15 dark:border-[#30363d] bg-[#fdfdfc] dark:bg-[#0d1117] transition-colors sticky top-0 h-screen z-50 overflow-hidden">
+                <div className="p-5 border-b-2 border-black/15 dark:border-[#30363d] bg-[#fdfdfc] dark:bg-[#0d1117]">
+                    <div className="space-y-3">
                         <Button 
                             onClick={handleAddClick}
-                            className="w-full bg-[#0d3542] dark:bg-[#58a6ff] text-white dark:text-black hover:opacity-90 text-[12px] font-black uppercase tracking-[0.3em] h-14 shadow-none ring-1 ring-inset ring-white/10 transition-all rounded-2xl"
+                            className="w-full bg-[#0d3542] dark:bg-[#58a6ff] text-white dark:text-black hover:opacity-90 text-[10px] font-black uppercase tracking-[0.2em] h-11 shadow-none rounded-xl"
                         >
-                            <Plus size={16} className="mr-3" /> Add Product
+                            <Plus size={14} className="mr-2" /> Add Product
                         </Button>
-                        <div className="flex gap-3">
+                        <div className="flex gap-2">
                             <input 
                                 type="file" 
                                 ref={fileInputRef} 
@@ -956,71 +1184,83 @@ const ProductsPage = () => {
                             <Button 
                                 onClick={handleExport}
                                 variant="outline" 
-                                className="flex-1 h-12 border-2 border-black/15 dark:border-[#30363d] text-[10px] font-black uppercase tracking-widest text-gray-400 dark:text-[#8b949e] hover:bg-black/5 dark:hover:bg-white/5 rounded-2xl transition-all"
+                                className="flex-1 h-10 border border-black/15 dark:border-[#30363d] text-[9px] font-black uppercase tracking-widest text-gray-400 dark:text-[#8b949e] hover:bg-black/5 dark:hover:bg-white/5 rounded-xl transition-all"
                             >
-                                <Download size={14} className="mr-2" /> Export
+                                <Download size={12} className="mr-1.5" /> Export
                             </Button>
                             <Button 
                                 onClick={() => fileInputRef.current?.click()}
                                 variant="outline" 
-                                className="flex-1 h-12 border-2 border-black/15 dark:border-[#30363d] text-[10px] font-black uppercase tracking-widest text-gray-400 dark:text-[#8b949e] hover:bg-black/5 dark:hover:bg-white/5 rounded-2xl transition-all"
+                                className="flex-1 h-10 border border-black/15 dark:border-[#30363d] text-[9px] font-black uppercase tracking-widest text-gray-400 dark:text-[#8b949e] hover:bg-black/5 dark:hover:bg-white/5 rounded-xl transition-all"
                             >
-                                <Upload size={14} className="mr-2" /> Import
+                                <Upload size={12} className="mr-1.5" /> Import
                             </Button>
                         </div>
                     </div>
                 </div>
 
-                <SidebarSection title="Search" icon={Search}>
-                    <div className="space-y-6">
+                <div className="flex-1 overflow-y-hidden">
+                    <SidebarSection title="Search" icon={Search}>
                         <div className="space-y-3">
-                            <label className="text-[11px] font-black text-gray-400 dark:text-[#8b949e]/40 uppercase tracking-[0.2em] flex items-center gap-3">
-                                <Hash size={12} /> Code
-                            </label>
-                            <input 
-                                type="text"
-                                value={filters.code}
-                                onChange={e => setFilters({...filters, code: e.target.value.toUpperCase()})}
-                                className="w-full bg-white dark:bg-[#161b22] border-2 border-black/15 dark:border-[#30363d] focus:border-[#0d3542] dark:focus:border-[#58a6ff] px-5 py-4 text-[13px] font-bold tracking-widest outline-none transition-all uppercase text-gray-900 dark:text-white placeholder:text-gray-300 dark:placeholder:text-[#8b949e]/10 rounded-2xl"
-                                placeholder="LEDGER-00..."
-                            />
+                            <div className="group relative">
+                                <input 
+                                    type="text"
+                                    value={filters.code}
+                                    onChange={e => setFilters({...filters, code: e.target.value.toUpperCase()})}
+                                    className="w-full bg-white dark:bg-[#161b22] border-2 border-black/15 dark:border-[#30363d] focus:border-[#0d3542] dark:focus:border-[#58a6ff] pl-10 pr-4 py-3 text-[12px] font-bold tracking-widest outline-none transition-all uppercase text-gray-900 dark:text-white placeholder:text-gray-300 dark:placeholder:text-[#8b949e]/10 rounded-xl"
+                                    placeholder="CODE..."
+                                />
+                                <Hash size={12} className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" />
+                            </div>
+                            <div className="group relative">
+                                <input 
+                                    id="filter-name"
+                                    type="text"
+                                    value={filters.nameBarcode}
+                                    onChange={e => setFilters({...filters, nameBarcode: e.target.value})}
+                                    className="w-full bg-white dark:bg-[#161b22] border-2 border-black/15 dark:border-[#30363d] focus:border-[#0d3542] dark:focus:border-[#58a6ff] pl-10 pr-4 py-3 text-[12px] font-bold outline-none transition-all uppercase text-gray-900 dark:text-white placeholder:text-gray-300 dark:placeholder:text-[#8b949e]/10 rounded-xl"
+                                    placeholder="NAME..."
+                                />
+                                <Tag size={12} className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" />
+                            </div>
+                            <div className="group relative">
+                                <input 
+                                    type="text"
+                                    value={filters.attribute}
+                                    onChange={e => setFilters({...filters, attribute: e.target.value.toUpperCase()})}
+                                    className="w-full bg-white dark:bg-[#161b22] border-2 border-black/15 dark:border-[#30363d] focus:border-[#0d3542] dark:focus:border-[#58a6ff] pl-10 pr-4 py-3 text-[12px] font-bold outline-none transition-all uppercase text-gray-900 dark:text-white placeholder:text-gray-300 dark:placeholder:text-[#8b949e]/10 rounded-xl"
+                                    placeholder="ATTR..."
+                                />
+                                <Layers size={12} className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" />
+                            </div>
                         </div>
-                        <div className="space-y-3">
-                            <label className="text-[11px] font-black text-gray-400 dark:text-[#8b949e]/40 uppercase tracking-[0.2em] flex items-center gap-3">
-                                <Tag size={12} /> Search Name
-                            </label>
-                            <input 
-                                id="filter-name"
-                                type="text"
-                                value={filters.nameBarcode}
-                                onChange={e => setFilters({...filters, nameBarcode: e.target.value})}
-                                className="w-full bg-white dark:bg-[#161b22] border-2 border-black/15 dark:border-[#30363d] focus:border-[#0d3542] dark:focus:border-[#58a6ff] px-5 py-4 text-[13px] font-bold outline-none transition-all uppercase text-gray-900 dark:text-white placeholder:text-gray-300 dark:placeholder:text-[#8b949e]/10 rounded-2xl"
-                                placeholder="PRODUCT NAME..."
-                            />
-                        </div>
-                        <div className="space-y-3">
-                            <label className="text-[11px] font-black text-gray-400 dark:text-[#8b949e]/40 uppercase tracking-[0.2em] flex items-center gap-3">
-                                <Layers size={12} /> Attributes
-                            </label>
-                            <input 
-                                type="text"
-                                value={filters.attribute}
-                                onChange={e => setFilters({...filters, attribute: e.target.value.toUpperCase()})}
-                                className="w-full bg-white dark:bg-[#161b22] border-2 border-black/15 dark:border-[#30363d] focus:border-[#0d3542] dark:focus:border-[#58a6ff] px-5 py-4 text-[13px] font-bold outline-none transition-all uppercase text-gray-900 dark:text-white placeholder:text-gray-300 dark:placeholder:text-[#8b949e]/10 rounded-2xl"
-                                placeholder="SIZE / FABRIC..."
-                            />
-                        </div>
-                    </div>
-                </SidebarSection>
+                    </SidebarSection>
 
-                <SidebarSection title="Group" icon={Layers}>
-                    <BespokeSelect 
-                        value={filters.group}
-                        options={categories}
-                        onChange={val => setFilters({...filters, group: val})}
-                        direction="up"
-                    />
-                </SidebarSection>
+                    <SidebarSection title="Group" icon={Layers}>
+                        <BespokeSelect 
+                            value={filters.group}
+                            options={categories}
+                            onChange={val => setFilters({...filters, group: val})}
+                            direction="up"
+                        />
+                    </SidebarSection>
+
+                    <SidebarSection title="Stock Status" icon={Package}>
+                        <BespokeSelect 
+                            value={filters.stockStatus === 'all' ? 'ALL STOCK' : 
+                                   filters.stockStatus === 'in' ? 'IN STOCK' : 
+                                   filters.stockStatus === 'out' ? 'OUT OF STOCK' : 'LOW STOCK'}
+                            options={[
+                                { label: 'ALL STOCK', value: 'all' },
+                                { label: 'IN STOCK', value: 'in' },
+                                { label: 'OUT OF STOCK', value: 'out' },
+                                { label: 'LOW STOCK', value: 'low' }
+                            ]}
+                            onChange={val => setFilters({...filters, stockStatus: val})}
+                            direction="up"
+                        />
+                    </SidebarSection>
+                </div>
             </div>
 
             {/* --- Content Area --- */}
@@ -1218,7 +1458,7 @@ const ProductsPage = () => {
                             <div className="h-24 shrink-0 border-b border-black/15 dark:border-white/5 flex items-center justify-between px-12 bg-white dark:bg-[#111]">
                                 <div className="flex items-center gap-6">
                                     <button 
-                                        onClick={() => { setView('list'); setEditingProduct(null); }}
+                                        onClick={() => window.history.back()}
                                         className="h-12 w-12 rounded-2xl bg-black/5 dark:bg-white/5 flex items-center justify-center text-gray-500 hover:text-[#0d3542] dark:hover:text-[#58a6ff] transition-all hover:bg-[#0d3542]/10 dark:hover:bg-[#58a6ff]/10"
                                     >
                                         <ChevronLeft size={20} />
@@ -1309,7 +1549,7 @@ const ProductsPage = () => {
 
                                     {!editingProduct && (
                                         <div className="pt-2">
-                                            <MatrixGrid />
+                                            {renderMatrixGrid()}
                                         </div>
                                     )}
                                 </div>
@@ -1382,7 +1622,7 @@ const ProductsPage = () => {
                                 <span className="text-[#0d3542] dark:text-[#58a6ff] text-[10px] font-black uppercase tracking-[0.2em] whitespace-nowrap">Selected</span>
                             </div>
                             <div className="flex items-center gap-6">
-                                <button onClick={() => setIsBulkDialogOpen(true)} className="flex items-center gap-2 text-gray-500 dark:text-white/40 hover:text-[#0d3542] dark:hover:text-[#58a6ff] transition-colors group">
+                                <button onClick={handleBulkEditClick} className="flex items-center gap-2 text-gray-500 dark:text-white/40 hover:text-[#0d3542] dark:hover:text-[#58a6ff] transition-colors group">
                                     <Command size={12} className="group-hover:scale-110 transition-transform" />
                                     <span className="text-[9px] font-black uppercase tracking-[0.2em]">Bulk Edit</span>
                                 </button>

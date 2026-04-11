@@ -78,6 +78,8 @@ const LoadingState = () => (
     </div>
 );
 
+const tableGridColumns = '40px 160px 120px 100px 90px minmax(150px, 1fr) 130px 40px';
+
 const AlteringRow = React.memo(({ 
     altering, 
     statusConfig, 
@@ -92,89 +94,82 @@ const AlteringRow = React.memo(({
     return (
         <motion.div
             variants={shouldAnimate ? rowVariants : {}}
-            className={`px-5 py-4 border-b border-black/5 dark:border-white/5 hover:bg-black/[0.02] dark:hover:bg-white/[0.02] transition-colors group cursor-pointer ${
-                isSelected ? 'bg-attire-accent/5 dark:bg-attire-accent/5' : ''
+            className={`px-3 py-1.5 border-b border-[#30363d] hover:bg-[#161b22] transition-colors group cursor-pointer ${
+                isSelected ? 'bg-[#58a6ff]/5' : ''
             }`}
             style={{
                 display: 'grid',
-                gridTemplateColumns: '40px 200px 160px 140px 120px 160px 1fr 60px',
-                columnGap: '10px',
+                gridTemplateColumns: tableGridColumns,
+                columnGap: '8px',
                 alignItems: 'center',
             }}
             onClick={() => onDetailOpen(altering)}
         >
             <div 
-                className="flex items-center justify-center border-r border-black/5 dark:border-white/5 pr-3 h-full"
+                className="flex items-center justify-center border-r border-[#30363d] pr-2 h-full"
                 onClick={(e) => e.stopPropagation()}
             >
                 <input
                     type="checkbox"
-                    className="w-3.5 h-3.5 rounded border-black/20 dark:border-white/20 bg-transparent accent-attire-accent cursor-pointer"
+                    className="w-3 h-3 rounded-sm border-[#30363d] bg-transparent accent-[#58a6ff] cursor-pointer"
                     checked={isSelected}
                     onChange={() => onSelect(altering.id)}
                 />
             </div>
 
-            <div className="flex items-center gap-4 border-r border-black/5 dark:border-white/5 px-4 h-full overflow-hidden">
-                <div className="w-10 h-10 rounded-xl bg-[#0d3542]/10 border border-[#0d3542]/20 flex items-center justify-center shrink-0">
-                    <span className="text-sm font-black text-[#0d3542]">
-                        {altering.customer_name?.charAt(0) || 'U'}
-                    </span>
-                </div>
-                <span className="text-[16px] font-serif text-attire-charcoal dark:text-white truncate">
+            <div className="flex items-center gap-2 px-2 border-r border-[#30363d] h-full overflow-hidden">
+                <span className="text-[13px] font-medium text-[#c9d1d9] truncate uppercase tracking-wide">
                     {altering.customer_name}
                 </span>
             </div>
 
-            <div className="flex flex-col gap-1.5 border-r border-black/5 dark:border-white/5 px-4 h-full justify-center overflow-hidden">
-                <div className="flex items-center gap-1.5 opacity-40">
-                    <div className="w-1.5 h-1.5 rounded-full bg-current" />
-                    <span className="text-[13px] font-mono tracking-tighter uppercase truncate">
-                        #{altering.order_no || 'MANUAL'}
+            <div className="flex flex-col gap-0.5 px-2 border-r border-[#30363d] h-full justify-center overflow-hidden">
+                <div className="flex items-center gap-1 text-[#8b949e]">
+                    <span className="text-[10px] font-mono tracking-tighter uppercase truncate opacity-70">
+                        #{altering.order_no || 'MNL'}
                     </span>
                 </div>
-                <div className="text-[12.5px] font-medium text-gray-500 dark:text-white/40 flex items-center gap-2">
-                    <Smartphone size={10} />
+                <div className="text-[10px] font-mono text-[#8b949e] flex items-center gap-1">
+                    <Smartphone size={8} />
                     {altering.mobile || 'N/A'}
                 </div>
             </div>
 
-            <div className="px-4 border-r border-black/5 dark:border-white/5 h-full flex items-center">
-                <div className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[12px] font-black uppercase tracking-widest border ${status.bgColor} ${status.textColor} ${status.borderColor} w-fit`}>
-                    <status.icon className="w-3.5 h-3.5" />
+            <div className="px-2 border-r border-[#30363d] h-full flex items-center">
+                <div className={`inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[9px] font-bold uppercase tracking-widest border ${status.bgColor} ${status.textColor} ${status.borderColor} w-fit`}>
                     {status.label}
                 </div>
             </div>
 
-            <div className="px-4 border-r border-black/5 dark:border-white/5 h-full flex items-center">
-                <span className="text-[15px] font-mono font-bold text-attire-accent">
-                    ${altering.altering_cost || '0.00'}
+            <div className="px-2 border-r border-[#30363d] h-full flex items-center justify-end">
+                <span className="text-[11px] font-mono text-[#58a6ff]">
+                    ${parseFloat(altering.altering_cost || 0).toFixed(2)}
                 </span>
             </div>
 
-            <div className="px-3 border-r border-black/5 dark:border-white/5 h-full flex items-center overflow-hidden">
-                <span className="text-xs font-medium text-gray-500 dark:text-white/60 line-clamp-1 italic">
-                    {altering.product || 'Unspecified Product'}
+            <div className="px-2 border-r border-[#30363d] h-full flex items-center overflow-hidden">
+                <span className="text-[11px] text-[#8b949e] line-clamp-1 italic">
+                    {altering.product || 'Unspecified'}
                 </span>
             </div>
 
-            <div className="px-4 border-r border-black/5 dark:border-white/5 h-full flex items-center">
+            <div className="px-2 border-r border-[#30363d] h-full flex items-center">
                 <div className="flex flex-col">
-                    <span className="text-[14px] font-mono text-attire-charcoal dark:text-white">
+                    <span className="text-[11px] font-mono text-[#c9d1d9]">
                         {formatDate(altering.ready_at, { fallback: 'N/A', month: 'short' })}
                     </span>
-                    <span className="text-[11.5px] uppercase tracking-tighter text-gray-400 font-bold">
-                        {altering.ready_at ? 'Target Ready' : 'Date TBD'}
+                    <span className="text-[8px] uppercase tracking-widest text-[#8b949e]">
+                        {altering.ready_at ? 'Target Info' : 'Date TBD'}
                     </span>
                 </div>
             </div>
 
             <div 
-                className="flex items-center justify-center px-3 h-full"
+                className="flex items-center justify-center px-1 h-full"
                 onClick={(e) => e.stopPropagation()}
             >
-                <div className="p-2 opacity-0 group-hover:opacity-100 dark:group-hover:bg-white/5 rounded-lg transition-all hover:text-attire-accent">
-                    <MoreVertical size={14} />
+                <div className="p-1 opacity-0 group-hover:opacity-100 hover:bg-[#30363d] rounded text-[#8b949e] hover:text-[#58a6ff] transition-all">
+                    <MoreVertical size={12} />
                 </div>
             </div>
         </motion.div>
@@ -191,50 +186,32 @@ const AlteringTable = React.memo(({
     rowVariants 
 }) => {
     return (
-        <div className="min-w-[1100px]">
+        <div className="w-full text-left">
             {/* Table Header */}
             <div
-                className="px-5 py-5 text-[12.5px] font-black uppercase tracking-[0.2em] text-gray-400 dark:text-[#8b949e] bg-black/[0.01] dark:bg-[#161b22] border-b border-black/5 dark:border-[#30363d] text-left"
+                className="px-3 py-1.5 text-[9px] font-bold uppercase tracking-widest text-[#8b949e] bg-[#0d1117] border-b border-[#30363d]"
                 style={{
                     display: 'grid',
-                    gridTemplateColumns: '40px 200px 160px 140px 120px 160px 1fr 60px',
-                    columnGap: '10px',
+                    gridTemplateColumns: tableGridColumns,
+                    columnGap: '8px',
                 }}
             >
-                <div className="flex items-center justify-center border-r border-black/5 dark:border-white/5 pr-3">
+                <div className="flex items-center justify-center border-r border-[#30363d] pr-2">
                     <input
                         type="checkbox"
-                        className="w-3.5 h-3.5 rounded border-black/20 dark:border-white/20 bg-transparent accent-attire-accent cursor-pointer"
+                        className="w-3 h-3 rounded-sm border-[#30363d] bg-transparent accent-[#58a6ff] cursor-pointer"
                         checked={alterings.length > 0 && selectedItems.length === alterings.length}
                         onChange={onSelectAll}
                     />
                 </div>
-                <div className="flex items-center gap-1.5 border-r border-black/5 dark:border-white/5 px-3">
-                    <User size={12} className="opacity-50" />
-                    Customer Name
-                </div>
-                <div className="flex items-center gap-1.5 border-r border-black/5 dark:border-white/5 px-3">
-                    <Smartphone size={12} className="opacity-50" />
-                    Ref & Mobile
-                </div>
-                <div className="flex items-center gap-1.5 border-r border-black/5 dark:border-white/5 px-4">
-                    <Clock size={14} className="opacity-50" />
-                    Status
-                </div>
-                <div className="flex items-center gap-1.5 border-r border-black/5 dark:border-white/5 px-3">
-                    <DollarSign size={12} className="opacity-50" />
-                    Cost
-                </div>
-                <div className="flex items-center gap-1.5 border-r border-black/5 dark:border-white/5 px-3">
-                    <Package size={12} className="opacity-50" />
-                    Product Item
-                </div>
-                <div className="flex items-center gap-1.5 border-r border-black/5 dark:border-white/5 px-3">
-                    <Clock size={12} className="opacity-50" />
-                    Est. Ready Date
-                </div>
-                <div className="flex items-center justify-center px-3">
-                    <MoreVertical size={12} className="opacity-50" />
+                <div className="flex items-center px-2 border-r border-[#30363d]">Client</div>
+                <div className="flex items-center px-2 border-r border-[#30363d]">Ref & Mobile</div>
+                <div className="flex items-center px-2 border-r border-[#30363d]">Status</div>
+                <div className="flex items-center justify-end px-2 border-r border-[#30363d]">Adj. Cost</div>
+                <div className="flex items-center px-2 border-r border-[#30363d]">Garment Info</div>
+                <div className="flex items-center px-2 border-r border-[#30363d]">Scheduled</div>
+                <div className="flex items-center justify-center px-1">
+                    <MoreVertical size={10} className="opacity-50" />
                 </div>
             </div>
 
@@ -244,20 +221,16 @@ const AlteringTable = React.memo(({
                     <motion.div
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
-                        className="py-20 text-center"
+                        className="py-12 text-center"
                     >
-                        <div className="inline-flex p-4 rounded-full bg-black/5 dark:bg-white/5 mb-4">
-                            <AlertCircle className="w-6 h-6 text-gray-400" />
-                        </div>
-                        <p className="text-sm text-gray-500 dark:text-white/40 font-mono tracking-widest uppercase">
-                            No records found matching your filters
+                        <AlertCircle className="w-5 h-5 text-[#30363d] mx-auto mb-2" />
+                        <p className="text-[10px] text-[#8b949e] font-mono tracking-widest uppercase">
+                            No active records
                         </p>
                     </motion.div>
                 ) : (
                     <motion.div
-                        variants={{
-                            visible: { transition: { staggerChildren: 0.04 } }
-                        }}
+                        variants={{ visible: { transition: { staggerChildren: 0.02 } } }}
                         initial="hidden"
                         animate="visible"
                     >
@@ -533,25 +506,20 @@ export default function AlteringManager() {
     return (
         <div className="w-full font-sans pb-20">
             {/* Header & Controls */}
-            <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-10">
+            <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-6">
                 <div>
-                    <h1 className="text-4xl font-serif text-attire-charcoal dark:text-white tracking-tight flex items-center gap-4">
-                        <div className="p-3 bg-attire-accent/10 rounded-2xl border border-attire-accent/20">
-                            <Scissors className="w-8 h-8 text-attire-accent" />
-                        </div>
-                        Altering Manager
+                    <h1 className="text-[24px] font-serif tracking-tight text-[#c9d1d9] flex items-center gap-2">
+                        <Scissors className="w-5 h-5 text-[#8b949e]" />
+                        Altering Logs
                     </h1>
-                    <div className="flex items-center gap-3 mt-4">
-                        <span className="w-8 h-px bg-attire-accent/40" />
-                        <p className="text-gray-400 dark:text-white/40 text-xs font-black uppercase tracking-[0.4em]">
-                            Tailor Queue Management
-                        </p>
-                    </div>
+                    <p className="text-[#8b949e] text-[10px] uppercase tracking-widest mt-0.5">
+                        Tailor Queue Management
+                    </p>
                 </div>
 
-                <div className="flex items-center gap-3 flex-wrap">
+                <div className="flex items-center gap-2 flex-wrap">
                     <div className="relative group">
-                        <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 dark:text-white/40 group-focus-within:text-attire-accent transition-colors" />
+                        <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-[#8b949e] group-focus-within:text-[#58a6ff] transition-colors" />
                         <input
                             type="text"
                             placeholder="Search records..."
@@ -560,7 +528,7 @@ export default function AlteringManager() {
                                 setSearchQuery(e.target.value);
                                 setPage(1);
                             }}
-                            className="bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 rounded-xl py-3.5 pl-10 pr-10 text-attire-charcoal dark:text-white outline-none focus:border-attire-accent/50 transition-all placeholder:text-gray-400 dark:placeholder:text-white/20 w-48 lg:w-64 font-mono tracking-widest text-[14.5px]"
+                            className="bg-[#0d1117] border border-[#30363d] rounded py-1.5 pl-8 pr-8 text-[#c9d1d9] outline-none focus:border-[#58a6ff]/50 transition-all placeholder:text-[#8b949e]/50 w-48 lg:w-64 font-mono text-[11px]"
                         />
                         {searchQuery && (
                             <button
@@ -568,10 +536,10 @@ export default function AlteringManager() {
                                     setSearchQuery('');
                                     setPage(1);
                                 }}
-                                className="absolute right-3 top-1/2 -translate-y-1/2 p-1 hover:bg-black/10 dark:hover:bg-white/10 rounded-full text-gray-400 hover:text-attire-accent transition-all"
+                                className="absolute right-1.5 top-1/2 -translate-y-1/2 p-0.5 hover:bg-[#30363d] rounded text-[#8b949e] hover:text-[#58a6ff] transition-all"
                                 title="Clear search"
                             >
-                                <X size={14} />
+                                <X size={12} />
                             </button>
                         )}
                     </div>
@@ -583,7 +551,7 @@ export default function AlteringManager() {
                                 setStatusFilter('');
                                 setPage(1);
                             }}
-                            className="text-xs font-black underline uppercase tracking-widest text-attire-accent hover:text-[#ffb940] transition-colors p-2"
+                            className="text-[10px] font-bold underline uppercase tracking-widest text-[#58a6ff] hover:text-[#79b8ff] transition-colors px-2"
                         >
                             Reset
                         </button>
@@ -592,52 +560,34 @@ export default function AlteringManager() {
                     <div className="relative">
                         <button
                             onClick={() => setShowFilterMenu(!showFilterMenu)}
-                            className={`px-4 py-2.5 bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 text-attire-charcoal dark:text-white hover:bg-black/10 dark:hover:bg-white/10 transition-colors flex items-center gap-2 rounded-xl font-mono tracking-widest text-xs ${statusFilter ? 'ring-1 ring-attire-accent/50' : ''}`}
+                            className={`px-3 py-1.5 bg-[#0d1117] border border-[#30363d] text-[#c9d1d9] hover:bg-[#161b22] transition-colors flex items-center gap-1.5 rounded font-mono tracking-widest text-[10px] ${statusFilter ? 'ring-1 ring-[#58a6ff]/50' : ''}`}
                         >
-                            <svg
-                                width="14"
-                                height="14"
-                                viewBox="0 0 16 16"
-                                fill="none"
-                            >
-                                <path
-                                    d="M2 3H14M4 8H12M6 13H10"
-                                    stroke="currentColor"
-                                    strokeWidth="1.5"
-                                    strokeLinecap="round"
-                                />
+                            <svg width="12" height="12" viewBox="0 0 16 16" fill="none">
+                                <path d="M2 3H14M4 8H12M6 13H10" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
                             </svg>
                             Filter
                             {statusFilter && (
-                                <span className="ml-1 text-xs bg-attire-accent text-black font-black rounded px-1.5 py-0.5">
+                                <span className="ml-1 text-[9px] bg-[#58a6ff] text-[#0d1117] font-black rounded px-1 py-0.5 leading-none">
                                     1
                                 </span>
                             )}
                         </button>
                         {showFilterMenu && (
                             <>
-                                <div
-                                    className="fixed inset-0 z-10"
-                                    onClick={() => setShowFilterMenu(false)}
-                                />
-                                <div className="absolute right-0 mt-2 w-48 bg-white dark:bg-[#161b22] border border-black/10 dark:border-[#30363d] rounded-xl z-20 overflow-hidden py-2">
+                                <div className="fixed inset-0 z-10" onClick={() => setShowFilterMenu(false)} />
+                                <div className="absolute right-0 mt-1 w-40 bg-[#161b22] border border-[#30363d] rounded z-20 overflow-hidden py-1 shadow-xl">
                                     <button
                                         onClick={() => {
                                             setStatusFilter('');
                                             setShowFilterMenu(false);
                                             setPage(1);
                                         }}
-                                        className={`w-full px-4 py-2.5 text-left text-sm text-gray-700 dark:text-[#c9d1d9] hover:bg-black/5 dark:hover:bg-white/5 transition-colors ${!statusFilter ? 'bg-black/5 dark:bg-white/5' : ''}`}
+                                        className={`w-full px-3 py-2 text-left text-[11px] text-[#c9d1d9] hover:bg-[#30363d] transition-colors ${!statusFilter ? 'bg-[#30363d]/50' : ''}`}
                                     >
                                         All Records
                                     </button>
-                                    <div className="h-px bg-white/10 my-1" />
-                                    {[
-                                        'Pending',
-                                        'In Progress',
-                                        'Ready',
-                                        'Completed',
-                                    ].map((status) => (
+                                    <div className="h-px bg-[#30363d] my-1" />
+                                    {['Pending', 'In Progress', 'Ready', 'Completed'].map((status) => (
                                         <button
                                             key={status}
                                             onClick={() => {
@@ -645,7 +595,7 @@ export default function AlteringManager() {
                                                 setShowFilterMenu(false);
                                                 setPage(1);
                                             }}
-                                            className={`w-full px-4 py-2.5 text-left text-sm text-white/80 hover:bg-white/5 transition-colors ${statusFilter === status ? 'bg-white/5' : ''}`}
+                                            className={`w-full px-3 py-2 text-left text-[11px] text-[#8b949e] hover:text-[#c9d1d9] hover:bg-[#30363d] transition-colors ${statusFilter === status ? 'bg-[#30363d]/50 text-[#c9d1d9]' : ''}`}
                                         >
                                             {status}
                                         </button>
@@ -658,65 +608,35 @@ export default function AlteringManager() {
                     <div className="relative">
                         <button
                             onClick={() => setShowSortMenu(!showSortMenu)}
-                            className="px-4 py-2.5 bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 text-attire-charcoal dark:text-white hover:bg-black/10 dark:hover:bg-white/10 transition-colors flex items-center gap-2 rounded-xl font-mono tracking-widest text-xs"
+                            className="px-3 py-1.5 bg-[#0d1117] border border-[#30363d] text-[#c9d1d9] hover:bg-[#161b22] transition-colors flex items-center gap-1.5 rounded font-mono tracking-widest text-[10px]"
                         >
-                            <svg
-                                width="14"
-                                height="14"
-                                viewBox="0 0 16 16"
-                                fill="none"
-                            >
-                                <path
-                                    d="M3 6L6 3L9 6M6 3V13M13 10L10 13L7 10M10 13V3"
-                                    stroke="currentColor"
-                                    strokeWidth="1.5"
-                                    strokeLinecap="round"
-                                    strokeLinejoin="round"
-                                />
+                            <svg width="12" height="12" viewBox="0 0 16 16" fill="none">
+                                <path d="M3 6L6 3L9 6M6 3V13M13 10L10 13L7 10M10 13V3" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
                             </svg>
                             Sort
-                            <ChevronDown size={14} className="opacity-50" />
+                            <ChevronDown size={12} className="opacity-50" />
                         </button>
                         {showSortMenu && (
                             <>
-                                <div
-                                    className="fixed inset-0 z-10"
-                                    onClick={() => setShowSortMenu(false)}
-                                />
-                                <div className="absolute right-0 mt-2 w-48 bg-white dark:bg-[#161b22] border border-black/10 dark:border-[#30363d] rounded-xl z-20 py-2">
+                                <div className="fixed inset-0 z-10" onClick={() => setShowSortMenu(false)} />
+                                <div className="absolute right-0 mt-1 w-40 bg-[#161b22] border border-[#30363d] rounded z-20 py-1 shadow-xl">
                                     <button
-                                        onClick={() =>
-                                            handleSort('customer_name')
-                                        }
-                                        className={`w-full px-4 py-2 text-left text-sm hover:bg-white/5 text-white/80 ${sortField === 'customer_name' ? 'bg-white/5' : ''}`}
+                                        onClick={() => handleSort('customer_name')}
+                                        className={`w-full px-3 py-2 text-left text-[11px] hover:bg-[#30363d] text-[#8b949e] hover:text-[#c9d1d9] ${sortField === 'customer_name' ? 'bg-[#30363d]/50 text-[#c9d1d9]' : ''}`}
                                     >
-                                        Name{' '}
-                                        {sortField === 'customer_name' &&
-                                            (sortOrder === 'asc'
-                                                ? 'A-Z'
-                                                : 'Z-A')}
+                                        Name {sortField === 'customer_name' && (sortOrder === 'asc' ? 'A-Z' : 'Z-A')}
                                     </button>
                                     <button
-                                        onClick={() =>
-                                            handleSort('altering_cost')
-                                        }
-                                        className={`w-full px-4 py-2 text-left text-sm hover:bg-white/5 text-white/80 ${sortField === 'altering_cost' ? 'bg-white/5' : ''}`}
+                                        onClick={() => handleSort('altering_cost')}
+                                        className={`w-full px-3 py-2 text-left text-[11px] hover:bg-[#30363d] text-[#8b949e] hover:text-[#c9d1d9] ${sortField === 'altering_cost' ? 'bg-[#30363d]/50 text-[#c9d1d9]' : ''}`}
                                     >
-                                        Cost{' '}
-                                        {sortField === 'altering_cost' &&
-                                            (sortOrder === 'asc'
-                                                ? 'Low-High'
-                                                : 'High-Low')}
+                                        Cost {sortField === 'altering_cost' && (sortOrder === 'asc' ? 'Low-High' : 'High-Low')}
                                     </button>
                                     <button
                                         onClick={() => handleSort('ready_at')}
-                                        className={`w-full px-4 py-2 text-left text-sm hover:bg-white/5 text-white/80 ${sortField === 'ready_at' ? 'bg-white/5' : ''}`}
+                                        className={`w-full px-3 py-2 text-left text-[11px] hover:bg-[#30363d] text-[#8b949e] hover:text-[#c9d1d9] ${sortField === 'ready_at' ? 'bg-[#30363d]/50 text-[#c9d1d9]' : ''}`}
                                     >
-                                        Ready Date{' '}
-                                        {sortField === 'ready_at' &&
-                                            (sortOrder === 'asc'
-                                                ? 'Old-New'
-                                                : 'New-Old')}
+                                        Ready {sortField === 'ready_at' && (sortOrder === 'asc' ? 'Old-New' : 'New-Old')}
                                     </button>
                                 </div>
                             </>
@@ -726,33 +646,23 @@ export default function AlteringManager() {
                     <div className="relative">
                         <button
                             onClick={() => setShowExportMenu(!showExportMenu)}
-                            className="px-4 py-2.5 bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 text-attire-charcoal dark:text-white hover:bg-black/10 dark:hover:bg-white/10 transition-colors flex items-center gap-2 rounded-xl text-sm font-mono tracking-widest text-[11px]"
+                            className="px-3 py-1.5 bg-[#0d1117] border border-[#30363d] text-[#c9d1d9] hover:bg-[#161b22] transition-colors flex items-center gap-1.5 rounded font-mono tracking-widest text-[10px]"
                         >
-                            <Download size={14} /> Export{' '}
-                            <ChevronDown size={14} className="opacity-50" />
+                            <Download size={12} /> Export <ChevronDown size={12} className="opacity-50" />
                         </button>
                         {showExportMenu && (
                             <>
-                                <div
-                                    className="fixed inset-0 z-10"
-                                    onClick={() => setShowExportMenu(false)}
-                                />
-                                <div className="absolute right-0 mt-2 w-32 bg-white dark:bg-[#161b22] border border-black/10 dark:border-[#30363d] rounded-xl z-20 py-2">
+                                <div className="fixed inset-0 z-10" onClick={() => setShowExportMenu(false)} />
+                                <div className="absolute right-0 mt-1 w-24 bg-[#161b22] border border-[#30363d] rounded z-20 py-1 shadow-xl">
                                     <button
-                                        onClick={() => {
-                                            exportToCSV();
-                                            setShowExportMenu(false);
-                                        }}
-                                        className="w-full px-4 py-2 text-left text-sm hover:bg-white/5 text-white/80"
+                                        onClick={() => { exportToCSV(); setShowExportMenu(false); }}
+                                        className="w-full px-3 py-2 text-left text-[11px] hover:bg-[#30363d] text-[#8b949e] hover:text-[#c9d1d9]"
                                     >
                                         CSV
                                     </button>
                                     <button
-                                        onClick={() => {
-                                            exportToJSON();
-                                            setShowExportMenu(false);
-                                        }}
-                                        className="w-full px-4 py-2 text-left text-sm hover:bg-white/5 text-white/80 border-t border-white/10 m-0 rounded-none"
+                                        onClick={() => { exportToJSON(); setShowExportMenu(false); }}
+                                        className="w-full px-3 py-2 text-left text-[11px] hover:bg-[#30363d] text-[#8b949e] hover:text-[#c9d1d9]"
                                     >
                                         JSON
                                     </button>
@@ -760,13 +670,14 @@ export default function AlteringManager() {
                             </>
                         )}
                     </div>
+
                     {selectedItems.length > 0 && (
-                        <div className="flex items-center gap-2">
+                        <div className="flex items-center gap-1">
                             <button
                                 onClick={() => setSelectedItems([])}
-                                className="bg-black/5 dark:bg-white/5 hover:bg-black/10 dark:hover:bg-white/10 text-gray-500 transition-all px-4 py-2.5 rounded-xl font-bold uppercase tracking-widest text-[9px] border border-black/10 dark:border-white/10 flex items-center gap-2"
+                                className="bg-[#0d1117] hover:bg-[#161b22] text-[#8b949e] transition-all px-3 py-1.5 rounded font-bold uppercase tracking-widest text-[9px] border border-[#30363d] flex items-center gap-1.5"
                             >
-                                <X size={12} strokeWidth={3} />
+                                <X size={10} strokeWidth={3} />
                                 Clear {selectedItems.length}
                             </button>
                             <button
@@ -776,12 +687,12 @@ export default function AlteringManager() {
                                     }
                                 }}
                                 disabled={bulkDeleteMutation.isPending}
-                                className="bg-red-500/10 hover:bg-red-500/20 text-red-500 transition-all px-4 py-2.5 rounded-xl font-bold uppercase tracking-widest text-[9px] border border-red-500/20 flex items-center gap-2 disabled:opacity-50"
+                                className="bg-red-500/10 hover:bg-red-500/20 text-red-500 transition-all px-3 py-1.5 rounded font-bold uppercase tracking-widest text-[9px] border border-red-500/20 flex items-center gap-1.5 disabled:opacity-50"
                             >
                                 {bulkDeleteMutation.isPending ? (
-                                    <LumaSpin className="animate-spin" size="sm" />
+                                    <LumaSpin className="animate-spin" size="xs" />
                                 ) : (
-                                    <svg width="12" height="12" viewBox="0 0 16 16" fill="none">
+                                    <svg width="10" height="10" viewBox="0 0 16 16" fill="none">
                                         <path d="M3 4H13M5 4V3C5 2.44772 5.44772 2 6 2H10C10.5523 2 11 2.44772 11 3V4M6.5 7V11M9.5 7V11M4 4V13C4 13.5523 4.44772 14 5 14H11C11.5523 14 12 13.5523 12 13V4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
                                     </svg>
                                 )}
@@ -792,23 +703,23 @@ export default function AlteringManager() {
 
                     <Button
                         onClick={() => setShowSyncModal(true)}
-                        className="bg-black/5 dark:bg-white/5 text-attire-charcoal dark:text-white hover:bg-attire-accent dark:hover:bg-attire-accent transition-colors px-6 py-5 rounded-xl font-bold uppercase tracking-[0.2em] text-[10px] ml-1 border border-black/10 dark:border-white/10"
+                        className="bg-[#0d1117] text-[#c9d1d9] hover:bg-[#161b22] transition-colors h-auto py-1.5 px-3 rounded font-bold uppercase tracking-widest text-[9px] border border-[#30363d] shadow-none ml-1"
                     >
-                        <RefreshCw className={`w-3.5 h-3.5 mr-2 ${isSyncing ? 'animate-spin' : ''}`} />
+                        <RefreshCw className={`w-3 h-3 mr-1.5 ${isSyncing ? 'animate-spin' : ''}`} />
                         Sync Sheet
                     </Button>
 
                     <Button
                         onClick={() => setIsAdding(true)}
-                        className="bg-attire-charcoal dark:bg-white text-white dark:text-black hover:bg-attire-accent transition-colors px-6 py-5 rounded-xl font-bold uppercase tracking-[0.2em] text-[10px] ml-1"
+                        className="bg-[#58a6ff]/10 text-[#58a6ff] border border-[#58a6ff]/30 hover:bg-[#58a6ff]/20 transition-colors h-auto py-1.5 px-3 rounded font-bold uppercase tracking-widest text-[9px] shadow-none"
                     >
-                        <Plus className="w-3 h-3 mr-2" /> Add Record
+                        <Plus className="w-3 h-3 mr-1.5" /> Add Record
                     </Button>
                 </div>
             </div>
 
             {/* Table Area - Optimized for performance */}
-            <div className="bg-[#fdfdfc] dark:bg-[#0d1117] border border-black/10 dark:border-[#30363d] rounded-3xl overflow-hidden relative shadow-none">
+            <div className="bg-[#0d1117] border border-[#30363d] rounded-lg overflow-hidden relative shadow-none">
                 <Suspense fallback={<LoadingState />}>
                     {isLoading ? (
                         <LoadingState />
@@ -846,33 +757,28 @@ export default function AlteringManager() {
                 title="Altering Details"
             >
                 {selectedDetail && (
-                    <div className="space-y-8 relative z-10 px-2 pb-2">
+                    <div className="space-y-6 relative z-10 p-2">
                         {/* Header */}
-                        <div className="flex items-center gap-4">
-                            <div className="w-16 h-16 rounded-3xl bg-attire-accent/10 border border-attire-accent/20 flex items-center justify-center">
-                                <User className="w-8 h-8 text-attire-accent" />
+                        <div className="flex items-center gap-3 border-b border-[#30363d] pb-4">
+                            <div className="w-10 h-10 rounded bg-[#161b22] border border-[#30363d] flex items-center justify-center">
+                                <User className="w-5 h-5 text-[#8b949e]" />
                             </div>
                             <div>
-                                <h3 className="text-2xl font-serif text-attire-charcoal dark:text-white tracking-tight leading-none mb-2">
+                                <h3 className="text-lg font-serif text-[#c9d1d9] tracking-tight leading-none mb-1.5">
                                     {selectedDetail.customer_name}
                                 </h3>
-                                <div className="flex flex-wrap gap-2">
+                                <div className="flex flex-wrap gap-2 text-[10px]">
                                     {(() => {
-                                        const status =
-                                            statusConfig[
-                                                selectedDetail.status
-                                            ] || statusConfig.pending;
+                                        const status = statusConfig[selectedDetail.status] || statusConfig.pending;
                                         return (
-                                            <div
-                                                className={`inline-flex items-center gap-1.5 px-2 py-0.5 text-[9px] font-black uppercase tracking-widest ${status.bgColor} ${status.textColor} border ${status.borderColor} rounded-md`}
-                                            >
-                                                <status.icon className="w-3 h-3" />{' '}
+                                            <div className={`inline-flex items-center gap-1 px-1.5 py-0.5 text-[9px] font-black uppercase tracking-widest ${status.bgColor} ${status.textColor} border ${status.borderColor} rounded`}>
+                                                <status.icon className="w-2.5 h-2.5" />
                                                 {status.label}
                                             </div>
                                         );
                                     })()}
                                     {selectedDetail.order_no && (
-                                        <div className="inline-flex items-center px-2 py-0.5 text-[9px] font-mono uppercase tracking-widest bg-black/5 dark:bg-[#161b22] border border-black/10 dark:border-[#30363d] text-gray-500 dark:text-[#8b949e] rounded-md">
+                                        <div className="inline-flex items-center px-1.5 py-0.5 text-[9px] font-mono uppercase tracking-widest bg-[#161b22] border border-[#30363d] text-[#8b949e] rounded">
                                             #{selectedDetail.order_no}
                                         </div>
                                     )}
@@ -881,137 +787,90 @@ export default function AlteringManager() {
                         </div>
 
                         {/* Information Matrix */}
-                        <div className="grid gap-4 bg-black/[0.01] dark:bg-[#161b22] border border-black/5 dark:border-[#30363d] p-5 rounded-3xl">
-                            <div className="flex gap-4 items-start">
-                                <Smartphone
-                                    size={16}
-                                    className="text-gray-400 dark:text-white/30 mt-0.5 shrink-0"
-                                />
+                        <div className="grid gap-2">
+                            <div className="flex gap-3 items-start p-3 bg-[#0d1117] border border-[#30363d] rounded">
+                                <Smartphone size={14} className="text-[#8b949e] mt-0.5 shrink-0" />
                                 <div>
-                                    <p className="text-[10px] uppercase font-black tracking-widest text-gray-400 dark:text-white/30 mb-0.5">
-                                        Phone
-                                    </p>
-                                    <p className="text-sm font-medium text-gray-900 dark:text-white">
-                                        {selectedDetail.mobile ||
-                                            'Unknown'}
+                                    <p className="text-[9px] uppercase font-black tracking-widest text-[#8b949e] mb-0.5">Phone</p>
+                                    <p className="text-xs font-mono text-[#c9d1d9]">
+                                        {selectedDetail.mobile || 'Unknown'}
                                     </p>
                                 </div>
                             </div>
-                            <div className="flex gap-4 items-start">
-                                <Package
-                                    size={16}
-                                    className="text-gray-400 dark:text-white/30 mt-0.5 shrink-0"
-                                />
+                            <div className="flex gap-3 items-start p-3 bg-[#0d1117] border border-[#30363d] rounded">
+                                <Package size={14} className="text-[#8b949e] mt-0.5 shrink-0" />
                                 <div>
-                                    <p className="text-[10px] uppercase font-black tracking-widest text-gray-400 dark:text-white/30 mb-0.5">
-                                        Product
-                                    </p>
-                                    <p className="text-sm text-gray-700 dark:text-white/80 font-serif italic">
-                                        {selectedDetail.product ||
-                                            'Unspecified Detail'}
+                                    <p className="text-[9px] uppercase font-black tracking-widest text-[#8b949e] mb-0.5">Product</p>
+                                    <p className="text-xs text-[#c9d1d9] font-serif italic">
+                                        {selectedDetail.product || 'Unspecified Detail'}
                                     </p>
                                 </div>
                             </div>
                             {selectedDetail.remark && (
-                                <div className="flex gap-4 items-start">
-                                    <Mail
-                                        size={16}
-                                        className="text-gray-400 dark:text-white/30 mt-0.5 shrink-0"
-                                    />
+                                <div className="flex gap-3 items-start p-3 bg-[#0d1117] border border-[#30363d] rounded">
+                                    <Mail size={14} className="text-[#8b949e] mt-0.5 shrink-0" />
                                     <div>
-                                        <p className="text-[10px] uppercase font-black tracking-widest text-gray-400 dark:text-white/30 mb-0.5">
-                                            Notes
-                                        </p>
-                                        <p className="text-sm text-gray-600 dark:text-[#c9d1d9] leading-relaxed bg-black/5 dark:bg-[#0d1117] p-3 rounded-xl border border-black/5 dark:border-[#30363d] mt-1">
+                                        <p className="text-[9px] uppercase font-black tracking-widest text-[#8b949e] mb-0.5">Notes</p>
+                                        <p className="text-xs text-[#c9d1d9] leading-relaxed">
                                             {selectedDetail.remark}
                                         </p>
                                     </div>
                                 </div>
                             )}
-                            <div className="grid grid-cols-2 gap-4 pt-4 border-t border-black/5 dark:border-white/5">
-                                <div>
-                                    <p className="text-[10px] uppercase font-black tracking-widest text-gray-400 dark:text-white/30 mb-1">
-                                        Ready Date
-                                    </p>
-                                    <p className="text-sm font-mono text-gray-800 dark:text-white/80">
-                                        {formatDate(
-                                            selectedDetail.ready_at,
-                                            { fallback: 'N/A', month: 'short' }
-                                        )}
+                            <div className="grid grid-cols-2 gap-2 mt-1">
+                                <div className="p-3 bg-[#0d1117] border border-[#30363d] rounded">
+                                    <p className="text-[9px] uppercase font-black tracking-widest text-[#8b949e] mb-1">Ready Date</p>
+                                    <p className="text-sm font-mono text-[#c9d1d9]">
+                                        {formatDate(selectedDetail.ready_at, { fallback: 'N/A', month: 'short' })}
                                     </p>
                                 </div>
-                                <div>
-                                    <p className="text-[10px] uppercase font-black tracking-widest text-gray-400 dark:text-white/30 mb-1">
-                                        Cost
-                                    </p>
-                                    <p className="text-sm font-mono text-attire-accent">
-                                        $
-                                        {selectedDetail.altering_cost ||
-                                            '0.00'}
+                                <div className="p-3 bg-[#0d1117] border border-[#30363d] rounded">
+                                    <p className="text-[9px] uppercase font-black tracking-widest text-[#8b949e] mb-1">Cost</p>
+                                    <p className="text-sm font-mono text-[#58a6ff]">
+                                        ${selectedDetail.altering_cost || '0.00'}
                                     </p>
                                 </div>
                             </div>
                         </div>
 
                         {/* Actions */}
-                        <div className="flex flex-col gap-3 pt-2">
-                            <div className="flex gap-3">
-                                {selectedDetail.status !==
-                                    'completed' && (
+                        <div className="flex flex-col gap-2 pt-2 border-t border-[#30363d]">
+                            <div className="flex gap-2">
+                                {selectedDetail.status !== 'completed' && (
                                     <button
                                         onClick={() => {
-                                            updateMutation.mutate({
-                                                id: selectedDetail.id,
-                                                data: {
-                                                    status: 'completed',
-                                                },
-                                            });
+                                            updateMutation.mutate({ id: selectedDetail.id, data: { status: 'completed' } });
                                             setSelectedDetail(null);
                                         }}
-                                        className="flex-1 bg-attire-charcoal dark:bg-white text-white dark:text-black hover:bg-attire-accent dark:hover:bg-attire-accent transition-colors py-4 rounded-xl text-[10px] font-black uppercase tracking-[0.2em] flex justify-center items-center gap-2"
+                                        className="flex-1 bg-[#238636] border border-[#2ea043]/30 text-white hover:bg-[#2ea043] transition-colors py-2.5 rounded text-[10px] font-black uppercase tracking-[0.1em] flex justify-center items-center gap-1.5"
                                     >
-                                        <CheckCircle2 size={14} /> Mark
-                                        Complete
+                                        <CheckCircle2 size={12} /> Mark Complete
                                     </button>
                                 )}
                                 <button
-                                    onClick={() =>
-                                        handleNotify(selectedDetail.id)
-                                    }
-                                    disabled={
-                                        isNotifying ===
-                                        selectedDetail.id
-                                    }
-                                    className="flex-1 bg-attire-accent/10 border border-attire-accent/30 text-attire-accent hover:bg-attire-accent/20 transition-colors py-4 rounded-xl text-[10px] font-black uppercase tracking-[0.2em] flex justify-center items-center gap-2"
+                                    onClick={() => handleNotify(selectedDetail.id)}
+                                    disabled={isNotifying === selectedDetail.id}
+                                    className="flex-1 bg-[#161b22] border border-[#30363d] text-[#c9d1d9] hover:bg-[#30363d] transition-colors py-2.5 rounded text-[10px] font-black uppercase tracking-[0.1em] flex justify-center items-center gap-1.5"
                                 >
-                                    {isNotifying ===
-                                    selectedDetail.id ? (
-                                        <LumaSpin
-                                            className="animate-spin"
-                                            size="sm"
-                                        />
+                                    {isNotifying === selectedDetail.id ? (
+                                        <LumaSpin className="animate-spin" size="xs" />
                                     ) : (
-                                        <Mail size={14} />
-                                    )}{' '}
-                                    Notify Client
+                                        <Mail size={12} />
+                                    )} Notify Client
                                 </button>
                             </div>
-                            <button
-                                onClick={() => {
-                                    if (
-                                        confirm('Delete this record?')
-                                    ) {
-                                        deleteMutation.mutate(
-                                            selectedDetail.id
-                                        );
-                                    }
-                                }}
-                                className="text-red-500/50 hover:text-red-500 hover:bg-red-500/10 py-3 rounded-xl text-xs font-medium transition-colors"
-                            >
-                                Delete Record
-                            </button>
-                            <div className="text-center pt-2">
-                                <span className="text-[9px] uppercase tracking-widest font-black text-gray-400 dark:text-white/20">
+                            <div className="flex justify-between items-center px-1">
+                                <button
+                                    onClick={() => {
+                                        if (confirm('Delete this record?')) {
+                                            deleteMutation.mutate(selectedDetail.id);
+                                        }
+                                    }}
+                                    className="text-red-500/50 hover:text-red-500 hover:bg-red-500/10 py-1.5 px-3 rounded text-[10px] font-medium transition-colors border border-transparent hover:border-red-500/20"
+                                >
+                                    Delete Record
+                                </button>
+                                <span className="text-[9px] uppercase tracking-widest font-black text-[#8b949e]">
                                     {selectedDetail.notified_at
                                         ? `Last notified: ${formatDate(selectedDetail.notified_at, { fallback: 'N/A', month: 'short' })}`
                                         : 'Not notified yet'}
@@ -1028,196 +887,88 @@ export default function AlteringManager() {
                 onClose={() => setIsAdding(false)}
                 title="Add Altering Record"
             >
-                <div className="relative z-10 px-2">
+                <div className="relative z-10 px-2 flex flex-col h-full pb-2">
                     {/* Progress Indicators */}
-                    <div className="flex items-center gap-2 mb-8">
+                    <div className="flex items-center gap-1 mb-6">
                         {[1, 2, 3].map((step) => (
                             <div
                                 key={step}
-                                className={`h-1.5 rounded-full transition-all duration-300 ${wizardStep >= step ? 'w-8 bg-attire-accent' : 'w-4 bg-black/10 dark:bg-white/10'}`}
+                                className={`h-1 rounded-full transition-all duration-300 ${wizardStep >= step ? 'w-8 bg-[#58a6ff]' : 'w-4 bg-[#30363d]'}`}
                             />
                         ))}
                     </div>
 
-                    <div className="min-h-[300px]">
+                    <div className="flex-1 min-h-[200px]">
                         <AnimatePresence mode="wait">
                             {wizardStep === 1 && (
-                                <motion.div
-                                    key="step1"
-                                    initial={{ opacity: 0, x: 20 }}
-                                    animate={{ opacity: 1, x: 0 }}
-                                    exit={{ opacity: 0, x: -20 }}
-                                    className="space-y-6"
-                                >
-                                    <div className="space-y-2">
-                                        <label className="text-[10px] font-black text-gray-400 dark:text-white/40 uppercase tracking-widest pl-1">
-                                            Customer Name
-                                        </label>
+                                <motion.div key="step1" initial={{ opacity: 0, x: 10 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -10 }} className="space-y-4">
+                                    <div className="space-y-1.5">
+                                        <label className="text-[9px] font-black text-[#8b949e] uppercase tracking-widest">Customer Name</label>
                                         <input
-                                            required
-                                            autoFocus
-                                            value={
-                                                formData.customer_name
-                                            }
-                                            onChange={(e) =>
-                                                setFormData({
-                                                    ...formData,
-                                                    customer_name:
-                                                        e.target
-                                                            .value,
-                                                })
-                                            }
+                                            required autoFocus value={formData.customer_name} onChange={(e) => setFormData({ ...formData, customer_name: e.target.value })}
                                             placeholder="Full Name"
-                                            className="w-full bg-[#fdfdfc] dark:bg-[#161b22] border border-black/10 dark:border-[#30363d] hover:border-black/20 dark:hover:border-white/20 rounded-2xl p-4 text-gray-900 dark:text-[#c9d1d9] text-sm outline-none focus:border-[#0d3542]/50 dark:focus:border-[#58a6ff]/50 focus:bg-[#fdfdfc] dark:focus:bg-[#0d1117] transition-all"
+                                            className="w-full bg-[#0d1117] border border-[#30363d] rounded py-2 px-3 text-[#c9d1d9] text-xs outline-none focus:border-[#58a6ff]/50 transition-all font-mono"
                                         />
                                     </div>
-                                    <div className="space-y-2">
-                                        <label className="text-[10px] font-black text-gray-400 dark:text-white/40 uppercase tracking-widest pl-1">
-                                            Phone Number
-                                        </label>
+                                    <div className="space-y-1.5">
+                                        <label className="text-[9px] font-black text-[#8b949e] uppercase tracking-widest">Phone Number</label>
                                         <input
-                                            value={formData.mobile}
-                                            onChange={(e) =>
-                                                setFormData({
-                                                    ...formData,
-                                                    mobile: e.target
-                                                        .value,
-                                                })
-                                            }
+                                            value={formData.mobile} onChange={(e) => setFormData({ ...formData, mobile: e.target.value })}
                                             placeholder="+1 (555) 000-0000"
-                                            className="w-full bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 hover:border-black/20 dark:hover:border-white/20 rounded-2xl p-4 text-gray-900 dark:text-white text-sm outline-none focus:border-attire-accent/50 focus:bg-black/[0.07] dark:focus:bg-white/[0.07] transition-all"
+                                            className="w-full bg-[#0d1117] border border-[#30363d] rounded py-2 px-3 text-[#c9d1d9] text-xs outline-none focus:border-[#58a6ff]/50 transition-all font-mono"
                                         />
                                     </div>
-                                    <div className="space-y-2">
-                                        <label className="text-[10px] font-black text-gray-400 dark:text-white/40 uppercase tracking-widest pl-1">
-                                            Order Number (Optional)
-                                        </label>
+                                    <div className="space-y-1.5">
+                                        <label className="text-[9px] font-black text-[#8b949e] uppercase tracking-widest">Order Number</label>
                                         <input
-                                            value={
-                                                formData.order_no
-                                            }
-                                            onChange={(e) =>
-                                                setFormData({
-                                                    ...formData,
-                                                    order_no:
-                                                        e.target
-                                                            .value,
-                                                })
-                                            }
+                                            value={formData.order_no} onChange={(e) => setFormData({ ...formData, order_no: e.target.value })}
                                             placeholder="#ORD-..."
-                                            className="w-full bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 hover:border-black/20 dark:hover:border-white/20 rounded-2xl p-4 text-gray-900 dark:text-white font-mono text-sm outline-none focus:border-attire-accent/50 focus:bg-black/[0.07] dark:focus:bg-white/[0.07] transition-all"
+                                            className="w-full bg-[#0d1117] border border-[#30363d] rounded py-2 px-3 text-[#c9d1d9] text-xs outline-none focus:border-[#58a6ff]/50 transition-all font-mono"
                                         />
                                     </div>
                                 </motion.div>
                             )}
                             {wizardStep === 2 && (
-                                <motion.div
-                                    key="step2"
-                                    initial={{ opacity: 0, x: 20 }}
-                                    animate={{ opacity: 1, x: 0 }}
-                                    exit={{ opacity: 0, x: -20 }}
-                                    className="space-y-6"
-                                >
-                                    <div className="space-y-2">
-                                        <label className="text-[10px] font-black text-gray-400 dark:text-white/40 uppercase tracking-widest pl-1">
-                                            Product Details
-                                        </label>
+                                <motion.div key="step2" initial={{ opacity: 0, x: 10 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -10 }} className="space-y-4">
+                                    <div className="space-y-1.5">
+                                        <label className="text-[9px] font-black text-[#8b949e] uppercase tracking-widest">Product Details</label>
                                         <textarea
-                                            required
-                                            autoFocus
-                                            rows="3"
-                                            value={formData.product}
-                                            onChange={(e) =>
-                                                setFormData({
-                                                    ...formData,
-                                                    product:
-                                                        e.target
-                                                            .value,
-                                                })
-                                            }
+                                            required autoFocus rows="3" value={formData.product} onChange={(e) => setFormData({ ...formData, product: e.target.value })}
                                             placeholder="Specify the exact alterations required..."
-                                            className="w-full bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 hover:border-black/20 dark:hover:border-white/20 rounded-2xl p-4 text-gray-900 dark:text-white text-sm outline-none focus:border-attire-accent/50 focus:bg-black/[0.07] dark:focus:bg-white/[0.07] transition-all resize-none"
+                                            className="w-full bg-[#0d1117] border border-[#30363d] rounded py-2 px-3 text-[#c9d1d9] text-xs outline-none focus:border-[#58a6ff]/50 transition-all font-mono resize-none"
                                         />
                                     </div>
-                                    <div className="space-y-2">
-                                        <label className="text-[10px] font-black text-gray-400 dark:text-white/40 uppercase tracking-widest pl-1">
-                                            Notes (Optional)
-                                        </label>
+                                    <div className="space-y-1.5">
+                                        <label className="text-[9px] font-black text-[#8b949e] uppercase tracking-widest">Notes (Optional)</label>
                                         <textarea
-                                            rows="3"
-                                            value={formData.remark}
-                                            onChange={(e) =>
-                                                setFormData({
-                                                    ...formData,
-                                                    remark: e.target
-                                                        .value,
-                                                })
-                                            }
+                                            rows="3" value={formData.remark} onChange={(e) => setFormData({ ...formData, remark: e.target.value })}
                                             placeholder="Internal tailor notes, structural warnings..."
-                                            className="w-full bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 hover:border-black/20 dark:hover:border-white/20 rounded-2xl p-4 text-gray-500 dark:text-white/60 text-sm outline-none focus:border-attire-accent/50 focus:bg-black/[0.07] dark:focus:bg-white/[0.07] transition-all resize-none"
+                                            className="w-full bg-[#0d1117] border border-[#30363d] rounded py-2 px-3 text-[#8b949e] text-xs outline-none focus:border-[#58a6ff]/50 transition-all font-mono resize-none"
                                         />
                                     </div>
                                 </motion.div>
                             )}
                             {wizardStep === 3 && (
-                                <motion.div
-                                    key="step3"
-                                    initial={{ opacity: 0, x: 20 }}
-                                    animate={{ opacity: 1, x: 0 }}
-                                    exit={{ opacity: 0, x: -20 }}
-                                    className="space-y-6"
-                                >
-                                    <div className="space-y-2">
-                                        <label className="text-[10px] font-black text-gray-400 dark:text-white/40 uppercase tracking-widest pl-1">
-                                            Cost ($)
-                                        </label>
+                                <motion.div key="step3" initial={{ opacity: 0, x: 10 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -10 }} className="space-y-4">
+                                    <div className="space-y-1.5">
+                                        <label className="text-[9px] font-black text-[#8b949e] uppercase tracking-widest">Cost ($)</label>
                                         <div className="relative">
-                                            <DollarSign
-                                                className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 dark:text-white/40"
-                                                size={16}
-                                            />
+                                            <DollarSign className="absolute left-3 top-1/2 -translate-y-1/2 text-[#8b949e]" size={14} />
                                             <input
-                                                required
-                                                type="number"
-                                                step="0.01"
-                                                value={
-                                                    formData.altering_cost
-                                                }
-                                                onChange={(e) =>
-                                                    setFormData({
-                                                        ...formData,
-                                                        altering_cost:
-                                                            e.target
-                                                                .value,
-                                                    })
-                                                }
+                                                required type="number" step="0.01" value={formData.altering_cost} onChange={(e) => setFormData({ ...formData, altering_cost: e.target.value })}
                                                 placeholder="0.00"
-                                                className="w-full bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 hover:border-black/20 dark:hover:border-white/20 rounded-2xl py-4 pl-12 pr-4 text-attire-accent font-mono text-lg outline-none focus:border-attire-accent/50 focus:bg-black/[0.07] dark:focus:bg-white/[0.07] transition-all"
+                                                className="w-full bg-[#0d1117] border border-[#30363d] rounded py-2 pl-8 pr-3 text-[#58a6ff] text-sm outline-none focus:border-[#58a6ff]/50 transition-all font-mono"
                                             />
                                         </div>
                                     </div>
-                                    <div className="grid grid-cols-2 gap-4">
-                                        <div className="space-y-2">
-                                            <label className="text-[10px] font-black text-gray-400 dark:text-white/40 uppercase tracking-widest pl-1">
-                                                Start Date
-                                            </label>
-                                            <DatePicker 
-                                                required
-                                                value={formData.start_date}
-                                                onChange={(e) => setFormData({ ...formData, start_date: e.target.value })}
-                                                name="start_date"
-                                            />
+                                    <div className="grid grid-cols-2 gap-3">
+                                        <div className="space-y-1.5">
+                                            <label className="text-[9px] font-black text-[#8b949e] uppercase tracking-widest">Start Date</label>
+                                            <DatePicker required value={formData.start_date} onChange={(e) => setFormData({ ...formData, start_date: e.target.value })} name="start_date" />
                                         </div>
-                                        <div className="space-y-2">
-                                            <label className="text-[10px] font-black text-gray-400 dark:text-white/40 uppercase tracking-widest pl-1">
-                                                Target Ready
-                                            </label>
-                                            <DatePicker 
-                                                required
-                                                value={formData.ready_at}
-                                                onChange={(e) => setFormData({ ...formData, ready_at: e.target.value })}
-                                                name="ready_at"
-                                            />
+                                        <div className="space-y-1.5">
+                                            <label className="text-[9px] font-black text-[#8b949e] uppercase tracking-widest">Target Ready</label>
+                                            <DatePicker required value={formData.ready_at} onChange={(e) => setFormData({ ...formData, ready_at: e.target.value })} name="ready_at" />
                                         </div>
                                     </div>
                                 </motion.div>
@@ -1226,66 +977,42 @@ export default function AlteringManager() {
                     </div>
 
                     {/* Controls */}
-                    <div className="mt-8 pt-6 border-t border-black/10 dark:border-white/10 flex items-center justify-between relative z-10">
+                    <div className="mt-6 pt-4 border-t border-[#30363d] flex items-center justify-between relative z-10">
                         <button
                             type="button"
-                            onClick={() =>
-                                wizardStep > 1
-                                    ? setWizardStep((w) => w - 1)
-                                    : setIsAdding(false)
-                            }
-                            className="text-[10px] font-black uppercase tracking-widest text-gray-400 dark:text-white/40 hover:text-attire-charcoal dark:hover:text-white transition-colors px-4 py-3"
+                            onClick={() => wizardStep > 1 ? setWizardStep(w => w - 1) : setIsAdding(false)}
+                            className="text-[9px] font-black uppercase tracking-widest text-[#8b949e] hover:text-[#c9d1d9] transition-colors px-2 py-1.5 rounded hover:bg-[#30363d]/50"
                         >
-                            {wizardStep === 1
-                                ? 'Cancel'
-                                : 'Go Back'}
+                            {wizardStep === 1 ? 'Cancel' : 'Back'}
                         </button>
 
                         {wizardStep < 3 ? (
                             <button
                                 type="button"
                                 onClick={() => {
-                                    if (
-                                        wizardStep === 1 &&
-                                        !formData.customer_name
-                                    )
-                                        return alert(
-                                            'Client name is required.'
-                                        );
-                                    if (
-                                        wizardStep === 2 &&
-                                        !formData.product
-                                    )
-                                        return alert(
-                                            'Garment scope is required.'
-                                        );
-                                    setWizardStep((w) => w + 1);
+                                    if (wizardStep === 1 && !formData.customer_name) return alert('Client name is required.');
+                                    if (wizardStep === 2 && !formData.product) return alert('Garment scope is required.');
+                                    setWizardStep(w => w + 1);
                                 }}
-                                className="px-8 py-4 bg-black/5 dark:bg-white/10 text-gray-900 dark:text-white hover:bg-black/10 dark:hover:bg-white transition-colors dark:hover:text-black rounded-2xl text-[10px] font-black uppercase tracking-widest"
+                                className="px-5 py-2 bg-[#238636] text-white hover:bg-[#2ea043] transition-colors rounded text-[9px] font-black uppercase tracking-[0.1em]"
                             >
                                 Continue
                             </button>
                         ) : (
                             <Button
                                 onClick={() => {
-                                    if (
-                                        !formData.altering_cost ||
-                                        !formData.ready_at
-                                    )
-                                        return alert(
-                                            'Quote and Target Date are required.'
-                                        );
+                                    if (!formData.altering_cost || !formData.ready_at) return alert('Quote and Target Date are required.');
                                     createMutation.mutate(formData);
                                 }}
                                 disabled={createMutation.isPending}
-                                className="px-8 py-6 bg-attire-accent text-black hover:bg-[#ffb940] transition-colors rounded-2xl text-[10px] font-black uppercase tracking-widest"
+                                className="px-5 py-2 h-auto bg-[#58a6ff] text-[#0d1117] hover:bg-[#79b8ff] transition-colors rounded text-[9px] font-black uppercase tracking-[0.1em]"
                             >
                                 {createMutation.isPending ? (
-                                    <LumaSpin className="animate-spin" size="sm" />
+                                    <LumaSpin className="animate-spin" size="xs" />
                                 ) : (
-                                    <CheckCircle2 className="mr-2 w-4 h-4" />
+                                    <CheckCircle2 className="mr-1.5 w-3 h-3" />
                                 )}
-                                Save Record
+                                Save
                             </Button>
                         )}
                     </div>
@@ -1298,68 +1025,50 @@ export default function AlteringManager() {
                 onClose={() => setShowSyncModal(false)}
                 title="Master Sheet Sync"
             >
-                <div className="space-y-6 px-2 pb-2">
-                    <div className="flex flex-col items-center text-center mb-8">
-                        <div className="w-20 h-20 bg-attire-accent/10 rounded-3xl flex items-center justify-center mb-6 border border-attire-accent/20">
-                            <RefreshCw
-                                size={32}
-                                className={`text-attire-accent ${isSyncing ? 'animate-spin' : ''}`}
-                            />
+                <div className="space-y-4 px-2 pb-2">
+                    <div className="flex flex-col items-center justify-center p-6 border border-[#30363d] rounded bg-[#0d1117] mb-2">
+                        <div className="w-12 h-12 bg-[#161b22] border border-[#30363d] rounded flex items-center justify-center mb-4">
+                            <RefreshCw size={20} className={`text-[#8b949e] ${isSyncing ? 'animate-spin' : ''}`} />
                         </div>
-                        <p className="text-gray-400 dark:text-white/40 text-xs font-mono tracking-widest uppercase">
-                            Google Sheets Intelligence
+                        <p className="text-[#c9d1d9] text-[10px] font-mono tracking-widest uppercase">
+                            Google Sheets Bridge
                         </p>
                     </div>
 
-                    <div className="space-y-4">
-                        <div className="space-y-2">
-                            <label className="text-[10px] font-black text-gray-400 dark:text-white/40 uppercase tracking-widest pl-2">
-                                Sheet Sharing URL
+                    <div className="space-y-3">
+                        <div className="space-y-1.5">
+                            <label className="text-[9px] font-black text-[#8b949e] uppercase tracking-widest">
+                                Sheet URL
                             </label>
                             <div className="relative group">
-                                <div className="absolute left-4 top-1/2 -translate-y-1/2">
-                                    <ExternalLink
-                                        size={16}
-                                        className="text-gray-400 dark:text-white/20 group-focus-within:text-attire-accent transition-colors"
-                                    />
-                                </div>
+                                <ExternalLink size={12} className="absolute left-2.5 top-1/2 -translate-y-1/2 text-[#8b949e] group-focus-within:text-[#58a6ff] transition-colors" />
                                 <input
                                     type="text"
                                     placeholder="https://docs.google.com/spreadsheets/d/..."
                                     value={syncUrl}
                                     onChange={(e) => setSyncUrl(e.target.value)}
-                                    className="w-full bg-[#fdfdfc] dark:bg-[#161b22] border border-black/10 dark:border-[#30363d] rounded-2xl py-4 pl-12 pr-4 text-gray-900 dark:text-[#c9d1d9] text-sm outline-none focus:border-[#0d3542]/50 dark:focus:border-[#58a6ff]/50 focus:bg-[#fdfdfc] dark:focus:bg-[#0d1117] transition-all font-mono"
+                                    className="w-full bg-[#0d1117] border border-[#30363d] rounded py-2 pl-7 pr-3 text-[#c9d1d9] text-xs outline-none focus:border-[#58a6ff]/50 transition-all font-mono"
                                 />
                             </div>
                         </div>
 
-                        <div className="bg-black/5 dark:bg-white/5 border border-black/5 dark:border-white/5 rounded-2xl p-4 flex items-start gap-3">
-                            <div className="p-2 bg-blue-500/10 rounded-lg">
-                                <AlertCircle size={14} className="text-blue-400" />
-                            </div>
-                            <p className="text-[10px] leading-relaxed text-gray-500 dark:text-white/50">
-                                Make sure your Google Sheet is shared with{' '}
-                                <span className="text-gray-900 dark:text-white/80 font-bold">
-                                    Anyone with the link
-                                </span>{' '}
-                                or accessible via this application.
+                        <div className="bg-[#161b22] border border-[#30363d] rounded p-3 flex items-start gap-2.5">
+                            <AlertCircle size={12} className="text-[#8b949e] mt-0.5" />
+                            <p className="text-[10px] text-[#8b949e] leading-snug">
+                                Make sure the sheet is shared with <span className="text-[#c9d1d9] font-bold">"Anyone with the link"</span>.
                             </p>
                         </div>
 
                         <Button
                             onClick={handleSync}
                             disabled={isSyncing || !syncUrl}
-                            className="w-full py-6 bg-attire-accent text-black hover:bg-[#ffb940] transition-all rounded-2xl text-[11px] font-black uppercase tracking-[0.2em] relative overflow-hidden group"
+                            className="w-full py-2.5 h-auto bg-[#58a6ff] text-[#0d1117] hover:bg-[#79b8ff] transition-all rounded text-[10px] font-black uppercase tracking-[0.1em] flex justify-center items-center"
                         >
                             {isSyncing ? (
-                                'Syncing Master Data...'
+                                'Syncing Data...'
                             ) : (
                                 <>
-                                    <RefreshCw
-                                        size={14}
-                                        className="mr-2 group-hover:rotate-180 transition-transform duration-500"
-                                    />
-                                    Start Synchronization
+                                    <RefreshCw size={12} className="mr-1.5" /> Start Sync
                                 </>
                             )}
                         </Button>

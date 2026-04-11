@@ -120,14 +120,8 @@ const BulkProductEditor = () => {
         const uploadedUrls = [];
 
         try {
-            console.log("========================================");
-            console.log(`🚀 Bulk Upload Sequence Initiated: ${files.length} masterpieces`);
-            console.log("========================================");
-            
             for (let i = 0; i < files.length; i++) {
                 const file = files[i];
-                const count = i + 1;
-                console.log(`📸 [${count}/${files.length}] Processing: ${file.name}`);
                 
                 const formDataUpload = new FormData();
                 formDataUpload.append('image', file);
@@ -135,22 +129,14 @@ const BulkProductEditor = () => {
                     formDataUpload.append('collection_id', formData.collection_id);
                 }
 
-                console.log(`📡 [${count}/${files.length}] Uploading to storage...`);
                 const response = await axios.post('/api/v1/admin/images/upload', formDataUpload, {
                     headers: { 'Content-Type': 'multipart/form-data' }
                 });
                 
                 if (response.data.url) {
-                    console.log(`✅ [${count}/${files.length}] Success! Masterpiece URL: ${response.data.url}`);
                     uploadedUrls.push(response.data.url);
-                } else {
-                    console.warn(`⚠️ [${count}/${files.length}] Warning: Upload successful but no URL returned.`);
                 }
             }
-            
-            console.log("========================================");
-            console.log(`✨ Process Complete! ${uploadedUrls.length} masterpieces ready.`);
-            console.log("========================================");
             
             setFormData(prev => ({
                 ...prev,
