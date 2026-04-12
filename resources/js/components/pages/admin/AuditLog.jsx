@@ -159,11 +159,15 @@ const AuditLog = () => {
 
     return (
         <ErrorBoundary>
-            <div className="space-y-10 pb-24">
-                <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
+            <div className="p-8 space-y-8 font-sans">
+                <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
                     <div>
-                        <h1 className="text-4xl font-serif text-gray-900 dark:text-[#c9d1d9] mb-2">Audit Logs</h1>
-                        <p className="text-gray-400 dark:text-[#8b949e]/60 text-sm uppercase tracking-widest">System Activity Tracking</p>
+                        <h1 className="text-2xl font-serif text-gray-900 dark:text-[#c9d1d9] uppercase tracking-[0.2em] mb-1">
+                            Audit Logs
+                        </h1>
+                        <p className="text-sm text-gray-500 dark:text-[#8b949e]/60 uppercase tracking-widest">
+                            System Activity Tracking
+                        </p>
                     </div>
 
                     <div className="flex flex-wrap items-center gap-3">
@@ -174,7 +178,7 @@ const AuditLog = () => {
                     </div>
                 </div>
 
-                <div className="bg-white dark:bg-[#161b22] rounded-[2rem] shadow-none border border-black/5 dark:border-[#30363d] overflow-hidden">
+                <div className="bg-white dark:bg-[#161b22] border border-black/5 dark:border-[#30363d] rounded-xl shadow-none overflow-hidden min-h-[400px]">
                     <div className="overflow-x-auto">
                         <table className="w-full text-left border-collapse">
                             <thead>
@@ -187,7 +191,7 @@ const AuditLog = () => {
                                     <th className="px-8 py-6 text-xs font-bold text-gray-400 dark:text-[#8b949e]/40 uppercase tracking-[0.2em]">Actions</th>
                                 </tr>
                             </thead>
-                            <tbody>
+                            <tbody className="divide-y divide-black/5 dark:divide-[#30363d]">
                                 {loading ? (
                                     <tr>
                                         <td colSpan="6" className="py-32">
@@ -253,25 +257,22 @@ const AuditLog = () => {
                     </div>
 
                     {pagination.last_page > 1 && (
-                        <div className="px-8 py-6 border-t border-black/5 dark:border-[#30363d] bg-black/[0.01] dark:bg-[#0d1117] flex items-center justify-between">
-                            <p className="text-xs font-bold text-gray-400 dark:text-[#8b949e]/40 uppercase tracking-widest">
-                                Total: {pagination.total} activities
+                        <div className="px-8 py-6 border-t border-black/5 dark:border-[#30363d] flex items-center justify-between">
+                            <p className="text-xs font-bold text-gray-500 dark:text-[#8b949e]/40 uppercase tracking-widest">
+                                Showing {activities.length} activities
                             </p>
                             <div className="flex items-center gap-2">
                                 <button
                                     onClick={() => handlePageChange(pagination.current_page - 1)}
                                     disabled={pagination.current_page === 1}
-                                    className="p-2 border border-black/5 dark:border-[#30363d] rounded-xl disabled:opacity-30 hover:bg-[#0d3542]/10 dark:hover:bg-[#58a6ff]/10 hover:text-[#0d3542] dark:hover:text-[#58a6ff] transition-all"
+                                    className="p-2 border border-black/5 dark:border-[#30363d] rounded-xl disabled:opacity-30 hover:text-[#0d3542] dark:hover:text-[#58a6ff] transition-all"
                                 >
                                     <ChevronLeft size={16} />
                                 </button>
-                                <span className="text-xs font-bold text-gray-900 dark:text-[#c9d1d9] uppercase tracking-[0.2em] px-4">
-                                    Page {pagination.current_page} of {pagination.last_page}
-                                </span>
                                 <button
                                     onClick={() => handlePageChange(pagination.current_page + 1)}
                                     disabled={pagination.current_page === pagination.last_page}
-                                    className="p-2 border border-black/5 dark:border-[#30363d] rounded-xl disabled:opacity-30 hover:bg-[#0d3542]/10 dark:hover:bg-[#58a6ff]/10 hover:text-[#0d3542] dark:hover:text-[#58a6ff] transition-all"
+                                    className="p-2 border border-black/5 dark:border-[#30363d] rounded-xl disabled:opacity-30 hover:text-[#0d3542] dark:hover:text-[#58a6ff] transition-all"
                                 >
                                     <ChevronRight size={16} />
                                 </button>

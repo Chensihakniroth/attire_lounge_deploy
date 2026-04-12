@@ -51,14 +51,14 @@ const NavItem = ({ item, isCollapsed, setOpen }) => {
                 className={({ isActive }) =>
                     `flex items-center px-4 py-2.5 text-[11px] font-black uppercase tracking-[0.2em] rounded-lg transition-colors duration-200 ${
                         isActive
-                            ? 'bg-[#0d3542] dark:bg-[#58a6ff] text-white dark:text-black'
-                            : 'text-gray-400 dark:text-[#8b949e]/40 hover:bg-black/5 dark:hover:bg-[#21262d] hover:text-gray-900 dark:hover:text-[#c9d1d9]'
+                            ? 'bg-white/20 text-white'
+                            : 'text-white/60 hover:bg-white/10 hover:text-white'
                     } ${isCollapsed ? 'justify-center px-2' : ''} active:scale-[0.98] transform group-hover/nav:translate-x-1 transition-transform`
                 }
                 title={isCollapsed ? item.name : ''}
             >
                 <item.icon
-                    className={`w-4 h-4 ${isCollapsed ? '' : 'mr-4'} transition-transform duration-300 flex-shrink-0 opacity-70`}
+                    className={`w-4 h-4 ${isCollapsed ? '' : 'mr-4'} transition-transform duration-300 flex-shrink-0 opacity-80`}
                 />
                 {!isCollapsed && (
                     <span className="whitespace-nowrap overflow-hidden">
@@ -106,16 +106,16 @@ const GlobalSearch = () => {
     return (
         <div className="relative w-full max-w-md hidden md:block font-sans">
             <div
-                className={`flex items-center gap-3 bg-black/[0.03] dark:bg-[#161b22] border ${isOpen ? 'border-[#0d3542] dark:border-[#58a6ff]' : 'border-black/5 dark:border-[#30363d]'} rounded-2xl px-5 py-2.5 transition-all`}
+                className={`flex items-center gap-3 bg-white/5 border ${isOpen ? 'border-white/30' : 'border-white/10'} rounded-2xl px-5 py-2.5 transition-all`}
             >
                 <Search
                     size={16}
-                    className={isOpen ? 'text-[#0d3542] dark:text-[#58a6ff]' : 'text-gray-400 dark:text-[#8b949e]/40'}
+                    className={isOpen ? 'text-white' : 'text-white/50'}
                 />
                 <input
                     type="text"
                     placeholder="Search identity..."
-                    className="bg-transparent border-none outline-none text-[10px] font-bold uppercase tracking-[0.2em] w-full text-gray-900 dark:text-[#c9d1d9] placeholder:text-gray-400 dark:placeholder:text-[#8b949e]/20"
+                    className="bg-transparent border-none outline-none text-[10px] font-bold uppercase tracking-[0.2em] w-full text-white placeholder:text-white/30"
                     onFocus={() => setIsOpen(true)}
                     onBlur={() => setTimeout(() => setIsOpen(false), 200)}
                     value={query}
@@ -213,14 +213,14 @@ const SidebarContent = ({ setOpen, isMobile }) => {
     );
 
     return (
-        <div className="flex flex-col w-[260px] bg-[#fdfdfc] dark:bg-[#0d1117] border-r border-black/[0.03] dark:border-[#30363d] shadow-none flex-shrink-0 h-full overflow-hidden transition-colors duration-300 font-sans">
-            <div className="h-20 flex items-center justify-between px-8 border-b border-black/[0.03] dark:border-[#30363d]">
-                <h1 className="text-[11px] font-black tracking-[0.5em] text-gray-900 dark:text-[#c9d1d9] uppercase whitespace-nowrap overflow-hidden opacity-40">
+        <div className="flex flex-col w-[260px] bg-attire-navy border-r border-white/5 shadow-none flex-shrink-0 h-full overflow-hidden transition-colors duration-300 font-sans">
+            <div className="h-20 flex items-center justify-between px-8 border-b border-white/5">
+                <h1 className="text-[11px] font-black tracking-[0.5em] text-white uppercase whitespace-nowrap overflow-hidden opacity-90">
                     Alounge Admin
                 </h1>
                 <button
                     onClick={() => setOpen(false)}
-                    className="text-gray-300 dark:text-[#8b949e]/20 hover:text-gray-900 dark:hover:text-[#c9d1d9]"
+                    className="text-white/40 hover:text-white"
                 >
                     <ArrowLeftRight size={16} />
                 </button>
@@ -232,24 +232,24 @@ const SidebarContent = ({ setOpen, isMobile }) => {
                 ))}
             </nav>
 
-            <div className="p-5 space-y-2 border-t border-black/[0.03] dark:border-[#30363d]">
+            <div className="p-5 space-y-2 border-t border-white/5">
                 <div className="grid grid-cols-2 gap-2">
                     <button
                         onClick={() => toggleDarkMode()}
-                        className="flex items-center justify-center p-3 rounded-lg bg-black/[0.02] dark:bg-white/[0.02] text-gray-400 hover:text-gray-900 dark:hover:text-white transition-all"
+                        className="flex items-center justify-center p-3 rounded-lg bg-white/5 text-white/60 hover:text-white hover:bg-white/10 transition-all"
                     >
                         {isDarkMode ? <Sun size={14} /> : <Moon size={14} />}
                     </button>
                     <button
                         onClick={() => setPerformanceMode(!performanceMode)}
-                        className={`flex items-center justify-center p-3 rounded-lg transition-all ${performanceMode ? 'bg-[#0d3542] dark:bg-[#58a6ff] text-white dark:text-black' : 'bg-black/[0.02] dark:bg-white/[0.02] text-gray-400'}`}
+                        className={`flex items-center justify-center p-3 rounded-lg transition-all ${performanceMode ? 'bg-white text-attire-navy' : 'bg-white/5 text-white/60 hover:text-white hover:bg-white/10'}`}
                     >
                         <Zap size={14} />
                     </button>
                 </div>
                 <button
                     onClick={handleLogout}
-                    className="w-full flex items-center justify-center gap-3 p-3 rounded-lg bg-red-500/5 text-red-400/60 hover:text-red-500 hover:bg-red-500/10 transition-all text-[10px] font-black uppercase tracking-widest"
+                    className="w-full flex items-center justify-center gap-3 p-3 rounded-lg bg-red-500/10 text-red-400 hover:text-red-300 hover:bg-red-500/20 transition-all text-[10px] font-black uppercase tracking-widest"
                 >
                     <LogOut size={14} />
                     <span>Exit</span>
@@ -353,15 +353,15 @@ const AdminLayoutContent = ({
 
             <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
                 {!isEditing && (
-                    <header className="h-16 bg-[#fdfdfc] dark:bg-[#0d1117] border-b border-black/15 dark:border-[#30363d] flex items-center px-6 justify-between flex-shrink-0 z-20 transition-colors duration-300">
+                    <header className="h-16 bg-attire-navy border-b border-white/10 flex items-center px-6 justify-between flex-shrink-0 z-20 transition-colors duration-300">
                         <div className="flex items-center gap-4">
                             <button
                                 onClick={() => setSidebarOpen(!isSidebarOpen)}
-                                className="p-2 hover:bg-black/5 dark:hover:bg-[#21262d] rounded-xl text-gray-500 dark:text-[#8b949e] hover:text-gray-900 dark:hover:text-[#c9d1d9] transition-all active:scale-95"
+                                className="p-2 hover:bg-white/10 rounded-xl text-white/60 hover:text-white transition-all active:scale-95"
                             >
                                 {isSidebarOpen ? <X size={20} /> : <Menu size={20} />}
                             </button>
-                            <div className="h-4 w-px bg-black/10 dark:bg-[#30363d] mx-2 hidden lg:block" />
+                            <div className="h-4 w-px bg-white/20 mx-2 hidden lg:block" />
                             <GlobalSearch />
                         </div>
 
@@ -369,32 +369,32 @@ const AdminLayoutContent = ({
                             {/* POS Switcher Button */}
                              <button
                                 onClick={() => navigate('/admin/pos')}
-                                className="flex items-center gap-2 px-4 py-2 bg-[#0d3542]/10 dark:bg-[#58a6ff]/10 border border-[#0d3542]/20 dark:border-[#58a6ff]/20 rounded-xl hover:bg-[#0d3542] dark:hover:bg-[#58a6ff] hover:text-white dark:hover:text-black transition-all group"
+                                className="flex items-center gap-2 px-4 py-2 bg-white/10 border border-white/20 rounded-xl hover:bg-white hover:text-attire-navy transition-all group"
                                 title="Open POS System"
                             >
-                                <ArrowLeftRight size={14} className="text-[#0d3542] dark:text-[#58a6ff] group-hover:text-white dark:group-hover:text-black" />
-                                <span className="text-xs font-bold uppercase tracking-widest text-[#0d3542] dark:text-[#58a6ff] group-hover:text-white dark:group-hover:text-black hidden sm:block">Open POS</span>
+                                <ArrowLeftRight size={14} className="text-white group-hover:text-attire-navy" />
+                                <span className="text-xs font-bold uppercase tracking-widest text-white group-hover:text-attire-navy hidden sm:block">Open POS</span>
                             </button>
 
-                            <div className="h-4 w-px bg-black/10 dark:bg-[#30363d] mx-2" />
+                            <div className="h-4 w-px bg-white/20 mx-2" />
 
                             <div className="text-right hidden md:block">
-                                <p className="text-xs font-bold text-gray-900 dark:text-[#c9d1d9] uppercase tracking-wider leading-none mb-1">
+                                <p className="text-xs font-bold text-white uppercase tracking-wider leading-none mb-1">
                                     Administrator
                                 </p>
-                                <p className="text-[11px] text-[#0d3542] dark:text-[#58a6ff] uppercase tracking-[0.2em]">
+                                <p className="text-[11px] text-white/60 uppercase tracking-[0.2em]">
                                     Master Access
                                 </p>
                             </div>
-                            <div className="w-8 h-8 rounded-full bg-[#0d3542]/10 dark:bg-[#58a6ff]/10 border border-[#0d3542]/20 dark:border-[#58a6ff]/20 flex items-center justify-center">
+                            <div className="w-8 h-8 rounded-full bg-white/10 border border-white/20 flex items-center justify-center">
                                 <ShoppingBag
                                     size={14}
-                                    className="text-[#0d3542] dark:text-[#58a6ff]"
+                                    className="text-white"
                                 />
                             </div>
                         </div>
                         {performanceMode && (
-                            <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-[#0d3542] dark:bg-[#58a6ff] z-30" title="Sovereign Sync Active" />
+                            <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-white z-30" title="Sovereign Sync Active" />
                         )}
                     </header>
                 )}

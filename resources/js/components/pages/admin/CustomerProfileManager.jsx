@@ -131,19 +131,19 @@ const StatusFilter = ({ value, onChange }) => {
     );
 };
 
-const GlassyStatCard = ({ label, value, icon: Icon, color = "attire-accent" }) => (
+const StatCard = ({ label, value, icon: Icon, color = 'attire-accent' }) => (
     <motion.div 
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
-        className="relative p-4 rounded-3xl bg-white dark:bg-[#161b22] border border-black/5 dark:border-[#30363d] hover:border-[#0d3542]/30 dark:hover:border-[#58a6ff]/30 transition-all duration-300 shadow-none"
+        className="p-6 bg-white dark:bg-[#161b22] border border-black/5 dark:border-[#30363d] rounded-xl shadow-none relative overflow-hidden group"
     >
-        <div className="flex items-center gap-4">
-            <div className={`p-2.5 rounded-xl ${color === 'attire-accent' ? 'bg-[#0d3542]/10 dark:bg-[#58a6ff]/10 text-[#0d3542] dark:text-[#58a6ff]' : 'bg-blue-500/10 text-blue-500'}`}>
-                <Icon size={18} />
+        <div className="flex items-center justify-between relative z-10">
+            <div className="space-y-1">
+                <p className="text-xs font-bold text-gray-500 dark:text-[#8b949e]/40 uppercase tracking-widest">{label}</p>
+                <p className="text-2xl font-bold tracking-tighter text-gray-900 dark:text-[#c9d1d9]">{value}</p>
             </div>
-            <div>
-                <p className="text-[10px] font-black text-gray-400 dark:text-[#8b949e]/30 uppercase tracking-widest">{label}</p>
-                <p className="text-xl font-serif text-gray-900 dark:text-[#c9d1d9] tracking-tight">{value}</p>
+            <div className={`p-4 rounded-lg bg-black/[0.03] dark:bg-[#0d1117] ${color === 'attire-accent' ? 'text-[#0d3542] dark:text-[#58a6ff]' : `text-${color}`} group-hover:scale-110 transition-transform border border-black/5 dark:border-[#30363d]`}>
+                <Icon size={20} />
             </div>
         </div>
     </motion.div>
@@ -383,12 +383,16 @@ const CustomerProfileManager = () => {
 
     return (
         <ErrorBoundary>
-            <div className="space-y-10 pb-24 font-sans">
+            <div className="p-8 space-y-8 font-sans">
                 {/* Header Section */}
                 <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
                     <div>
-                        <h1 className="text-3xl font-serif text-gray-900 dark:text-white mb-1 tracking-tight">Customers</h1>
-                        <p className="text-gray-400 dark:text-[#8b949e]/40 text-[10px] font-black uppercase tracking-[0.3em]">Customer Directory</p>
+                        <h1 className="text-2xl font-serif text-gray-900 dark:text-[#c9d1d9] uppercase tracking-[0.2em]">
+                            Customers
+                        </h1>
+                        <p className="text-sm text-gray-500 dark:text-[#8b949e]/60 mt-1 uppercase tracking-widest">
+                            Customer Directory
+                        </p>
                     </div>
 
                     <motion.button
@@ -401,35 +405,30 @@ const CustomerProfileManager = () => {
                     </motion.button>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                     <GlassyStatCard label="Total" value={pagination.total} icon={Users} />
                     <GlassyStatCard label="VIP" value={profiles.filter(p => p.client_status === 'VIP').length + "+"} icon={ShieldCheck} />
                     <GlassyStatCard label="Consults" value={stats.pending_appointments} icon={UserCheck} color="blue-500" />
                 </div>
 
-                <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 p-2 bg-black/[0.02] dark:bg-[#161b22] rounded-[2.5rem] border border-black/5 dark:border-[#30363d] shadow-none">
-                    <div className="relative group flex-grow">
-                        <Search className="absolute left-6 top-1/2 -translate-y-1/2 text-gray-400 dark:text-[#8b949e]/40 group-focus-within:text-[#0d3542] dark:group-focus-within:text-[#58a6ff] transition-colors" size={16} />
-                        <input type="text" placeholder="Search client archives..." value={searchQuery} onChange={e => setSearchQuery(e.target.value)} className="w-full bg-transparent border-none rounded-2xl py-5 pl-14 pr-8 text-gray-900 dark:text-[#c9d1d9] text-[10px] font-bold uppercase tracking-[0.2em] focus:ring-0 outline-none transition-all placeholder:text-gray-300 dark:placeholder:text-white/10" />
+                <div className="flex flex-col md:flex-row gap-4 items-center bg-white dark:bg-[#161b22] p-4 rounded-xl border border-black/5 dark:border-[#30363d] shadow-none">
+                    <div className="relative flex-1 w-full group">
+                        <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-[#0d3542] dark:group-focus-within:text-[#58a6ff] transition-colors" size={18} />
+                        <input type="text" placeholder="Search client archives..." value={searchQuery} onChange={e => setSearchQuery(e.target.value)} className="w-full bg-black/[0.02] dark:bg-[#0d1117] border border-black/5 dark:border-[#30363d] rounded-lg py-3 pl-12 pr-4 text-sm font-bold uppercase tracking-widest outline-none focus:border-[#0d3542]/50 dark:focus:border-[#58a6ff]/50 transition-all placeholder:text-gray-400 dark:placeholder:text-[#8b949e]/20" />
                     </div>
-                    <div className="flex items-center gap-4 px-4">
+                    <div className="flex items-center gap-2 w-full md:w-auto">
                         <StatusFilter value={filterStatus} onChange={setFilterStatus} />
-                        <div className="h-10 w-px bg-black/5 dark:bg-[#30363d] hidden md:block" />
-                        <button className="p-4 bg-black/5 dark:bg-white/5 rounded-2xl text-gray-400 dark:text-[#8b949e]/40 hover:text-[#0d3542] dark:hover:text-[#58a6ff] hover:bg-white dark:hover:bg-[#0d1117] transition-all border border-transparent hover:border-[#0d3542]/20 dark:hover:border-[#58a6ff]/20"><Filter size={16} /></button>
                     </div>
                 </div>
 
-                <div className="bg-white dark:bg-[#161b22] rounded-[3rem] border border-black/5 dark:border-[#30363d] overflow-hidden relative group shadow-none">
-                    <div className="absolute top-0 right-0 w-[400px] h-[400px] bg-[#0d3542]/[0.02] dark:bg-[#58a6ff]/[0.02] rounded-full blur-[100px] -mr-32 -mt-32 pointer-events-none group-hover:bg-[#0d3542]/[0.04] dark:group-hover:bg-[#58a6ff]/[0.04] transition-all duration-1000" />
+                <div className="bg-white dark:bg-[#161b22] border border-black/5 dark:border-[#30363d] rounded-xl shadow-none overflow-hidden min-h-[400px]">
                     <div className="overflow-x-auto relative">
                         <table className="w-full text-left border-collapse">
                             <thead>
-                                <tr className="border-b border-black/5 dark:border-[#30363d] bg-black/[0.01] dark:bg-[#0d1117]">
-                                    <th className="px-6 py-4 text-[10px] font-black text-gray-400 dark:text-[#8b949e]/30 uppercase tracking-[0.3em]">Name</th>
-                                    <th className="px-6 py-4 text-[10px] font-black text-gray-400 dark:text-[#8b949e]/30 uppercase tracking-[0.3em]">Nationality</th>
-                                    <th className="px-6 py-4 text-[10px] font-black text-gray-400 dark:text-[#8b949e]/30 uppercase tracking-[0.3em]">Staff</th>
-                                    <th className="px-6 py-4 text-[10px] font-black text-gray-400 dark:text-[#8b949e]/30 uppercase tracking-[0.3em]">Status</th>
-                                    <th className="px-6 py-4 text-[10px] font-black text-gray-400 dark:text-[#8b949e]/30 uppercase tracking-[0.3em] text-right">Actions</th>
+                                <tr className="bg-black/[0.02] dark:bg-[#0d1117] border-b border-black/5 dark:border-[#30363d]">
+                                    {['Name', 'Nationality', 'Staff', 'Status', 'Actions'].map((h, i) => (
+                                        <th key={i} className={`px-6 py-5 text-xs font-bold uppercase tracking-[0.2em] text-gray-500 dark:text-[#8b949e]/40 whitespace-nowrap ${i === 4 ? 'text-right' : ''}`}>{h}</th>
+                                    ))}
                                 </tr>
                             </thead>
                             <tbody className="divide-y divide-black/5 dark:divide-[#30363d]">
@@ -444,8 +443,8 @@ const CustomerProfileManager = () => {
                                     </tr>
                                 ) : profiles.length > 0 ? (
                                     profiles.map(profile => (
-                                        <tr key={profile.id} className="group hover:bg-black/[0.01] dark:hover:bg-white/[0.01] transition-all duration-300 border-b border-black/5 dark:border-[#30363d] last:border-0">
-                                            <td className="px-6 py-4">
+                                        <tr key={profile.id} className="hover:bg-black/[0.01] dark:hover:bg-white/[0.01] transition-colors group">
+                                            <td className="px-6 py-6">
                                                 <div>
                                                     <p className="text-[11px] font-black text-gray-900 dark:text-white uppercase tracking-wider group-hover:text-attire-accent transition-colors">{profile.name}</p>
                                                     <div className="flex items-center gap-2 mt-0.5">
@@ -454,26 +453,26 @@ const CustomerProfileManager = () => {
                                                     </div>
                                                 </div>
                                             </td>
-                                            <td className="px-6 py-4">
+                                            <td className="px-6 py-6">
                                                 <div className="inline-flex items-center gap-2 px-3 py-1 bg-black/[0.02] dark:bg-white/[0.02] rounded-lg border border-black/5 dark:border-white/5">
                                                     <Globe size={10} className="text-gray-400 opacity-50" />
                                                     <span className="text-[9px] font-black uppercase tracking-widest text-gray-500 dark:text-white/40">{profile.nationality || 'UNKNOWN'}</span>
                                                 </div>
                                             </td>
-                                            <td className="px-6 py-4">
+                                            <td className="px-6 py-6">
                                                 <div className="flex items-center gap-2">
                                                     <div className="w-1.5 h-1.5 rounded-full bg-attire-accent/40" />
                                                     <span className="text-[10px] font-black text-gray-600 dark:text-white/60 uppercase tracking-widest">{profile.host || 'PENDING'}</span>
                                                 </div>
                                             </td>
-                                            <td className="px-6 py-4">
+                                            <td className="px-6 py-6">
                                                 <span className={`inline-flex items-center gap-2 px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-widest border ${profile.client_status === 'VIP' ? 'bg-attire-accent/10 text-attire-accent border-attire-accent/20' : profile.client_status === 'Returning' ? 'bg-blue-500/10 text-blue-400 border-blue-500/20' : 'bg-green-500/10 text-green-400 border-green-500/20'}`}><span className={`w-1 h-1 rounded-full ${profile.client_status === 'VIP' ? 'bg-attire-accent' : profile.client_status === 'Returning' ? 'bg-blue-500' : 'bg-green-500'}`} />{profile.client_status}</span>
                                             </td>
-                                            <td className="px-6 py-4 text-right">
-                                                <div className="flex justify-end gap-2">
-                                                    <Link to={`/admin/customer-profiles/${profile.id}`} className="p-2 bg-black/[0.02] dark:bg-white/[0.02] border border-black/5 dark:border-white/5 rounded-lg text-gray-400 hover:text-white hover:bg-black dark:hover:bg-white dark:hover:text-black transition-all" title="View"><Eye size={12} /></Link>
-                                                    <button onClick={() => handleOpenModal(profile)} className="p-2 bg-black/[0.02] dark:bg-white/[0.02] border border-black/5 dark:border-white/5 rounded-lg text-gray-400 hover:text-white hover:bg-blue-500 transition-all" title="Edit"><Edit size={12} /></button>
-                                                    <button onClick={() => handleDelete(profile.id)} className="p-2 bg-black/[0.02] dark:bg-white/[0.02] border border-black/5 dark:border-white/5 rounded-lg text-gray-400 hover:text-white hover:bg-red-500 transition-all" title="Delete"><Trash2 size={12} /></button>
+                                            <td className="px-6 py-6 text-right">
+                                                <div className="flex items-center gap-2 justify-end opacity-0 group-hover:opacity-100 transition-opacity">
+                                                    <Link to={`/admin/customer-profiles/${profile.id}`} className="p-2.5 rounded-lg bg-black/5 dark:bg-[#0d1117] text-gray-400 hover:text-[#0d3542] dark:hover:text-[#58a6ff] hover:bg-[#0d3542]/10 dark:hover:bg-[#58a6ff]/10 transition-all border border-transparent dark:border-[#30363d]" title="View"><Eye size={14} /></Link>
+                                                    <button onClick={() => handleOpenModal(profile)} className="p-2.5 rounded-lg bg-black/5 dark:bg-[#0d1117] text-gray-400 hover:text-[#0d3542] dark:hover:text-[#58a6ff] hover:bg-[#0d3542]/10 dark:hover:bg-[#58a6ff]/10 transition-all border border-transparent dark:border-[#30363d]" title="Edit"><Edit size={14} /></button>
+                                                    <button onClick={() => handleDelete(profile.id)} className="p-2.5 rounded-lg bg-black/5 dark:bg-[#0d1117] text-gray-400 hover:text-red-500 hover:bg-red-500/10 transition-all border border-transparent dark:border-[#30363d]" title="Delete"><Trash2 size={14} /></button>
                                                 </div>
                                             </td>
                                         </tr>

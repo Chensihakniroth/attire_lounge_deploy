@@ -86,22 +86,19 @@ const SEOManager = () => {
     };
 
     return (
-        <div className="space-y-8 pb-24">
+        <div className="p-8 space-y-8 font-sans">
             {/* Header Area */}
-            <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 pb-6 border-b border-black/5 dark:border-white/10">
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
                 <div>
-                    <div className="flex items-center gap-3 mb-2">
-                        <div className="w-10 h-10 rounded-2xl bg-[#0d3542]/10 flex items-center justify-center">
-                            <Globe className="text-[#0d3542] dark:text-[#58a6ff]" size={20} />
-                        </div>
-                        <h1 className="text-4xl font-serif text-gray-900 dark:text-white">SEO Matrix</h1>
-                    </div>
-                    <p className="text-gray-400 dark:text-attire-silver/50 text-[11.5px] uppercase tracking-[0.3em] font-black">
+                    <h1 className="text-2xl font-serif text-gray-900 dark:text-[#c9d1d9] uppercase tracking-[0.2em] mb-1">
+                        SEO Matrix
+                    </h1>
+                    <p className="text-sm text-gray-500 dark:text-[#8b949e]/60 uppercase tracking-widest">
                         Digital Index & Search Optimization
                     </p>
                 </div>
 
-                <div className="flex bg-black/[0.03] dark:bg-white/[0.03] p-1 rounded-2xl border border-black/5 dark:border-white/5">
+                <div className="flex bg-black/[0.03] dark:bg-[#0d1117] p-1 rounded-lg border border-black/5 dark:border-[#30363d]">
                     <button 
                         onClick={() => setActiveTab('products')}
                         className={`px-6 py-2 rounded-xl text-xs font-bold uppercase tracking-widest transition-all ${activeTab === 'products' ? 'bg-[#0d3542] dark:bg-[#58a6ff] text-white dark:text-black' : 'text-gray-400 hover:text-gray-600 dark:hover:text-white/60'}`}
@@ -118,23 +115,23 @@ const SEOManager = () => {
             </div>
 
             {/* Toolbar */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div className="md:col-span-2 relative">
-                    <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
+            <div className="flex flex-col md:flex-row gap-4 items-center bg-white dark:bg-[#161b22] p-4 rounded-xl border border-black/5 dark:border-[#30363d] shadow-none">
+                <div className="relative flex-1 w-full group">
+                    <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-[#0d3542] dark:group-focus-within:text-[#58a6ff] transition-colors" size={18} />
                     <input 
                         type="text"
                         placeholder={`Search ${activeTab}...`}
                         value={search}
                         onChange={e => setSearch(e.target.value)}
-                        className="w-full bg-white dark:bg-[#161b22] border border-black/5 dark:border-white/10 rounded-2xl py-4 pl-12 pr-6 text-[15.5px] text-gray-900 dark:text-white focus:border-[#0d3542] dark:focus:border-[#58a6ff] outline-none transition-all placeholder:text-gray-400 dark:placeholder:text-white/20 font-medium"
+                        className="w-full bg-black/[0.02] dark:bg-[#0d1117] border border-black/5 dark:border-[#30363d] rounded-lg py-3 pl-12 pr-4 text-sm font-bold uppercase tracking-widest outline-none focus:border-[#0d3542]/50 dark:focus:border-[#58a6ff]/50 transition-all placeholder:text-gray-400 dark:placeholder:text-[#8b949e]/20"
                     />
                 </div>
-                <div className="relative">
-                    <Filter className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
+                <div className="relative w-full md:w-64 group">
+                    <Filter className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-[#0d3542] dark:group-focus-within:text-[#58a6ff] transition-colors" size={18} />
                     <select 
                         value={filter}
                         onChange={e => setFilter(e.target.value)}
-                        className="w-full bg-white dark:bg-[#161b22] border border-black/5 dark:border-white/10 rounded-2xl py-4 pl-12 pr-10 text-[12.5px] font-black uppercase tracking-[0.2em] text-gray-600 dark:text-attire-silver/70 focus:border-[#0d3542] dark:focus:border-[#58a6ff] outline-none appearance-none transition-all cursor-pointer"
+                        className="w-full bg-black/[0.02] dark:bg-[#0d1117] border border-black/5 dark:border-[#30363d] rounded-lg py-3 pl-12 pr-10 text-[11px] font-bold uppercase tracking-widest text-gray-600 dark:text-[#8b949e] focus:border-[#0d3542]/50 dark:focus:border-[#58a6ff]/50 outline-none appearance-none transition-all cursor-pointer"
                     >
                         <option value="all">All Content</option>
                         <option value="missing">Missing Metadata</option>
@@ -163,7 +160,7 @@ const SEOManager = () => {
                             key={item.id}
                             initial={{ opacity: 0, y: 10 }}
                             animate={{ opacity: 1, y: 0 }}
-                            className={`group p-6 bg-white dark:bg-[#161b22] border rounded-3xl transition-all duration-300 shadow-none ${editId === item.id ? 'border-[#0d3542] dark:border-[#58a6ff] scale-[1.01]' : 'border-black/5 dark:border-white/5 hover:border-black/10 dark:hover:border-white/10'}`}
+                            className={`group p-6 bg-white dark:bg-[#161b22] border rounded-xl transition-all duration-300 shadow-none ${editId === item.id ? 'border-[#0d3542] dark:border-[#58a6ff] scale-[1.01]' : 'border-black/5 dark:border-[#30363d] hover:border-black/10 dark:hover:border-[#30363d]'}`}
                         >
                             <div className="flex flex-col lg:flex-row gap-8">
                                 {/* Item Info */}
@@ -189,8 +186,8 @@ const SEOManager = () => {
                                         <div className="space-y-4 animate-in fade-in slide-in-from-top-2 duration-300">
                                             <div className="space-y-2">
                                                 <div className="flex justify-between items-center">
-                                                    <label className="text-[11.5px] font-black text-gray-400 uppercase tracking-[0.2em]">Matrix Title</label>
-                                                    <span className={`text-[11.5px] font-black ${editData.meta_title.length > 60 ? 'text-rose-500' : 'text-[#0d3542]/40 dark:text-[#58a6ff]/40'}`}>
+                                                    <label className="text-[11.5px] font-bold text-gray-500 uppercase tracking-widest">Matrix Title</label>
+                                                    <span className={`text-[11px] font-bold ${editData.meta_title.length > 60 ? 'text-rose-500' : 'text-[#0d3542]/60 dark:text-[#58a6ff]/60'}`}>
                                                         {editData.meta_title.length}/60
                                                     </span>
                                                 </div>
@@ -199,13 +196,13 @@ const SEOManager = () => {
                                                     type="text"
                                                     value={editData.meta_title}
                                                     onChange={e => setEditData({...editData, meta_title: e.target.value})}
-                                                    className="w-full bg-black/5 dark:bg-white/5 border border-black/5 dark:border-white/10 rounded-xl py-4 px-5 text-[16px] font-black text-gray-900 dark:text-white focus:border-[#0d3542] dark:focus:border-[#58a6ff] outline-none"
+                                                    className="w-full bg-black/5 dark:bg-[#0d1117] border border-black/5 dark:border-[#30363d] rounded-lg py-3 px-4 text-sm font-bold text-gray-900 dark:text-white focus:border-[#0d3542] dark:focus:border-[#58a6ff] outline-none"
                                                 />
                                             </div>
                                             <div className="space-y-2">
                                                 <div className="flex justify-between items-center">
-                                                    <label className="text-[11.5px] font-black text-gray-400 uppercase tracking-[0.2em]">Matrix Discovery Description</label>
-                                                    <span className={`text-[11.5px] font-black ${editData.meta_description.length > 160 ? 'text-rose-500' : 'text-[#0d3542]/40 dark:text-[#58a6ff]/40'}`}>
+                                                    <label className="text-[11.5px] font-bold text-gray-500 uppercase tracking-widest">Matrix Discovery Description</label>
+                                                    <span className={`text-[11px] font-bold ${editData.meta_description.length > 160 ? 'text-rose-500' : 'text-[#0d3542]/60 dark:text-[#58a6ff]/60'}`}>
                                                         {editData.meta_description.length}/160
                                                     </span>
                                                 </div>
@@ -213,7 +210,7 @@ const SEOManager = () => {
                                                     rows={3}
                                                     value={editData.meta_description}
                                                     onChange={e => setEditData({...editData, meta_description: e.target.value})}
-                                                    className="w-full bg-black/5 dark:bg-white/5 border border-black/5 dark:border-white/10 rounded-xl py-4 px-5 text-[16px] font-black text-gray-900 dark:text-white focus:border-[#0d3542] dark:focus:border-[#58a6ff] outline-none resize-none leading-relaxed"
+                                                    className="w-full bg-black/5 dark:bg-[#0d1117] border border-black/5 dark:border-[#30363d] rounded-lg py-3 px-4 text-sm font-bold text-gray-900 dark:text-white focus:border-[#0d3542] dark:focus:border-[#58a6ff] outline-none resize-none leading-relaxed"
                                                 />
                                             </div>
                                         </div>
@@ -257,7 +254,7 @@ const SEOManager = () => {
                                     ) : (
                                         <button 
                                             onClick={() => startEditing(item)}
-                                            className="flex items-center gap-2 bg-black/5 dark:bg-white/5 text-gray-600 dark:text-attire-silver/60 px-5 py-3 rounded-2xl text-xs font-bold uppercase tracking-widest transition-all hover:bg-black/10 dark:hover:bg-white/10 hover:text-gray-900 dark:hover:text-white"
+                                            className="flex items-center gap-2 bg-black/5 dark:bg-[#0d1117] text-gray-600 dark:text-[#8b949e] px-4 py-2.5 rounded-lg text-xs font-bold uppercase tracking-widest transition-all hover:bg-black/10 dark:hover:bg-[#30363d] hover:text-gray-900 dark:hover:text-white"
                                         >
                                             <Edit3 size={14} />
                                             Optimize

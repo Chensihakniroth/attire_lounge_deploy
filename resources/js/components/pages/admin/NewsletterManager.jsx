@@ -85,18 +85,22 @@ const NewsletterManager = () => {
 
     return (
         <ErrorBoundary>
-            <div className="space-y-10 pb-24">
-                <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
+            <div className="p-8 space-y-8 font-sans">
+                <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
                     <div>
-                        <h1 className="text-4xl font-serif text-gray-900 dark:text-white mb-2">Newsletter</h1>
-                        <p className="text-gray-400 dark:text-attire-silver text-sm uppercase tracking-widest">Manage Your Audience</p>
+                        <h1 className="text-2xl font-serif text-gray-900 dark:text-[#c9d1d9] uppercase tracking-[0.2em] mb-1">
+                            Newsletter
+                        </h1>
+                        <p className="text-sm text-gray-500 dark:text-[#8b949e]/60 uppercase tracking-widest">
+                            Manage Your Audience
+                        </p>
                     </div>
 
                     <div className="flex flex-wrap items-center gap-4">
                         <motion.button
                             whileTap={{ scale: 0.95 }}
                             onClick={handleExport}
-                            className="flex items-center gap-3 bg-black dark:bg-white text-white dark:text-black rounded-2xl py-3.5 px-6 text-xs font-bold uppercase tracking-widest hover:bg-attire-accent dark:hover:bg-attire-accent transition-all shadow-none"
+                            className="flex items-center gap-3 bg-black dark:bg-white text-white dark:text-black rounded-xl py-3 px-6 text-xs font-bold uppercase tracking-[0.2em] hover:opacity-90 transition-all shadow-none"
                         >
                             <Download size={14} />
                             <span>Export CSV</span>
@@ -104,18 +108,18 @@ const NewsletterManager = () => {
                     </div>
                 </div>
 
-                <div className="bg-white dark:bg-black/20 backdrop-blur-xl rounded-[2rem] shadow-none border border-black/5 dark:border-white/10 overflow-hidden">
+                <div className="bg-white dark:bg-[#161b22] border border-black/5 dark:border-[#30363d] rounded-xl shadow-none overflow-hidden min-h-[400px]">
                     <div className="overflow-x-auto">
                         <table className="w-full text-left border-collapse">
                             <thead>
-                                <tr className="border-b border-black/5 dark:border-white/5 bg-black/[0.02] dark:bg-white/[0.02]">
-                                    <th className="px-8 py-6 text-xs font-bold text-gray-400 dark:text-attire-silver/40 uppercase tracking-[0.2em]">Contact Information</th>
-                                    <th className="px-8 py-6 text-xs font-bold text-gray-400 dark:text-attire-silver/40 uppercase tracking-[0.2em]">Status</th>
-                                    <th className="px-8 py-6 text-xs font-bold text-gray-400 dark:text-attire-silver/40 uppercase tracking-[0.2em]">Joined Date</th>
-                                    <th className="px-8 py-6 text-xs font-bold text-gray-400 dark:text-attire-silver/40 uppercase tracking-[0.2em] text-right">Actions</th>
+                                <tr className="border-b border-black/5 dark:border-[#30363d] bg-black/[0.02] dark:bg-[#0d1117]">
+                                    <th className="px-8 py-6 text-xs font-bold text-gray-500 dark:text-[#8b949e]/40 uppercase tracking-[0.2em]">Contact Information</th>
+                                    <th className="px-8 py-6 text-xs font-bold text-gray-500 dark:text-[#8b949e]/40 uppercase tracking-[0.2em]">Status</th>
+                                    <th className="px-8 py-6 text-xs font-bold text-gray-500 dark:text-[#8b949e]/40 uppercase tracking-[0.2em]">Joined Date</th>
+                                    <th className="px-8 py-6 text-xs font-bold text-gray-500 dark:text-[#8b949e]/40 uppercase tracking-[0.2em] text-right">Actions</th>
                                 </tr>
                             </thead>
-                            <tbody>
+                            <tbody className="divide-y divide-black/5 dark:divide-[#30363d]">
                                 {loading ? (
                                     <tr>
                                         <td colSpan="4" className="py-32 text-center">
@@ -176,15 +180,15 @@ const NewsletterManager = () => {
                     </div>
 
                     {pagination.last_page > 1 && (
-                        <div className="px-8 py-6 border-t border-black/5 dark:border-white/5 bg-black/[0.01] dark:bg-white/[0.01] flex items-center justify-between">
-                            <p className="text-xs font-bold text-gray-400 dark:text-attire-silver/40 uppercase tracking-widest">
-                                Total: {pagination.total} subscribers
+                        <div className="px-8 py-6 border-t border-black/5 dark:border-[#30363d] flex items-center justify-between">
+                            <p className="text-xs font-bold text-gray-500 dark:text-[#8b949e]/40 uppercase tracking-widest">
+                                Showing {subscribers.length} subscribers
                             </p>
                             <div className="flex items-center gap-2">
                                 <button
                                     onClick={() => fetchSubscribers(pagination.current_page - 1)}
                                     disabled={pagination.current_page === 1}
-                                    className="p-2 border border-black/5 dark:border-white/10 rounded-xl disabled:opacity-30 hover:bg-black/5 dark:hover:bg-white/5 transition-all"
+                                    className="p-2 border border-black/5 dark:border-[#30363d] rounded-xl disabled:opacity-30 hover:text-[#0d3542] dark:hover:text-[#58a6ff] transition-all"
                                 >
                                     <ChevronLeft size={16} />
                                 </button>
@@ -194,7 +198,7 @@ const NewsletterManager = () => {
                                 <button
                                     onClick={() => fetchSubscribers(pagination.current_page + 1)}
                                     disabled={pagination.current_page === pagination.last_page}
-                                    className="p-2 border border-black/5 dark:border-white/10 rounded-xl disabled:opacity-30 hover:bg-black/5 dark:hover:bg-white/5 transition-all"
+                                    className="p-2 border border-black/5 dark:border-[#30363d] rounded-xl disabled:opacity-30 hover:text-[#0d3542] dark:hover:text-[#58a6ff] transition-all"
                                 >
                                     <ChevronRight size={16} />
                                 </button>

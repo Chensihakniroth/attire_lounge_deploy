@@ -31,23 +31,23 @@ const POSHeader = () => {
     const { isDarkMode, toggleDarkMode } = useTheme();
 
     return (
-        <header className="h-16 flex items-center px-6 bg-background/80 dark:bg-[#0a0a0a]/80 backdrop-blur-md border-b border-black/[0.08] dark:border-white/10 relative z-50 transition-colors duration-300">
+        <header className="h-16 flex items-center px-6 bg-transparent border-b border-white/10 relative z-50 transition-colors duration-300">
             {/* Logo & Admin Switcher */}
             <div className="flex items-center gap-6 mr-8">
                 <div className="flex flex-col">
-                    <h1 className="text-sm font-bold tracking-[0.2em] uppercase text-foreground dark:text-white leading-tight">
+                    <h1 className="text-sm font-bold tracking-[0.2em] uppercase text-white leading-tight">
                         Attire Lounge
                     </h1>
-                    <span className="text-[10px] text-attire-accent font-bold uppercase tracking-widest">
+                    <span className="text-[10px] text-white/50 font-bold uppercase tracking-widest">
                         POS System
                     </span>
                 </div>
                 
-                <div className="h-6 w-px bg-black/10 dark:bg-white/10" />
+                <div className="h-6 w-px bg-white/20" />
                 
                 <button 
                     onClick={() => navigate('/admin')}
-                    className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-black/5 dark:bg-white/5 hover:bg-black/10 dark:hover:bg-white/10 text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-all group"
+                    className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-white/5 hover:bg-white/10 text-white/60 hover:text-white transition-all group"
                 >
                     <ArrowLeftRight size={14} className="group-hover:rotate-180 transition-transform duration-500" />
                     <span className="text-[10px] font-bold uppercase tracking-widest">To Admin</span>
@@ -70,8 +70,8 @@ const POSHeader = () => {
                                 onClick={() => setActiveTabIndex(index)}
                                 className={`flex items-center gap-3 px-4 py-2 rounded-xl text-[10px] font-bold uppercase tracking-widest transition-all whitespace-nowrap group ${
                                     activeTabIndex === index
-                                        ? 'bg-attire-accent text-gray-900 dark:text-white shadow-none border border-black/5 dark:border-white/5'
-                                        : 'bg-black/5 dark:bg-white/5 text-foreground dark:text-[#8b949e] hover:bg-black/10 dark:hover:bg-white/10'
+                                        ? 'bg-white/20 text-white shadow-none border border-white/20'
+                                        : 'bg-white/5 text-white/50 hover:bg-white/10 hover:text-white'
                                 }`}
                             >
                                 <span className="opacity-50">#{(index + 1).toString().padStart(2, '0')}</span>
@@ -85,8 +85,8 @@ const POSHeader = () => {
                                 
                                 <X 
                                     size={12} 
-                                    className={`ml-2 hover:bg-black/20 dark:hover:bg-white/10 rounded-full p-0.5 transition-all outline-none border-none ${
-                                        activeTabIndex === index ? 'text-gray-900/60 dark:text-black/60 hover:text-gray-900 dark:hover:text-black' : 'text-gray-400 dark:text-[#8b949e] hover:text-foreground dark:hover:text-[#c9d1d9]'
+                                    className={`ml-2 hover:bg-white/20 rounded-full p-0.5 transition-all outline-none border-none ${
+                                        activeTabIndex === index ? 'text-white/80 hover:text-white' : 'text-white/40 hover:text-white'
                                     }`}
                                     onClick={(e) => {
                                         e.stopPropagation();
@@ -100,7 +100,7 @@ const POSHeader = () => {
 
                 <button 
                     onClick={addNewTab}
-                    className="p-2 rounded-xl bg-black/10 dark:bg-white/5 hover:bg-attire-accent hover:text-black text-gray-900 dark:text-[#8b949e] transition-all active:scale-95 ml-2 border border-black/5 dark:border-white/5"
+                    className="p-2 rounded-xl bg-white/5 hover:bg-white/20 text-white/60 hover:text-white transition-all active:scale-95 ml-2 border border-white/10"
                     title="Add new sale tab"
                 >
                     <Plus size={16} />
@@ -110,19 +110,19 @@ const POSHeader = () => {
             {/* Right Side Actions */}
             <div className="flex items-center gap-4 ml-6">
                 <div className="hidden lg:flex flex-col text-right">
-                    <p className="text-[10px] font-bold uppercase tracking-widest text-foreground dark:text-white">
+                    <p className="text-[10px] font-bold uppercase tracking-widest text-white">
                         {new Date().toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' })}
                     </p>
-                    <p className="text-[9px] text-gray-400 dark:text-[#8b949e]/40 uppercase tracking-widest">
+                    <p className="text-[9px] text-white/50 uppercase tracking-widest">
                         Ready for Sale
                     </p>
                 </div>
 
-                <div className="h-8 w-px bg-black/10 dark:bg-white/10" />
+                <div className="h-8 w-px bg-white/20" />
 
                 <button 
                     onClick={() => setIsHistoryOpen(true)}
-                    className="p-2.5 rounded-xl bg-black/5 dark:bg-white/5 hover:bg-black/10 dark:hover:bg-white/10 text-gray-500 dark:text-[#8b949e] hover:text-gray-900 dark:hover:text-white transition-all group"
+                    className="p-2.5 rounded-xl bg-white/5 hover:bg-white/10 text-white/60 hover:text-white transition-all group"
                     title="Invoice History"
                 >
                     <History size={18} className="group-hover:rotate-[360deg] transition-transform duration-700" />
@@ -130,7 +130,7 @@ const POSHeader = () => {
 
                 <button 
                     onClick={toggleDarkMode}
-                    className="p-2.5 rounded-xl bg-black/5 dark:bg-white/5 hover:bg-black/10 dark:hover:bg-white/10 text-gray-500 dark:text-[#8b949e] hover:text-gray-900 dark:hover:text-white transition-all"
+                    className="p-2.5 rounded-xl bg-white/5 hover:bg-white/10 text-white/60 hover:text-white transition-all"
                 >
                     {isDarkMode ? <Sun size={18} /> : <Moon size={18} />}
                 </button>
@@ -138,7 +138,7 @@ const POSHeader = () => {
                 <div className={`w-10 h-10 rounded-xl flex items-center justify-center overflow-hidden transition-all duration-500 ${
                     invoiceTabs[activeTabIndex]?.isRefundMode 
                         ? 'bg-red-500 text-white shadow-lg shadow-red-500/20 active:scale-95' 
-                        : 'bg-attire-accent/10 border border-attire-accent/20 text-attire-accent'
+                        : 'bg-white/10 border border-white/20 text-white'
                 }`}>
                     {invoiceTabs[activeTabIndex]?.isRefundMode ? (
                         <motion.div

@@ -78,8 +78,6 @@ const LoadingState = () => (
     </div>
 );
 
-const tableGridColumns = '40px 160px 120px 100px 90px minmax(150px, 1fr) 130px 40px';
-
 const AlteringRow = React.memo(({ 
     altering, 
     statusConfig, 
@@ -92,87 +90,84 @@ const AlteringRow = React.memo(({
     const status = statusConfig[altering.status] || statusConfig.pending;
 
     return (
-        <motion.div
-            variants={shouldAnimate ? rowVariants : {}}
-            className={`px-3 py-1.5 border-b border-[#30363d] hover:bg-[#161b22] transition-colors group cursor-pointer ${
-                isSelected ? 'bg-[#58a6ff]/5' : ''
+        <tr
+            className={`hover:bg-black/[0.01] dark:hover:bg-white/[0.01] transition-colors group cursor-pointer ${
+                isSelected ? 'bg-[#0d3542]/5 dark:bg-[#58a6ff]/5' : ''
             }`}
-            style={{
-                display: 'grid',
-                gridTemplateColumns: tableGridColumns,
-                columnGap: '8px',
-                alignItems: 'center',
-            }}
             onClick={() => onDetailOpen(altering)}
         >
-            <div 
-                className="flex items-center justify-center border-r border-[#30363d] pr-2 h-full"
+            <td 
+                className="px-6 py-6 w-12 text-center"
                 onClick={(e) => e.stopPropagation()}
             >
                 <input
                     type="checkbox"
-                    className="w-3 h-3 rounded-sm border-[#30363d] bg-transparent accent-[#58a6ff] cursor-pointer"
+                    className="w-4 h-4 rounded border-gray-300 dark:border-[#30363d] bg-transparent accent-[#0d3542] dark:accent-[#58a6ff] cursor-pointer"
                     checked={isSelected}
                     onChange={() => onSelect(altering.id)}
                 />
-            </div>
+            </td>
 
-            <div className="flex items-center gap-2 px-2 border-r border-[#30363d] h-full overflow-hidden">
-                <span className="text-[13px] font-medium text-[#c9d1d9] truncate uppercase tracking-wide">
+            <td className="px-6 py-6">
+                <span className="text-sm font-bold text-gray-900 dark:text-[#c9d1d9] truncate uppercase tracking-widest">
                     {altering.customer_name}
                 </span>
-            </div>
+            </td>
 
-            <div className="flex flex-col gap-0.5 px-2 border-r border-[#30363d] h-full justify-center overflow-hidden">
-                <div className="flex items-center gap-1 text-[#8b949e]">
-                    <span className="text-[10px] font-mono tracking-tighter uppercase truncate opacity-70">
-                        #{altering.order_no || 'MNL'}
-                    </span>
+            <td className="px-6 py-6 flex flex-col justify-center">
+                <div className="text-xs font-bold text-gray-800 dark:text-gray-300 uppercase tracking-widest">
+                    #{altering.order_no || 'MNL'}
                 </div>
-                <div className="text-[10px] font-mono text-[#8b949e] flex items-center gap-1">
-                    <Smartphone size={8} />
+                <div className="text-xs text-gray-500 dark:text-[#8b949e]/60 flex items-center gap-1 uppercase tracking-widest mt-1">
+                    <Smartphone size={10} />
                     {altering.mobile || 'N/A'}
                 </div>
-            </div>
+            </td>
 
-            <div className="px-2 border-r border-[#30363d] h-full flex items-center">
-                <div className={`inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[9px] font-bold uppercase tracking-widest border ${status.bgColor} ${status.textColor} ${status.borderColor} w-fit`}>
+            <td className="px-6 py-6">
+                <span className={`inline-flex items-center gap-1 px-2 py-1 rounded-lg text-xs font-bold uppercase tracking-widest border ${status.bgColor} ${status.textColor} ${status.borderColor}`}>
+                    <status.icon size={12} className="mr-1 opacity-70" />
                     {status.label}
-                </div>
-            </div>
+                </span>
+            </td>
 
-            <div className="px-2 border-r border-[#30363d] h-full flex items-center justify-end">
-                <span className="text-[11px] font-mono text-[#58a6ff]">
+            <td className="px-6 py-6 text-right">
+                <span className="text-sm font-bold text-[#0d3542] dark:text-[#58a6ff] tracking-widest">
                     ${parseFloat(altering.altering_cost || 0).toFixed(2)}
                 </span>
-            </div>
+            </td>
 
-            <div className="px-2 border-r border-[#30363d] h-full flex items-center overflow-hidden">
-                <span className="text-[11px] text-[#8b949e] line-clamp-1 italic">
+            <td className="px-6 py-6 max-w-[200px]">
+                <span className="text-xs font-bold text-gray-500 dark:text-[#8b949e]/60 truncate block italic tracking-wide">
                     {altering.product || 'Unspecified'}
                 </span>
-            </div>
+            </td>
 
-            <div className="px-2 border-r border-[#30363d] h-full flex items-center">
+            <td className="px-6 py-6">
                 <div className="flex flex-col">
-                    <span className="text-[11px] font-mono text-[#c9d1d9]">
+                    <span className="text-xs font-bold text-gray-800 dark:text-gray-300 uppercase tracking-widest">
                         {formatDate(altering.ready_at, { fallback: 'N/A', month: 'short' })}
                     </span>
-                    <span className="text-[8px] uppercase tracking-widest text-[#8b949e]">
-                        {altering.ready_at ? 'Target Info' : 'Date TBD'}
+                    <span className="text-xs text-gray-500 dark:text-[#8b949e]/60 uppercase tracking-widest mt-1">
+                        {altering.ready_at ? 'Target' : 'TBD'}
                     </span>
                 </div>
-            </div>
+            </td>
 
-            <div 
-                className="flex items-center justify-center px-1 h-full"
-                onClick={(e) => e.stopPropagation()}
-            >
-                <div className="p-1 opacity-0 group-hover:opacity-100 hover:bg-[#30363d] rounded text-[#8b949e] hover:text-[#58a6ff] transition-all">
-                    <MoreVertical size={12} />
+            <td className="px-6 py-6 text-right" onClick={(e) => e.stopPropagation()}>
+                <div className="flex items-center justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                    <button 
+                        onClick={() => onDetailOpen(altering)}
+                        className="p-2.5 rounded-lg bg-black/5 dark:bg-[#0d1117] text-gray-400 hover:text-[#0d3542] dark:hover:text-[#58a6ff] hover:bg-[#0d3542]/10 dark:hover:bg-[#58a6ff]/10 transition-all border border-transparent dark:border-[#30363d]"
+                    >
+                        <Eye size={14} />
+                    </button>
+                    <button className="p-2.5 rounded-lg bg-black/5 dark:bg-[#0d1117] text-gray-400 hover:text-[#0d3542] dark:hover:text-[#58a6ff] hover:bg-[#0d3542]/10 dark:hover:bg-[#58a6ff]/10 transition-all border border-transparent dark:border-[#30363d]">
+                        <MoreVertical size={14} />
+                    </button>
                 </div>
-            </div>
-        </motion.div>
+            </td>
+        </tr>
     );
 });
 
@@ -187,54 +182,34 @@ const AlteringTable = React.memo(({
 }) => {
     return (
         <div className="w-full text-left">
-            {/* Table Header */}
-            <div
-                className="px-3 py-1.5 text-[9px] font-bold uppercase tracking-widest text-[#8b949e] bg-[#0d1117] border-b border-[#30363d]"
-                style={{
-                    display: 'grid',
-                    gridTemplateColumns: tableGridColumns,
-                    columnGap: '8px',
-                }}
-            >
-                <div className="flex items-center justify-center border-r border-[#30363d] pr-2">
-                    <input
-                        type="checkbox"
-                        className="w-3 h-3 rounded-sm border-[#30363d] bg-transparent accent-[#58a6ff] cursor-pointer"
-                        checked={alterings.length > 0 && selectedItems.length === alterings.length}
-                        onChange={onSelectAll}
-                    />
-                </div>
-                <div className="flex items-center px-2 border-r border-[#30363d]">Client</div>
-                <div className="flex items-center px-2 border-r border-[#30363d]">Ref & Mobile</div>
-                <div className="flex items-center px-2 border-r border-[#30363d]">Status</div>
-                <div className="flex items-center justify-end px-2 border-r border-[#30363d]">Adj. Cost</div>
-                <div className="flex items-center px-2 border-r border-[#30363d]">Garment Info</div>
-                <div className="flex items-center px-2 border-r border-[#30363d]">Scheduled</div>
-                <div className="flex items-center justify-center px-1">
-                    <MoreVertical size={10} className="opacity-50" />
-                </div>
-            </div>
-
-            {/* Table Body */}
-            <AnimatePresence mode="popLayout" initial={false}>
-                {alterings.length === 0 ? (
-                    <motion.div
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        className="py-12 text-center"
-                    >
-                        <AlertCircle className="w-5 h-5 text-[#30363d] mx-auto mb-2" />
-                        <p className="text-[10px] text-[#8b949e] font-mono tracking-widest uppercase">
-                            No active records
-                        </p>
-                    </motion.div>
-                ) : (
-                    <motion.div
-                        variants={{ visible: { transition: { staggerChildren: 0.02 } } }}
-                        initial="hidden"
-                        animate="visible"
-                    >
-                        {alterings.map((altering) => (
+            <table className="w-full text-left border-collapse">
+                <thead>
+                    <tr className="bg-black/[0.02] dark:bg-[#0d1117] border-b border-black/5 dark:border-[#30363d]">
+                        <th className="px-6 py-5 text-center w-12">
+                            <input
+                                type="checkbox"
+                                className="w-4 h-4 rounded border-gray-300 dark:border-[#30363d] bg-transparent accent-[#0d3542] dark:accent-[#58a6ff] cursor-pointer"
+                                checked={alterings.length > 0 && selectedItems.length === alterings.length}
+                                onChange={onSelectAll}
+                            />
+                        </th>
+                        {['Client', 'Ref & Mobile', 'Status', 'Adj. Cost', 'Garment Info', 'Scheduled', 'Actions'].map((h, i) => (
+                            <th key={i} className={`px-6 py-5 text-xs font-bold uppercase tracking-[0.2em] text-gray-500 dark:text-[#8b949e]/40 whitespace-nowrap ${i === 3 || i === 6 ? 'text-right' : ''}`}>
+                                {h}
+                            </th>
+                        ))}
+                    </tr>
+                </thead>
+                
+                <tbody className="divide-y divide-black/5 dark:divide-[#30363d]">
+                    {alterings.length === 0 ? (
+                        <tr>
+                            <td colSpan="8" className="py-20 text-center opacity-30 italic font-medium uppercase tracking-widest text-sm">
+                                No active records
+                            </td>
+                        </tr>
+                    ) : (
+                        alterings.map((altering) => (
                             <AlteringRow
                                 key={altering.id}
                                 altering={altering}
@@ -245,10 +220,10 @@ const AlteringTable = React.memo(({
                                 shouldAnimate={shouldAnimate}
                                 rowVariants={rowVariants}
                             />
-                        ))}
-                    </motion.div>
-                )}
-            </AnimatePresence>
+                        ))
+                    )}
+                </tbody>
+            </table>
         </div>
     );
 });
@@ -504,22 +479,42 @@ export default function AlteringManager() {
     }, []);
 
     return (
-        <div className="w-full font-sans pb-20">
-            {/* Header & Controls */}
-            <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-6">
+        <div className="p-8 space-y-8 font-sans">
+            {/* Header Section */}
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
                 <div>
-                    <h1 className="text-[24px] font-serif tracking-tight text-[#c9d1d9] flex items-center gap-2">
-                        <Scissors className="w-5 h-5 text-[#8b949e]" />
+                    <h1 className="text-2xl font-serif text-gray-900 dark:text-[#c9d1d9] uppercase tracking-[0.2em] flex items-center gap-3">
+                        <Scissors className="w-5 h-5 text-gray-400 dark:text-[#8b949e]" />
                         Altering Logs
                     </h1>
-                    <p className="text-[#8b949e] text-[10px] uppercase tracking-widest mt-0.5">
+                    <p className="text-sm text-gray-500 dark:text-[#8b949e]/60 mt-1 uppercase tracking-widest">
                         Tailor Queue Management
                     </p>
                 </div>
 
-                <div className="flex items-center gap-2 flex-wrap">
-                    <div className="relative group">
-                        <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-[#8b949e] group-focus-within:text-[#58a6ff] transition-colors" />
+                <div className="flex items-center gap-3 flex-wrap">
+                    <Button
+                        onClick={() => setShowSyncModal(true)}
+                        className="bg-white dark:bg-[#0d1117] text-gray-600 dark:text-[#c9d1d9] hover:bg-black/5 dark:hover:bg-[#161b22] transition-colors py-2 px-4 rounded-lg font-bold uppercase tracking-widest text-xs border border-black/5 dark:border-[#30363d] shadow-none"
+                    >
+                        <RefreshCw className={`w-3.5 h-3.5 mr-2 ${isSyncing ? 'animate-spin' : ''}`} />
+                        Sync Sheet
+                    </Button>
+
+                    <Button
+                        onClick={() => setIsAdding(true)}
+                        className="bg-[#0d3542] dark:bg-[#58a6ff]/10 text-white dark:text-[#58a6ff] dark:border dark:border-[#58a6ff]/30 hover:opacity-90 dark:hover:bg-[#58a6ff]/20 transition-colors py-2 px-4 rounded-lg font-bold uppercase tracking-widest text-xs shadow-none"
+                    >
+                        <Plus className="w-3.5 h-3.5 mr-2" /> Add Record
+                    </Button>
+                </div>
+            </div>
+
+            {/* Filter Bar */}
+            <div className="flex flex-col lg:flex-row gap-4 items-center bg-white dark:bg-[#161b22] p-4 rounded-xl border border-black/5 dark:border-[#30363d] shadow-none">
+                <div className="flex items-center gap-4 flex-1 flex-wrap lg:flex-nowrap w-full">
+                    <div className="relative flex-1 group min-w-[200px]">
+                        <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-[#0d3542] dark:group-focus-within:text-[#58a6ff] transition-colors" size={18} />
                         <input
                             type="text"
                             placeholder="Search records..."
@@ -528,7 +523,7 @@ export default function AlteringManager() {
                                 setSearchQuery(e.target.value);
                                 setPage(1);
                             }}
-                            className="bg-[#0d1117] border border-[#30363d] rounded py-1.5 pl-8 pr-8 text-[#c9d1d9] outline-none focus:border-[#58a6ff]/50 transition-all placeholder:text-[#8b949e]/50 w-48 lg:w-64 font-mono text-[11px]"
+                            className="w-full bg-black/[0.02] dark:bg-[#0d1117] border border-black/5 dark:border-[#30363d] rounded-lg py-3 pl-12 pr-8 text-sm font-bold uppercase tracking-widest outline-none focus:border-[#0d3542]/50 dark:focus:border-[#58a6ff]/50 transition-all placeholder:text-gray-400 dark:placeholder:text-[#8b949e]/20"
                         />
                         {searchQuery && (
                             <button
@@ -536,10 +531,10 @@ export default function AlteringManager() {
                                     setSearchQuery('');
                                     setPage(1);
                                 }}
-                                className="absolute right-1.5 top-1/2 -translate-y-1/2 p-0.5 hover:bg-[#30363d] rounded text-[#8b949e] hover:text-[#58a6ff] transition-all"
+                                className="absolute right-3 top-1/2 -translate-y-1/2 p-0.5 hover:bg-black/5 dark:hover:bg-[#30363d] rounded text-gray-400 dark:text-[#8b949e] hover:text-[#0d3542] dark:hover:text-[#58a6ff] transition-all"
                                 title="Clear search"
                             >
-                                <X size={12} />
+                                <X size={14} />
                             </button>
                         )}
                     </div>
@@ -551,23 +546,23 @@ export default function AlteringManager() {
                                 setStatusFilter('');
                                 setPage(1);
                             }}
-                            className="text-[10px] font-bold underline uppercase tracking-widest text-[#58a6ff] hover:text-[#79b8ff] transition-colors px-2"
+                            className="text-xs font-bold underline uppercase tracking-widest text-[#0d3542] dark:text-[#58a6ff] hover:opacity-70 transition-colors px-2 whitespace-nowrap"
                         >
-                            Reset
+                            Reset Focus
                         </button>
                     )}
 
                     <div className="relative">
                         <button
                             onClick={() => setShowFilterMenu(!showFilterMenu)}
-                            className={`px-3 py-1.5 bg-[#0d1117] border border-[#30363d] text-[#c9d1d9] hover:bg-[#161b22] transition-colors flex items-center gap-1.5 rounded font-mono tracking-widest text-[10px] ${statusFilter ? 'ring-1 ring-[#58a6ff]/50' : ''}`}
+                            className={`px-4 py-3 bg-white dark:bg-[#0d1117] border border-black/5 dark:border-[#30363d] text-gray-600 dark:text-[#c9d1d9] hover:bg-black/5 dark:hover:bg-[#161b22] transition-colors flex items-center gap-2 rounded-lg font-bold tracking-widest uppercase text-xs whitespace-nowrap ${statusFilter ? 'ring-1 ring-[#0d3542]/50 dark:ring-[#58a6ff]/50' : ''}`}
                         >
                             <svg width="12" height="12" viewBox="0 0 16 16" fill="none">
                                 <path d="M2 3H14M4 8H12M6 13H10" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
                             </svg>
-                            Filter
+                            Filter Stage
                             {statusFilter && (
-                                <span className="ml-1 text-[9px] bg-[#58a6ff] text-[#0d1117] font-black rounded px-1 py-0.5 leading-none">
+                                <span className="ml-1 text-[10px] bg-[#0d3542] dark:bg-[#58a6ff] text-white dark:text-[#0d1117] font-black rounded px-1.5 py-0.5 leading-none">
                                     1
                                 </span>
                             )}
@@ -575,18 +570,18 @@ export default function AlteringManager() {
                         {showFilterMenu && (
                             <>
                                 <div className="fixed inset-0 z-10" onClick={() => setShowFilterMenu(false)} />
-                                <div className="absolute right-0 mt-1 w-40 bg-[#161b22] border border-[#30363d] rounded z-20 overflow-hidden py-1 shadow-xl">
+                                <div className="absolute right-0 mt-2 w-48 bg-white dark:bg-[#161b22] border border-black/5 dark:border-[#30363d] rounded-xl z-20 py-2 shadow-xl">
                                     <button
                                         onClick={() => {
                                             setStatusFilter('');
                                             setShowFilterMenu(false);
                                             setPage(1);
                                         }}
-                                        className={`w-full px-3 py-2 text-left text-[11px] text-[#c9d1d9] hover:bg-[#30363d] transition-colors ${!statusFilter ? 'bg-[#30363d]/50' : ''}`}
+                                        className={`w-full px-4 py-2.5 text-left text-xs font-bold uppercase tracking-widest text-gray-900 dark:text-[#c9d1d9] hover:bg-black/5 dark:hover:bg-[#30363d] transition-colors ${!statusFilter ? 'bg-black/5 dark:bg-[#30363d]/50' : ''}`}
                                     >
                                         All Records
                                     </button>
-                                    <div className="h-px bg-[#30363d] my-1" />
+                                    <div className="h-px bg-black/5 dark:bg-[#30363d] my-1" />
                                     {['Pending', 'In Progress', 'Ready', 'Completed'].map((status) => (
                                         <button
                                             key={status}
@@ -595,7 +590,7 @@ export default function AlteringManager() {
                                                 setShowFilterMenu(false);
                                                 setPage(1);
                                             }}
-                                            className={`w-full px-3 py-2 text-left text-[11px] text-[#8b949e] hover:text-[#c9d1d9] hover:bg-[#30363d] transition-colors ${statusFilter === status ? 'bg-[#30363d]/50 text-[#c9d1d9]' : ''}`}
+                                            className={`w-full px-4 py-2.5 text-left text-xs font-bold uppercase tracking-widest text-gray-500 dark:text-[#8b949e] hover:text-gray-900 dark:hover:text-[#c9d1d9] hover:bg-black/5 dark:hover:bg-[#30363d] transition-colors ${statusFilter === status ? 'bg-black/5 dark:bg-[#30363d]/50 text-gray-900 dark:text-[#c9d1d9]' : ''}`}
                                         >
                                             {status}
                                         </button>
@@ -608,33 +603,33 @@ export default function AlteringManager() {
                     <div className="relative">
                         <button
                             onClick={() => setShowSortMenu(!showSortMenu)}
-                            className="px-3 py-1.5 bg-[#0d1117] border border-[#30363d] text-[#c9d1d9] hover:bg-[#161b22] transition-colors flex items-center gap-1.5 rounded font-mono tracking-widest text-[10px]"
+                            className="px-4 py-3 bg-white dark:bg-[#0d1117] border border-black/5 dark:border-[#30363d] text-gray-600 dark:text-[#c9d1d9] hover:bg-black/5 dark:hover:bg-[#161b22] transition-colors flex items-center gap-2 rounded-lg font-bold tracking-widest uppercase text-xs whitespace-nowrap"
                         >
                             <svg width="12" height="12" viewBox="0 0 16 16" fill="none">
                                 <path d="M3 6L6 3L9 6M6 3V13M13 10L10 13L7 10M10 13V3" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
                             </svg>
                             Sort
-                            <ChevronDown size={12} className="opacity-50" />
+                            <ChevronDown size={14} className="opacity-50" />
                         </button>
                         {showSortMenu && (
                             <>
                                 <div className="fixed inset-0 z-10" onClick={() => setShowSortMenu(false)} />
-                                <div className="absolute right-0 mt-1 w-40 bg-[#161b22] border border-[#30363d] rounded z-20 py-1 shadow-xl">
+                                <div className="absolute right-0 mt-2 w-48 bg-white dark:bg-[#161b22] border border-black/5 dark:border-[#30363d] rounded-xl z-20 py-2 shadow-xl">
                                     <button
                                         onClick={() => handleSort('customer_name')}
-                                        className={`w-full px-3 py-2 text-left text-[11px] hover:bg-[#30363d] text-[#8b949e] hover:text-[#c9d1d9] ${sortField === 'customer_name' ? 'bg-[#30363d]/50 text-[#c9d1d9]' : ''}`}
+                                        className={`w-full px-4 py-2.5 text-left text-xs font-bold uppercase tracking-widest hover:bg-black/5 dark:hover:bg-[#30363d] text-gray-500 dark:text-[#8b949e] hover:text-gray-900 dark:hover:text-[#c9d1d9] ${sortField === 'customer_name' ? 'bg-black/5 dark:bg-[#30363d]/50 text-gray-900 dark:text-[#c9d1d9]' : ''}`}
                                     >
                                         Name {sortField === 'customer_name' && (sortOrder === 'asc' ? 'A-Z' : 'Z-A')}
                                     </button>
                                     <button
                                         onClick={() => handleSort('altering_cost')}
-                                        className={`w-full px-3 py-2 text-left text-[11px] hover:bg-[#30363d] text-[#8b949e] hover:text-[#c9d1d9] ${sortField === 'altering_cost' ? 'bg-[#30363d]/50 text-[#c9d1d9]' : ''}`}
+                                        className={`w-full px-4 py-2.5 text-left text-xs font-bold uppercase tracking-widest hover:bg-black/5 dark:hover:bg-[#30363d] text-gray-500 dark:text-[#8b949e] hover:text-gray-900 dark:hover:text-[#c9d1d9] ${sortField === 'altering_cost' ? 'bg-black/5 dark:bg-[#30363d]/50 text-gray-900 dark:text-[#c9d1d9]' : ''}`}
                                     >
                                         Cost {sortField === 'altering_cost' && (sortOrder === 'asc' ? 'Low-High' : 'High-Low')}
                                     </button>
                                     <button
                                         onClick={() => handleSort('ready_at')}
-                                        className={`w-full px-3 py-2 text-left text-[11px] hover:bg-[#30363d] text-[#8b949e] hover:text-[#c9d1d9] ${sortField === 'ready_at' ? 'bg-[#30363d]/50 text-[#c9d1d9]' : ''}`}
+                                        className={`w-full px-4 py-2.5 text-left text-xs font-bold uppercase tracking-widest hover:bg-black/5 dark:hover:bg-[#30363d] text-gray-500 dark:text-[#8b949e] hover:text-gray-900 dark:hover:text-[#c9d1d9] ${sortField === 'ready_at' ? 'bg-black/5 dark:bg-[#30363d]/50 text-gray-900 dark:text-[#c9d1d9]' : ''}`}
                                     >
                                         Ready {sortField === 'ready_at' && (sortOrder === 'asc' ? 'Old-New' : 'New-Old')}
                                     </button>
@@ -646,23 +641,23 @@ export default function AlteringManager() {
                     <div className="relative">
                         <button
                             onClick={() => setShowExportMenu(!showExportMenu)}
-                            className="px-3 py-1.5 bg-[#0d1117] border border-[#30363d] text-[#c9d1d9] hover:bg-[#161b22] transition-colors flex items-center gap-1.5 rounded font-mono tracking-widest text-[10px]"
+                            className="px-4 py-3 bg-white dark:bg-[#0d1117] border border-black/5 dark:border-[#30363d] text-gray-600 dark:text-[#c9d1d9] hover:bg-black/5 dark:hover:bg-[#161b22] transition-colors flex items-center gap-2 rounded-lg font-bold tracking-widest uppercase text-xs whitespace-nowrap"
                         >
-                            <Download size={12} /> Export <ChevronDown size={12} className="opacity-50" />
+                            <Download size={14} /> Export <ChevronDown size={14} className="opacity-50" />
                         </button>
                         {showExportMenu && (
                             <>
                                 <div className="fixed inset-0 z-10" onClick={() => setShowExportMenu(false)} />
-                                <div className="absolute right-0 mt-1 w-24 bg-[#161b22] border border-[#30363d] rounded z-20 py-1 shadow-xl">
+                                <div className="absolute right-0 mt-2 w-32 bg-white dark:bg-[#161b22] border border-black/5 dark:border-[#30363d] rounded-xl z-20 py-2 shadow-xl">
                                     <button
                                         onClick={() => { exportToCSV(); setShowExportMenu(false); }}
-                                        className="w-full px-3 py-2 text-left text-[11px] hover:bg-[#30363d] text-[#8b949e] hover:text-[#c9d1d9]"
+                                        className="w-full px-4 py-2.5 text-left text-xs font-bold uppercase tracking-widest hover:bg-black/5 dark:hover:bg-[#30363d] text-gray-500 dark:text-[#8b949e] hover:text-gray-900 dark:hover:text-[#c9d1d9]"
                                     >
                                         CSV
                                     </button>
                                     <button
                                         onClick={() => { exportToJSON(); setShowExportMenu(false); }}
-                                        className="w-full px-3 py-2 text-left text-[11px] hover:bg-[#30363d] text-[#8b949e] hover:text-[#c9d1d9]"
+                                        className="w-full px-4 py-2.5 text-left text-xs font-bold uppercase tracking-widest hover:bg-black/5 dark:hover:bg-[#30363d] text-gray-500 dark:text-[#8b949e] hover:text-gray-900 dark:hover:text-[#c9d1d9]"
                                     >
                                         JSON
                                     </button>
@@ -672,12 +667,12 @@ export default function AlteringManager() {
                     </div>
 
                     {selectedItems.length > 0 && (
-                        <div className="flex items-center gap-1">
+                        <div className="flex items-center gap-2">
                             <button
                                 onClick={() => setSelectedItems([])}
-                                className="bg-[#0d1117] hover:bg-[#161b22] text-[#8b949e] transition-all px-3 py-1.5 rounded font-bold uppercase tracking-widest text-[9px] border border-[#30363d] flex items-center gap-1.5"
+                                className="bg-white dark:bg-[#0d1117] hover:bg-black/5 dark:hover:bg-[#161b22] text-gray-500 dark:text-[#8b949e] transition-all px-4 py-3 rounded-lg font-bold uppercase tracking-widest text-xs border border-black/5 dark:border-[#30363d] flex items-center gap-2 whitespace-nowrap"
                             >
-                                <X size={10} strokeWidth={3} />
+                                <X size={12} strokeWidth={3} />
                                 Clear {selectedItems.length}
                             </button>
                             <button
@@ -687,7 +682,7 @@ export default function AlteringManager() {
                                     }
                                 }}
                                 disabled={bulkDeleteMutation.isPending}
-                                className="bg-red-500/10 hover:bg-red-500/20 text-red-500 transition-all px-3 py-1.5 rounded font-bold uppercase tracking-widest text-[9px] border border-red-500/20 flex items-center gap-1.5 disabled:opacity-50"
+                                className="bg-red-500/10 hover:bg-red-500 text-red-500 hover:text-white transition-all px-4 py-3 rounded-lg font-bold uppercase tracking-widest text-xs flex items-center gap-2 disabled:opacity-50 whitespace-nowrap"
                             >
                                 {bulkDeleteMutation.isPending ? (
                                     <LumaSpin className="animate-spin" size="xs" />
@@ -700,26 +695,11 @@ export default function AlteringManager() {
                             </button>
                         </div>
                     )}
-
-                    <Button
-                        onClick={() => setShowSyncModal(true)}
-                        className="bg-[#0d1117] text-[#c9d1d9] hover:bg-[#161b22] transition-colors h-auto py-1.5 px-3 rounded font-bold uppercase tracking-widest text-[9px] border border-[#30363d] shadow-none ml-1"
-                    >
-                        <RefreshCw className={`w-3 h-3 mr-1.5 ${isSyncing ? 'animate-spin' : ''}`} />
-                        Sync Sheet
-                    </Button>
-
-                    <Button
-                        onClick={() => setIsAdding(true)}
-                        className="bg-[#58a6ff]/10 text-[#58a6ff] border border-[#58a6ff]/30 hover:bg-[#58a6ff]/20 transition-colors h-auto py-1.5 px-3 rounded font-bold uppercase tracking-widest text-[9px] shadow-none"
-                    >
-                        <Plus className="w-3 h-3 mr-1.5" /> Add Record
-                    </Button>
                 </div>
             </div>
 
             {/* Table Area - Optimized for performance */}
-            <div className="bg-[#0d1117] border border-[#30363d] rounded-lg overflow-hidden relative shadow-none">
+            <div className="bg-white dark:bg-[#161b22] border border-black/5 dark:border-[#30363d] rounded-xl overflow-hidden min-h-[400px] shadow-none">
                 <Suspense fallback={<LoadingState />}>
                     {isLoading ? (
                         <LoadingState />
@@ -759,12 +739,12 @@ export default function AlteringManager() {
                 {selectedDetail && (
                     <div className="space-y-6 relative z-10 p-2">
                         {/* Header */}
-                        <div className="flex items-center gap-3 border-b border-[#30363d] pb-4">
-                            <div className="w-10 h-10 rounded bg-[#161b22] border border-[#30363d] flex items-center justify-center">
-                                <User className="w-5 h-5 text-[#8b949e]" />
+                        <div className="flex items-center gap-3 border-b border-black/5 dark:border-[#30363d] pb-4">
+                            <div className="w-10 h-10 rounded bg-black/5 dark:bg-[#161b22] border border-black/5 dark:border-[#30363d] flex items-center justify-center">
+                                <User className="w-5 h-5 text-gray-400 dark:text-[#8b949e]" />
                             </div>
                             <div>
-                                <h3 className="text-lg font-serif text-[#c9d1d9] tracking-tight leading-none mb-1.5">
+                                <h3 className="text-lg font-serif text-gray-900 dark:text-[#c9d1d9] tracking-tight leading-none mb-1.5">
                                     {selectedDetail.customer_name}
                                 </h3>
                                 <div className="flex flex-wrap gap-2 text-[10px]">
@@ -778,7 +758,7 @@ export default function AlteringManager() {
                                         );
                                     })()}
                                     {selectedDetail.order_no && (
-                                        <div className="inline-flex items-center px-1.5 py-0.5 text-[9px] font-mono uppercase tracking-widest bg-[#161b22] border border-[#30363d] text-[#8b949e] rounded">
+                                        <div className="inline-flex items-center px-1.5 py-0.5 text-[9px] font-mono uppercase tracking-widest bg-black/5 dark:bg-[#161b22] border border-black/5 dark:border-[#30363d] text-gray-500 dark:text-[#8b949e] rounded">
                                             #{selectedDetail.order_no}
                                         </div>
                                     )}
@@ -788,45 +768,45 @@ export default function AlteringManager() {
 
                         {/* Information Matrix */}
                         <div className="grid gap-2">
-                            <div className="flex gap-3 items-start p-3 bg-[#0d1117] border border-[#30363d] rounded">
-                                <Smartphone size={14} className="text-[#8b949e] mt-0.5 shrink-0" />
+                            <div className="flex gap-3 items-start p-3 bg-black/[0.02] dark:bg-[#0d1117] border border-black/5 dark:border-[#30363d] rounded">
+                                <Smartphone size={14} className="text-gray-400 dark:text-[#8b949e] mt-0.5 shrink-0" />
                                 <div>
-                                    <p className="text-[9px] uppercase font-black tracking-widest text-[#8b949e] mb-0.5">Phone</p>
-                                    <p className="text-xs font-mono text-[#c9d1d9]">
+                                    <p className="text-[9px] uppercase font-black tracking-widest text-gray-400 dark:text-[#8b949e] mb-0.5">Phone</p>
+                                    <p className="text-xs font-mono text-gray-600 dark:text-[#c9d1d9]">
                                         {selectedDetail.mobile || 'Unknown'}
                                     </p>
                                 </div>
                             </div>
-                            <div className="flex gap-3 items-start p-3 bg-[#0d1117] border border-[#30363d] rounded">
-                                <Package size={14} className="text-[#8b949e] mt-0.5 shrink-0" />
+                            <div className="flex gap-3 items-start p-3 bg-black/[0.02] dark:bg-[#0d1117] border border-black/5 dark:border-[#30363d] rounded">
+                                <Package size={14} className="text-gray-400 dark:text-[#8b949e] mt-0.5 shrink-0" />
                                 <div>
-                                    <p className="text-[9px] uppercase font-black tracking-widest text-[#8b949e] mb-0.5">Product</p>
-                                    <p className="text-xs text-[#c9d1d9] font-serif italic">
+                                    <p className="text-[9px] uppercase font-black tracking-widest text-gray-400 dark:text-[#8b949e] mb-0.5">Product</p>
+                                    <p className="text-xs text-gray-600 dark:text-[#c9d1d9] font-serif italic">
                                         {selectedDetail.product || 'Unspecified Detail'}
                                     </p>
                                 </div>
                             </div>
                             {selectedDetail.remark && (
-                                <div className="flex gap-3 items-start p-3 bg-[#0d1117] border border-[#30363d] rounded">
-                                    <Mail size={14} className="text-[#8b949e] mt-0.5 shrink-0" />
+                                <div className="flex gap-3 items-start p-3 bg-black/[0.02] dark:bg-[#0d1117] border border-black/5 dark:border-[#30363d] rounded">
+                                    <Mail size={14} className="text-gray-400 dark:text-[#8b949e] mt-0.5 shrink-0" />
                                     <div>
-                                        <p className="text-[9px] uppercase font-black tracking-widest text-[#8b949e] mb-0.5">Notes</p>
-                                        <p className="text-xs text-[#c9d1d9] leading-relaxed">
+                                        <p className="text-[9px] uppercase font-black tracking-widest text-gray-400 dark:text-[#8b949e] mb-0.5">Notes</p>
+                                        <p className="text-xs text-gray-600 dark:text-[#c9d1d9] leading-relaxed">
                                             {selectedDetail.remark}
                                         </p>
                                     </div>
                                 </div>
                             )}
                             <div className="grid grid-cols-2 gap-2 mt-1">
-                                <div className="p-3 bg-[#0d1117] border border-[#30363d] rounded">
-                                    <p className="text-[9px] uppercase font-black tracking-widest text-[#8b949e] mb-1">Ready Date</p>
-                                    <p className="text-sm font-mono text-[#c9d1d9]">
+                                <div className="p-3 bg-black/[0.02] dark:bg-[#0d1117] border border-black/5 dark:border-[#30363d] rounded">
+                                    <p className="text-[9px] uppercase font-black tracking-widest text-gray-400 dark:text-[#8b949e] mb-1">Ready Date</p>
+                                    <p className="text-sm font-mono text-gray-600 dark:text-[#c9d1d9]">
                                         {formatDate(selectedDetail.ready_at, { fallback: 'N/A', month: 'short' })}
                                     </p>
                                 </div>
-                                <div className="p-3 bg-[#0d1117] border border-[#30363d] rounded">
-                                    <p className="text-[9px] uppercase font-black tracking-widest text-[#8b949e] mb-1">Cost</p>
-                                    <p className="text-sm font-mono text-[#58a6ff]">
+                                <div className="p-3 bg-black/[0.02] dark:bg-[#0d1117] border border-black/5 dark:border-[#30363d] rounded">
+                                    <p className="text-[9px] uppercase font-black tracking-widest text-gray-400 dark:text-[#8b949e] mb-1">Cost</p>
+                                    <p className="text-sm font-mono text-[#0d3542] dark:text-[#58a6ff]">
                                         ${selectedDetail.altering_cost || '0.00'}
                                     </p>
                                 </div>
@@ -834,7 +814,7 @@ export default function AlteringManager() {
                         </div>
 
                         {/* Actions */}
-                        <div className="flex flex-col gap-2 pt-2 border-t border-[#30363d]">
+                        <div className="flex flex-col gap-2 pt-2 border-t border-black/5 dark:border-[#30363d]">
                             <div className="flex gap-2">
                                 {selectedDetail.status !== 'completed' && (
                                     <button
@@ -842,7 +822,7 @@ export default function AlteringManager() {
                                             updateMutation.mutate({ id: selectedDetail.id, data: { status: 'completed' } });
                                             setSelectedDetail(null);
                                         }}
-                                        className="flex-1 bg-[#238636] border border-[#2ea043]/30 text-white hover:bg-[#2ea043] transition-colors py-2.5 rounded text-[10px] font-black uppercase tracking-[0.1em] flex justify-center items-center gap-1.5"
+                                        className="flex-1 bg-green-50 dark:bg-[#238636]/20 border border-green-200 dark:border-[#2ea043]/30 text-green-700 dark:text-green-400 hover:bg-green-100 dark:hover:bg-[#2ea043]/40 transition-colors py-2.5 rounded text-[10px] font-black uppercase tracking-[0.1em] flex justify-center items-center gap-1.5"
                                     >
                                         <CheckCircle2 size={12} /> Mark Complete
                                     </button>
@@ -850,7 +830,7 @@ export default function AlteringManager() {
                                 <button
                                     onClick={() => handleNotify(selectedDetail.id)}
                                     disabled={isNotifying === selectedDetail.id}
-                                    className="flex-1 bg-[#161b22] border border-[#30363d] text-[#c9d1d9] hover:bg-[#30363d] transition-colors py-2.5 rounded text-[10px] font-black uppercase tracking-[0.1em] flex justify-center items-center gap-1.5"
+                                    className="flex-1 bg-white dark:bg-[#161b22] border border-black/5 dark:border-[#30363d] text-gray-600 dark:text-[#c9d1d9] hover:bg-black/5 dark:hover:bg-[#30363d] transition-colors py-2.5 rounded text-[10px] font-black uppercase tracking-[0.1em] flex justify-center items-center gap-1.5"
                                 >
                                     {isNotifying === selectedDetail.id ? (
                                         <LumaSpin className="animate-spin" size="xs" />
@@ -864,13 +844,14 @@ export default function AlteringManager() {
                                     onClick={() => {
                                         if (confirm('Delete this record?')) {
                                             deleteMutation.mutate(selectedDetail.id);
+                                            setSelectedDetail(null);
                                         }
                                     }}
-                                    className="text-red-500/50 hover:text-red-500 hover:bg-red-500/10 py-1.5 px-3 rounded text-[10px] font-medium transition-colors border border-transparent hover:border-red-500/20"
+                                    className="text-red-500/70 hover:text-red-500 hover:bg-red-50 py-1.5 px-3 rounded text-[10px] font-medium transition-colors border border-transparent hover:border-red-100 dark:hover:bg-red-500/10 dark:hover:border-red-500/20"
                                 >
                                     Delete Record
                                 </button>
-                                <span className="text-[9px] uppercase tracking-widest font-black text-[#8b949e]">
+                                <span className="text-[9px] uppercase tracking-widest font-black text-gray-400 dark:text-[#8b949e]">
                                     {selectedDetail.notified_at
                                         ? `Last notified: ${formatDate(selectedDetail.notified_at, { fallback: 'N/A', month: 'short' })}`
                                         : 'Not notified yet'}

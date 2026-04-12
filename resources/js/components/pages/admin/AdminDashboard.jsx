@@ -273,7 +273,7 @@ const StatCard = ({ icon, title, value, link, loading, highlight = false }) => {
     return (
         <motion.div
             variants={cardVariants}
-            className={`group relative bg-[#fdfdfc] dark:bg-[#161b22] p-6 rounded-2xl border transition-all duration-300 shadow-sm hover:shadow-md dark:shadow-black/20 ${
+            className={`group relative bg-[#fdfdfc] dark:bg-[#161b22] p-6 rounded-2xl border transition-all duration-300 shadow-md hover:shadow-lg dark:shadow-black/30 ${
                 highlight
                     ? 'border-[#0d3542] dark:border-[#58a6ff] bg-[#0d3542]/5 dark:bg-[#58a6ff]/5'
                     : 'border-black/5 dark:border-[#30363d] hover:border-[#0d3542]/30 dark:hover:border-[#58a6ff]/30'
@@ -323,7 +323,7 @@ const GlassyStatCard = ({
     return (
         <motion.div
             variants={cardVariants}
-            className="relative overflow-hidden group p-6 rounded-2xl bg-[#fdfdfc] dark:bg-[#161b22] border border-black/5 dark:border-[#30363d] transition-all duration-500 shadow-sm hover:shadow-md dark:shadow-black/20"
+            className="relative overflow-hidden group p-6 rounded-2xl bg-[#fdfdfc] dark:bg-[#161b22] border border-black/5 dark:border-[#30363d] transition-all duration-500 shadow-md hover:shadow-lg dark:shadow-black/30"
         >
             <div className="flex justify-between items-start mb-4">
                 <div className="p-3 bg-[#0d3542]/10 dark:bg-[#58a6ff]/10 rounded-xl group-hover:scale-110 transition-transform duration-500">
@@ -600,7 +600,7 @@ const AdminDashboard = () => {
 
                 <motion.div
                     variants={cardVariants}
-                    className="bg-[#fdfdfc] dark:bg-[#161b22] p-10 rounded-[3rem] border border-black/5 dark:border-[#30363d] shadow-sm hover:shadow-md dark:shadow-black/20 overflow-hidden relative group"
+                    className="bg-[#fdfdfc] dark:bg-[#161b22] p-10 rounded-[3rem] border border-black/5 dark:border-[#30363d] shadow-md hover:shadow-lg dark:shadow-black/30 overflow-hidden relative group"
                 >
                     <div className="relative">
                         <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-8 mb-16">
@@ -890,7 +890,7 @@ const AdminDashboard = () => {
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
                     <motion.div
                         variants={cardVariants}
-                        className="bg-[#fdfdfc] dark:bg-[#161b22] p-8 rounded-[2.5rem] border border-black/5 dark:border-[#30363d] shadow-sm hover:shadow-md dark:shadow-black/20"
+                        className="bg-[#fdfdfc] dark:bg-[#161b22] p-8 rounded-[2.5rem] border border-black/5 dark:border-[#30363d] shadow-md hover:shadow-lg dark:shadow-black/30"
                     >
                         <DailySummaryWidget
                             stats={stats}
@@ -900,14 +900,14 @@ const AdminDashboard = () => {
 
                     <motion.div
                         variants={cardVariants}
-                        className="bg-[#fdfdfc] dark:bg-[#161b22] p-8 rounded-[2.5rem] border border-black/5 dark:border-[#30363d] shadow-sm hover:shadow-md dark:shadow-black/20"
+                        className="bg-[#fdfdfc] dark:bg-[#161b22] p-8 rounded-[2.5rem] border border-black/5 dark:border-[#30363d] shadow-md hover:shadow-lg dark:shadow-black/30"
                     >
                         <RecentActivityWidget />
                     </motion.div>
 
                     <motion.div
                         variants={cardVariants}
-                        className="bg-[#fdfdfc] dark:bg-[#161b22] p-8 rounded-[2.5rem] border border-black/5 dark:border-[#30363d] shadow-sm hover:shadow-md dark:shadow-black/20 flex flex-col"
+                        className="bg-[#fdfdfc] dark:bg-[#161b22] p-8 rounded-[2.5rem] border border-black/5 dark:border-[#30363d] shadow-md hover:shadow-lg dark:shadow-black/30 flex flex-col"
                     >
                         <div className="flex items-center gap-4 mb-10">
                             <div className="w-10 h-10 rounded-2xl bg-indigo-500/10 flex items-center justify-center text-indigo-500">
