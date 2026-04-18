@@ -19,7 +19,8 @@ import {
     AlertCircle, 
     CheckCircle2, 
     Mail,
-    ExternalLink
+    ExternalLink,
+    Eye
 } from 'lucide-react';
 import { LumaSpin } from '@/components/ui/luma-spin';
 import { Card, CardTitle } from '@/components/ui/card';

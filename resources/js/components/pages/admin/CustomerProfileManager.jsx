@@ -406,9 +406,9 @@ const CustomerProfileManager = () => {
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                    <GlassyStatCard label="Total" value={pagination.total} icon={Users} />
-                    <GlassyStatCard label="VIP" value={profiles.filter(p => p.client_status === 'VIP').length + "+"} icon={ShieldCheck} />
-                    <GlassyStatCard label="Consults" value={stats.pending_appointments} icon={UserCheck} color="blue-500" />
+                    <StatCard label="Total" value={pagination.total} icon={Users} />
+                    <StatCard label="VIP" value={profiles.filter(p => p.client_status === 'VIP').length + "+"} icon={ShieldCheck} />
+                    <StatCard label="Consults" value={stats.pending_appointments} icon={UserCheck} color="blue-500" />
                 </div>
 
                 <div className="flex flex-col md:flex-row gap-4 items-center bg-white dark:bg-[#161b22] p-4 rounded-xl border border-black/5 dark:border-[#30363d] shadow-none">
