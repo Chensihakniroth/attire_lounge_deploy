@@ -4,7 +4,7 @@ import axios from 'axios';
 import { motion, AnimatePresence } from 'framer-motion';
 import OrderLedger from './OrderLedger';
 import InvoicePanel from './InvoicePanel';
-import ServicePanel from './ServicePanel';
+import QuickAccessDeck from './QuickAccessDeck';
 import { Zap } from 'lucide-react';
 import { usePOS } from './POSContext';
 import InvoiceHistoryPanel from './InvoiceHistoryPanel';
@@ -79,7 +79,7 @@ const POSInterface = () => {
                         className="absolute bottom-6 left-6 p-4 rounded-2xl bg-attire-accent text-gray-900 dark:text-white shadow-none border border-white/20 hover:scale-105 active:scale-95 transition-all z-30 group flex items-center gap-3"
                     >
                         <Zap size={20} fill="currentColor" />
-                        <span className="text-[12px] font-black uppercase tracking-[0.2em] pr-2">Quick Services</span>
+                        <span className="text-[12px] font-black uppercase tracking-[0.2em] pr-2">Quick Access</span>
                     </motion.button>
                 )}
 
@@ -93,7 +93,7 @@ const POSInterface = () => {
                             transition={{ type: 'spring', damping: 30, stiffness: 300 }}
                             className="absolute inset-x-0 bottom-0 h-[450px] border-t-2 border-black/15 dark:border-[#30363d] p-6 bg-background dark:bg-[#0d1117] shadow-none z-[100] flex flex-col"
                         >
-                            <ServicePanel onClose={() => setIsServiceOpen(false)} />
+                            <QuickAccessDeck onClose={() => setIsServiceOpen(false)} />
                         </motion.div>
                     )}
                 </AnimatePresence>

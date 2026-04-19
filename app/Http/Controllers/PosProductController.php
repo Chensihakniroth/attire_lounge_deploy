@@ -30,7 +30,12 @@ class PosProductController extends Controller
         }
 
         if ($category = $request->get('category')) {
-            $query->where('category', $category);
+            $cats = array_map('trim', explode(',', $category));
+            if (count($cats) === 1) {
+                $query->where('category', $cats[0]);
+            } else {
+                $query->whereIn('category', $cats);
+            }
         }
 
         if ($tier = $request->get('tier')) {
