@@ -189,7 +189,7 @@ const QuickEditCell = ({ value, prefix, onSave, onClose }) => {
 
 const ProductRow = React.memo(({ 
     product, isSelected, isFocused, quickEditField, 
-    onToggleSelect, onFocus, onEdit, onQuickEdit, onUpdateField,
+    onToggleSelect, onFocus, onEdit, onDelete, onQuickEdit, onUpdateField,
     formatPrice, performanceMode
 }) => {
     const p = product;
@@ -505,6 +505,17 @@ const ProductsPage = () => {
         }
     });
 
+    const deleteMutation = useMutation({
+        mutationFn: (id) => axios.delete(`/api/v1/admin/pos/products/${id}`),
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ['admin-pos-products'] });
+            if (view === 'form') navigateToView('list');
+        },
+        onError: (err) => {
+            alert('Delete failed: ' + (err.response?.data?.message || err.message));
+        }
+    });
+
     const bulkStoreMutation = useMutation({
         mutationFn: (data) => axios.post('/api/v1/admin/pos/products/bulk', data),
         onSuccess: () => {
@@ -754,6 +765,11 @@ const ProductsPage = () => {
         } else {
             alert('Cannot bulk edit products from different groups in the matrix grid.');
         }
+    };
+
+    const handleDeleteClick = (product) => {
+        if (!window.confirm(`Delete "${product.name}${product.variant ? ' ' + product.variant : ''}"?\n\nThis action cannot be undone.`)) return;
+        deleteMutation.mutate(product.id);
     };
 
     const handleEditClick = (product) => {
@@ -1398,6 +1414,7 @@ const ProductsPage = () => {
                                                                         onToggleSelect={toggleSelect}
                                                                         onFocus={setFocusedId}
                                                                         onEdit={handleEditClick}
+                                                                        onDelete={handleDeleteClick}
                                                                         onQuickEdit={setQuickEditField}
                                                                         onUpdateField={(id, data) => updateMutation.mutate({ id, data })}
                                                                         formatPrice={formatPrice}
@@ -1483,6 +1500,17 @@ const ProductsPage = () => {
                                 </div>
                                 <div className="flex items-center gap-4">
                                     <Button variant="outline" onClick={() => setView('list')} className="h-12 px-8 text-[11px] font-black uppercase tracking-[0.2em] border-black/25 dark:border-white/10 text-gray-400 rounded-xl hover:bg-black/5 dark:hover:bg-white/5">CANCEL</Button>
+                                    {editingProduct && (
+                                        <Button
+                                            variant="outline"
+                                            onClick={() => handleDeleteClick(editingProduct)}
+                                            disabled={deleteMutation.isPending}
+                                            className="h-12 px-6 text-[11px] font-black uppercase tracking-[0.2em] border-red-500/30 text-red-500 hover:bg-red-500 hover:text-white hover:border-red-500 rounded-xl transition-all"
+                                        >
+                                            <Trash2 size={14} className="mr-2" />
+                                            DELETE
+                                        </Button>
+                                    )}
                                     <Button onClick={handleSubmit} disabled={isSaving} className="h-12 px-10 bg-[#0d3542] dark:bg-[#58a6ff] text-white dark:text-black text-[11px] font-black uppercase tracking-[0.2em] shadow-lg ring-1 ring-inset ring-white/10 dark:ring-black/10 hover:opacity-90 transition-all rounded-xl">
                                         {isSaving ? <LumaSpin size="sm" className="mr-2" /> : <Save size={14} className="mr-2" />}
                                         CONFIRM & RECORD
@@ -1634,6 +1662,24 @@ const ProductsPage = () => {
                                     <Command size={12} className="group-hover:scale-110 transition-transform" />
                                     <span className="text-[9px] font-black uppercase tracking-[0.2em]">Bulk Edit</span>
                                 </button>
+                                <div className="w-px h-4 bg-black/10 dark:bg-white/10" />
+                                <button
+                                    onClick={() => {
+                                        const count = selectedIds.size;
+                                        if (!window.confirm(`Delete ${count} selected product${count > 1 ? 's' : ''}?\n\nThis action cannot be undone.`)) return;
+                                        Promise.all(
+                                            Array.from(selectedIds).map(id => axios.delete(`/api/v1/admin/pos/products/${id}`))
+                                        ).then(() => {
+                                            queryClient.invalidateQueries({ queryKey: ['admin-pos-products'] });
+                                            setSelectedIds(new Set());
+                                        }).catch(err => alert('Delete failed: ' + (err.response?.data?.message || err.message)));
+                                    }}
+                                    className="flex items-center gap-2 text-red-400 hover:text-red-500 transition-colors group"
+                                >
+                                    <Trash2 size={12} className="group-hover:scale-110 transition-transform" />
+                                    <span className="text-[9px] font-black uppercase tracking-[0.2em]">Delete</span>
+                                </button>
+                                <div className="w-px h-4 bg-black/10 dark:bg-white/10" />
                                 <button onClick={() => setSelectedIds(new Set())} className="text-gray-400 dark:text-white/20 hover:text-[#0d3542] dark:hover:text-[#58a6ff] text-[9px] font-black uppercase tracking-[0.2em]">Clear</button>
                             </div>
                         </div>
