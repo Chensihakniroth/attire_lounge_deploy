@@ -1,4 +1,6 @@
 import React, { useState, useEffect } from 'react';
+import { useSearchParams } from 'react-router-dom';
+import axios from 'axios';
 import { motion, AnimatePresence } from 'framer-motion';
 import OrderLedger from './OrderLedger';
 import InvoicePanel from './InvoicePanel';
@@ -10,8 +12,39 @@ import ProductSearchModal from './ProductSearchModal';
 import ModernModal from '../../common/ModernModal';
 
 const POSInterface = () => {
-    const { isHistoryOpen, setIsHistoryOpen, isServiceOpen, setIsServiceOpen } = usePOS();
+    const { isHistoryOpen, setIsHistoryOpen, isServiceOpen, setIsServiceOpen, loadInvoiceIntoCart, cloneInvoiceIntoCart } = usePOS();
     const [isSearchOpen, setIsSearchOpen] = useState(false);
+    const [searchParams, setSearchParams] = useSearchParams();
+
+    // Check for invoice actions from Admin Dashboard
+    useEffect(() => {
+        const action = searchParams.get('action');
+        const invoiceId = searchParams.get('invoice');
+        
+        if (action && invoiceId) {
+            // StrictMode defense: check actual window URL before processing
+            const currentUrl = new URL(window.location.href);
+            if (currentUrl.searchParams.has('action')) {
+                // Instantly strip it so the mirror mount doesn't see it
+                currentUrl.searchParams.delete('action');
+                currentUrl.searchParams.delete('invoice');
+                window.history.replaceState({}, '', currentUrl.toString());
+                
+                axios.get(`/api/v1/admin/pos/invoices/${invoiceId}`)
+                    .then(res => {
+                        const invoiceData = res.data.data || res.data;
+                        if (invoiceData) {
+                            if (action === 'clone') {
+                                cloneInvoiceIntoCart(invoiceData);
+                            } else if (action === 'refund') {
+                                loadInvoiceIntoCart(invoiceData);
+                            }
+                        }
+                    })
+                    .catch(err => console.error("Failed to load invoice for action", err));
+            }
+        }
+    }, [searchParams, cloneInvoiceIntoCart, loadInvoiceIntoCart]);
 
     // Global keyboard shortcuts
     useEffect(() => {
@@ -67,7 +100,7 @@ const POSInterface = () => {
             </div>
 
             {/* Right Column: Active Invoice & Checkout */}
-            <div className="w-full md:w-[400px] xl:w-[450px] flex flex-col overflow-hidden bg-[#fdfdfc] dark:bg-[#0d1117]">
+            <div className="w-full md:w-[400px] xl:w-[450px] flex flex-col overflow-hidden bg-[#f8f9fa] dark:bg-[#0d1117]">
                 <InvoicePanel />
             </div>
 

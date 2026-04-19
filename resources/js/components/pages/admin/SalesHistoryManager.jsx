@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { 
     Search, 
@@ -15,11 +16,13 @@ import {
     ChevronLeft,
     ChevronRight,
     RefreshCw,
-    Wallet
+    Wallet,
+    Copy
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 const SalesHistoryManager = () => {
+    const navigate = useNavigate();
     const [invoices, setInvoices] = useState([]);
     const [loading, setLoading] = useState(true);
     const [search, setSearch] = useState('');
@@ -159,11 +162,11 @@ const SalesHistoryManager = () => {
                                         </p>
                                     </td>
                                     <td className="px-6 py-6 text-xs font-bold text-gray-500 dark:text-[#8b949e]/60 uppercase tracking-widest">
-                                        {inv.items_count || 0} Products
+                                        {inv.items?.length || 0} Products
                                     </td>
                                     <td className="px-6 py-6">
                                         <span className="text-sm font-bold text-[#0d3542] dark:text-[#58a6ff] tracking-widest">
-                                            ${parseFloat(inv.total_amount).toLocaleString()}
+                                            ${parseFloat(inv.grand_total || 0).toLocaleString()}
                                         </span>
                                     </td>
                                     <td className="px-6 py-6">
@@ -176,13 +179,15 @@ const SalesHistoryManager = () => {
                                     <td className="px-6 py-6 text-right">
                                         <div className="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
                                             <button 
-                                                title="View Details"
+                                                title="Clone Invoice into POS"
+                                                onClick={() => navigate(`/admin/pos?action=clone&invoice=${inv.id}`)}
                                                 className="p-2.5 rounded-lg bg-black/5 dark:bg-[#0d1117] text-gray-400 hover:text-[#0d3542] dark:hover:text-[#58a6ff] hover:bg-[#0d3542]/10 dark:hover:bg-[#58a6ff]/10 transition-all border border-transparent dark:border-[#30363d]"
                                             >
-                                                <Eye size={14} />
+                                                <Copy size={14} />
                                             </button>
                                             <button 
-                                                title="Initiate Refund"
+                                                title="Initiate Refund in POS"
+                                                onClick={() => navigate(`/admin/pos?action=refund&invoice=${inv.id}`)}
                                                 className="p-2.5 rounded-lg bg-black/5 dark:bg-[#0d1117] text-gray-400 hover:text-red-500 hover:bg-red-500/10 transition-all border border-transparent dark:border-[#30363d]"
                                             >
                                                 <Undo2 size={14} />

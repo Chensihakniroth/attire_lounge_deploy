@@ -140,6 +140,14 @@ class PosInvoiceController extends Controller
                     'gift_wrap'        => $item['gift_wrap'] ?? false,
                     'line_total'       => $computed['line_total'],
                 ]);
+
+                // Deduct stock if it's a physical product and has a valid ID
+                if (!empty($item['product_id']) && empty($item['is_service'])) {
+                    $posProduct = PosProduct::find($item['product_id']);
+                    if ($posProduct) {
+                        $posProduct->decrement('stock_qty', (int) $item['quantity']);
+                    }
+                }
             }
 
             // Create payment rows (split payment support)

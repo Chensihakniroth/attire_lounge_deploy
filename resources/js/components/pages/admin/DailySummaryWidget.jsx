@@ -68,11 +68,10 @@ const DailySummaryWidget = ({ stats, loading }) => {
             {/* Metrics Grid */}
             <div className="grid grid-cols-2 gap-4 mb-10">
                 <div className="relative overflow-hidden p-5 rounded-[2rem] bg-[#fdfdfc] dark:bg-white/[0.02] border border-black/5 dark:border-white/5 group hover:border-[#0d3542]/20 dark:hover:border-[#58a6ff]/20 transition-all duration-500">
-                    <BorderBeam size={80} duration={8} delay={0} colorFrom="#0d3542" colorTo="#58a6ff" />
                     <div className="relative z-10">
                         <p className="text-[10px] font-black text-gray-400 dark:text-[#8b949e]/30 uppercase tracking-[0.3em] mb-2.5 group-hover:text-[#0d3542] dark:group-hover:text-[#58a6ff] transition-colors">Sales</p>
                         <div className="flex items-baseline gap-1">
-                            <span className="text-2xl font-black tracking-tighter text-gray-900 dark:text-white">
+                            <span className="text-2xl font-black tracking-tighter text-[#0d3542] dark:text-[#58a6ff]">
                                 ${Math.floor(dailyData.total_revenue).toLocaleString()}
                             </span>
                             <span className="text-[10px] font-black text-gray-300 dark:text-gray-700 font-mono uppercase tracking-widest">USD</span>
@@ -81,11 +80,10 @@ const DailySummaryWidget = ({ stats, loading }) => {
                 </div>
                 
                 <div className="relative overflow-hidden p-5 rounded-[2rem] bg-[#fdfdfc] dark:bg-white/[0.02] border border-black/5 dark:border-white/5 group hover:border-emerald-500/20 transition-all duration-500">
-                    <BorderBeam size={80} duration={8} delay={4} colorFrom="#10b981" colorTo="#34d399" />
                     <div className="relative z-10">
                         <p className="text-[10px] font-black text-gray-400 dark:text-[#8b949e]/30 uppercase tracking-[0.3em] mb-2.5 group-hover:text-emerald-500 transition-colors">Orders</p>
                         <div className="flex items-baseline gap-2">
-                            <span className="text-2xl font-black tracking-tighter text-gray-900 dark:text-white">
+                            <span className="text-2xl font-black tracking-tighter text-emerald-600 dark:text-emerald-400">
                                 {dailyData.invoice_count}
                             </span>
                         </div>

@@ -303,6 +303,36 @@ export const POSProvider = ({ children }) => {
         setActiveTabIndex(invoiceTabs.length);
     };
 
+    const cloneInvoiceIntoCart = (invoice) => {
+        const newTab = {
+            id: Date.now(),
+            customer: invoice.customer,
+            cartItems: invoice.items.map(item => ({
+                cart_item_id: `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+                product_id: item.product_id,
+                product_name: item.product_name,
+                product_variant: item.product_variant,
+                product_sku: item.product_sku,
+                is_service: !!item.is_service,
+                quantity: item.quantity, 
+                unit_price: item.unit_price,
+                discount_type: item.discount_type === 'percent' ? 'percentage' : (item.discount_type === 'amount' ? 'price' : 'none'),
+                discount_value: item.discount_value,
+                gift_wrap: !!item.gift_wrap,
+                is_accessory: false
+            })),
+            notes: `CLONED FROM: ${invoice.invoice_number}`,
+            note: `CLONED FROM: ${invoice.invoice_number}`,
+            isRefundMode: false,
+            originalInvoice: null,
+            heldAt: null,
+            status: 'active',
+            payments: []
+        };
+        setInvoiceTabs(prev => [...prev, newTab]);
+        setActiveTabIndex(invoiceTabs.length); // Assuming this triggers length change immediately or use callback state
+    };
+
     const value = {
         invoiceTabs,
         activeTabIndex,
@@ -323,6 +353,7 @@ export const POSProvider = ({ children }) => {
         clearInvoice,
         holdInvoice,
         loadInvoiceIntoCart,
+        cloneInvoiceIntoCart,
         selectAllRefundItems,
         isHistoryOpen,
         setIsHistoryOpen,

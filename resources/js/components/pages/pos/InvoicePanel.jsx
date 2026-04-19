@@ -31,7 +31,7 @@ const InvoicePanel = () => {
     const [showPaymentModal, setShowPaymentModal] = useState(false);
 
     return (
-        <div className="flex-1 flex flex-col h-full bg-background dark:bg-[#0d1117] border-l border-black/5 dark:border-[#30363d] transition-colors duration-300 font-sans">
+        <div className="flex-1 flex flex-col h-full bg-transparent dark:bg-[#0d1117] border-l border-black/5 dark:border-[#30363d] transition-colors duration-300 font-sans">
             {/* Customer Section */}
             <div className="p-5 border-b border-black/5 dark:border-[#30363d] bg-black/[0.01] dark:bg-white/[0.01]">
                 {!activeTab.customer ? (

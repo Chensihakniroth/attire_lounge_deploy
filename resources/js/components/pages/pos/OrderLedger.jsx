@@ -20,10 +20,10 @@ const OrderLedger = ({ onSearchClick }) => {
     const isRefund = activeTab.isRefundMode;
 
     return (
-        <div className={`flex-1 flex flex-col overflow-hidden h-full bg-background dark:bg-[#0d1117] transition-all duration-500 ${isRefund ? 'ring-inset ring-2 ring-red-500/20' : ''}`}>
+        <div className={`flex-1 flex flex-col overflow-hidden h-full bg-[#f4f5f8] dark:bg-[#0d1117] transition-all duration-500 ${isRefund ? 'ring-inset ring-2 ring-red-500/20' : ''}`}>
 
             {/* Header Area */}
-            <div className={`p-4 bg-background dark:bg-[#0d1117] border-b border-black/5 dark:border-[#30363d] sticky top-0 z-20 transition-all duration-300`}>
+            <div className={`p-4 bg-[#f4f5f8] dark:bg-[#0d1117] border-b border-black/5 dark:border-[#30363d] sticky top-0 z-20 transition-all duration-300`}>
                 {isRefund ? (
                     <div className="flex items-center justify-between gap-4 p-1">
                         <div className="flex items-center gap-3">
@@ -120,7 +120,12 @@ const OrderLedger = ({ onSearchClick }) => {
                                                 <td className="px-4 py-4">
                                                     <div className="flex flex-col gap-0.5">
                                                         <div className="flex items-center gap-2">
-                                                            <span className="uppercase text-[16px] font-black leading-tight tracking-[0.02em] text-gray-900 dark:text-[#c9d1d9] group-hover:text-[#0d3542] dark:group-hover:text-[#58a6ff] transition-colors">{item.product_name}</span>
+                                                            <div className="flex flex-col">
+                                                                <span className="uppercase text-[16px] font-black leading-tight tracking-[0.02em] text-gray-900 dark:text-[#c9d1d9] group-hover:text-[#0d3542] dark:group-hover:text-[#58a6ff] transition-colors">{item.product_name}</span>
+                                                                {item.product_variant && (
+                                                                    <span className="text-[10px] font-bold text-gray-500 uppercase tracking-[0.15em] mt-0.5">{String(item.product_variant).replace(/^-/, '').trim()}</span>
+                                                                )}
+                                                            </div>
                                                             {item.is_fully_refunded && (
                                                                 <span className="text-[8px] px-2 py-0.5 bg-red-500 text-white rounded-md font-black uppercase tracking-widest">Fully Refunded</span>
                                                             )}

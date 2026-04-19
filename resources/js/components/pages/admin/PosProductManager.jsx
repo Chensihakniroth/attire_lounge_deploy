@@ -13,7 +13,6 @@ import {
 import { LumaSpin } from '@/components/ui/luma-spin';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import BulkActionDialog from './pos/BulkActionDialog';
 import { formatPrice } from '@/helpers/format';
 import { useAdmin } from './AdminContext';
 
@@ -297,7 +296,6 @@ const ProductsPage = () => {
 
     const [selectedIds, setSelectedIds] = useState(new Set());
     const [focusedId, setFocusedId] = useState(null);
-    const [isBulkDialogOpen, setIsBulkDialogOpen] = useState(false);
     const [quickEditField, setQuickEditField] = useState(null); // 'price' | 'stock' | null
     const [isSaving, setIsSaving] = useState(false);
     const [currentPage, setCurrentPage] = useState(1);
@@ -532,7 +530,7 @@ const ProductsPage = () => {
             // Command Palette / Bulk Action
             if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
                 e.preventDefault();
-                if (selectedIds.size > 0) setIsBulkDialogOpen(true);
+                if (selectedIds.size > 0) handleBulkEditClick();
             }
 
             // Selection & Navigation (List View Only)
@@ -668,21 +666,36 @@ const ProductsPage = () => {
             const secondaryAttrs = new Set();
             const editData = {};
             
+            let foundPrimaryKey = null;
+            let foundSecondaryKey = null;
+
             selectedProds.forEach(p => {
-                const variant = (p.variant || '').trim();
                 let primary = '';
                 let secondary = '';
                 
-                // Split by spaces and clean up each part
-                const parts = variant.split(/\s+/)
-                    .map(v => v.replace(/^-/, '').trim().toUpperCase()) // Strip leading dash and clean
-                    .filter(Boolean);
-                
-                if (parts.length >= 2) {
-                    primary = parts[0];
-                    secondary = parts[1];
-                } else if (parts.length === 1) {
-                    primary = parts[0];
+                if (p.attributes && p.attributes.length > 0) {
+                    // Extract from explicit attributes if available
+                    if (p.attributes[0]) {
+                        primary = (p.attributes[0].value || '').trim().toUpperCase();
+                        if (!foundPrimaryKey && p.attributes[0].key) foundPrimaryKey = p.attributes[0].key.toUpperCase();
+                    }
+                    if (p.attributes[1]) {
+                        secondary = (p.attributes[1].value || '').trim().toUpperCase();
+                        if (!foundSecondaryKey && p.attributes[1].key) foundSecondaryKey = p.attributes[1].key.toUpperCase();
+                    }
+                } else {
+                    // Fallback: split variant string by '-' to keep phrases like 'ONE SIZE' or 'LIGHT BLUE' intact
+                    const variant = (p.variant || '').trim();
+                    const parts = variant.split('-')
+                        .map(v => v.trim().toUpperCase())
+                        .filter(Boolean);
+                    
+                    if (parts.length >= 2) {
+                        primary = parts[0];
+                        secondary = parts[1];
+                    } else if (parts.length === 1) {
+                        primary = parts[0];
+                    }
                 }
                 
                 if (primary) primaryAttrs.add(primary);
@@ -698,23 +711,23 @@ const ProductsPage = () => {
             });
             
             // Determine attribute labels
-            let primaryKey = 'ATTRIBUTE';
-            let secondaryKey = '';
             const primaryVals = Array.from(primaryAttrs);
             const secondaryVals = Array.from(secondaryAttrs);
             
-            const sizeOrder = ['XXS', 'XS', 'S', 'M', 'L', 'XL', 'XXL', 'XXXL', '3XL', '4XL', '5XL'];
+            let primaryKey = foundPrimaryKey || 'ATTRIBUTE';
+            let secondaryKey = foundSecondaryKey || '';
+            
+            const sizeOrder = ['XXS', 'XS', 'S', 'M', 'L', 'XL', 'XXL', 'XXXL', '3XL', '4XL', '5XL', 'ONE SIZE', 'OS'];
             const looksLikeSize = (vals) => vals.some(v => sizeOrder.includes(v) || !isNaN(parseInt(v)));
             
-            if (secondaryVals.length > 0) {
-                // Two dimensions — guess labels
+            if (!foundPrimaryKey && secondaryVals.length > 0) {
+                // Two dimensions — guess labels if not found in attributes
                 primaryKey = looksLikeSize(primaryVals) ? 'SIZE' : 'COLOR';
                 secondaryKey = looksLikeSize(secondaryVals) ? 'SIZE' : 'COLOR';
                 if (primaryKey === secondaryKey) secondaryKey = 'VARIANT';
-            } else {
-                // Single dimension
+            } else if (!foundPrimaryKey && primaryVals.length > 0) {
+                // Single dimension guess
                 primaryKey = looksLikeSize(primaryVals) ? 'SIZE' : 'ATTRIBUTE';
-                secondaryKey = '';
             }
             
             const sortAttrValues = (vals) => vals.sort((a, b) => {
@@ -739,7 +752,7 @@ const ProductsPage = () => {
             
             navigateToView('form');
         } else {
-            setIsBulkDialogOpen(true);
+            alert('Cannot bulk edit products from different groups in the matrix grid.');
         }
     };
 
@@ -1599,11 +1612,6 @@ const ProductsPage = () => {
                                         </div>
                                     </Section>
 
-                                    <Section title="Inventory" icon={Archive}>
-                                        <Field label="Current Stock" hint="Physical stock count">
-                                            <input type="number" value={formData.stock_qty} onChange={e => setFormData({...formData, stock_qty: e.target.value})} className={`${inputBase} font-mono font-bold`} />
-                                        </Field>
-                                    </Section>
                                 </div>
                             </div>
 
@@ -1633,13 +1641,7 @@ const ProductsPage = () => {
                 )}
             </AnimatePresence>
 
-            <BulkActionDialog 
-                isOpen={isBulkDialogOpen}
-                onClose={() => setIsBulkDialogOpen(false)}
-                selectedCount={selectedIds.size}
-                products={selectedProducts}
-                onApply={handleBulkApply}
-            />
+
 
         </div>
     );

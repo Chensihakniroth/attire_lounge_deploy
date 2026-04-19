@@ -14,7 +14,8 @@ import {
     User,
     ArrowUpRight,
     Undo2,
-    Check
+    Check,
+    Copy
 } from 'lucide-react';
 import { usePOS } from './POSContext';
 import axios from 'axios';
@@ -23,7 +24,7 @@ import RefundModal from './RefundModal';
 import DatePicker from '@/components/ui/DatePicker';
 
 const InvoiceHistoryPanel = ({ onClose }) => {
-    const { loadInvoiceIntoCart, setIsHistoryOpen } = usePOS();
+    const { loadInvoiceIntoCart, cloneInvoiceIntoCart, setIsHistoryOpen } = usePOS();
     const [invoices, setInvoices] = useState([]);
     const [loading, setLoading] = useState(true);
     const [date, setDate] = useState(new Date().toISOString().split('T')[0]);
@@ -59,6 +60,25 @@ const InvoiceHistoryPanel = ({ onClose }) => {
             loadInvoiceIntoCart(invoiceData);
             
             // Close the history panel so user can see items in cart
+            onClose();
+        } catch (err) {
+            console.error('Failed to fetch invoice details:', err);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const handleCloneInvoice = async (invoice) => {
+        setLoading(true);
+        try {
+            const response = await axios.get(`/api/v1/admin/pos/invoices/${invoice.id}`);
+            const invoiceData = response.data;
+            
+            if (!invoiceData) {
+                throw new Error('Invoice data is empty');
+            }
+
+            cloneInvoiceIntoCart(invoiceData);
             onClose();
         } catch (err) {
             console.error('Failed to fetch invoice details:', err);
@@ -170,7 +190,7 @@ const InvoiceHistoryPanel = ({ onClose }) => {
                                         </span>
                                     </div>
                                     <span className="text-[10px] font-bold text-attire-accent">
-                                        ${parseFloat(inv.total_amount).toLocaleString()}
+                                        ${parseFloat(inv.grand_total || 0).toLocaleString()}
                                     </span>
                                 </div>
 
@@ -185,12 +205,18 @@ const InvoiceHistoryPanel = ({ onClose }) => {
                                     </div>
                                 </div>
                                 
-                                <div className="mt-4 pt-3 border-t border-black/5 dark:border-white/5 flex justify-end">
+                                <div className="mt-4 pt-3 border-t border-black/5 dark:border-white/5 flex justify-end items-center gap-4">
+                                    <button 
+                                        onClick={() => handleCloneInvoice(inv)}
+                                        className="flex items-center gap-1.5 text-[8px] font-bold uppercase tracking-[0.2em] text-gray-400 hover:text-attire-accent hover:scale-105 transition-all"
+                                    >
+                                        <Copy size={10} /> Clone 
+                                    </button>
                                     <button 
                                         onClick={() => handleSelectInvoice(inv)}
                                         className="flex items-center gap-1.5 text-[8px] font-bold uppercase tracking-[0.2em] text-attire-accent hover:scale-105 transition-all"
                                     >
-                                        {inv.status === 'refunded' ? 'Details' : 'Refund / Details'} <ArrowUpRight size={10} />
+                                        {inv.status === 'refunded' ? 'Refunded' : 'Refund'} <ArrowUpRight size={10} />
                                     </button>
                                 </div>
                             </div>
