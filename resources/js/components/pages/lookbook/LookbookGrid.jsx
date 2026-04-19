@@ -29,7 +29,7 @@ const LookbookGrid = memo(({ images, gridSize = 'medium' }) => {
     return (
         <AnimatePresence mode='popLayout'>
             <motion.div 
-                key={`${images.length}-${gridSize}`}
+                key={gridSize}
                 variants={containerVariants}
                 initial="hidden"
                 animate="visible"

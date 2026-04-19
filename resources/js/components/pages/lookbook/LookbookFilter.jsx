@@ -96,20 +96,18 @@ const LookbookFilter = memo(({
                                     title={`${opt.label} View`}
                                 >
                                     {/* Background animations MUST come before the icon now */}
-                                    <AnimatePresence>
-                                        {leavingDroplets.map(droplet => 
-                                            droplet.gridId === opt.id && (
-                                                <motion.div
-                                                    key={droplet.id}
-                                                    className="absolute inset-0 bg-white rounded-full"
-                                                    initial={{ scale: 1, opacity: 0.6 }}
-                                                    exit={{ scale: [1, 1.3, 0], opacity: [0.6, 0.4, 0] }}
-                                                    transition={{ duration: 0.4, ease: "circOut" }}
-                                                    onAnimationComplete={() => removeDroplet(droplet.id)}
-                                                />
-                                            )
-                                        )}
-                                    </AnimatePresence>
+                                    {leavingDroplets.map(droplet => 
+                                        droplet.gridId === opt.id && (
+                                            <motion.div
+                                                key={droplet.id}
+                                                className="absolute inset-0 bg-white rounded-full"
+                                                initial={{ scale: 1, opacity: 0.6 }}
+                                                animate={{ scale: [1, 1.3, 0], opacity: [0.6, 0.4, 0] }}
+                                                transition={{ duration: 0.4, ease: "circOut" }}
+                                                onAnimationComplete={() => removeDroplet(droplet.id)}
+                                            />
+                                        )
+                                    )}
 
                                     {currentGrid === opt.id && (
                                         <motion.div 

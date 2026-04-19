@@ -50,10 +50,10 @@ const RefundModal = ({ invoice, onClose, onRefundSuccess }) => {
             const payload = {
                 invoice_id: invoice.id,
                 type: type, // 'full' or 'partial'
-                items: type === 'partial' ? selectedItems.map(i => ({ id: i.id })) : []
+                items: type === 'partial' ? selectedItems.map(i => ({ id: i.id, quantity: i.quantity })) : []
             };
 
-            await axios.post('/api/v1/admin/pos/refunds', payload);
+            await axios.post(`/api/v1/admin/pos/invoices/${invoice.id}/refund`, payload);
             setSuccess(true);
             setTimeout(() => {
                 onRefundSuccess();

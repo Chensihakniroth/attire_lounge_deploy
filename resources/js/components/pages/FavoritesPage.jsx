@@ -24,10 +24,11 @@ const FavoritesPage = () => {
     });
 
     const favoriteProducts = useMemo(() => {
+        if (favorites.length === 0) return [];
         if (!data?.data) return [];
         // Keep the order the user added them if possible
         return data.data;
-    }, [data]);
+    }, [data, favorites]);
     
     const containerVariants = {
         hidden: { opacity: 0 },
@@ -109,7 +110,7 @@ const FavoritesPage = () => {
             {/* Main Content */}
             <main className="relative z-10 max-w-screen-2xl mx-auto px-6 sm:px-12 lg:px-24 pb-32">
                 <AnimatePresence mode="wait">
-                    {isLoading ? (
+                    {isLoading && favorites.length > 0 ? (
                         <motion.div 
                             key="loading"
                             initial={{ opacity: 0 }}
@@ -163,9 +164,9 @@ const FavoritesPage = () => {
                                 </div>
                             </div>
                             
-                            <h2 className="font-serif text-4xl md:text-5xl text-white mb-6 tracking-tighter italic">Your gallery is <span className="text-attire-silver/40">awaiting curation</span></h2>
+                            <h2 className="font-serif text-4xl md:text-5xl text-white mb-6 tracking-tighter italic"><span className="text-attire-silver/40">Empty Gallery</span></h2>
                             <p className="text-attire-silver/50 text-xs uppercase tracking-[0.4em] font-bold max-w-md mx-auto mb-12 leading-relaxed">
-                                Discover our latest collections and start selecting your perfect wardrobe.
+                                No items selected.
                             </p>
                             
                             <Link to="/products" className="group flex flex-col items-center gap-6">

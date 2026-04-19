@@ -50,19 +50,31 @@ const InvoiceHistoryPanel = ({ onClose }) => {
         setLoading(true);
         try {
             const response = await axios.get(`/api/v1/admin/pos/invoices/${invoice.id}`);
-            const invoiceData = response.data; // Invoice detail is at the root of the response
+            const invoiceData = response.data;
             
             if (!invoiceData) {
                 throw new Error('Invoice data is empty');
             }
 
-            // Clone invoice into current POS cart for refund processing
             loadInvoiceIntoCart(invoiceData);
-            
-            // Close the history panel so user can see items in cart
             onClose();
         } catch (err) {
             console.error('Failed to fetch invoice details:', err);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const handleOpenRefund = async (invoice) => {
+        setLoading(true);
+        try {
+            const response = await axios.get(`/api/v1/admin/pos/invoices/${invoice.id}`);
+            const invoiceData = response.data;
+            if (!invoiceData) throw new Error('Invoice data is empty');
+            setSelectedInvoice(invoiceData);
+            setShowRefund(true);
+        } catch (err) {
+            console.error('Failed to fetch invoice for refund:', err);
         } finally {
             setLoading(false);
         }
@@ -213,10 +225,15 @@ const InvoiceHistoryPanel = ({ onClose }) => {
                                         <Copy size={10} /> Clone 
                                     </button>
                                     <button 
-                                        onClick={() => handleSelectInvoice(inv)}
-                                        className="flex items-center gap-1.5 text-[8px] font-bold uppercase tracking-[0.2em] text-attire-accent hover:scale-105 transition-all"
+                                        disabled={inv.status === 'refunded'}
+                                        onClick={() => handleOpenRefund(inv)}
+                                        className={`flex items-center gap-1.5 text-[8px] font-bold uppercase tracking-[0.2em] transition-all ${
+                                            inv.status === 'refunded'
+                                                ? 'text-gray-300 dark:text-white/20 cursor-not-allowed'
+                                                : 'text-red-500 hover:scale-105'
+                                        }`}
                                     >
-                                        {inv.status === 'refunded' ? 'Refunded' : 'Refund'} <ArrowUpRight size={10} />
+                                        <Undo2 size={10} /> {inv.status === 'refunded' ? 'Refunded' : 'Refund'}
                                     </button>
                                 </div>
                             </div>

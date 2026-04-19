@@ -25,8 +25,8 @@ function Calendar({
       fromYear={fromYear}
       toYear={toYear}
       className={cn(
-        "p-1.5 w-full",
-        "[--cell-size:48px] sm:[--cell-size:32px]",
+        "p-1.5 w-full flex justify-center overflow-hidden",
+        "[--cell-size:38px] sm:[--cell-size:32px]",
         className
       )}
       classNames={{

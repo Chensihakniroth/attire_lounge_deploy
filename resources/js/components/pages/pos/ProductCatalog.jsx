@@ -25,24 +25,22 @@ const containerVariants = {
     visible: {
         opacity: 1,
         transition: {
-            staggerChildren: 0.04,
+            staggerChildren: 0.008, // was 0.04 — that's 4+ seconds for 100 rows
         },
     },
 };
 
 const rowVariants = {
-    hidden: { opacity: 0, y: 20, filter: 'blur(8px)' },
+    hidden: { opacity: 0, y: 10 },
     visible: { 
         opacity: 1, 
         y: 0, 
-        filter: 'blur(0px)',
-        transition: { duration: 0.5, ease: [0.16, 1, 0.3, 1] }
+        transition: { duration: 0.3, ease: "easeOut" }
     },
     exit: { 
         opacity: 0, 
-        scale: 0.95, 
-        filter: 'blur(4px)',
-        transition: { duration: 0.2 } 
+        scale: 0.98, 
+        transition: { duration: 0.15 } 
     },
 };
 
@@ -52,7 +50,6 @@ const ProductLogRow = React.forwardRef(({ product, isSelected, onToggleSelect },
     return (
         <motion.div 
             ref={ref}
-            layout
             variants={rowVariants}
             className="border-b border-black/5 dark:border-[#30363d] last:border-0 hover:z-10 relative"
             onClick={onToggleSelect}
@@ -370,7 +367,7 @@ const ProductCatalog = ({ onSearchClick }) => {
     useEffect(() => {
         const timer = setTimeout(() => {
             fetchProducts();
-        }, 300);
+        }, 450);
         return () => clearTimeout(timer);
     }, [fetchProducts]);
 

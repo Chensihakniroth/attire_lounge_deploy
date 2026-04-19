@@ -300,7 +300,7 @@ const ProductsPage = () => {
     const [isSaving, setIsSaving] = useState(false);
     const [currentPage, setCurrentPage] = useState(1);
     const [currentGroupPage, setCurrentGroupPage] = useState(1);
-    const pageSize = 500;
+    const pageSize = 200;
     const itemsPerGroupPage = 20;
 
     // Sidebar Filter States
@@ -310,6 +310,13 @@ const ProductsPage = () => {
         attribute: '',
         group: 'ALL GROUPS',
         stockStatus: 'all' // 'all' | 'in' | 'out' | 'low'
+    });
+    
+    // Local State for text inputs (prevents rapid keystrokes from re-rendering the whole table)
+    const [localFilters, setLocalFilters] = useState({
+        code: '',
+        nameBarcode: '',
+        attribute: ''
     });
     
     // Form State
@@ -333,12 +340,27 @@ const ProductsPage = () => {
 
     // --- Debounced Filters for API ---
     const [debouncedFilters, setDebouncedFilters] = useState(filters);
+    
+    // Sync local text inputs to main filters after user stops typing
+    useEffect(() => {
+        const timer = setTimeout(() => {
+            setFilters(prev => ({
+                ...prev,
+                code: localFilters.code,
+                nameBarcode: localFilters.nameBarcode,
+                attribute: localFilters.attribute
+            }));
+        }, 400); // 400ms debounce for typing
+        return () => clearTimeout(timer);
+    }, [localFilters]);
+
+    // When main filters change, trigger API fetch
     useEffect(() => {
         const timer = setTimeout(() => {
             setDebouncedFilters(filters);
             setCurrentPage(1);
             setCurrentGroupPage(1);
-        }, 300);
+        }, 150); // Fast debounce for dropdown clicks
         return () => clearTimeout(timer);
     }, [filters]);
 
@@ -390,49 +412,40 @@ const ProductsPage = () => {
     }, [productsData, filters.stockStatus]);
 
     const groupedProducts = useMemo(() => {
+        const SIZE_ORDER = ['XXS', 'XS', 'S', 'M', 'L', 'XL', 'XXL', 'XXXL'];
         const groups = {};
+
         products.forEach(p => {
             const baseName = (p.name || '').trim().toUpperCase();
             if (!groups[baseName]) {
-                groups[baseName] = {
-                    name: baseName,
-                    items: []
-                };
+                groups[baseName] = { name: baseName, items: [] };
             }
             groups[baseName].items.push(p);
         });
-        
+
+        // Pre-compute sort keys ONCE per item instead of inside the comparator (O(n log n) -> O(n))
         Object.values(groups).forEach(group => {
-            group.items.sort((a, b) => {
-                const aAttrs = a.attributes || [];
-                const bAttrs = b.attributes || [];
-                
-                const aColor = aAttrs.find(attr => attr.key?.toUpperCase() === 'COLOR')?.value?.toUpperCase() || '';
-                const bColor = bAttrs.find(attr => attr.key?.toUpperCase() === 'COLOR')?.value?.toUpperCase() || '';
-                
-                if (aColor !== bColor) {
-                    return aColor.localeCompare(bColor);
-                }
-                
-                const aSize = aAttrs.find(attr => attr.key?.toUpperCase() === 'SIZE')?.value?.toUpperCase() || '';
-                const bSize = bAttrs.find(attr => attr.key?.toUpperCase() === 'SIZE')?.value?.toUpperCase() || '';
-                
-                const sizeOrder = ['XXS', 'XS', 'S', 'M', 'L', 'XL', 'XXL', 'XXXL'];
-                const aIdx = sizeOrder.indexOf(aSize);
-                const bIdx = sizeOrder.indexOf(bSize);
-                
-                if (aIdx !== -1 && bIdx !== -1) return aIdx - bIdx;
-                if (aIdx !== -1) return -1;
-                if (bIdx !== -1) return 1;
-                
-                const aNum = parseInt(aSize);
-                const bNum = parseInt(bSize);
-                if (!isNaN(aNum) && !isNaN(bNum)) return aNum - bNum;
-                
-                return aSize.localeCompare(bSize);
+            const keyed = group.items.map(p => {
+                const attrs = p.attributes || [];
+                const color = attrs.find(a => a.key?.toUpperCase() === 'COLOR')?.value?.toUpperCase() || '';
+                const size  = attrs.find(a => a.key?.toUpperCase() === 'SIZE')?.value?.toUpperCase() || '';
+                const sizeIdx = SIZE_ORDER.indexOf(size);
+                const sizeNum = parseInt(size);
+                return { p, color, size, sizeIdx, sizeNum };
             });
+
+            keyed.sort((a, b) => {
+                if (a.color !== b.color) return a.color.localeCompare(b.color);
+                if (a.sizeIdx !== -1 && b.sizeIdx !== -1) return a.sizeIdx - b.sizeIdx;
+                if (a.sizeIdx !== -1) return -1;
+                if (b.sizeIdx !== -1) return 1;
+                if (!isNaN(a.sizeNum) && !isNaN(b.sizeNum)) return a.sizeNum - b.sizeNum;
+                return a.size.localeCompare(b.size);
+            });
+
+            group.items = keyed.map(k => k.p);
         });
-        
+
         return Object.values(groups).sort((a, b) => a.name.localeCompare(b.name));
     }, [products]);
 
@@ -595,7 +608,9 @@ const ProductsPage = () => {
                         document.activeElement.blur();
                     } else {
                         setSelectedIds(new Set());
-                        setFilters({...filters, nameBarcode: '', code: ''});
+                        // Clear both local (visual) and debounced filters
+                        setLocalFilters({ code: '', nameBarcode: '', attribute: '' });
+                        setFilters(prev => ({ ...prev, nameBarcode: '', code: '', attribute: '' }));
                     }
                 }
             }
@@ -1234,8 +1249,8 @@ const ProductsPage = () => {
                             <div className="group relative">
                                 <input 
                                     type="text"
-                                    value={filters.code}
-                                    onChange={e => setFilters({...filters, code: e.target.value.toUpperCase()})}
+                                    value={localFilters.code}
+                                    onChange={e => setLocalFilters({...localFilters, code: e.target.value.toUpperCase()})}
                                     className="w-full bg-white dark:bg-[#161b22] border-2 border-black/15 dark:border-[#30363d] focus:border-[#0d3542] dark:focus:border-[#58a6ff] pl-10 pr-4 py-3 text-[12px] font-bold tracking-widest outline-none transition-all uppercase text-gray-900 dark:text-white placeholder:text-gray-300 dark:placeholder:text-[#8b949e]/10 rounded-xl"
                                     placeholder="CODE..."
                                 />
@@ -1245,8 +1260,8 @@ const ProductsPage = () => {
                                 <input 
                                     id="filter-name"
                                     type="text"
-                                    value={filters.nameBarcode}
-                                    onChange={e => setFilters({...filters, nameBarcode: e.target.value})}
+                                    value={localFilters.nameBarcode}
+                                    onChange={e => setLocalFilters({...localFilters, nameBarcode: e.target.value})}
                                     className="w-full bg-white dark:bg-[#161b22] border-2 border-black/15 dark:border-[#30363d] focus:border-[#0d3542] dark:focus:border-[#58a6ff] pl-10 pr-4 py-3 text-[12px] font-bold outline-none transition-all uppercase text-gray-900 dark:text-white placeholder:text-gray-300 dark:placeholder:text-[#8b949e]/10 rounded-xl"
                                     placeholder="NAME..."
                                 />
@@ -1255,8 +1270,8 @@ const ProductsPage = () => {
                             <div className="group relative">
                                 <input 
                                     type="text"
-                                    value={filters.attribute}
-                                    onChange={e => setFilters({...filters, attribute: e.target.value.toUpperCase()})}
+                                    value={localFilters.attribute}
+                                    onChange={e => setLocalFilters({...localFilters, attribute: e.target.value.toUpperCase()})}
                                     className="w-full bg-white dark:bg-[#161b22] border-2 border-black/15 dark:border-[#30363d] focus:border-[#0d3542] dark:focus:border-[#58a6ff] pl-10 pr-4 py-3 text-[12px] font-bold outline-none transition-all uppercase text-gray-900 dark:text-white placeholder:text-gray-300 dark:placeholder:text-[#8b949e]/10 rounded-xl"
                                     placeholder="ATTR..."
                                 />

@@ -120,7 +120,7 @@ export default function DatePicker({
                                 animate={{ opacity: 1, scale: 1, y: 0 }}
                                 exit={{ opacity: 0, scale: 0.9, y: 10 }}
                                 transition={{ type: 'spring', damping: 25, stiffness: 400 }}
-                                className="relative bg-white/95 dark:bg-[#0d1117]/95 backdrop-blur-2xl rounded-[3rem] border border-black/10 dark:border-white/10 shadow-[0_30px_100px_rgba(0,0,0,0.4)] p-8 overflow-hidden w-full max-w-sm"
+                                className="relative bg-white/95 dark:bg-[#0d1117]/95 backdrop-blur-2xl rounded-[3rem] border border-black/10 dark:border-white/10 shadow-[0_30px_100px_rgba(0,0,0,0.4)] p-5 sm:p-8 overflow-hidden w-full max-w-sm"
                             >
                                 <div className="flex justify-between items-center mb-6">
                                     <span className="text-[10px] font-black uppercase tracking-[0.3em] text-gray-400">Select Date</span>
