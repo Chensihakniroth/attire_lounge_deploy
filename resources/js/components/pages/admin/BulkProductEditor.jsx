@@ -112,8 +112,9 @@ const BulkProductEditor = () => {
                     const canvas = document.createElement('canvas');
                     const ctx = canvas.getContext('2d');
                     
-                    const MAX_WIDTH = 1200;
-                    const MAX_HEIGHT = 1200;
+                    // Increased to 2000px to maintain high resolution for zooming
+                    const MAX_WIDTH = 2000;
+                    const MAX_HEIGHT = 2000;
                     let width = img.width;
                     let height = img.height;
 
@@ -131,16 +132,21 @@ const BulkProductEditor = () => {
 
                     canvas.width = width;
                     canvas.height = height;
+
+                    // This makes a massive difference for downsampling sharpness in the browser
+                    ctx.imageSmoothingEnabled = true;
+                    ctx.imageSmoothingQuality = "high";
+                    
                     ctx.drawImage(img, 0, 0, width, height);
 
-                    let quality = 0.85; // Start high
+                    let quality = 0.95; // Start extremely high
                     const targetSize = 800 * 1024; // 800KB max
                     
                     const tryCompress = () => {
                         canvas.toBlob((blob) => {
-                            // If it's too big and we haven't ruined the quality yet, drop it 10% and try again
-                            if (blob.size > targetSize && quality > 0.3) {
-                                quality -= 0.1;
+                            // Don't let quality drop below 0.65 to prevent JPEG artifacts taking over
+                            if (blob.size > targetSize && quality > 0.65) {
+                                quality -= 0.05; // Drop slower for finer tuning
                                 tryCompress();
                             } else {
                                 const compressedFile = new File([blob], file.name.replace(/\.[^/.]+$/, "") + ".jpg", {
