@@ -101,6 +101,65 @@ const BulkProductEditor = () => {
         return () => setIsEditing(false);
     }, [setIsEditing]);
 
+    const compressImage = (file) => {
+        return new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.readAsDataURL(file);
+            reader.onload = (event) => {
+                const img = new Image();
+                img.src = event.target.result;
+                img.onload = () => {
+                    const canvas = document.createElement('canvas');
+                    const ctx = canvas.getContext('2d');
+                    
+                    const MAX_WIDTH = 1200;
+                    const MAX_HEIGHT = 1200;
+                    let width = img.width;
+                    let height = img.height;
+
+                    if (width > height) {
+                        if (width > MAX_WIDTH) {
+                            height *= MAX_WIDTH / width;
+                            width = MAX_WIDTH;
+                        }
+                    } else {
+                        if (height > MAX_HEIGHT) {
+                            width *= MAX_HEIGHT / height;
+                            height = MAX_HEIGHT;
+                        }
+                    }
+
+                    canvas.width = width;
+                    canvas.height = height;
+                    ctx.drawImage(img, 0, 0, width, height);
+
+                    let quality = 0.85; // Start high
+                    const targetSize = 800 * 1024; // 800KB max
+                    
+                    const tryCompress = () => {
+                        canvas.toBlob((blob) => {
+                            // If it's too big and we haven't ruined the quality yet, drop it 10% and try again
+                            if (blob.size > targetSize && quality > 0.3) {
+                                quality -= 0.1;
+                                tryCompress();
+                            } else {
+                                const compressedFile = new File([blob], file.name.replace(/\.[^/.]+$/, "") + ".jpg", {
+                                    type: 'image/jpeg',
+                                    lastModified: Date.now()
+                                });
+                                resolve(compressedFile);
+                            }
+                        }, 'image/jpeg', quality);
+                    };
+                    
+                    tryCompress();
+                };
+                img.onerror = reject;
+            };
+            reader.onerror = reject;
+        });
+    };
+
     const handleMultipleImageUpload = async (e) => {
         const files = Array.from(e.target.files);
         if (files.length === 0) return;
@@ -121,10 +180,20 @@ const BulkProductEditor = () => {
 
         try {
             for (let i = 0; i < files.length; i++) {
-                const file = files[i];
+                const originalFile = files[i];
+                let fileToUpload = originalFile;
+                
+                // Compress only if it's an image that's likely large (e.g. over 500kb)
+                if (originalFile.type.startsWith('image/') && originalFile.size > 500 * 1024) {
+                    try {
+                        fileToUpload = await compressImage(originalFile);
+                    } catch (e) {
+                        console.warn("Compression failed, using original file", e);
+                    }
+                }
                 
                 const formDataUpload = new FormData();
-                formDataUpload.append('image', file);
+                formDataUpload.append('image', fileToUpload);
                 if (formData.collection_id) {
                     formDataUpload.append('collection_id', formData.collection_id);
                 }
