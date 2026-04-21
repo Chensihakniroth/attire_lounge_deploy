@@ -34,8 +34,12 @@ class PosProductSeeder extends Seeder
 
         $chunks = array_chunk($products, 200);
         foreach ($chunks as $i => $chunk) {
-            DB::table('pos_products')->insert($chunk);
-            $this->command->info('  Chunk ' . ($i + 1) . ' / ' . count($chunks) . ' inserted');
+            DB::table('pos_products')->upsert(
+                $chunk,
+                ['sku'],
+                ['barcode', 'name', 'variant', 'price', 'stock_qty', 'min_stock', 'category', 'tier', 'is_service', 'is_accessory', 'is_active', 'updated_at']
+            );
+            $this->command->info('  Chunk ' . ($i + 1) . ' / ' . count($chunks) . ' upserted');
         }
 
         $this->command->info('✅ Done! ' . count($products) . ' POS products imported.');
