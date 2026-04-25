@@ -32,7 +32,8 @@ import {
     Ticket,
     ArrowLeftRight,
     Zap,
-    ZapOff
+    ZapOff,
+    BarChart2
 } from 'lucide-react';
 import { LumaSpin } from '@/components/ui/luma-spin';
 import { ThemeProvider, useTheme } from './ThemeContext';
@@ -199,6 +200,7 @@ const SidebarContent = ({ setOpen, isMobile }) => {
         { name: 'POS Products', to: '/admin/pos-products', icon: Package },
         { name: 'Promocodes', to: '/admin/promocodes', icon: Ticket },
         { name: 'Sales History', to: '/admin/sales-history', icon: History },
+        { name: 'Daily Report', to: '/admin/daily-report', icon: BarChart2 },
         { name: 'SEO Manager', to: '/admin/seo', icon: Search },
         { name: 'Gift Manager', to: '/admin/customize-gift', icon: Gift },
         { name: 'Inventory Manager', to: '/admin/inventory', icon: Package },

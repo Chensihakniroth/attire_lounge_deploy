@@ -1,19 +1,181 @@
-import React from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { 
     Search, 
-    Keyboard, 
     Trash2, 
     Plus, 
-    Minus, 
-    ShoppingBag, 
-    ArrowRight,
-    Tag,
-    Gift,
-    Hash,
+    Minus,
+    X,
     Undo2
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { usePOS } from './POSContext';
+import axios from 'axios';
+
+// --- Inline Quick Search Bar ---
+const InlineSearch = ({ onSearchClick, addItem }) => {
+    const [query, setQuery] = useState('');
+    const [results, setResults] = useState([]);
+    const [isOpen, setIsOpen] = useState(false);
+    const [isLoading, setIsLoading] = useState(false);
+    const inputRef = useRef(null);
+    const debounceRef = useRef(null);
+    const containerRef = useRef(null);
+
+    useEffect(() => {
+        const handleClickOutside = (e) => {
+            if (containerRef.current && !containerRef.current.contains(e.target)) {
+                setIsOpen(false);
+            }
+        };
+        document.addEventListener('mousedown', handleClickOutside);
+        return () => document.removeEventListener('mousedown', handleClickOutside);
+    }, []);
+
+    const searchProducts = useCallback(async (q) => {
+        if (!q || q.trim().length < 1) {
+            setResults([]);
+            setIsOpen(false);
+            return;
+        }
+        const trimmed = q.trim();
+
+        // 1. Cache-first: instant client-side filter from preloaded cache
+        const cacheKey = JSON.stringify({ categories: [], stockStatus: 'all', name: '', attribute: '', code: '' });
+        const cached = window.__posProductCache?.[cacheKey];
+        if (cached && cached.length > 0) {
+            const lower = trimmed.toLowerCase();
+            const matched = cached.filter(p =>
+                p.name?.toLowerCase().includes(lower) ||
+                p.sku?.toLowerCase().includes(lower) ||
+                p.display_name?.toLowerCase().includes(lower)
+            ).slice(0, 8);
+            setResults(matched);
+            setIsOpen(matched.length > 0);
+
+            // Exact SKU match → auto-add and clear
+            const exactSku = cached.find(p => p.sku?.toLowerCase() === lower);
+            if (exactSku) {
+                addItem(exactSku);
+                setQuery('');
+                setResults([]);
+                setIsOpen(false);
+                return;
+            }
+        }
+
+        // 2. Debounced API fallback
+        clearTimeout(debounceRef.current);
+        debounceRef.current = setTimeout(async () => {
+            setIsLoading(true);
+            try {
+                const res = await axios.get('/api/v1/admin/pos/products', {
+                    params: { search: trimmed, name: trimmed, code: trimmed, per_page: 8 }
+                });
+                const data = res.data?.data || res.data || [];
+                setResults(data);
+                setIsOpen(data.length > 0);
+            } catch (e) {
+                console.error('Inline search failed', e);
+            } finally {
+                setIsLoading(false);
+            }
+        }, 220);
+    }, [addItem]);
+
+    const handleChange = (e) => {
+        const val = e.target.value;
+        setQuery(val);
+        searchProducts(val);
+    };
+
+    const handleSelect = (product) => {
+        addItem(product);
+        setQuery('');
+        setResults([]);
+        setIsOpen(false);
+        inputRef.current?.focus();
+    };
+
+    const handleClear = () => {
+        setQuery('');
+        setResults([]);
+        setIsOpen(false);
+        inputRef.current?.focus();
+    };
+
+    return (
+        <div ref={containerRef} className="relative w-full group">
+            <Search className="absolute left-6 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-[#0d3542] dark:group-focus-within:text-[#58a6ff] transition-colors pointer-events-none" size={18} />
+            <input
+                ref={inputRef}
+                type="text"
+                value={query}
+                onChange={handleChange}
+                onFocus={() => query && results.length > 0 && setIsOpen(true)}
+                placeholder="Scan or search product name / SKU..."
+                className="w-full bg-black/[0.02] dark:bg-[#161b22] border-2 border-transparent hover:border-[#0d3542]/20 dark:hover:border-[#30363d] rounded-xl py-4 pl-14 pr-24 text-[13px] font-black uppercase tracking-[0.2em] text-gray-900 dark:text-[#c9d1d9] outline-none focus:border-[#0d3542]/50 dark:focus:border-[#58a6ff]/50 focus:bg-background dark:focus:bg-[#0d1117] transition-all placeholder:text-gray-400/50 dark:placeholder:text-[#8b949e]/20"
+            />
+            <div className="absolute right-3 top-1/2 -translate-y-1/2 flex items-center gap-1">
+                {query && (
+                    <button onClick={handleClear} className="p-2 text-gray-400 hover:text-gray-700 dark:hover:text-white transition-colors rounded-lg">
+                        <X size={14} />
+                    </button>
+                )}
+                <button
+                    onClick={onSearchClick}
+                    className="p-2.5 rounded-xl bg-[#0d3542]/10 dark:bg-[#58a6ff]/10 text-[#0d3542] dark:text-[#58a6ff] hover:bg-[#0d3542] dark:hover:bg-[#58a6ff] hover:text-white dark:hover:text-[#0d1117] transition-all flex items-center justify-center shadow-lg shadow-black/5"
+                    title="Open Full Catalog"
+                >
+                    <Search size={16} />
+                </button>
+            </div>
+
+            <AnimatePresence>
+                {isOpen && (
+                    <motion.div
+                        initial={{ opacity: 0, y: -4, scale: 0.98 }}
+                        animate={{ opacity: 1, y: 0, scale: 1 }}
+                        exit={{ opacity: 0, y: -4, scale: 0.98 }}
+                        transition={{ duration: 0.15, ease: 'easeOut' }}
+                        style={{ willChange: 'transform, opacity' }}
+                        className="absolute top-full left-0 right-0 mt-2 bg-white dark:bg-[#161b22] border border-black/10 dark:border-[#30363d] rounded-2xl shadow-xl shadow-black/10 dark:shadow-black/40 overflow-hidden z-50"
+                    >
+                        {results.map((product) => (
+                            <button
+                                key={product.id}
+                                onClick={() => handleSelect(product)}
+                                className="w-full flex items-center gap-4 px-5 py-3.5 hover:bg-[#0d3542]/5 dark:hover:bg-[#58a6ff]/5 transition-colors border-b border-black/5 dark:border-[#30363d] last:border-0 text-left group/row"
+                            >
+                                <div className={`w-1.5 h-8 rounded-full flex-shrink-0 ${product.stock_qty > 0 ? 'bg-green-400' : 'bg-red-400'}`} />
+                                <div className="flex-1 min-w-0">
+                                    <p className="text-[13px] font-black uppercase tracking-wide text-gray-900 dark:text-[#c9d1d9] truncate group-hover/row:text-[#0d3542] dark:group-hover/row:text-[#58a6ff] transition-colors">
+                                        {product.display_name || product.name}
+                                    </p>
+                                    <p className="text-[10px] font-bold text-gray-400 dark:text-[#8b949e]/60 font-mono uppercase tracking-wider mt-0.5">
+                                        {product.sku}
+                                    </p>
+                                </div>
+                                <div className="text-right flex-shrink-0">
+                                    <p className="text-[14px] font-black text-gray-900 dark:text-[#c9d1d9] font-mono">${parseFloat(product.price).toLocaleString()}</p>
+                                    <p className={`text-[9px] font-black uppercase tracking-widest ${product.stock_qty > 0 ? 'text-green-500' : 'text-red-400'}`}>
+                                        {product.stock_qty > 0 ? `${product.stock_qty} left` : 'out of stock'}
+                                    </p>
+                                </div>
+                                <div className="w-7 h-7 rounded-full bg-[#0d3542]/10 dark:bg-[#58a6ff]/10 text-[#0d3542] dark:text-[#58a6ff] flex items-center justify-center flex-shrink-0 opacity-0 group-hover/row:opacity-100 transition-opacity">
+                                    <Plus size={13} />
+                                </div>
+                            </button>
+                        ))}
+                        {isLoading && results.length === 0 && (
+                            <div className="px-5 py-4 text-[11px] font-black uppercase tracking-widest text-gray-400 dark:text-[#8b949e]/40 text-center">Searching...</div>
+                        )}
+                    </motion.div>
+                )}
+            </AnimatePresence>
+        </div>
+    );
+};
+
 
 const OrderLedger = ({ onSearchClick }) => {
     const { activeTab, updateQty, removeItem, addItem, updateItemDiscount, selectAllRefundItems } = usePOS();
@@ -23,7 +185,7 @@ const OrderLedger = ({ onSearchClick }) => {
         <div className={`flex-1 flex flex-col overflow-hidden h-full bg-[#f4f5f8] dark:bg-[#0d1117] transition-all duration-500 ${isRefund ? 'ring-inset ring-2 ring-red-500/20' : ''}`}>
 
             {/* Header Area */}
-            <div className={`p-4 bg-[#f4f5f8] dark:bg-[#0d1117] border-b border-black/5 dark:border-[#30363d] sticky top-0 z-20 transition-all duration-300`}>
+            <div className={`p-4 bg-white dark:bg-[#0d1117] border-b border-black/5 dark:border-[#30363d] sticky top-0 z-20 transition-all duration-300`}>
                 {isRefund ? (
                     <div className="flex items-center justify-between gap-4 p-1">
                         <div className="flex items-center gap-3">
@@ -44,21 +206,7 @@ const OrderLedger = ({ onSearchClick }) => {
                         </button>
                     </div>
                 ) : (
-                    <div className="relative group w-full">
-                        <Search className="absolute left-6 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-[#0d3542] dark:group-focus-within:text-[#58a6ff] transition-colors" size={20} />
-                        <input 
-                            type="text" 
-                            placeholder="Scan or Search product SKU..."
-                            className="w-full bg-black/[0.02] dark:bg-[#161b22] border-2 border-transparent hover:border-[#0d3542]/20 dark:hover:border-[#30363d] rounded-xl py-4 pl-14 pr-20 text-[13px] font-black uppercase tracking-[0.2em] outline-none focus:border-[#0d3542]/50 dark:focus:border-[#58a6ff]/50 focus:bg-background dark:focus:bg-[#0d1117] transition-all shadow-none animate-in fade-in duration-500 placeholder:text-gray-400 dark:placeholder:text-[#8b949e]/20"
-                        />
-                        <button 
-                            onClick={onSearchClick}
-                            className="absolute right-3 top-1/2 -translate-y-1/2 p-2.5 rounded-xl bg-[#0d3542]/10 dark:bg-[#58a6ff]/10 text-[#0d3542] dark:text-[#58a6ff] hover:bg-[#0d3542] dark:hover:bg-[#58a6ff] hover:text-white dark:hover:text-[#0d1117] transition-all flex items-center justify-center group/btn shadow-lg shadow-black/5"
-                            title="Open Product Catalog"
-                        >
-                            <Search size={18} className="transition-transform group-hover/btn:scale-110" />
-                        </button>
-                    </div>
+                    <InlineSearch onSearchClick={onSearchClick} addItem={addItem} />
                 )}
             </div>
 
@@ -82,7 +230,7 @@ const OrderLedger = ({ onSearchClick }) => {
                     </div>
                 ) : (
                     <table className="w-full text-left border-collapse">
-                        <thead className="sticky top-0 z-10 bg-[#0d3542]/5 dark:bg-[#161b22] border-b border-black/5 dark:border-[#30363d] shadow-none">
+                        <thead className="sticky top-0 z-10 bg-white dark:bg-[#161b22] border-b border-black/5 dark:border-[#30363d] shadow-none">
                             <tr>
                                 <th className="pl-6 pr-2 py-5 text-[11px] font-black uppercase tracking-[0.25em] text-gray-400 dark:text-[#8b949e]/40 w-12">#</th>
                                 <th className="px-4 py-5 text-[11px] font-black uppercase tracking-[0.25em] text-gray-400 dark:text-[#8b949e]/40 w-36">SKU</th>

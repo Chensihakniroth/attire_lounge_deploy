@@ -7,7 +7,7 @@ const SpendProgressBar = ({ currentSpend, isVip }) => {
         <div className="flex items-center gap-3 px-4 py-3 rounded-xl bg-[#0d3542]/8 dark:bg-[#58a6ff]/8 border border-[#0d3542]/15 dark:border-[#58a6ff]/15">
             <ShieldCheck size={14} className="text-[#0d3542] dark:text-[#58a6ff] shrink-0" />
             <span className="text-[9px] font-black uppercase tracking-[0.2em] text-[#0d3542] dark:text-[#58a6ff]">
-                Platinum VIP · 15% Discount Active
+                Platinum VIP · Status Active
             </span>
         </div>
     );

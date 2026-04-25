@@ -68,7 +68,7 @@ export default function QuickCustomerModal({ isOpen, onClose, onSuccess }) {
                                 autoFocus
                                 value={formData.name}
                                 onChange={e => setFormData({...formData, name: e.target.value})}
-                                className="w-full bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 rounded-2xl py-3.5 pl-10 pr-4 text-sm font-bold tracking-wide outline-none focus:border-attire-accent/50 transition-all"
+                                className="w-full bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 rounded-2xl py-3.5 pl-10 pr-4 text-sm font-bold tracking-wide text-gray-900 dark:text-white outline-none focus:border-attire-accent/50 transition-all"
                                 placeholder="John Doe"
                             />
                         </div>
@@ -83,7 +83,7 @@ export default function QuickCustomerModal({ isOpen, onClose, onSuccess }) {
                                     required
                                     value={formData.phone}
                                     onChange={e => setFormData({...formData, phone: e.target.value})}
-                                    className="w-full bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 rounded-2xl py-3.5 pl-10 pr-4 text-xs font-mono tracking-widest outline-none focus:border-attire-accent/50 transition-all"
+                                    className="w-full bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 rounded-2xl py-3.5 pl-10 pr-4 text-xs font-mono tracking-widest text-gray-900 dark:text-white outline-none focus:border-attire-accent/50 transition-all"
                                     placeholder="012 345 678"
                                 />
                             </div>
@@ -96,7 +96,7 @@ export default function QuickCustomerModal({ isOpen, onClose, onSuccess }) {
                                     type="email"
                                     value={formData.email}
                                     onChange={e => setFormData({...formData, email: e.target.value})}
-                                    className="w-full bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 rounded-2xl py-3.5 pl-10 pr-4 text-xs font-mono outline-none focus:border-attire-accent/50 transition-all"
+                                    className="w-full bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 rounded-2xl py-3.5 pl-10 pr-4 text-xs font-mono text-gray-900 dark:text-white outline-none focus:border-attire-accent/50 transition-all"
                                     placeholder="client@mail.com"
                                 />
                             </div>
@@ -109,7 +109,7 @@ export default function QuickCustomerModal({ isOpen, onClose, onSuccess }) {
                             value={formData.birthday}
                             onChange={(e) => setFormData({...formData, birthday: e.target.value})}
                             name="birthday"
-                            inputClassName="bg-black/5 dark:bg-white/5 border-black/10 dark:border-white/10 rounded-2xl py-3.5 pr-4 pl-10"
+                            inputClassName="bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 rounded-2xl py-3.5 pr-4 pl-10 text-gray-900 dark:text-white"
                         />
                     </div>
 
@@ -121,7 +121,7 @@ export default function QuickCustomerModal({ isOpen, onClose, onSuccess }) {
                                 rows={2}
                                 value={formData.notes}
                                 onChange={e => setFormData({...formData, notes: e.target.value})}
-                                className="w-full bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 rounded-2xl py-3.5 pl-10 pr-4 text-xs tracking-wide outline-none focus:border-attire-accent/50 transition-all resize-none"
+                                className="w-full bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 rounded-2xl py-3.5 pl-10 pr-4 text-xs tracking-wide text-gray-900 dark:text-white outline-none focus:border-attire-accent/50 transition-all resize-none"
                                 placeholder="Important details..."
                             />
                         </div>
@@ -135,7 +135,7 @@ export default function QuickCustomerModal({ isOpen, onClose, onSuccess }) {
                             onChange={e => setFormData({...formData, is_vip: e.target.checked})}
                             className="w-4 h-4 rounded accent-attire-accent cursor-pointer"
                         />
-                        <label htmlFor="quick_vip" className="text-[10px] font-black uppercase tracking-[0.2em] cursor-pointer select-none">
+                        <label htmlFor="quick_vip" className="text-[10px] font-black uppercase tracking-[0.2em] cursor-pointer select-none text-gray-900 dark:text-white">
                             Mark as VIP Member
                         </label>
                     </div>
@@ -145,7 +145,7 @@ export default function QuickCustomerModal({ isOpen, onClose, onSuccess }) {
                     <button 
                         type="button" 
                         onClick={onClose}
-                        className="flex-1 py-4 border border-black/10 dark:border-white/10 rounded-2xl text-[11px] font-black uppercase tracking-[0.2em] text-gray-400 hover:text-white hover:bg-white/5 transition-all"
+                        className="flex-1 py-4 border border-black/10 dark:border-white/10 rounded-2xl text-[11px] font-black uppercase tracking-[0.2em] text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white hover:bg-black/5 dark:hover:bg-white/5 transition-all"
                     >
                         Discard
                     </button>

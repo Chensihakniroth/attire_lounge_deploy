@@ -20,7 +20,8 @@ export const POSProvider = ({ children }) => {
             note: '',
             heldAt: null,
             status: 'active',
-            payments: []
+            payments: [],
+            cartDiscount: { type: 'percentage', value: 0 }
         }
     ]);
     const [activeTabIndex, setActiveTabIndex] = useState(0);
@@ -41,7 +42,8 @@ export const POSProvider = ({ children }) => {
             note: '',
             heldAt: null,
             status: 'active',
-            payments: []
+            payments: [],
+            cartDiscount: { type: 'percentage', value: 0 }
         };
         setInvoiceTabs([...invoiceTabs, newTab]);
         setActiveTabIndex(invoiceTabs.length);
@@ -56,7 +58,8 @@ export const POSProvider = ({ children }) => {
                 cartItems: [],
                 notes: '',
                 heldAt: null,
-                status: 'active'
+                status: 'active',
+                cartDiscount: { type: 'percentage', value: 0 }
             }]);
             setActiveTabIndex(0);
             return;
@@ -189,7 +192,8 @@ export const POSProvider = ({ children }) => {
             status: 'active',
             payments: [],
             isRefundMode: false,
-            originalInvoice: null
+            originalInvoice: null,
+            cartDiscount: { type: 'percentage', value: 0 }
         });
     };
 
@@ -204,13 +208,16 @@ export const POSProvider = ({ children }) => {
         updateActiveTab({ payments });
     };
 
+    const updateCartDiscount = (type, value) => {
+        updateActiveTab({ cartDiscount: { type, value: parseFloat(value) || 0 } });
+    };
+
     // Centralized Totals Calculation
     const totals = useMemo(() => {
-        if (!activeTab) return { subtotal: 0, productSubtotal: 0, serviceSubtotal: 0, productSubtotalForDiscount: 0, tierDiscountPercent: 0, tierDiscountAmount: 0, finalTotal: 0 };
+        if (!activeTab) return { subtotal: 0, productSubtotal: 0, serviceSubtotal: 0, manualDiscountAmount: 0, finalTotal: 0 };
         
         let productSubtotal = 0;
         let serviceSubtotal = 0;
-        let productSubtotalForDiscountThreshold = 0;
         
         activeTab.cartItems.forEach(item => {
             const itemTotal = item.unit_price * item.quantity;
@@ -231,21 +238,22 @@ export const POSProvider = ({ children }) => {
                 serviceSubtotal += itemTotal; // Services are always added at their full unit price * quantity
             } else {
                 productSubtotal += processedPrice;
-                // Threshold based on the net product subtotal (after item-level discounts)
-                productSubtotalForDiscountThreshold += processedPrice;
             }
         });
 
-        // Determine Tier Discount Percent (Products only)
-        let tierDiscountPercent = 0;
-        if (productSubtotalForDiscountThreshold >= 1500) tierDiscountPercent = 15;
-        else if (productSubtotalForDiscountThreshold >= 1000) tierDiscountPercent = 10;
-        else if (productSubtotalForDiscountThreshold >= 500) tierDiscountPercent = 8;
-
-        const tierDiscountAmount = productSubtotal * (tierDiscountPercent / 100);
+        // Manual cart-level discount (applied to products only)
+        const cartDiscount = activeTab.cartDiscount || { type: 'percentage', value: 0 };
+        let manualDiscountAmount = 0;
+        if (cartDiscount.value > 0) {
+            if (cartDiscount.type === 'percentage') {
+                manualDiscountAmount = productSubtotal * (cartDiscount.value / 100);
+            } else {
+                manualDiscountAmount = Math.min(cartDiscount.value, productSubtotal);
+            }
+        }
         
-        // Final Total: Product Subtotal (net of tier discount) + Service Add-ons
-        const finalTotal = (productSubtotal - tierDiscountAmount) + serviceSubtotal;
+        // Final Total: Product Subtotal (net of manual discount) + Service Add-ons
+        const finalTotal = Math.max(0, (productSubtotal - manualDiscountAmount) + serviceSubtotal);
 
         const currentPaid = (activeTab?.payments || []).reduce((sum, p) => sum + p.amount, 0);
         const changeDue = Math.max(0, currentPaid - finalTotal);
@@ -254,14 +262,14 @@ export const POSProvider = ({ children }) => {
             subtotal: productSubtotal + serviceSubtotal,
             productSubtotal,
             serviceSubtotal,
-            productSubtotalForDiscount: productSubtotalForDiscountThreshold,
-            tierDiscountPercent,
-            tierDiscountAmount,
+            manualDiscountAmount,
+            cartDiscountType: cartDiscount.type,
+            cartDiscountValue: cartDiscount.value,
             finalTotal,
             currentPaid,
             changeDue
         };
-    }, [activeTab.cartItems, activeTab.payments]);
+    }, [activeTab.cartItems, activeTab.payments, activeTab.cartDiscount]);
 
     const loadInvoiceIntoCart = (invoice) => {
         const newTab = {
@@ -295,6 +303,12 @@ export const POSProvider = ({ children }) => {
             note: `REFUND: ${invoice.invoice_number}`,
             isRefundMode: true,
             originalInvoice: invoice,
+            // Carry over the original cart-level discount so the refund reflects
+            // the actual price paid (including any tier/manual discount)
+            cartDiscount: {
+                type: 'percentage',
+                value: parseFloat(invoice.tier_discount_pct) || 0,
+            },
             heldAt: null,
             status: 'active',
             payments: []
@@ -346,6 +360,7 @@ export const POSProvider = ({ children }) => {
         removeItem,
         updateQty,
         updateItemDiscount,
+        updateCartDiscount,
         toggleGiftWrap,
         attachCustomer,
         updateNote,

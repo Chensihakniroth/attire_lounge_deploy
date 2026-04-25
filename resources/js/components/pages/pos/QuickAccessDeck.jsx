@@ -6,8 +6,8 @@ import { motion, AnimatePresence } from 'framer-motion';
 
 const QuickAccessDeck = ({ onClose }) => {
     const [activeTab, setActiveTab] = useState('services'); // 'services' or 'accessories'
-    const [services, setServices] = useState([]);
-    const [loading, setLoading] = useState(true);
+    const [services, setServices] = useState(window.__posServiceCache || []);
+    const [loading, setLoading] = useState(!window.__posServiceCache);
     const [selectedCategory, setSelectedCategory] = useState(null);
     const [categoryProducts, setCategoryProducts] = useState([]);
     const [loadingProducts, setLoadingProducts] = useState(false);
@@ -31,8 +31,13 @@ const QuickAccessDeck = ({ onClose }) => {
 
     useEffect(() => {
         const fetchServices = async () => {
+            if (window.__posServiceCache) {
+                setServices(window.__posServiceCache);
+                setLoading(false);
+            }
             try {
                 const response = await axios.get('/api/v1/admin/pos/products/services');
+                window.__posServiceCache = response.data;
                 setServices(response.data);
             } catch (err) {
                 console.error('Failed to fetch services');

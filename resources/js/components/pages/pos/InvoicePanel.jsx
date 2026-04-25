@@ -22,12 +22,11 @@ import {
 import InlineCustomerSearch from './InlineCustomerSearch';
 import PaymentModal from './PaymentModal';
 import SpendProgressBar from './SpendProgressBar';
-import TierDiscountBadge from './TierDiscountBadge';
 import { usePOS } from './POSContext';
 import { motion, AnimatePresence } from 'framer-motion';
 
 const InvoicePanel = () => {
-    const { activeTab, clearInvoice, holdInvoice, totals, updateNote } = usePOS();
+    const { activeTab, clearInvoice, holdInvoice, totals, updateNote, updateCartDiscount } = usePOS();
     const [showPaymentModal, setShowPaymentModal] = useState(false);
 
     return (
@@ -77,7 +76,7 @@ const InvoicePanel = () => {
 
                 <div className="mt-5">
                     <SpendProgressBar 
-                        currentSpend={totals.productSubtotalForDiscount} 
+                        currentSpend={totals.productSubtotal} 
                         isVip={activeTab.customer?.is_vip} 
                     />
                 </div>
@@ -91,8 +90,42 @@ const InvoicePanel = () => {
                         <span className="font-mono text-gray-900 dark:text-white text-[14px]">${totals.productSubtotal.toLocaleString()}</span>
                     </div>
 
+                    {/* Manual Discount Input */}
+                    {!activeTab.isRefundMode && (
+                        <div className="flex items-center gap-2 py-1">
+                            <Tag size={12} className="text-gray-400 dark:text-[#8b949e]/40 shrink-0" />
+                            <span className="text-[9px] font-black uppercase tracking-[0.2em] text-gray-400 dark:text-[#8b949e]/60 shrink-0">Discount</span>
+                            <div className="flex items-center gap-1 ml-auto bg-black/5 dark:bg-[#161b22] rounded-lg border border-transparent hover:border-black/5 dark:hover:border-[#30363d] transition-all p-0.5">
+                                <button 
+                                    onClick={() => {
+                                        const newType = (activeTab.cartDiscount?.type || 'percentage') === 'percentage' ? 'fixed' : 'percentage';
+                                        updateCartDiscount(newType, activeTab.cartDiscount?.value || 0);
+                                    }}
+                                    className={`w-7 h-7 rounded-md flex items-center justify-center text-[12px] font-black transition-all ${
+                                        (activeTab.cartDiscount?.value || 0) > 0 
+                                            ? 'bg-attire-accent text-black shadow-none' 
+                                            : 'bg-black/5 dark:bg-[#0d1117] text-gray-400 dark:text-[#8b949e]/40 hover:text-gray-900 dark:hover:text-[#c9d1d9]'
+                                    }`}
+                                >
+                                    {(activeTab.cartDiscount?.type || 'percentage') === 'percentage' ? '%' : '$'}
+                                </button>
+                                <input 
+                                    type="number"
+                                    min="0"
+                                    placeholder="0"
+                                    value={activeTab.cartDiscount?.value || ''}
+                                    onChange={(e) => {
+                                        const val = Math.max(0, parseFloat(e.target.value) || 0);
+                                        updateCartDiscount(activeTab.cartDiscount?.type || 'percentage', val);
+                                    }}
+                                    className="w-16 bg-transparent text-right font-black text-[13px] outline-none text-gray-900 dark:text-[#c9d1d9] placeholder:text-gray-300 dark:placeholder:text-[#8b949e]/20 [appearance:textfield]"
+                                />
+                            </div>
+                        </div>
+                    )}
+
                     <AnimatePresence>
-                        {totals.tierDiscountAmount > 0 && (
+                        {totals.manualDiscountAmount > 0 && (
                             <motion.div 
                                 initial={{ opacity: 0, height: 0 }}
                                 animate={{ opacity: 1, height: 'auto' }}
@@ -101,9 +134,9 @@ const InvoicePanel = () => {
                             >
                                 <div className="flex items-center gap-2">
                                     <Tag size={14} />
-                                    <span>VIP Discount ({totals.tierDiscountPercent}%)</span>
+                                    <span>Discount ({totals.cartDiscountType === 'percentage' ? `${totals.cartDiscountValue}%` : `$${totals.cartDiscountValue}`})</span>
                                 </div>
-                                <span className="font-mono text-[14px]">-${totals.tierDiscountAmount.toLocaleString()}</span>
+                                <span className="font-mono text-[14px]">-${totals.manualDiscountAmount.toLocaleString()}</span>
                             </motion.div>
                         )}
                     </AnimatePresence>

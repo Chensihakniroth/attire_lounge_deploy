@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\PosInvoice;
 use App\Models\PosInvoiceItem;
 use App\Models\PosRefund;
+use App\Models\PosProduct;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\DB;
@@ -53,6 +54,22 @@ class PosRefundController extends Controller
                     'processed_by'    => $processedBy,
                 ]);
                 $refunds[] = $refund;
+
+                // Restore stock for all physical (non-service) items
+                foreach ($invoice->items as $item) {
+                    if (!$item->is_service && $item->product_id) {
+                        $alreadyRefundedBefore = PosRefund::where('invoice_item_id', $item->id)
+                            ->where('id', '!=', $refund->id)
+                            ->sum('quantity');
+                        $qtyToRestore = $item->quantity - $alreadyRefundedBefore;
+                        if ($qtyToRestore > 0) {
+                            $posProduct = PosProduct::find($item->product_id);
+                            if ($posProduct) {
+                                $posProduct->increment('stock_qty', $qtyToRestore);
+                            }
+                        }
+                    }
+                }
             } else {
                 // Partial — refund specific line items with quantities
                 $requestItems = $validated['items'] ?? [];
@@ -82,7 +99,6 @@ class PosRefundController extends Controller
                         throw new \Exception("Refund quantity for '{$item->product_name}' exceeds remaining refundable units ({$remainingQty}). Total bought: {$item->quantity}, Already returned: {$alreadyRefunded}.");
                     }
 
-                    // Calculate proportional amount using the model's logic
                     $calc = PosInvoiceItem::computeLineTotal(
                         $qtyToRefund,
                         $item->unit_price,
@@ -90,16 +106,32 @@ class PosRefundController extends Controller
                         $item->discount_value
                     );
 
+                    $lineTotal = $calc['line_total'];
+                    
+                    // Apply invoice-level discount (if any) to the item refund amount
+                    // so we don't refund more than what they actually paid.
+                    if (!$item->is_service && $invoice->tier_discount_pct > 0) {
+                        $lineTotal = $lineTotal * (1 - ($invoice->tier_discount_pct / 100));
+                    }
+
                     $refund = PosRefund::create([
                         'invoice_id'      => $invoiceId,
                         'type'            => 'partial',
                         'invoice_item_id' => $item->id,
                         'quantity'        => $qtyToRefund,
-                        'amount'          => $calc['line_total'],
+                        'amount'          => round($lineTotal, 2),
                         'reason'          => $validated['reason'] ?? 'Partial item refund',
                         'processed_by'    => $processedBy,
                     ]);
                     $refunds[] = $refund;
+
+                    // Restore stock for physical (non-service) products
+                    if (!$item->is_service && $item->product_id) {
+                        $posProduct = PosProduct::find($item->product_id);
+                        if ($posProduct) {
+                            $posProduct->increment('stock_qty', $qtyToRefund);
+                        }
+                    }
                 }
                 
                 // If every item is now fully refunded, mark the whole invoice as refunded

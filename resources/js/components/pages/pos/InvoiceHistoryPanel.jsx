@@ -20,7 +20,6 @@ import {
 import { usePOS } from './POSContext';
 import axios from 'axios';
 import { motion, AnimatePresence } from 'framer-motion';
-import RefundModal from './RefundModal';
 import DatePicker from '@/components/ui/DatePicker';
 
 const InvoiceHistoryPanel = ({ onClose }) => {
@@ -29,8 +28,7 @@ const InvoiceHistoryPanel = ({ onClose }) => {
     const [loading, setLoading] = useState(true);
     const [date, setDate] = useState(new Date().toISOString().split('T')[0]);
     const [search, setSearch] = useState('');
-    const [selectedInvoice, setSelectedInvoice] = useState(null);
-    const [showRefund, setShowRefund] = useState(false);
+
 
     const fetchHistory = async () => {
         setLoading(true);
@@ -65,14 +63,14 @@ const InvoiceHistoryPanel = ({ onClose }) => {
         }
     };
 
-    const handleOpenRefund = async (invoice) => {
+    const handleRefundInCart = async (invoice) => {
         setLoading(true);
         try {
             const response = await axios.get(`/api/v1/admin/pos/invoices/${invoice.id}`);
             const invoiceData = response.data;
             if (!invoiceData) throw new Error('Invoice data is empty');
-            setSelectedInvoice(invoiceData);
-            setShowRefund(true);
+            loadInvoiceIntoCart(invoiceData);
+            onClose();
         } catch (err) {
             console.error('Failed to fetch invoice for refund:', err);
         } finally {
@@ -166,7 +164,7 @@ const InvoiceHistoryPanel = ({ onClose }) => {
 
                 {/* List Content */}
                 <div className="flex-1 overflow-y-auto attire-scrollbar p-6 space-y-3">
-                    {loading && !showRefund ? (
+                    {loading ? (
                         <div className="h-full flex items-center justify-center">
                             <RefreshCcw className="animate-spin text-attire-accent" size={24} />
                         </div>
@@ -226,7 +224,7 @@ const InvoiceHistoryPanel = ({ onClose }) => {
                                     </button>
                                     <button 
                                         disabled={inv.status === 'refunded'}
-                                        onClick={() => handleOpenRefund(inv)}
+                                        onClick={() => handleRefundInCart(inv)}
                                         className={`flex items-center gap-1.5 text-[8px] font-bold uppercase tracking-[0.2em] transition-all ${
                                             inv.status === 'refunded'
                                                 ? 'text-gray-300 dark:text-white/20 cursor-not-allowed'
@@ -241,19 +239,7 @@ const InvoiceHistoryPanel = ({ onClose }) => {
                     )}
                 </div>
 
-                {/* Refund Modal Overlay */}
-                <AnimatePresence>
-                    {showRefund && selectedInvoice && (
-                        <RefundModal 
-                            invoice={selectedInvoice} 
-                            onClose={() => setShowRefund(false)} 
-                            onRefundSuccess={() => {
-                                setShowRefund(false);
-                                fetchHistory();
-                            }}
-                        />
-                    )}
-                </AnimatePresence>
+
             </motion.div>
         </div>,
         document.body

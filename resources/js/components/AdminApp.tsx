@@ -103,6 +103,7 @@ const POSLayout = lazyWithRetry(() => import('./pages/pos/POSLayout.jsx'));
 const POSInterface = lazyWithRetry(() => import('./pages/pos/POSInterface.jsx'));
 const SalesHistoryManager = lazyWithRetry(() => import('./pages/admin/SalesHistoryManager.jsx'));
 const PosProductManager = lazyWithRetry(() => import('./pages/admin/PosProductManager.jsx'));
+const DailyReportManager = lazyWithRetry(() => import('./pages/admin/DailyReportManager.jsx'));
 
 const GlobalStyles = () => (
     <style dangerouslySetInnerHTML={{ __html: `
@@ -180,6 +181,7 @@ function AdminApp() {
                                             <Route path="/admin/customer-profiles" element={<CustomerProfileManager />} />
                                             <Route path="/admin/customer-profiles/:id" element={<CustomerProfileDetail />} />
                                             <Route path="/admin/sales-history" element={<SalesHistoryManager />} />
+                                            <Route path="/admin/daily-report" element={<DailyReportManager />} />
                                         </Route>
                                     </Route>
                                     

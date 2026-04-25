@@ -46,6 +46,47 @@ const POSInterface = () => {
         }
     }, [searchParams, cloneInvoiceIntoCart, loadInvoiceIntoCart]);
 
+    // Preload Caches for Instant Catalog Search & Quick Access Deck
+    useEffect(() => {
+        const preloadData = async () => {
+            try {
+                // Preload Categories
+                if (!window.__posCategoryCache) {
+                    const catRes = await axios.get('/api/v1/admin/pos/products/categories');
+                    window.__posCategoryCache = catRes.data;
+                }
+
+                // Preload Products (Initial Empty Search)
+                if (!window.__posProductCache) window.__posProductCache = {};
+                
+                const cacheKey = JSON.stringify({
+                    categories: [],
+                    stockStatus: 'all',
+                    name: "",
+                    attribute: "",
+                    code: "",
+                });
+
+                if (!window.__posProductCache[cacheKey]) {
+                    const prodRes = await axios.get('/api/v1/admin/pos/products', {
+                        params: { name: '', attribute: '', code: '', category: '', in_stock: '', per_page: 100 }
+                    });
+                    window.__posProductCache[cacheKey] = prodRes.data.data;
+                }
+
+                // Preload Services
+                if (!window.__posServiceCache) {
+                    const serviceRes = await axios.get('/api/v1/admin/pos/products/services');
+                    window.__posServiceCache = serviceRes.data;
+                }
+            } catch (err) {
+                console.error("Failed to preload POS cache:", err);
+            }
+        };
+
+        preloadData();
+    }, []);
+
     // Global keyboard shortcuts
     useEffect(() => {
         const handleKeyDown = (e) => {

@@ -20,39 +20,16 @@ import axios from 'axios';
 import { usePOS } from './POSContext';
 
 // --- Animation Variants ---
-const containerVariants = {
-    hidden: { opacity: 0 },
-    visible: {
-        opacity: 1,
-        transition: {
-            staggerChildren: 0.008, // was 0.04 — that's 4+ seconds for 100 rows
-        },
-    },
-};
-
-const rowVariants = {
-    hidden: { opacity: 0, y: 10 },
-    visible: { 
-        opacity: 1, 
-        y: 0, 
-        transition: { duration: 0.3, ease: "easeOut" }
-    },
-    exit: { 
-        opacity: 0, 
-        scale: 0.98, 
-        transition: { duration: 0.15 } 
-    },
-};
+// Animations removed for performance on large lists
 
 // --- Sub-Components ---
 
-const ProductLogRow = React.forwardRef(({ product, isSelected, onToggleSelect }, ref) => {
+const ProductLogRow = React.memo(React.forwardRef(({ product, isSelected, onToggleSelect }, ref) => {
     return (
-        <motion.div 
+        <div 
             ref={ref}
-            variants={rowVariants}
             className="border-b border-black/5 dark:border-[#30363d] last:border-0 hover:z-10 relative"
-            onClick={onToggleSelect}
+            onClick={() => onToggleSelect(product)}
         >
             <div
                 className={`w-full min-h-13 flex items-center transition-all cursor-pointer hover:bg-black/[0.02] dark:hover:bg-[#161b22] active:bg-black/[0.04] dark:active:bg-[#0d1117] ${isSelected ? 'bg-[#0d3542]/10 dark:bg-[#58a6ff]/10' : ''}`}
@@ -97,9 +74,9 @@ const ProductLogRow = React.forwardRef(({ product, isSelected, onToggleSelect },
                     ${parseFloat(product.price).toLocaleString()}
                 </div>
             </div>
-        </motion.div>
+        </div>
     );
-});
+}));
 
 const FilterPanel = ({ filters, categories, onChange, totalResults, searchQuery, onSearchQueryChange }) => {
     const [isGroupOpen, setIsGroupOpen] = useState(false);
@@ -172,7 +149,7 @@ const FilterPanel = ({ filters, categories, onChange, totalResults, searchQuery,
                             placeholder="PRODUCT NAME..."
                             value={filters.name || ""}
                             onChange={(e) => onChange({...filters, name: e.target.value})}
-                            className="w-full bg-white dark:bg-[#161b22] border-2 border-black/5 dark:border-[#30363d] focus:border-[#0d3542] dark:focus:border-[#58a6ff] rounded-xl py-3.5 pl-5 pr-10 text-[12px] font-black uppercase tracking-widest outline-none transition-all placeholder:text-gray-300 dark:placeholder:text-[#8b949e]/20"
+                            className="w-full bg-white dark:bg-[#161b22] border-2 border-black/5 dark:border-[#30363d] focus:border-[#0d3542] dark:focus:border-[#58a6ff] rounded-xl py-3.5 pl-5 pr-10 text-[12px] font-black uppercase tracking-widest outline-none transition-all text-gray-900 dark:text-[#c9d1d9] placeholder:text-gray-300 dark:placeholder:text-[#8b949e]/20"
                         />
                     </div>
                 </div>
@@ -187,7 +164,7 @@ const FilterPanel = ({ filters, categories, onChange, totalResults, searchQuery,
                             placeholder="SIZE, FABRIC, ETC..."
                             value={filters.attribute || ""}
                             onChange={(e) => onChange({...filters, attribute: e.target.value})}
-                            className="w-full bg-white dark:bg-[#161b22] border-2 border-black/5 dark:border-[#30363d] focus:border-[#0d3542] dark:focus:border-[#58a6ff] rounded-xl py-3.5 pl-5 pr-10 text-[12px] font-black uppercase tracking-widest outline-none transition-all placeholder:text-gray-300 dark:placeholder:text-[#8b949e]/20"
+                            className="w-full bg-white dark:bg-[#161b22] border-2 border-black/5 dark:border-[#30363d] focus:border-[#0d3542] dark:focus:border-[#58a6ff] rounded-xl py-3.5 pl-5 pr-10 text-[12px] font-black uppercase tracking-widest outline-none transition-all text-gray-900 dark:text-[#c9d1d9] placeholder:text-gray-300 dark:placeholder:text-[#8b949e]/20"
                         />
                     </div>
                 </div>
@@ -202,7 +179,7 @@ const FilterPanel = ({ filters, categories, onChange, totalResults, searchQuery,
                             placeholder="SKU OR ID..."
                             value={filters.code || ""}
                             onChange={(e) => onChange({...filters, code: e.target.value})}
-                            className="w-full bg-white dark:bg-[#161b22] border-2 border-black/5 dark:border-[#30363d] focus:border-[#0d3542] dark:focus:border-[#58a6ff] rounded-xl py-3.5 pl-5 pr-10 text-[12px] font-black uppercase tracking-widest outline-none transition-all placeholder:text-gray-300 dark:placeholder:text-[#8b949e]/20"
+                            className="w-full bg-white dark:bg-[#161b22] border-2 border-black/5 dark:border-[#30363d] focus:border-[#0d3542] dark:focus:border-[#58a6ff] rounded-xl py-3.5 pl-5 pr-10 text-[12px] font-black uppercase tracking-widest outline-none transition-all text-gray-900 dark:text-[#c9d1d9] placeholder:text-gray-300 dark:placeholder:text-[#8b949e]/20"
                         />
                     </div>
                 </div>
@@ -317,23 +294,49 @@ const FilterPanel = ({ filters, categories, onChange, totalResults, searchQuery,
 
 const ProductCatalog = ({ onSearchClick }) => {
     const { addItem, addItems } = usePOS();
-    const [products, setProducts] = useState([]);
-    const [categories, setCategories] = useState([]);
-    const [loading, setLoading] = useState(true);
-    const [filters, setFilters] = useState({
+    
+    const initialFilters = {
         categories: [],
         stockStatus: 'all',
         name: "",
         attribute: "",
         code: "",
-    });
+    };
+
+    const getInitialCache = () => {
+        if (window.__posProductCache) {
+            const cacheKey = JSON.stringify(initialFilters);
+            if (window.__posProductCache[cacheKey]) {
+                return window.__posProductCache[cacheKey];
+            }
+        }
+        return null;
+    };
+
+    const initialCache = getInitialCache();
+
+    const [products, setProducts] = useState(initialCache || []);
+    const [categories, setCategories] = useState(window.__posCategoryCache || []);
+    const [loading, setLoading] = useState(!initialCache);
+    const [filters, setFilters] = useState(initialFilters);
     const [selectedProducts, setSelectedProducts] = useState(new Map());
+    const [isAnimating, setIsAnimating] = useState(true);
+
+    useEffect(() => {
+        // Defer rendering the full list until the modal animation completes (220ms matches modal transition)
+        const timer = setTimeout(() => setIsAnimating(false), 220);
+        return () => clearTimeout(timer);
+    }, []);
 
     // Fetch categories
     useEffect(() => {
         const fetchCategories = async () => {
+            if (window.__posCategoryCache && window.__posCategoryCache.length > 0) {
+                setCategories(window.__posCategoryCache);
+            }
             try {
                 const response = await axios.get('/api/v1/admin/pos/products/categories');
+                window.__posCategoryCache = response.data;
                 setCategories(response.data);
             } catch (err) {
                 console.error('Failed to fetch categories');
@@ -344,7 +347,17 @@ const ProductCatalog = ({ onSearchClick }) => {
 
     // Load data from API
     const fetchProducts = useCallback(async () => {
-        setLoading(true);
+        const cacheKey = JSON.stringify(filters);
+        
+        if (!window.__posProductCache) window.__posProductCache = {};
+        
+        if (window.__posProductCache[cacheKey]) {
+            setProducts(window.__posProductCache[cacheKey]);
+            setLoading(false);
+        } else {
+            setLoading(true);
+        }
+
         try {
             const response = await axios.get('/api/v1/admin/pos/products', {
                 params: {
@@ -356,6 +369,7 @@ const ProductCatalog = ({ onSearchClick }) => {
                     per_page: 100
                 }
             });
+            window.__posProductCache[cacheKey] = response.data.data;
             setProducts(response.data.data);
         } catch (err) {
             console.error('Failed to fetch products');
@@ -364,11 +378,18 @@ const ProductCatalog = ({ onSearchClick }) => {
         }
     }, [filters]);
 
+    const isFirstMount = useRef(true);
+
     useEffect(() => {
-        const timer = setTimeout(() => {
+        if (isFirstMount.current) {
             fetchProducts();
-        }, 450);
-        return () => clearTimeout(timer);
+            isFirstMount.current = false;
+        } else {
+            const timer = setTimeout(() => {
+                fetchProducts();
+            }, 250); // Reduced debounce for snappier searching
+            return () => clearTimeout(timer);
+        }
     }, [fetchProducts]);
 
     const clearAll = useCallback(() => {
@@ -383,14 +404,16 @@ const ProductCatalog = ({ onSearchClick }) => {
     }, []);
 
     const toggleSelect = useCallback((product) => {
-        const newSelected = new Map(selectedProducts);
-        if (newSelected.has(product.id)) {
-            newSelected.delete(product.id);
-        } else {
-            newSelected.set(product.id, product);
-        }
-        setSelectedProducts(newSelected);
-    }, [selectedProducts]);
+        setSelectedProducts(prevSelected => {
+            const newSelected = new Map(prevSelected);
+            if (newSelected.has(product.id)) {
+                newSelected.delete(product.id);
+            } else {
+                newSelected.set(product.id, product);
+            }
+            return newSelected;
+        });
+    }, []);
 
     const handleBatchAdd = () => {
         addItems(Array.from(selectedProducts.values()));
@@ -451,13 +474,14 @@ const ProductCatalog = ({ onSearchClick }) => {
                     </div>
 
                     <div className="flex-1 overflow-y-auto attire-scrollbar relative">
-                        <AnimatePresence mode="wait">
+                        <AnimatePresence>
                             {loading && products.length === 0 ? (
                                 <motion.div 
                                     key="loader"
                                     initial={{ opacity: 0 }}
                                     animate={{ opacity: 1 }}
                                     exit={{ opacity: 0 }}
+                                    transition={{ duration: 0.15 }}
                                     className="h-full flex flex-col items-center justify-center space-y-10"
                                 >
                                     <LumaSpin size="lg" />
@@ -466,8 +490,9 @@ const ProductCatalog = ({ onSearchClick }) => {
                             ) : products.length === 0 ? (
                                 <motion.div 
                                     key="empty"
-                                    initial={{ opacity: 0, y: 10 }}
+                                    initial={{ opacity: 0, y: 8 }}
                                     animate={{ opacity: 1, y: 0 }}
+                                    transition={{ duration: 0.2 }}
                                     className="h-full flex flex-col items-center justify-center p-20 text-center"
                                 >
                                     <Activity size={64} className="text-gray-200 dark:text-[#30363d] mb-8" />
@@ -481,22 +506,19 @@ const ProductCatalog = ({ onSearchClick }) => {
                                     </button>
                                 </motion.div>
                             ) : (
-                                <motion.div 
+                                <div 
                                     key="results"
-                                    variants={containerVariants}
-                                    initial="hidden"
-                                    animate="visible"
                                     className="divide-y-2 divide-black/5 dark:divide-[#30363d]/30"
                                 >
-                                    {products.map((product) => (
+                                    {(isAnimating ? products.slice(0, 10) : products).map((product) => (
                                         <ProductLogRow
                                             key={product.id}
                                             product={product}
                                             isSelected={selectedProducts.has(product.id)}
-                                            onToggleSelect={() => toggleSelect(product)}
+                                            onToggleSelect={toggleSelect}
                                         />
                                     ))}
-                                </motion.div>
+                                </div>
                             )}
                         </AnimatePresence>
                     </div>
@@ -507,36 +529,43 @@ const ProductCatalog = ({ onSearchClick }) => {
             <AnimatePresence>
                 {selectedProducts.size > 0 && (
                     <motion.div
-                        initial={{ y: 150, opacity: 0 }}
-                        animate={{ y: 0, opacity: 1 }}
-                        exit={{ y: 150, opacity: 0 }}
-                        className="fixed bottom-16 left-1/2 -translate-x-1/2 z-[100] w-full max-w-4xl px-6"
+                        initial={{ y: 80, opacity: 0, scale: 0.96 }}
+                        animate={{ y: 0, opacity: 1, scale: 1 }}
+                        exit={{ y: 80, opacity: 0, scale: 0.96 }}
+                        transition={{ duration: 0.2, ease: [0.25, 0.46, 0.45, 0.94] }}
+                        style={{ willChange: 'transform, opacity' }}
+                        className="fixed bottom-8 left-1/2 -translate-x-1/2 z-[100]"
                     >
-                        <div className="bg-[#fdfdfc] dark:bg-[#161b22] border-2 border-[#0d3542]/20 dark:border-[#30363d] px-10 py-6 rounded-[32px] shadow-none flex items-center gap-12 overflow-hidden relative">
-                            {/* Accent Bar */}
-                            <div className="absolute left-0 top-0 bottom-0 w-3 bg-[#0d3542] dark:bg-[#58a6ff]" />
-                            
-                            <div className="flex flex-col">
-                                <span className="text-[10px] font-black uppercase tracking-[0.3em] text-[#0d3542] dark:text-[#58a6ff] leading-none mb-1.5">Ready to add</span>
-                                <span className="text-[18px] font-black text-gray-900 dark:text-[#c9d1d9] leading-none tracking-tight">{selectedProducts.size} items selected</span>
+                        <div className="flex items-center gap-1 bg-white/90 dark:bg-[#161b22]/95 backdrop-blur-xl border border-black/10 dark:border-[#30363d] rounded-full shadow-lg shadow-black/10 dark:shadow-black/40 px-2 py-2">
+
+                            {/* Count Badge */}
+                            <div className="flex items-center gap-2.5 pl-3 pr-4">
+                                <div className="w-5 h-5 rounded-full bg-[#0d3542] dark:bg-[#58a6ff] flex items-center justify-center flex-shrink-0">
+                                    <span className="text-[10px] font-black text-white dark:text-black leading-none">{selectedProducts.size}</span>
+                                </div>
+                                <span className="text-[11px] font-black uppercase tracking-widest text-gray-500 dark:text-[#8b949e] whitespace-nowrap">
+                                    item{selectedProducts.size !== 1 ? 's' : ''} selected
+                                </span>
                             </div>
-                            
-                            <div className="h-12 w-px bg-black/10 dark:bg-[#30363d] flex-shrink-0" />
-                            
-                            <div className="flex items-center gap-6 ml-auto">
-                                <button 
-                                    onClick={() => setSelectedProducts(new Map())}
-                                    className="px-6 py-4 text-[12px] font-black uppercase tracking-widest text-gray-400 dark:text-[#8b949e]/40 hover:text-gray-900 dark:hover:text-white transition-colors"
-                                >
-                                    Reset
-                                </button>
-                                <button 
-                                    onClick={handleBatchAdd}
-                                    className="px-12 py-5 bg-[#0d3542] dark:bg-[#58a6ff] text-white dark:text-black text-[14px] font-black uppercase tracking-[0.2em] rounded-2xl hover:scale-105 active:scale-95 transition-all shadow-none"
-                                >
-                                    Add to cart
-                                </button>
-                            </div>
+
+                            {/* Divider */}
+                            <div className="w-px h-5 bg-black/10 dark:bg-[#30363d] mx-1 flex-shrink-0" />
+
+                            {/* Clear */}
+                            <button
+                                onClick={() => setSelectedProducts(new Map())}
+                                className="px-3 py-2 text-[11px] font-black uppercase tracking-widest text-gray-400 dark:text-[#8b949e]/60 hover:text-gray-700 dark:hover:text-[#c9d1d9] transition-colors rounded-full hover:bg-black/5 dark:hover:bg-white/5"
+                            >
+                                Clear
+                            </button>
+
+                            {/* Add Button */}
+                            <button
+                                onClick={handleBatchAdd}
+                                className="px-5 py-2.5 bg-[#0d3542] dark:bg-[#58a6ff] text-white dark:text-black text-[11px] font-black uppercase tracking-widest rounded-full hover:opacity-90 active:scale-95 transition-all"
+                            >
+                                Add to Cart
+                            </button>
                         </div>
                     </motion.div>
                 )}

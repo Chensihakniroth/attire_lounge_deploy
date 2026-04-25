@@ -11,6 +11,13 @@ import {
 import { motion, AnimatePresence } from 'framer-motion';
 import { useAdmin } from './AdminContext';
 import { LumaSpin } from "@/components/ui/luma-spin";
+import { useQuery } from '@tanstack/react-query';
+import axios from 'axios';
+
+const authHeaders = () => {
+    const token = localStorage.getItem('admin_token') || sessionStorage.getItem('admin_token');
+    return { Authorization: `Bearer ${token}` };
+};
 
 const GOALS_KEY = 'attire_earning_goals';
 
@@ -28,13 +35,26 @@ function loadGoals() {
     return { ...defaultGoals };
 }
 
-const DailySummaryWidget = ({ stats, loading }) => {
+const DailySummaryWidget = () => {
     const { performanceMode } = useAdmin();
     const [isEditingGoals, setIsEditingGoals] = useState(false);
     const [goals, setGoals] = useState(loadGoals);
     const [draft, setDraft]   = useState({ ...goals });
 
-    if (loading) {
+    const todayStr = new Date().toISOString().split('T')[0];
+    const { data: reportData, isLoading } = useQuery({
+        queryKey: ['sales-report-daily', todayStr],
+        queryFn: async () => {
+            const res = await axios.get('/api/v1/admin/sales-report/daily', {
+                params: { date: todayStr },
+                headers: authHeaders()
+            });
+            return res.data;
+        },
+        refetchInterval: 30000,
+    });
+
+    if (isLoading) {
         return (
             <div className="h-full min-h-[300px] flex items-center justify-center">
                 <LumaSpin size="sm" />
@@ -42,18 +62,15 @@ const DailySummaryWidget = ({ stats, loading }) => {
         );
     }
 
-    const dailyData = stats?.pos_summary || {
-        total_revenue: 0,
-        invoice_count: 0,
-        total_refunds: 0
-    };
-
-    const netRevenue = dailyData.total_revenue - dailyData.total_refunds;
+    const { stats = {} } = reportData || {};
+    const total_revenue = stats.total_revenue || 0;
+    const invoice_count = stats.total_invoices || 0;
+    const net_revenue = stats.net_revenue || 0;
 
     const goalRows = [
-        { id: 'daily',   label: 'Day',   target: goals.daily,   current: dailyData.total_revenue,                   color: 'from-indigo-500 to-blue-400' },
-        { id: 'weekly',  label: 'Week',  target: goals.weekly,  current: (dailyData.total_revenue * 7) * 0.8,        color: 'from-emerald-500 to-teal-400' },
-        { id: 'monthly', label: 'Month', target: goals.monthly, current: (dailyData.total_revenue * 30) * 0.6,       color: 'from-blue-600 to-indigo-400' },
+        { id: 'daily',   label: 'Day',   target: goals.daily,   current: net_revenue,                   color: 'from-indigo-500 to-blue-400' },
+        { id: 'weekly',  label: 'Week',  target: goals.weekly,  current: (net_revenue * 7) * 0.8,        color: 'from-emerald-500 to-teal-400' },
+        { id: 'monthly', label: 'Month', target: goals.monthly, current: (net_revenue * 30) * 0.6,       color: 'from-blue-600 to-indigo-400' },
     ];
 
     const saveGoals = () => {
@@ -95,7 +112,7 @@ const DailySummaryWidget = ({ stats, loading }) => {
                 <div className="flex flex-col items-end">
                     <span className="text-[10px] font-black text-gray-400 dark:text-[#8b949e]/30 uppercase tracking-[0.2em] mb-1">Profit</span>
                     <div className="text-xl font-black text-[#0d3542] dark:text-[#58a6ff] tabular-nums tracking-tighter">
-                        ${parseFloat(netRevenue).toLocaleString()}
+                        ${parseFloat(net_revenue).toLocaleString()}
                     </div>
                 </div>
             </div>
@@ -107,7 +124,7 @@ const DailySummaryWidget = ({ stats, loading }) => {
                         <p className="text-[10px] font-black text-gray-400 dark:text-[#8b949e]/30 uppercase tracking-[0.3em] mb-2.5 group-hover:text-[#0d3542] dark:group-hover:text-[#58a6ff] transition-colors">Sales</p>
                         <div className="flex items-baseline gap-1">
                             <span className="text-2xl font-black tracking-tighter text-[#0d3542] dark:text-[#58a6ff]">
-                                ${Math.floor(dailyData.total_revenue).toLocaleString()}
+                                ${Math.floor(total_revenue).toLocaleString()}
                             </span>
                             <span className="text-[10px] font-black text-gray-300 dark:text-gray-700 font-mono uppercase tracking-widest">USD</span>
                         </div>
@@ -119,7 +136,7 @@ const DailySummaryWidget = ({ stats, loading }) => {
                         <p className="text-[10px] font-black text-gray-400 dark:text-[#8b949e]/30 uppercase tracking-[0.3em] mb-2.5 group-hover:text-emerald-500 transition-colors">Orders</p>
                         <div className="flex items-baseline gap-2">
                             <span className="text-2xl font-black tracking-tighter text-emerald-600 dark:text-emerald-400">
-                                {dailyData.invoice_count}
+                                {invoice_count}
                             </span>
                         </div>
                     </div>

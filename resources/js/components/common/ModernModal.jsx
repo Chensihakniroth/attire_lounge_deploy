@@ -28,7 +28,7 @@ const ModernModal = ({
     if (typeof document === 'undefined') return null;
 
     return createPortal(
-        <AnimatePresence mode="wait">
+        <AnimatePresence>
             {isOpen && (
                 <div className="fixed inset-0 z-[99999] flex items-center justify-center p-4 sm:p-6 pointer-events-none">
                     {/* Backdrop */}
@@ -36,16 +36,18 @@ const ModernModal = ({
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
                         exit={{ opacity: 0 }}
+                        transition={{ duration: 0.15, ease: 'easeOut' }}
                         onClick={onClose}
                         className="absolute inset-0 bg-black/60 pointer-events-auto"
                     />
 
                     {/* Modal Content */}
                     <motion.div
-                        initial={{ opacity: 0, scale: 0.96, y: 20 }}
+                        initial={{ opacity: 0, scale: 0.97, y: 12 }}
                         animate={{ opacity: 1, scale: 1, y: 0 }}
-                        exit={{ opacity: 0, scale: 0.96, y: 20 }}
-                        transition={{ type: 'spring', damping: 25, stiffness: 300 }}
+                        exit={{ opacity: 0, scale: 0.97, y: 12 }}
+                        transition={{ duration: 0.2, ease: [0.25, 0.46, 0.45, 0.94] }}
+                        style={{ willChange: 'transform, opacity' }}
                         className={`relative w-full ${maxWidth} bg-[#f8f8f6] dark:bg-[#1a1a1a] border border-black/5 dark:border-white/10 rounded-[2rem] overflow-hidden shadow-2xl flex flex-col transition-colors duration-300 pointer-events-auto font-sans`}
                         onClick={(e) => e.stopPropagation()}
                     >

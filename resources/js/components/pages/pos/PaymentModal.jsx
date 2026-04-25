@@ -40,7 +40,7 @@ const PaymentModal = ({ totals, onClose }) => {
     const remaining = Math.max(0, totals.finalTotal - currentPaid);
 
     useEffect(() => {
-        setAmountInput(remaining.toString());
+        setAmountInput(parseFloat(remaining.toFixed(2)).toString());
     }, [remaining]);
 
     const addPayment = () => {
@@ -181,12 +181,12 @@ const PaymentModal = ({ totals, onClose }) => {
                             : 'The transaction has been processed. The inventory has been updated and the sale recorded.'}
                     </p>
                     
-                    {totals.productSubtotalForDiscount >= 500 && activeTab.customer && !activeTab.customer.is_vip && (
-                        <div className="p-4 bg-[#0d3542]/10 dark:bg-[#58a6ff]/10 border border-[#0d3542]/30 dark:border-[#58a6ff]/30 rounded-2xl flex items-center gap-4 text-left animate-bounce">
+                    {activeTab.customer?.is_vip && (
+                        <div className="p-4 bg-[#0d3542]/10 dark:bg-[#58a6ff]/10 border border-[#0d3542]/30 dark:border-[#58a6ff]/30 rounded-2xl flex items-center gap-4 text-left">
                             <Sparkles className="text-[#0d3542] dark:text-[#58a6ff]" size={24} />
                             <div>
-                                <p className="text-[10px] font-bold uppercase tracking-widest text-[#0d3542] dark:text-[#58a6ff]">VIP Achievement</p>
-                                <p className="text-[9px] text-gray-500 dark:text-[#8b949e] uppercase tracking-widest">Customer automatically upgraded to VIP status!</p>
+                                <p className="text-[10px] font-bold uppercase tracking-widest text-[#0d3542] dark:text-[#58a6ff]">VIP Customer</p>
+                                <p className="text-[9px] text-gray-500 dark:text-[#8b949e] uppercase tracking-widest">This customer holds Platinum VIP status</p>
                             </div>
                         </div>
                     )}
@@ -286,10 +286,10 @@ const PaymentModal = ({ totals, onClose }) => {
                                     <span>Product Subtotal</span>
                                     <span className="font-bold text-gray-900 dark:text-[#c9d1d9]">${totals.productSubtotal.toLocaleString()}</span>
                                 </div>
-                                {totals.tierDiscountAmount > 0 && (
+                                {totals.manualDiscountAmount > 0 && (
                                     <div className="flex justify-between items-center text-[10px] uppercase tracking-widest text-attire-accent">
-                                        <span>Discount ({totals.tierDiscountPercent}%)</span>
-                                        <span className="font-bold">-${totals.tierDiscountAmount.toLocaleString()}</span>
+                                        <span>Discount ({totals.cartDiscountType === 'percentage' ? `${totals.cartDiscountValue}%` : `$${totals.cartDiscountValue}`})</span>
+                                        <span className="font-bold">-${totals.manualDiscountAmount.toLocaleString()}</span>
                                     </div>
                                 )}
                                 {totals.serviceSubtotal > 0 && (

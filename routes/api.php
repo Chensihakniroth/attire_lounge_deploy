@@ -17,6 +17,7 @@ use App\Http\Controllers\PosProductController;
 use App\Http\Controllers\PosInvoiceController;
 use App\Http\Controllers\PosRefundController;
 use App\Http\Controllers\SearchController;
+use App\Http\Controllers\SalesReportController;
 
 Route::prefix('v1')->group(function () {
     // Public Product routes (accessible to all)
@@ -144,6 +145,13 @@ Route::prefix('v1')->group(function () {
 
             // Daily summary (for Admin Dashboard widget)
             Route::get('/pos/summary/daily', [PosInvoiceController::class, 'dailySummary']);
+
+            // ─── Sales Report & Targets ────────────────────────────────────────
+            Route::get('/sales-report/daily',   [SalesReportController::class, 'daily']);
+            Route::get('/sales-report/monthly', [SalesReportController::class, 'monthly']);
+            Route::get('/sales-report/targets', [SalesReportController::class, 'getTargets']);
+            Route::post('/sales-report/targets', [SalesReportController::class, 'setTarget']);
+            Route::delete('/sales-report/targets/{id}', [SalesReportController::class, 'deleteTarget']);
             // ───────────────────────────────────────────────────────────────────
 
             // Restricted strictly to Super Admin ONLY

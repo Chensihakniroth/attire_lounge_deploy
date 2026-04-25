@@ -24,7 +24,7 @@ const ProductSearchModal = ({ isOpen, onClose }) => {
 
                 {/* Integrated Catalog Dashboard */}
                 <div className="flex-1 overflow-hidden">
-                    <ProductCatalog />
+                    <ProductCatalog onSearchClick={onClose} />
                 </div>
 
                 {/* Minimal Footer for status or shortcut hints */}
