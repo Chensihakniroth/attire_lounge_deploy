@@ -10,14 +10,15 @@ class PosProductController extends Controller
 {
     public function index(Request $request): JsonResponse
     {
+        $outlet = $request->header('X-Active-Outlet', 'attire_lounge');
         $type = $request->get('type', 'products');
         
         if ($type === 'services') {
-            $query = PosProduct::active()->services();
+            $query = PosProduct::active()->where('outlet', $outlet)->services();
         } elseif ($type === 'all') {
-            $query = PosProduct::active();
+            $query = PosProduct::active()->where('outlet', $outlet);
         } else {
-            $query = PosProduct::active()->products();
+            $query = PosProduct::active()->where('outlet', $outlet)->products();
         }
 
         if ($search = $request->get('search') || $request->get('name') || $request->get('attribute') || $request->get('code')) {
@@ -76,8 +77,10 @@ class PosProductController extends Controller
             'products.*.tier' => 'nullable|string',
         ]);
 
+        $outlet = $request->header('X-Active-Outlet', 'attire_lounge');
         $created = [];
         foreach ($validated['products'] as $productData) {
+            $productData['outlet'] = $outlet;
             $created[] = PosProduct::create($productData);
         }
 
@@ -93,6 +96,16 @@ class PosProductController extends Controller
      */
     public function store(Request $request): JsonResponse
     {
+        // Auto-generate SKU if not provided
+        if (!$request->filled('sku')) {
+            $request->merge(['sku' => 'SKU-' . strtoupper(\Illuminate\Support\Str::random(6))]);
+        }
+        
+        // Default stock_qty to 0 if empty
+        if ($request->input('stock_qty') === '' || is_null($request->input('stock_qty'))) {
+            $request->merge(['stock_qty' => 0]);
+        }
+
         $validated = $request->validate([
             'sku' => 'required|string|unique:pos_products,sku',
             'name' => 'required|string',
@@ -102,8 +115,10 @@ class PosProductController extends Controller
             'is_service' => 'boolean',
             'stock_qty' => 'integer|min:0',
             'tier' => 'nullable|string',
+            'image_path' => 'nullable|string',
         ]);
 
+        $validated['outlet'] = $request->header('X-Active-Outlet', 'attire_lounge');
         $product = PosProduct::create($validated);
         return response()->json($product, 201);
     }
@@ -115,6 +130,10 @@ class PosProductController extends Controller
     {
         $product = PosProduct::findOrFail($id);
         
+        if ($request->input('stock_qty') === '' || is_null($request->input('stock_qty'))) {
+            $request->merge(['stock_qty' => 0]);
+        }
+        
         $validated = $request->validate([
             'sku' => 'string|unique:pos_products,sku,' . $id,
             'name' => 'string',
@@ -124,7 +143,8 @@ class PosProductController extends Controller
             'is_service' => 'boolean',
             'stock_qty' => 'integer|min:0',
             'tier' => 'nullable|string',
-            'is_active' => 'boolean'
+            'is_active' => 'boolean',
+            'image_path' => 'nullable|string'
         ]);
 
         $product->update($validated);
@@ -145,9 +165,11 @@ class PosProductController extends Controller
      * List service items for quick-tap panel.
      * GET /api/v1/pos/products/services
      */
-    public function services(): JsonResponse
+    public function services(Request $request): JsonResponse
     {
+        $outlet = $request->header('X-Active-Outlet', 'attire_lounge');
         $services = PosProduct::active()
+            ->where('outlet', $outlet)
             ->services()
             ->orderBy('name')
             ->get(['id', 'name', 'variant', 'price', 'category', 'sku']);
@@ -159,9 +181,11 @@ class PosProductController extends Controller
      * Get all unique categories (for filter chips).
      * GET /api/v1/pos/products/categories
      */
-    public function categories(): JsonResponse
+    public function categories(Request $request): JsonResponse
     {
+        $outlet = $request->header('X-Active-Outlet', 'attire_lounge');
         $categories = PosProduct::active()
+            ->where('outlet', $outlet)
             ->products()
             ->select('category')
             ->distinct()

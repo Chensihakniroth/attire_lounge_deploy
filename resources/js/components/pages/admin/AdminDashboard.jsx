@@ -530,7 +530,7 @@ const QuickAction = ({ icon, title, description, link }) => (
 // AdminDashboard
 // ----------------------------------------------------------------------
 const AdminDashboard = () => {
-    const { appointments, appointmentsLoading, stats, performanceMode } =
+    const { appointments, appointmentsLoading, stats, performanceMode, activeOutlet } =
         useAdmin();
     const [dashboardMode, setDashboardMode] = useState('services');
     const [chartView, setChartView] = useState('trend');
@@ -558,44 +558,88 @@ const AdminDashboard = () => {
                 }}
             >
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                    <StatCard
-                        icon={<Calendar />}
-                        title="Appointments"
-                        value={stats.appointments}
-                        link="/admin/appointments"
-                        loading={
-                            appointmentsLoading && appointments.length === 0
-                        }
-                        highlight={dashboardMode === 'services'}
-                    />
-                    <StatCard
-                        icon={<Users />}
-                        title="Total Clients"
-                        value={stats.total_customers}
-                        link="/admin/customer-profiles"
-                        loading={
-                            appointmentsLoading && appointments.length === 0
-                        }
-                        highlight={dashboardMode === 'registry'}
-                    />
-                    <StatCard
-                        icon={<ShoppingBag />}
-                        title="Total Products"
-                        value={stats.products}
-                        link="/admin/products"
-                        loading={
-                            appointmentsLoading && appointments.length === 0
-                        }
-                    />
-                    <StatCard
-                        icon={<TrendingUp />}
-                        title="Subscribers"
-                        value={stats.subscribers}
-                        link="/admin/newsletter"
-                        loading={
-                            appointmentsLoading && appointments.length === 0
-                        }
-                    />
+                    {activeOutlet === 'attire_lounge' ? (
+                        <>
+                            <StatCard
+                                icon={<Calendar />}
+                                title="Appointments"
+                                value={stats.appointments}
+                                link="/admin/appointments"
+                                loading={
+                                    appointmentsLoading && appointments.length === 0
+                                }
+                                highlight={dashboardMode === 'services'}
+                            />
+                            <StatCard
+                                icon={<Users />}
+                                title="Total Clients"
+                                value={stats.total_customers}
+                                link="/admin/customer-profiles"
+                                loading={
+                                    appointmentsLoading && appointments.length === 0
+                                }
+                                highlight={dashboardMode === 'registry'}
+                            />
+                            <StatCard
+                                icon={<ShoppingBag />}
+                                title="Total Products"
+                                value={stats.products}
+                                link="/admin/products"
+                                loading={
+                                    appointmentsLoading && appointments.length === 0
+                                }
+                            />
+                            <StatCard
+                                icon={<TrendingUp />}
+                                title="Subscribers"
+                                value={stats.subscribers}
+                                link="/admin/newsletter"
+                                loading={
+                                    appointmentsLoading && appointments.length === 0
+                                }
+                            />
+                        </>
+                    ) : (
+                        <>
+                            <StatCard
+                                icon={<ShoppingBag />}
+                                title="Menu Items"
+                                value={stats.pos_products || 0}
+                                link="/admin/drink-manager"
+                                loading={
+                                    appointmentsLoading && appointments.length === 0
+                                }
+                            />
+                            <StatCard
+                                icon={<TrendingUp />}
+                                title="Total Sales"
+                                value={stats.sales || 0}
+                                link="/admin/sales-history"
+                                loading={
+                                    appointmentsLoading && appointments.length === 0
+                                }
+                                highlight={dashboardMode === 'sales'}
+                            />
+                            <StatCard
+                                icon={<Package />}
+                                title="Stock Alerts"
+                                value={stats.low_stock || 0}
+                                link="/admin/drink-manager"
+                                loading={
+                                    appointmentsLoading && appointments.length === 0
+                                }
+                            />
+                            <StatCard
+                                icon={<Activity />}
+                                title="Daily Orders"
+                                value={stats.daily_orders || 0}
+                                link="/admin/daily-report"
+                                loading={
+                                    appointmentsLoading && appointments.length === 0
+                                }
+                            />
+                        </>
+                    )}
                 </div>
 
                 <motion.div
@@ -701,36 +745,56 @@ const AdminDashboard = () => {
                                                 )}
                                             </div>
                                             <div className="flex gap-1 p-1.5 bg-black/5 dark:bg-[#0d1117] rounded-2xl border border-black/5 dark:border-[#30363d]">
-                                                <button
-                                                    onClick={() =>
-                                                        setDashboardMode(
-                                                            'services'
-                                                        )
-                                                    }
-                                                    className={`px-5 py-2.5 rounded-xl text-xs font-black uppercase tracking-widest transition-all duration-300 shadow-none ${
-                                                        dashboardMode ===
-                                                        'services'
-                                                            ? 'bg-[#0d3542] dark:bg-[#58a6ff] text-white dark:text-black'
-                                                            : 'text-gray-400 hover:text-gray-900 dark:hover:text-[#c9d1d9]'
-                                                    }`}
-                                                >
-                                                    Consults
-                                                </button>
-                                                <button
-                                                    onClick={() =>
-                                                        setDashboardMode(
-                                                            'registry'
-                                                        )
-                                                    }
-                                                    className={`px-5 py-2.5 rounded-xl text-xs font-black uppercase tracking-widest transition-all duration-300 shadow-none ${
-                                                        dashboardMode ===
-                                                        'registry'
-                                                            ? 'bg-[#0d3542] dark:bg-[#58a6ff] text-white dark:text-black'
-                                                            : 'text-gray-400 hover:text-gray-900 dark:hover:text-[#c9d1d9]'
-                                                    }`}
-                                                >
-                                                    Clients
-                                                </button>
+                                                {activeOutlet === 'attire_lounge' ? (
+                                                    <>
+                                                        <button
+                                                            onClick={() =>
+                                                                setDashboardMode(
+                                                                    'services'
+                                                                )
+                                                            }
+                                                            className={`px-5 py-2.5 rounded-xl text-xs font-black uppercase tracking-widest transition-all duration-300 shadow-none ${
+                                                                dashboardMode ===
+                                                                'services'
+                                                                    ? 'bg-[#0d3542] dark:bg-[#58a6ff] text-white dark:text-black'
+                                                                    : 'text-gray-400 hover:text-gray-900 dark:hover:text-[#c9d1d9]'
+                                                            }`}
+                                                        >
+                                                            Consults
+                                                        </button>
+                                                        <button
+                                                            onClick={() =>
+                                                                setDashboardMode(
+                                                                    'registry'
+                                                                )
+                                                            }
+                                                            className={`px-5 py-2.5 rounded-xl text-xs font-black uppercase tracking-widest transition-all duration-300 shadow-none ${
+                                                                dashboardMode ===
+                                                                'registry'
+                                                                    ? 'bg-[#0d3542] dark:bg-[#58a6ff] text-white dark:text-black'
+                                                                    : 'text-gray-400 hover:text-gray-900 dark:hover:text-[#c9d1d9]'
+                                                            }`}
+                                                        >
+                                                            Clients
+                                                        </button>
+                                                    </>
+                                                ) : (
+                                                    <button
+                                                        onClick={() =>
+                                                            setDashboardMode(
+                                                                'sales'
+                                                            )
+                                                        }
+                                                        className={`px-5 py-2.5 rounded-xl text-xs font-black uppercase tracking-widest transition-all duration-300 shadow-none ${
+                                                            dashboardMode ===
+                                                            'sales'
+                                                                ? 'bg-[#0d3542] dark:bg-[#58a6ff] text-white dark:text-black'
+                                                                : 'text-gray-400 hover:text-gray-900 dark:hover:text-[#c9d1d9]'
+                                                        }`}
+                                                    >
+                                                        Sales Data
+                                                    </button>
+                                                )}
                                             </div>
                                         </motion.div>
                                     ) : (
@@ -923,36 +987,67 @@ const AdminDashboard = () => {
                             </div>
                         </div>
                         <div className="flex flex-col gap-3">
-                            <QuickAction
-                                icon={<Users />}
-                                title="Clients"
-                                description="Registry"
-                                link="/admin/customer-profiles"
-                            />
-                            <QuickAction
-                                icon={<Package />}
-                                title="Catalog"
-                                description="Inventory"
-                                link="/admin/products"
-                            />
-                            <QuickAction
-                                icon={<Plus />}
-                                title="Creation"
-                                description="New Item"
-                                link="/admin/products/new"
-                            />
-                            <QuickAction
-                                icon={<Calendar />}
-                                title="Bookings"
-                                description="Sessions"
-                                link="/admin/appointments"
-                            />
-                            <QuickAction
-                                icon={<Gift />}
-                                title="Gifting"
-                                description="Requests"
-                                link="/admin/customize-gift"
-                            />
+                            {activeOutlet === 'attire_lounge' ? (
+                                <>
+                                    <QuickAction
+                                        icon={<Users />}
+                                        title="Clients"
+                                        description="Registry"
+                                        link="/admin/customer-profiles"
+                                    />
+                                    <QuickAction
+                                        icon={<Package />}
+                                        title="Catalog"
+                                        description="Inventory"
+                                        link="/admin/products"
+                                    />
+                                    <QuickAction
+                                        icon={<Plus />}
+                                        title="Creation"
+                                        description="New Item"
+                                        link="/admin/products/new"
+                                    />
+                                    <QuickAction
+                                        icon={<Calendar />}
+                                        title="Bookings"
+                                        description="Sessions"
+                                        link="/admin/appointments"
+                                    />
+                                    <QuickAction
+                                        icon={<Gift />}
+                                        title="Gifting"
+                                        description="Requests"
+                                        link="/admin/customize-gift"
+                                    />
+                                </>
+                            ) : (
+                                <>
+                                    <QuickAction 
+                                        icon={<Package />} 
+                                        title="Drink Menu" 
+                                        description="Manage Drinks" 
+                                        link="/admin/drink-manager" 
+                                    />
+                                    <QuickAction 
+                                        icon={<TrendingUp />} 
+                                        title="Sales" 
+                                        description="History" 
+                                        link="/admin/sales-history" 
+                                    />
+                                    <QuickAction 
+                                        icon={<Activity />} 
+                                        title="Reports" 
+                                        description="Daily Summary" 
+                                        link="/admin/daily-report" 
+                                    />
+                                    <QuickAction 
+                                        icon={<Users />} 
+                                        title="Staff" 
+                                        description="User Manager" 
+                                        link="/admin/users" 
+                                    />
+                                </>
+                            )}
                         </div>
                     </motion.div>
                 </div>

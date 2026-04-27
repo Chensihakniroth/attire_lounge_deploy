@@ -10,8 +10,10 @@ import { usePOS } from './POSContext';
 import InvoiceHistoryPanel from './InvoiceHistoryPanel';
 import ProductSearchModal from './ProductSearchModal';
 import ModernModal from '../../common/ModernModal';
+import { useAdmin } from '../admin/AdminContext';
 
 const POSInterface = () => {
+    const { activeOutlet } = useAdmin();
     const { isHistoryOpen, setIsHistoryOpen, isServiceOpen, setIsServiceOpen, loadInvoiceIntoCart, cloneInvoiceIntoCart } = usePOS();
     const [isSearchOpen, setIsSearchOpen] = useState(false);
     const [searchParams, setSearchParams] = useSearchParams();
@@ -111,7 +113,7 @@ const POSInterface = () => {
                 </div>
 
                 {/* Floating Service Toggle Button */}
-                {!isServiceOpen && (
+                {activeOutlet === 'attire_lounge' && !isServiceOpen && (
                     <motion.button
                         initial={{ y: 20, opacity: 0 }}
                         animate={{ y: 0, opacity: 1 }}
@@ -126,7 +128,7 @@ const POSInterface = () => {
 
                 {/* Quick Services - Tactical Slide-up Overlay (No Backdrop) */}
                 <AnimatePresence>
-                    {isServiceOpen && (
+                    {activeOutlet === 'attire_lounge' && isServiceOpen && (
                         <motion.div 
                             initial={{ y: '100%' }}
                             animate={{ y: 0 }}

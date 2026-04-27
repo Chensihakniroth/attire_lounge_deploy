@@ -103,6 +103,7 @@ const POSLayout = lazyWithRetry(() => import('./pages/pos/POSLayout.jsx'));
 const POSInterface = lazyWithRetry(() => import('./pages/pos/POSInterface.jsx'));
 const SalesHistoryManager = lazyWithRetry(() => import('./pages/admin/SalesHistoryManager.jsx'));
 const PosProductManager = lazyWithRetry(() => import('./pages/admin/PosProductManager.jsx'));
+const DrinkManager = lazyWithRetry(() => import('./pages/admin/DrinkManager.jsx'));
 const DailyReportManager = lazyWithRetry(() => import('./pages/admin/DailyReportManager.jsx'));
 
 const GlobalStyles = () => (
@@ -168,6 +169,7 @@ function AdminApp() {
                                             <Route path="/admin/products" element={<ProductManager />} />
                                             <Route path="/admin/collections" element={<CollectionManager />} />
                                             <Route path="/admin/pos-products" element={<PosProductManager />} />
+                                            <Route path="/admin/drink-manager" element={<DrinkManager />} />
                                             <Route path="/admin/products/bulk" element={<BulkProductEditor />} />
                                             <Route path="/admin/products/new" element={<ProductEditor isNew={true} />} />
                                             <Route path="/admin/products/:productId/edit" element={<ProductEditor />} />

@@ -23,17 +23,20 @@ import InlineCustomerSearch from './InlineCustomerSearch';
 import PaymentModal from './PaymentModal';
 import SpendProgressBar from './SpendProgressBar';
 import { usePOS } from './POSContext';
+import { useAdmin } from '../admin/AdminContext';
 import { motion, AnimatePresence } from 'framer-motion';
 
 const InvoicePanel = () => {
+    const { activeOutlet } = useAdmin();
     const { activeTab, clearInvoice, holdInvoice, totals, updateNote, updateCartDiscount } = usePOS();
     const [showPaymentModal, setShowPaymentModal] = useState(false);
 
     return (
         <div className="flex-1 flex flex-col h-full bg-transparent dark:bg-[#0d1117] border-l border-black/5 dark:border-[#30363d] transition-colors duration-300 font-sans">
             {/* Customer Section */}
-            <div className="p-5 border-b border-black/5 dark:border-[#30363d] bg-black/[0.01] dark:bg-white/[0.01]">
-                {!activeTab.customer ? (
+            {activeOutlet === 'attire_lounge' && (
+                <div className="p-5 border-b border-black/5 dark:border-[#30363d] bg-black/[0.01] dark:bg-white/[0.01]">
+                    {!activeTab.customer ? (
                     <div className="space-y-4">
                         <InlineCustomerSearch />
                     </div>
@@ -74,13 +77,14 @@ const InvoicePanel = () => {
                     </motion.div>
                 )}
 
-                <div className="mt-5">
-                    <SpendProgressBar 
-                        currentSpend={totals.productSubtotal} 
-                        isVip={activeTab.customer?.is_vip} 
-                    />
+                    <div className="mt-5">
+                        <SpendProgressBar 
+                            currentSpend={totals.productSubtotal} 
+                            isVip={activeTab.customer?.is_vip} 
+                        />
+                    </div>
                 </div>
-            </div>
+            )}
 
             {/* Totals & Checkout */}
             <div className="mt-auto p-6 border-t border-black/5 dark:border-[#30363d] bg-[#0d3542]/5 dark:bg-[#161b22] space-y-6">

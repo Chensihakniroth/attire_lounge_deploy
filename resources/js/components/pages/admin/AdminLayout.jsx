@@ -33,7 +33,10 @@ import {
     ArrowLeftRight,
     Zap,
     ZapOff,
-    BarChart2
+    BarChart2,
+    Store,
+    ChevronDown,
+    Coffee
 } from 'lucide-react';
 import { LumaSpin } from '@/components/ui/luma-spin';
 import { ThemeProvider, useTheme } from './ThemeContext';
@@ -171,9 +174,90 @@ const GlobalSearch = () => {
     );
 };
 
+const OutletSwitcher = () => {
+    const { activeOutlet, setActiveOutlet, OUTLET_CONFIG } = useAdmin();
+    const [isOpen, setIsOpen] = useState(false);
+    const navigate = useNavigate();
+    const current = OUTLET_CONFIG[activeOutlet];
+
+    return (
+        <div className="relative">
+            <button
+                onClick={() => setIsOpen(!isOpen)}
+                className="flex items-center gap-2.5 px-4 py-2 bg-white/10 border border-white/20 rounded-xl hover:bg-white/15 transition-all group"
+            >
+                <div
+                    className="w-2 h-2 rounded-full flex-shrink-0 ring-2 ring-white/20"
+                    style={{ backgroundColor: current.color }}
+                />
+                <span className="text-[10px] font-black uppercase tracking-[0.15em] text-white hidden sm:block">
+                    {current.label}
+                </span>
+                <span className="text-[10px] font-black uppercase tracking-[0.15em] text-white sm:hidden">
+                    {current.shortLabel}
+                </span>
+                <ChevronDown size={12} className={`text-white/50 transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`} />
+            </button>
+
+            <AnimatePresence>
+                {isOpen && (
+                    <>
+                        <motion.div
+                            className="fixed inset-0 z-[90]"
+                            onClick={() => setIsOpen(false)}
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            exit={{ opacity: 0 }}
+                        />
+                        <motion.div
+                            initial={{ opacity: 0, y: 8, scale: 0.96 }}
+                            animate={{ opacity: 1, y: 0, scale: 1 }}
+                            exit={{ opacity: 0, y: 8, scale: 0.96 }}
+                            transition={{ duration: 0.15, ease: 'easeOut' }}
+                            className="absolute right-0 top-full mt-2 w-56 bg-[#161b22] border border-white/10 rounded-2xl shadow-2xl overflow-hidden z-[100] p-1.5"
+                        >
+                            <div className="px-3 py-2 mb-1">
+                                <p className="text-[9px] font-black uppercase tracking-[0.3em] text-white/30">Switch Outlet</p>
+                            </div>
+                            {Object.entries(OUTLET_CONFIG).map(([key, config]) => (
+                                <button
+                                    key={key}
+                                    onClick={() => {
+                                        setActiveOutlet(key);
+                                        setIsOpen(false);
+                                        navigate('/admin');
+                                    }}
+                                    className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all text-left ${
+                                        activeOutlet === key
+                                            ? 'bg-white/15 text-white'
+                                            : 'text-white/60 hover:bg-white/5 hover:text-white'
+                                    }`}
+                                >
+                                    <div
+                                        className={`w-2.5 h-2.5 rounded-full flex-shrink-0 ${
+                                            activeOutlet === key ? 'ring-2 ring-white/40' : ''
+                                        }`}
+                                        style={{ backgroundColor: config.color }}
+                                    />
+                                    <span className="text-[10px] font-bold uppercase tracking-[0.15em]">
+                                        {config.label}
+                                    </span>
+                                    {activeOutlet === key && (
+                                        <Check size={12} className="ml-auto text-white/60" />
+                                    )}
+                                </button>
+                            ))}
+                        </motion.div>
+                    </>
+                )}
+            </AnimatePresence>
+        </div>
+    );
+};
+
 const SidebarContent = ({ setOpen, isMobile }) => {
     const { isDarkMode, toggleDarkMode } = useTheme();
-    const { userRoles, performanceMode, setPerformanceMode } = useAdmin();
+    const { userRoles, performanceMode, setPerformanceMode, activeOutlet, OUTLET_CONFIG } = useAdmin();
     const navigate = useNavigate();
 
     const handleLogout = () => {
@@ -192,33 +276,38 @@ const SidebarContent = ({ setOpen, isMobile }) => {
     const navItems = [
         { name: 'Dashboard', to: '/admin', icon: LayoutDashboard },
         { name: 'Admin Profile', to: '/admin/profile', icon: UserCircle },
-        { name: 'Customer Profiles', to: '/admin/customer-profiles', icon: Users },
+        { name: 'Customer Profiles', to: '/admin/customer-profiles', icon: Users, outlets: ['attire_lounge'] },
         { name: 'Appointments', to: '/admin/appointments', icon: Calendar },
-        { name: 'Altering Manager', to: '/admin/alterings', icon: Scissors },
-        { name: 'Collections', to: '/admin/collections', icon: LayoutGrid },
-        { name: 'Product Manager', to: '/admin/products', icon: ShoppingBag },
-        { name: 'POS Products', to: '/admin/pos-products', icon: Package },
+        { name: 'Altering Manager', to: '/admin/alterings', icon: Scissors, outlets: ['attire_lounge'] },
+        { name: 'Collections', to: '/admin/collections', icon: LayoutGrid, outlets: ['attire_lounge'] },
+        { name: 'Product Manager', to: '/admin/products', icon: ShoppingBag, outlets: ['attire_lounge'] },
+        { name: 'POS Products', to: '/admin/pos-products', icon: Package, outlets: ['attire_lounge'] },
+        { name: 'Drink Manager', to: '/admin/drink-manager', icon: Coffee, outlets: ['caffeine', 'kravat'] },
         { name: 'Promocodes', to: '/admin/promocodes', icon: Ticket },
         { name: 'Sales History', to: '/admin/sales-history', icon: History },
         { name: 'Daily Report', to: '/admin/daily-report', icon: BarChart2 },
         { name: 'SEO Manager', to: '/admin/seo', icon: Search },
-        { name: 'Gift Manager', to: '/admin/customize-gift', icon: Gift },
-        { name: 'Inventory Manager', to: '/admin/inventory', icon: Package },
-        { name: 'Newsletter', to: '/admin/newsletter', icon: Mail },
+        { name: 'Gift Manager', to: '/admin/customize-gift', icon: Gift, outlets: ['attire_lounge'] },
+        { name: 'Inventory Manager', to: '/admin/inventory', icon: Package, outlets: ['attire_lounge'] },
+        { name: 'Newsletter', to: '/admin/newsletter', icon: Mail, outlets: ['attire_lounge'] },
         { name: 'Audit Logs', to: '/admin/audit-logs', icon: History, restricted: true },
         { name: 'User Manager', to: '/admin/users', icon: Users, restricted: true }
     ];
 
     const isSuperAdmin = userRoles.includes('super-admin');
-    const filteredNavItems = navItems.filter(
-        (item) => !item.restricted || isSuperAdmin
-    );
+    const filteredNavItems = navItems.filter((item) => {
+        // Role-based filter
+        if (item.restricted && !isSuperAdmin) return false;
+        // Outlet-based filter — if `outlets` is defined, only show for those outlets
+        if (item.outlets && !item.outlets.includes(activeOutlet)) return false;
+        return true;
+    });
 
     return (
         <div className="flex flex-col w-[260px] bg-attire-navy border-r border-white/5 shadow-none flex-shrink-0 h-full overflow-hidden transition-colors duration-300 font-sans">
             <div className="h-20 flex items-center justify-between px-8 border-b border-white/5">
                 <h1 className="text-[11px] font-black tracking-[0.5em] text-white uppercase whitespace-nowrap overflow-hidden opacity-90">
-                    Alounge Admin
+                    {OUTLET_CONFIG[activeOutlet]?.label || 'Admin'}
                 </h1>
                 <button
                     onClick={() => setOpen(false)}
@@ -324,7 +413,7 @@ const AdminLayoutContent = ({
     setSidebarOpen,
     isDesktop
 }) => {
-    const { isEditing, performanceMode } = useAdmin();
+    const { isEditing, performanceMode, activeOutlet, OUTLET_CONFIG } = useAdmin();
     const navigate = useNavigate();
     const location = useLocation();
     const currentOutlet = useOutlet();
@@ -378,6 +467,11 @@ const AdminLayoutContent = ({
                                 <span className="text-xs font-bold uppercase tracking-widest text-white group-hover:text-attire-navy hidden sm:block">Open POS</span>
                             </button>
 
+                            <div className="h-4 w-px bg-white/20 mx-1" />
+
+                            {/* Outlet Switcher */}
+                            <OutletSwitcher />
+
                             <div className="h-4 w-px bg-white/20 mx-2" />
 
                             <div className="text-right hidden md:block">
@@ -385,7 +479,7 @@ const AdminLayoutContent = ({
                                     Administrator
                                 </p>
                                 <p className="text-[11px] text-white/60 uppercase tracking-[0.2em]">
-                                    Master Access
+                                    {OUTLET_CONFIG[activeOutlet]?.label || 'Master Access'}
                                 </p>
                             </div>
                             <div className="w-8 h-8 rounded-full bg-white/10 border border-white/20 flex items-center justify-center">

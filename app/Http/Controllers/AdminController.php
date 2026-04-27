@@ -9,6 +9,7 @@ use App\Models\Product;
 use App\Models\NewsletterSubscription;
 use App\Models\CustomerProfile;
 use App\Models\PosInvoice;
+use App\Models\PosProduct;
 use App\Models\PosRefund;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Auth;
@@ -26,11 +27,13 @@ class AdminController extends Controller
      */
     public function stats(): JsonResponse
     {
+        $outlet = request()->header('X-Active-Outlet', request()->query('outlet', 'attire_lounge'));
+
         $cache = \Illuminate\Support\Facades\Cache::supportsTags() 
             ? \Illuminate\Support\Facades\Cache::tags(['admin-stats']) 
             : \Illuminate\Support\Facades\Cache::getFacadeRoot();
 
-        $stats = $cache->remember('admin_dashboard_stats', 3600, function () {
+        $stats = $cache->remember('admin_dashboard_stats_' . $outlet, 3600, function () use ($outlet) {
             // 1. Monthly Trends (Last 6 Months)
             $monthlyTrends = [];
             $monthlyStart = Carbon::now()->subMonths(5)->startOfMonth();
@@ -140,6 +143,11 @@ class AdminController extends Controller
                     'shirt_size' => $this->getDistribution(CustomerProfile::class, 'shirt_size'),
                     'preferred_color' => $this->getDistribution(CustomerProfile::class, 'preferred_color'),
                 ],
+                // Outlet-specific POS stats (scoped by Global Scope via X-Active-Outlet header)
+                'pos_products' => PosProduct::count(),
+                'daily_orders' => (int) PosInvoice::whereDate('date', Carbon::now()->toDateString())->where('status', 'completed')->count(),
+                'sales' => (int) PosInvoice::where('status', 'completed')->count(),
+                'low_stock' => PosProduct::where('stock_qty', '<=', 5)->where('stock_qty', '>', 0)->count(),
                 'pos_summary' => [
                     'total_revenue' => (float) PosInvoice::whereDate('date', Carbon::now()->toDateString())->where('status', 'completed')->sum('grand_total'),
                     'invoice_count' => (int) PosInvoice::whereDate('date', Carbon::now()->toDateString())->where('status', 'completed')->count(),

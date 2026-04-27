@@ -16,6 +16,7 @@ import {
 import { usePOS } from './POSContext';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useTheme } from '../admin/ThemeContext';
+import { useAdmin } from '../admin/AdminContext';
 
 const POSHeader = () => {
     const navigate = useNavigate();
@@ -29,6 +30,8 @@ const POSHeader = () => {
         setIsHistoryOpen
     } = usePOS();
     const { isDarkMode, toggleDarkMode } = useTheme();
+    const { activeOutlet, OUTLET_CONFIG } = useAdmin();
+    const outletData = OUTLET_CONFIG?.[activeOutlet] || { label: 'Attire Lounge' };
 
     return (
         <header className="h-16 flex items-center px-6 bg-transparent border-b border-white/10 relative z-50 transition-colors duration-300">
@@ -36,7 +39,7 @@ const POSHeader = () => {
             <div className="flex items-center gap-6 mr-8">
                 <div className="flex flex-col">
                     <h1 className="text-sm font-bold tracking-[0.2em] uppercase text-white leading-tight">
-                        Attire Lounge
+                        {outletData.label}
                     </h1>
                     <span className="text-[10px] text-white/50 font-bold uppercase tracking-widest">
                         POS System

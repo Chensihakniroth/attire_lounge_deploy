@@ -41,18 +41,20 @@ class ImageUploadController extends Controller
             $filename = $safeName . '-' . Str::random(5) . '.' . $format; 
             $fullPath = $path . $filename;
 
-            \Illuminate\Support\Facades\Log::info("Uploading image to MinIO", [
+            $disk = $request->input('disk', 'minio');
+
+            \Illuminate\Support\Facades\Log::info("Uploading image to " . $disk, [
                 'collection_id' => $request->collection_id,
                 'target_path' => $path,
                 'filename' => $filename,
-                'disk' => 'minio'
+                'disk' => $disk
             ]);
 
-            // Store to MinIO
-            Storage::disk('minio')->put($fullPath, (string) $compressedImage);
+            // Store to specified disk
+            Storage::disk($disk)->put($fullPath, (string) $compressedImage);
 
             return response()->json([
-                'url' => Storage::disk('minio')->url($fullPath),
+                'url' => Storage::disk($disk)->url($fullPath),
                 'filename' => pathinfo($filename, PATHINFO_FILENAME)
             ], 201);
         } catch (\Exception $e) {

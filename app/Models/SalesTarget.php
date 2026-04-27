@@ -2,11 +2,14 @@
 
 namespace App\Models;
 
+use App\Traits\BelongsToOutlet;
 use Illuminate\Database\Eloquent\Model;
 
 class SalesTarget extends Model
 {
-    protected $fillable = ['year', 'month', 'target_revenue', 'notes'];
+    use BelongsToOutlet;
+
+    protected $fillable = ['outlet', 'year', 'month', 'target_revenue', 'notes'];
 
     protected $casts = [
         'year'           => 'integer',

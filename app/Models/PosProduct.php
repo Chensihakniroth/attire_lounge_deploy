@@ -2,14 +2,16 @@
 
 namespace App\Models;
 
+use App\Traits\BelongsToOutlet;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class PosProduct extends Model
 {
-    use HasFactory;
+    use HasFactory, BelongsToOutlet;
 
     protected $fillable = [
+        'outlet',
         'sku',
         'barcode',
         'name',
@@ -22,6 +24,7 @@ class PosProduct extends Model
         'is_service',
         'is_accessory',
         'is_active',
+        'image_path',
     ];
 
     protected $casts = [

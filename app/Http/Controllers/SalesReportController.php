@@ -9,6 +9,7 @@ use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
+use App\Models\Scopes\OutletScope;
 
 class SalesReportController extends Controller
 {
@@ -39,6 +40,7 @@ class SalesReportController extends Controller
             ->join('pos_invoices', 'pos_invoice_items.invoice_id', '=', 'pos_invoices.id')
             ->whereDate('pos_invoices.date', $date)
             ->where('pos_invoices.status', 'completed')
+            ->where('pos_invoices.outlet', $this->resolveOutlet())
             ->select(
                 'pos_invoice_items.product_name',
                 'pos_invoice_items.product_variant',
@@ -57,6 +59,7 @@ class SalesReportController extends Controller
             ->join('pos_products', 'pos_invoice_items.product_id', '=', 'pos_products.id')
             ->whereDate('pos_invoices.date', $date)
             ->where('pos_invoices.status', 'completed')
+            ->where('pos_invoices.outlet', $this->resolveOutlet())
             ->select(
                 'pos_products.category',
                 DB::raw('SUM(pos_invoice_items.quantity) as total_qty'),
@@ -71,6 +74,7 @@ class SalesReportController extends Controller
             ->join('pos_invoices', 'pos_payments.invoice_id', '=', 'pos_invoices.id')
             ->whereDate('pos_invoices.date', $date)
             ->where('pos_invoices.status', 'completed')
+            ->where('pos_invoices.outlet', $this->resolveOutlet())
             ->select('pos_payments.method', DB::raw('SUM(pos_payments.amount) as total'))
             ->groupBy('pos_payments.method')
             ->get();
@@ -105,6 +109,7 @@ class SalesReportController extends Controller
         $dailyRevenue = DB::table('pos_invoices')
             ->whereBetween('date', [$start->toDateString(), $end->toDateString()])
             ->where('status', 'completed')
+            ->where('outlet', $this->resolveOutlet())
             ->select(DB::raw('DATE(date) as day'), DB::raw('SUM(grand_total) as revenue'), DB::raw('COUNT(*) as invoices'))
             ->groupBy('day')
             ->orderBy('day')
@@ -116,6 +121,7 @@ class SalesReportController extends Controller
         $totalRefunds = DB::table('pos_refunds')
             ->join('pos_invoices', 'pos_refunds.invoice_id', '=', 'pos_invoices.id')
             ->whereBetween('pos_invoices.date', [$start->toDateString(), $end->toDateString()])
+            ->where('pos_invoices.outlet', $this->resolveOutlet())
             ->sum('pos_refunds.amount');
 
         $netRevenue = $totalRevenue - $totalRefunds;
@@ -128,6 +134,7 @@ class SalesReportController extends Controller
             ->join('pos_invoices', 'pos_invoice_items.invoice_id', '=', 'pos_invoices.id')
             ->whereBetween('pos_invoices.date', [$start->toDateString(), $end->toDateString()])
             ->where('pos_invoices.status', 'completed')
+            ->where('pos_invoices.outlet', $this->resolveOutlet())
             ->select(
                 'pos_invoice_items.product_name',
                 'pos_invoice_items.product_variant',
@@ -190,5 +197,19 @@ class SalesReportController extends Controller
     {
         SalesTarget::findOrFail($id)->delete();
         return response()->json(['message' => 'Target deleted.']);
+    }
+
+    /**
+     * Resolve the active outlet from request context.
+     */
+    private function resolveOutlet(): string
+    {
+        $request = request();
+        $outlet = $request->header('X-Active-Outlet')
+            ?? $request->get('outlet')
+            ?? 'attire_lounge';
+
+        $allowed = ['attire_lounge', 'caffeine', 'kravat'];
+        return in_array($outlet, $allowed) ? $outlet : 'attire_lounge';
     }
 }

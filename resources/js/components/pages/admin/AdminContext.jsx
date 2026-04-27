@@ -1,4 +1,4 @@
-import React, { createContext, useState, useContext, useCallback, useEffect } from 'react';
+import React, { createContext, useState, useContext, useCallback, useEffect, useMemo } from 'react';
 import axios from 'axios';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 
@@ -8,6 +8,35 @@ export const useAdmin = () => useContext(AdminContext);
 
 export const AdminProvider = ({ children }) => {
     const queryClient = useQueryClient();
+
+    // ─── Outlet Configuration ─────────────────────────────────────────
+    const OUTLET_CONFIG = {
+        attire_lounge: { label: 'Attire Lounge', shortLabel: 'AL', color: '#0d3542' },
+        caffeine:      { label: 'Caffeine',      shortLabel: 'CF', color: '#6f4e37' },
+        kravat:        { label: 'Kravat',         shortLabel: 'KV', color: '#3d2b56' },
+    };
+
+    const [activeOutlet, setActiveOutletState] = useState(() => {
+        return localStorage.getItem('active_outlet') || 'attire_lounge';
+    });
+
+    // Persist outlet selection & set global Axios header
+    useEffect(() => {
+        localStorage.setItem('active_outlet', activeOutlet);
+        axios.defaults.headers.common['X-Active-Outlet'] = activeOutlet;
+    }, [activeOutlet]);
+
+    // Also set the header on initial mount (before any queries fire)
+    useEffect(() => {
+        axios.defaults.headers.common['X-Active-Outlet'] = activeOutlet;
+    }, []);
+
+    const setActiveOutlet = useCallback((outlet) => {
+        if (outlet === activeOutlet) return;
+        setActiveOutletState(outlet);
+        // Invalidate all queries so they refetch with the new outlet context
+        queryClient.invalidateQueries();
+    }, [activeOutlet, queryClient]);
 
     // State for user details
     const [user, setUser] = useState(null);
@@ -62,7 +91,8 @@ export const AdminProvider = ({ children }) => {
 
     const { data: stats = { 
         appointments: 0, gifts: 0, total_customers: 0, products: 0, 
-        collections: 0, subscribers: 0, pending_appointments: 0, pending_gifts: 0 
+        collections: 0, subscribers: 0, pending_appointments: 0, pending_gifts: 0,
+        pos_products: 0, daily_orders: 0, sales: 0, low_stock: 0
     } } = useQuery({
         queryKey: ['admin-stats'],
         queryFn: async () => {
@@ -256,7 +286,12 @@ export const AdminProvider = ({ children }) => {
             setUserData,
             hasPermission,
             performanceMode,
-            setPerformanceMode
+            setPerformanceMode,
+
+            // Outlet
+            activeOutlet,
+            setActiveOutlet,
+            OUTLET_CONFIG,
         }}>
             {children}
         </AdminContext.Provider>
