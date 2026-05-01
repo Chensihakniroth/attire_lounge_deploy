@@ -265,7 +265,7 @@ const ProductRow = React.memo(({
 
 const ProductsPage = () => {
     const queryClient = useQueryClient();
-    const { performanceMode } = useAdmin();
+    const { performanceMode, activeOutlet } = useAdmin();
     const [view, setView] = useState('list'); // 'list' | 'form'
 
     // Browser History Integration for Back Button
@@ -367,7 +367,7 @@ const ProductsPage = () => {
 
     // --- Data Fetching ---
     const { data: productsData, isLoading, isError, error } = useQuery({
-        queryKey: ['admin-pos-products', debouncedFilters.nameBarcode, debouncedFilters.code, debouncedFilters.attribute, debouncedFilters.group, currentPage],
+        queryKey: ['admin-pos-products', activeOutlet, debouncedFilters.nameBarcode, debouncedFilters.code, debouncedFilters.attribute, debouncedFilters.group, currentPage],
         keepPreviousData: true,
         retry: 1,
         queryFn: async () => {

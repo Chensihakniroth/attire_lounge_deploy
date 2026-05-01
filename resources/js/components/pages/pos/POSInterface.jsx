@@ -113,7 +113,7 @@ const POSInterface = () => {
                 </div>
 
                 {/* Floating Service Toggle Button */}
-                {activeOutlet === 'attire_lounge' && !isServiceOpen && (
+                {!isServiceOpen && (
                     <motion.button
                         initial={{ y: 20, opacity: 0 }}
                         animate={{ y: 0, opacity: 1 }}
@@ -128,7 +128,7 @@ const POSInterface = () => {
 
                 {/* Quick Services - Tactical Slide-up Overlay (No Backdrop) */}
                 <AnimatePresence>
-                    {activeOutlet === 'attire_lounge' && isServiceOpen && (
+                    {isServiceOpen && (
                         <motion.div 
                             initial={{ y: '100%' }}
                             animate={{ y: 0 }}

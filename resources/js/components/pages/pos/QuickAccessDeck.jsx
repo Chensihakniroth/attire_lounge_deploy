@@ -3,11 +3,15 @@ import axios from 'axios';
 import { usePOS } from './POSContext';
 import { Zap, Loader2, ChevronDown, ShoppingBag, Package, Scissors, Search, ArrowLeft } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useAdmin } from '../admin/AdminContext';
 
 const QuickAccessDeck = ({ onClose }) => {
-    const [activeTab, setActiveTab] = useState('services'); // 'services' or 'accessories'
+    const { activeOutlet } = useAdmin();
+    const [activeTab, setActiveTab] = useState(activeOutlet === 'attire_lounge' ? 'services' : 'drinks');
     const [services, setServices] = useState(window.__posServiceCache || []);
-    const [loading, setLoading] = useState(!window.__posServiceCache);
+    const [drinks, setDrinks] = useState([]);
+    const [drinkCategories, setDrinkCategories] = useState([]);
+    const [loading, setLoading] = useState(true);
     const [selectedCategory, setSelectedCategory] = useState(null);
     const [categoryProducts, setCategoryProducts] = useState([]);
     const [loadingProducts, setLoadingProducts] = useState(false);
@@ -30,22 +34,42 @@ const QuickAccessDeck = ({ onClose }) => {
     ];
 
     useEffect(() => {
-        const fetchServices = async () => {
-            if (window.__posServiceCache) {
-                setServices(window.__posServiceCache);
-                setLoading(false);
-            }
+        const fetchInitialData = async () => {
+            setLoading(true);
             try {
-                const response = await axios.get('/api/v1/admin/pos/products/services');
-                window.__posServiceCache = response.data;
-                setServices(response.data);
+                // Fetch services
+                const servicesRes = await axios.get('/api/v1/admin/pos/products/services');
+                window.__posServiceCache = servicesRes.data;
+                setServices(servicesRes.data);
+
+                // Fetch drink categories (any categories present in products from caffeine/kravat)
+                const categoriesRes = await axios.get('/api/v1/admin/pos/products', {
+                    params: { type: 'all', per_page: 1 } // Just to trigger the scope and potentially get facets if we had them
+                });
+                
+                // For now, let's fetch ALL categories and filter for those that have products in the current scope
+                const allCatsRes = await axios.get('/api/v1/admin/pos/products', {
+                    params: { per_page: 500 }
+                });
+                const products = allCatsRes.data.data || [];
+                const cats = [...new Set(products.map(p => p.category))].filter(Boolean);
+                
+                const drinkGroups = cats.map(cat => ({
+                    id: cat.toLowerCase().replace(/\s+/g, '-'),
+                    label: cat,
+                    cats: [cat]
+                }));
+                
+                setDrinkCategories(drinkGroups);
+                setDrinks(products);
+
             } catch (err) {
-                console.error('Failed to fetch services');
+                console.error('Failed to fetch POS data', err);
             } finally {
                 setLoading(false);
             }
         };
-        fetchServices();
+        fetchInitialData();
     }, []);
 
     const fetchCategoryProducts = async (cats) => {
@@ -83,7 +107,7 @@ const QuickAccessDeck = ({ onClose }) => {
                     </div>
                     <div>
                         <h3 className="text-[14px] font-black uppercase tracking-[0.3em] text-gray-900 dark:text-white leading-none mb-1">
-                            {selectedCategory ? selectedCategory.label : (activeTab === 'services' ? 'Tactical Services' : 'Quick Accessories')}
+                            {selectedCategory ? selectedCategory.label : (activeTab === 'drinks' ? 'Cold Drinks & Brews' : (activeTab === 'services' ? 'Tactical Services' : 'Quick Accessories'))}
                         </h3>
                         <p className="text-[9px] text-gray-500 dark:text-[#8b949e] uppercase tracking-widest font-bold">
                             {selectedCategory ? `${categoryProducts.length} items found` : 'Deep Access Terminal'}
@@ -95,12 +119,22 @@ const QuickAccessDeck = ({ onClose }) => {
                     {/* Tab Switcher */}
                     {!selectedCategory && (
                         <div className="flex p-1 bg-black/5 dark:bg-white/5 rounded-xl border border-black/5 dark:border-white/5 mr-4">
-                            <button
-                                onClick={() => setActiveTab('services')}
-                                className={`px-4 py-1.5 rounded-lg text-[9px] font-black uppercase tracking-widest transition-all ${activeTab === 'services' ? 'bg-white dark:bg-[#161b22] text-attire-accent shadow-sm' : 'text-gray-400 hover:text-gray-600'}`}
-                            >
-                                Services
-                            </button>
+                            {['caffeine', 'kravat'].includes(activeOutlet) && drinkCategories.length > 0 && (
+                                <button
+                                    onClick={() => setActiveTab('drinks')}
+                                    className={`px-4 py-1.5 rounded-lg text-[9px] font-black uppercase tracking-widest transition-all ${activeTab === 'drinks' ? 'bg-white dark:bg-[#161b22] text-attire-accent shadow-sm' : 'text-gray-400 hover:text-gray-600'}`}
+                                >
+                                    Drinks
+                                </button>
+                            )}
+                            {services.length > 0 && (
+                                <button
+                                    onClick={() => setActiveTab('services')}
+                                    className={`px-4 py-1.5 rounded-lg text-[9px] font-black uppercase tracking-widest transition-all ${activeTab === 'services' ? 'bg-white dark:bg-[#161b22] text-attire-accent shadow-sm' : 'text-gray-400 hover:text-gray-600'}`}
+                                >
+                                    Services
+                                </button>
+                            )}
                             <button
                                 onClick={() => setActiveTab('accessories')}
                                 className={`px-4 py-1.5 rounded-lg text-[9px] font-black uppercase tracking-widest transition-all ${activeTab === 'accessories' ? 'bg-white dark:bg-[#161b22] text-attire-accent shadow-sm' : 'text-gray-400 hover:text-gray-600'}`}
@@ -131,6 +165,35 @@ const QuickAccessDeck = ({ onClose }) => {
             {/* Content Deck */}
             <div className="flex-1 overflow-y-auto attire-scrollbar pb-4 pr-1">
                 <AnimatePresence mode="wait">
+                    {/* Category View (Drinks) */}
+                    {activeTab === 'drinks' && !selectedCategory && (
+                        <motion.div 
+                            key="drink-groups"
+                            initial={{ opacity: 0, y: 10 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            exit={{ opacity: 0, y: -10 }}
+                            className="grid grid-cols-4 gap-4"
+                        >
+                            {drinkCategories.length === 0 ? (
+                                <div className="col-span-4 h-40 flex flex-col items-center justify-center text-center opacity-30">
+                                    <Package size={40} className="mb-4" />
+                                    <p className="text-[10px] font-black uppercase tracking-widest">No Drink Categories Found</p>
+                                </div>
+                            ) : (
+                                drinkCategories.map((group) => (
+                                    <button
+                                        key={group.id}
+                                        onClick={() => handleCategoryClick(group)}
+                                        className="flex flex-col items-start justify-center p-5 rounded-2xl bg-black/[0.04] dark:bg-white/[0.03] border border-black/5 dark:border-white/5 hover:border-attire-accent/40 hover:bg-white dark:hover:bg-white/[0.06] transition-all group"
+                                    >
+                                        <span className="text-[11px] font-black uppercase tracking-[0.2em] text-gray-900 dark:text-white group-hover:text-attire-accent transition-colors leading-snug">{group.label}</span>
+                                        <span className="text-[9px] font-bold uppercase tracking-widest text-gray-400 mt-1.5">Quick Select</span>
+                                    </button>
+                                ))
+                            )}
+                        </motion.div>
+                    )}
+
                     {/* Category View (Accessories) */}
                     {activeTab === 'accessories' && !selectedCategory && (
                         <motion.div 

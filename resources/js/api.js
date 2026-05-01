@@ -36,8 +36,9 @@ const getData = (response) => response.data;
 
 // Fetch with caching strategy for GET requests
 const fetchWithCache = async (url, params = {}) => {
+    const outlet = localStorage.getItem('active_outlet') || 'attire_lounge';
     const queryString = new URLSearchParams(params).toString();
-    const cacheKey = `${url}?${queryString}`;
+    const cacheKey = `${outlet}:${url}?${queryString}`;
 
     // Try cache first
     const cachedData = getCached(cacheKey);

@@ -1,335 +1,3 @@
-import React, { useState, useMemo, useCallback, useEffect } from 'react';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import axios from 'axios';
-import { motion, AnimatePresence } from 'framer-motion';
-import {
-    X, Plus, Edit, Trash2, 
-    Hash, DollarSign, Layers, Check, 
-    ChevronDown, Archive, ChevronLeft, ChevronRight, Search, Package,
-    Download, Upload, Tag, 
-    Command, AlertCircle,
-    ArrowUp, ArrowDown, Keyboard, Save, Box, Eye, FolderPlus,
-    Coffee, GlassWater, Droplets, Flame, IceCream2, Wine, Beer, Cookie, Milk, Star, Award, Zap,
-    Filter, RefreshCw, BarChart3, TrendingUp, Info, MoreVertical
-} from 'lucide-react';
-import { LumaSpin } from '@/components/ui/luma-spin';
-import { Button } from '@/components/ui/button';
-import { formatPrice } from '@/helpers/format';
-import { useAdmin } from './AdminContext';
-import Swal from 'sweetalert2';
-import ModernModal from '../../common/ModernModal';
-
-/* ─── Category Icons Map ──────────────────────────────────── */
-const CATEGORY_ICONS = {
-    Espresso: Flame,
-    Cold: IceCream2,
-    Tea: GlassWater,
-    Blend: Droplets,
-    Coffee: Coffee,
-    SIGNATURES: Star,
-    CLASSICS: Award,
-    Gin: Zap,
-    Whisky: Flame,
-    Rum: Wine,
-    Vodka: Droplets,
-    'Tequila & Mezcal': Zap,
-    SOFT_DRINKS: GlassWater,
-    BEER: Beer,
-    SNACKS: Cookie,
-    WINE: Wine,
-    GRAB: Milk,
-};
-const getCatIcon = (cat) => CATEGORY_ICONS[cat] || Coffee;
-
-/* ─── Category Color Map ──────────────────────────────────── */
-const CATEGORY_COLORS = {
-    Espresso: {
-        bg: 'bg-amber-500/10',
-        border: 'border-amber-500/20',
-        text: 'text-amber-600 dark:text-amber-400',
-        fill: 'fill-amber-500',
-    },
-    Cold: {
-        bg: 'bg-blue-500/10',
-        border: 'border-blue-500/20',
-        text: 'text-blue-600 dark:text-blue-400',
-        fill: 'fill-blue-500',
-    },
-    Tea: {
-        bg: 'bg-green-500/10',
-        border: 'border-green-500/20',
-        text: 'text-green-600 dark:text-green-400',
-        fill: 'fill-green-500',
-    },
-    Blend: {
-        bg: 'bg-purple-500/10',
-        border: 'border-purple-500/20',
-        text: 'text-purple-600 dark:text-purple-400',
-        fill: 'fill-purple-500',
-    },
-    SIGNATURES: {
-        bg: 'bg-indigo-500/10',
-        border: 'border-indigo-500/20',
-        text: 'text-indigo-600 dark:text-indigo-400',
-        fill: 'fill-indigo-500',
-    },
-    CLASSICS: {
-        bg: 'bg-rose-500/10',
-        border: 'border-rose-500/20',
-        text: 'text-rose-600 dark:text-rose-400',
-        fill: 'fill-rose-500',
-    },
-    Gin: {
-        bg: 'bg-cyan-500/10',
-        border: 'border-cyan-500/20',
-        text: 'text-cyan-600 dark:text-cyan-400',
-        fill: 'fill-cyan-500',
-    },
-    Whisky: {
-        bg: 'bg-orange-500/10',
-        border: 'border-orange-500/20',
-        text: 'text-orange-600 dark:text-orange-400',
-        fill: 'fill-orange-500',
-    },
-    Rum: {
-        bg: 'bg-red-500/10',
-        border: 'border-red-500/20',
-        text: 'text-red-600 dark:text-red-400',
-        fill: 'fill-red-500',
-    },
-    SNACKS: {
-        bg: 'bg-yellow-500/10',
-        border: 'border-yellow-500/20',
-        text: 'text-yellow-600 dark:text-yellow-400',
-        fill: 'fill-yellow-500',
-    },
-    default: {
-        bg: 'bg-gray-500/10',
-        border: 'border-gray-500/20',
-        text: 'text-gray-600 dark:text-gray-400',
-        fill: 'fill-gray-500',
-    },
-};
-const getCategoryColor = (cat) =>
-    CATEGORY_COLORS[cat] || CATEGORY_COLORS.default;
-
-/* ─── Animations ──────────────────────────────────────────── */
-/* ─── Cyber-Bespoke UI Components ────────────────────────────────────── */
-const Section = ({ title, subtitle, icon: Icon, children, accent = false }) => (
-    <div className={`rounded-2xl border transition-colors ${accent ? 'border-[#0d3542]/15 dark:border-[#58a6ff]/15 bg-[#0d3542]/[0.02] dark:bg-[#58a6ff]/[0.02]' : 'border-black/5 dark:border-[#30363d] bg-white/50 dark:bg-[#161b22]/50'}`}>
-        <div className="px-5 py-4 border-b border-black/5 dark:border-[#30363d]/50 flex items-center gap-3">
-            {Icon && (
-                <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${accent ? 'bg-[#0d3542]/10 dark:bg-[#58a6ff]/10' : 'bg-black/5 dark:bg-white/5'}`}>
-                    <Icon size={16} className={accent ? 'text-[#0d3542] dark:text-[#58a6ff]' : 'text-gray-400 dark:text-[#8b949e]'} />
-                </div>
-            )}
-            <div>
-                <h3 className="text-xs font-bold text-gray-900 dark:text-[#c9d1d9] uppercase tracking-[0.15em]">{title}</h3>
-                {subtitle && <p className="text-[9px] text-gray-400 dark:text-[#8b949e]/40 uppercase tracking-widest mt-0.5">{subtitle}</p>}
-            </div>
-        </div>
-        <div className="p-5">
-            {children}
-        </div>
-    </div>
-);
-
-const Field = ({ label, children, hint }) => (
-    <div className="space-y-1.5">
-        <label className="text-[10px] font-bold text-gray-400 dark:text-[#8b949e]/50 uppercase tracking-[0.15em] ml-0.5">{label}</label>
-        {children}
-        {hint && <p className="text-[9px] text-gray-300 dark:text-[#8b949e]/20 uppercase tracking-widest ml-0.5">{hint}</p>}
-    </div>
-);
-
-const SidebarSection = ({ title, icon: Icon, children }) => (
-    <div className="border-b border-black/5 dark:border-[#30363d]/50">
-        <div className="px-5 py-3 flex items-center gap-2.5">
-            {Icon && <Icon size={12} className="text-[#0d3542] dark:text-[#58a6ff]" />}
-            <h3 className="text-[10px] font-black text-gray-900 dark:text-[#c9d1d9] uppercase tracking-[0.2em]">{title}</h3>
-        </div>
-        <div className="px-5 pb-4">
-            {children}
-        </div>
-    </div>
-);
-
-const BespokeSelect = ({ value, options, onChange, placeholder = "Select...", className = "", direction = "down" }) => {
-    const [isOpen, setIsOpen] = useState(false);
-    const [calculatedDirection, setCalculatedDirection] = useState(direction);
-    const containerRef = useRef(null);
-
-    useEffect(() => {
-        const handleClickOutside = (event) => {
-            if (containerRef.current && !containerRef.current.contains(event.target)) {
-                setIsOpen(false);
-            }
-        };
-        document.addEventListener('mousedown', handleClickOutside);
-        return () => document.removeEventListener('mousedown', handleClickOutside);
-    }, []);
-
-    useEffect(() => {
-        if (isOpen && containerRef.current) {
-            const rect = containerRef.current.getBoundingClientRect();
-            const spaceBelow = window.innerHeight - rect.bottom;
-            if (spaceBelow < 300) setCalculatedDirection("up");
-            else setCalculatedDirection("down");
-        }
-    }, [isOpen]);
-
-    return (
-        <div ref={containerRef} className={`relative ${className}`}>
-            <button
-                type="button"
-                onClick={() => setIsOpen(!isOpen)}
-                className="w-full bg-black/5 dark:bg-white/5 p-4 text-[11px] font-black outline-none border border-black/15 dark:border-white/10 focus:border-[#0d3542] dark:focus:border-[#58a6ff] transition-all uppercase text-gray-900 dark:text-white flex items-center justify-between rounded-xl group"
-            >
-                <span className={!value ? 'text-gray-400 dark:text-white/10 truncate' : 'truncate'}>
-                    {value || placeholder}
-                </span>
-                <ChevronDown size={14} className={`text-[#0d3542] dark:text-[#58a6ff] shrink-0 transition-transform duration-300 ${isOpen ? 'rotate-180' : ''}`} />
-            </button>
-            <AnimatePresence>
-                {isOpen && (
-                    <motion.div
-                        initial={{ opacity: 0, y: calculatedDirection === "up" ? 10 : -10, scale: 0.95 }}
-                        animate={{ opacity: 1, y: 0, scale: 1 }}
-                        exit={{ opacity: 0, y: calculatedDirection === "up" ? 10 : -10, scale: 0.95 }}
-                        transition={{ duration: 0.2, ease: "easeOut" }}
-                        className={`absolute z-100 min-w-full w-max max-w-[300px] mt-2 bg-white dark:bg-[#161b22] border-2 border-black/15 dark:border-[#30363d] shadow-2xl rounded-2xl overflow-hidden py-2 ${calculatedDirection === "up" ? "bottom-full mb-2" : ""}`}
-                    >
-                        <div className="max-h-75 overflow-y-auto attire-scrollbar">
-                            {options.map((option, i) => {
-                                const label = typeof option === 'string' ? option : option.label;
-                                const val = typeof option === 'string' ? option : option.value;
-                                return (
-                                    <button
-                                        key={i}
-                                        type="button"
-                                        onClick={() => { onChange(val); setIsOpen(false); }}
-                                        className={`w-full px-5 py-4 text-left text-[11px] font-black uppercase tracking-widest transition-colors flex items-center justify-between group
-                                            ${val === value 
-                                                ? 'bg-[#0d3542]/5 dark:bg-[#58a6ff]/10 text-[#0d3542] dark:text-[#58a6ff]' 
-                                                : 'text-gray-600 dark:text-[#8b949e] hover:bg-black/5 dark:hover:bg-white/5'
-                                            }`}
-                                    >
-                                        <span>{label}</span>
-                                        {val === value && <Check size={14} />}
-                                    </button>
-                                );
-                            })}
-                        </div>
-                    </motion.div>
-                )}
-            </AnimatePresence>
-        </div>
-    );
-};
-
-const QuickEditCell = ({ value, prefix, onSave, onClose }) => {
-    const [val, setVal] = useState(value);
-    const inputRef = useRef(null);
-
-    useEffect(() => {
-        if (inputRef.current) inputRef.current.focus();
-    }, []);
-
-    const handleKeyDown = (e) => {
-        if (e.key === 'Enter') {
-            onSave(val);
-            onClose();
-        } else if (e.key === 'Escape') {
-            onClose();
-        }
-    };
-
-    return (
-        <div className="absolute inset-0 z-50 bg-[#fdfdfc] dark:bg-[#111] flex items-center px-4 ring-2 ring-inset ring-[#0d3542] dark:ring-[#58a6ff] translate-y-0">
-            {prefix && <span className="text-[14px] font-black text-[#0d3542] dark:text-[#58a6ff] mr-2">{prefix}</span>}
-            <input 
-                ref={inputRef}
-                value={val}
-                onChange={e => setVal(e.target.value)}
-                onKeyDown={handleKeyDown}
-                onBlur={onClose}
-                className="flex-1 bg-transparent border-none outline-none text-[15.5px] font-black text-gray-900 dark:text-white"
-            />
-            <div className="flex items-center gap-1 ml-2">
-                <div className="px-2 py-1 bg-black/5 dark:bg-white/5 border border-black/25 dark:border-white/10 rounded text-[10px] font-black uppercase text-[#0d3542] dark:text-[#58a6ff]">Enter: Save</div>
-            </div>
-        </div>
-    );
-};
-
-const DrinkRow = React.memo(({ 
-    drink, isSelected, isFocused, quickEditField, 
-    onToggleSelect, onFocus, onEdit, onDelete, onQuickEdit, onUpdateField,
-    performanceMode
-}) => {
-    const d = drink;
-    const CatIcon = getCatIcon(d.category);
-    const colorScheme = getCategoryColor(d.category);
-    const isOut = d.stock_qty <= 0 && !d.is_service;
-
-    return (
-        <React.Fragment>
-            <tr 
-                id={`row-${d.id}`}
-                onClick={(e) => { e.stopPropagation(); onFocus(isFocused ? null : d.id); }}
-                onDoubleClick={(e) => { e.stopPropagation(); onEdit(d); }}
-                className={`group cursor-pointer border-b border-black/15 dark:border-[#30363d] ${isSelected ? 'bg-[#0d3542]/5 dark:bg-[#58a6ff]/5' : 'hover:bg-black/[0.01] dark:hover:bg-white/[0.02]'} ${isFocused ? 'bg-black/[0.03] dark:bg-white/[0.04]' : ''}`}
-            >
-                <td className="px-4 py-3 text-center relative">
-                    {isFocused && <div className="absolute left-0 top-0 bottom-0 w-1 bg-[#0d3542] dark:bg-[#58a6ff]" />}
-                    <button 
-                        onClick={(e) => { e.stopPropagation(); onToggleSelect(d.id); }}
-                        className={`w-5 h-5 rounded-md border-2 flex items-center justify-center transition-all mx-auto ${isSelected ? 'bg-[#0d3542] dark:bg-[#58a6ff] border-[#0d3542] dark:border-[#58a6ff]' : 'border-black/25 dark:border-[#30363d] group-hover:border-[#0d3542]/40 dark:group-hover:border-[#58a6ff]/40'}`}
-                    >
-                        {isSelected && <Check size={12} className="text-white dark:text-black" />}
-                    </button>
-                </td>
-                <td className="px-4 py-3 text-center border-l-2 border-black/15 dark:border-[#30363d]">
-                    <div className="flex items-center justify-center gap-2">
-                        <div className={`w-2 h-2 rounded-full ring-2 ${d.stock_qty > 0 || d.is_service ? 'bg-emerald-500 ring-emerald-500/30' : 'bg-red-500 ring-red-500/30'}`} />
-                    </div>
-                </td>
-                <td className="px-5 py-3 font-mono font-black tracking-tighter text-[#0d3542] dark:text-[#58a6ff] uppercase text-[12px] border-l-2 border-black/15 dark:border-[#30363d] text-center">{d.sku || '—'}</td>
-                <td className="px-6 py-3 border-l-2 border-black/15 dark:border-[#30363d] overflow-hidden">
-                    <div className="flex items-center gap-3 leading-tight truncate">
-                        <div className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 ${colorScheme.bg} border ${colorScheme.border}`}>
-                            {d.image_path ? (
-                                <img src={d.image_path} alt={d.name} className="w-full h-full object-cover rounded-lg" />
-                            ) : (
-                                <CatIcon size={14} className={colorScheme.text} />
-                            )}
-                        </div>
-                        <span className="font-black text-gray-900 dark:text-[#c9d1d9] uppercase tracking-wider group-hover:text-[#0d3542] dark:group-hover:text-[#58a6ff] transition-colors text-[14px] truncate">{d.name}</span>
-                    </div>
-                </td>
-                <td className="px-5 py-3 border-l-2 border-black/15 dark:border-[#30363d] text-center">
-                    <span className={`px-2 py-0.5 ${colorScheme.bg} text-[9px] font-black ${colorScheme.text} rounded-md uppercase tracking-[0.2em] border ${colorScheme.border}`}>{d.category}</span>
-                </td>
-                <td className={`px-6 py-3 text-right font-mono font-black relative text-[20px] border-l-2 border-black/15 dark:border-[#30363d] ${isOut ? 'text-red-500' : 'text-emerald-600 dark:text-emerald-400'}`}>
-                    {isFocused && quickEditField === 'stock' ? (
-                        <QuickEditCell value={d.stock_qty} onSave={(val) => onUpdateField(d.id, { stock_qty: val })} onClose={() => onQuickEdit(null)} />
-                    ) : (
-                        <div className="flex items-center justify-end gap-1">
-                            <span className="drop-shadow-sm">{d.is_service ? '∞' : d.stock_qty}</span>
-                            {!d.is_service && <Box size={14} className="opacity-60" />}
-                        </div>
-                    )}
-                </td>
-                <td className="px-8 py-3 text-center font-mono font-black text-gray-900 dark:text-[#c9d1d9] text-[16px] relative border-l-2 border-black/15 dark:border-[#30363d]">
-                    {isFocused && quickEditField === 'price' ? (
-                        <QuickEditCell value={d.price} prefix="$" onSave={(val) => onUpdateField(d.id, { price: val })} onClose={() => onQuickEdit(null)} />
-                    ) : formatPrice(d.price)}
-                </td>
-            </tr>
-        </React.Fragment>
-    );
-});
-
 /* ─── Main Component ──────────────────────────────────────── */
 export default function DrinkManager() {
     const queryClient = useQueryClient();
@@ -364,28 +32,6 @@ export default function DrinkManager() {
     });
     const [uploading, setUploading] = useState(false);
     const [toast, setToast] = useState(null);
-
-    const handleImageUpload = async (e) => {
-        const file = e.target.files[0];
-        if (!file) return;
-
-        setUploading(true);
-        const formDataUpload = new FormData();
-        formDataUpload.append('image', file);
-
-        try {
-            const response = await axios.post('/api/v1/admin/images/upload', formDataUpload, {
-                headers: { 'Content-Type': 'multipart/form-data' }
-            });
-            setFormData(prev => ({ ...prev, image_path: response.data.url }));
-        } catch (err) {
-            console.error("Upload Failed:", err);
-            setToast({ type: 'error', message: 'Failed to upload image' });
-            setTimeout(() => setToast(null), 3000);
-        } finally {
-            setUploading(false);
-        }
-    };
 
     // API Query
     const { data, isLoading } = useQuery({
@@ -443,11 +89,6 @@ export default function DrinkManager() {
         mutationFn: async (payload) => {
             // Force outlet attachment to payload
             const data = { ...payload, outlet: activeOutlet };
-            
-            // Clean up empty optional fields to prevent Laravel validation 422s
-            if (!data.sku) delete data.sku;
-            if (data.image_path === '') data.image_path = null;
-
             if (editingDrink) {
                 return axios.put(`/api/v1/admin/pos/products/${editingDrink.id}`, data);
             }
@@ -462,13 +103,7 @@ export default function DrinkManager() {
         },
         onError: (err) => {
             setIsSaving(false);
-            const errors = err.response?.data?.errors;
-            let detail = '';
-            if (errors) {
-                detail = ': ' + Object.values(errors).map(e => e.join(', ')).join(' | ');
-            }
-            console.error("Validation Errors:", errors);
-            setToast({ message: (err.response?.data?.message || 'Failed to save drink.') + detail, type: 'error' });
+            setToast({ message: err.response?.data?.message || 'Failed to save drink.', type: 'error' });
         },
     });
 
@@ -481,11 +116,11 @@ export default function DrinkManager() {
         },
     });
 
-    const bulkDeactivateMutation = useMutation({
-        mutationFn: async (ids) => axios.post('/api/v1/admin/pos/products/bulk-deactivate', { ids }),
+    const bulkDeleteMutation = useMutation({
+        mutationFn: async (ids) => axios.post('/api/v1/admin/pos/products/bulk-delete', { ids }),
         onSuccess: () => {
             queryClient.invalidateQueries(['admin-drinks']);
-            setToast({ message: 'Selected drinks deactivated.', type: 'success' });
+            setToast({ message: 'Selected drinks deleted.', type: 'success' });
             setSelectedIds(new Set());
         }
     });
@@ -516,9 +151,9 @@ export default function DrinkManager() {
         }
     };
 
-    const handleBulkDeactivate = () => {
-        if (!window.confirm(`Deactivate ${selectedIds.size} selected drinks?`)) return;
-        bulkDeactivateMutation.mutate(Array.from(selectedIds));
+    const handleBulkDelete = () => {
+        if (!window.confirm(`Delete ${selectedIds.size} selected drinks?`)) return;
+        bulkDeleteMutation.mutate(Array.from(selectedIds));
     };
 
     // Keyboard Navigation
@@ -715,11 +350,11 @@ export default function DrinkManager() {
                                     {selectedIds.size} Selected
                                 </span>
                                 <button
-                                    onClick={handleBulkDeactivate}
+                                    onClick={handleBulkDelete}
                                     className="px-4 py-2.5 bg-red-500/10 text-red-600 dark:text-red-400 hover:bg-red-500 hover:text-white rounded-lg text-[11px] font-black uppercase tracking-widest transition-colors flex items-center gap-2"
                                 >
                                     <Trash2 size={14} />
-                                    Deactivate
+                                    Delete
                                 </button>
                             </motion.div>
                         )}
@@ -820,28 +455,6 @@ export default function DrinkManager() {
                         setIsSaving(true);
                         mutation.mutate(formData);
                     }} className="space-y-6">
-
-                        {/* Image Uploader */}
-                        <div className="flex items-center gap-4 p-4 bg-gray-50 dark:bg-[#0d1117] border border-gray-200 dark:border-[#30363d] rounded-lg">
-                            <label className={`w-20 h-20 shrink-0 rounded-xl border-2 border-dashed border-black/10 dark:border-[#30363d] flex flex-col items-center justify-center cursor-pointer hover:border-[#0d3542]/50 dark:hover:border-[#58a6ff]/50 hover:bg-black/5 dark:hover:bg-[#161b22] transition-all group overflow-hidden relative ${uploading ? 'pointer-events-none opacity-50' : ''}`}>
-                                <input type="file" className="hidden" accept="image/*" onChange={handleImageUpload} />
-                                {formData.image_path ? (
-                                    <img src={formData.image_path} alt="Preview" className="w-full h-full object-cover" />
-                                ) : uploading ? (
-                                    <LumaSpin size={20} className="text-[#0d3542] dark:text-[#58a6ff]" />
-                                ) : (
-                                    <Upload size={20} className="text-gray-400 dark:text-[#8b949e] group-hover:text-[#0d3542] dark:group-hover:text-[#58a6ff] transition-colors mb-1" />
-                                )}
-                            </label>
-                            <div className="flex-1">
-                                <h4 className="text-[12px] font-black uppercase tracking-widest text-gray-900 dark:text-white mb-1">Drink Image</h4>
-                                <p className="text-[11px] text-gray-500 dark:text-[#8b949e]">Upload a high-quality picture for the POS menu (Optional).</p>
-                                {formData.image_path && (
-                                    <button type="button" onClick={() => setFormData(f => ({ ...f, image_path: '' }))} className="mt-2 text-[10px] font-bold uppercase tracking-widest text-red-500 hover:text-red-600 transition-colors">Remove Image</button>
-                                )}
-                            </div>
-                        </div>
-
                         <div className="grid grid-cols-2 gap-4">
                             <div className="space-y-1.5 col-span-2">
                                 <label className="block text-[10px] font-semibold text-gray-400 dark:text-[#8b949e] uppercase tracking-wider ml-0.5">Name</label>

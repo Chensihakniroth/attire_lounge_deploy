@@ -3,13 +3,18 @@ window.axios = axios;
 
 window.axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
 
-// Add a request interceptor to attach the token dynamically
+// Add a request interceptor to attach the token and active outlet dynamically
 window.axios.interceptors.request.use(
     (config) => {
         const token = localStorage.getItem('admin_token') || sessionStorage.getItem('admin_token');
         if (token) {
             config.headers['Authorization'] = `Bearer ${token}`;
         }
+
+        // 🏢 Attach Active Outlet Header for multi-tenant scoping
+        const activeOutlet = localStorage.getItem('active_outlet') || 'attire_lounge';
+        config.headers['X-Active-Outlet'] = activeOutlet;
+
         return config;
     },
     (error) => {

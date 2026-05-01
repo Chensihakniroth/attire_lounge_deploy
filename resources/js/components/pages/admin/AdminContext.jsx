@@ -20,16 +20,10 @@ export const AdminProvider = ({ children }) => {
         return localStorage.getItem('active_outlet') || 'attire_lounge';
     });
 
-    // Persist outlet selection & set global Axios header
+    // Persist outlet selection
     useEffect(() => {
         localStorage.setItem('active_outlet', activeOutlet);
-        axios.defaults.headers.common['X-Active-Outlet'] = activeOutlet;
     }, [activeOutlet]);
-
-    // Also set the header on initial mount (before any queries fire)
-    useEffect(() => {
-        axios.defaults.headers.common['X-Active-Outlet'] = activeOutlet;
-    }, []);
 
     const setActiveOutlet = useCallback((outlet) => {
         if (outlet === activeOutlet) return;
@@ -94,7 +88,7 @@ export const AdminProvider = ({ children }) => {
         collections: 0, subscribers: 0, pending_appointments: 0, pending_gifts: 0,
         pos_products: 0, daily_orders: 0, sales: 0, low_stock: 0
     } } = useQuery({
-        queryKey: ['admin-stats'],
+        queryKey: ['admin-stats', activeOutlet],
         queryFn: async () => {
             const { data } = await axios.get('/api/v1/admin/stats');
             return data.data;
@@ -102,7 +96,7 @@ export const AdminProvider = ({ children }) => {
     });
 
     const { data: collections = [], isLoading: collectionsLoading } = useQuery({
-        queryKey: ['admin-collections'],
+        queryKey: ['admin-collections', activeOutlet],
         queryFn: async () => {
             const { data } = await axios.get('/api/v1/admin/collections');
             return data.data;
@@ -110,7 +104,7 @@ export const AdminProvider = ({ children }) => {
     });
 
     const { data: products = [], isLoading: productsLoading } = useQuery({
-        queryKey: ['admin-products'],
+        queryKey: ['admin-products', activeOutlet],
         queryFn: async () => {
             const { data } = await axios.get('/api/v1/products', { 
                 params: { 
@@ -123,7 +117,7 @@ export const AdminProvider = ({ children }) => {
     });
 
     const { data: outOfStockItems = [], isLoading: outOfStockLoading } = useQuery({
-        queryKey: ['outOfStockItems'],
+        queryKey: ['outOfStockItems', activeOutlet],
         queryFn: async () => {
             const { data } = await axios.get('/api/v1/gift-items/out-of-stock');
             return Array.isArray(data) ? data : [];

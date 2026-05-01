@@ -37,7 +37,7 @@ class PosProductSeeder extends Seeder
             DB::table('pos_products')->upsert(
                 $chunk,
                 ['sku'],
-                ['barcode', 'name', 'variant', 'price', 'stock_qty', 'min_stock', 'category', 'tier', 'is_service', 'is_accessory', 'is_active', 'updated_at']
+                ['name', 'price', 'stock_qty', 'category', 'is_service', 'is_active', 'outlet', 'updated_at']
             );
             $this->command->info('  Chunk ' . ($i + 1) . ' / ' . count($chunks) . ' upserted');
         }

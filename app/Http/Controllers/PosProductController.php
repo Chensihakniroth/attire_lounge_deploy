@@ -10,15 +10,14 @@ class PosProductController extends Controller
 {
     public function index(Request $request): JsonResponse
     {
-        $outlet = $request->header('X-Active-Outlet', 'attire_lounge');
         $type = $request->get('type', 'products');
         
         if ($type === 'services') {
-            $query = PosProduct::active()->where('outlet', $outlet)->services();
+            $query = PosProduct::active()->services();
         } elseif ($type === 'all') {
-            $query = PosProduct::active()->where('outlet', $outlet);
+            $query = PosProduct::active();
         } else {
-            $query = PosProduct::active()->where('outlet', $outlet)->products();
+            $query = PosProduct::active()->products();
         }
 
         if ($search = $request->get('search') || $request->get('name') || $request->get('attribute') || $request->get('code')) {
@@ -130,7 +129,7 @@ class PosProductController extends Controller
     {
         $product = PosProduct::findOrFail($id);
         
-        if ($request->input('stock_qty') === '' || is_null($request->input('stock_qty'))) {
+        if ($request->has('stock_qty') && ($request->input('stock_qty') === '' || is_null($request->input('stock_qty')))) {
             $request->merge(['stock_qty' => 0]);
         }
         
@@ -154,7 +153,7 @@ class PosProductController extends Controller
     /**
      * Remove a product (soft delete via is_active = false).
      */
-    public function destroy(int $id): JsonResponse
+    public function destroy(Request $request, int $id): JsonResponse
     {
         $product = PosProduct::findOrFail($id);
         $product->update(['is_active' => false]);

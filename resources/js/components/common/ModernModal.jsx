@@ -48,19 +48,19 @@ const ModernModal = ({
                         exit={{ opacity: 0, scale: 0.97, y: 12 }}
                         transition={{ duration: 0.2, ease: [0.25, 0.46, 0.45, 0.94] }}
                         style={{ willChange: 'transform, opacity' }}
-                        className={`relative w-full ${maxWidth} bg-[#f8f8f6] dark:bg-[#1a1a1a] border border-black/5 dark:border-white/10 rounded-[2rem] overflow-hidden shadow-2xl flex flex-col transition-colors duration-300 pointer-events-auto font-sans`}
+                        className={`relative w-full ${maxWidth} bg-white dark:bg-[#161b22] border border-gray-200 dark:border-[#30363d] rounded-xl overflow-hidden shadow-lg flex flex-col transition-colors duration-200 pointer-events-auto font-sans`}
                         onClick={(e) => e.stopPropagation()}
                     >
                         {/* Standardized Header (If Title Provided) */}
                         {title && (
-                            <div className="px-8 pt-8 pb-6 flex justify-between items-center border-b border-black/5 dark:border-white/5 shrink-0">
-                                <h2 className="text-xl font-serif text-gray-900 dark:text-white uppercase tracking-widest">{title}</h2>
+                            <div className="px-6 py-5 flex justify-between items-center border-b border-gray-100 dark:border-[#30363d] shrink-0">
+                                <h2 className="text-base font-semibold text-gray-900 dark:text-white">{title}</h2>
                                 {showCloseButton && (
                                     <button
                                         onClick={onClose}
-                                        className="p-2.5 bg-black/5 dark:bg-white/5 rounded-full text-gray-400 hover:text-gray-900 dark:hover:text-white transition-all"
+                                        className="p-1.5 rounded-lg text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-[#0d1117] transition-colors"
                                     >
-                                        <X size={18} />
+                                        <X size={16} />
                                     </button>
                                 )}
                             </div>
@@ -68,12 +68,12 @@ const ModernModal = ({
 
                         {/* Standardized Close Button (If No Title) */}
                         {!title && showCloseButton && (
-                            <div className="absolute top-6 right-8 z-[60]">
+                            <div className="absolute top-4 right-5 z-[60]">
                                 <button 
                                     onClick={onClose}
-                                    className="p-2.5 bg-black/5 dark:bg-white/5 hover:bg-black/10 dark:hover:bg-white/10 rounded-full text-gray-400 transition-all border border-black/5 dark:border-white/5"
+                                    className="p-1.5 rounded-lg text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-[#0d1117] transition-colors"
                                 >
-                                    <X size={20} />
+                                    <X size={16} />
                                 </button>
                             </div>
                         )}
