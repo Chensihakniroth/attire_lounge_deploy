@@ -1,5 +1,5 @@
 import React, { useState, useMemo, useCallback, useEffect } from 'react';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient, keepPreviousData } from '@tanstack/react-query';
 import axios from 'axios';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
@@ -291,7 +291,7 @@ const DrinkRow = React.memo(({
                 </td>
                 <td className="px-4 py-3 text-center border-l-2 border-black/15 dark:border-[#30363d]">
                     <div className="flex items-center justify-center gap-2">
-                        <div className={`w-2 h-2 rounded-full ring-2 ${d.stock_qty > 0 || d.is_service ? 'bg-emerald-500 ring-emerald-500/30' : 'bg-red-500 ring-red-500/30'}`} />
+                        <div className={`w-2 h-2 rounded-full ring-2 ${!d.is_active ? 'bg-gray-500 ring-gray-500/30' : (d.stock_qty > 0 || d.is_service ? 'bg-emerald-500 ring-emerald-500/30' : 'bg-red-500 ring-red-500/30')}`} />
                     </div>
                 </td>
                 <td className="px-5 py-3 font-mono font-black tracking-tighter text-[#0d3542] dark:text-[#58a6ff] uppercase text-[12px] border-l-2 border-black/15 dark:border-[#30363d] text-center">{d.sku || '—'}</td>
@@ -304,7 +304,10 @@ const DrinkRow = React.memo(({
                                 <CatIcon size={14} className={colorScheme.text} />
                             )}
                         </div>
-                        <span className="font-black text-gray-900 dark:text-[#c9d1d9] uppercase tracking-wider group-hover:text-[#0d3542] dark:group-hover:text-[#58a6ff] transition-colors text-[14px] truncate">{d.name}</span>
+                        <span className={`font-black uppercase tracking-wider group-hover:text-[#0d3542] dark:group-hover:text-[#58a6ff] transition-colors text-[14px] truncate flex items-center gap-2 ${!d.is_active ? 'text-gray-400 opacity-50 line-through' : 'text-gray-900 dark:text-[#c9d1d9]'}`}>
+                            {d.name}
+                            {!d.is_active && <span className="text-[9px] px-1.5 py-0.5 rounded-sm bg-gray-500/10 text-gray-500 uppercase tracking-widest no-underline">Archived</span>}
+                        </span>
                     </div>
                 </td>
                 <td className="px-5 py-3 border-l-2 border-black/15 dark:border-[#30363d] text-center">
@@ -343,7 +346,7 @@ export default function DrinkManager() {
     const [filters, setFilters] = useState({
         search: '',
         category: '',
-        status: '',
+        status: 'active',
         stockStatus: '',
     });
 
@@ -358,7 +361,7 @@ export default function DrinkManager() {
         price: '',
         stock_qty: '',
         category: '',
-        status: 'available',
+        is_active: true,
         is_service: false,
         image_path: '',
     });
@@ -387,6 +390,24 @@ export default function DrinkManager() {
         }
     };
 
+    // Auto-dismiss toasts
+    useEffect(() => {
+        if (!toast) return;
+        const timer = setTimeout(() => setToast(null), 3500);
+        return () => clearTimeout(timer);
+    }, [toast]);
+
+    // Centralized modal close — always resets everything
+    const closeModal = useCallback(() => {
+        setIsModalOpen(false);
+        setIsSaving(false);
+        // Delay state reset so the exit animation plays with current data
+        setTimeout(() => {
+            setEditingDrink(null);
+            setFormData({ sku: '', name: '', price: '', stock_qty: '', category: '', is_active: true, is_service: false, image_path: '' });
+        }, 200);
+    }, []);
+
     // API Query
     const { data, isLoading } = useQuery({
         queryKey: ['admin-drinks', page, filters, activeOutlet],
@@ -402,8 +423,28 @@ export default function DrinkManager() {
             const res = await axios.get('/api/v1/admin/pos/products', { params });
             return res.data;
         },
-        keepPreviousData: true,
+        staleTime: 1000 * 15,
+        placeholderData: keepPreviousData,
     });
+
+    // Prefetch for inactive outlets to make switching instant
+    useEffect(() => {
+        const otherOutlets = Object.keys(OUTLET_CONFIG || { attire_lounge: 1, caffeine: 1, kravat: 1 }).filter(o => o !== activeOutlet);
+        otherOutlets.forEach(outlet => {
+            queryClient.prefetchQuery({
+                queryKey: ['admin-drinks', 1, { status: 'active', category: '', search: '', stockStatus: '' }, outlet],
+                queryFn: async () => {
+                    const params = { page: 1, status: 'active', category: '', search: '', stockStatus: '', outlet };
+                    const res = await axios.get('/api/v1/admin/pos/products', { 
+                        params,
+                        headers: { 'X-Active-Outlet': outlet }
+                    });
+                    return res.data;
+                },
+                staleTime: 5 * 60 * 1000,
+            });
+        });
+    }, [activeOutlet, queryClient, OUTLET_CONFIG]);
 
     const drinks = data?.data || [];
     const meta = data?.meta || {};
@@ -441,12 +482,20 @@ export default function DrinkManager() {
     // Mutations
     const mutation = useMutation({
         mutationFn: async (payload) => {
-            // Force outlet attachment to payload
-            const data = { ...payload, outlet: activeOutlet };
+            const data = { ...payload };
+            
+            // Clean up fields that aren't in the backend validation schema
+            delete data.status;  // Not a validated field
+            delete data.outlet;  // Sent via header, not body
             
             // Clean up empty optional fields to prevent Laravel validation 422s
             if (!data.sku) delete data.sku;
             if (data.image_path === '') data.image_path = null;
+            if (data.price === '' || data.price === null || data.price === undefined) delete data.price;
+            if (data.stock_qty === '' || data.stock_qty === null || data.stock_qty === undefined) data.stock_qty = 0;
+            if (data.category === '') delete data.category;
+
+            console.log('[DrinkManager] Saving payload:', JSON.stringify(data));
 
             if (editingDrink) {
                 return axios.put(`/api/v1/admin/pos/products/${editingDrink.id}`, data);
@@ -454,10 +503,9 @@ export default function DrinkManager() {
             return axios.post('/api/v1/admin/pos/products', data);
         },
         onSuccess: () => {
-            queryClient.invalidateQueries(['admin-drinks']);
-            setIsModalOpen(false);
-            setIsSaving(false);
-            setEditingDrink(null);
+            queryClient.invalidateQueries({ queryKey: ['admin-drinks'] });
+            queryClient.invalidateQueries({ queryKey: ['admin-stats'] });
+            closeModal();
             setToast({ message: `Drink saved successfully!`, type: 'success' });
         },
         onError: (err) => {
@@ -475,25 +523,48 @@ export default function DrinkManager() {
     const deleteMutation = useMutation({
         mutationFn: async (id) => axios.delete(`/api/v1/admin/pos/products/${id}`),
         onSuccess: () => {
-            queryClient.invalidateQueries(['admin-drinks']);
+            queryClient.invalidateQueries({ queryKey: ['admin-drinks'] });
+            queryClient.invalidateQueries({ queryKey: ['admin-stats'] });
             setToast({ message: 'Drink deleted successfully!', type: 'success' });
             setSelectedIds(new Set());
+        },
+        onError: (err) => {
+            setToast({ message: err.response?.data?.message || 'Failed to delete drink.', type: 'error' });
         },
     });
 
     const bulkDeactivateMutation = useMutation({
-        mutationFn: async (ids) => axios.post('/api/v1/admin/pos/products/bulk-deactivate', { ids }),
+        mutationFn: (ids) => axios.post('/api/v1/admin/pos/products/bulk-deactivate', { product_ids: ids }),
         onSuccess: () => {
-            queryClient.invalidateQueries(['admin-drinks']);
+            queryClient.invalidateQueries({ queryKey: ['admin-drinks'] });
+            queryClient.invalidateQueries({ queryKey: ['admin-stats'] });
             setToast({ message: 'Selected drinks deactivated.', type: 'success' });
             setSelectedIds(new Set());
-        }
+        },
+        onError: (err) => {
+            setToast({ message: err.response?.data?.message || 'Failed to deactivate.', type: 'error' });
+        },
     });
+
+    const bulkRestoreMutation = useMutation({
+        mutationFn: (ids) => axios.post('/api/v1/admin/pos/products/bulk-restore', { product_ids: ids }),
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ['admin-drinks'] });
+            queryClient.invalidateQueries({ queryKey: ['admin-stats'] });
+            setToast({ message: 'Selected drinks restored.', type: 'success' });
+            setSelectedIds(new Set());
+        },
+        onError: (err) => {
+            setToast({ message: err.response?.data?.message || 'Failed to restore.', type: 'error' });
+        },
+    });
+
 
     const updateMutation = useMutation({
         mutationFn: ({ id, data }) => axios.put(`/api/v1/admin/pos/products/${id}`, { ...data, outlet: activeOutlet }),
         onSuccess: () => {
-            queryClient.invalidateQueries(['admin-drinks']);
+            queryClient.invalidateQueries({ queryKey: ['admin-drinks'] });
+            queryClient.invalidateQueries({ queryKey: ['admin-stats'] });
             setQuickEditField(null);
         }
     });
@@ -519,6 +590,11 @@ export default function DrinkManager() {
     const handleBulkDeactivate = () => {
         if (!window.confirm(`Deactivate ${selectedIds.size} selected drinks?`)) return;
         bulkDeactivateMutation.mutate(Array.from(selectedIds));
+    };
+
+    const handleBulkRestore = () => {
+        if (!window.confirm(`Restore ${selectedIds.size} selected drinks?`)) return;
+        bulkRestoreMutation.mutate(Array.from(selectedIds));
     };
 
     // Keyboard Navigation
@@ -579,7 +655,7 @@ export default function DrinkManager() {
                             price: drink.price || '',
                             stock_qty: drink.stock_qty || '',
                             category: drink.category || '',
-                            status: drink.status || 'available',
+                            is_active: drink.is_active ?? true,
                             is_service: drink.is_service || false,
                             image_path: drink.image_path || '',
                         });
@@ -587,11 +663,17 @@ export default function DrinkManager() {
                     }
                 }
             }
+            if (e.key === 'Escape') {
+                if (isModalOpen) { closeModal(); return; }
+                if (quickEditField) { setQuickEditField(null); return; }
+                if (selectedIds.size > 0) { setSelectedIds(new Set()); return; }
+                if (focusedId) { setFocusedId(null); return; }
+            }
         };
 
         window.addEventListener('keydown', handleKeyDown);
         return () => window.removeEventListener('keydown', handleKeyDown);
-    }, [filteredDrinks, focusedId, quickEditField, toggleSelect]);
+    }, [filteredDrinks, focusedId, quickEditField, toggleSelect, isModalOpen, closeModal, selectedIds]);
 
     // UI Render Matrix
     return (
@@ -686,6 +768,29 @@ export default function DrinkManager() {
                             </button>
                         </div>
                     </SidebarSection>
+                    
+                    <SidebarSection title="Product Status">
+                        <div className="space-y-1">
+                            <button
+                                onClick={() => setFilters(f => ({ ...f, status: 'active' }))}
+                                className={`w-full text-left px-4 py-2.5 rounded-lg text-[11px] font-black uppercase tracking-widest transition-colors flex justify-between items-center ${filters.status === 'active' ? 'bg-[#0d3542] dark:bg-[#58a6ff] text-white dark:text-black' : 'text-gray-500 dark:text-[#8b949e] hover:bg-black/5 dark:hover:bg-white/5'}`}
+                            >
+                                Active Menu
+                            </button>
+                            <button
+                                onClick={() => setFilters(f => ({ ...f, status: 'inactive' }))}
+                                className={`w-full text-left px-4 py-2.5 rounded-lg text-[11px] font-black uppercase tracking-widest transition-colors flex justify-between items-center ${filters.status === 'inactive' ? 'bg-[#0d3542] dark:bg-[#58a6ff] text-white dark:text-black' : 'text-gray-500 dark:text-[#8b949e] hover:bg-black/5 dark:hover:bg-white/5'}`}
+                            >
+                                Archived / Inactive
+                            </button>
+                            <button
+                                onClick={() => setFilters(f => ({ ...f, status: 'all' }))}
+                                className={`w-full text-left px-4 py-2.5 rounded-lg text-[11px] font-black uppercase tracking-widest transition-colors flex justify-between items-center ${filters.status === 'all' ? 'bg-[#0d3542]/10 dark:bg-[#58a6ff]/10 text-[#0d3542] dark:text-[#58a6ff]' : 'text-gray-500 dark:text-[#8b949e] hover:bg-black/5 dark:hover:bg-white/5'}`}
+                            >
+                                Show All
+                            </button>
+                        </div>
+                    </SidebarSection>
                 </div>
             </div>
 
@@ -715,11 +820,15 @@ export default function DrinkManager() {
                                     {selectedIds.size} Selected
                                 </span>
                                 <button
-                                    onClick={handleBulkDeactivate}
-                                    className="px-4 py-2.5 bg-red-500/10 text-red-600 dark:text-red-400 hover:bg-red-500 hover:text-white rounded-lg text-[11px] font-black uppercase tracking-widest transition-colors flex items-center gap-2"
+                                    onClick={filters.status === 'inactive' ? handleBulkRestore : handleBulkDeactivate}
+                                    className={`px-4 py-2.5 rounded-lg text-[11px] font-black uppercase tracking-widest transition-colors flex items-center gap-2 ${
+                                        filters.status === 'inactive'
+                                            ? 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 hover:bg-emerald-500 hover:text-white'
+                                            : 'bg-red-500/10 text-red-600 dark:text-red-400 hover:bg-red-500 hover:text-white'
+                                    }`}
                                 >
-                                    <Trash2 size={14} />
-                                    Deactivate
+                                    {filters.status === 'inactive' ? <RefreshCw size={14} /> : <Trash2 size={14} />}
+                                    {filters.status === 'inactive' ? 'Restore' : 'Deactivate'}
                                 </button>
                             </motion.div>
                         )}
@@ -727,7 +836,7 @@ export default function DrinkManager() {
                             onClick={() => {
                                 setEditingDrink(null);
                                 setFormData({
-                                    sku: '', name: '', price: '', stock_qty: '', category: '', status: 'available', is_service: false, image_path: ''
+                                    sku: '', name: '', price: '', stock_qty: '', category: '', is_active: true, is_service: false, image_path: ''
                                 });
                                 setIsModalOpen(true);
                             }}
@@ -740,11 +849,36 @@ export default function DrinkManager() {
                 </header>
 
                 <div className="flex-1 overflow-auto attire-scrollbar bg-[#f5f5f4] dark:bg-[#0d1117]">
-                    {isLoading ? (
-                        <div className="h-full flex items-center justify-center">
-                            <div className="flex flex-col items-center gap-4">
-                                <LumaSpin size={32} />
-                                <span className="text-[11px] font-black uppercase tracking-widest text-[#0d3542] dark:text-[#58a6ff] animate-pulse">Loading Matrix...</span>
+                    {(isLoading && drinks.length === 0) ? (
+                        <div className="min-w-[1000px] p-6 pb-24">
+                            <div className="bg-[#fdfdfc] dark:bg-[#010409] border-2 border-black/10 dark:border-[#30363d] rounded-2xl shadow-xl overflow-hidden">
+                                <table className="w-full text-left border-collapse table-fixed">
+                                    <thead>
+                                        <tr className="border-b-2 border-black/10 dark:border-[#30363d] bg-[#f5f5f4] dark:bg-[#161b22]">
+                                            <th className="w-10 px-4 py-4"></th>
+                                            <th className="w-auto px-6 py-4 border-l-2 border-black/10 dark:border-[#30363d] text-[10px] font-black uppercase tracking-widest text-[#0d3542] dark:text-[#58a6ff]">Beverage</th>
+                                            <th className="w-40 px-5 py-4 border-l-2 border-black/10 dark:border-[#30363d] text-[10px] font-black uppercase tracking-widest text-[#0d3542] dark:text-[#58a6ff] text-center">Category</th>
+                                            <th className="w-32 px-6 py-4 border-l-2 border-black/10 dark:border-[#30363d] text-[10px] font-black uppercase tracking-widest text-[#0d3542] dark:text-[#58a6ff] text-right">Stock</th>
+                                            <th className="w-32 px-8 py-4 border-l-2 border-black/10 dark:border-[#30363d] text-[10px] font-black uppercase tracking-widest text-[#0d3542] dark:text-[#58a6ff] text-center">Price</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {Array.from({ length: 8 }).map((_, i) => (
+                                            <tr key={i} className="border-b border-black/5 dark:border-[#21262d]">
+                                                <td className="px-4 py-3"><div className="w-4 h-4 rounded bg-gray-200 dark:bg-[#21262d] animate-pulse" /></td>
+                                                <td className="px-6 py-3 border-l-2 border-black/10 dark:border-[#30363d]">
+                                                    <div className="flex items-center gap-3">
+                                                        <div className="w-8 h-8 rounded-lg bg-gray-200 dark:bg-[#21262d] animate-pulse" />
+                                                        <div className={`h-4 rounded bg-gray-200 dark:bg-[#21262d] animate-pulse`} style={{ width: `${100 + Math.random() * 120}px`, animationDelay: `${i * 80}ms` }} />
+                                                    </div>
+                                                </td>
+                                                <td className="px-5 py-3 border-l-2 border-black/10 dark:border-[#30363d] text-center"><div className="h-5 w-16 mx-auto rounded-md bg-gray-200 dark:bg-[#21262d] animate-pulse" style={{ animationDelay: `${i * 80 + 40}ms` }} /></td>
+                                                <td className="px-6 py-3 border-l-2 border-black/10 dark:border-[#30363d] text-right"><div className="h-5 w-10 ml-auto rounded bg-gray-200 dark:bg-[#21262d] animate-pulse" style={{ animationDelay: `${i * 80 + 60}ms` }} /></td>
+                                                <td className="px-8 py-3 border-l-2 border-black/10 dark:border-[#30363d] text-center"><div className="h-5 w-14 mx-auto rounded bg-gray-200 dark:bg-[#21262d] animate-pulse" style={{ animationDelay: `${i * 80 + 80}ms` }} /></td>
+                                            </tr>
+                                        ))}
+                                    </tbody>
+                                </table>
                             </div>
                         </div>
                     ) : filteredDrinks.length === 0 ? (
@@ -792,13 +926,27 @@ export default function DrinkManager() {
                                                         price: drink.price || '',
                                                         stock_qty: drink.stock_qty || '',
                                                         category: drink.category || '',
-                                                        status: drink.status || 'available',
+                                                        is_active: drink.is_active ?? true,
                                                         is_service: drink.is_service || false,
                                                         image_path: drink.image_path || '',
                                                     });
                                                     setIsModalOpen(true);
                                                 }}
-                                                onDelete={(id) => deleteMutation.mutate(id)}
+                                                onDelete={(id) => {
+                                                    Swal.fire({
+                                                        title: 'Delete this drink?',
+                                                        text: 'This action cannot be undone.',
+                                                        icon: 'warning',
+                                                        showCancelButton: true,
+                                                        confirmButtonColor: '#ef4444',
+                                                        cancelButtonColor: '#6b7280',
+                                                        confirmButtonText: 'Yes, delete it',
+                                                        background: document.documentElement.classList.contains('dark') ? '#161b22' : '#fff',
+                                                        color: document.documentElement.classList.contains('dark') ? '#c9d1d9' : '#111',
+                                                    }).then((result) => {
+                                                        if (result.isConfirmed) deleteMutation.mutate(id);
+                                                    });
+                                                }}
                                                 onQuickEdit={setQuickEditField}
                                                 onUpdateField={(id, data) => updateMutation.mutate({ id, data })}
                                                 performanceMode={performanceMode}
@@ -813,7 +961,7 @@ export default function DrinkManager() {
             </div>
 
             {/* Editing Form Modal */}
-            <ModernModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} title={editingDrink ? 'Edit Drink' : 'New Drink'} icon={Coffee}>
+            <ModernModal isOpen={isModalOpen} onClose={closeModal} title={editingDrink ? 'Edit Drink' : 'New Drink'} icon={Coffee}>
                 <div className="p-6">
                     <form onSubmit={(e) => {
                         e.preventDefault();
@@ -865,18 +1013,29 @@ export default function DrinkManager() {
                             </div>
                         </div>
 
-                        <div className="p-4 bg-gray-50 dark:bg-[#0d1117] border border-gray-200 dark:border-[#30363d] rounded-lg">
-                            <label className="flex items-center gap-4 cursor-pointer">
-                                <input type="checkbox" checked={formData.is_service} onChange={e => setFormData(f => ({ ...f, is_service: e.target.checked, stock_qty: e.target.checked ? '' : f.stock_qty }))} className="w-4 h-4 text-[#0d3542] dark:text-[#58a6ff] bg-white border-gray-300 rounded focus:ring-[#0d3542] dark:focus:ring-[#58a6ff]" />
-                                <div>
-                                    <span className="text-sm font-semibold text-gray-900 dark:text-white">Service Item / Unlimited</span>
-                                    <p className="text-[10px] text-gray-500">Does not track stock</p>
-                                </div>
-                            </label>
+                        <div className="grid grid-cols-2 gap-4">
+                            <div className="p-4 bg-gray-50 dark:bg-[#0d1117] border border-gray-200 dark:border-[#30363d] rounded-lg">
+                                <label className="flex items-center gap-4 cursor-pointer">
+                                    <input type="checkbox" checked={formData.is_active} onChange={e => setFormData(f => ({ ...f, is_active: e.target.checked }))} className="w-4 h-4 text-[#0d3542] dark:text-[#58a6ff] bg-white border-gray-300 rounded focus:ring-[#0d3542] dark:focus:ring-[#58a6ff]" />
+                                    <div>
+                                        <span className="text-sm font-semibold text-gray-900 dark:text-white">Active Product</span>
+                                        <p className="text-[10px] text-gray-500">Uncheck to archive</p>
+                                    </div>
+                                </label>
+                            </div>
+                            <div className="p-4 bg-gray-50 dark:bg-[#0d1117] border border-gray-200 dark:border-[#30363d] rounded-lg">
+                                <label className="flex items-center gap-4 cursor-pointer">
+                                    <input type="checkbox" checked={formData.is_service} onChange={e => setFormData(f => ({ ...f, is_service: e.target.checked, stock_qty: e.target.checked ? '' : f.stock_qty }))} className="w-4 h-4 text-[#0d3542] dark:text-[#58a6ff] bg-white border-gray-300 rounded focus:ring-[#0d3542] dark:focus:ring-[#58a6ff]" />
+                                    <div>
+                                        <span className="text-sm font-semibold text-gray-900 dark:text-white">Service Item / Unlimited</span>
+                                        <p className="text-[10px] text-gray-500">Does not track stock</p>
+                                    </div>
+                                </label>
+                            </div>
                         </div>
 
                         <div className="flex gap-3 pt-4 border-t border-black/10 dark:border-white/10">
-                            <button type="button" onClick={() => setIsModalOpen(false)} className="flex-1 py-2.5 rounded-lg text-[12px] font-black uppercase tracking-widest border-2 border-black/10 dark:border-white/10 hover:bg-black/5 dark:hover:bg-white/5 transition-colors">Cancel</button>
+                            <button type="button" onClick={closeModal} className="flex-1 py-2.5 rounded-lg text-[12px] font-black uppercase tracking-widest border-2 border-black/10 dark:border-white/10 hover:bg-black/5 dark:hover:bg-white/5 transition-colors">Cancel</button>
                             <button type="submit" disabled={isSaving} className="flex-[2] py-2.5 bg-[#0d3542] dark:bg-[#58a6ff] text-white dark:text-black rounded-lg text-[12px] font-black uppercase tracking-widest hover:opacity-90 transition-opacity disabled:opacity-50 flex items-center justify-center gap-2">
                                 {isSaving ? <LumaSpin size={16} /> : <Save size={16} />}
                                 {editingDrink ? 'Save Changes' : 'Create Drink'}

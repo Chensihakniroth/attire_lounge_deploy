@@ -106,6 +106,33 @@ const PosProductManager = lazyWithRetry(() => import('./pages/admin/PosProductMa
 const DrinkManager = lazyWithRetry(() => import('./pages/admin/DrinkManager.jsx'));
 const DailyReportManager = lazyWithRetry(() => import('./pages/admin/DailyReportManager.jsx'));
 
+// ─── Eager Chunk Preloader ─────────────────────────────────────────
+// Pre-downloads JS chunks for high-traffic pages so navigation is instant
+const preloadChunks = () => {
+    const chunks = [
+        () => import('./pages/admin/DrinkManager.jsx'),
+        () => import('./pages/admin/PosProductManager.jsx'),
+        () => import('./pages/admin/SalesHistoryManager.jsx'),
+        () => import('./pages/admin/DailyReportManager.jsx'),
+        () => import('./pages/admin/ProductManager.jsx'),
+        () => import('./pages/admin/CollectionManager.jsx'),
+    ];
+    chunks.forEach((load, i) => {
+        setTimeout(() => load().catch(() => {}), 1000 + i * 300);
+    });
+};
+
+const ChunkPreloader: React.FC = () => {
+    useEffect(() => {
+        if ('requestIdleCallback' in window) {
+            (window as any).requestIdleCallback(preloadChunks);
+        } else {
+            setTimeout(preloadChunks, 2000);
+        }
+    }, []);
+    return null;
+};
+
 const GlobalStyles = () => (
     <style dangerouslySetInnerHTML={{ __html: `
         *::-webkit-scrollbar { display: none !important; }
@@ -152,6 +179,7 @@ function AdminApp() {
         <HelmetProvider>
             <QueryClientProvider client={queryClient}>
                 <RealtimeAdminUpdater />
+                <ChunkPreloader />
                 <Router future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
                     <ThemeProvider>
                         <AdminProvider>

@@ -12,12 +12,20 @@ class PosProductController extends Controller
     {
         $type = $request->get('type', 'products');
         
+        $query = PosProduct::query();
+
+        // Admin status filter
+        $status = $request->get('status', 'active');
+        if ($status === 'active') {
+            $query->active();
+        } elseif ($status === 'inactive') {
+            $query->where('is_active', false);
+        } // 'all' shows everything
+
         if ($type === 'services') {
-            $query = PosProduct::active()->services();
-        } elseif ($type === 'all') {
-            $query = PosProduct::active();
-        } else {
-            $query = PosProduct::active()->products();
+            $query->services();
+        } elseif ($type !== 'all') {
+            $query->products();
         }
 
         if ($search = $request->get('search') || $request->get('name') || $request->get('attribute') || $request->get('code')) {
@@ -110,7 +118,7 @@ class PosProductController extends Controller
             'name' => 'required|string',
             'variant' => 'nullable|string',
             'price' => 'required|numeric|min:0',
-            'category' => 'required|string',
+            'category' => 'nullable|string',
             'is_service' => 'boolean',
             'stock_qty' => 'integer|min:0',
             'tier' => 'nullable|string',
@@ -134,17 +142,21 @@ class PosProductController extends Controller
         }
         
         $validated = $request->validate([
-            'sku' => 'string|unique:pos_products,sku,' . $id,
-            'name' => 'string',
+            'sku' => 'nullable|string|unique:pos_products,sku,' . $id,
+            'name' => 'nullable|string',
             'variant' => 'nullable|string',
-            'price' => 'numeric|min:0',
-            'category' => 'string',
-            'is_service' => 'boolean',
-            'stock_qty' => 'integer|min:0',
+            'price' => 'nullable|numeric|min:0',
+            'category' => 'nullable|string',
+            'is_service' => 'nullable|boolean',
+            'stock_qty' => 'nullable|integer|min:0',
             'tier' => 'nullable|string',
-            'is_active' => 'boolean',
-            'image_path' => 'nullable|string'
+            'is_active' => 'nullable|boolean',
+            'image_path' => 'nullable|string',
+            'outlet' => 'nullable|string',
         ]);
+
+        // Remove null values so we don't overwrite existing data with nulls during partial updates
+        $validated = array_filter($validated, fn($v) => !is_null($v));
 
         $product->update($validated);
         return response()->json($product);
@@ -341,6 +353,22 @@ class PosProductController extends Controller
         PosProduct::whereIn('id', $validated['product_ids'])->update(['is_active' => false]);
 
         return response()->json(['message' => 'Products archived successfully', 'count' => count($validated['product_ids'])]);
+    }
+
+    /**
+     * Bulk restore (unarchive) products.
+     * POST /api/v1/admin/pos/products/bulk-restore
+     */
+    public function bulkRestore(Request $request): JsonResponse
+    {
+        $validated = $request->validate([
+            'product_ids' => 'required|array',
+            'product_ids.*' => 'exists:pos_products,id',
+        ]);
+
+        PosProduct::whereIn('id', $validated['product_ids'])->update(['is_active' => true]);
+
+        return response()->json(['message' => 'Products restored successfully', 'count' => count($validated['product_ids'])]);
     }
 
     /**

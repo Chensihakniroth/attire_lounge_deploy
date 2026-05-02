@@ -12,8 +12,10 @@ window.axios.interceptors.request.use(
         }
 
         // 🏢 Attach Active Outlet Header for multi-tenant scoping
-        const activeOutlet = localStorage.getItem('active_outlet') || 'attire_lounge';
-        config.headers['X-Active-Outlet'] = activeOutlet;
+        if (!config.headers['X-Active-Outlet']) {
+            const activeOutlet = localStorage.getItem('active_outlet') || 'attire_lounge';
+            config.headers['X-Active-Outlet'] = activeOutlet;
+        }
 
         return config;
     },

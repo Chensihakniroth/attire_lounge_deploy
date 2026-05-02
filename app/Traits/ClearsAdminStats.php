@@ -24,7 +24,9 @@ trait ClearsAdminStats
         if (Cache::supportsTags()) {
             Cache::tags(['admin-stats'])->flush();
         } else {
-            Cache::forget('admin_dashboard_stats');
+            Cache::forget('admin_dashboard_stats_attire_lounge');
+            Cache::forget('admin_dashboard_stats_caffeine');
+            Cache::forget('admin_dashboard_stats_kravat');
         }
     }
 }

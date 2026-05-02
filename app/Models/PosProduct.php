@@ -3,12 +3,13 @@
 namespace App\Models;
 
 use App\Traits\BelongsToOutlet;
+use App\Traits\ClearsAdminStats;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class PosProduct extends Model
 {
-    use HasFactory, BelongsToOutlet;
+    use HasFactory, BelongsToOutlet, ClearsAdminStats;
 
     protected $fillable = [
         'outlet',

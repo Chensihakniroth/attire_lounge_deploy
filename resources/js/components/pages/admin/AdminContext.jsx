@@ -90,7 +90,7 @@ export const AdminProvider = ({ children }) => {
     } } = useQuery({
         queryKey: ['admin-stats', activeOutlet],
         queryFn: async () => {
-            const { data } = await axios.get('/api/v1/admin/stats');
+            const { data } = await axios.get('/api/v1/admin/stats', { headers: { 'X-Active-Outlet': activeOutlet } });
             return data.data;
         }
     });
@@ -98,7 +98,7 @@ export const AdminProvider = ({ children }) => {
     const { data: collections = [], isLoading: collectionsLoading } = useQuery({
         queryKey: ['admin-collections', activeOutlet],
         queryFn: async () => {
-            const { data } = await axios.get('/api/v1/admin/collections');
+            const { data } = await axios.get('/api/v1/admin/collections', { headers: { 'X-Active-Outlet': activeOutlet } });
             return data.data;
         }
     });
@@ -110,7 +110,8 @@ export const AdminProvider = ({ children }) => {
                 params: { 
                     per_page: 1000,
                     include_hidden: true
-                } 
+                },
+                headers: { 'X-Active-Outlet': activeOutlet }
             });
             return data.data;
         }
@@ -119,10 +120,60 @@ export const AdminProvider = ({ children }) => {
     const { data: outOfStockItems = [], isLoading: outOfStockLoading } = useQuery({
         queryKey: ['outOfStockItems', activeOutlet],
         queryFn: async () => {
-            const { data } = await axios.get('/api/v1/gift-items/out-of-stock');
+            const { data } = await axios.get('/api/v1/gift-items/out-of-stock', { headers: { 'X-Active-Outlet': activeOutlet } });
             return Array.isArray(data) ? data : [];
         }
     });
+
+    // --- Prefetch Background Data for Instant Switching ---
+    useEffect(() => {
+        const allOutlets = Object.keys(OUTLET_CONFIG);
+        const otherOutlets = allOutlets.filter(o => o !== activeOutlet);
+        otherOutlets.forEach(outlet => {
+            queryClient.prefetchQuery({
+                queryKey: ['admin-stats', outlet],
+                queryFn: async () => {
+                    const { data } = await axios.get('/api/v1/admin/stats', { headers: { 'X-Active-Outlet': outlet } });
+                    return data.data;
+                },
+                staleTime: 5 * 60 * 1000,
+            });
+            queryClient.prefetchQuery({
+                queryKey: ['admin-collections', outlet],
+                queryFn: async () => {
+                    const { data } = await axios.get('/api/v1/admin/collections', { headers: { 'X-Active-Outlet': outlet } });
+                    return data.data;
+                },
+                staleTime: 5 * 60 * 1000,
+            });
+            queryClient.prefetchQuery({
+                queryKey: ['admin-products', outlet],
+                queryFn: async () => {
+                    const { data } = await axios.get('/api/v1/products', { 
+                        params: { per_page: 1000, include_hidden: true },
+                        headers: { 'X-Active-Outlet': outlet } 
+                    });
+                    return data.data;
+                },
+                staleTime: 5 * 60 * 1000,
+            });
+        });
+        // Pre-warm DrinkManager cache for ALL outlets so it loads instantly
+        allOutlets.forEach(outlet => {
+            queryClient.prefetchQuery({
+                queryKey: ['admin-drinks', 1, { status: 'active', category: '', search: '', stockStatus: '' }, outlet],
+                queryFn: async () => {
+                    const params = { page: 1, status: 'active', category: '', search: '', stockStatus: '', outlet };
+                    const res = await axios.get('/api/v1/admin/pos/products', {
+                        params,
+                        headers: { 'X-Active-Outlet': outlet }
+                    });
+                    return res.data;
+                },
+                staleTime: 5 * 60 * 1000,
+            });
+        });
+    }, [activeOutlet, queryClient]);
 
     // Pagination states for local control
     const [appPage, setAppPage] = useState(1);

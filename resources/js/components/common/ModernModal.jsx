@@ -25,6 +25,16 @@ const ModernModal = ({
         return () => { document.body.style.overflow = ''; };
     }, [isOpen]);
 
+    // Close on Escape key
+    useEffect(() => {
+        if (!isOpen) return;
+        const handleEsc = (e) => {
+            if (e.key === 'Escape') onClose();
+        };
+        window.addEventListener('keydown', handleEsc);
+        return () => window.removeEventListener('keydown', handleEsc);
+    }, [isOpen, onClose]);
+
     if (typeof document === 'undefined') return null;
 
     return createPortal(

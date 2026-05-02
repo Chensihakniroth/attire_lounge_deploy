@@ -7,9 +7,11 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use App\Traits\Auditable; // Import the Auditable trait
 
+use App\Traits\ClearsAdminStats;
+
 class Product extends Model
 {
-    use HasFactory, SoftDeletes, Auditable; // Use the Auditable trait
+    use HasFactory, SoftDeletes, Auditable, ClearsAdminStats; // Use the Auditable trait
 
     // The actual table name is 'products'
     protected $table = 'products';

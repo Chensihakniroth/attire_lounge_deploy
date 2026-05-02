@@ -6,10 +6,11 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use App\Enums\CollectionType;
 use App\Traits\Auditable;
+use App\Traits\ClearsAdminStats;
 
 class Collection extends Model
 {
-    use HasFactory, Auditable;
+    use HasFactory, Auditable, ClearsAdminStats;
 
     protected $fillable = [
         'name',
