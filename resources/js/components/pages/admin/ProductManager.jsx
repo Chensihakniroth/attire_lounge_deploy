@@ -123,10 +123,9 @@ const ProductManager = () => {
                     include_hidden: true
                 } 
             });
-            // Also refresh global collections if needed ✨
-            fetchCollections();
             return data.data;
-        }
+        },
+        staleTime: 2 * 60 * 1000,
     });
 
     const fetchData = useCallback((invalidate = true) => {
@@ -134,11 +133,6 @@ const ProductManager = () => {
             queryClient.invalidateQueries({ queryKey: ['admin-products'] });
         }
     }, [queryClient]);
-
-    useEffect(() => {
-        // Initial fetch handled by useQuery, but we refresh collections ✨
-        fetchCollections();
-    }, [fetchCollections]);
 
     const handleEdit = useCallback((slug) => {
         navigate(`/admin/products/${slug}/edit`);

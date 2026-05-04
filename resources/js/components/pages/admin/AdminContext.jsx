@@ -28,8 +28,12 @@ export const AdminProvider = ({ children }) => {
     const setActiveOutlet = useCallback((outlet) => {
         if (outlet === activeOutlet) return;
         setActiveOutletState(outlet);
-        // Invalidate all queries so they refetch with the new outlet context
-        queryClient.invalidateQueries();
+        // Only invalidate outlet-scoped queries — appointments/gifts are global
+        queryClient.invalidateQueries({ queryKey: ['admin-stats'] });
+        queryClient.invalidateQueries({ queryKey: ['admin-collections'] });
+        queryClient.invalidateQueries({ queryKey: ['outOfStockItems'] });
+        queryClient.invalidateQueries({ queryKey: ['admin-drinks'] });
+        queryClient.invalidateQueries({ queryKey: ['admin-pos-products'] });
     }, [activeOutlet, queryClient]);
 
     // State for user details
@@ -92,7 +96,8 @@ export const AdminProvider = ({ children }) => {
         queryFn: async () => {
             const { data } = await axios.get('/api/v1/admin/stats', { headers: { 'X-Active-Outlet': activeOutlet } });
             return data.data;
-        }
+        },
+        staleTime: 60 * 1000,
     });
 
     const { data: collections = [], isLoading: collectionsLoading } = useQuery({
@@ -100,100 +105,56 @@ export const AdminProvider = ({ children }) => {
         queryFn: async () => {
             const { data } = await axios.get('/api/v1/admin/collections', { headers: { 'X-Active-Outlet': activeOutlet } });
             return data.data;
-        }
+        },
+        staleTime: 2 * 60 * 1000,
     });
 
-    const { data: products = [], isLoading: productsLoading } = useQuery({
-        queryKey: ['admin-products', activeOutlet],
-        queryFn: async () => {
-            const { data } = await axios.get('/api/v1/products', { 
-                params: { 
-                    per_page: 1000,
-                    include_hidden: true
-                },
-                headers: { 'X-Active-Outlet': activeOutlet }
-            });
-            return data.data;
-        }
-    });
-
-    const { data: outOfStockItems = [], isLoading: outOfStockLoading } = useQuery({
-        queryKey: ['outOfStockItems', activeOutlet],
-        queryFn: async () => {
-            const { data } = await axios.get('/api/v1/gift-items/out-of-stock', { headers: { 'X-Active-Outlet': activeOutlet } });
-            return Array.isArray(data) ? data : [];
-        }
-    });
 
     // --- Prefetch Background Data for Instant Switching ---
     useEffect(() => {
-        const allOutlets = Object.keys(OUTLET_CONFIG);
-        const otherOutlets = allOutlets.filter(o => o !== activeOutlet);
-        otherOutlets.forEach(outlet => {
-            queryClient.prefetchQuery({
-                queryKey: ['admin-stats', outlet],
-                queryFn: async () => {
-                    const { data } = await axios.get('/api/v1/admin/stats', { headers: { 'X-Active-Outlet': outlet } });
-                    return data.data;
-                },
-                staleTime: 5 * 60 * 1000,
+        const prefetchData = () => {
+            const allOutlets = Object.keys(OUTLET_CONFIG);
+            const otherOutlets = allOutlets.filter(o => o !== activeOutlet);
+            otherOutlets.forEach(outlet => {
+                queryClient.prefetchQuery({
+                    queryKey: ['admin-stats', outlet],
+                    queryFn: async () => {
+                        const { data } = await axios.get('/api/v1/admin/stats', { headers: { 'X-Active-Outlet': outlet } });
+                        return data.data;
+                    },
+                    staleTime: 5 * 60 * 1000,
+                });
+                queryClient.prefetchQuery({
+                    queryKey: ['admin-collections', outlet],
+                    queryFn: async () => {
+                        const { data } = await axios.get('/api/v1/admin/collections', { headers: { 'X-Active-Outlet': outlet } });
+                        return data.data;
+                    },
+                    staleTime: 5 * 60 * 1000,
+                });
             });
-            queryClient.prefetchQuery({
-                queryKey: ['admin-collections', outlet],
-                queryFn: async () => {
-                    const { data } = await axios.get('/api/v1/admin/collections', { headers: { 'X-Active-Outlet': outlet } });
-                    return data.data;
-                },
-                staleTime: 5 * 60 * 1000,
-            });
-            queryClient.prefetchQuery({
-                queryKey: ['admin-products', outlet],
-                queryFn: async () => {
-                    const { data } = await axios.get('/api/v1/products', { 
-                        params: { per_page: 1000, include_hidden: true },
-                        headers: { 'X-Active-Outlet': outlet } 
-                    });
-                    return data.data;
-                },
-                staleTime: 5 * 60 * 1000,
-            });
-        });
-        // Pre-warm DrinkManager cache for ALL outlets so it loads instantly
-        allOutlets.forEach(outlet => {
-            queryClient.prefetchQuery({
-                queryKey: ['admin-drinks', 1, { status: 'active', category: '', search: '', stockStatus: '' }, outlet],
-                queryFn: async () => {
-                    const params = { page: 1, status: 'active', category: '', search: '', stockStatus: '', outlet };
-                    const res = await axios.get('/api/v1/admin/pos/products', {
-                        params,
-                        headers: { 'X-Active-Outlet': outlet }
-                    });
-                    return res.data;
-                },
-                staleTime: 5 * 60 * 1000,
-            });
-        });
+        };
+
+        // Defer heavy prefetching so it doesn't block UI navigation
+        if ('requestIdleCallback' in window) {
+            window.requestIdleCallback(prefetchData, { timeout: 2000 });
+        } else {
+            setTimeout(prefetchData, 3000);
+        }
     }, [activeOutlet, queryClient]);
 
     // Pagination states for local control
     const [appPage, setAppPage] = useState(1);
-    const [giftPage, setGiftPage] = useState(1);
 
     const { data: appointmentsData, isLoading: appointmentsLoading } = useQuery({
         queryKey: ['admin-appointments', appPage],
         queryFn: async () => {
             const { data } = await axios.get(`/api/v1/admin/appointments?page=${appPage}`);
             return data;
-        }
+        },
+        staleTime: 60 * 1000,
     });
 
-    const { data: giftRequestsData, isLoading: giftRequestsLoading } = useQuery({
-        queryKey: ['admin-gift-requests', giftPage],
-        queryFn: async () => {
-            const { data } = await axios.get(`/api/v1/gift-requests?page=${giftPage}`);
-            return data;
-        }
-    });
 
     const appointments = appointmentsData?.data || [];
     const appointmentsPagination = {
@@ -202,12 +163,6 @@ export const AdminProvider = ({ children }) => {
         total: appointmentsData?.total || 0
     };
 
-    const giftRequests = giftRequestsData?.data || (Array.isArray(giftRequestsData) ? giftRequestsData : []);
-    const giftRequestsPagination = {
-        currentPage: giftRequestsData?.current_page || 1,
-        lastPage: giftRequestsData?.last_page || 1,
-        total: giftRequestsData?.total || 0
-    };
 
     const [isEditing, setIsEditing] = useState(false);
     const [showCollections, setShowCollections] = useState(false);
@@ -215,10 +170,7 @@ export const AdminProvider = ({ children }) => {
     // --- Legacy Handlers (kept for compatibility) ---
     const fetchStats = () => queryClient.invalidateQueries({ queryKey: ['admin-stats'] });
     const fetchCollections = () => queryClient.invalidateQueries({ queryKey: ['admin-collections'] });
-    const fetchProducts = () => queryClient.invalidateQueries({ queryKey: ['admin-products'] });
-    const fetchOutOfStockItems = () => queryClient.invalidateQueries({ queryKey: ['outOfStockItems'] });
     const fetchAppointments = (page = 1) => setAppPage(page);
-    const fetchGiftRequests = (page = 1) => setGiftPage(page);
 
     const loadMoreAppointments = () => {
         if (appointmentsPagination.currentPage < appointmentsPagination.lastPage) {
@@ -226,11 +178,6 @@ export const AdminProvider = ({ children }) => {
         }
     };
 
-    const loadMoreGiftRequests = () => {
-        if (giftRequestsPagination.currentPage < giftRequestsPagination.lastPage) {
-            setGiftPage(prev => prev + 1);
-        }
-    };
 
     const createAppointment = async (appointmentData) => {
         try {
@@ -247,7 +194,8 @@ export const AdminProvider = ({ children }) => {
     const updateAppointmentStatus = async (id, status) => {
         try {
             const response = await axios.patch(`/api/v1/admin/appointments/${id}/status`, { status });
-            queryClient.invalidateQueries(); // Invalidate all since stats might change too
+            queryClient.invalidateQueries({ queryKey: ['admin-appointments'] });
+            queryClient.invalidateQueries({ queryKey: ['admin-stats'] });
         } catch (err) {
             console.error('[AdminContext] Failed to update status:', err);
             throw err;
@@ -257,32 +205,14 @@ export const AdminProvider = ({ children }) => {
     const clearClosedAppointments = async () => {
         try {
             await axios.delete('/api/v1/admin/appointments/completed');
-            queryClient.invalidateQueries();
+            queryClient.invalidateQueries({ queryKey: ['admin-appointments'] });
+            queryClient.invalidateQueries({ queryKey: ['admin-stats'] });
         } catch (err) {
             console.error('Failed to clear closed appointments:', err);
             throw err;
         }
     };
 
-    const updateGiftRequestStatus = async (id, status) => {
-        try {
-            await axios.patch(`/api/v1/admin/gift-requests/${id}/status`, { status });
-            queryClient.invalidateQueries();
-        } catch (err) {
-            console.error('Failed to update gift status:', err);
-            throw err;
-        }
-    };
-
-    const deleteGiftRequest = async (id) => {
-        try {
-            await axios.delete(`/api/v1/admin/gift-requests/${id}`);
-            queryClient.invalidateQueries();
-        } catch (err) {
-            console.error('Failed to delete gift request:', err);
-            throw err;
-        }
-    };
 
     return (
         <AdminContext.Provider value={{
@@ -295,13 +225,7 @@ export const AdminProvider = ({ children }) => {
             updateAppointmentStatus,
             clearClosedAppointments,
             
-            giftRequests,
-            giftRequestsLoading,
-            fetchGiftRequests,
-            loadMoreGiftRequests,
-            giftRequestsPagination,
-            updateGiftRequestStatus,
-            deleteGiftRequest,
+
 
 
 
@@ -311,14 +235,6 @@ export const AdminProvider = ({ children }) => {
             collections,
             collectionsLoading,
             fetchCollections,
-
-            products,
-            productsLoading,
-            fetchProducts,
-
-            outOfStockItems,
-            outOfStockLoading,
-            fetchOutOfStockItems,
 
             isEditing,
             setIsEditing,

@@ -1,5 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import axios from 'axios';
+import { useQuery } from '@tanstack/react-query';
 import { usePOS } from './POSContext';
 import { Zap, Loader2, ChevronDown, ShoppingBag, Package, Scissors, Search, ArrowLeft } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -8,13 +9,7 @@ import { useAdmin } from '../admin/AdminContext';
 const QuickAccessDeck = ({ onClose }) => {
     const { activeOutlet } = useAdmin();
     const [activeTab, setActiveTab] = useState(activeOutlet === 'attire_lounge' ? 'services' : 'drinks');
-    const [services, setServices] = useState(window.__posServiceCache || []);
-    const [drinks, setDrinks] = useState([]);
-    const [drinkCategories, setDrinkCategories] = useState([]);
-    const [loading, setLoading] = useState(true);
     const [selectedCategory, setSelectedCategory] = useState(null);
-    const [categoryProducts, setCategoryProducts] = useState([]);
-    const [loadingProducts, setLoadingProducts] = useState(false);
     const { addItem } = usePOS();
 
     // Map user-friendly names to DB categories (garments excluded — use full catalog)
@@ -33,63 +28,54 @@ const QuickAccessDeck = ({ onClose }) => {
         { id: 'bags',       label: 'Bags & Boxes',         cats: ['BAG', 'BOX'] },
     ];
 
-    useEffect(() => {
-        const fetchInitialData = async () => {
-            setLoading(true);
-            try {
-                // Fetch services
-                const servicesRes = await axios.get('/api/v1/admin/pos/products/services');
-                window.__posServiceCache = servicesRes.data;
-                setServices(servicesRes.data);
-
-                // Fetch drink categories (any categories present in products from caffeine/kravat)
-                const categoriesRes = await axios.get('/api/v1/admin/pos/products', {
-                    params: { type: 'all', per_page: 1 } // Just to trigger the scope and potentially get facets if we had them
-                });
-                
-                // For now, let's fetch ALL categories and filter for those that have products in the current scope
-                const allCatsRes = await axios.get('/api/v1/admin/pos/products', {
-                    params: { per_page: 500 }
-                });
-                const products = allCatsRes.data.data || [];
-                const cats = [...new Set(products.map(p => p.category))].filter(Boolean);
-                
-                const drinkGroups = cats.map(cat => ({
-                    id: cat.toLowerCase().replace(/\s+/g, '-'),
-                    label: cat,
-                    cats: [cat]
-                }));
-                
-                setDrinkCategories(drinkGroups);
-                setDrinks(products);
-
-            } catch (err) {
-                console.error('Failed to fetch POS data', err);
-            } finally {
-                setLoading(false);
-            }
-        };
-        fetchInitialData();
-    }, []);
-
-    const fetchCategoryProducts = async (cats) => {
-        setLoadingProducts(true);
-        try {
-            const response = await axios.get('/api/v1/admin/pos/products', {
-                params: { category: cats.join(','), per_page: 200 }
+    // Query for Services
+    const { data: services = [], isLoading: loadingServices } = useQuery({
+        queryKey: ['quick-access-services', activeOutlet],
+        queryFn: async () => {
+            const { data } = await axios.get('/api/v1/admin/pos/products/services', {
+                headers: { 'X-Active-Outlet': activeOutlet }
             });
-            setCategoryProducts(response.data.data || []);
-        } catch (err) {
-            console.error('Failed to fetch products');
-        } finally {
-            setLoadingProducts(false);
-        }
-    };
+            return data || [];
+        },
+        staleTime: 5 * 60 * 1000,
+    });
+
+    // Query for Categories
+    const { data: drinkCategories = [], isLoading: loadingCategories } = useQuery({
+        queryKey: ['quick-access-categories', activeOutlet],
+        queryFn: async () => {
+            const { data } = await axios.get('/api/v1/admin/pos/products/categories', {
+                headers: { 'X-Active-Outlet': activeOutlet }
+            });
+            return (data || []).filter(Boolean).map(cat => ({
+                id: cat.toLowerCase().replace(/\s+/g, '-'),
+                label: cat,
+                cats: [cat]
+            }));
+        },
+        staleTime: 5 * 60 * 1000,
+    });
+
+    // Query for Products in Selected Category
+    const { data: categoryProducts = [], isLoading: loadingProducts } = useQuery({
+        queryKey: ['quick-access-products', selectedCategory?.id, activeOutlet],
+        queryFn: async () => {
+            if (!selectedCategory) return [];
+            const { data } = await axios.get('/api/v1/admin/pos/products', {
+                params: { category: selectedCategory.cats.join(','), per_page: 200 },
+                headers: { 'X-Active-Outlet': activeOutlet }
+            });
+            return data.data || [];
+        },
+        enabled: !!selectedCategory,
+        staleTime: 2 * 60 * 1000,
+    });
 
     const handleCategoryClick = (group) => {
         setSelectedCategory(group);
-        fetchCategoryProducts(group.cats);
     };
+
+    const loading = loadingServices || loadingCategories;
 
     if (loading) return (
         <div className="h-full flex items-center justify-center bg-black/[0.02] dark:bg-white/[0.01] rounded-2xl animate-pulse">

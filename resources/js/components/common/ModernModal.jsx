@@ -14,6 +14,7 @@ const ModernModal = ({
     title,
     maxWidth = 'max-w-2xl',
     showCloseButton = true,
+    overflowVisible = false,
 }) => {
     // Prevent scrolling when modal is open
     useEffect(() => {
@@ -58,7 +59,7 @@ const ModernModal = ({
                         exit={{ opacity: 0, scale: 0.97, y: 12 }}
                         transition={{ duration: 0.2, ease: [0.25, 0.46, 0.45, 0.94] }}
                         style={{ willChange: 'transform, opacity' }}
-                        className={`relative w-full ${maxWidth} bg-white dark:bg-[#161b22] border border-gray-200 dark:border-[#30363d] rounded-xl overflow-hidden shadow-lg flex flex-col transition-colors duration-200 pointer-events-auto font-sans`}
+                        className={`relative w-full ${maxWidth} bg-white dark:bg-[#161b22] border border-gray-200 dark:border-[#30363d] rounded-xl ${overflowVisible ? 'overflow-visible' : 'overflow-hidden'} shadow-lg flex flex-col transition-colors duration-200 pointer-events-auto font-sans`}
                         onClick={(e) => e.stopPropagation()}
                     >
                         {/* Standardized Header (If Title Provided) */}

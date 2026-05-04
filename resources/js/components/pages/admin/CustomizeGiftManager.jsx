@@ -2,6 +2,8 @@ import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { User, Mail, Phone, Gift, CheckCircle, XCircle, Trash2, ChevronDown } from 'lucide-react';
 import { LumaSpin } from '@/components/ui/luma-spin';
 import { useAdmin } from './AdminContext';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
+import axios from 'axios';
 import OptimizedImage from '../../common/OptimizedImage.jsx';
 import { motion, AnimatePresence } from 'framer-motion';
 
@@ -115,14 +117,52 @@ const LoadingState = () => (
 );
 
 const CustomizeGiftManager = () => {
-    const { 
-        giftRequests, 
-        giftRequestsLoading, 
-        loadMoreGiftRequests,
-        giftRequestsPagination,
-        updateGiftRequestStatus, 
-        deleteGiftRequest 
-    } = useAdmin();
+    const [giftPage, setGiftPage] = useState(1);
+    const queryClient = useQueryClient();
+
+    const { data: giftRequestsData, isLoading: giftRequestsLoading } = useQuery({
+        queryKey: ['admin-gift-requests', giftPage],
+        queryFn: async () => {
+            const { data } = await axios.get(`/api/v1/gift-requests?page=${giftPage}`);
+            return data;
+        },
+        staleTime: 60 * 1000,
+    });
+
+    const giftRequests = giftRequestsData?.data || (Array.isArray(giftRequestsData) ? giftRequestsData : []);
+    const giftRequestsPagination = {
+        currentPage: giftRequestsData?.current_page || 1,
+        lastPage: giftRequestsData?.last_page || 1,
+        total: giftRequestsData?.total || 0
+    };
+
+    const loadMoreGiftRequests = async () => {
+        if (giftRequestsPagination.currentPage < giftRequestsPagination.lastPage) {
+            setGiftPage(prev => prev + 1);
+        }
+    };
+
+    const updateGiftRequestStatus = async (id, status) => {
+        try {
+            await axios.patch(`/api/v1/admin/gift-requests/${id}/status`, { status });
+            queryClient.invalidateQueries({ queryKey: ['admin-gift-requests'] });
+            queryClient.invalidateQueries({ queryKey: ['admin-stats'] });
+        } catch (err) {
+            console.error('Failed to update gift status:', err);
+            throw err;
+        }
+    };
+
+    const deleteGiftRequest = async (id) => {
+        try {
+            await axios.delete(`/api/v1/admin/gift-requests/${id}`);
+            queryClient.invalidateQueries({ queryKey: ['admin-gift-requests'] });
+            queryClient.invalidateQueries({ queryKey: ['admin-stats'] });
+        } catch (err) {
+            console.error('Failed to delete gift request:', err);
+            throw err;
+        }
+    };
 
     const [visibleCount, setVisibleRows] = useState(6);
 

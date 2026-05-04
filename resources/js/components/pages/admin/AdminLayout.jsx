@@ -497,7 +497,14 @@ const AdminLayoutContent = ({
 
                 <main className="flex-1 overflow-y-auto relative p-6 bg-background dark:bg-[#0d1117]">
                     <div className="relative z-10 w-full max-w-none">
-                        {currentOutlet}
+                        <React.Suspense fallback={
+                            <div className="w-full h-full min-h-[50vh] flex flex-col items-center justify-center gap-4">
+                                <LumaSpin size="lg" />
+                                <p className="text-xs font-black uppercase tracking-[0.2em] text-gray-400">Loading Module...</p>
+                            </div>
+                        }>
+                            {currentOutlet}
+                        </React.Suspense>
                     </div>
                 </main>
             </div>

@@ -3,17 +3,26 @@ import { Package, AlertTriangle, CheckCircle, XCircle } from 'lucide-react';
 import { LumaSpin } from '../../ui/luma-spin';
 import giftOptions from '../../../data/giftOptions';
 import api from '../../../api';
+import axios from 'axios';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import OptimizedImage from '../../common/OptimizedImage.jsx';
 import { motion } from 'framer-motion';
 import { useAdmin } from './AdminContext';
 
 const InventoryManager = () => {
-    const { outOfStockItems, outOfStockLoading: loading, fetchOutOfStockItems } = useAdmin();
-    const [updatingItems, setUpdatingItems] = useState(new Set());
+    const { activeOutlet } = useAdmin();
+    const queryClient = useQueryClient();
+    
+    const { data: outOfStockItems = [], isLoading: loading } = useQuery({
+        queryKey: ['outOfStockItems', activeOutlet],
+        queryFn: async () => {
+            const { data } = await axios.get('/api/v1/gift-items/out-of-stock', { headers: { 'X-Active-Outlet': activeOutlet } });
+            return Array.isArray(data) ? data : [];
+        },
+        staleTime: 2 * 60 * 1000,
+    });
 
-    useEffect(() => {
-        fetchOutOfStockItems();
-    }, [fetchOutOfStockItems]);
+    const [updatingItems, setUpdatingItems] = useState(new Set());
 
     const toggleStock = async (id) => {
         if (updatingItems.has(id)) return;

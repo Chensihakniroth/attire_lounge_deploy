@@ -180,7 +180,7 @@ function AdminApp() {
             <QueryClientProvider client={queryClient}>
                 <RealtimeAdminUpdater />
                 <ChunkPreloader />
-                <Router future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
+                <Router future={{ v7_relativeSplatPath: true }}>
                     <ThemeProvider>
                         <AdminProvider>
                             <GlobalStyles />

@@ -1,16 +1,17 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Search, Globe, AlertCircle, Check, Filter, ExternalLink, Edit3, Save, X, ChevronLeft, ChevronRight } from 'lucide-react';
 import { LumaSpin } from '@/components/ui/luma-spin';
 import axios from 'axios';
 import { useAdmin } from './AdminContext';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 
 const SEOManager = () => {
-    const { products, collections, fetchProducts, fetchCollections } = useAdmin();
+    const { collections, fetchCollections, activeOutlet } = useAdmin();
+    const queryClient = useQueryClient();
     const [activeTab, setActiveTab] = useState('products'); // 'products' or 'collections'
     const [search, setSearch] = useState('');
     const [filter, setFilter] = useState('all'); // 'all', 'missing', 'long', 'short'
-    const [loading, setLoading] = useState(false);
     const [editId, setEditId] = useState(null);
     const [editData, setEditData] = useState({ meta_title: '', meta_description: '' });
     const [saving, setSaving] = useState(false);
@@ -18,11 +19,24 @@ const SEOManager = () => {
     const [currentPage, setCurrentPage] = useState(1);
     const ITEMS_PER_PAGE = 15;
 
-    useEffect(() => {
-        setLoading(true);
-        Promise.all([fetchProducts(), fetchCollections()]).finally(() => setLoading(false));
-    }, [fetchProducts, fetchCollections]);
+    // Local product fetch — only runs when SEOManager is mounted
+    const { data: products = [], isLoading: productsLoading } = useQuery({
+        queryKey: ['seo-products', activeOutlet],
+        queryFn: async () => {
+            const { data } = await axios.get('/api/v1/products', {
+                params: { per_page: 1000, include_hidden: true },
+                headers: { 'X-Active-Outlet': activeOutlet }
+            });
+            return data.data;
+        },
+        staleTime: 2 * 60 * 1000,
+    });
 
+    const refreshProducts = useCallback(() => {
+        queryClient.invalidateQueries({ queryKey: ['seo-products', activeOutlet] });
+    }, [queryClient, activeOutlet]);
+
+    const loading = productsLoading;
     const items = activeTab === 'products' ? products : collections;
     
     const filteredItems = items.filter(item => {
@@ -75,7 +89,7 @@ const SEOManager = () => {
             if (res.data.success) {
                 setSuccess(id);
                 setTimeout(() => setSuccess(null), 3000);
-                activeTab === 'products' ? fetchProducts() : fetchCollections();
+                activeTab === 'products' ? refreshProducts() : fetchCollections();
                 setEditId(null);
             }
         } catch (err) {

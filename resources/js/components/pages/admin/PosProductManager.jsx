@@ -368,8 +368,8 @@ const ProductsPage = () => {
     // --- Data Fetching ---
     const { data: productsData, isLoading, isError, error } = useQuery({
         queryKey: ['admin-pos-products', activeOutlet, debouncedFilters.nameBarcode, debouncedFilters.code, debouncedFilters.attribute, debouncedFilters.group, currentPage],
-        keepPreviousData: true,
         retry: 1,
+        staleTime: 2 * 60 * 1000,
         queryFn: async () => {
             const { data } = await axios.get('/api/v1/admin/pos/products', {
                 params: { 
