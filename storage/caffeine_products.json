@@ -1,0 +1,3372 @@
+[
+    {
+        "sku": "P0000284",
+        "name": "1800 Cristalino Tequila",
+        "price": 10,
+        "stock_qty": 0,
+        "category": "Tequila & Mezcal",
+        "is_service": false,
+        "is_active": true,
+        "outlet": "caffeine"
+    },
+    {
+        "sku": "P0000139",
+        "name": "1800s Margarita",
+        "price": 9,
+        "stock_qty": 0,
+        "category": "1800s",
+        "is_service": false,
+        "is_active": true,
+        "outlet": "caffeine"
+    },
+    {
+        "sku": "P0000120",
+        "name": "A Gentle Man",
+        "price": 8.5,
+        "stock_qty": 0,
+        "category": "SECRET MENUS",
+        "is_service": false,
+        "is_active": true,
+        "outlet": "caffeine"
+    },
+    {
+        "sku": "P0000313",
+        "name": "A Kiss in Kampot",
+        "price": 8,
+        "stock_qty": 0,
+        "category": "Samai International Rum Day",
+        "is_service": false,
+        "is_active": true,
+        "outlet": "caffeine"
+    },
+    {
+        "sku": "P0000203",
+        "name": "ALMOND CHOCOLATE",
+        "price": 1.99,
+        "stock_qty": 0,
+        "category": "BAKERY",
+        "is_service": false,
+        "is_active": true,
+        "outlet": "caffeine"
+    },
+    {
+        "sku": "P0000344",
+        "name": "AVIATION AMERICAN",
+        "price": 8.5,
+        "stock_qty": 0,
+        "category": "Gin",
+        "is_service": false,
+        "is_active": true,
+        "outlet": "caffeine"
+    },
+    {
+        "sku": "P0000293",
+        "name": "Absinth Green Fairy",
+        "price": 6.5,
+        "stock_qty": 0,
+        "category": "Liqueur and Other",
+        "is_service": false,
+        "is_active": true,
+        "outlet": "caffeine"
+    },
+    {
+        "sku": "P0000310",
+        "name": "Absolute Vanila",
+        "price": 5.5,
+        "stock_qty": 0,
+        "category": "Vodka",
+        "is_service": false,
+        "is_active": true,
+        "outlet": "caffeine"
+    },
+    {
+        "sku": "P0000309",
+        "name": "Absolute Vodka (blue)",
+        "price": 5,
+        "stock_qty": 0,
+        "category": "Vodka",
+        "is_service": false,
+        "is_active": true,
+        "outlet": "caffeine"
+    },
+    {
+        "sku": "P0000128",
+        "name": "Amaretto Sour",
+        "price": 7,
+        "stock_qty": 0,
+        "category": "CLASSICS",
+        "is_service": false,
+        "is_active": true,
+        "outlet": "caffeine"
+    },
+    {
+        "sku": "P0000227",
+        "name": "Americano",
+        "price": 7,
+        "stock_qty": 0,
+        "category": "SPARKLING FEELING",
+        "is_service": false,
+        "is_active": true,
+        "outlet": "caffeine"
+    },
+    {
+        "sku": "P0000156",
+        "name": "Americano in Kampot",
+        "price": 8,
+        "stock_qty": 0,
+        "category": "Campari Red Hands",
+        "is_service": false,
+        "is_active": true,
+        "outlet": "caffeine"
+    },
+    {
+        "sku": "P0000346",
+        "name": "An-sorm Saneh",
+        "price": 9,
+        "stock_qty": 0,
+        "category": "KNY",
+        "is_service": false,
+        "is_active": true,
+        "outlet": "caffeine"
+    },
+    {
+        "sku": "P0000115",
+        "name": "Aperol Spritz",
+        "price": 7,
+        "stock_qty": 0,
+        "category": "SPARKLING FEELING",
+        "is_service": false,
+        "is_active": true,
+        "outlet": "caffeine"
+    },
+    {
+        "sku": "P0000230",
+        "name": "Apple Juice",
+        "price": 2,
+        "stock_qty": 0,
+        "category": "JUICE",
+        "is_service": false,
+        "is_active": true,
+        "outlet": "caffeine"
+    },
+    {
+        "sku": "P0000259",
+        "name": "Arran 10Y",
+        "price": 10,
+        "stock_qty": 0,
+        "category": "Whisky",
+        "is_service": false,
+        "is_active": true,
+        "outlet": "caffeine"
+    },
+    {
+        "sku": "P0000258",
+        "name": "Arran Barrel reserve",
+        "price": 8.5,
+        "stock_qty": 0,
+        "category": "Whisky",
+        "is_service": false,
+        "is_active": true,
+        "outlet": "caffeine"
+    },
+    {
+        "sku": "P0000087",
+        "name": "Assorted Snack Platter",
+        "price": 5,
+        "stock_qty": 0,
+        "category": "SNACK",
+        "is_service": false,
+        "is_active": true,
+        "outlet": "caffeine"
+    },
+    {
+        "sku": "P0000160",
+        "name": "Aviation",
+        "price": 7.5,
+        "stock_qty": 0,
+        "category": "CLASSICS",
+        "is_service": false,
+        "is_active": true,
+        "outlet": "caffeine"
+    },
+    {
+        "sku": "P0000150",
+        "name": "Aviation Gin",
+        "price": 8,
+        "stock_qty": 0,
+        "category": null,
+        "is_service": false,
+        "is_active": true,
+        "outlet": "caffeine"
+    },
+    {
+        "sku": "P0000176",
+        "name": "BOOKMARK",
+        "price": 0.5,
+        "stock_qty": 47,
+        "category": "BOOKMARK",
+        "is_service": false,
+        "is_active": true,
+        "outlet": "caffeine"
+    },
+    {
+        "sku": "P0000195",
+        "name": "BOOKMARK - SPECIAL",
+        "price": 5,
+        "stock_qty": 6,
+        "category": "BOOKMARK",
+        "is_service": false,
+        "is_active": true,
+        "outlet": "caffeine"
+    },
+    {
+        "sku": "P0000282",
+        "name": "Bacardi White",
+        "price": 5,
+        "stock_qty": 0,
+        "category": "Rum",
+        "is_service": false,
+        "is_active": true,
+        "outlet": "caffeine"
+    },
+    {
+        "sku": "P0000131",
+        "name": "Baigur Saigon",
+        "price": 7,
+        "stock_qty": 0,
+        "category": "Gin",
+        "is_service": false,
+        "is_active": true,
+        "outlet": "caffeine"
+    },
+    {
+        "sku": "P0000289",
+        "name": "Bailey's Irish Cream",
+        "price": 5.5,
+        "stock_qty": 0,
+        "category": "Liqueur and Other",
+        "is_service": false,
+        "is_active": true,
+        "outlet": "caffeine"
+    },
+    {
+        "sku": "P0000233",
+        "name": "Beef Ball Grilled",
+        "price": 5,
+        "stock_qty": 0,
+        "category": "SNACKS",
+        "is_service": false,
+        "is_active": true,
+        "outlet": "caffeine"
+    },
+    {
+        "sku": "P0000266",
+        "name": "Beefeater",
+        "price": 6,
+        "stock_qty": 0,
+        "category": null,
+        "is_service": false,
+        "is_active": true,
+        "outlet": "caffeine"
+    },
+    {
+        "sku": "P0000332",
+        "name": "Beefeater",
+        "price": 5.5,
+        "stock_qty": 0,
+        "category": null,
+        "is_service": false,
+        "is_active": true,
+        "outlet": "caffeine"
+    },
+    {
+        "sku": "P0000078",
+        "name": "Beer Lao",
+        "price": 3.5,
+        "stock_qty": 0,
+        "category": "BEER",
+        "is_service": false,
+        "is_active": true,
+        "outlet": "caffeine"
+    },
+    {
+        "sku": "P0000054",
+        "name": "Bee\u2019 Knee",
+        "price": 6,
+        "stock_qty": 0,
+        "category": "CLASSICS",
+        "is_service": false,
+        "is_active": true,
+        "outlet": "caffeine"
+    },
+    {
+        "sku": "P0000343",
+        "name": "Beluga",
+        "price": 9.5,
+        "stock_qty": 0,
+        "category": "Vodka",
+        "is_service": false,
+        "is_active": true,
+        "outlet": "caffeine"
+    },
+    {
+        "sku": "P0000319",
+        "name": "Berry Cream Coconut",
+        "price": 3.35,
+        "stock_qty": 0,
+        "category": "MONTHLY DRINK",
+        "is_service": false,
+        "is_active": true,
+        "outlet": "caffeine"
+    },
+    {
+        "sku": "P0000089",
+        "name": "Big Sister",
+        "price": 8.5,
+        "stock_qty": 0,
+        "category": "SECRET MENUS",
+        "is_service": false,
+        "is_active": true,
+        "outlet": "caffeine"
+    },
+    {
+        "sku": "P0000111",
+        "name": "Black Tie",
+        "price": 8.5,
+        "stock_qty": 0,
+        "category": "SIGNATURES",
+        "is_service": false,
+        "is_active": true,
+        "outlet": "caffeine"
+    },
+    {
+        "sku": "P0000211",
+        "name": "Black Tux",
+        "price": 8.5,
+        "stock_qty": 0,
+        "category": "SIGNATURES",
+        "is_service": false,
+        "is_active": true,
+        "outlet": "caffeine"
+    },
+    {
+        "sku": "P0000100",
+        "name": "Blue Curacao",
+        "price": 2.95,
+        "stock_qty": 0,
+        "category": "MOOD REFRESHERS",
+        "is_service": false,
+        "is_active": true,
+        "outlet": "caffeine"
+    },
+    {
+        "sku": "P0000047",
+        "name": "Bo Ros Tuan Samai",
+        "price": 7,
+        "stock_qty": 0,
+        "category": "OLD MENU 1.0",
+        "is_service": false,
+        "is_active": true,
+        "outlet": "caffeine"
+    },
+    {
+        "sku": "P0000137",
+        "name": "Boros Tan Samai in 1800s",
+        "price": 9,
+        "stock_qty": 0,
+        "category": "SIGNATURES",
+        "is_service": false,
+        "is_active": true,
+        "outlet": "caffeine"
+    },
+    {
+        "sku": "P0000076",
+        "name": "Bottega Prosecco - Bottle",
+        "price": 36,
+        "stock_qty": 0,
+        "category": "WINE",
+        "is_service": false,
+        "is_active": true,
+        "outlet": "caffeine"
+    },
+    {
+        "sku": "P0000041",
+        "name": "Boulevardier",
+        "price": 8,
+        "stock_qty": 0,
+        "category": "OLD MENU 1.0",
+        "is_service": false,
+        "is_active": true,
+        "outlet": "caffeine"
+    },
+    {
+        "sku": "P0000213",
+        "name": "Boutonni\u00e8re",
+        "price": 9,
+        "stock_qty": 0,
+        "category": "SIGNATURES",
+        "is_service": false,
+        "is_active": true,
+        "outlet": "caffeine"
+    },
+    {
+        "sku": "P0000248",
+        "name": "Buffalo Trace",
+        "price": 7,
+        "stock_qty": 0,
+        "category": "Whisky",
+        "is_service": false,
+        "is_active": true,
+        "outlet": "caffeine"
+    },
+    {
+        "sku": "P0000272",
+        "name": "Bulldog",
+        "price": 6.5,
+        "stock_qty": 0,
+        "category": "Gin",
+        "is_service": false,
+        "is_active": true,
+        "outlet": "caffeine"
+    },
+    {
+        "sku": "P0000105",
+        "name": "Buy A Book",
+        "price": 5,
+        "stock_qty": 0,
+        "category": "Book",
+        "is_service": false,
+        "is_active": true,
+        "outlet": "caffeine"
+    },
+    {
+        "sku": "P0000296",
+        "name": "CHRISTIAN DROUIN LA BLANCHE",
+        "price": 8,
+        "stock_qty": 0,
+        "category": "Brandy",
+        "is_service": false,
+        "is_active": true,
+        "outlet": "caffeine"
+    },
+    {
+        "sku": "P0000268",
+        "name": "CROSS KEYS BOTANICAL",
+        "price": 6.5,
+        "stock_qty": 0,
+        "category": "Gin",
+        "is_service": false,
+        "is_active": true,
+        "outlet": "caffeine"
+    },
+    {
+        "sku": "P0000288",
+        "name": "Cachaca 51",
+        "price": 5.5,
+        "stock_qty": 0,
+        "category": "Liqueur and Other",
+        "is_service": false,
+        "is_active": true,
+        "outlet": "caffeine"
+    },
+    {
+        "sku": "P0000077",
+        "name": "Cambodia Beer",
+        "price": 3,
+        "stock_qty": 0,
+        "category": "BEER",
+        "is_service": false,
+        "is_active": true,
+        "outlet": "caffeine"
+    },
+    {
+        "sku": "P0000292",
+        "name": "Campari",
+        "price": 5.5,
+        "stock_qty": 0,
+        "category": "Liqueur and Other",
+        "is_service": false,
+        "is_active": true,
+        "outlet": "caffeine"
+    },
+    {
+        "sku": "P0000157",
+        "name": "Campari Red Hands Kravat (Full Menu)",
+        "price": 22,
+        "stock_qty": 0,
+        "category": "Campari Red Hands",
+        "is_service": false,
+        "is_active": true,
+        "outlet": "caffeine"
+    },
+    {
+        "sku": "P0000224",
+        "name": "Campari Spritz",
+        "price": 7,
+        "stock_qty": 0,
+        "category": "SPARKLING FEELING",
+        "is_service": false,
+        "is_active": true,
+        "outlet": "caffeine"
+    },
+    {
+        "sku": "P0000298",
+        "name": "Chartruese Green",
+        "price": 14,
+        "stock_qty": 0,
+        "category": "Rare Spirit",
+        "is_service": false,
+        "is_active": true,
+        "outlet": "caffeine"
+    },
+    {
+        "sku": "P0000299",
+        "name": "Chartruese Yellow",
+        "price": 14,
+        "stock_qty": 0,
+        "category": "Rare Spirit",
+        "is_service": false,
+        "is_active": true,
+        "outlet": "caffeine"
+    },
+    {
+        "sku": "P0000241",
+        "name": "Chivas 12 Bottle",
+        "price": 70,
+        "stock_qty": 0,
+        "category": "Bottle",
+        "is_service": false,
+        "is_active": true,
+        "outlet": "caffeine"
+    },
+    {
+        "sku": "P0000242",
+        "name": "Chivas 12 shot",
+        "price": 6,
+        "stock_qty": 0,
+        "category": "Whisky",
+        "is_service": false,
+        "is_active": true,
+        "outlet": "caffeine"
+    },
+    {
+        "sku": "P0000239",
+        "name": "Chivas 18",
+        "price": 10,
+        "stock_qty": 0,
+        "category": "Whisky",
+        "is_service": false,
+        "is_active": true,
+        "outlet": "caffeine"
+    },
+    {
+        "sku": "P0000240",
+        "name": "Chivas 18 (Bottle) 1L",
+        "price": 155,
+        "stock_qty": 0,
+        "category": "Bottle",
+        "is_service": false,
+        "is_active": true,
+        "outlet": "caffeine"
+    },
+    {
+        "sku": "P0000095",
+        "name": "Chocolate Cream",
+        "price": 3.35,
+        "stock_qty": 0,
+        "category": "COLD",
+        "is_service": false,
+        "is_active": true,
+        "outlet": "caffeine"
+    },
+    {
+        "sku": "P0000030",
+        "name": "Chocolate Frappe",
+        "price": 3.35,
+        "stock_qty": 0,
+        "category": "FRAPPE",
+        "is_service": false,
+        "is_active": true,
+        "outlet": "caffeine"
+    },
+    {
+        "sku": "P0000356",
+        "name": "Chocolate Latte",
+        "price": 3.35,
+        "stock_qty": 0,
+        "category": "GRAB",
+        "is_service": false,
+        "is_active": true,
+        "outlet": "caffeine"
+    },
+    {
+        "sku": "P0000096",
+        "name": "Chocolate Mousse",
+        "price": 3.35,
+        "stock_qty": 0,
+        "category": "COLD",
+        "is_service": false,
+        "is_active": true,
+        "outlet": "caffeine"
+    },
+    {
+        "sku": "P0000152",
+        "name": "Citadel Original",
+        "price": 7.5,
+        "stock_qty": 0,
+        "category": "Gin",
+        "is_service": false,
+        "is_active": true,
+        "outlet": "caffeine"
+    },
+    {
+        "sku": "P0000082",
+        "name": "Coca Cola",
+        "price": 2,
+        "stock_qty": 0,
+        "category": "SOFT DRINKS",
+        "is_service": false,
+        "is_active": true,
+        "outlet": "caffeine"
+    },
+    {
+        "sku": "P0000125",
+        "name": "Cocktail Class",
+        "price": 28,
+        "stock_qty": 0,
+        "category": "CUSTOMIZE",
+        "is_service": false,
+        "is_active": true,
+        "outlet": "caffeine"
+    },
+    {
+        "sku": "P0000190",
+        "name": "Coconut Matcha Cream",
+        "price": 3.35,
+        "stock_qty": 0,
+        "category": "COLD",
+        "is_service": false,
+        "is_active": true,
+        "outlet": "caffeine"
+    },
+    {
+        "sku": "P0000352",
+        "name": "Coconut Milk Latte",
+        "price": 2.95,
+        "stock_qty": 0,
+        "category": "COLD",
+        "is_service": false,
+        "is_active": true,
+        "outlet": "caffeine"
+    },
+    {
+        "sku": "P0000207",
+        "name": "Coconut Pandan Cream",
+        "price": 3.35,
+        "stock_qty": 0,
+        "category": "COLD",
+        "is_service": false,
+        "is_active": true,
+        "outlet": "caffeine"
+    },
+    {
+        "sku": "P0000028",
+        "name": "Coffee Frappe",
+        "price": 3.35,
+        "stock_qty": 0,
+        "category": "FRAPPE",
+        "is_service": false,
+        "is_active": true,
+        "outlet": "caffeine"
+    },
+    {
+        "sku": "P0000291",
+        "name": "Cointreau",
+        "price": 5,
+        "stock_qty": 0,
+        "category": "Liqueur and Other",
+        "is_service": false,
+        "is_active": true,
+        "outlet": "caffeine"
+    },
+    {
+        "sku": "P0000114",
+        "name": "Corpse Reviver No.2",
+        "price": 8,
+        "stock_qty": 0,
+        "category": "CLASSICS",
+        "is_service": false,
+        "is_active": true,
+        "outlet": "caffeine"
+    },
+    {
+        "sku": "P0000222",
+        "name": "Cosmopolitan",
+        "price": 7.5,
+        "stock_qty": 0,
+        "category": "CLASSICS",
+        "is_service": false,
+        "is_active": true,
+        "outlet": "caffeine"
+    },
+    {
+        "sku": "P0000326",
+        "name": "Crimson Affair",
+        "price": 8,
+        "stock_qty": 0,
+        "category": "SIGNATURES",
+        "is_service": false,
+        "is_active": true,
+        "outlet": "caffeine"
+    },
+    {
+        "sku": "P0000349",
+        "name": "Crimson Cask - Compass Box",
+        "price": 15,
+        "stock_qty": 0,
+        "category": "Whisky",
+        "is_service": false,
+        "is_active": true,
+        "outlet": "caffeine"
+    },
+    {
+        "sku": "P0000351",
+        "name": "Cross Key's Blackcurrant",
+        "price": 6.75,
+        "stock_qty": 0,
+        "category": "Gin",
+        "is_service": false,
+        "is_active": true,
+        "outlet": "caffeine"
+    },
+    {
+        "sku": "P0000066",
+        "name": "Customize 10",
+        "price": 10,
+        "stock_qty": 0,
+        "category": "CUSTOMIZE",
+        "is_service": false,
+        "is_active": true,
+        "outlet": "caffeine"
+    },
+    {
+        "sku": "P0000067",
+        "name": "Customize 10.5",
+        "price": 10.5,
+        "stock_qty": 0,
+        "category": "CUSTOMIZE",
+        "is_service": false,
+        "is_active": true,
+        "outlet": "caffeine"
+    },
+    {
+        "sku": "P0000068",
+        "name": "Customize 11",
+        "price": 11,
+        "stock_qty": 0,
+        "category": "CUSTOMIZE",
+        "is_service": false,
+        "is_active": true,
+        "outlet": "caffeine"
+    },
+    {
+        "sku": "P0000069",
+        "name": "Customize 11.5",
+        "price": 11.5,
+        "stock_qty": 0,
+        "category": "CUSTOMIZE",
+        "is_service": false,
+        "is_active": true,
+        "outlet": "caffeine"
+    },
+    {
+        "sku": "P0000070",
+        "name": "Customize 12",
+        "price": 12,
+        "stock_qty": 0,
+        "category": "CUSTOMIZE",
+        "is_service": false,
+        "is_active": true,
+        "outlet": "caffeine"
+    },
+    {
+        "sku": "P0000328",
+        "name": "Customize 12.5",
+        "price": 12.5,
+        "stock_qty": 0,
+        "category": null,
+        "is_service": false,
+        "is_active": true,
+        "outlet": "caffeine"
+    },
+    {
+        "sku": "P0000329",
+        "name": "Customize 13",
+        "price": 13,
+        "stock_qty": 0,
+        "category": null,
+        "is_service": false,
+        "is_active": true,
+        "outlet": "caffeine"
+    },
+    {
+        "sku": "P0000330",
+        "name": "Customize 13.5",
+        "price": 0,
+        "stock_qty": 0,
+        "category": null,
+        "is_service": false,
+        "is_active": true,
+        "outlet": "caffeine"
+    },
+    {
+        "sku": "P0000331",
+        "name": "Customize 14",
+        "price": 0,
+        "stock_qty": 0,
+        "category": null,
+        "is_service": false,
+        "is_active": true,
+        "outlet": "caffeine"
+    },
+    {
+        "sku": "P0000056",
+        "name": "Customize 5",
+        "price": 5,
+        "stock_qty": 0,
+        "category": "CUSTOMIZE",
+        "is_service": false,
+        "is_active": true,
+        "outlet": "caffeine"
+    },
+    {
+        "sku": "P0000057",
+        "name": "Customize 5.5",
+        "price": 5.5,
+        "stock_qty": 0,
+        "category": "CUSTOMIZE",
+        "is_service": false,
+        "is_active": true,
+        "outlet": "caffeine"
+    },
+    {
+        "sku": "P0000058",
+        "name": "Customize 6",
+        "price": 6,
+        "stock_qty": 0,
+        "category": "CUSTOMIZE",
+        "is_service": false,
+        "is_active": true,
+        "outlet": "caffeine"
+    },
+    {
+        "sku": "P0000059",
+        "name": "Customize 6.5",
+        "price": 6.5,
+        "stock_qty": 0,
+        "category": "CUSTOMIZE",
+        "is_service": false,
+        "is_active": true,
+        "outlet": "caffeine"
+    },
+    {
+        "sku": "P0000060",
+        "name": "Customize 7",
+        "price": 7,
+        "stock_qty": 0,
+        "category": "CUSTOMIZE",
+        "is_service": false,
+        "is_active": true,
+        "outlet": "caffeine"
+    },
+    {
+        "sku": "P0000061",
+        "name": "Customize 7.5",
+        "price": 7.5,
+        "stock_qty": 0,
+        "category": "CUSTOMIZE",
+        "is_service": false,
+        "is_active": true,
+        "outlet": "caffeine"
+    },
+    {
+        "sku": "P0000062",
+        "name": "Customize 8",
+        "price": 8,
+        "stock_qty": 0,
+        "category": "CUSTOMIZE",
+        "is_service": false,
+        "is_active": true,
+        "outlet": "caffeine"
+    },
+    {
+        "sku": "P0000063",
+        "name": "Customize 8.5",
+        "price": 8.5,
+        "stock_qty": 0,
+        "category": "CUSTOMIZE",
+        "is_service": false,
+        "is_active": true,
+        "outlet": "caffeine"
+    },
+    {
+        "sku": "P0000064",
+        "name": "Customize 9",
+        "price": 9,
+        "stock_qty": 0,
+        "category": "CUSTOMIZE",
+        "is_service": false,
+        "is_active": true,
+        "outlet": "caffeine"
+    },
+    {
+        "sku": "P0000065",
+        "name": "Customize 9.5",
+        "price": 9.5,
+        "stock_qty": 0,
+        "category": "CUSTOMIZE",
+        "is_service": false,
+        "is_active": true,
+        "outlet": "caffeine"
+    },
+    {
+        "sku": "P0000140",
+        "name": "Customize Mocktail",
+        "price": 4.5,
+        "stock_qty": 0,
+        "category": "CUSTOMIZE",
+        "is_service": false,
+        "is_active": true,
+        "outlet": "caffeine"
+    },
+    {
+        "sku": "P0000189",
+        "name": "DOUBLE CHOCOLATE",
+        "price": 1.99,
+        "stock_qty": 0,
+        "category": "BAKERY",
+        "is_service": false,
+        "is_active": true,
+        "outlet": "caffeine"
+    },
+    {
+        "sku": "P0000159",
+        "name": "DOUBLE ESPRESSO",
+        "price": 2,
+        "stock_qty": 0,
+        "category": "HOT",
+        "is_service": false,
+        "is_active": true,
+        "outlet": "caffeine"
+    },
+    {
+        "sku": "P0000051",
+        "name": "Daiquiri",
+        "price": 7,
+        "stock_qty": 0,
+        "category": "CLASSICS",
+        "is_service": false,
+        "is_active": true,
+        "outlet": "caffeine"
+    },
+    {
+        "sku": "P0000123",
+        "name": "Dirty Martini",
+        "price": 7.5,
+        "stock_qty": 0,
+        "category": "MARTINI LOVER",
+        "is_service": false,
+        "is_active": true,
+        "outlet": "caffeine"
+    },
+    {
+        "sku": "P0000216",
+        "name": "Double Pinestripes",
+        "price": 5.5,
+        "stock_qty": 0,
+        "category": "SIGNATURES",
+        "is_service": false,
+        "is_active": true,
+        "outlet": "caffeine"
+    },
+    {
+        "sku": "P0000205",
+        "name": "Drink Sets 25JAN",
+        "price": 23,
+        "stock_qty": 0,
+        "category": "Events",
+        "is_service": false,
+        "is_active": true,
+        "outlet": "caffeine"
+    },
+    {
+        "sku": "P0000148",
+        "name": "Elephant Sloe Gin",
+        "price": 9,
+        "stock_qty": 0,
+        "category": "Gin",
+        "is_service": false,
+        "is_active": true,
+        "outlet": "caffeine"
+    },
+    {
+        "sku": "P0000109",
+        "name": "Extra 1 Shot",
+        "price": 0.8,
+        "stock_qty": 0,
+        "category": "TOPPINGS",
+        "is_service": false,
+        "is_active": true,
+        "outlet": "caffeine"
+    },
+    {
+        "sku": "P0000110",
+        "name": "Extra 2 Shots",
+        "price": 1,
+        "stock_qty": 0,
+        "category": "TOPPINGS",
+        "is_service": false,
+        "is_active": true,
+        "outlet": "caffeine"
+    },
+    {
+        "sku": "P0000183",
+        "name": "Extreme Red Flag",
+        "price": 8,
+        "stock_qty": 0,
+        "category": "SECRET MENUS",
+        "is_service": false,
+        "is_active": true,
+        "outlet": "caffeine"
+    },
+    {
+        "sku": "P0000256",
+        "name": "FIREBALL",
+        "price": 5,
+        "stock_qty": 0,
+        "category": "Whisky",
+        "is_service": false,
+        "is_active": true,
+        "outlet": "caffeine"
+    },
+    {
+        "sku": "P0000312",
+        "name": "Fever Tree Ginger Beer",
+        "price": 2.5,
+        "stock_qty": 0,
+        "category": "BEER",
+        "is_service": false,
+        "is_active": true,
+        "outlet": "caffeine"
+    },
+    {
+        "sku": "P0000099",
+        "name": "Flower Set",
+        "price": 12,
+        "stock_qty": 0,
+        "category": "SET",
+        "is_service": false,
+        "is_active": true,
+        "outlet": "caffeine"
+    },
+    {
+        "sku": "P0000206",
+        "name": "Food Catering",
+        "price": 8,
+        "stock_qty": 0,
+        "category": "Events",
+        "is_service": false,
+        "is_active": true,
+        "outlet": "caffeine"
+    },
+    {
+        "sku": "P0000327",
+        "name": "Frangelico Sour",
+        "price": 7,
+        "stock_qty": 0,
+        "category": "CLASSICS",
+        "is_service": false,
+        "is_active": true,
+        "outlet": "caffeine"
+    },
+    {
+        "sku": "P0000161",
+        "name": "GENERAL:  6-MONTH",
+        "price": 25,
+        "stock_qty": 0,
+        "category": "LIBRARY MEMBERSHIP",
+        "is_service": false,
+        "is_active": true,
+        "outlet": "caffeine"
+    },
+    {
+        "sku": "P0000162",
+        "name": "GENERAL: 1 YEAR",
+        "price": 40,
+        "stock_qty": 0,
+        "category": "LIBRARY MEMBERSHIP",
+        "is_service": false,
+        "is_active": true,
+        "outlet": "caffeine"
+    },
+    {
+        "sku": "P0000113",
+        "name": "Gibson",
+        "price": 7,
+        "stock_qty": 0,
+        "category": "MARTINI LOVER",
+        "is_service": false,
+        "is_active": true,
+        "outlet": "caffeine"
+    },
+    {
+        "sku": "P0000083",
+        "name": "Ginger Ale",
+        "price": 2,
+        "stock_qty": 0,
+        "category": "SOFT DRINKS",
+        "is_service": false,
+        "is_active": true,
+        "outlet": "caffeine"
+    },
+    {
+        "sku": "P0000212",
+        "name": "Ginger Pin",
+        "price": 8.5,
+        "stock_qty": 0,
+        "category": "SIGNATURES",
+        "is_service": false,
+        "is_active": true,
+        "outlet": "caffeine"
+    },
+    {
+        "sku": "P0000141",
+        "name": "Glenfidddich 12Y",
+        "price": 9.5,
+        "stock_qty": 0,
+        "category": "Whisky",
+        "is_service": false,
+        "is_active": true,
+        "outlet": "caffeine"
+    },
+    {
+        "sku": "P0000130",
+        "name": "Glenlivet 12Y",
+        "price": 9,
+        "stock_qty": 0,
+        "category": "Whisky",
+        "is_service": false,
+        "is_active": true,
+        "outlet": "caffeine"
+    },
+    {
+        "sku": "P0000221",
+        "name": "Gold Rush",
+        "price": 7.5,
+        "stock_qty": 0,
+        "category": "CLASSICS",
+        "is_service": false,
+        "is_active": true,
+        "outlet": "caffeine"
+    },
+    {
+        "sku": "P0000275",
+        "name": "Gordon",
+        "price": 5.5,
+        "stock_qty": 0,
+        "category": "Gin",
+        "is_service": false,
+        "is_active": true,
+        "outlet": "caffeine"
+    },
+    {
+        "sku": "P0000118",
+        "name": "Green Attire",
+        "price": 8.5,
+        "stock_qty": 0,
+        "category": "SECRET MENUS",
+        "is_service": false,
+        "is_active": true,
+        "outlet": "caffeine"
+    },
+    {
+        "sku": "P0000307",
+        "name": "Grey Goose",
+        "price": 6.5,
+        "stock_qty": 0,
+        "category": "Vodka",
+        "is_service": false,
+        "is_active": true,
+        "outlet": "caffeine"
+    },
+    {
+        "sku": "P0000187",
+        "name": "Grey Goose",
+        "price": 6.5,
+        "stock_qty": 0,
+        "category": "Vodka",
+        "is_service": false,
+        "is_active": true,
+        "outlet": "caffeine"
+    },
+    {
+        "sku": "P0000202",
+        "name": "HAM CHEESE",
+        "price": 1.99,
+        "stock_qty": 0,
+        "category": "BAKERY",
+        "is_service": false,
+        "is_active": true,
+        "outlet": "caffeine"
+    },
+    {
+        "sku": "P0000147",
+        "name": "HOT MOCHA",
+        "price": 2.85,
+        "stock_qty": 0,
+        "category": "HOT",
+        "is_service": false,
+        "is_active": true,
+        "outlet": "caffeine"
+    },
+    {
+        "sku": "P0000345",
+        "name": "Hampden 8ans",
+        "price": 14,
+        "stock_qty": 0,
+        "category": "Rum",
+        "is_service": false,
+        "is_active": true,
+        "outlet": "caffeine"
+    },
+    {
+        "sku": "P0000229",
+        "name": "Heineken",
+        "price": 4,
+        "stock_qty": 0,
+        "category": "BEER",
+        "is_service": false,
+        "is_active": true,
+        "outlet": "caffeine"
+    },
+    {
+        "sku": "P0000264",
+        "name": "Hendrick",
+        "price": 8,
+        "stock_qty": 0,
+        "category": "Gin",
+        "is_service": false,
+        "is_active": true,
+        "outlet": "caffeine"
+    },
+    {
+        "sku": "P0000238",
+        "name": "Himalayan Salt Cream with Espresso",
+        "price": 3.35,
+        "stock_qty": 0,
+        "category": "MONTHLY DRINK",
+        "is_service": false,
+        "is_active": true,
+        "outlet": "caffeine"
+    },
+    {
+        "sku": "P0000079",
+        "name": "Hoegaarden White",
+        "price": 4.5,
+        "stock_qty": 0,
+        "category": "BEER",
+        "is_service": false,
+        "is_active": true,
+        "outlet": "caffeine"
+    },
+    {
+        "sku": "P0000231",
+        "name": "Homemade Ngeat Ko",
+        "price": 6.5,
+        "stock_qty": 0,
+        "category": "SNACKS",
+        "is_service": false,
+        "is_active": true,
+        "outlet": "caffeine"
+    },
+    {
+        "sku": "P0000012",
+        "name": "Hot Americano",
+        "price": 2.5,
+        "stock_qty": 0,
+        "category": "HOT",
+        "is_service": false,
+        "is_active": true,
+        "outlet": "caffeine"
+    },
+    {
+        "sku": "P0000013",
+        "name": "Hot Cappuccino",
+        "price": 2.85,
+        "stock_qty": 0,
+        "category": "HOT",
+        "is_service": false,
+        "is_active": true,
+        "outlet": "caffeine"
+    },
+    {
+        "sku": "P0000015",
+        "name": "Hot Chocolate",
+        "price": 2.85,
+        "stock_qty": 0,
+        "category": "HOT",
+        "is_service": false,
+        "is_active": true,
+        "outlet": "caffeine"
+    },
+    {
+        "sku": "P0000010",
+        "name": "Hot Latte",
+        "price": 2.85,
+        "stock_qty": 0,
+        "category": "HOT",
+        "is_service": false,
+        "is_active": true,
+        "outlet": "caffeine"
+    },
+    {
+        "sku": "P0000014",
+        "name": "Hot Matcha Latte",
+        "price": 2.85,
+        "stock_qty": 0,
+        "category": "HOT",
+        "is_service": false,
+        "is_active": true,
+        "outlet": "caffeine"
+    },
+    {
+        "sku": "P0000011",
+        "name": "Hot Vanilla Latte",
+        "price": 2.85,
+        "stock_qty": 0,
+        "category": "HOT",
+        "is_service": false,
+        "is_active": true,
+        "outlet": "caffeine"
+    },
+    {
+        "sku": "P0000074",
+        "name": "House Wine (Red) - Bottle",
+        "price": 26,
+        "stock_qty": 0,
+        "category": "WINE",
+        "is_service": false,
+        "is_active": true,
+        "outlet": "caffeine"
+    },
+    {
+        "sku": "P0000071",
+        "name": "House Wine (Red) - Glass",
+        "price": 6,
+        "stock_qty": 0,
+        "category": "WINE",
+        "is_service": false,
+        "is_active": true,
+        "outlet": "caffeine"
+    },
+    {
+        "sku": "P0000075",
+        "name": "House Wine (White) - Bottle",
+        "price": 23,
+        "stock_qty": 0,
+        "category": "WINE",
+        "is_service": false,
+        "is_active": true,
+        "outlet": "caffeine"
+    },
+    {
+        "sku": "P0000072",
+        "name": "House Wine (White) - Glass",
+        "price": 6,
+        "stock_qty": 0,
+        "category": "WINE",
+        "is_service": false,
+        "is_active": true,
+        "outlet": "caffeine"
+    },
+    {
+        "sku": "P0000225",
+        "name": "Hugo Spritz",
+        "price": 7.5,
+        "stock_qty": 0,
+        "category": "SPARKLING FEELING",
+        "is_service": false,
+        "is_active": true,
+        "outlet": "caffeine"
+    },
+    {
+        "sku": "P0000317",
+        "name": "Ice Choco Strawberry",
+        "price": 2.95,
+        "stock_qty": 0,
+        "category": "MONTHLY DRINK",
+        "is_service": false,
+        "is_active": true,
+        "outlet": "caffeine"
+    },
+    {
+        "sku": "P0000353",
+        "name": "Ice Latte",
+        "price": 3.35,
+        "stock_qty": 0,
+        "category": "GRAB",
+        "is_service": false,
+        "is_active": true,
+        "outlet": "caffeine"
+    },
+    {
+        "sku": "P0000354",
+        "name": "Ice Matcha",
+        "price": 3.35,
+        "stock_qty": 0,
+        "category": "GRAB",
+        "is_service": false,
+        "is_active": true,
+        "outlet": "caffeine"
+    },
+    {
+        "sku": "P0000007",
+        "name": "Iced Americano",
+        "price": 2.5,
+        "stock_qty": 0,
+        "category": "COLD",
+        "is_service": false,
+        "is_active": true,
+        "outlet": "caffeine"
+    },
+    {
+        "sku": "P0000008",
+        "name": "Iced Cappuccino",
+        "price": 2.95,
+        "stock_qty": 0,
+        "category": "COLD",
+        "is_service": false,
+        "is_active": true,
+        "outlet": "caffeine"
+    },
+    {
+        "sku": "P0000018",
+        "name": "Iced Chocolate",
+        "price": 2.95,
+        "stock_qty": 0,
+        "category": "COLD",
+        "is_service": false,
+        "is_active": true,
+        "outlet": "caffeine"
+    },
+    {
+        "sku": "P0000002",
+        "name": "Iced Cuffeine Latte",
+        "price": 2.95,
+        "stock_qty": 0,
+        "category": "COLD",
+        "is_service": false,
+        "is_active": true,
+        "outlet": "caffeine"
+    },
+    {
+        "sku": "P0000101",
+        "name": "Iced Grapefruit Lychee Tea",
+        "price": 2.95,
+        "stock_qty": 0,
+        "category": "MOOD REFRESHERS",
+        "is_service": false,
+        "is_active": true,
+        "outlet": "caffeine"
+    },
+    {
+        "sku": "P0000003",
+        "name": "Iced Hazelnut Latte",
+        "price": 2.95,
+        "stock_qty": 0,
+        "category": "COLD",
+        "is_service": false,
+        "is_active": true,
+        "outlet": "caffeine"
+    },
+    {
+        "sku": "P0000006",
+        "name": "Iced Khmer Latte",
+        "price": 2.75,
+        "stock_qty": 0,
+        "category": "COLD",
+        "is_service": false,
+        "is_active": true,
+        "outlet": "caffeine"
+    },
+    {
+        "sku": "P0000001",
+        "name": "Iced Latte",
+        "price": 2.95,
+        "stock_qty": 0,
+        "category": "COLD",
+        "is_service": false,
+        "is_active": true,
+        "outlet": "caffeine"
+    },
+    {
+        "sku": "P0000097",
+        "name": "Iced Lychee Lime Tea",
+        "price": 2.95,
+        "stock_qty": 0,
+        "category": "MOOD REFRESHERS",
+        "is_service": false,
+        "is_active": true,
+        "outlet": "caffeine"
+    },
+    {
+        "sku": "P0000023",
+        "name": "Iced Lychee Soda",
+        "price": 2.95,
+        "stock_qty": 0,
+        "category": "MOOD REFRESHERS",
+        "is_service": false,
+        "is_active": true,
+        "outlet": "caffeine"
+    },
+    {
+        "sku": "P0000021",
+        "name": "Iced Lychee Tea",
+        "price": 2.95,
+        "stock_qty": 0,
+        "category": "MOOD REFRESHERS",
+        "is_service": false,
+        "is_active": true,
+        "outlet": "caffeine"
+    },
+    {
+        "sku": "P0000017",
+        "name": "Iced Matcha Latte",
+        "price": 2.95,
+        "stock_qty": 0,
+        "category": "COLD",
+        "is_service": false,
+        "is_active": true,
+        "outlet": "caffeine"
+    },
+    {
+        "sku": "P0000026",
+        "name": "Iced Matcha Strawberry",
+        "price": 2.95,
+        "stock_qty": 0,
+        "category": "COLD",
+        "is_service": false,
+        "is_active": true,
+        "outlet": "caffeine"
+    },
+    {
+        "sku": "P0000027",
+        "name": "Iced Minty Choco",
+        "price": 2.95,
+        "stock_qty": 0,
+        "category": "COLD",
+        "is_service": false,
+        "is_active": true,
+        "outlet": "caffeine"
+    },
+    {
+        "sku": "P0000016",
+        "name": "Iced Mocha",
+        "price": 2.95,
+        "stock_qty": 0,
+        "category": "COLD",
+        "is_service": false,
+        "is_active": true,
+        "outlet": "caffeine"
+    },
+    {
+        "sku": "P0000145",
+        "name": "Iced Passion Berries Tea",
+        "price": 2.95,
+        "stock_qty": 0,
+        "category": "MOOD REFRESHERS",
+        "is_service": false,
+        "is_active": true,
+        "outlet": "caffeine"
+    },
+    {
+        "sku": "P0000024",
+        "name": "Iced Passion Soda",
+        "price": 2.95,
+        "stock_qty": 0,
+        "category": "MOOD REFRESHERS",
+        "is_service": false,
+        "is_active": true,
+        "outlet": "caffeine"
+    },
+    {
+        "sku": "P0000022",
+        "name": "Iced Passion Tea",
+        "price": 2.95,
+        "stock_qty": 0,
+        "category": "MOOD REFRESHERS",
+        "is_service": false,
+        "is_active": true,
+        "outlet": "caffeine"
+    },
+    {
+        "sku": "P0000020",
+        "name": "Iced Peach Tea",
+        "price": 2.95,
+        "stock_qty": 0,
+        "category": "MOOD REFRESHERS",
+        "is_service": false,
+        "is_active": true,
+        "outlet": "caffeine"
+    },
+    {
+        "sku": "P0000019",
+        "name": "Iced Roselle Tea",
+        "price": 2.65,
+        "stock_qty": 0,
+        "category": "MOOD REFRESHERS",
+        "is_service": false,
+        "is_active": true,
+        "outlet": "caffeine"
+    },
+    {
+        "sku": "P0000025",
+        "name": "Iced Strawberry Soda",
+        "price": 2.95,
+        "stock_qty": 0,
+        "category": "MOOD REFRESHERS",
+        "is_service": false,
+        "is_active": true,
+        "outlet": "caffeine"
+    },
+    {
+        "sku": "P0000004",
+        "name": "Iced Vanilla Latte",
+        "price": 2.95,
+        "stock_qty": 0,
+        "category": "COLD",
+        "is_service": false,
+        "is_active": true,
+        "outlet": "caffeine"
+    },
+    {
+        "sku": "P0000267",
+        "name": "Isle of Harris",
+        "price": 13,
+        "stock_qty": 0,
+        "category": "Gin",
+        "is_service": false,
+        "is_active": true,
+        "outlet": "caffeine"
+    },
+    {
+        "sku": "P0000138",
+        "name": "It's my paloma",
+        "price": 8,
+        "stock_qty": 0,
+        "category": "1800s",
+        "is_service": false,
+        "is_active": true,
+        "outlet": "caffeine"
+    },
+    {
+        "sku": "P0000341",
+        "name": "Italicus Rosolio Di Bergamotto",
+        "price": 10,
+        "stock_qty": 0,
+        "category": "Liqueur and Other",
+        "is_service": false,
+        "is_active": true,
+        "outlet": "caffeine"
+    },
+    {
+        "sku": "P0000252",
+        "name": "Jameson Irish",
+        "price": 6,
+        "stock_qty": 0,
+        "category": "Whisky",
+        "is_service": false,
+        "is_active": true,
+        "outlet": "caffeine"
+    },
+    {
+        "sku": "P0000246",
+        "name": "Jim Beam",
+        "price": 5.5,
+        "stock_qty": 0,
+        "category": "Whisky",
+        "is_service": false,
+        "is_active": true,
+        "outlet": "caffeine"
+    },
+    {
+        "sku": "P0000287",
+        "name": "Jose Cuervo Silver",
+        "price": 5.5,
+        "stock_qty": 0,
+        "category": "Tequila & Mezcal",
+        "is_service": false,
+        "is_active": true,
+        "outlet": "caffeine"
+    },
+    {
+        "sku": "P0000236",
+        "name": "KEYCHAIN",
+        "price": 3,
+        "stock_qty": 0,
+        "category": "KEYCHAIN",
+        "is_service": false,
+        "is_active": true,
+        "outlet": "caffeine"
+    },
+    {
+        "sku": "P0000348",
+        "name": "KNY Set",
+        "price": 18,
+        "stock_qty": 0,
+        "category": "KNY",
+        "is_service": false,
+        "is_active": true,
+        "outlet": "caffeine"
+    },
+    {
+        "sku": "P0000338",
+        "name": "KOCH ELEMENTAL ESPADIN",
+        "price": 9.5,
+        "stock_qty": 0,
+        "category": "Tequila & Mezcal",
+        "is_service": false,
+        "is_active": true,
+        "outlet": "caffeine"
+    },
+    {
+        "sku": "P0000132",
+        "name": "Kalimotxo",
+        "price": 7.5,
+        "stock_qty": 0,
+        "category": "SPARKLING FEELING",
+        "is_service": false,
+        "is_active": true,
+        "outlet": "caffeine"
+    },
+    {
+        "sku": "P0000355",
+        "name": "Khmer Latte",
+        "price": 3.35,
+        "stock_qty": 0,
+        "category": "GRAB",
+        "is_service": false,
+        "is_active": true,
+        "outlet": "caffeine"
+    },
+    {
+        "sku": "P0000032",
+        "name": "Kingsman Martini",
+        "price": 12.5,
+        "stock_qty": 0,
+        "category": "MARTINI LOVER",
+        "is_service": false,
+        "is_active": true,
+        "outlet": "caffeine"
+    },
+    {
+        "sku": "P0000086",
+        "name": "Koulen Water (33cl)",
+        "price": 1.5,
+        "stock_qty": 0,
+        "category": "SOFT DRINKS",
+        "is_service": false,
+        "is_active": true,
+        "outlet": "caffeine"
+    },
+    {
+        "sku": "P0000322",
+        "name": "Kravat Crush",
+        "price": 5.5,
+        "stock_qty": 0,
+        "category": "SIGNATURES",
+        "is_service": false,
+        "is_active": true,
+        "outlet": "caffeine"
+    },
+    {
+        "sku": "P0000136",
+        "name": "Kravat in 1800s",
+        "price": 8,
+        "stock_qty": 0,
+        "category": "1800s",
+        "is_service": false,
+        "is_active": true,
+        "outlet": "caffeine"
+    },
+    {
+        "sku": "P0000034",
+        "name": "Kravatas",
+        "price": 9.5,
+        "stock_qty": 0,
+        "category": "KRAVAT 2.0",
+        "is_service": false,
+        "is_active": true,
+        "outlet": "caffeine"
+    },
+    {
+        "sku": "P0000116",
+        "name": "Krok Kor",
+        "price": 6,
+        "stock_qty": 0,
+        "category": "SNACKS",
+        "is_service": false,
+        "is_active": true,
+        "outlet": "caffeine"
+    },
+    {
+        "sku": "P0000283",
+        "name": "LOS ARCOS",
+        "price": 6.5,
+        "stock_qty": 0,
+        "category": "Tequila & Mezcal",
+        "is_service": false,
+        "is_active": true,
+        "outlet": "caffeine"
+    },
+    {
+        "sku": "P0000186",
+        "name": "La travesia mezcal",
+        "price": 8,
+        "stock_qty": 0,
+        "category": "Tequila & Mezcal",
+        "is_service": false,
+        "is_active": true,
+        "outlet": "caffeine"
+    },
+    {
+        "sku": "P0000142",
+        "name": "Laphroaig 10Y",
+        "price": 10,
+        "stock_qty": 0,
+        "category": "Whisky",
+        "is_service": false,
+        "is_active": true,
+        "outlet": "caffeine"
+    },
+    {
+        "sku": "P0000226",
+        "name": "Lemoncello Spritz",
+        "price": 7.5,
+        "stock_qty": 0,
+        "category": "SPARKLING FEELING",
+        "is_service": false,
+        "is_active": true,
+        "outlet": "caffeine"
+    },
+    {
+        "sku": "P0000053",
+        "name": "Long Island Iced Tea",
+        "price": 8,
+        "stock_qty": 0,
+        "category": "CLASSICS",
+        "is_service": false,
+        "is_active": true,
+        "outlet": "caffeine"
+    },
+    {
+        "sku": "P0000290",
+        "name": "Luxardo Limocello",
+        "price": 6,
+        "stock_qty": 0,
+        "category": "Liqueur and Other",
+        "is_service": false,
+        "is_active": true,
+        "outlet": "caffeine"
+    },
+    {
+        "sku": "P0000243",
+        "name": "MAWSIM GIN TROPICAL CITRUS",
+        "price": 10,
+        "stock_qty": 0,
+        "category": "Gin",
+        "is_service": false,
+        "is_active": true,
+        "outlet": "caffeine"
+    },
+    {
+        "sku": "P0000281",
+        "name": "Malibu Coconut",
+        "price": 5,
+        "stock_qty": 0,
+        "category": "Rum",
+        "is_service": false,
+        "is_active": true,
+        "outlet": "caffeine"
+    },
+    {
+        "sku": "P0000154",
+        "name": "Mama Orm",
+        "price": 9.5,
+        "stock_qty": 0,
+        "category": "WOMAN TAKEOVER",
+        "is_service": false,
+        "is_active": true,
+        "outlet": "caffeine"
+    },
+    {
+        "sku": "P0000214",
+        "name": "Man in White",
+        "price": 8.5,
+        "stock_qty": 0,
+        "category": "SIGNATURES",
+        "is_service": false,
+        "is_active": true,
+        "outlet": "caffeine"
+    },
+    {
+        "sku": "P0000184",
+        "name": "Man with no personality",
+        "price": 8.5,
+        "stock_qty": 0,
+        "category": "SECRET MENUS",
+        "is_service": false,
+        "is_active": true,
+        "outlet": "caffeine"
+    },
+    {
+        "sku": "P0000126",
+        "name": "Manhattan",
+        "price": 8,
+        "stock_qty": 0,
+        "category": "CLASSICS",
+        "is_service": false,
+        "is_active": true,
+        "outlet": "caffeine"
+    },
+    {
+        "sku": "P0000050",
+        "name": "Margarita",
+        "price": 7,
+        "stock_qty": 0,
+        "category": "CLASSICS",
+        "is_service": false,
+        "is_active": true,
+        "outlet": "caffeine"
+    },
+    {
+        "sku": "P0000247",
+        "name": "Marker's Mark",
+        "price": 6.5,
+        "stock_qty": 0,
+        "category": "Whisky",
+        "is_service": false,
+        "is_active": true,
+        "outlet": "caffeine"
+    },
+    {
+        "sku": "P0000093",
+        "name": "Matcha Cream",
+        "price": 3.35,
+        "stock_qty": 0,
+        "category": "COLD",
+        "is_service": false,
+        "is_active": true,
+        "outlet": "caffeine"
+    },
+    {
+        "sku": "P0000031",
+        "name": "Matcha Frappe",
+        "price": 3.35,
+        "stock_qty": 0,
+        "category": "FRAPPE",
+        "is_service": false,
+        "is_active": true,
+        "outlet": "caffeine"
+    },
+    {
+        "sku": "P0000094",
+        "name": "Matcha Mousse",
+        "price": 3.35,
+        "stock_qty": 0,
+        "category": "COLD",
+        "is_service": false,
+        "is_active": true,
+        "outlet": "caffeine"
+    },
+    {
+        "sku": "P0000208",
+        "name": "Matcha Pandan Cream",
+        "price": 3.35,
+        "stock_qty": 0,
+        "category": "COLD",
+        "is_service": false,
+        "is_active": true,
+        "outlet": "caffeine"
+    },
+    {
+        "sku": "P0000340",
+        "name": "Mawsim Cacao",
+        "price": 10.5,
+        "stock_qty": 0,
+        "category": "Liqueur and Other",
+        "is_service": false,
+        "is_active": true,
+        "outlet": "caffeine"
+    },
+    {
+        "sku": "P0000129",
+        "name": "Mawsim Spice and Herbs",
+        "price": 10,
+        "stock_qty": 0,
+        "category": "Gin",
+        "is_service": false,
+        "is_active": true,
+        "outlet": "caffeine"
+    },
+    {
+        "sku": "P0000119",
+        "name": "Mealea Duong Chet",
+        "price": 8.5,
+        "stock_qty": 0,
+        "category": "SECRET MENUS",
+        "is_service": false,
+        "is_active": true,
+        "outlet": "caffeine"
+    },
+    {
+        "sku": "P0000009",
+        "name": "Milky Espresso",
+        "price": 2.75,
+        "stock_qty": 0,
+        "category": "COLD",
+        "is_service": false,
+        "is_active": true,
+        "outlet": "caffeine"
+    },
+    {
+        "sku": "P0000350",
+        "name": "Mitcher's Rye",
+        "price": 12,
+        "stock_qty": 0,
+        "category": "Whisky",
+        "is_service": false,
+        "is_active": true,
+        "outlet": "caffeine"
+    },
+    {
+        "sku": "P0000029",
+        "name": "Mocha Frappe",
+        "price": 3.35,
+        "stock_qty": 0,
+        "category": "FRAPPE",
+        "is_service": false,
+        "is_active": true,
+        "outlet": "caffeine"
+    },
+    {
+        "sku": "P0000320",
+        "name": "Mojito Spring",
+        "price": 2.95,
+        "stock_qty": 0,
+        "category": "MONTHLY DRINK",
+        "is_service": false,
+        "is_active": true,
+        "outlet": "caffeine"
+    },
+    {
+        "sku": "P0000273",
+        "name": "Monkey 47 Dry",
+        "price": 14,
+        "stock_qty": 0,
+        "category": "Gin",
+        "is_service": false,
+        "is_active": true,
+        "outlet": "caffeine"
+    },
+    {
+        "sku": "P0000274",
+        "name": "Monkey 47 Sloe",
+        "price": 18,
+        "stock_qty": 0,
+        "category": "Gin",
+        "is_service": false,
+        "is_active": true,
+        "outlet": "caffeine"
+    },
+    {
+        "sku": "P0000261",
+        "name": "Monkey Shoulder",
+        "price": 8.5,
+        "stock_qty": 0,
+        "category": "Whisky",
+        "is_service": false,
+        "is_active": true,
+        "outlet": "caffeine"
+    },
+    {
+        "sku": "P0000339",
+        "name": "Monte Alban Blanco",
+        "price": 5.5,
+        "stock_qty": 0,
+        "category": "Tequila & Mezcal",
+        "is_service": false,
+        "is_active": true,
+        "outlet": "caffeine"
+    },
+    {
+        "sku": "P0000294",
+        "name": "Montenegro Amaro",
+        "price": 8,
+        "stock_qty": 0,
+        "category": "Liqueur and Other",
+        "is_service": false,
+        "is_active": true,
+        "outlet": "caffeine"
+    },
+    {
+        "sku": "P0000188",
+        "name": "Moscow Mule",
+        "price": 7,
+        "stock_qty": 0,
+        "category": "CLASSICS",
+        "is_service": false,
+        "is_active": true,
+        "outlet": "caffeine"
+    },
+    {
+        "sku": "P0000335",
+        "name": "N3 London Dry",
+        "price": 9.5,
+        "stock_qty": 0,
+        "category": "Gin",
+        "is_service": false,
+        "is_active": true,
+        "outlet": "caffeine"
+    },
+    {
+        "sku": "P0000172",
+        "name": "NHUM - ENG",
+        "price": 33,
+        "stock_qty": 8,
+        "category": "BOOK FOR SALE",
+        "is_service": false,
+        "is_active": true,
+        "outlet": "caffeine"
+    },
+    {
+        "sku": "P0000173",
+        "name": "NHUM - KHMER",
+        "price": 29,
+        "stock_qty": 11,
+        "category": "BOOK FOR SALE",
+        "is_service": false,
+        "is_active": true,
+        "outlet": "caffeine"
+    },
+    {
+        "sku": "P0000191",
+        "name": "NIKKA HIGHBALL",
+        "price": 8,
+        "stock_qty": 0,
+        "category": "Nikka Sora Takeover",
+        "is_service": false,
+        "is_active": true,
+        "outlet": "caffeine"
+    },
+    {
+        "sku": "P0000193",
+        "name": "NIKKA NEW YORK SOUR",
+        "price": 8,
+        "stock_qty": 0,
+        "category": "Nikka Sora Takeover",
+        "is_service": false,
+        "is_active": true,
+        "outlet": "caffeine"
+    },
+    {
+        "sku": "P0000042",
+        "name": "Neary Tom Nerb",
+        "price": 7.5,
+        "stock_qty": 0,
+        "category": "OLD MENU 1.0",
+        "is_service": false,
+        "is_active": true,
+        "outlet": "caffeine"
+    },
+    {
+        "sku": "P0000112",
+        "name": "Necromancer",
+        "price": 8,
+        "stock_qty": 0,
+        "category": "OLD MENU 1.0",
+        "is_service": false,
+        "is_active": true,
+        "outlet": "caffeine"
+    },
+    {
+        "sku": "P0000049",
+        "name": "Negroni",
+        "price": 7,
+        "stock_qty": 0,
+        "category": "CLASSICS",
+        "is_service": false,
+        "is_active": true,
+        "outlet": "caffeine"
+    },
+    {
+        "sku": "P0000117",
+        "name": "Ngeat Krobey",
+        "price": 7.5,
+        "stock_qty": 0,
+        "category": "SNACK",
+        "is_service": false,
+        "is_active": true,
+        "outlet": "caffeine"
+    },
+    {
+        "sku": "P0000153",
+        "name": "Nikka Days",
+        "price": 8,
+        "stock_qty": 0,
+        "category": "Whisky",
+        "is_service": false,
+        "is_active": true,
+        "outlet": "caffeine"
+    },
+    {
+        "sku": "P0000254",
+        "name": "Nikka From the Barrel",
+        "price": 13,
+        "stock_qty": 0,
+        "category": "Whisky",
+        "is_service": false,
+        "is_active": true,
+        "outlet": "caffeine"
+    },
+    {
+        "sku": "P0000255",
+        "name": "Nikka Tailored",
+        "price": 18,
+        "stock_qty": 0,
+        "category": "Whisky",
+        "is_service": false,
+        "is_active": true,
+        "outlet": "caffeine"
+    },
+    {
+        "sku": "P0000257",
+        "name": "Nikka Yoichi Single Malt",
+        "price": 13,
+        "stock_qty": 0,
+        "category": "Whisky",
+        "is_service": false,
+        "is_active": true,
+        "outlet": "caffeine"
+    },
+    {
+        "sku": "P0000253",
+        "name": "Nikka coffey grain",
+        "price": 10,
+        "stock_qty": 0,
+        "category": "Whisky",
+        "is_service": false,
+        "is_active": true,
+        "outlet": "caffeine"
+    },
+    {
+        "sku": "P0000036",
+        "name": "Odd Jacket",
+        "price": 7.5,
+        "stock_qty": 0,
+        "category": "SIGNATURES",
+        "is_service": false,
+        "is_active": true,
+        "outlet": "caffeine"
+    },
+    {
+        "sku": "P0000127",
+        "name": "Old Fashion",
+        "price": 7.5,
+        "stock_qty": 0,
+        "category": "CLASSICS",
+        "is_service": false,
+        "is_active": true,
+        "outlet": "caffeine"
+    },
+    {
+        "sku": "P0000080",
+        "name": "Orange Juice (Glass)",
+        "price": 2,
+        "stock_qty": 0,
+        "category": "JUICE",
+        "is_service": false,
+        "is_active": true,
+        "outlet": "caffeine"
+    },
+    {
+        "sku": "P0000336",
+        "name": "Orchard House - Compass Box",
+        "price": 10,
+        "stock_qty": 0,
+        "category": "Whisky",
+        "is_service": false,
+        "is_active": true,
+        "outlet": "caffeine"
+    },
+    {
+        "sku": "P0000235",
+        "name": "Oreo Pandan Latte",
+        "price": 3.35,
+        "stock_qty": 0,
+        "category": "MONTHLY DRINK",
+        "is_service": false,
+        "is_active": true,
+        "outlet": "caffeine"
+    },
+    {
+        "sku": "P0000046",
+        "name": "Out-of-the-Closet",
+        "price": 7.5,
+        "stock_qty": 0,
+        "category": "OLD MENU 1.0",
+        "is_service": false,
+        "is_active": true,
+        "outlet": "caffeine"
+    },
+    {
+        "sku": "P0000192",
+        "name": "PENICILLIN",
+        "price": 8,
+        "stock_qty": 0,
+        "category": "SPECIAL",
+        "is_service": false,
+        "is_active": true,
+        "outlet": "caffeine"
+    },
+    {
+        "sku": "P0000194",
+        "name": "PERFECT MANHATTAN",
+        "price": 8,
+        "stock_qty": 0,
+        "category": "Nikka Sora Takeover",
+        "is_service": false,
+        "is_active": true,
+        "outlet": "caffeine"
+    },
+    {
+        "sku": "P0000295",
+        "name": "PIERRE FERRAND 1840",
+        "price": 10.5,
+        "stock_qty": 0,
+        "category": "Brandy",
+        "is_service": false,
+        "is_active": true,
+        "outlet": "caffeine"
+    },
+    {
+        "sku": "P0000277",
+        "name": "PLANTERAY 3 STAR",
+        "price": 7,
+        "stock_qty": 0,
+        "category": "Rum",
+        "is_service": false,
+        "is_active": true,
+        "outlet": "caffeine"
+    },
+    {
+        "sku": "P0000278",
+        "name": "PLANTERAY ORIGINAL DARK",
+        "price": 7,
+        "stock_qty": 0,
+        "category": "Rum",
+        "is_service": false,
+        "is_active": true,
+        "outlet": "caffeine"
+    },
+    {
+        "sku": "P0000276",
+        "name": "PLANTERAY PINEAPPLE",
+        "price": 8,
+        "stock_qty": 0,
+        "category": "Rum",
+        "is_service": false,
+        "is_active": true,
+        "outlet": "caffeine"
+    },
+    {
+        "sku": "P0000209",
+        "name": "PRE-PAID CARD",
+        "price": 22,
+        "stock_qty": 0,
+        "category": "SET",
+        "is_service": false,
+        "is_active": true,
+        "outlet": "caffeine"
+    },
+    {
+        "sku": "P0000321",
+        "name": "Paloma",
+        "price": 8,
+        "stock_qty": 0,
+        "category": "CLASSICS",
+        "is_service": false,
+        "is_active": true,
+        "outlet": "caffeine"
+    },
+    {
+        "sku": "P0000196",
+        "name": "Pandan Coffee latte",
+        "price": 3.15,
+        "stock_qty": 0,
+        "category": "COLD",
+        "is_service": false,
+        "is_active": true,
+        "outlet": "caffeine"
+    },
+    {
+        "sku": "P0000197",
+        "name": "Pandan Matcha latte",
+        "price": 3.15,
+        "stock_qty": 0,
+        "category": "COLD",
+        "is_service": false,
+        "is_active": true,
+        "outlet": "caffeine"
+    },
+    {
+        "sku": "P0000092",
+        "name": "Passion Cream",
+        "price": 3.35,
+        "stock_qty": 0,
+        "category": "COLD",
+        "is_service": false,
+        "is_active": true,
+        "outlet": "caffeine"
+    },
+    {
+        "sku": "P0000048",
+        "name": "Passionate Mr. Roselle",
+        "price": 7.5,
+        "stock_qty": 0,
+        "category": "OLD MENU 1.0",
+        "is_service": false,
+        "is_active": true,
+        "outlet": "caffeine"
+    },
+    {
+        "sku": "P0000285",
+        "name": "Patron Silver",
+        "price": 9,
+        "stock_qty": 0,
+        "category": "Tequila & Mezcal",
+        "is_service": false,
+        "is_active": true,
+        "outlet": "caffeine"
+    },
+    {
+        "sku": "P0000091",
+        "name": "Pearl of Asia",
+        "price": 9,
+        "stock_qty": 0,
+        "category": "SECRET MENUS",
+        "is_service": false,
+        "is_active": true,
+        "outlet": "caffeine"
+    },
+    {
+        "sku": "P0000081",
+        "name": "Pineapple Juice (Glass)",
+        "price": 2,
+        "stock_qty": 0,
+        "category": "JUICE",
+        "is_service": false,
+        "is_active": true,
+        "outlet": "caffeine"
+    },
+    {
+        "sku": "P0000038",
+        "name": "Pinestripes",
+        "price": 5.5,
+        "stock_qty": 0,
+        "category": "SIGNATURES",
+        "is_service": false,
+        "is_active": true,
+        "outlet": "caffeine"
+    },
+    {
+        "sku": "P0000185",
+        "name": "Ping's Drink",
+        "price": 7,
+        "stock_qty": 0,
+        "category": "SECRET MENUS",
+        "is_service": false,
+        "is_active": true,
+        "outlet": "caffeine"
+    },
+    {
+        "sku": "P0000269",
+        "name": "Plymouth",
+        "price": 7.5,
+        "stock_qty": 0,
+        "category": "Gin",
+        "is_service": false,
+        "is_active": true,
+        "outlet": "caffeine"
+    },
+    {
+        "sku": "P0000232",
+        "name": "Pork Nem",
+        "price": 6,
+        "stock_qty": 0,
+        "category": "SNACKS",
+        "is_service": false,
+        "is_active": true,
+        "outlet": "caffeine"
+    },
+    {
+        "sku": "P0000163",
+        "name": "RAISIN",
+        "price": 1.99,
+        "stock_qty": 0,
+        "category": "BAKERY",
+        "is_service": false,
+        "is_active": true,
+        "outlet": "caffeine"
+    },
+    {
+        "sku": "P0000337",
+        "name": "ROOSTER ROJO MEZCAL",
+        "price": 9.5,
+        "stock_qty": 0,
+        "category": "Tequila & Mezcal",
+        "is_service": false,
+        "is_active": true,
+        "outlet": "caffeine"
+    },
+    {
+        "sku": "P0000342",
+        "name": "Ratafia Rossi",
+        "price": 7,
+        "stock_qty": 0,
+        "category": "Liqueur and Other",
+        "is_service": false,
+        "is_active": true,
+        "outlet": "caffeine"
+    },
+    {
+        "sku": "P0000033",
+        "name": "Ready-to-Wear",
+        "price": 12,
+        "stock_qty": 0,
+        "category": "SIGNATURES",
+        "is_service": false,
+        "is_active": true,
+        "outlet": "caffeine"
+    },
+    {
+        "sku": "P0000039",
+        "name": "Red Flag",
+        "price": 5,
+        "stock_qty": 0,
+        "category": "SIGNATURES",
+        "is_service": false,
+        "is_active": true,
+        "outlet": "caffeine"
+    },
+    {
+        "sku": "P0000297",
+        "name": "Remy Martin VSOP",
+        "price": 10,
+        "stock_qty": 0,
+        "category": "Brandy",
+        "is_service": false,
+        "is_active": true,
+        "outlet": "caffeine"
+    },
+    {
+        "sku": "P0000103",
+        "name": "Rent Book",
+        "price": 6,
+        "stock_qty": 0,
+        "category": "Book",
+        "is_service": false,
+        "is_active": true,
+        "outlet": "caffeine"
+    },
+    {
+        "sku": "P0000106",
+        "name": "Return Book",
+        "price": -5,
+        "stock_qty": 0,
+        "category": "Book",
+        "is_service": false,
+        "is_active": true,
+        "outlet": "caffeine"
+    },
+    {
+        "sku": "P0000263",
+        "name": "Roku",
+        "price": 7.5,
+        "stock_qty": 0,
+        "category": "Gin",
+        "is_service": false,
+        "is_active": true,
+        "outlet": "caffeine"
+    },
+    {
+        "sku": "P0000088",
+        "name": "Rose of Bokor",
+        "price": 9.5,
+        "stock_qty": 0,
+        "category": "KRAVAT 2.0",
+        "is_service": false,
+        "is_active": true,
+        "outlet": "caffeine"
+    },
+    {
+        "sku": "P0000333",
+        "name": "Rosy Sour Peach",
+        "price": 2.95,
+        "stock_qty": 0,
+        "category": "MOOD REFRESHERS",
+        "is_service": false,
+        "is_active": true,
+        "outlet": "caffeine"
+    },
+    {
+        "sku": "P0000122",
+        "name": "Runway",
+        "price": 9,
+        "stock_qty": 0,
+        "category": "SECRET MENUS",
+        "is_service": false,
+        "is_active": true,
+        "outlet": "caffeine"
+    },
+    {
+        "sku": "P0000171",
+        "name": "SAOY - ENG",
+        "price": 45,
+        "stock_qty": 8,
+        "category": "BOOK FOR SALE",
+        "is_service": false,
+        "is_active": true,
+        "outlet": "caffeine"
+    },
+    {
+        "sku": "P0000170",
+        "name": "SAOY - KHMER",
+        "price": 39,
+        "stock_qty": 8,
+        "category": "BOOK FOR SALE",
+        "is_service": false,
+        "is_active": true,
+        "outlet": "caffeine"
+    },
+    {
+        "sku": "P0000204",
+        "name": "SAUSAGE ROLE",
+        "price": 1.99,
+        "stock_qty": 0,
+        "category": "BAKERY",
+        "is_service": false,
+        "is_active": true,
+        "outlet": "caffeine"
+    },
+    {
+        "sku": "P0000158",
+        "name": "SINGLE ESPRESSO",
+        "price": 1.5,
+        "stock_qty": 0,
+        "category": "HOT",
+        "is_service": false,
+        "is_active": true,
+        "outlet": "caffeine"
+    },
+    {
+        "sku": "P0000174",
+        "name": "STUDENT: 1 YEAR",
+        "price": 30,
+        "stock_qty": 0,
+        "category": "LIBRARY MEMBERSHIP",
+        "is_service": false,
+        "is_active": true,
+        "outlet": "caffeine"
+    },
+    {
+        "sku": "P0000175",
+        "name": "STUDENT: 6-MONTH",
+        "price": 20,
+        "stock_qty": 0,
+        "category": "LIBRARY MEMBERSHIP",
+        "is_service": false,
+        "is_active": true,
+        "outlet": "caffeine"
+    },
+    {
+        "sku": "P0000315",
+        "name": "Salted Flame",
+        "price": 8,
+        "stock_qty": 0,
+        "category": "Samai International Rum Day",
+        "is_service": false,
+        "is_active": true,
+        "outlet": "caffeine"
+    },
+    {
+        "sku": "P0000318",
+        "name": "Salted Matcha Lychee Tea",
+        "price": 3.35,
+        "stock_qty": 0,
+        "category": "MONTHLY DRINK",
+        "is_service": false,
+        "is_active": true,
+        "outlet": "caffeine"
+    },
+    {
+        "sku": "P0000245",
+        "name": "Samai Gold Rum",
+        "price": 7.5,
+        "stock_qty": 0,
+        "category": "Rum",
+        "is_service": false,
+        "is_active": true,
+        "outlet": "caffeine"
+    },
+    {
+        "sku": "P0000143",
+        "name": "Samai Kampot Pepper Rum",
+        "price": 8,
+        "stock_qty": 0,
+        "category": "Rum",
+        "is_service": false,
+        "is_active": true,
+        "outlet": "caffeine"
+    },
+    {
+        "sku": "P0000144",
+        "name": "Samai PX Rum Liqueur",
+        "price": 10,
+        "stock_qty": 0,
+        "category": "Rum",
+        "is_service": false,
+        "is_active": true,
+        "outlet": "caffeine"
+    },
+    {
+        "sku": "P0000314",
+        "name": "Samai Whisper",
+        "price": 8,
+        "stock_qty": 0,
+        "category": "Samai International Rum Day",
+        "is_service": false,
+        "is_active": true,
+        "outlet": "caffeine"
+    },
+    {
+        "sku": "P0000244",
+        "name": "Samai White Rum",
+        "price": 6,
+        "stock_qty": 0,
+        "category": "Rum",
+        "is_service": false,
+        "is_active": true,
+        "outlet": "caffeine"
+    },
+    {
+        "sku": "P0000151",
+        "name": "Saneha Original",
+        "price": 9,
+        "stock_qty": 0,
+        "category": "Gin",
+        "is_service": false,
+        "is_active": true,
+        "outlet": "caffeine"
+    },
+    {
+        "sku": "P0000035",
+        "name": "Sartorialist",
+        "price": 7.5,
+        "stock_qty": 0,
+        "category": "SIGNATURES",
+        "is_service": false,
+        "is_active": true,
+        "outlet": "caffeine"
+    },
+    {
+        "sku": "P0000179",
+        "name": "Sazerac",
+        "price": 8.5,
+        "stock_qty": 0,
+        "category": "CLASSICS",
+        "is_service": false,
+        "is_active": true,
+        "outlet": "caffeine"
+    },
+    {
+        "sku": "P0000251",
+        "name": "Sazerac Rye",
+        "price": 8.5,
+        "stock_qty": 0,
+        "category": "Whisky",
+        "is_service": false,
+        "is_active": true,
+        "outlet": "caffeine"
+    },
+    {
+        "sku": "P0000228",
+        "name": "Sbagliato",
+        "price": 7.5,
+        "stock_qty": 0,
+        "category": "SPARKLING FEELING",
+        "is_service": false,
+        "is_active": true,
+        "outlet": "caffeine"
+    },
+    {
+        "sku": "P0000311",
+        "name": "Screwball Peanut Butter Whiskey",
+        "price": 7,
+        "stock_qty": 0,
+        "category": "Whisky",
+        "is_service": false,
+        "is_active": true,
+        "outlet": "caffeine"
+    },
+    {
+        "sku": "P0000234",
+        "name": "Seasonal Green Fruit",
+        "price": 4,
+        "stock_qty": 0,
+        "category": "SNACKS",
+        "is_service": false,
+        "is_active": true,
+        "outlet": "caffeine"
+    },
+    {
+        "sku": "P0000300",
+        "name": "Seeker Dry Gin",
+        "price": 7.5,
+        "stock_qty": 0,
+        "category": "Gin",
+        "is_service": false,
+        "is_active": true,
+        "outlet": "caffeine"
+    },
+    {
+        "sku": "P0000301",
+        "name": "Seeker Jason Kong Butterfly Pea",
+        "price": 7.5,
+        "stock_qty": 0,
+        "category": "Gin",
+        "is_service": false,
+        "is_active": true,
+        "outlet": "caffeine"
+    },
+    {
+        "sku": "P0000302",
+        "name": "Seeker Pastis",
+        "price": 5.5,
+        "stock_qty": 0,
+        "category": "Liqueur and Other",
+        "is_service": false,
+        "is_active": true,
+        "outlet": "caffeine"
+    },
+    {
+        "sku": "P0000305",
+        "name": "Seeker Vodka",
+        "price": 5.5,
+        "stock_qty": 0,
+        "category": "Vodka",
+        "is_service": false,
+        "is_active": true,
+        "outlet": "caffeine"
+    },
+    {
+        "sku": "P0000303",
+        "name": "Seeker orange liqueur",
+        "price": 5,
+        "stock_qty": 0,
+        "category": "Liqueur and Other",
+        "is_service": false,
+        "is_active": true,
+        "outlet": "caffeine"
+    },
+    {
+        "sku": "P0000304",
+        "name": "Sensota",
+        "price": 7,
+        "stock_qty": 0,
+        "category": "Rare Spirit",
+        "is_service": false,
+        "is_active": true,
+        "outlet": "caffeine"
+    },
+    {
+        "sku": "P0000133",
+        "name": "Sensota Gold",
+        "price": 6,
+        "stock_qty": 0,
+        "category": "Liqueur and Other",
+        "is_service": false,
+        "is_active": true,
+        "outlet": "caffeine"
+    },
+    {
+        "sku": "P0000316",
+        "name": "Set Menu - Samai International Rum Day",
+        "price": 22,
+        "stock_qty": 0,
+        "category": "Samai International Rum Day",
+        "is_service": false,
+        "is_active": true,
+        "outlet": "caffeine"
+    },
+    {
+        "sku": "P0000260",
+        "name": "Sexton",
+        "price": 7,
+        "stock_qty": 0,
+        "category": "Whisky",
+        "is_service": false,
+        "is_active": true,
+        "outlet": "caffeine"
+    },
+    {
+        "sku": "P0000005",
+        "name": "Shaken Oat Latte",
+        "price": 2.95,
+        "stock_qty": 0,
+        "category": "COLD",
+        "is_service": false,
+        "is_active": true,
+        "outlet": "caffeine"
+    },
+    {
+        "sku": "P0000357",
+        "name": "Shaken Oat Latte",
+        "price": 3.35,
+        "stock_qty": 0,
+        "category": "GRAB",
+        "is_service": false,
+        "is_active": true,
+        "outlet": "caffeine"
+    },
+    {
+        "sku": "P0000155",
+        "name": "Shameless Negroni",
+        "price": 8.5,
+        "stock_qty": 0,
+        "category": "SIGNATURES",
+        "is_service": false,
+        "is_active": true,
+        "outlet": "caffeine"
+    },
+    {
+        "sku": "P0000223",
+        "name": "Sidecar",
+        "price": 8,
+        "stock_qty": 0,
+        "category": "CLASSICS",
+        "is_service": false,
+        "is_active": true,
+        "outlet": "caffeine"
+    },
+    {
+        "sku": "P0000262",
+        "name": "Singleton 12Y Nectar",
+        "price": 9,
+        "stock_qty": 0,
+        "category": "Whisky",
+        "is_service": false,
+        "is_active": true,
+        "outlet": "caffeine"
+    },
+    {
+        "sku": "P0000306",
+        "name": "Sky Vodka",
+        "price": 5,
+        "stock_qty": 0,
+        "category": "Vodka",
+        "is_service": false,
+        "is_active": true,
+        "outlet": "caffeine"
+    },
+    {
+        "sku": "P0000347",
+        "name": "Slek Sros",
+        "price": 9.5,
+        "stock_qty": 0,
+        "category": "KNY",
+        "is_service": false,
+        "is_active": true,
+        "outlet": "caffeine"
+    },
+    {
+        "sku": "P0000201",
+        "name": "Smokey Chimney",
+        "price": 8,
+        "stock_qty": 0,
+        "category": "Christmas 24",
+        "is_service": false,
+        "is_active": true,
+        "outlet": "caffeine"
+    },
+    {
+        "sku": "P0000323",
+        "name": "Smooth Talker",
+        "price": 6,
+        "stock_qty": 0,
+        "category": "SIGNATURES",
+        "is_service": false,
+        "is_active": true,
+        "outlet": "caffeine"
+    },
+    {
+        "sku": "P0000085",
+        "name": "Soda Water",
+        "price": 2,
+        "stock_qty": 0,
+        "category": "SOFT DRINKS",
+        "is_service": false,
+        "is_active": true,
+        "outlet": "caffeine"
+    },
+    {
+        "sku": "P0000073",
+        "name": "Sparkling Wine - Glass",
+        "price": 6.5,
+        "stock_qty": 0,
+        "category": "WINE",
+        "is_service": false,
+        "is_active": true,
+        "outlet": "caffeine"
+    },
+    {
+        "sku": "P0000324",
+        "name": "Spritz (Non-Alcoholic) 0% ABV",
+        "price": 7.5,
+        "stock_qty": 0,
+        "category": "SIGNATURES",
+        "is_service": false,
+        "is_active": true,
+        "outlet": "caffeine"
+    },
+    {
+        "sku": "P0000037",
+        "name": "Suit and Tie",
+        "price": 9,
+        "stock_qty": 0,
+        "category": "SIGNATURES",
+        "is_service": false,
+        "is_active": true,
+        "outlet": "caffeine"
+    },
+    {
+        "sku": "P0000104",
+        "name": "Swap A Book",
+        "price": 1,
+        "stock_qty": 0,
+        "category": "Book",
+        "is_service": false,
+        "is_active": true,
+        "outlet": "caffeine"
+    },
+    {
+        "sku": "P0000308",
+        "name": "T&T",
+        "price": 5.5,
+        "stock_qty": 0,
+        "category": "Vodka",
+        "is_service": false,
+        "is_active": true,
+        "outlet": "caffeine"
+    },
+    {
+        "sku": "P0000146",
+        "name": "TOPPING",
+        "price": 0.5,
+        "stock_qty": 0,
+        "category": "TOPPINGS",
+        "is_service": false,
+        "is_active": true,
+        "outlet": "caffeine"
+    },
+    {
+        "sku": "P0000270",
+        "name": "Tanqueray",
+        "price": 6,
+        "stock_qty": 0,
+        "category": "Gin",
+        "is_service": false,
+        "is_active": true,
+        "outlet": "caffeine"
+    },
+    {
+        "sku": "P0000325",
+        "name": "Tease My Peach",
+        "price": 8.5,
+        "stock_qty": 0,
+        "category": "SIGNATURES",
+        "is_service": false,
+        "is_active": true,
+        "outlet": "caffeine"
+    },
+    {
+        "sku": "P0000271",
+        "name": "The Botanist Islay Dry Gin",
+        "price": 8.5,
+        "stock_qty": 0,
+        "category": "Gin",
+        "is_service": false,
+        "is_active": true,
+        "outlet": "caffeine"
+    },
+    {
+        "sku": "P0000220",
+        "name": "The Churchill Martini",
+        "price": 8,
+        "stock_qty": 0,
+        "category": "MARTINI LOVER",
+        "is_service": false,
+        "is_active": true,
+        "outlet": "caffeine"
+    },
+    {
+        "sku": "P0000055",
+        "name": "The Dark and Stormy",
+        "price": 6,
+        "stock_qty": 0,
+        "category": "CLASSICS",
+        "is_service": false,
+        "is_active": true,
+        "outlet": "caffeine"
+    },
+    {
+        "sku": "P0000218",
+        "name": "The Dutchess",
+        "price": 8.5,
+        "stock_qty": 0,
+        "category": "WOMAN TAKEOVER",
+        "is_service": false,
+        "is_active": true,
+        "outlet": "caffeine"
+    },
+    {
+        "sku": "P0000219",
+        "name": "The Empress",
+        "price": 9.5,
+        "stock_qty": 0,
+        "category": "WOMAN TAKEOVER",
+        "is_service": false,
+        "is_active": true,
+        "outlet": "caffeine"
+    },
+    {
+        "sku": "P0000210",
+        "name": "The Glen Gent",
+        "price": 9.5,
+        "stock_qty": 0,
+        "category": "SIGNATURES",
+        "is_service": false,
+        "is_active": true,
+        "outlet": "caffeine"
+    },
+    {
+        "sku": "P0000217",
+        "name": "The Matriarch",
+        "price": 8.5,
+        "stock_qty": 0,
+        "category": "WOMAN TAKEOVER",
+        "is_service": false,
+        "is_active": true,
+        "outlet": "caffeine"
+    },
+    {
+        "sku": "P0000215",
+        "name": "The Silver Fox",
+        "price": 8.5,
+        "stock_qty": 0,
+        "category": "SIGNATURES",
+        "is_service": false,
+        "is_active": true,
+        "outlet": "caffeine"
+    },
+    {
+        "sku": "P0000084",
+        "name": "Tonic Water",
+        "price": 2,
+        "stock_qty": 0,
+        "category": "SOFT DRINKS",
+        "is_service": false,
+        "is_active": true,
+        "outlet": "caffeine"
+    },
+    {
+        "sku": "P0000200",
+        "name": "Ugly Sweater",
+        "price": 8,
+        "stock_qty": 0,
+        "category": "Christmas 24",
+        "is_service": false,
+        "is_active": true,
+        "outlet": "caffeine"
+    },
+    {
+        "sku": "P0000121",
+        "name": "Velvet Jacket",
+        "price": 8,
+        "stock_qty": 0,
+        "category": "SECRET MENUS",
+        "is_service": false,
+        "is_active": true,
+        "outlet": "caffeine"
+    },
+    {
+        "sku": "P0000199",
+        "name": "Velvet Lapel",
+        "price": 5.5,
+        "stock_qty": 0,
+        "category": "SIGNATURES",
+        "is_service": false,
+        "is_active": true,
+        "outlet": "caffeine"
+    },
+    {
+        "sku": "P0000279",
+        "name": "Veritas",
+        "price": 7.5,
+        "stock_qty": 0,
+        "category": "Rum",
+        "is_service": false,
+        "is_active": true,
+        "outlet": "caffeine"
+    },
+    {
+        "sku": "P0000182",
+        "name": "Vesper Martini",
+        "price": 8,
+        "stock_qty": 0,
+        "category": "MARTINI LOVER",
+        "is_service": false,
+        "is_active": true,
+        "outlet": "caffeine"
+    },
+    {
+        "sku": "P0000102",
+        "name": "Westward Original Shot",
+        "price": 13,
+        "stock_qty": 0,
+        "category": "Whisky",
+        "is_service": false,
+        "is_active": true,
+        "outlet": "caffeine"
+    },
+    {
+        "sku": "P0000149",
+        "name": "Westward Pinot Noir Cask",
+        "price": 16,
+        "stock_qty": 0,
+        "category": "Whisky",
+        "is_service": false,
+        "is_active": true,
+        "outlet": "caffeine"
+    },
+    {
+        "sku": "P0000052",
+        "name": "Whisky Sour",
+        "price": 7,
+        "stock_qty": 0,
+        "category": "CLASSICS",
+        "is_service": false,
+        "is_active": true,
+        "outlet": "caffeine"
+    },
+    {
+        "sku": "P0000090",
+        "name": "White Gold",
+        "price": 9,
+        "stock_qty": 0,
+        "category": "SECRET MENUS",
+        "is_service": false,
+        "is_active": true,
+        "outlet": "caffeine"
+    },
+    {
+        "sku": "P0000098",
+        "name": "White Jelly Pearl",
+        "price": 0.35,
+        "stock_qty": 0,
+        "category": "TOPPINGS",
+        "is_service": false,
+        "is_active": true,
+        "outlet": "caffeine"
+    },
+    {
+        "sku": "P0000280",
+        "name": "Widges",
+        "price": 7,
+        "stock_qty": 0,
+        "category": "Gin",
+        "is_service": false,
+        "is_active": true,
+        "outlet": "caffeine"
+    },
+    {
+        "sku": "P0000250",
+        "name": "Wild Turkey 8Y",
+        "price": 9,
+        "stock_qty": 0,
+        "category": "Whisky",
+        "is_service": false,
+        "is_active": true,
+        "outlet": "caffeine"
+    },
+    {
+        "sku": "P0000249",
+        "name": "Wild Turkey Original",
+        "price": 6.5,
+        "stock_qty": 0,
+        "category": "Whisky",
+        "is_service": false,
+        "is_active": true,
+        "outlet": "caffeine"
+    },
+    {
+        "sku": "P0000198",
+        "name": "Winter Cardigan",
+        "price": 8.5,
+        "stock_qty": 0,
+        "category": "Christmas 24",
+        "is_service": false,
+        "is_active": true,
+        "outlet": "caffeine"
+    },
+    {
+        "sku": "P0000265",
+        "name": "bombay sapphire",
+        "price": 6,
+        "stock_qty": 0,
+        "category": "Gin",
+        "is_service": false,
+        "is_active": true,
+        "outlet": "caffeine"
+    },
+    {
+        "sku": "P0000108",
+        "name": "shot 4",
+        "price": 4,
+        "stock_qty": 0,
+        "category": "CUSTOMIZE",
+        "is_service": false,
+        "is_active": true,
+        "outlet": "caffeine"
+    },
+    {
+        "sku": "P0000334",
+        "name": "tanqueray 10",
+        "price": 6.5,
+        "stock_qty": 0,
+        "category": "Gin",
+        "is_service": false,
+        "is_active": true,
+        "outlet": "caffeine"
+    }
+]
