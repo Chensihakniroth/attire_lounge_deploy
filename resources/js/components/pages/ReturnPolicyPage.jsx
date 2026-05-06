@@ -1,7 +1,7 @@
 import React from 'react';
 import PolicyLayout from '../layouts/PolicyLayout';
 import { motion } from 'framer-motion';
-import { AlertTriangle, Clock, MapPin, CheckCircle, PackageX, Mail, Phone, ClipboardCheck } from 'lucide-react';
+import { AlertTriangle, MapPin, CheckCircle, PackageX, Mail, Phone, ClipboardCheck } from 'lucide-react';
 
 const InfoSection = ({ icon: Icon, title, children, highlighted = false }) => (
     <motion.div 

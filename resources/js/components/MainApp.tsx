@@ -1,7 +1,7 @@
-// resources/jsx/components/MainApp.tsx
+// resources/js/components/MainApp.tsx
 import React, { Suspense, lazy, useEffect, ReactNode } from 'react';
 import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
-import { AnimatePresence, LazyMotion, domAnimation, m, motion, Variants } from 'framer-motion';
+import { AnimatePresence, LazyMotion, domAnimation } from 'framer-motion';
 import Lenis from 'lenis';
 import usePullToRefresh from '../hooks/usePullToRefresh';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
@@ -56,13 +56,7 @@ const RealtimeUpdater: React.FC = () => {
     return null;
 };
 
-const AppSuspense = () => {
-    return (
-        <Suspense fallback={<LoadingSpinner />}>
-            <AnimatedRoutes />
-        </Suspense>
-    );
-};
+
 // Pages that you have created
 const lazyWithRetry = (componentImport: () => Promise<any>) =>
     lazy(async () => {
@@ -109,7 +103,7 @@ const Placeholder: React.FC<{ title: string }> = ({ title }) => (
 );
 
 
-// NOTE: motion.* is replaced with m.* throughout this file to work with LazyMotion
+
 
 interface LayoutProps {
     children: ReactNode;
@@ -144,15 +138,16 @@ const LenisScroll: React.FC = () => {
         if (!window.lenis) {
             const isSafariBrowser = isSafari();
 
-            // Lighter configuration for Safari to prevent choppiness
+            // Use lerp instead of duration/easing to fix Magic Mouse and Trackpad lag
+            // Continuous input devices feel heavy/laggy when using time-based duration.
             const lenis = new Lenis({
-                duration: isSafariBrowser ? 1.0 : 1.2,
-                easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)), // Exponential easing
+                lerp: 0.1, // Linear interpolation (0.1 is standard, lower is smoother)
                 orientation: 'vertical',
                 gestureOrientation: 'vertical',
                 smoothWheel: true,
                 wheelMultiplier: isSafariBrowser ? 0.8 : 1.0, // Reduced for Safari
                 touchMultiplier: 1.5,
+                syncTouch: true, // Syncs touch scroll to native scroll
                 infinite: false,
             });
 
@@ -339,7 +334,9 @@ function MainApp() {
                         <GlobalStyles />
                         <LenisScroll />
                         {/* ScrollToTop removed as it conflicts with exit animations, handled in onExitComplete */}
-                        <AppSuspense />
+                        <Suspense fallback={<LoadingSpinner />}>
+                            <AnimatedRoutes />
+                        </Suspense>
                     </Router>
                 </LazyMotion>
             </QueryClientProvider>

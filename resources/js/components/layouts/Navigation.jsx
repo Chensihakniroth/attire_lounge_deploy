@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import {
     Menu,
@@ -16,8 +16,6 @@ import {
 import {
     motion,
     AnimatePresence,
-    useScroll,
-    useMotionValueEvent,
 } from 'framer-motion';
 import { useFavorites } from '../../context/FavoritesContext.jsx';
 
@@ -65,23 +63,63 @@ const Navigation = () => {
         { name: 'Contact', path: '/contact', icon: Mail },
     ];
 
-    // --- Smart Header & Animation Logic ---
-    const { scrollY } = useScroll();
+    // --- Smart Header & Animation Logic (Lenis-aware) ---
     const [hidden, setHidden] = useState(false);
+    const prevScrollRef = useRef(0);
 
-    useMotionValueEvent(scrollY, 'change', (latest) => {
-        const previous = scrollY.getPrevious() ?? 0;
+    // Listen to Lenis scroll events directly, with native scroll fallback
+    useEffect(() => {
+        const onScroll = ({ scroll, direction }) => {
+            // direction: 1 = down, -1 = up (from Lenis)
+            if (scroll < 50) {
+                setHidden(false);
+                setIsScrolled(false);
+            } else if (direction === -1) {
+                // Scrolling UP → show nav
+                setHidden(false);
+                setIsScrolled(true);
+            } else if (direction === 1) {
+                // Scrolling DOWN → hide nav
+                setHidden(true);
+                setIsScrolled(true);
+            }
+        };
 
-        // Show if at top of page or scrolling up
-        if (latest < 50 || latest < previous) {
-            setHidden(false);
-            setIsScrolled(latest > 50);
-        } else if (latest > 50 && latest > previous) {
-            // Hide if scrolling down past 50px
-            setHidden(true);
-            setIsScrolled(true);
+        // Native scroll fallback for when Lenis isn't active
+        const onNativeScroll = () => {
+            const current = window.scrollY;
+            const prev = prevScrollRef.current;
+
+            if (current < 50) {
+                setHidden(false);
+                setIsScrolled(false);
+            } else if (current < prev) {
+                setHidden(false);
+                setIsScrolled(true);
+            } else if (current > prev) {
+                setHidden(true);
+                setIsScrolled(true);
+            }
+
+            prevScrollRef.current = current;
+        };
+
+        // Try Lenis first
+        const lenis = window.lenis;
+        if (lenis) {
+            lenis.on('scroll', onScroll);
+        } else {
+            window.addEventListener('scroll', onNativeScroll, { passive: true });
         }
-    });
+
+        return () => {
+            if (lenis) {
+                lenis.off('scroll', onScroll);
+            } else {
+                window.removeEventListener('scroll', onNativeScroll);
+            }
+        };
+    }, []);
 
     useEffect(() => {
         const handleEscape = (e) => {

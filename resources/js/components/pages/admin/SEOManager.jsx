@@ -261,7 +261,7 @@ const SEOManager = () => {
                                                 disabled={saving}
                                                 className="flex items-center gap-2 bg-[#0d3542] dark:bg-[#58a6ff] text-white dark:text-black px-5 py-3 rounded-2xl text-xs font-bold uppercase tracking-widest transition-all hover:scale-105 active:scale-95 disabled:opacity-50"
                                             >
-                                                {saving ? <LumaSpin size="sm" /> : <Save size={14} />}
+                                                {saving ? <Loader2 className="animate-spin" size={16} /> : <Save size={14} />}
                                                 Save
                                             </button>
                                         </>

@@ -5,18 +5,18 @@ import { motion, AnimatePresence } from 'framer-motion';
 import {
     Mail, Phone, MapPin, Clock, Send, CheckCircle,
     Instagram, Facebook, ChevronDown, Check, User,
-    Calendar, Sparkles, ShieldCheck, ArrowRight, ArrowLeft,
-    MessageSquare, Heart, Info, Loader
+    Calendar, Sparkles, ArrowRight,
+    MessageSquare, Heart, Loader
 } from 'lucide-react';
 import { useFavorites } from '../../context/FavoritesContext';
-import axios from 'axios';
+import API from '../../api';
 import OptimizedImage from '../common/OptimizedImage.jsx';
 import { isSafari } from '../../helpers/browserUtils.js';
 import { useProducts } from '../../hooks/useProducts';
 import DatePicker from '@/components/ui/DatePicker';
 import { TimePicker } from '@/components/ui/time-picker';
 import { format, parse } from 'date-fns';
-import { cn } from '@/lib/utils';
+
 
 // --- Premium Animation Constants ---
 const fadeUp = {
@@ -233,7 +233,7 @@ const ContactPage = () => {
                 preferred_time: formData.time,
                 favorite_item_image_url: favoriteItems,
             };
-            await axios.post('/api/v1/appointments', submissionData);
+            await API.bookAppointment(submissionData);
 
             setGeneratedMessage('success');
         } catch (error) {

@@ -417,9 +417,7 @@ const UserManager = () => {
                                 className="flex-grow py-4 bg-attire-charcoal dark:bg-white text-white dark:text-black rounded-2xl text-xs font-black uppercase tracking-widest hover:bg-[#0d3542] dark:hover:bg-[#58a6ff] hover:text-white transition-all flex items-center justify-center gap-2 disabled:opacity-50 shadow-none"
                             >
                                 {saving ? (
-                                    <LumaSpin
-                                        size="sm"
-                                    />
+                                    <Loader2 className="animate-spin" size={16} />
                                 ) : (
                                     <Check size={14} />
                                 )}

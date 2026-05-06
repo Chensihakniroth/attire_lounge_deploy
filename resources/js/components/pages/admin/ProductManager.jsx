@@ -271,7 +271,7 @@ const ProductManager = () => {
                     />
                     {(isPending || isFiltering) && (
                         <div className="absolute right-4 top-1/2 -translate-y-1/2">
-                            <LumaSpin size="sm" />
+                            <Loader2 className="animate-spin" size={16} />
                         </div>
                     )}
                 </div>
@@ -299,7 +299,7 @@ const ProductManager = () => {
                                 className="absolute inset-0 z-30 bg-white/80 dark:bg-[#0a0a0a]/80 flex items-center justify-center rounded-3xl"
                             >
                                 <div className="bg-white/60 dark:bg-black/60 p-4 rounded-2xl border border-black/5 dark:border-white/10 flex items-center gap-3">
-                                    <LumaSpin size="sm" />
+                                    <Loader2 className="animate-spin" size={16} />
                                     <span className="text-[10px] font-bold uppercase tracking-widest text-gray-900 dark:text-white">Refining Library...</span>
                                 </div>
                             </motion.div>

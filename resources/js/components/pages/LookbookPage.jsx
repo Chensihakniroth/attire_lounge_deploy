@@ -3,13 +3,7 @@ import React, { useState, useEffect, useMemo, memo, useCallback } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useInView } from 'react-intersection-observer';
-import {
-    ChevronDown,
-    Loader2,
-    Sparkles,
-    Image as ImageIcon,
-    Camera,
-} from 'lucide-react';
+import { Loader2, Camera } from 'lucide-react';
 import { LOOKBOOK_IMAGES } from '../../data/lookbook.js';
 
 // Sub-components

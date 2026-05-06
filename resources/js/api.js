@@ -126,6 +126,18 @@ const API = {
     async subscribeNewsletter(data) {
         const response = await axios.post('/api/v1/newsletter-subscriptions', data);
         return getData(response);
+    },
+
+    // Validate a promo code
+    async validatePromoCode(code) {
+        const response = await axios.post('/api/v1/promocodes/validate', { code });
+        return getData(response);
+    },
+
+    // Book an appointment
+    async bookAppointment(data) {
+        const response = await axios.post('/api/v1/appointments', data);
+        return getData(response);
     }
 };
 

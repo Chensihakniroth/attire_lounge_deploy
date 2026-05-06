@@ -10,12 +10,12 @@ import {
     Upload,
     AlertCircle,
 } from 'lucide-react';
-import { LumaSpin } from '@/components/ui/luma-spin';
 import axios from 'axios';
-import { useAdmin } from './AdminContext';
-import OptimizedImage from '../../common/OptimizedImage.jsx';
 import { useQueryClient } from '@tanstack/react-query';
-import ModernModal from '../../common/ModernModal';
+import { useAdmin } from './AdminContext';
+import { Field, inputBase } from './common/FormPrimitives';
+import OptimizedImage from '../../common/OptimizedImage.jsx';
+import ModernModal from '../../common/ModernModal.jsx';
 
 const DEFAULT_FORM = {
     name: '',
@@ -24,23 +24,11 @@ const DEFAULT_FORM = {
     year: new Date().getFullYear(),
     image: '',
     is_active: true,
-    is_new: false,
+    is_new: true,
     sort_order: 0,
     meta_title: '',
     meta_description: '',
 };
-
-/* ─── Cyber-Bespoke Form Components ────────────────────────────────────── */
-const Field = ({ label, children, hint }) => (
-    <div className="space-y-1.5 w-full">
-        <label className="text-[10px] font-bold text-gray-400 dark:text-[#8b949e]/50 uppercase tracking-[0.15em] ml-0.5">{label}</label>
-        {children}
-        {hint && <p className="text-[9px] text-gray-300 dark:text-[#8b949e]/20 uppercase tracking-widest ml-0.5">{hint}</p>}
-    </div>
-);
-
-const inputBase = "w-full bg-black/5 dark:bg-[#0d1117] border border-black/5 dark:border-[#30363d] rounded-xl py-3 px-4 text-gray-900 dark:text-[#c9d1d9] text-sm focus:border-[#0d3542] dark:focus:border-[#58a6ff] outline-none transition-all placeholder:text-gray-300 dark:placeholder:text-white/10";
-
 
 const Toggle = ({ value, onChange, color = 'bg-green-500' }) => (
     <button
@@ -327,10 +315,7 @@ const CollectionManager = () => {
                                 )}
                                 <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-all flex items-center justify-center text-white">
                                     {uploading ? (
-                                        <LumaSpin
-                                            className="animate-spin"
-                                            size="sm"
-                                        />
+                                        <Loader2 className="animate-spin" size={16} />
                                     ) : (
                                         <Upload size={18} />
                                     )}
@@ -482,10 +467,7 @@ const CollectionManager = () => {
                             className="flex-grow py-3.5 bg-[#0d3542] dark:bg-[#58a6ff] text-white dark:text-black rounded-xl text-[10px] font-black uppercase tracking-[0.2em] hover:opacity-90 transition-all flex items-center justify-center gap-2 disabled:opacity-50 shadow-lg shadow-black/10 dark:shadow-[#58a6ff]/20"
                         >
                             {saving ? (
-                                <LumaSpin
-                                    className="animate-spin"
-                                    size="sm"
-                                />
+                                <Loader2 className="animate-spin" size={16} />
                             ) : (
                                 <Check size={12} />
                             )}

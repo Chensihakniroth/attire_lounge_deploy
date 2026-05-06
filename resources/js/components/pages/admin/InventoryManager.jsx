@@ -2,9 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { Package, AlertTriangle, CheckCircle, XCircle } from 'lucide-react';
 import { LumaSpin } from '../../ui/luma-spin';
 import giftOptions from '../../../data/giftOptions';
-import api from '../../../api';
 import axios from 'axios';
-import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import OptimizedImage from '../../common/OptimizedImage.jsx';
 import { motion } from 'framer-motion';
 import { useAdmin } from './AdminContext';
@@ -22,27 +21,35 @@ const InventoryManager = () => {
         staleTime: 2 * 60 * 1000,
     });
 
-    const [updatingItems, setUpdatingItems] = useState(new Set());
-
-    const toggleStock = async (id) => {
-        if (updatingItems.has(id)) return;
-        
-        const isCurrentlyOutOfStock = outOfStockItems.includes(id);
-        const nextStatus = !isCurrentlyOutOfStock;
-
-        setUpdatingItems(prev => new Set(prev).add(id));
-        try {
-            await api.toggleGiftItemStock(id, nextStatus);
-            // We don't manually update state here because the WebSocket event will trigger fetchOutOfStockItems() ✨
-        } catch (error) {
-            console.error('Failed to toggle stock:', error);
-        } finally {
-            setUpdatingItems(prev => {
-                const next = new Set(prev);
-                next.delete(id);
-                return next;
+    const toggleStockMutation = useMutation({
+        mutationFn: async ({ id, is_out_of_stock }) => {
+            await axios.post('/api/v1/admin/gift-items/toggle-stock', {
+                item_id: id,
+                is_out_of_stock
             });
+        },
+        onMutate: async ({ id, is_out_of_stock }) => {
+            await queryClient.cancelQueries({ queryKey: ['outOfStockItems', activeOutlet] });
+            const previousItems = queryClient.getQueryData(['outOfStockItems', activeOutlet]);
+            
+            queryClient.setQueryData(['outOfStockItems', activeOutlet], (old) => {
+                const safeOld = Array.isArray(old) ? old : [];
+                return is_out_of_stock 
+                    ? [...safeOld, id] 
+                    : safeOld.filter(itemId => itemId !== id);
+            });
+            
+            return { previousItems };
+        },
+        onError: (err, variables, context) => {
+            console.error('Failed to toggle stock:', err);
+            queryClient.setQueryData(['outOfStockItems', activeOutlet], context?.previousItems);
         }
+    });
+
+    const toggleStock = (id) => {
+        const isCurrentlyOutOfStock = outOfStockItems.includes(id);
+        toggleStockMutation.mutate({ id, is_out_of_stock: !isCurrentlyOutOfStock });
     };
 
     const renderSection = (title, items) => (
@@ -51,7 +58,6 @@ const InventoryManager = () => {
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
                 {items.map(item => {
                     const isOutOfStock = outOfStockItems.includes(item.id);
-                    const isUpdating = updatingItems.has(item.id);
                     return (
                         <motion.div 
                             layout="position"
@@ -61,7 +67,7 @@ const InventoryManager = () => {
                                 isOutOfStock 
                                     ? 'bg-red-500/5 border-red-500/20 hover:border-red-500/40' 
                                     : 'bg-white dark:bg-[#161b22] border-black/5 dark:border-[#30363d] hover:border-[#0d3542]/30 dark:hover:border-[#58a6ff]/30 shadow-none'
-                            } ${isUpdating ? 'opacity-70 pointer-events-none' : ''}`}
+                            }`}
                         >
                             <div className="flex items-center gap-4">
                                 <div className="h-16 w-16 rounded-xl overflow-hidden border border-black/5 dark:border-[#30363d] flex-shrink-0">
@@ -83,7 +89,7 @@ const InventoryManager = () => {
                                             : 'bg-green-500/20 text-green-600 dark:text-green-400 group-hover:bg-green-500/30'
                                     }`}
                                 >
-                                    {isUpdating ? <LumaSpin size="sm" /> : (isOutOfStock ? <XCircle size={20} /> : <CheckCircle size={20} />)}
+                                    {isOutOfStock ? <XCircle size={20} /> : <CheckCircle size={20} />}
                                 </div>
                             </div>
                         </motion.div>

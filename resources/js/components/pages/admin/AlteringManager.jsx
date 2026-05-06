@@ -686,7 +686,7 @@ export default function AlteringManager() {
                                 className="bg-red-500/10 hover:bg-red-500 text-red-500 hover:text-white transition-all px-4 py-3 rounded-lg font-bold uppercase tracking-widest text-xs flex items-center gap-2 disabled:opacity-50 whitespace-nowrap"
                             >
                                 {bulkDeleteMutation.isPending ? (
-                                    <LumaSpin className="animate-spin" size="xs" />
+                                    <Loader2 className="animate-spin" size={16} />
                                 ) : (
                                     <svg width="10" height="10" viewBox="0 0 16 16" fill="none">
                                         <path d="M3 4H13M5 4V3C5 2.44772 5.44772 2 6 2H10C10.5523 2 11 2.44772 11 3V4M6.5 7V11M9.5 7V11M4 4V13C4 13.5523 4.44772 14 5 14H11C11.5523 14 12 13.5523 12 13V4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
@@ -834,7 +834,7 @@ export default function AlteringManager() {
                                     className="flex-1 bg-white dark:bg-[#161b22] border border-black/5 dark:border-[#30363d] text-gray-600 dark:text-[#c9d1d9] hover:bg-black/5 dark:hover:bg-[#30363d] transition-colors py-2.5 rounded text-[10px] font-black uppercase tracking-[0.1em] flex justify-center items-center gap-1.5"
                                 >
                                     {isNotifying === selectedDetail.id ? (
-                                        <LumaSpin className="animate-spin" size="xs" />
+                                        <Loader2 className="animate-spin" size={16} />
                                     ) : (
                                         <Mail size={12} />
                                     )} Notify Client
@@ -990,7 +990,7 @@ export default function AlteringManager() {
                                 className="px-5 py-2 h-auto bg-[#58a6ff] text-[#0d1117] hover:bg-[#79b8ff] transition-colors rounded text-[9px] font-black uppercase tracking-[0.1em]"
                             >
                                 {createMutation.isPending ? (
-                                    <LumaSpin className="animate-spin" size="xs" />
+                                    <Loader2 className="animate-spin" size={16} />
                                 ) : (
                                     <CheckCircle2 className="mr-1.5 w-3 h-3" />
                                 )}

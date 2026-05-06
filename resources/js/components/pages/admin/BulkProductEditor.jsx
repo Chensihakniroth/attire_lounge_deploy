@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, Check, AlertCircle, RefreshCw, ChevronLeft, Plus, Trash2, ImageIcon, Sparkles } from 'lucide-react';
-import { LumaSpin } from '@/components/ui/luma-spin';
 import axios from 'axios';
 import { useAdmin } from './AdminContext';
 
@@ -436,7 +435,7 @@ const BulkProductEditor = () => {
                                         exit={{ opacity: 0, scale: 0.8 }}
                                         className="aspect-square rounded-xl border border-[#0d3542]/30 dark:border-[#58a6ff]/30 bg-[#0d3542]/5 dark:bg-[#58a6ff]/5 flex flex-col items-center justify-center gap-2"
                                     >
-                                        <LumaSpin className="animate-spin" size="sm" />
+                                        <Loader2 className="animate-spin" size={16} />
                                         <span className="text-[8px] font-bold uppercase tracking-widest text-[#0d3542] dark:text-[#58a6ff]">Uploading...</span>
                                     </motion.div>
                                 )}
@@ -528,7 +527,7 @@ const BulkProductEditor = () => {
                             disabled={saving || formData.images.length === 0}
                             className="flex-grow py-4 bg-[#0d3542] dark:bg-[#58a6ff] text-white dark:text-black rounded-xl text-[11px] font-black uppercase tracking-[0.2em] hover:opacity-90 transition-all flex items-center justify-center gap-4 shadow-none disabled:opacity-50 disabled:cursor-not-allowed border-none"
                         >
-                            {saving ? <LumaSpin className="animate-spin" size="sm" /> : <Check size={18} />}
+                            {saving ? <Loader2 className="animate-spin" size={16} /> : <Check size={18} />}
                             {saving ? 'Saving Products...' : `Save ${formData.images.length} Products`}
                         </button>
                     </div>

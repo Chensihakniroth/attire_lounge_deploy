@@ -1,14 +1,14 @@
 // resources/js/components/pages/HomePage.tsx - V6 (Final Polish with Glass Effects)
 import React, { useEffect, useRef, useState, useCallback, forwardRef, memo, ReactElement } from 'react';
 import { motion, AnimatePresence, Variants } from 'framer-motion';
-import { Users, Scissors, Coffee, ArrowRight, BookOpen, Camera, Sparkles, Play, Gift, Wine, Crown, CreditCard } from 'lucide-react';
+import { Users, Scissors, Coffee, ArrowRight, Play, Gift, Wine, Crown, CreditCard } from 'lucide-react';
 import Footer from '../layouts/Footer.jsx';
 import { Link, useLocation } from 'react-router-dom';
 import SectionIndicator from './SectionIndicator.jsx';
 import FashionShow from '../sections/FashionShow.jsx';
 import OptimizedImage from '../common/OptimizedImage.jsx';
 import LiquidButton from '../common/LiquidButton.jsx';
-import SEO from '../common/SEO';1
+import SEO from '../common/SEO';
 import { isSafari } from '../../helpers/browserUtils.js';
 
 import minioBaseUrl from '../../config.js';
@@ -19,11 +19,6 @@ interface Service {
   icon: ReactElement;
 }
 
-interface LookbookFeature {
-  title: string;
-  description: string;
-  icon: ReactElement;
-}
 
 interface Tip {
   title: string;
@@ -34,7 +29,6 @@ interface Tip {
 
 interface HomePageData {
   services: Service[];
-  lookbookFeatures: LookbookFeature[];
   tipsAndTricks: Tip[];
 }
 
@@ -45,23 +39,7 @@ const homePageData: HomePageData = {
     { name: "The Perfect Fit", description: "We offer diverse sizes and provide complimentary in-house alterations to ensure your garments fit impeccably.", icon: <Scissors size={32} className="text-[#f5a81c]" /> },
     { name: "A Premium Experience", description: "Enjoy a relaxing atmosphere and complimentary drinks during your visit, making your styling session a true pleasure.", icon: <Coffee size={32} className="text-[#f5a81c]" /> }
   ],
-  lookbookFeatures: [
-    {
-      title: "Seasonal Collections",
-      description: "Explore our latest seasonal curations, from summer linens to winter wools, all shot in stunning, high-resolution detail.",
-      icon: <BookOpen size={40} className="text-[#f5a81c]" />
-    },
-    {
-      title: "Behind The Seams",
-      description: "Get an exclusive look at our design process, the craftsmanship involved, and the stories that inspire each collection.",
-      icon: <Camera size={40} className="text-[#f5a81c]" />
-    },
-    {
-      title: "Style Guides",
-      description: "Not just what to wear, but how to wear it. Our guides help you master the art of dressing for any occasion.",
-      icon: <Sparkles size={40} className="text-[#f5a81c]" />
-    }
-  ],
+
   tipsAndTricks: [
     {
       title: "3 Ways to Style a Black Jacket",
@@ -821,7 +799,7 @@ const HomePage: React.FC = () => {
     }
   }, [location.hash, scrollToSection]);
 
-  const { services, lookbookFeatures, tipsAndTricks } = homePageData;
+  const { services, tipsAndTricks } = homePageData;
 
   const sectionNames = ['Home', 'Philosophy', 'Collections', 'Fashion Show', 'Experience', 'Membership', 'Lookbook', 'Tips & Tricks', 'Appointment and Contact'];
 
@@ -843,7 +821,7 @@ const HomePage: React.FC = () => {
       <FashionShow ref={el => sectionsRef.current[3] = el} />
       <ExperienceSection ref={el => sectionsRef.current[4] = el} services={services} />
       <MembershipSection ref={el => sectionsRef.current[5] = el} />
-      <LookbookSection ref={el => sectionsRef.current[6] = el} lookbookFeatures={lookbookFeatures} />
+      <LookbookSection ref={el => sectionsRef.current[6] = el} />
       <TipsAndTricksSection ref={el => sectionsRef.current[7] = el} tipsAndTricks={tipsAndTricks} />
       <FooterSection ref={el => sectionsRef.current[8] = el} />
     </div>

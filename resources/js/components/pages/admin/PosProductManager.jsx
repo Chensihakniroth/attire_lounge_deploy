@@ -15,49 +15,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { formatPrice } from '@/helpers/format';
 import { useAdmin } from './AdminContext';
-
-/* ─── Cyber-Bespoke Form Components ────────────────────────────────────── */
-const Section = ({ title, subtitle, icon: Icon, children, accent = false }) => (
-    <div className={`rounded-2xl border transition-colors ${accent ? 'border-[#0d3542]/15 dark:border-[#58a6ff]/15 bg-[#0d3542]/[0.02] dark:bg-[#58a6ff]/[0.02]' : 'border-black/5 dark:border-[#30363d] bg-white/50 dark:bg-[#161b22]/50'}`}>
-        <div className="px-5 py-4 border-b border-black/5 dark:border-[#30363d]/50 flex items-center gap-3">
-            {Icon && (
-                <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${accent ? 'bg-[#0d3542]/10 dark:bg-[#58a6ff]/10' : 'bg-black/5 dark:bg-white/5'}`}>
-                    <Icon size={16} className={accent ? 'text-[#0d3542] dark:text-[#58a6ff]' : 'text-gray-400 dark:text-[#8b949e]'} />
-                </div>
-            )}
-            <div>
-                <h3 className="text-xs font-bold text-gray-900 dark:text-[#c9d1d9] uppercase tracking-[0.15em]">{title}</h3>
-                {subtitle && <p className="text-[9px] text-gray-400 dark:text-[#8b949e]/40 uppercase tracking-widest mt-0.5">{subtitle}</p>}
-            </div>
-        </div>
-        <div className="p-5">
-            {children}
-        </div>
-    </div>
-);
-
-const Field = ({ label, children, hint }) => (
-    <div className="space-y-1.5">
-        <label className="text-[10px] font-bold text-gray-400 dark:text-[#8b949e]/50 uppercase tracking-[0.15em] ml-0.5">{label}</label>
-        {children}
-        {hint && <p className="text-[9px] text-gray-300 dark:text-[#8b949e]/20 uppercase tracking-widest ml-0.5">{hint}</p>}
-    </div>
-);
-
-const inputBase = "w-full bg-black/5 dark:bg-[#0d1117] border border-black/5 dark:border-[#30363d] rounded-xl py-3.5 px-4 text-gray-900 dark:text-[#c9d1d9] text-sm focus:border-[#0d3542] dark:focus:border-[#58a6ff] outline-none transition-all placeholder:text-gray-300 dark:placeholder:text-white/10";
-
-
-const SidebarSection = ({ title, icon: Icon, children }) => (
-    <div className="border-b border-black/5 dark:border-[#30363d]/50">
-        <div className="px-5 py-3 flex items-center gap-2.5">
-            {Icon && <Icon size={12} className="text-[#0d3542] dark:text-[#58a6ff]" />}
-            <h3 className="text-[10px] font-black text-gray-900 dark:text-[#c9d1d9] uppercase tracking-[0.2em]">{title}</h3>
-        </div>
-        <div className="px-5 pb-4">
-            {children}
-        </div>
-    </div>
-);
+import { Section, Field, inputBase, SidebarSection } from './common/FormPrimitives';
 
 const BespokeSelect = ({ value, options, onChange, onAction, placeholder = "Select...", className = "", direction = "down" }) => {
     const [isOpen, setIsOpen] = useState(false);
@@ -1527,7 +1485,7 @@ const ProductsPage = () => {
                                         </Button>
                                     )}
                                     <Button onClick={handleSubmit} disabled={isSaving} className="h-12 px-10 bg-[#0d3542] dark:bg-[#58a6ff] text-white dark:text-black text-[11px] font-black uppercase tracking-[0.2em] shadow-lg ring-1 ring-inset ring-white/10 dark:ring-black/10 hover:opacity-90 transition-all rounded-xl">
-                                        {isSaving ? <LumaSpin size="sm" className="mr-2" /> : <Save size={14} className="mr-2" />}
+                                        {isSaving ? <Loader2 className="animate-spin mr-2" size={16} /> : <Save size={14} className="mr-2" />}
                                         CONFIRM & RECORD
                                     </Button>
                                 </div>

@@ -211,7 +211,7 @@ const AppointmentCard = memo(({ appointment, onUpdateStatus, closingId }) => {
                         className="px-7 py-2.5 bg-[#0d3542] dark:bg-[#58a6ff] text-white dark:text-black rounded-xl text-[10px] font-black uppercase tracking-widest transition-all hover:scale-[1.02] active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
                     >
                         {closingId === appointment.id ? (
-                            <span className="flex items-center gap-2"><LumaSpin size="xs" /> Closing...</span>
+                            <span className="flex items-center gap-2"><Loader2 className="animate-spin" size={12} /> Closing...</span>
                         ) : 'Close'}
                     </button>
                 </div>
@@ -518,7 +518,7 @@ const AppointmentManager = () => {
                     <div className="flex justify-end gap-6 pt-10 border-t border-black/5 dark:border-white/5">
                         <button type="button" onClick={() => setIsAdding(false)} className="px-8 py-4 text-[10px] font-black uppercase tracking-widest text-gray-400 hover:text-gray-900 transition-colors">Discard</button>
                         <button type="submit" disabled={isSubmitting} className="h-14 px-12 bg-[#0d3542] dark:bg-[#58a6ff] text-white dark:text-black rounded-2xl text-[11px] font-black uppercase tracking-widest transition-all active:scale-95">
-                            {isSubmitting ? <LumaSpin size="sm" /> : 'Confirm Selection'}
+                            {isSubmitting ? <Loader2 className="animate-spin" size={16} /> : 'Confirm Selection'}
                         </button>
                     </div>
                 </form>

@@ -59,44 +59,6 @@ const CustomDropdown = ({ selected, options, onChange, icon: Icon = RefreshCw, c
     );
 };
 
-/* ─── Section Wrapper ─────────────────────────────────────────────────── */
-const Section = ({ title, subtitle, icon: Icon, children, accent = false }) => (
-    <div className={`rounded-2xl border transition-colors ${accent ? 'border-[#0d3542]/15 dark:border-[#58a6ff]/15 bg-[#0d3542]/[0.02] dark:bg-[#58a6ff]/[0.02]' : 'border-black/5 dark:border-[#30363d] bg-white/50 dark:bg-[#161b22]/50'}`}>
-        <div className="px-5 py-4 border-b border-black/5 dark:border-[#30363d]/50 flex items-center gap-3">
-            {Icon && (
-                <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${accent ? 'bg-[#0d3542]/10 dark:bg-[#58a6ff]/10' : 'bg-black/5 dark:bg-white/5'}`}>
-                    <Icon size={16} className={accent ? 'text-[#0d3542] dark:text-[#58a6ff]' : 'text-gray-400 dark:text-[#8b949e]'} />
-                </div>
-            )}
-            <div>
-                <h3 className="text-xs font-bold text-gray-900 dark:text-[#c9d1d9] uppercase tracking-[0.15em]">{title}</h3>
-                {subtitle && <p className="text-[9px] text-gray-400 dark:text-[#8b949e]/40 uppercase tracking-widest mt-0.5">{subtitle}</p>}
-            </div>
-        </div>
-        <div className="p-5">
-            {children}
-        </div>
-    </div>
-);
-
-/* ─── Input Field ─────────────────────────────────────────────────────── */
-const Field = ({ label, children, hint, charCount, maxChars }) => (
-    <div className="space-y-1.5">
-        <div className="flex items-center justify-between">
-            <label className="text-[10px] font-bold text-gray-400 dark:text-[#8b949e]/50 uppercase tracking-[0.15em] ml-0.5">{label}</label>
-            {maxChars && (
-                <span className={`text-[9px] font-bold tabular-nums ${charCount > maxChars ? 'text-red-400' : 'text-gray-300 dark:text-[#8b949e]/20'}`}>
-                    {charCount}/{maxChars}
-                </span>
-            )}
-        </div>
-        {children}
-        {hint && <p className="text-[9px] text-gray-300 dark:text-[#8b949e]/20 uppercase tracking-widest ml-0.5">{hint}</p>}
-    </div>
-);
-
-const inputBase = "w-full bg-black/5 dark:bg-[#0d1117] border border-black/5 dark:border-[#30363d] rounded-xl py-3.5 px-4 text-gray-900 dark:text-[#c9d1d9] text-sm focus:border-[#0d3542] dark:focus:border-[#58a6ff] outline-none transition-all placeholder:text-gray-300 dark:placeholder:text-white/10";
-
 /* ─── Toggle Switch ───────────────────────────────────────────────────── */
 const Toggle = ({ label, checked, onChange, color = 'teal' }) => {
     const colors = {
@@ -491,7 +453,7 @@ const ProductEditor = ({ isNew = false }) => {
                                     {uploading && (
                                         <motion.div key="uploading" initial={{ opacity: 0, scale: 0.8 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.8 }}
                                             className="aspect-square rounded-xl border border-[#0d3542]/30 dark:border-[#58a6ff]/30 bg-[#0d3542]/5 dark:bg-[#58a6ff]/5 flex flex-col items-center justify-center gap-1.5">
-                                            <LumaSpin size="sm" />
+                                            <Loader2 className="animate-spin" size={16} />
                                             <span className="text-[7px] font-bold uppercase tracking-widest text-[#0d3542] dark:text-[#58a6ff]">Uploading</span>
                                         </motion.div>
                                     )}
@@ -658,7 +620,7 @@ const ProductEditor = ({ isNew = false }) => {
                         <div className="space-y-2.5 pt-2">
                             <button type="submit" disabled={saving}
                                 className="w-full py-4 bg-[#0d3542] dark:bg-[#58a6ff] text-white dark:text-black rounded-xl text-[11px] font-bold uppercase tracking-[0.3em] hover:bg-black dark:hover:bg-white transition-all flex items-center justify-center gap-3 disabled:opacity-50">
-                                {saving ? <LumaSpin size="sm" /> : <Check size={16} />}
+                                {saving ? <Loader2 className="animate-spin" size={16} /> : <Check size={16} />}
                                 {saving ? 'Processing...' : (isNew ? 'Create Masterpiece' : 'Commit Changes')}
                             </button>
                             <button type="button" onClick={() => navigate('/admin/products')}

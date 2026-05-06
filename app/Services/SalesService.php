@@ -76,6 +76,8 @@ class SalesService
                 'invoices'           => $invoices,
             ];
         });
+    }
+
     /**
      * Get a monthly sales report summary.
      */

@@ -23,10 +23,8 @@ import {
     Heart,
 } from 'lucide-react';
 import api from '../../api';
-import axios from 'axios';
 import Skeleton from '../common/Skeleton.jsx';
 import giftOptions from '../../data/giftOptions';
-import { isSafari } from '../../helpers/browserUtils.js';
 
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 
@@ -241,9 +239,9 @@ const CustomizeGiftPage = () => {
         if (!promoCode.trim()) return;
         setPromoStatus({ state: 'loading', message: '' });
         try {
-            const res = await axios.post('/api/v1/promocodes/validate', { code: promoCode });
-            setAppliedPromo({ code: promoCode, discount_percentage: res.data.discount_percentage });
-            setPromoStatus({ state: 'success', message: `${res.data.discount_percentage}% discount applied!` });
+            const data = await api.validatePromoCode(promoCode);
+            setAppliedPromo({ code: promoCode, discount_percentage: data.discount_percentage });
+            setPromoStatus({ state: 'success', message: `${data.discount_percentage}% discount applied!` });
         } catch (error) {
             setAppliedPromo(null);
             setPromoStatus({

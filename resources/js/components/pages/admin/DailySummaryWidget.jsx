@@ -10,7 +10,6 @@ import {
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useAdmin } from './AdminContext';
-import { LumaSpin } from "@/components/ui/luma-spin";
 import { useQuery } from '@tanstack/react-query';
 import axios from 'axios';
 
@@ -57,7 +56,7 @@ const DailySummaryWidget = () => {
     if (isLoading) {
         return (
             <div className="h-full min-h-[300px] flex items-center justify-center">
-                <LumaSpin size="sm" />
+                <Loader2 className="animate-spin" size={16} />
             </div>
         );
     }

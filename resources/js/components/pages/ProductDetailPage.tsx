@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef, useLayoutEffect } from 'react';
+import React, { useState, useEffect, useLayoutEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { motion, useTransform, useScroll, Variants } from 'framer-motion';
 import { ChevronLeft, Heart, ArrowRight, ChevronUp, Loader2 } from 'lucide-react';
@@ -27,23 +27,10 @@ const ProductDetailPage: React.FC = () => {
     const navigate = useNavigate();
     const { favorites, toggleFavorite } = useFavorites();
     
-    const leftPaneRef = useRef<HTMLDivElement>(null);
-    const rightPaneRef = useRef<HTMLDivElement>(null);
     const [isReady, setIsReady] = useState<boolean>(false);
 
     // Fetch product data using our "Gold Standard" hook! ✨
     const { data: product, isLoading, isError } = useProduct(productId || '');
-
-    useEffect(() => {
-        console.log("========================================");
-        console.log("Attire Lounge Official Debugger! (ﾉ´ヮ`)ﾉ*:･ﾟ✧");
-        console.log("Page: Product Detail");
-        console.log("Product Slug from URL:", productId);
-        console.log("Loading State:", isLoading);
-        console.log("Error State:", isError);
-        console.log("Fetched Product Data:", product);
-        console.log("========================================");
-    }, [productId, product, isLoading, isError]);
 
     useEffect(() => {
         const timer = setTimeout(() => setIsReady(true), 100);
@@ -159,7 +146,6 @@ const ProductDetailPage: React.FC = () => {
                 
                 {/* LEFT: IMAGE PANE (DESKTOP FULL SCREEN) */}
                 <section 
-                    ref={leftPaneRef}
                     className="hidden lg:block w-full lg:w-[60%] xl:w-[65%] no-scrollbar bg-[#0a0a0a] scroll-smooth"
                 >
                     <motion.div 
@@ -183,7 +169,6 @@ const ProductDetailPage: React.FC = () => {
 
                 {/* RIGHT: CONTENT PANE */}
                 <section 
-                    ref={rightPaneRef}
                     className="w-full lg:w-[40%] xl:w-[35%] no-scrollbar lg:bg-[#0a0a0a] lg:border-l border-white/5 scroll-smooth"
                 >
                     <div className="h-screen lg:hidden pointer-events-none" />

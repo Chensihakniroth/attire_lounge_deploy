@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState, useMemo, memo } from 'react';
-import { motion } from 'framer-motion';
+import { motion, useAnimation } from 'framer-motion';
 import {
     ExternalLink,
     ArrowRight,
@@ -11,10 +11,8 @@ import {
     ChevronRight,
 } from 'lucide-react';
 import minioBaseUrl from '../../config.js';
-import Skeleton from '../common/Skeleton.jsx';
 import OptimizedImage from '../common/OptimizedImage.jsx';
 import GrainOverlay from '../common/GrainOverlay.jsx';
-import { useAnimation } from 'framer-motion';
 
 const fadeUp = {
     hidden: { opacity: 0, y: 30 },

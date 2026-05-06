@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Lock, User as UserIcon, ShieldCheck, ArrowRight, Check, AlertTriangle } from 'lucide-react';
-import { LumaSpin } from '@/components/ui/luma-spin';
 import { motion } from 'framer-motion';
 import axios from 'axios';
 import minioBaseUrl from '../../../config';
@@ -206,7 +205,7 @@ const AdminLogin = () => {
                             <span className="relative z-10 flex items-center justify-center gap-3">
                                 {loading ? (
                                     <>
-                                        <LumaSpin size="sm" />
+                                        <Loader2 className="animate-spin" size={16} />
                                         Verifying
                                     </>
                                 ) : (

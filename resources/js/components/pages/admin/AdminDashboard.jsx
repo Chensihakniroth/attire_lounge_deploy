@@ -3,11 +3,7 @@ import { Link } from 'react-router-dom';
 import {
     Calendar,
     Gift,
-    ImageIcon,
     ArrowRight,
-    Clock,
-    AlertTriangle,
-    User,
     TrendingUp,
     Package,
     ShoppingBag,
@@ -15,10 +11,6 @@ import {
     Users,
     Activity,
     ShieldCheck,
-    Briefcase,
-    UserPlus,
-    Zap,
-    Info,
     PieChart as PieIcon,
     BarChart,
 } from 'lucide-react';
@@ -29,16 +21,6 @@ import { useAdmin } from './AdminContext';
 import { useQuery } from '@tanstack/react-query';
 import axios from 'axios';
 
-// UI Components
-import {
-    Card,
-    CardHeader,
-    CardTitle,
-    CardDescription,
-    CardContent,
-} from '@/components/ui/card';
-import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
-import { Button } from '@/components/ui/button';
 import DailySummaryWidget from './DailySummaryWidget';
 import RecentActivityWidget from './RecentActivityWidget';
 
@@ -266,7 +248,7 @@ const StatCard = ({ icon, title, value, link, loading, highlight = false }) => {
     if (loading) {
         return (
             <div className="bg-[#fdfdfc] dark:bg-[#161b22] p-8 rounded-2xl border border-black/5 dark:border-[#30363d] flex items-center justify-center min-h-[160px]">
-                <LumaSpin size="md" />
+                <Loader2 size={24} className="animate-spin text-gray-400 dark:text-[#8b949e]" />
             </div>
         );
     }

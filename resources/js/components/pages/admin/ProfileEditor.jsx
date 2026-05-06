@@ -208,7 +208,7 @@ const ProfileEditor = () => {
                                         disabled={saving}
                                         className="w-full py-4 bg-[#0d3542] dark:bg-[#58a6ff] text-white dark:text-black rounded-xl text-[11px] font-black uppercase tracking-[0.2em] hover:opacity-90 transition-all flex items-center justify-center gap-2 group disabled:opacity-50 shadow-none border-none"
                                     >
-                                        {saving ? <LumaSpin size="sm" /> : <Save size={16} />}
+                                        {saving ? <Loader2 className="animate-spin" size={16} /> : <Save size={16} />}
                                         {saving ? 'Saving...' : 'Save Profile'}
                                     </button>
                                 </div>
