@@ -62,7 +62,7 @@ const FavoritesPage = () => {
     return (
         <div className="min-h-screen bg-attire-navy relative selection:bg-attire-accent selection:text-white">
             <SEO 
-                title="Your Favorites | Elite Styling House"
+                title="Your Favorites | Gentleman Styling House"
                 description="Your private collection of preferred pieces, selected for your next sartorial chapter."
             />
             <GrainOverlay />

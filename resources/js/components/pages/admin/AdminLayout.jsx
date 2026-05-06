@@ -74,105 +74,6 @@ const NavItem = ({ item, isCollapsed, setOpen }) => {
     );
 };
 
-const GlobalSearch = () => {
-    const [query, setQuery] = useState('');
-    const [results, setResults] = useState([]);
-    const [isOpen, setIsOpen] = useState(false);
-    const [loading, setLoading] = useState(false);
-    const navigate = useNavigate();
-
-    const handleSearch = useCallback(async (val) => {
-        if (val.length < 2) {
-            setResults([]);
-            return;
-        }
-        setLoading(true);
-        try {
-            const token =
-                localStorage.getItem('admin_token') ||
-                sessionStorage.getItem('admin_token');
-            const response = await axios.get(`/api/v1/search?q=${val}`, {
-                headers: { Authorization: `Bearer ${token}` },
-            });
-            setResults(response.data.data.slice(0, 5));
-        } catch (error) {
-            console.error('Search error:', error);
-        } finally {
-            setLoading(false);
-        }
-    }, []);
-
-    useEffect(() => {
-        const timer = setTimeout(() => handleSearch(query), 300);
-        return () => clearTimeout(timer);
-    }, [query, handleSearch]);
-
-    return (
-        <div className="relative w-full max-w-md hidden md:block font-sans">
-            <div
-                className={`flex items-center gap-3 bg-white/5 border ${isOpen ? 'border-white/30' : 'border-white/10'} rounded-2xl px-5 py-2.5 transition-all`}
-            >
-                <Search
-                    size={16}
-                    className={isOpen ? 'text-white' : 'text-white/50'}
-                />
-                <input
-                    type="text"
-                    placeholder="Search identity..."
-                    className="bg-transparent border-none outline-none text-[10px] font-bold uppercase tracking-[0.2em] w-full text-white placeholder:text-white/30"
-                    onFocus={() => setIsOpen(true)}
-                    onBlur={() => setTimeout(() => setIsOpen(false), 200)}
-                    value={query}
-                    onChange={(e) => setQuery(e.target.value)}
-                />
-                {loading && (
-                    <LumaSpin
-                        size="sm"
-                    />
-                )}
-            </div>
-
-            <AnimatePresence>
-                {isOpen && results.length > 0 && (
-                    <motion.div
-                        initial={{ opacity: 0, y: 10 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        exit={{ opacity: 0, y: 10 }}
-                        className="absolute top-full left-0 right-0 mt-3 bg-white dark:bg-[#161b22] border border-black/5 dark:border-[#30363d] rounded-2xl shadow-none overflow-hidden z-[100] p-2"
-                    >
-                        {results.map((item) => (
-                            <button
-                                key={item.id}
-                                onClick={() => {
-                                    navigate(`/admin/products/${item.id}/edit`);
-                                    setIsOpen(false);
-                                    setQuery('');
-                                }}
-                                className="w-full flex items-center gap-4 p-3 hover:bg-black/5 dark:hover:bg-[#0d1117] rounded-xl transition-all text-left"
-                            >
-                                <div className="h-10 w-10 rounded-lg bg-black/5 overflow-hidden flex-shrink-0">
-                                    <img
-                                        src={item.images[0]}
-                                        alt=""
-                                        className="w-full h-full object-cover"
-                                    />
-                                </div>
-                                <div>
-                                    <p className="text-xs font-bold uppercase tracking-wider text-gray-900 dark:text-[#c9d1d9]">
-                                        {item.name}
-                                    </p>
-                                    <p className="text-[10px] text-gray-400 dark:text-[#8b949e]/40 uppercase tracking-widest">
-                                        {item.category?.name || 'Product'}
-                                    </p>
-                                </div>
-                            </button>
-                        ))}
-                    </motion.div>
-                )}
-            </AnimatePresence>
-        </div>
-    );
-};
 
 const OutletSwitcher = () => {
     const { activeOutlet, setActiveOutlet, OUTLET_CONFIG } = useAdmin();
@@ -453,7 +354,6 @@ const AdminLayoutContent = ({
                                 {isSidebarOpen ? <X size={20} /> : <Menu size={20} />}
                             </button>
                             <div className="h-4 w-px bg-white/20 mx-2 hidden lg:block" />
-                            <GlobalSearch />
                         </div>
 
                         <div className="flex items-center gap-4">

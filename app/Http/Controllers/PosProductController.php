@@ -356,6 +356,22 @@ class PosProductController extends Controller
     }
 
     /**
+     * Bulk destroy (permanently delete) products.
+     * POST /api/v1/admin/pos/products/bulk-delete
+     */
+    public function bulkDestroy(Request $request): JsonResponse
+    {
+        $validated = $request->validate([
+            'product_ids' => 'required|array',
+            'product_ids.*' => 'exists:pos_products,id',
+        ]);
+
+        PosProduct::whereIn('id', $validated['product_ids'])->delete();
+
+        return response()->json(['message' => 'Products deleted permanently', 'count' => count($validated['product_ids'])]);
+    }
+
+    /**
      * Bulk restore (unarchive) products.
      * POST /api/v1/admin/pos/products/bulk-restore
      */

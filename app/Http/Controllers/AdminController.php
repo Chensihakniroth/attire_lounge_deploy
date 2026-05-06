@@ -22,9 +22,6 @@ class AdminController extends Controller
     /**
      * Get overview stats for the admin dashboard.
      */
-    /**
-     * Get overview stats for the admin dashboard.
-     */
     public function stats(): JsonResponse
     {
         $outlet = request()->header('X-Active-Outlet', request()->query('outlet', 'attire_lounge'));
@@ -33,94 +30,57 @@ class AdminController extends Controller
             ? \Illuminate\Support\Facades\Cache::tags(['admin-stats']) 
             : \Illuminate\Support\Facades\Cache::getFacadeRoot();
 
-        $stats = $cache->remember('admin_dashboard_stats_' . $outlet, 3600, function () use ($outlet) {
-            // 1. Monthly Trends (Last 6 Months)
-            $monthlyTrends = [];
+        $stats = $cache->remember('admin_dashboard_stats_' . $outlet, 86400, function () use ($outlet) {
+            // ── Trend Data (Index-friendly: fetch raw rows, group in-memory) ──
             $monthlyStart = Carbon::now()->subMonths(5)->startOfMonth();
-            
-            $appointmentsByMonth = Appointment::select([
-                DB::raw('DATE_FORMAT(created_at, "%b") as month_name'),
-                DB::raw('COUNT(*) as count')
-            ])
-            ->where('created_at', '>=', $monthlyStart)
-            ->groupBy(DB::raw('DATE_FORMAT(created_at, "%b")'))
-            ->pluck('count', 'month_name');
+            $weeklyStart  = Carbon::now()->subWeeks(3)->startOfWeek();
+            $dailyStart   = Carbon::now()->subDays(6)->startOfDay();
 
-            $customersByMonth = CustomerProfile::select([
-                DB::raw('DATE_FORMAT(created_at, "%b") as month_name'),
-                DB::raw('COUNT(*) as count')
-            ])
-            ->where('created_at', '>=', $monthlyStart)
-            ->groupBy(DB::raw('DATE_FORMAT(created_at, "%b")'))
-            ->pluck('count', 'month_name');
+            // Single query per model for the full 6-month window (covers all 3 trend ranges)
+            $recentAppointments = Appointment::where('created_at', '>=', $monthlyStart)
+                ->pluck('created_at');
+            $recentCustomers = CustomerProfile::where('created_at', '>=', $monthlyStart)
+                ->pluck('created_at');
 
+            // 1. Monthly Trends (Last 6 Months) — group in-memory
+            $monthlyTrends = [];
             for ($i = 5; $i >= 0; $i--) {
                 $month = Carbon::now()->subMonths($i);
-                $name = $month->format('M');
+                $name  = $month->format('M');
+                $start = $month->copy()->startOfMonth();
+                $end   = $month->copy()->endOfMonth();
+
                 $monthlyTrends[] = [
-                    'name' => $name,
-                    'appointments' => $appointmentsByMonth->get($name, 0),
-                    'customers' => $customersByMonth->get($name, 0),
+                    'name'         => $name,
+                    'appointments' => $recentAppointments->filter(fn ($d) => Carbon::parse($d)->between($start, $end))->count(),
+                    'customers'    => $recentCustomers->filter(fn ($d) => Carbon::parse($d)->between($start, $end))->count(),
                 ];
             }
 
-            // 2. Weekly Trends (Last 4 Weeks)
+            // 2. Weekly Trends (Last 4 Weeks) — group in-memory
             $weeklyTrends = [];
-            $weeklyStart = Carbon::now()->subWeeks(3)->startOfWeek();
-
-            $appointmentsByWeek = Appointment::select([
-                DB::raw('WEEK(created_at, 1) as week_num'),
-                DB::raw('COUNT(*) as count')
-            ])
-            ->where('created_at', '>=', $weeklyStart)
-            ->groupBy(DB::raw('WEEK(created_at, 1)'))
-            ->pluck('count', 'week_num');
-
-            $customersByWeek = CustomerProfile::select([
-                DB::raw('WEEK(created_at, 1) as week_num'),
-                DB::raw('COUNT(*) as count')
-            ])
-            ->where('created_at', '>=', $weeklyStart)
-            ->groupBy(DB::raw('WEEK(created_at, 1)'))
-            ->pluck('count', 'week_num');
-
             for ($i = 3; $i >= 0; $i--) {
-                $startOfWeek = Carbon::now()->subWeeks($i)->startOfWeek();
-                $weekNum = (int)$startOfWeek->format('W');
+                $start = Carbon::now()->subWeeks($i)->startOfWeek();
+                $end   = $start->copy()->endOfWeek();
+                $weekNum = (int) $start->format('W');
+
                 $weeklyTrends[] = [
-                    'name' => 'W' . $weekNum,
-                    'appointments' => $appointmentsByWeek->get($weekNum, 0),
-                    'customers' => $customersByWeek->get($weekNum, 0),
+                    'name'         => 'W' . $weekNum,
+                    'appointments' => $recentAppointments->filter(fn ($d) => Carbon::parse($d)->between($start, $end))->count(),
+                    'customers'    => $recentCustomers->filter(fn ($d) => Carbon::parse($d)->between($start, $end))->count(),
                 ];
             }
 
-            // 3. Daily Trends (Last 7 Days)
+            // 3. Daily Trends (Last 7 Days) — group in-memory
             $dailyTrends = [];
-            $dailyStart = Carbon::now()->subDays(6)->startOfDay();
-
-            $appointmentsByDay = Appointment::select([
-                DB::raw('DATE(created_at) as date'),
-                DB::raw('COUNT(*) as count')
-            ])
-            ->where('created_at', '>=', $dailyStart)
-            ->groupBy(DB::raw('DATE(created_at)'))
-            ->pluck('count', 'date');
-
-            $customersByDay = CustomerProfile::select([
-                DB::raw('DATE(created_at) as date'),
-                DB::raw('COUNT(*) as count')
-            ])
-            ->where('created_at', '>=', $dailyStart)
-            ->groupBy(DB::raw('DATE(created_at)'))
-            ->pluck('count', 'date');
-
             for ($i = 6; $i >= 0; $i--) {
-                $day = Carbon::now()->subDays($i);
+                $day        = Carbon::now()->subDays($i);
                 $dateString = $day->toDateString();
+
                 $dailyTrends[] = [
-                    'name' => $day->format('D'),
-                    'appointments' => $appointmentsByDay->get($dateString, 0),
-                    'customers' => $customersByDay->get($dateString, 0),
+                    'name'         => $day->format('D'),
+                    'appointments' => $recentAppointments->filter(fn ($d) => Carbon::parse($d)->toDateString() === $dateString)->count(),
+                    'customers'    => $recentCustomers->filter(fn ($d) => Carbon::parse($d)->toDateString() === $dateString)->count(),
                 ];
             }
 

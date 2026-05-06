@@ -107,7 +107,7 @@ const ProductListPage: React.FC = () => {
             exit={{ opacity: 0 }}
         >
             <SEO 
-                title={(selectedCollections.length === 1 && collections.find(c => c.slug === selectedCollections[0])?.meta_title) || `${pageTitle} | Elite Styling House`}
+                title={(selectedCollections.length === 1 && collections.find(c => c.slug === selectedCollections[0])?.meta_title) || `${pageTitle} | Gentleman Styling House`}
                 description={(selectedCollections.length === 1 && collections.find(c => c.slug === selectedCollections[0])?.meta_description) || `Explore our ${pageTitle}. Expertly curated luxury styles designed for the modern gentleman.`}
             />
             <GrainOverlay />

@@ -18,12 +18,7 @@ class OutletScope implements Scope
         $outlet = $this->resolveOutlet();
 
         if ($outlet) {
-            // caffeine and kravat share the same POS data (drinks, etc)
-            if (in_array($outlet, ['caffeine', 'kravat'])) {
-                $builder->whereIn($model->getTable() . '.outlet', ['caffeine', 'kravat']);
-            } else {
-                $builder->where($model->getTable() . '.outlet', $outlet);
-            }
+            $builder->where($model->getTable() . '.outlet', $outlet);
         }
     }
 

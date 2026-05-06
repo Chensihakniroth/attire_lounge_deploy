@@ -121,12 +121,14 @@ const QuickAccessDeck = ({ onClose }) => {
                                     Services
                                 </button>
                             )}
-                            <button
-                                onClick={() => setActiveTab('accessories')}
-                                className={`px-4 py-1.5 rounded-lg text-[9px] font-black uppercase tracking-widest transition-all ${activeTab === 'accessories' ? 'bg-white dark:bg-[#161b22] text-attire-accent shadow-sm' : 'text-gray-400 hover:text-gray-600'}`}
-                            >
-                                Accessories
-                            </button>
+                            {activeOutlet === 'attire_lounge' && (
+                                <button
+                                    onClick={() => setActiveTab('accessories')}
+                                    className={`px-4 py-1.5 rounded-lg text-[9px] font-black uppercase tracking-widest transition-all ${activeTab === 'accessories' ? 'bg-white dark:bg-[#161b22] text-attire-accent shadow-sm' : 'text-gray-400 hover:text-gray-600'}`}
+                                >
+                                    Accessories
+                                </button>
+                            )}
                         </div>
                     )}
 

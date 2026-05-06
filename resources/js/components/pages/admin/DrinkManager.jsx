@@ -48,13 +48,14 @@ import {
     IceCream2,
     Wine,
     Beer,
+    RefreshCw,
+    AlertTriangle,
     Cookie,
     Milk,
     Star,
     Award,
     Zap,
     Filter,
-    RefreshCw,
     BarChart3,
     TrendingUp,
     Info,
@@ -394,7 +395,6 @@ const DrinkRow = React.memo(
         onToggleSelect,
         onFocus,
         onEdit,
-        onDelete,
         onQuickEdit,
         onUpdateField,
         performanceMode,
@@ -479,7 +479,8 @@ const DrinkRow = React.memo(
                     </td>
                     <td className="px-5 py-3 border-l-2 border-black/15 dark:border-[#30363d] text-center">
                         <span
-                            className={`px-2 py-0.5 ${colorScheme.bg} text-[9px] font-black ${colorScheme.text} rounded-md uppercase tracking-[0.2em] border ${colorScheme.border}`}
+                            className={`inline-block max-w-[100px] truncate px-2 py-0.5 ${colorScheme.bg} text-[9px] font-black ${colorScheme.text} rounded-md uppercase tracking-[0.2em] border ${colorScheme.border} whitespace-nowrap`}
+                            title={d.category}
                         >
                             {d.category}
                         </span>
@@ -533,6 +534,7 @@ export default function DrinkManager() {
 
     // State
     const [isModalOpen, setIsModalOpen] = useState(false);
+    const [isBulkModalOpen, setIsBulkModalOpen] = useState(false);
     const [editingDrink, setEditingDrink] = useState(null);
     const [isSaving, setIsSaving] = useState(false);
     const [page, setPage] = useState(1);
@@ -722,6 +724,16 @@ export default function DrinkManager() {
         return result;
     }, [drinks, filters]);
 
+    const groupedByCategory = useMemo(() => {
+        const groups = {};
+        filteredDrinks.forEach(d => {
+            const cat = d.category || 'Uncategorized';
+            if (!groups[cat]) groups[cat] = { name: cat, items: [] };
+            groups[cat].items.push(d);
+        });
+        return Object.values(groups).sort((a, b) => a.name.localeCompare(b.name));
+    }, [filteredDrinks]);
+
     // Mutations
     const mutation = useMutation({
         mutationFn: async (payload) => {
@@ -847,6 +859,28 @@ export default function DrinkManager() {
         },
     });
 
+    const bulkDeleteMutation = useMutation({
+        mutationFn: (ids) =>
+            axios.post('/api/v1/admin/pos/products/bulk-delete', {
+                product_ids: ids,
+            }),
+        onSuccess: (_, ids) => {
+            queryClient.invalidateQueries({ queryKey: ['admin-drinks'] });
+            queryClient.invalidateQueries({ queryKey: ['admin-stats'] });
+            setToast({
+                message: `${ids.length} drink(s) permanently deleted.`,
+                type: 'success',
+            });
+            setSelectedIds(new Set());
+        },
+        onError: (err) => {
+            setToast({
+                message: err.response?.data?.message || 'Failed to delete.',
+                type: 'error',
+            });
+        },
+    });
+
     const updateMutation = useMutation({
         mutationFn: ({ id, data }) =>
             axios.put(`/api/v1/admin/pos/products/${id}`, {
@@ -888,6 +922,36 @@ export default function DrinkManager() {
         if (!window.confirm(`Restore ${selectedIds.size} selected drinks?`))
             return;
         bulkRestoreMutation.mutate(Array.from(selectedIds));
+    };
+
+    const handleBulkDelete = () => {
+        if (
+            !window.confirm(
+                `⚠️ PERMANENTLY DELETE ${selectedIds.size} selected drink(s)?\n\nThis action cannot be undone. The products will be removed from the database forever.`
+            )
+        )
+            return;
+        bulkDeleteMutation.mutate(Array.from(selectedIds));
+    };
+
+    const handleBulkEditOpen = () => {
+        const ids = Array.from(selectedIds);
+        if (ids.length === 0) return;
+        const firstDrink = filteredDrinks.find((d) => ids.includes(d.id));
+        if (firstDrink) {
+            setEditingDrink(firstDrink);
+            setFormData({
+                sku: firstDrink.sku || '',
+                name: firstDrink.name || '',
+                price: firstDrink.price || '',
+                stock_qty: firstDrink.stock_qty || '',
+                category: firstDrink.category || '',
+                is_active: firstDrink.is_active ?? true,
+                is_service: firstDrink.is_service || false,
+                image_path: firstDrink.image_path || '',
+            });
+            setIsModalOpen(true);
+        }
     };
 
     // Keyboard Navigation
@@ -1037,38 +1101,6 @@ export default function DrinkManager() {
                 </div>
 
                 <div className="flex items-center gap-3">
-                    {selectedIds.size > 0 && (
-                        <motion.div
-                            initial={{ opacity: 0, scale: 0.95 }}
-                            animate={{ opacity: 1, scale: 1 }}
-                            className="flex items-center gap-2 mr-4"
-                        >
-                            <span className="text-[11px] font-bold uppercase tracking-widest text-[#0d3542] dark:text-[#58a6ff]">
-                                {selectedIds.size} Selected
-                            </span>
-                            <button
-                                onClick={
-                                    filters.status === 'inactive'
-                                        ? handleBulkRestore
-                                        : handleBulkDeactivate
-                                }
-                                className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold uppercase tracking-widest transition-all shadow-none border border-transparent ${
-                                    filters.status === 'inactive'
-                                        ? 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 hover:bg-emerald-500 hover:text-white'
-                                        : 'bg-red-500/10 text-red-600 dark:text-red-400 hover:bg-red-500 hover:text-white'
-                                }`}
-                            >
-                                {filters.status === 'inactive' ? (
-                                    <RefreshCw size={14} />
-                                ) : (
-                                    <Trash2 size={14} />
-                                )}
-                                {filters.status === 'inactive'
-                                    ? 'Restore'
-                                    : 'Deactivate'}
-                            </button>
-                        </motion.div>
-                    )}
                     <button
                         onClick={() => {
                             setEditingDrink(null);
@@ -1254,9 +1286,6 @@ export default function DrinkManager() {
                             <th className="w-32 px-6 py-5 text-center text-xs font-bold uppercase tracking-[0.2em] text-gray-500 dark:text-[#8b949e]/40 whitespace-nowrap">
                                 Price
                             </th>
-                            <th className="w-32 px-6 py-5 text-right text-xs font-bold uppercase tracking-[0.2em] text-gray-500 dark:text-[#8b949e]/40 whitespace-nowrap">
-                                Actions
-                            </th>
                         </tr>
                     </thead>
                     <tbody className="divide-y divide-black/5 dark:divide-[#30363d]">
@@ -1313,20 +1342,12 @@ export default function DrinkManager() {
                                             }}
                                         />
                                     </td>
-                                    <td className="px-6 py-4 text-right">
-                                        <div
-                                            className="h-8 w-8 ml-auto rounded-lg bg-gray-200 dark:bg-white/5"
-                                            style={{
-                                                animationDelay: `${i * 80 + 100}ms`,
-                                            }}
-                                        />
-                                    </td>
                                 </tr>
                             ))
                         ) : filteredDrinks.length === 0 ? (
                             <tr>
                                 <td
-                                    colSpan="8"
+                                    colSpan="7"
                                     className="px-6 py-20 text-center opacity-40"
                                 >
                                     <Coffee
@@ -1342,61 +1363,66 @@ export default function DrinkManager() {
                                 </td>
                             </tr>
                         ) : (
-                            filteredDrinks.map((d) => (
-                                <DrinkRow
-                                    key={d.id}
-                                    drink={d}
-                                    isSelected={selectedIds.has(d.id)}
-                                    isFocused={focusedId === d.id}
-                                    quickEditField={quickEditField}
-                                    onToggleSelect={toggleSelect}
-                                    onFocus={setFocusedId}
-                                    onEdit={(drink) => {
-                                        setEditingDrink(drink);
-                                        setFormData({
-                                            sku: drink.sku || '',
-                                            name: drink.name || '',
-                                            price: drink.price || '',
-                                            stock_qty: drink.stock_qty || '',
-                                            category: drink.category || '',
-                                            is_active: drink.is_active ?? true,
-                                            is_service:
-                                                drink.is_service || false,
-                                            image_path: drink.image_path || '',
-                                        });
-                                        setIsModalOpen(true);
-                                    }}
-                                    onDelete={(id) => {
-                                        Swal.fire({
-                                            title: 'Delete this drink?',
-                                            text: 'This action cannot be undone.',
-                                            icon: 'warning',
-                                            showCancelButton: true,
-                                            confirmButtonColor: '#ef4444',
-                                            cancelButtonColor: '#6b7280',
-                                            confirmButtonText: 'Yes, delete it',
-                                            background:
-                                                document.documentElement.classList.contains(
-                                                    'dark'
-                                                )
-                                                    ? '#161b22'
-                                                    : '#fff',
-                                            color: document.documentElement.classList.contains(
-                                                'dark'
-                                            )
-                                                ? '#c9d1d9'
-                                                : '#111',
-                                        }).then((result) => {
-                                            if (result.isConfirmed)
-                                                deleteMutation.mutate(id);
-                                        });
-                                    }}
-                                    onQuickEdit={setQuickEditField}
-                                    onUpdateField={(id, data) =>
-                                        updateMutation.mutate({ id, data })
-                                    }
-                                    performanceMode={performanceMode}
-                                />
+                            groupedByCategory.map((group) => (
+                                <React.Fragment key={group.name}>
+                                    <tr className="bg-[#0d3542]/5 dark:bg-[#58a6ff]/5 border-b border-[#0d3542]/20 dark:border-[#58a6ff]/20">
+                                        <td colSpan="7" className="px-6 py-3.5">
+                                            <div className="flex items-center gap-3">
+                                                <button
+                                                    onClick={() => {
+                                                        const newSet = new Set(selectedIds);
+                                                        const allSelected = group.items.every(d => newSet.has(d.id));
+                                                        group.items.forEach(d => {
+                                                            if (allSelected) newSet.delete(d.id);
+                                                            else newSet.add(d.id);
+                                                        });
+                                                        setSelectedIds(newSet);
+                                                    }}
+                                                    className={`w-5 h-5 rounded-md border-2 flex items-center justify-center transition-all shrink-0 ${
+                                                        group.items.every(d => selectedIds.has(d.id))
+                                                            ? 'bg-[#0d3542] dark:bg-[#58a6ff] border-[#0d3542] dark:border-[#58a6ff]'
+                                                            : 'border-black/25 dark:border-[#30363d]'
+                                                    }`}
+                                                >
+                                                    {group.items.every(d => selectedIds.has(d.id)) && <Check size={12} className="text-white dark:text-black" />}
+                                                </button>
+                                                <div className="h-1 w-8 bg-[#0d3542] dark:bg-[#58a6ff] rounded-full" />
+                                                <span className="text-[11px] font-black uppercase tracking-[0.25em] text-[#0d3542] dark:text-[#58a6ff]">{group.name}</span>
+                                                <span className="px-2 py-0.5 bg-black/10 dark:bg-white/10 text-[9px] font-black text-gray-500 dark:text-white/40 uppercase tracking-widest rounded">{group.items.length} items</span>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    {group.items.map((d) => (
+                                        <DrinkRow
+                                            key={d.id}
+                                            drink={d}
+                                            isSelected={selectedIds.has(d.id)}
+                                            isFocused={focusedId === d.id}
+                                            quickEditField={quickEditField}
+                                            onToggleSelect={toggleSelect}
+                                            onFocus={setFocusedId}
+                                            onEdit={(drink) => {
+                                                setEditingDrink(drink);
+                                                setFormData({
+                                                    sku: drink.sku || '',
+                                                    name: drink.name || '',
+                                                    price: drink.price || '',
+                                                    stock_qty: drink.stock_qty || '',
+                                                    category: drink.category || '',
+                                                    is_active: drink.is_active ?? true,
+                                                    is_service: drink.is_service || false,
+                                                    image_path: drink.image_path || '',
+                                                });
+                                                setIsModalOpen(true);
+                                            }}
+                                            onQuickEdit={setQuickEditField}
+                                            onUpdateField={(id, data) =>
+                                                updateMutation.mutate({ id, data })
+                                            }
+                                            performanceMode={performanceMode}
+                                        />
+                                    ))}
+                                </React.Fragment>
                             ))
                         )}
                     </tbody>
@@ -1722,6 +1748,33 @@ export default function DrinkManager() {
                         </div>
 
                         <div className="flex gap-3 pt-4 border-t border-black/5 dark:border-[#30363d]">
+                            {editingDrink && (
+                                <button
+                                    type="button"
+                                    onClick={() => {
+                                        Swal.fire({
+                                            title: 'Delete this drink?',
+                                            text: 'This action cannot be undone.',
+                                            icon: 'warning',
+                                            showCancelButton: true,
+                                            confirmButtonColor: '#ef4444',
+                                            cancelButtonColor: '#6b7280',
+                                            confirmButtonText: 'Yes, delete it',
+                                            background: document.documentElement.classList.contains('dark') ? '#161b22' : '#fff',
+                                            color: document.documentElement.classList.contains('dark') ? '#c9d1d9' : '#111',
+                                        }).then((result) => {
+                                            if (result.isConfirmed) {
+                                                deleteMutation.mutate(editingDrink.id);
+                                                closeModal();
+                                            }
+                                        });
+                                    }}
+                                    className="px-4 py-3 rounded-xl text-gray-500 hover:text-red-500 hover:bg-red-500/10 transition-colors border border-transparent"
+                                    title="Delete Drink"
+                                >
+                                    <Trash2 size={16} />
+                                </button>
+                            )}
                             <button
                                 type="button"
                                 onClick={closeModal}
@@ -1745,6 +1798,108 @@ export default function DrinkManager() {
                     </form>
                 </div>
             </ModernModal>
+
+            {/* --- Floating Command Bar --- */}
+            <AnimatePresence>
+                {selectedIds.size > 0 && (
+                    <motion.div initial={{ y: 50, opacity: 0 }} animate={{ y: 0, opacity: 1 }} exit={{ y: 50, opacity: 0 }} className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50">
+                        <div className="bg-[#fdfdfc] dark:bg-[#111] rounded-xl px-6 h-14 flex items-center gap-6 shadow-xl border border-[#0d3542]/20 dark:border-[#58a6ff]/20 ring-1 ring-inset ring-white/10 dark:ring-black/10 transition-all duration-300">
+                            <div className="flex items-center gap-3 pr-6 border-r border-black/10 dark:border-white/10">
+                                <div className="bg-[#0d3542] dark:bg-[#58a6ff] text-white dark:text-black text-[10px] font-black h-6 w-6 rounded-md flex items-center justify-center shadow-lg">{selectedIds.size}</div>
+                                <span className="text-[#0d3542] dark:text-[#58a6ff] text-[10px] font-black uppercase tracking-[0.2em] whitespace-nowrap">Selected</span>
+                            </div>
+                            <div className="flex items-center gap-6">
+                                <button onClick={() => setIsBulkModalOpen(true)} className="flex items-center gap-2 text-gray-500 dark:text-white/40 hover:text-[#0d3542] dark:hover:text-[#58a6ff] transition-colors group">
+                                    <Command size={12} className="group-hover:scale-110 transition-transform" />
+                                    <span className="text-[9px] font-black uppercase tracking-[0.2em]">Bulk Edit</span>
+                                </button>
+                                <div className="w-px h-4 bg-black/10 dark:bg-white/10" />
+                                <button onClick={() => setSelectedIds(new Set())} className="text-gray-400 dark:text-white/20 hover:text-[#0d3542] dark:hover:text-[#58a6ff] text-[9px] font-black uppercase tracking-[0.2em]">Clear</button>
+                            </div>
+                        </div>
+                    </motion.div>
+                )}
+            </AnimatePresence>
+
+            {/* --- Bulk Action Modal --- */}
+            <AnimatePresence>
+                {isBulkModalOpen && (
+                    <motion.div
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        className="fixed inset-0 z-[100] flex items-center justify-center bg-black/40 dark:bg-black/60 backdrop-blur-sm p-4"
+                    >
+                        <motion.div
+                            initial={{ scale: 0.95, opacity: 0, y: 20 }}
+                            animate={{ scale: 1, opacity: 1, y: 0 }}
+                            exit={{ scale: 0.95, opacity: 0, y: 20 }}
+                            className="bg-[#fdfdfc] dark:bg-[#161b22] w-full max-w-md rounded-2xl shadow-2xl border border-black/10 dark:border-[#30363d] overflow-hidden"
+                        >
+                            <div className="flex items-center justify-between p-6 border-b border-black/5 dark:border-[#30363d]/50">
+                                <h2 className="text-[14px] font-black text-gray-900 dark:text-[#c9d1d9] uppercase tracking-widest flex items-center gap-3">
+                                    <Command size={16} className="text-[#0d3542] dark:text-[#58a6ff]" />
+                                    Bulk Actions
+                                </h2>
+                                <button onClick={() => setIsBulkModalOpen(false)} className="text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors">
+                                    <X size={18} />
+                                </button>
+                            </div>
+                            <div className="p-6 space-y-6">
+                                <p className="text-sm text-gray-500 dark:text-[#8b949e]">
+                                    Perform actions on <span className="font-bold text-gray-900 dark:text-white">{selectedIds.size}</span> selected drink{selectedIds.size > 1 ? 's' : ''}.
+                                </p>
+                                <div className="grid grid-cols-2 gap-3">
+                                    {/* ── Edit ── */}
+                                    <button
+                                        onClick={() => {
+                                            handleBulkEditOpen();
+                                            setIsBulkModalOpen(false);
+                                        }}
+                                        className="flex flex-col items-center justify-center gap-3 p-4 rounded-xl border border-black/10 dark:border-[#30363d] bg-black/5 dark:bg-white/5 hover:bg-[#0d3542]/10 dark:hover:bg-[#58a6ff]/10 hover:border-[#0d3542]/30 dark:hover:border-[#58a6ff]/30 hover:text-[#0d3542] dark:hover:text-[#58a6ff] transition-all text-gray-600 dark:text-[#8b949e] group"
+                                    >
+                                        <Edit size={20} className="group-hover:scale-110 transition-transform" />
+                                        <span className="text-[10px] font-black uppercase tracking-widest">Edit</span>
+                                    </button>
+                                    {/* ── Deactivate ── */}
+                                    <button
+                                        onClick={() => {
+                                            handleBulkDeactivate();
+                                            setIsBulkModalOpen(false);
+                                        }}
+                                        className="flex flex-col items-center justify-center gap-3 p-4 rounded-xl border border-black/10 dark:border-[#30363d] bg-black/5 dark:bg-white/5 hover:bg-amber-500/10 hover:border-amber-500/30 hover:text-amber-500 transition-all text-gray-600 dark:text-[#8b949e] group"
+                                    >
+                                        <Archive size={20} className="group-hover:scale-110 transition-transform" />
+                                        <span className="text-[10px] font-black uppercase tracking-widest">Deactivate</span>
+                                    </button>
+                                    {/* ── Restore ── */}
+                                    <button
+                                        onClick={() => {
+                                            handleBulkRestore();
+                                            setIsBulkModalOpen(false);
+                                        }}
+                                        className="flex flex-col items-center justify-center gap-3 p-4 rounded-xl border border-black/10 dark:border-[#30363d] bg-black/5 dark:bg-white/5 hover:bg-emerald-500/10 hover:border-emerald-500/30 hover:text-emerald-500 transition-all text-gray-600 dark:text-[#8b949e] group"
+                                    >
+                                        <RefreshCw size={20} className="group-hover:scale-110 transition-transform" />
+                                        <span className="text-[10px] font-black uppercase tracking-widest">Restore</span>
+                                    </button>
+                                    {/* ── Delete (permanent) ── */}
+                                    <button
+                                        onClick={() => {
+                                            handleBulkDelete();
+                                            setIsBulkModalOpen(false);
+                                        }}
+                                        className="flex flex-col items-center justify-center gap-3 p-4 rounded-xl border border-red-200/60 dark:border-red-900/40 bg-red-50/50 dark:bg-red-900/10 hover:bg-red-500/20 hover:border-red-500/50 hover:text-red-600 dark:hover:text-red-400 transition-all text-red-400 dark:text-red-500/60 group"
+                                    >
+                                        <AlertTriangle size={20} className="group-hover:scale-110 transition-transform" />
+                                        <span className="text-[10px] font-black uppercase tracking-widest">Delete</span>
+                                    </button>
+                                </div>
+                            </div>
+                        </motion.div>
+                    </motion.div>
+                )}
+            </AnimatePresence>
         </div>
     );
 }

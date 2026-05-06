@@ -828,7 +828,7 @@ const HomePage: React.FC = () => {
   return (
     <div className="snap-scroll-container bg-[#111111]">
       <SEO
-        title="Attire Lounge Official | Elite Styling House & Ready-to-Wear"
+        title="Attire Lounge Official | Gentleman Styling House & Ready-to-Wear"
         description="Attire Lounge Official is Phnom Penh's premier Styling House, offering Milan-certified expert styling, curated luxury menswear collections, and personalized fashion consulting for the modern gentleman."
       />
       <SectionIndicator

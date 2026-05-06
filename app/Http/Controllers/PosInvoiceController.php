@@ -10,9 +10,16 @@ use App\Models\Promocode;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\DB;
+use App\Services\SalesService;
 
 class PosInvoiceController extends Controller
 {
+    protected $salesService;
+
+    public function __construct(SalesService $salesService)
+    {
+        $this->salesService = $salesService;
+    }
     /**
      * List invoices — filterable by date, status.
      * GET /api/v1/pos/invoices
@@ -175,29 +182,23 @@ class PosInvoiceController extends Controller
 
     /**
      * Daily sales summary for Admin Dashboard.
+     * Delegates to SalesReportController to avoid duplicating aggregation logic.
      * GET /api/v1/pos/summary/daily
      */
     public function dailySummary(Request $request): JsonResponse
     {
-        $date = $request->get('date', now()->toDateString());
+        $date   = $request->get('date', now()->toDateString());
+        $outlet = $request->header('X-Active-Outlet');
 
-        $invoices = PosInvoice::whereDate('date', $date)
-            ->where('status', 'completed')
-            ->get();
-
-        $totalRefunds = \App\Models\PosRefund::whereHas('invoice', function ($q) use ($date) {
-            $q->whereDate('date', $date);
-        })->sum('amount');
+        $fullReport = $this->salesService->getDailyReport($date, $outlet);
 
         return response()->json([
-            'date'           => $date,
-            'invoice_count'  => $invoices->count(),
-            'total_revenue'  => $invoices->sum('grand_total'),
-            'avg_order'      => $invoices->count() > 0
-                ? round($invoices->sum('grand_total') / $invoices->count(), 2)
-                : 0,
-            'total_refunds'  => $totalRefunds,
-            'net_revenue'    => $invoices->sum('grand_total') - $totalRefunds,
+            'date'           => $fullReport['date'],
+            'invoice_count'  => $fullReport['invoice_count'],
+            'total_revenue'  => $fullReport['total_revenue'],
+            'avg_order'      => $fullReport['avg_order_value'],
+            'total_refunds'  => $fullReport['total_refunds'],
+            'net_revenue'    => $fullReport['net_revenue'],
         ]);
     }
 

@@ -16,7 +16,6 @@ use App\Http\Controllers\PromocodeController;
 use App\Http\Controllers\PosProductController;
 use App\Http\Controllers\PosInvoiceController;
 use App\Http\Controllers\PosRefundController;
-use App\Http\Controllers\SearchController;
 use App\Http\Controllers\SalesReportController;
 
 Route::prefix('v1')->group(function () {
@@ -133,6 +132,7 @@ Route::prefix('v1')->group(function () {
             Route::post('/pos/products/bulk-update', [PosProductController::class, 'bulkUpdate']);
             Route::post('/pos/products/bulk-deactivate', [PosProductController::class, 'bulkDeactivate']);
             Route::post('/pos/products/bulk-restore', [PosProductController::class, 'bulkRestore']);
+            Route::post('/pos/products/bulk-delete', [PosProductController::class, 'bulkDestroy']);
             Route::get('/pos/products/export', [PosProductController::class, 'export']);
             Route::post('/pos/products/import', [PosProductController::class, 'import']);
 
