@@ -24,7 +24,7 @@ export const AdminProvider = ({ children }) => {
             color: '#0d3542',
         },
         caffeine: { label: 'Caffeine', shortLabel: 'CF', color: '#6f4e37' },
-        kravat: { label: 'Kravat', shortLabel: 'KV', color: '#3d2b56', logo: '/uploads/asset/@asset5.png' },
+        kravat: { label: 'Kravat', shortLabel: 'KV', color: '#3d2b56', logo: 'https://bucket-production-4ca0.up.railway.app/product-assets/uploads/asset/@asset5.png' },
     };
 
     const [activeOutlet, setActiveOutletState] = useState(() => {
