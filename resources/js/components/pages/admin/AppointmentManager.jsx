@@ -287,18 +287,21 @@ const AppointmentManager = () => {
     };
 
     const tabFilteredAppointments = useMemo(() => {
-        return appointments.filter(app => app.status === activeTab);
+        return (appointments || []).filter(app => app.status === activeTab);
     }, [appointments, activeTab]);
 
     const visibleAppointments = useMemo(() => {
         return tabFilteredAppointments.slice(0, visibleCount);
     }, [tabFilteredAppointments, visibleCount]);
 
-    const stats = useMemo(() => ({
-        pending: appointments.filter(a => a.status === 'pending').length,
-        done: appointments.filter(a => a.status === 'done').length,
-        cancelled: appointments.filter(a => a.status === 'cancelled').length,
-    }), [appointments]);
+    const stats = useMemo(() => {
+        const apts = appointments || [];
+        return {
+            pending: apts.filter(a => a.status === 'pending').length,
+            done: apts.filter(a => a.status === 'done').length,
+            cancelled: apts.filter(a => a.status === 'cancelled').length,
+        };
+    }, [appointments]);
 
     return (
         <div className="space-y-10 pb-20 max-w-[1200px] mx-auto px-4 sm:px-6 mt-6">
@@ -352,7 +355,7 @@ const AppointmentManager = () => {
             </div>
 
             {/* List */}
-            {appointmentsLoading && appointments.length === 0 ? (
+            {appointmentsLoading && (appointments || []).length === 0 ? (
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                     <LoadingState />
                 </div>

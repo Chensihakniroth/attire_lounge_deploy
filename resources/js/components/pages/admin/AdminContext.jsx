@@ -4,6 +4,7 @@ import React, {
     useContext,
     useCallback,
     useEffect,
+    useMemo,
 } from 'react';
 import axios from 'axios';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
@@ -23,7 +24,7 @@ export const AdminProvider = ({ children }) => {
             shortLabel: 'AL',
             color: '#0d3542',
         },
-        caffeine: { label: 'Caffeine', shortLabel: 'CF', color: '#6f4e37' },
+        caffeine: { label: 'CUFFEINE', shortLabel: 'CF', color: '#6f4e37', logo: 'https://bucket-production-4ca0.up.railway.app/product-assets/uploads/asset/cuff.png' },
         kravat: { label: 'Kravat', shortLabel: 'KV', color: '#3d2b56', logo: 'https://bucket-production-4ca0.up.railway.app/product-assets/uploads/asset/@asset5.png' },
     };
 
@@ -45,6 +46,7 @@ export const AdminProvider = ({ children }) => {
             queryClient.invalidateQueries({ queryKey: ['outOfStockItems'] });
             queryClient.invalidateQueries({ queryKey: ['admin-drinks'] });
             queryClient.invalidateQueries({ queryKey: ['admin-pos-products'] });
+            queryClient.invalidateQueries({ queryKey: ['admin-appointments'] });
         },
         [activeOutlet, queryClient]
     );
@@ -200,6 +202,38 @@ export const AdminProvider = ({ children }) => {
         staleTime: 60 * 1000,
     });
 
+    const { data: appointments = [], isLoading: appointmentsLoading } = useQuery({
+        queryKey: ['admin-appointments', activeOutlet],
+        queryFn: async () => {
+            const response = await axios.get('/api/v1/admin/appointments');
+            return response.data.data || [];
+        },
+        enabled: !!adminToken && !!user,
+        staleTime: 60 * 1000,
+    });
+
+    const appointmentsPagination = useMemo(() => ({
+        total: appointments.length,
+    }), [appointments]);
+
+    const updateAppointmentStatus = useCallback(async (id, status) => {
+        const response = await axios.patch(`/api/v1/admin/appointments/${id}/status`, { status });
+        queryClient.invalidateQueries({ queryKey: ['admin-appointments'] });
+        return response.data;
+    }, [queryClient]);
+
+    const createAppointment = useCallback(async (data) => {
+        const response = await axios.post('/api/v1/appointments', data);
+        queryClient.invalidateQueries({ queryKey: ['admin-appointments'] });
+        return response.data;
+    }, [queryClient]);
+
+    const clearClosedAppointments = useCallback(async () => {
+        const response = await axios.delete('/api/v1/admin/appointments/clear-closed');
+        queryClient.invalidateQueries({ queryKey: ['admin-appointments'] });
+        return response.data;
+    }, [queryClient]);
+
     const value = {
         // Auth
         user,
@@ -222,6 +256,14 @@ export const AdminProvider = ({ children }) => {
 
         // Data
         stats,
+        appointments,
+        appointmentsLoading,
+        appointmentsPagination,
+
+        // Appointments
+        updateAppointmentStatus,
+        createAppointment,
+        clearClosedAppointments,
     };
 
     return (
