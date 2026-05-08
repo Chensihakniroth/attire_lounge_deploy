@@ -138,6 +138,107 @@ const API = {
     async bookAppointment(data) {
         const response = await axios.post('/api/v1/appointments', data);
         return getData(response);
+    },
+
+    // --- Admin Endpoints ---
+
+    // Admin: Users
+    async getAdminUsers() {
+        const response = await axios.get('/api/v1/admin/users');
+        return getData(response);
+    },
+
+    async adminCreateUser(data) {
+        const response = await axios.post('/api/v1/admin/users', data);
+        return getData(response);
+    },
+
+    async adminUpdateUser(id, data) {
+        const response = await axios.put(`/api/v1/admin/users/${id}`, data);
+        return getData(response);
+    },
+
+    async adminDeleteUser(id) {
+        const response = await axios.delete(`/api/v1/admin/users/${id}`);
+        return getData(response);
+    },
+
+    // Admin: Products
+    async adminCreateProduct(data) {
+        const response = await axios.post('/api/v1/admin/products', data);
+        return getData(response);
+    },
+
+    async adminUpdateProduct(id, data) {
+        const response = await axios.put(`/api/v1/admin/products/${id}`, data);
+        return getData(response);
+    },
+
+    async adminDeleteProduct(id) {
+        const response = await axios.delete(`/api/v1/admin/products/${id}`);
+        return getData(response);
+    },
+
+    async uploadImage(formData) {
+        const response = await axios.post('/api/v1/admin/images/upload', formData, {
+            headers: { 'Content-Type': 'multipart/form-data' }
+        });
+        return getData(response);
+    },
+
+    // Admin: Sales & Reports
+    async getDailySalesReport(date) {
+        const response = await axios.get('/api/v1/admin/sales-report/daily', { params: { date } });
+        return getData(response);
+    },
+
+    // Admin: Appointments & Customers
+    async getAdminAppointments(params = {}) {
+        const response = await axios.get('/api/v1/admin/appointments', { params });
+        return getData(response);
+    },
+
+    async getAdminCustomers(params = {}) {
+        const response = await axios.get('/api/v1/admin/customer-profiles', { params });
+        return getData(response);
+    },
+
+    // Admin: Promocodes
+    async getAdminPromocodes() {
+        const response = await axios.get('/api/v1/admin/promocodes');
+        return getData(response);
+    },
+
+    async adminCreatePromocode(data) {
+        const response = await axios.post('/api/v1/admin/promocodes', data);
+        return getData(response);
+    },
+
+    async adminDeletePromocode(id) {
+        const response = await axios.delete(`/api/v1/admin/promocodes/${id}`);
+        return getData(response);
+    },
+
+    // Admin: POS
+    async getPosInvoices(params = {}) {
+        const response = await axios.get('/api/v1/admin/pos/invoices', { params });
+        return getData(response);
+    },
+
+    // Auth
+    async adminLogin(credentials) {
+        const response = await axios.post('/api/v1/admin/login', credentials);
+        return getData(response);
+    },
+
+    async adminLogout() {
+        const response = await axios.post('/api/v1/admin/logout');
+        return getData(response);
+    },
+
+    async getAdminMe() {
+        const response = await axios.get('/api/v1/admin/me');
+        return getData(response);
     }
 };
 

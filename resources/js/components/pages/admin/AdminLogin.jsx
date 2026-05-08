@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Lock, User as UserIcon, ShieldCheck, ArrowRight, Check, AlertTriangle } from 'lucide-react';
+import { Lock, User as UserIcon, ShieldCheck, ArrowRight, Check, AlertTriangle, Loader2 } from 'lucide-react';
 import { motion } from 'framer-motion';
 import axios from 'axios';
 import minioBaseUrl from '../../../config';
 import { useAdmin } from './AdminContext'; // Import useAdmin
 import { isSafari } from '../../../helpers/browserUtils.js';
+import API from '../../../api';
 
 const AdminLogin = () => {
     const [login, setLogin] = useState('');
@@ -14,7 +15,7 @@ const AdminLogin = () => {
     const [error, setError] = useState('');
     const [loading, setLoading] = useState(false);
     const navigate = useNavigate();
-    const { setUserData } = useAdmin(); // Use setUserData from context
+    const { setUserData, adminToken, userRoles } = useAdmin();
     const [isSafariBrowser, setIsSafariBrowser] = useState(false);
 
     useEffect(() => {
@@ -23,14 +24,12 @@ const AdminLogin = () => {
 
     const logoUrl = "https://bucket-production-4ca0.up.railway.app/product-assets/uploads/asset/ALO.png";
 
+    // Redirect if already logged in and has roles
     useEffect(() => {
-        const token = localStorage.getItem('admin_token') || sessionStorage.getItem('admin_token');
-        const storedRoles = localStorage.getItem('user_roles') || sessionStorage.getItem('user_roles');
-        if (token && storedRoles) { // Check for token and roles to confirm admin session
-            sessionStorage.setItem('isAdmin', 'true'); // Keep for now for compatibility
+        if (adminToken && userRoles.length > 0) {
             navigate('/admin');
         }
-    }, [navigate]);
+    }, [adminToken, userRoles, navigate]);
 
     const handleLogin = async (e) => {
         e.preventDefault();
@@ -38,20 +37,22 @@ const AdminLogin = () => {
         setLoading(true);
 
         try {
-            const response = await axios.post('/api/v1/admin/login', { login, password });
-            const { token, user } = response.data; // Destructure user data
+            // Use the centralized API method
+            const response = await API.adminLogin({ login, password });
+            const { data: responseData } = response;
             
-            if (rememberMe) {
-                localStorage.setItem('admin_token', token);
-            } else {
-                sessionStorage.setItem('admin_token', token);
+            if (!responseData || !responseData.token) {
+                throw new Error('Invalid response from server');
             }
-            sessionStorage.setItem('isAdmin', 'true'); // Keep for now for compatibility
-            setUserData(user, rememberMe); // Pass rememberMe to persist data if checked
-            navigate('/admin');
+            
+            // Set user data in context (handles persistence internally)
+            setUserData(responseData);
+            
+            // Give context a tiny moment to update before navigating
+            setTimeout(() => navigate('/admin'), 100);
         } catch (err) {
             console.error('Login error:', err);
-            setError(err.response?.data?.message || 'Invalid credentials or server error.');
+            setError(err.response?.data?.message || err.message || 'Invalid credentials or server error.');
             setPassword('');
         } finally {
             setLoading(false);

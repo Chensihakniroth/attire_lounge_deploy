@@ -55,6 +55,7 @@ Route::prefix('v1')->group(function () {
         Route::get('/user', function (Illuminate\Http\Request $request) {
             return $request->user();
         });
+        Route::get('/me', [AdminLoginController::class, 'me']);
         Route::put('/user/profile', [UserController::class, 'updateProfile']);
 
         // Restricted to Admin & Super Admin

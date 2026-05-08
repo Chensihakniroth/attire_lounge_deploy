@@ -13,6 +13,7 @@ import {
     ShieldCheck,
     PieChart as PieIcon,
     BarChart,
+    Loader2
 } from 'lucide-react';
 import ErrorBoundary from '../../common/ErrorBoundary.jsx';
 import { LumaSpin } from '@/components/ui/luma-spin';
@@ -90,7 +91,7 @@ const MultiTrendChart = ({
             transition={performanceMode ? { duration: 0 } : { duration: 0.6 }}
             className="h-[450px] w-full mt-0 text-[#0d3542] dark:text-[#58a6ff]"
         >
-            <ResponsiveContainer width="100%" height="100%" minWidth={1} minHeight={1}>
+            <ResponsiveContainer width="100%" height="100%" minWidth={1} minHeight={1} debounce={100}>
                 <AreaChart
                     data={data}
                     margin={{ top: 10, right: 30, left: 0, bottom: 40 }}

@@ -4,7 +4,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import { useAdmin } from './AdminContext';
 import { useQuery } from '@tanstack/react-query';
-import axios from 'axios';
+import API from '../../../api';
 
 const ActivityItem = ({ item, type, isLast }) => {
     const getIcon = () => {
@@ -72,14 +72,14 @@ const RecentActivityWidget = ({ loading: appointmentsLoading }) => {
     const { data: recentActivities = [] } = useQuery({
         queryKey: ['admin-recent-activities'],
         queryFn: async () => {
-            const [appointmentsRes, customersRes] = await Promise.all([
-                axios.get('/api/v1/admin/appointments?per_page=5'),
-                axios.get('/api/v1/admin/customer-profiles?per_page=5')
+            const [appointments, customers] = await Promise.all([
+                API.getAdminAppointments({ per_page: 5 }),
+                API.getAdminCustomers({ per_page: 5 })
             ]);
 
             return [
-                ...(appointmentsRes.data.data || []).map(item => ({ ...item, type: 'appointment' })),
-                ...(customersRes.data.data || []).map(item => ({ ...item, type: 'customer' }))
+                ...(appointments.data || []).map(item => ({ ...item, type: 'appointment' })),
+                ...(customers.data || []).map(item => ({ ...item, type: 'customer' }))
             ].sort((a, b) => new Date(b.created_at) - new Date(a.created_at)).slice(0, 6);
         },
         staleTime: 60000

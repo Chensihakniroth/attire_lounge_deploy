@@ -74,13 +74,15 @@ class AdminLoginController extends Controller
 
             return response()->json([
                 'message' => 'Welcome back to the Lounge! (ﾉ´ヮ`)ﾉ*:･ﾟ✧',
-                'token' => $token,
-                'user' => [
-                    'id' => $user->id,
-                    'name' => $user->name,
-                    'email' => $user->email,
-                    'roles' => $user->getRoleNames(),
-                    'permissions' => $abilities,
+                'data' => [
+                    'token' => $token,
+                    'user' => [
+                        'id' => $user->id,
+                        'name' => $user->name,
+                        'email' => $user->email,
+                        'roles' => $user->getRoleNames(),
+                        'permissions' => $abilities,
+                    ],
                 ],
             ]);
 
@@ -93,8 +95,30 @@ class AdminLoginController extends Controller
             Log::error('Login Error: ' . $e->getMessage());
             return response()->json([
                 'message' => 'Something went wrong on our end. Please try again in a little bit! (っ˘ω˘ς)',
-                'debug' => $e->getMessage() // Return error message for easier debugging
+                'debug' => $e->getMessage()
             ], 500);
         }
+    }
+
+    /**
+     * Get the authenticated user's profile with roles and permissions.
+     */
+    public function me(Request $request)
+    {
+        $user = $request->user();
+        $abilities = $user->getAllPermissions()->pluck('name')->toArray();
+        
+        return response()->json([
+            'success' => true,
+            'data' => [
+                'user' => [
+                    'id' => $user->id,
+                    'name' => $user->name,
+                    'email' => $user->email,
+                    'roles' => $user->getRoleNames(),
+                    'permissions' => $abilities,
+                ],
+            ],
+        ]);
     }
 }
