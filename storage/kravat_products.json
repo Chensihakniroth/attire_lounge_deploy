@@ -271,7 +271,7 @@
     },
     {
         "sku": "P0000054",
-        "name": "Bee’ Knee",
+        "name": "Bee\u2019 Knee",
         "price": 6,
         "stock_qty": -1,
         "category": "CLASSICS",
@@ -1481,7 +1481,7 @@
     },
     {
         "sku": "P0000213",
-        "name": "Boutonnière",
+        "name": "Boutonni\u00e8re",
         "price": 9,
         "stock_qty": 0,
         "category": "SIGNATURES",
@@ -2335,6 +2335,56 @@
         "price": 8.5,
         "stock_qty": 0,
         "category": "WOMAN TAKEOVER",
+        "is_service": false,
+        "is_active": true,
+        "outlet": "kravat"
+    },
+    {
+        "sku": "P0000123",
+        "name": "Dirty Martini",
+        "price": 7.5,
+        "stock_qty": 0,
+        "category": "MARTINI LOVER",
+        "is_service": false,
+        "is_active": true,
+        "outlet": "kravat"
+    },
+    {
+        "sku": "P0000113",
+        "name": "Gibson",
+        "price": 7,
+        "stock_qty": 0,
+        "category": "MARTINI LOVER",
+        "is_service": false,
+        "is_active": true,
+        "outlet": "kravat"
+    },
+    {
+        "sku": "P0000032",
+        "name": "Kingsman Martini",
+        "price": 12.5,
+        "stock_qty": 0,
+        "category": "MARTINI LOVER",
+        "is_service": false,
+        "is_active": true,
+        "outlet": "kravat"
+    },
+    {
+        "sku": "P0000220",
+        "name": "The Churchill Martini",
+        "price": 8,
+        "stock_qty": 0,
+        "category": "MARTINI LOVER",
+        "is_service": false,
+        "is_active": true,
+        "outlet": "kravat"
+    },
+    {
+        "sku": "P0000182",
+        "name": "Vesper Martini",
+        "price": 8,
+        "stock_qty": 0,
+        "category": "MARTINI LOVER",
         "is_service": false,
         "is_active": true,
         "outlet": "kravat"

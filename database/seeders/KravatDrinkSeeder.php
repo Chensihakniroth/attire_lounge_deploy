@@ -42,12 +42,15 @@ class KravatDrinkSeeder extends Seeder
             'updated_at' => $p['updated_at'] ?? $now,
         ]), $kravatProducts);
 
+        // Delete existing kravat products to avoid SKU conflicts during upsert
+        DB::table('pos_products')->where('outlet', 'kravat')->delete();
+
         $chunks = array_chunk($kravatProducts, 100);
         foreach ($chunks as $i => $chunk) {
             DB::table('pos_products')->upsert(
                 $chunk,
-                ['sku'], // Unique key
-                ['name', 'variant', 'price', 'stock_qty', 'min_stock', 'category', 'tier', 'is_service', 'is_accessory', 'is_active', 'outlet', 'image_path', 'updated_at']
+                ['outlet', 'sku'], // Composite unique: outlet + sku
+                ['name', 'variant', 'price', 'stock_qty', 'min_stock', 'category', 'tier', 'is_service', 'is_accessory', 'is_active', 'image_path', 'updated_at']
             );
             $this->command->info('  Chunk ' . ($i + 1) . ' / ' . count($chunks) . ' upserted');
         }

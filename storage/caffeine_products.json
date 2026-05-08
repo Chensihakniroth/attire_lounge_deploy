@@ -970,16 +970,6 @@
         "outlet": "caffeine"
     },
     {
-        "sku": "P0000123",
-        "name": "Dirty Martini",
-        "price": 7.5,
-        "stock_qty": 0,
-        "category": "MARTINI LOVER",
-        "is_service": false,
-        "is_active": true,
-        "outlet": "caffeine"
-    },
-    {
         "sku": "P0000216",
         "name": "Double Pinestripes",
         "price": 5.5,
@@ -1105,16 +1095,6 @@
         "price": 40,
         "stock_qty": 0,
         "category": "LIBRARY MEMBERSHIP",
-        "is_service": false,
-        "is_active": true,
-        "outlet": "caffeine"
-    },
-    {
-        "sku": "P0000113",
-        "name": "Gibson",
-        "price": 7,
-        "stock_qty": 0,
-        "category": "MARTINI LOVER",
         "is_service": false,
         "is_active": true,
         "outlet": "caffeine"
@@ -1755,16 +1735,6 @@
         "price": 3.35,
         "stock_qty": 0,
         "category": "GRAB",
-        "is_service": false,
-        "is_active": true,
-        "outlet": "caffeine"
-    },
-    {
-        "sku": "P0000032",
-        "name": "Kingsman Martini",
-        "price": 12.5,
-        "stock_qty": 0,
-        "category": "MARTINI LOVER",
         "is_service": false,
         "is_active": true,
         "outlet": "caffeine"
@@ -3120,16 +3090,6 @@
         "outlet": "caffeine"
     },
     {
-        "sku": "P0000220",
-        "name": "The Churchill Martini",
-        "price": 8,
-        "stock_qty": 0,
-        "category": "MARTINI LOVER",
-        "is_service": false,
-        "is_active": true,
-        "outlet": "caffeine"
-    },
-    {
         "sku": "P0000055",
         "name": "The Dark and Stormy",
         "price": 6,
@@ -3235,16 +3195,6 @@
         "price": 7.5,
         "stock_qty": 0,
         "category": "Rum",
-        "is_service": false,
-        "is_active": true,
-        "outlet": "caffeine"
-    },
-    {
-        "sku": "P0000182",
-        "name": "Vesper Martini",
-        "price": 8,
-        "stock_qty": 0,
-        "category": "MARTINI LOVER",
         "is_service": false,
         "is_active": true,
         "outlet": "caffeine"

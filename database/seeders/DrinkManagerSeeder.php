@@ -46,8 +46,8 @@ class DrinkManagerSeeder extends Seeder
         foreach ($chunks as $i => $chunk) {
             DB::table('pos_products')->upsert(
                 $chunk,
-                ['sku'], // Unique key
-                ['name', 'variant', 'price', 'stock_qty', 'min_stock', 'category', 'tier', 'is_service', 'is_accessory', 'is_active', 'outlet', 'image_path', 'updated_at']
+                ['outlet', 'sku'], // Composite unique: outlet + sku
+                ['name', 'variant', 'price', 'stock_qty', 'min_stock', 'category', 'tier', 'is_service', 'is_accessory', 'is_active', 'image_path', 'updated_at']
             );
             $this->command->info('  Chunk ' . ($i + 1) . ' / ' . count($chunks) . ' upserted');
         }
