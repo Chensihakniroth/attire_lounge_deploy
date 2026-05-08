@@ -9,6 +9,7 @@ import {
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { usePOS } from './POSContext';
+import { useAdmin } from '../admin/AdminContext';
 import axios from 'axios';
 
 // --- Inline Quick Search Bar ---
@@ -179,6 +180,8 @@ const InlineSearch = ({ onSearchClick, addItem }) => {
 
 const OrderLedger = ({ onSearchClick }) => {
     const { activeTab, updateQty, removeItem, addItem, updateItemDiscount, selectAllRefundItems } = usePOS();
+    const { activeOutlet, OUTLET_CONFIG } = useAdmin();
+    const outletData = OUTLET_CONFIG?.[activeOutlet] || { label: 'Attire Lounge' };
     const isRefund = activeTab.isRefundMode;
 
     return (
@@ -220,10 +223,9 @@ const OrderLedger = ({ onSearchClick }) => {
                             transition={{ duration: 1.5, ease: "easeOut" }}
                             className="relative"
                         >
-
                             <img 
-                                src="https://bucket-production-4ca0.up.railway.app/product-assets/uploads/asset/ALO.png" 
-                                alt="Attire Lounge Official" 
+                                src={outletData.logo || "https://bucket-production-4ca0.up.railway.app/product-assets/uploads/asset/ALO.png"} 
+                                alt={outletData.label || "Attire Lounge"} 
                                 className="w-64 h-auto relative z-10 brightness-110 opacity-80 cursor-default"
                             />
                         </motion.div>

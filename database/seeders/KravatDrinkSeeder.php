@@ -5,7 +5,7 @@ namespace Database\Seeders;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
 
-class DrinkManagerSeeder extends Seeder
+class KravatDrinkSeeder extends Seeder
 {
     /**
      * Run the database seeds.
@@ -14,14 +14,14 @@ class DrinkManagerSeeder extends Seeder
      */
     public function run()
     {
-        $jsonPath = storage_path('pos_products.json');
+        $jsonPath = storage_path('kravat_products.json');
 
         if (!file_exists($jsonPath)) {
             $this->command->error("JSON file not found: {$jsonPath}");
             return;
         }
 
-        $this->command->info('Loading drink manager data from JSON...');
+        $this->command->info('Loading kravat products from JSON...');
         $products = json_decode(file_get_contents($jsonPath), true);
 
         if (!$products) {
@@ -29,20 +29,20 @@ class DrinkManagerSeeder extends Seeder
             return;
         }
 
-        // Filter only caffeine/drink manager products
-        $drinkProducts = array_filter($products, function ($item) {
-            return isset($item['outlet']) && $item['outlet'] === 'caffeine';
+        // Filter only kravat products
+        $kravatProducts = array_filter($products, function ($item) {
+            return isset($item['outlet']) && $item['outlet'] === 'kravat';
         });
 
-        $this->command->info("Importing " . count($drinkProducts) . " drink products for caffeine outlet...");
+        $this->command->info("Importing " . count($kravatProducts) . " products for kravat outlet...");
 
         $now = now()->toDateTimeString();
-        $drinkProducts = array_map(fn($p) => array_merge($p, [
+        $kravatProducts = array_map(fn($p) => array_merge($p, [
             'created_at' => $p['created_at'] ?? $now,
             'updated_at' => $p['updated_at'] ?? $now,
-        ]), $drinkProducts);
+        ]), $kravatProducts);
 
-        $chunks = array_chunk($drinkProducts, 100);
+        $chunks = array_chunk($kravatProducts, 100);
         foreach ($chunks as $i => $chunk) {
             DB::table('pos_products')->upsert(
                 $chunk,
@@ -52,11 +52,11 @@ class DrinkManagerSeeder extends Seeder
             $this->command->info('  Chunk ' . ($i + 1) . ' / ' . count($chunks) . ' upserted');
         }
 
-        $this->command->info('✅ Done! ' . count($drinkProducts) . ' Drink Manager products imported.');
+        $this->command->info('✅ Done! ' . count($kravatProducts) . ' Kravat products imported.');
 
-        $this->command->info("\nDrink Manager Category breakdown:");
+        $this->command->info("\nKravat Category breakdown:");
         $categories = DB::table('pos_products')
-            ->where('outlet', 'caffeine')
+            ->where('outlet', 'kravat')
             ->select('category', DB::raw('count(*) as total'))
             ->groupBy('category')
             ->orderBy('category')

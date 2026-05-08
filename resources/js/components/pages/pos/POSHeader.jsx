@@ -37,14 +37,27 @@ const POSHeader = () => {
         <header className="h-16 flex items-center px-6 bg-transparent border-b border-white/10 relative z-50 transition-colors duration-300">
             {/* Logo & Admin Switcher */}
             <div className="flex items-center gap-6 mr-8">
-                <div className="flex flex-col">
-                    <h1 className="text-sm font-bold tracking-[0.2em] uppercase text-white leading-tight">
-                        {outletData.label}
-                    </h1>
-                    <span className="text-[10px] text-white/50 font-bold uppercase tracking-widest">
-                        POS System
-                    </span>
-                </div>
+                {outletData.logo ? (
+                    <div className="flex items-center gap-3">
+                        <img 
+                            src={outletData.logo} 
+                            alt={outletData.label} 
+                            className="h-9 w-auto object-contain brightness-0 invert opacity-90"
+                        />
+                        <span className="text-[10px] text-white/50 font-bold uppercase tracking-widest">
+                            POS
+                        </span>
+                    </div>
+                ) : (
+                    <div className="flex flex-col">
+                        <h1 className="text-sm font-bold tracking-[0.2em] uppercase text-white leading-tight">
+                            {outletData.label}
+                        </h1>
+                        <span className="text-[10px] text-white/50 font-bold uppercase tracking-widest">
+                            POS System
+                        </span>
+                    </div>
+                )}
                 
                 <div className="h-6 w-px bg-white/20" />
                 

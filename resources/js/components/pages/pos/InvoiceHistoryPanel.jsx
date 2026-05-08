@@ -21,9 +21,12 @@ import { usePOS } from './POSContext';
 import axios from 'axios';
 import { motion, AnimatePresence } from 'framer-motion';
 import DatePicker from '@/components/ui/DatePicker';
+import { useAdmin } from '../admin/AdminContext';
 
 const InvoiceHistoryPanel = ({ onClose }) => {
     const { loadInvoiceIntoCart, cloneInvoiceIntoCart, setIsHistoryOpen } = usePOS();
+    const { activeOutlet, OUTLET_CONFIG } = useAdmin();
+    const outletData = OUTLET_CONFIG?.[activeOutlet] || { label: 'Attire Lounge' };
     const [invoices, setInvoices] = useState([]);
     const [loading, setLoading] = useState(true);
     const [date, setDate] = useState(new Date().toISOString().split('T')[0]);
@@ -172,9 +175,9 @@ const InvoiceHistoryPanel = ({ onClose }) => {
                         <div className="h-full flex flex-col items-center justify-center text-center p-8">
                             <div className="w-24 h-24 mb-6 relative">
                                 <img 
-                                    src="/images/logo.png" 
-                                    alt="Attire Lounge" 
-                                    className="w-full h-full object-contain opacity-20 dark:opacity-10 grayscale filter brightness-0 dark:brightness-100" 
+                                    src={outletData?.logo || "/images/logo.png"} 
+                                    alt={outletData?.label || "Attire Lounge"} 
+                                    className={`w-full h-full object-contain ${outletData?.logo ? 'brightness-0 invert dark:invert-0 opacity-40 dark:opacity-20' : 'opacity-20 dark:opacity-10 grayscale filter brightness-0 dark:brightness-100'}`} 
                                 />
                             </div>
                             <Receipt size={32} className="mb-4 text-gray-300 dark:text-[#8b949e]/20" />
