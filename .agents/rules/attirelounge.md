@@ -1,30 +1,33 @@
 ---
 trigger: model_decision
-description: only when you developing my clothing shop store attirelounge "styling hosue"
+description: only when you developing my clothing shop store attirelounge "gentlement styling house"
 ---
 
 # 🧠 Gemini Project Memory
 
 ## ⚙️ Development Rules
 * Always run `npm run build` after every change — no exceptions.
+* Utilize `localStorage` over `sessionStorage` for session persistence across the admin panel to ensure stability.
+* Use React Query v5 for local data fetching to prevent global state bottlenecks and UI latency.
 
 ## 🏗️ Project Architecture
 
 ### Overview
-A full-stack web application with a **Laravel (PHP 8.2+)** backend and a **React + TypeScript** frontend.
+A full-stack web application with a **Laravel (PHP 8.2+)** backend and a **React + TypeScript** frontend. The platform operates as a "Styling House" brand with multi-tenant capabilities, serving an e-commerce platform and a multi-outlet POS system.
 
-### Backend (Laravel)
-- Architecture: Repository + Service pattern for clean separation of concerns
-- Auth: Laravel Sanctum for API authentication
-- Features: Product management, appointments, gift item stock, gift requests, newsletter subscriptions, image uploads
-- Admin panel functionality included
-- Well-defined database migrations
+### Backend (Laravel 12)
+- **Architecture**: Repository + Service pattern for clean separation of concerns.
+- **Auth**: Laravel Sanctum for API authentication, Spatie Permission for roles.
+- **Multi-Tenant POS**: Supports `attire_lounge`, `caffeine`, and `kravat` outlets. Queries are scoped using traits like `BelongsToOutlet`.
+- **Features**: Product management, appointments, gift item stock, gift requests, newsletter subscriptions, image uploads, POS invoicing.
+- **Real-time**: Laravel Reverb for WebSockets (stock updates), Telegram Bot notifications.
+- **Data Seeding**: Uses JSON exports (e.g., `pos_products.json`, `kravat_products.json`) to populate databases via `DrinkManagerSeeder` and `KravatDrinkSeeder`.
 
-### Frontend (React / TypeScript)
-- React 18 + TypeScript with React Query for data fetching & state
-- UI Libraries: Headless UI, Heroicons, Lucide React
-- Global state via React Context API (`FavoritesContext`)
-- SEO-aware with a dedicated `SEO.tsx` component
+### Frontend (React 18 / TypeScript)
+- **State Management & Data**: TanStack React Query v5 (local module queries), Context API (`FavoritesContext`, `AdminContext`, `POSContext`).
+- **UI Libraries**: Tailwind CSS 3, Headless UI, Framer Motion, Lucide React, Lenis (smooth scroll).
+- **Admin Dashboard**: `admin.tsx` handles isolated UI configurations and layout changes based on the active outlet (e.g., switching logos to "Asset 5.png" for Kravat).
+- **Performance**: Quick Access components pre-fetch/cache data to reduce main-thread blocking.
 
 ### Frontend Structure (`src/`)
 
@@ -45,7 +48,9 @@ src/
 │   ├── pages/                   → Main application views
 │   └── sections/                → Large page sub-sections
 ├── context/
-│   └── FavoritesContext.tsx
+│   ├── FavoritesContext.tsx
+│   ├── AdminContext.tsx         → Admin session & outlet state
+│   └── POSContext.tsx           → POS operations & outlet context
 ├── data/
 │   ├── giftOptions.js
 │   ├── lookbook.js
@@ -138,6 +143,15 @@ product-assets/
 
 
 
-## Gemini Added Memories
-- The Havana (hvn), Mocha Mousse (mm), and Office (of) collections in the Attire Lounge project use .jpg image extensions.
-- The Attire Lounge project is a "Styling House" brand.  appropriate branding.
+## Gemini Added Memories / Context Evolution
+- **Image Extensions**: The Havana (hvn), Mocha Mousse (mm), and Office (of) collections in the Attire Lounge project use `.jpg` image extensions.
+- **Branding**: The Attire Lounge project is a "Styling House" brand. All frontend branding and styling reflect this premium positioning.
+- **Multi-Tenant POS System**: A comprehensive Point of Sale system built for multiple outlets: `attire_lounge`, `caffeine`, and `kravat`.
+  - **Outlet Isolation**: Admin Dashboard and POS interfaces dynamically adapt layouts, branding (e.g., Kravat logo switching), and data queries based on the active outlet context. Users are redirected immediately upon switching outlets to prevent accessing irrelevant modules.
+  - **Inventory/POS Products**: Managed via the `PosProduct` model using a `BelongsToOutlet` trait to scope queries. The `PosProductController` dynamically handles outlet scoping and image path storage.
+  - **POS Invoicing**: Handled via `POST /api/v1/admin/pos/invoices` and processed by `PosInvoiceController` using payload structures mapping `outlet`, `items`, and `payments`.
+- **Admin Dashboard Architecture**: 
+  - Session persistence relies on `localStorage` ensuring an uninterrupted re-hydration loop via `/admin/me` and the `AdminContext`.
+  - To eliminate UI latency and redundant API calls, module-specific data fetching (like Gift Requests or Out-of-Stock Items) is decoupled from the global context into targeted React Query v5 implementations.
+- **Data Seeding Lifecycle**: Products are populated from local database exports into JSON files (like `pos_products.json` and `kravat_products.json`) and run through dedicated Laravel seeders (e.g., `DrinkManagerSeeder` and `KravatDrinkSeeder`) to ensure consistency between development and production databases.
+- **WebSockets/Reverb**: Configured for real-time operations, but falls back gracefully. Session and UI state persistence utilizes `localStorage` to handle page reloads robustly.

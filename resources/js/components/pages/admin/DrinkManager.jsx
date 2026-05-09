@@ -557,25 +557,26 @@ export default function DrinkManager() {
     }, []);
 
     // API Query
-    const { data, isLoading } = useQuery({
-        queryKey: ['admin-drinks', page, filters, activeOutlet],
-        queryFn: async () => {
-            const params = {
-                page,
-                status: filters.status,
-                category: filters.category,
-                search: filters.search,
-                stock_status: filters.stockStatus,
-                outlet: activeOutlet,
-            };
-            const res = await axios.get('/api/v1/admin/pos/products', {
-                params,
-            });
-            return res.data;
-        },
-        staleTime: 1000 * 15,
-        placeholderData: keepPreviousData,
-    });
+     const { data, isLoading } = useQuery({
+         queryKey: ['admin-drinks', page, filters, activeOutlet],
+         queryFn: async () => {
+             const params = {
+                 page,
+                 status: filters.status,
+                 category: filters.category,
+                 search: filters.search,
+                 stock_status: filters.stockStatus,
+                 outlet: activeOutlet,
+             };
+             const res = await axios.get('/api/v1/admin/pos/products', {
+                 params,
+                 headers: { 'X-Active-Outlet': activeOutlet },
+             });
+             return res.data;
+         },
+         staleTime: 1000 * 15,
+         placeholderData: keepPreviousData,
+     });
 
     // Prefetch for inactive outlets to make switching instant
     useEffect(() => {
@@ -620,10 +621,15 @@ export default function DrinkManager() {
 
     const categories = useMemo(() => {
         const cats = new Set(drinks.map((d) => d.category).filter(Boolean));
-        return ['Espresso', 'Cold', 'Tea', 'Blend', ...Array.from(cats)]
+        let baseCategories = [];
+        // Prepend beverage-specific categories only for caffeine outlet
+        if (activeOutlet === 'caffeine') {
+            baseCategories = ['Espresso', 'Cold', 'Tea', 'Blend'];
+        }
+        return [...baseCategories, ...Array.from(cats)]
             .filter((v, i, a) => a.indexOf(v) === i)
             .sort();
-    }, [drinks]);
+    }, [drinks, activeOutlet]);
 
     const stats = useMemo(
         () => ({
