@@ -29,10 +29,13 @@ const PaymentModal = ({ totals, onClose }) => {
 
     const paymentMethods = [
         { name: 'Cash', icon: <Banknote size={20} /> },
-        { name: 'Credit', icon: <CreditCard size={20} /> },
-        { name: 'Debit', icon: <CreditCard size={20} /> },
-        { name: 'Kaq', icon: <QrCode size={20} /> },
-        { name: 'QR Code', icon: <QrCode size={20} /> },
+        { name: 'Card', icon: <CreditCard size={20} /> },
+        { name: 'ABA', icon: <QrCode size={20} /> },
+        { name: 'ACLEDA', icon: <QrCode size={20} /> },
+        { name: 'True MONEY', icon: <Wallet size={20} /> },
+        { name: 'FOODPANDA', icon: <Wallet size={20} /> },
+        { name: 'GRAB', icon: <Wallet size={20} /> },
+        { name: 'WOWNOW', icon: <Wallet size={20} /> },
         { name: 'Deposit', icon: <Wallet size={20} /> }
     ];
 
@@ -106,10 +109,13 @@ const PaymentModal = ({ totals, onClose }) => {
             // Standard Sale Logic
             const methodMap = {
                 'Cash': 'cash',
-                'Credit': 'credit',
-                'Debit': 'debit',
-                'Kaq': 'khqr',
-                'QR Code': 'qr_code',
+                'Card': 'card',
+                'ABA': 'aba',
+                'ACLEDA': 'acleda',
+                'True MONEY': 'true_money',
+                'FOODPANDA': 'foodpanda',
+                'GRAB': 'grab',
+                'WOWNOW': 'wownow',
                 'Deposit': 'deposit'
             };
 
@@ -159,19 +165,19 @@ const PaymentModal = ({ totals, onClose }) => {
         <ModernModal isOpen={true} onClose={onClose} maxWidth={success ? "max-w-md" : "max-w-4xl"} showCloseButton={!success}>
              {success ? (
                 <div className="text-center space-y-6 p-10">
-                    <div className="w-24 h-24 bg-[#0d3542] dark:bg-[#58a6ff] rounded-full flex items-center justify-center mx-auto shadow-none border border-black/5 dark:border-white/5 relative">
+                    <div className="w-24 h-24 bg-[#0d3542] dark:bg-[#f5a81c] rounded-full flex items-center justify-center mx-auto shadow-none border border-black/5 dark:border-white/5 relative">
                         <Check size={48} className="text-white dark:text-black" />
                         <motion.div 
                             animate={{ scale: [1, 1.2, 1], opacity: [0.3, 0.1, 0.3] }}
                             transition={{ repeat: Infinity, duration: 2 }}
-                            className="absolute inset-0 bg-[#0d3542] dark:bg-[#58a6ff] rounded-full -z-10"
+                            className="absolute inset-0 bg-[#0d3542] dark:bg-[#f5a81c] rounded-full -z-10"
                         />
                     </div>
                     <div className="space-y-2">
                         <h2 className="text-2xl font-serif uppercase tracking-[0.3em] text-gray-900 dark:text-[#c9d1d9]">
                             {activeTab.isRefundMode ? 'Refund Processed' : 'Sale Successful'}
                         </h2>
-                        <p className="text-[10px] text-[#0d3542] dark:text-[#58a6ff] font-bold uppercase tracking-widest">
+                        <p className="text-[10px] text-[#0d3542] dark:text-[#f5a81c] font-bold uppercase tracking-widest">
                             {activeTab.isRefundMode ? `Invoice ${activeTab.originalInvoice?.invoice_number} Updated` : `Invoice ${createdInvoice?.invoice_number}`}
                         </p>
                     </div>
@@ -182,10 +188,10 @@ const PaymentModal = ({ totals, onClose }) => {
                     </p>
                     
                     {activeTab.customer?.is_vip && (
-                        <div className="p-4 bg-[#0d3542]/10 dark:bg-[#58a6ff]/10 border border-[#0d3542]/30 dark:border-[#58a6ff]/30 rounded-2xl flex items-center gap-4 text-left">
-                            <Sparkles className="text-[#0d3542] dark:text-[#58a6ff]" size={24} />
+                        <div className="p-4 bg-[#0d3542]/10 dark:bg-[#f5a81c]/10 border border-[#0d3542]/30 dark:border-[#f5a81c]/30 rounded-2xl flex items-center gap-4 text-left">
+                            <Sparkles className="text-[#0d3542] dark:text-[#f5a81c]" size={24} />
                             <div>
-                                <p className="text-[10px] font-bold uppercase tracking-widest text-[#0d3542] dark:text-[#58a6ff]">VIP Customer</p>
+                                <p className="text-[10px] font-bold uppercase tracking-widest text-[#0d3542] dark:text-[#f5a81c]">VIP Customer</p>
                                 <p className="text-[9px] text-gray-500 dark:text-[#8b949e] uppercase tracking-widest">This customer holds Platinum VIP status</p>
                             </div>
                         </div>
@@ -205,7 +211,7 @@ const PaymentModal = ({ totals, onClose }) => {
                     {/* Left: Summary & Payment Input */}
                     <div className="flex-1 p-8 border-r border-black/5 dark:border-[#30363d] flex flex-col">
                         <div className="flex items-center gap-3 mb-8">
-                             <div className={`p-2.5 rounded-2xl border ${activeTab.isRefundMode ? 'bg-red-500/10 text-red-500 border-red-500/20' : 'bg-[#0d3542]/10 dark:bg-[#58a6ff]/10 text-[#0d3542] dark:text-[#58a6ff] border border-[#0d3542]/20 dark:border-[#30363d]'}`}>
+                             <div className={`p-2.5 rounded-2xl border ${activeTab.isRefundMode ? 'bg-red-500/10 text-red-500 border-red-500/20' : 'bg-[#0d3542]/10 dark:bg-[#f5a81c]/10 text-[#0d3542] dark:text-[#f5a81c] border border-[#0d3542]/20 dark:border-[#30363d]'}`}>
                                 {activeTab.isRefundMode ? <Undo2 size={20} /> : <Wallet size={20} />}
                             </div>
                             <h2 className="text-[14px] font-bold uppercase tracking-[0.3em] text-gray-900 dark:text-[#c9d1d9]">
@@ -229,13 +235,13 @@ const PaymentModal = ({ totals, onClose }) => {
                             <>
                                 <div className="grid grid-cols-3 gap-3 mb-8">
                                     {paymentMethods.map(method => (
-                                        <button
+                                         <button
                                             key={method.name}
                                             onClick={() => setCurrentMethod(method.name)}
                                              className={`flex flex-col items-center justify-center gap-3 p-5 rounded-2xl border transition-all ${
                                                 currentMethod === method.name 
-                                                    ? 'bg-[#0d3542] border-[#0d3542] text-white dark:bg-[#58a6ff] dark:border-[#58a6ff] dark:text-black shadow-none scale-105 z-10' 
-                                                    : 'bg-black/[0.02] dark:bg-[#161b22] border-black/5 dark:border-[#30363d] text-gray-400 dark:text-[#8b949e]/40 hover:border-[#0d3542]/30 dark:hover:border-[#58a6ff]/30'
+                                                    ? 'bg-[#0d3542] border-[#0d3542] text-white dark:bg-[#f5a81c] dark:border-[#f5a81c] dark:text-black shadow-none scale-105 z-10' 
+                                                    : 'bg-black/[0.02] dark:bg-[#161b22] border-black/5 dark:border-[#30363d] text-gray-400 dark:text-[#8b949e]/40 hover:border-[#0d3542]/30 dark:hover:border-[#f5a81c]/30'
                                             }`}
                                         >
                                             {method.icon}
@@ -248,17 +254,17 @@ const PaymentModal = ({ totals, onClose }) => {
                                     <div className="space-y-2">
                                         <label className="text-[9px] font-bold uppercase tracking-[0.2em] text-gray-500 ml-1">Payment Amount</label>
                                         <div className="relative group">
-                                            <span className="absolute left-6 top-1/2 -translate-y-1/2 text-2xl font-bold text-gray-400 dark:text-[#8b949e]/20 group-focus-within:text-[#0d3542] dark:group-focus-within:text-[#58a6ff] transition-colors">$</span>
+                                            <span className="absolute left-6 top-1/2 -translate-y-1/2 text-2xl font-bold text-gray-400 dark:text-[#8b949e]/20 group-focus-within:text-[#0d3542] dark:group-focus-within:text-[#f5a81c] transition-colors">$</span>
                                              <input 
                                                 type="number"
                                                 placeholder="0.00"
-                                                className="w-full bg-black/[0.02] dark:bg-[#161b22] border border-black/10 dark:border-[#30363d] rounded-[1.5rem] py-6 pl-14 pr-32 text-3xl font-bold tracking-tighter text-gray-900 dark:text-[#c9d1d9] outline-none focus:border-[#0d3542]/50 dark:focus:border-[#58a6ff]/50 focus:bg-[#fdfdfc] dark:focus:bg-[#0d1117] transition-all"
+                                                className="w-full bg-black/[0.02] dark:bg-[#161b22] border border-black/10 dark:border-[#30363d] rounded-[1.5rem] py-6 pl-14 pr-32 text-3xl font-bold tracking-tighter text-gray-900 dark:text-[#c9d1d9] outline-none focus:border-[#0d3542]/50 dark:focus:border-[#f5a81c]/50 focus:bg-[#fdfdfc] dark:focus:bg-[#0d1117] transition-all"
                                                 value={amountInput}
                                                 onChange={(e) => setAmountInput(e.target.value)}
                                             />
                                             <button 
                                                 onClick={addPayment}
-                                                className="absolute right-4 top-1/2 -translate-y-1/2 px-6 py-3 bg-[#0d3542] dark:bg-[#58a6ff] text-white dark:text-black text-[9px] font-bold uppercase tracking-widest rounded-xl hover:scale-105 transition-all shadow-none border border-black/5 dark:border-white/5"
+                                                className="absolute right-4 top-1/2 -translate-y-1/2 px-6 py-3 bg-[#0d3542] dark:bg-[#f5a81c] text-white dark:text-black text-[9px] font-bold uppercase tracking-widest rounded-xl hover:scale-105 transition-all shadow-none border border-black/5 dark:border-white/5"
                                             >
                                                 Add Payment
                                             </button>
@@ -293,7 +299,7 @@ const PaymentModal = ({ totals, onClose }) => {
                                     </div>
                                 )}
                                 {totals.serviceSubtotal > 0 && (
-                                    <div className="flex justify-between items-center text-[10px] uppercase tracking-widest text-[#0d3542] dark:text-[#58a6ff]">
+                                    <div className="flex justify-between items-center text-[10px] uppercase tracking-widest text-[#f5a81c]">
                                         <span>Service Add-ons</span>
                                         <span className="font-bold">+${totals.serviceSubtotal.toLocaleString()}</span>
                                     </div>
@@ -303,7 +309,7 @@ const PaymentModal = ({ totals, onClose }) => {
                             <div className="h-px bg-black/5 dark:bg-[#30363d]" />
 
                             <div className="flex justify-between items-center text-[10px] uppercase tracking-widest text-gray-400 dark:text-[#8b949e]/40">
-                                <span className={`font-black ${activeTab.isRefundMode ? 'text-red-500' : 'text-[#0d3542] dark:text-[#58a6ff]'}`}>
+                                <span className={`font-black ${activeTab.isRefundMode ? 'text-red-500' : 'text-[#f5a81c]'}`}>
                                     {activeTab.isRefundMode ? 'Amount to Refund' : 'Total Payable'}
                                 </span>
                                 <span className={`font-black text-[16px] tracking-tighter ${activeTab.isRefundMode ? 'text-red-500' : 'text-gray-900 dark:text-[#c9d1d9]'}`}>
@@ -330,7 +336,7 @@ const PaymentModal = ({ totals, onClose }) => {
                                                     className="flex items-center justify-between p-3 bg-white dark:bg-[#161b22] rounded-xl border border-black/5 dark:border-[#30363d] group"
                                                 >
                                                     <div className="flex items-center gap-2">
-                                                        <span className="text-[9px] font-bold uppercase text-[#0d3542] dark:text-[#58a6ff]">{p.method}</span>
+                                                        <span className="text-[9px] font-bold uppercase text-[#f5a81c]">{p.method}</span>
                                                         <span className="text-[11px] font-bold text-gray-900 dark:text-[#c9d1d9]">${p.amount.toLocaleString()}</span>
                                                     </div>
                                                     <button onClick={() => removePayment(idx)} className="p-1.5 opacity-0 group-hover:opacity-100 text-gray-400 hover:text-red-500 transition-all">
@@ -353,21 +359,26 @@ const PaymentModal = ({ totals, onClose }) => {
                                 {remaining === 0 && <p className="text-[8px] font-bold text-green-500 uppercase tracking-[0.3em]">Fully Paid</p>}
                             </div>
 
-                             <button 
+                                 <button 
                                 disabled={(remaining > 0 && !activeTab.isRefundMode) || loading}
                                 onClick={handleCheckout}
-                                className={`w-full py-5 rounded-[1.5rem] flex items-center justify-center gap-3 transition-all active:scale-95 shadow-none ${
+                                 className={`w-full py-5 rounded-[1.5rem] flex items-center justify-center gap-3 transition-all active:scale-95 relative overflow-hidden group ${
                                     (remaining === 0 || activeTab.isRefundMode) && !loading 
-                                        ? (activeTab.isRefundMode ? 'bg-red-500 text-white shadow-lg shadow-red-500/20' : 'bg-[#0d3542] dark:bg-[#58a6ff] text-white dark:text-black scale-[1.02] border border-[#0d3542]/30 dark:border-[#58a6ff]/30') 
+                                        ? (activeTab.isRefundMode 
+                                            ? 'bg-red-600 text-white shadow-lg shadow-red-600/20 hover:bg-red-700' 
+                                            : 'bg-gradient-to-r from-[#f5a81c] to-[#d48c0a] text-[#0d1117] shadow-2xl shadow-[#f5a81c]/40') 
                                         : 'bg-gray-200 dark:bg-[#161b22] text-gray-400 dark:text-[#8b949e]/40 cursor-not-allowed border border-transparent dark:border-[#30363d]'
                                 }`}
                             >
                                 {loading ? <Loader2 className="animate-spin" size={20} /> : (
                                     <>
-                                        <span className="text-[12px] font-bold uppercase tracking-[0.3em]">
+                                        <span className="text-[12px] font-black uppercase tracking-[0.3em] relative z-10">
                                             {activeTab.isRefundMode ? 'Confirm Refund' : 'Complete Order'}
                                         </span>
-                                        <ArrowRightCircle size={20} />
+                                        <ArrowRightCircle size={20} className="relative z-10 group-hover:translate-x-1 transition-transform" />
+                                        {(remaining === 0 || activeTab.isRefundMode) && !loading && !activeTab.isRefundMode && (
+                                            <div className="absolute inset-0 bg-white/10 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                                        )}
                                     </>
                                 )}
                             </button>

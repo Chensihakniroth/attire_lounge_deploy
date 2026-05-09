@@ -106,7 +106,7 @@ const InlineSearch = ({ onSearchClick, addItem }) => {
 
     return (
         <div ref={containerRef} className="relative w-full group">
-            <Search className="absolute left-6 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-[#0d3542] dark:group-focus-within:text-[#58a6ff] transition-colors pointer-events-none" size={18} />
+            <Search className="absolute left-6 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-[#f5a81c] transition-colors pointer-events-none" size={18} />
             <input
                 ref={inputRef}
                 type="text"
@@ -114,7 +114,7 @@ const InlineSearch = ({ onSearchClick, addItem }) => {
                 onChange={handleChange}
                 onFocus={() => query && results.length > 0 && setIsOpen(true)}
                 placeholder="Scan or search product name / SKU..."
-                className="w-full bg-black/[0.02] dark:bg-[#161b22] border-2 border-transparent hover:border-[#0d3542]/20 dark:hover:border-[#30363d] rounded-xl py-4 pl-14 pr-24 text-[13px] font-black uppercase tracking-[0.2em] text-gray-900 dark:text-[#c9d1d9] outline-none focus:border-[#0d3542]/50 dark:focus:border-[#58a6ff]/50 focus:bg-background dark:focus:bg-[#0d1117] transition-all placeholder:text-gray-400/50 dark:placeholder:text-[#8b949e]/20"
+                className="w-full bg-black/[0.02] dark:bg-[#161b22] border-2 border-transparent hover:border-[#f5a81c]/20 dark:hover:border-[#30363d] rounded-xl py-4 pl-14 pr-24 text-[13px] font-black uppercase tracking-[0.2em] text-gray-900 dark:text-[#c9d1d9] outline-none focus:border-[#f5a81c]/50 focus:bg-background dark:focus:bg-[#0d1117] transition-all placeholder:text-gray-400/50 dark:placeholder:text-[#8b949e]/20"
             />
             <div className="absolute right-3 top-1/2 -translate-y-1/2 flex items-center gap-1">
                 {query && (
@@ -124,7 +124,7 @@ const InlineSearch = ({ onSearchClick, addItem }) => {
                 )}
                 <button
                     onClick={onSearchClick}
-                    className="p-2.5 rounded-xl bg-[#0d3542]/10 dark:bg-[#58a6ff]/10 text-[#0d3542] dark:text-[#58a6ff] hover:bg-[#0d3542] dark:hover:bg-[#58a6ff] hover:text-white dark:hover:text-[#0d1117] transition-all flex items-center justify-center shadow-lg shadow-black/5"
+                    className="p-2.5 rounded-xl bg-[#f5a81c]/10 text-[#f5a81c] hover:bg-[#f5a81c] hover:text-[#0d1117] transition-all flex items-center justify-center shadow-lg shadow-black/5"
                     title="Open Full Catalog"
                 >
                     <Search size={16} />
@@ -145,11 +145,11 @@ const InlineSearch = ({ onSearchClick, addItem }) => {
                             <button
                                 key={product.id}
                                 onClick={() => handleSelect(product)}
-                                className="w-full flex items-center gap-4 px-5 py-3.5 hover:bg-[#0d3542]/5 dark:hover:bg-[#58a6ff]/5 transition-colors border-b border-black/5 dark:border-[#30363d] last:border-0 text-left group/row"
+                                className="w-full flex items-center gap-4 px-5 py-3.5 hover:bg-[#f5a81c]/5 transition-colors border-b border-black/5 dark:border-[#30363d] last:border-0 text-left group/row"
                             >
                                 <div className={`w-1.5 h-8 rounded-full flex-shrink-0 ${product.stock_qty > 0 ? 'bg-green-400' : 'bg-red-400'}`} />
                                 <div className="flex-1 min-w-0">
-                                    <p className="text-[13px] font-black uppercase tracking-wide text-gray-900 dark:text-[#c9d1d9] truncate group-hover/row:text-[#0d3542] dark:group-hover/row:text-[#58a6ff] transition-colors">
+                                    <p className="text-[13px] font-black uppercase tracking-wide text-gray-900 dark:text-[#c9d1d9] truncate group-hover/row:text-[#f5a81c] transition-colors">
                                         {product.display_name || product.name}
                                     </p>
                                     <p className="text-[10px] font-bold text-gray-400 dark:text-[#8b949e]/60 font-mono uppercase tracking-wider mt-0.5">
@@ -162,7 +162,7 @@ const InlineSearch = ({ onSearchClick, addItem }) => {
                                         {product.stock_qty > 0 ? `${product.stock_qty} left` : 'out of stock'}
                                     </p>
                                 </div>
-                                <div className="w-7 h-7 rounded-full bg-[#0d3542]/10 dark:bg-[#58a6ff]/10 text-[#0d3542] dark:text-[#58a6ff] flex items-center justify-center flex-shrink-0 opacity-0 group-hover/row:opacity-100 transition-opacity">
+                                <div className="w-7 h-7 rounded-full bg-[#f5a81c]/10 text-[#f5a81c] flex items-center justify-center flex-shrink-0 opacity-0 group-hover/row:opacity-100 transition-opacity">
                                     <Plus size={13} />
                                 </div>
                             </button>
@@ -179,7 +179,7 @@ const InlineSearch = ({ onSearchClick, addItem }) => {
 
 
 const OrderLedger = ({ onSearchClick }) => {
-    const { activeTab, updateQty, removeItem, addItem, updateItemDiscount, selectAllRefundItems } = usePOS();
+    const { activeTab, updateQty, removeItem, addItem, updateItemDiscount, updateItemPrice, selectAllRefundItems } = usePOS();
     const { activeOutlet, OUTLET_CONFIG } = useAdmin();
     const outletData = OUTLET_CONFIG?.[activeOutlet] || { label: 'Attire Lounge' };
     const isRefund = activeTab.isRefundMode;
@@ -266,12 +266,12 @@ const OrderLedger = ({ onSearchClick }) => {
                                                 className={`group border-b border-black/5 dark:border-white/[0.02] hover:bg-black/[0.02] dark:hover:bg-white/[0.01] transition-all ${item.is_fully_refunded ? 'bg-black/5 dark:bg-white/5 grayscale pointer-events-none' : ''}`}
                                             >
                                                 <td className="pl-6 pr-2 py-4 font-mono text-[12px] text-gray-400/50 dark:text-[#8b949e]/40">{String(index + 1).padStart(2, '0')}</td>
-                                                <td className="px-4 py-4 font-mono text-[13px] font-black text-[#0d3542] dark:text-[#58a6ff] tracking-tighter uppercase truncate">{item.product_sku || 'N/A'}</td>
+                                                <td className="px-4 py-4 font-mono text-[13px] font-black text-[#0d3542] dark:text-[#f5a81c] tracking-tighter uppercase truncate">{item.product_sku || 'N/A'}</td>
                                                 <td className="px-4 py-4">
                                                     <div className="flex flex-col gap-0.5">
                                                         <div className="flex items-center gap-2">
                                                             <div className="flex flex-col">
-                                                                <span className="uppercase text-[16px] font-black leading-tight tracking-[0.02em] text-gray-900 dark:text-[#c9d1d9] group-hover:text-[#0d3542] dark:group-hover:text-[#58a6ff] transition-colors">{item.product_name}</span>
+                                                                <span className="uppercase text-[16px] font-black leading-tight tracking-[0.02em] text-gray-900 dark:text-[#c9d1d9] group-hover:text-[#0d3542] dark:group-hover:text-[#f5a81c] transition-colors">{item.product_name}</span>
                                                                 {item.product_variant && (
                                                                     <span className="text-[10px] font-bold text-gray-500 uppercase tracking-[0.15em] mt-0.5">{String(item.product_variant).replace(/^-/, '').trim()}</span>
                                                                 )}
@@ -286,7 +286,7 @@ const OrderLedger = ({ onSearchClick }) => {
                                                             )}
                                                         </div>
                                                         <div className="flex items-center gap-2">
-                                                            {item.gift_wrap && <span className="text-[9px] px-2 py-0.5 bg-[#0d3542]/10 dark:bg-[#58a6ff]/10 text-[#0d3542] dark:text-[#58a6ff] rounded-md font-black uppercase tracking-widest border border-[#0d3542]/20 dark:border-[#58a6ff]/20">Gift Wrap</span>}
+                                                            {item.gift_wrap && <span className="text-[9px] px-2 py-0.5 bg-[#0d3542]/10 dark:bg-[#f5a81c]/10 text-[#0d3542] dark:text-[#f5a81c] rounded-md font-black uppercase tracking-widest border border-[#0d3542]/20 dark:border-[#f5a81c]/20">Gift Wrap</span>}
                                                             {item.total_original_qty > 0 && (
                                                                 <span className="text-[9px] text-gray-400 font-bold uppercase tracking-widest">
                                                                     Original Order: {item.total_original_qty} units
@@ -306,13 +306,30 @@ const OrderLedger = ({ onSearchClick }) => {
                                                         <span className="flex-1 text-center font-black text-[16px] text-gray-900 dark:text-[#c9d1d9]">{item.quantity}</span>
                                                         <button 
                                                             onClick={() => updateQty(item.cart_item_id, 1)}
-                                                            className="p-2 hover:text-[#0d3542] dark:hover:text-[#58a6ff] hover:bg-[#0d3542]/10 dark:hover:bg-[#58a6ff]/10 rounded-lg transition-all"
+                                                            className="p-2 hover:text-[#0d3542] dark:hover:text-[#f5a81c] hover:bg-[#0d3542]/10 dark:hover:bg-[#f5a81c]/10 rounded-lg transition-all"
                                                         >
                                                             <Plus size={14} />
                                                         </button>
                                                     </div>
                                                 </td>
-                                                <td className="px-4 py-4 text-right font-mono text-[14px] font-bold opacity-40 group-hover:opacity-100 dark:text-[#8b949e] group-hover:dark:text-[#c9d1d9] transition-opacity whitespace-nowrap">${parseFloat(item.unit_price).toLocaleString()}</td>
+                                                <td className="px-4 py-4">
+                                                    <div className="flex items-center justify-end gap-1 p-1 bg-black/5 dark:bg-[#161b22] rounded-xl border border-transparent hover:border-black/5 dark:hover:border-[#30363d] focus-within:border-[#f5a81c] dark:focus-within:border-[#f5a81c] transition-all w-fit ml-auto">
+                                                        <div className="w-7 h-7 rounded-lg flex items-center justify-center text-[13px] font-black bg-white dark:bg-[#0d1117] text-gray-400 dark:text-[#8b949e]/60 shadow-sm">
+                                                            $
+                                                        </div>
+                                                        <input 
+                                                            type="number"
+                                                            min="0"
+                                                            step="0.01"
+                                                            value={item.unit_price}
+                                                            onChange={(e) => {
+                                                                const val = e.target.value === '' ? 0 : Math.max(0, parseFloat(e.target.value));
+                                                                updateItemPrice(item.cart_item_id, val);
+                                                            }}
+                                                            className="w-16 bg-transparent text-right font-mono text-[14px] font-black text-gray-900 dark:text-[#c9d1d9] outline-none [appearance:textfield] pr-1"
+                                                        />
+                                                    </div>
+                                                </td>
                                                 <td className="px-4 py-4">
                                                     <div className="flex items-center justify-start gap-1 p-1 bg-black/5 dark:bg-[#161b22] rounded-xl border border-transparent hover:border-black/5 dark:hover:border-[#30363d] transition-all w-fit">
                                                         <button 
@@ -320,7 +337,7 @@ const OrderLedger = ({ onSearchClick }) => {
                                                                 const newType = item.discount_type === 'percentage' ? 'price' : 'percentage';
                                                                 updateItemDiscount(item.cart_item_id, newType, item.discount_value);
                                                             }}
-                                                            className={`w-8 h-8 rounded-lg flex items-center justify-start pl-2.5 text-[14px] font-black transition-all ${hasDiscount ? 'bg-[#0d3542] dark:bg-[#58a6ff] text-white dark:text-black shadow-none' : 'bg-black/5 dark:bg-[#0d1117] text-gray-400 dark:text-[#8b949e]/40 hover:text-gray-900 dark:hover:text-[#c9d1d9]'}`}
+                                                            className={`w-8 h-8 rounded-lg flex items-center justify-start pl-2.5 text-[14px] font-black transition-all ${hasDiscount ? 'bg-[#0d3542] dark:bg-[#f5a81c] text-white dark:text-black shadow-none' : 'bg-black/5 dark:bg-[#0d1117] text-gray-400 dark:text-[#8b949e]/40 hover:text-gray-900 dark:hover:text-[#c9d1d9]'}`}
                                                         >
                                                             {item.discount_type === 'percentage' ? '%' : '$'}
                                                         </button>
@@ -355,7 +372,7 @@ const OrderLedger = ({ onSearchClick }) => {
                                 {/* Service Add-ons Section Divider */}
                                 {activeTab.cartItems.some(i => i.is_service) && (
                                     <tr className="bg-black/2 dark:bg-white/2 border-y border-black/10 dark:border-white/10">
-                                        <td colSpan={8} className="px-6 py-2.5 text-[10px] font-black uppercase tracking-[0.4em] text-[#0d3542] dark:text-[#58a6ff]">Add-on Services</td>
+                                        <td colSpan={8} className="px-6 py-2.5 text-[10px] font-black uppercase tracking-[0.4em] text-[#0d3542] dark:text-[#f5a81c]">Add-on Services</td>
                                     </tr>
                                 )}
 

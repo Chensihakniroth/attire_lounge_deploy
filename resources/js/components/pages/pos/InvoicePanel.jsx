@@ -151,7 +151,7 @@ const InvoicePanel = () => {
                                 initial={{ opacity: 0, height: 0 }}
                                 animate={{ opacity: 1, height: 'auto' }}
                                 exit={{ opacity: 0, height: 0 }}
-                                className="flex items-center justify-between text-[11px] font-black uppercase tracking-[0.2em] text-[#0d3542] dark:text-[#58a6ff]"
+                                className="flex items-center justify-between text-[11px] font-black uppercase tracking-[0.2em] text-[#0d3542] dark:text-[#f5a81c]"
                             >
                                 <div className="flex items-center gap-2">
                                     <Plus size={14} />
@@ -173,7 +173,7 @@ const InvoicePanel = () => {
                                 {activeTab.isRefundMode ? 'Total to Return' : 'Final Total'}
                             </span>
                         </div>
-                        <span className={`text-5xl font-black tracking-tighter leading-none font-mono ${activeTab.isRefundMode ? 'text-red-500' : 'text-attire-accent'}`}>
+                        <span className={`text-5xl font-black tracking-tighter leading-none font-mono ${activeTab.isRefundMode ? 'text-red-500' : 'text-[#f5a81c]'}`}>
                             ${totals.finalTotal.toLocaleString()}
                         </span>
                     </div>
@@ -187,20 +187,22 @@ const InvoicePanel = () => {
                 {/* Checkout Button */}
                 <div className="space-y-4">
                     <motion.button 
-                        whileHover={{ scale: 1.01, backgroundColor: activeTab.cartItems.length > 0 ? (activeTab.isRefundMode ? '#ef4444' : '#00C4B4') : '' }}
-                        whileTap={{ scale: 0.99 }}
+                        whileHover={{ scale: activeTab.cartItems.length > 0 ? 1.01 : 1 }}
+                        whileTap={{ scale: activeTab.cartItems.length > 0 ? 0.99 : 1 }}
                         disabled={activeTab.cartItems.length === 0}
                         onClick={() => setShowPaymentModal(true)}
                         className={`w-full flex items-center justify-center gap-4 h-16 rounded-2xl text-[13px] font-black uppercase tracking-[0.4em] transition-all relative overflow-hidden group ${
                             activeTab.cartItems.length > 0 
-                                ? (activeTab.isRefundMode ? 'bg-red-500 text-white shadow-lg shadow-red-500/20' : 'bg-[#00C4B4] text-black border-2 border-black/10 shadow-none') 
-                                : 'bg-gray-100 dark:bg-white/5 text-gray-400 cursor-not-allowed grayscale'
+                                ? (activeTab.isRefundMode 
+                                    ? 'bg-red-500 text-white shadow-lg shadow-red-500/20' 
+                                    : 'bg-gradient-to-r from-[#f5a81c] to-[#d48c0a] text-[#0d1117] shadow-2xl shadow-[#f5a81c]/40') 
+                                : 'bg-black/5 dark:bg-[#161b22] text-gray-400 dark:text-[#8b949e]/40 cursor-not-allowed border border-transparent dark:border-[#30363d]'
                         }`}
                     >
-                        {activeTab.isRefundMode ? <Undo2 size={18} /> : <Wallet size={18} className="group-hover:scale-110 transition-transform" />}
+                        {activeTab.isRefundMode ? <Undo2 size={18} /> : <Wallet size={18} className="group-hover:scale-110 transition-transform duration-500" />}
                         {activeTab.isRefundMode ? 'Process Refund' : 'Checkout'}
-                        {activeTab.cartItems.length > 0 && (
-                            <div className="absolute inset-0 bg-white/20 opacity-0 group-hover:opacity-100 transition-opacity" />
+                        {activeTab.cartItems.length > 0 && !activeTab.isRefundMode && (
+                            <div className="absolute inset-0 bg-white/10 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
                         )}
                     </motion.button>
 
@@ -209,11 +211,11 @@ const InvoicePanel = () => {
                         <input 
                             type="text" 
                             placeholder="Add note..."
-                            className="w-full bg-transparent border-b border-black/5 dark:border-white/5 py-3 text-[11px] font-black text-gray-500 dark:text-[#c9d1d9] uppercase tracking-[0.15em] outline-none focus:border-attire-accent transition-all placeholder:text-gray-300 dark:placeholder:text-[#8b949e]/20"
+                            className="w-full bg-transparent border-b border-black/5 dark:border-white/5 py-3 text-[11px] font-black text-gray-500 dark:text-[#c9d1d9] uppercase tracking-[0.15em] outline-none focus:border-[#f5a81c] transition-all placeholder:text-gray-300 dark:placeholder:text-[#8b949e]/20"
                             value={activeTab.note || ''}
                             onChange={(e) => updateNote(e.target.value)}
                         />
-                        <Edit3 size={14} className="absolute right-1 top-1/2 -translate-y-1/2 text-gray-400 opacity-20 group-focus-within:text-attire-accent transition-colors" />
+                        <Edit3 size={14} className="absolute right-1 top-1/2 -translate-y-1/2 text-gray-400 opacity-20 group-focus-within:text-[#f5a81c] transition-colors" />
                     </div>
                 </div>
             </div>

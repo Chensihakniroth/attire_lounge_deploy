@@ -51,16 +51,16 @@ class SalesService
             // Category breakdown
             $categoryBreakdown = DB::table('pos_invoice_items')
                 ->join('pos_invoices', 'pos_invoice_items.invoice_id', '=', 'pos_invoices.id')
-                ->join('pos_products', 'pos_invoice_items.product_id', '=', 'pos_products.id')
+                ->leftJoin('pos_products', 'pos_invoice_items.product_id', '=', 'pos_products.id')
                 ->where('pos_invoices.date', $date)
                 ->where('pos_invoices.status', 'completed')
                 ->where('pos_invoices.outlet', $outlet)
                 ->select(
-                    'pos_products.category',
+                    DB::raw('COALESCE(pos_products.category, "Uncategorized") as category'),
                     DB::raw('SUM(pos_invoice_items.quantity) as total_qty'),
                     DB::raw('SUM(pos_invoice_items.line_total) as total_revenue')
                 )
-                ->groupBy('pos_products.category')
+                ->groupBy('category')
                 ->orderByDesc('total_revenue')
                 ->get();
 

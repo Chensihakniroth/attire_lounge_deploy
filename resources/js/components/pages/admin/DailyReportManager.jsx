@@ -25,11 +25,18 @@ const MONTH_NAMES = ['January', 'February', 'March', 'April', 'May', 'June',
 
 const PAY_ICONS = {
     cash: <Banknote size={13} />,
+    card: <CreditCard size={13} />,
     credit: <CreditCard size={13} />,
     debit: <CreditCard size={13} />,
     khqr: <QrCode size={13} />,
     qr_code: <QrCode size={13} />,
     deposit: <Clock size={13} />,
+    aba: <QrCode size={13} />,
+    acleda: <QrCode size={13} />,
+    true_money: <Wallet size={13} />,
+    foodpanda: <Wallet size={13} />,
+    grab: <Wallet size={13} />,
+    wownow: <Wallet size={13} />,
 };
 
 // ─── mini bar chart ──────────────────────────────────────────────────────────

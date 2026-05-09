@@ -11,6 +11,8 @@ use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\DB;
 use App\Services\SalesService;
+use Illuminate\Support\Facades\Cache;
+use Carbon\Carbon;
 
 class PosInvoiceController extends Controller
 {
@@ -86,7 +88,7 @@ class PosInvoiceController extends Controller
             'items.*.discount_value' => 'numeric|min:0',
             'items.*.gift_wrap'    => 'boolean',
             'payments'             => 'required|array|min:1',
-            'payments.*.method'    => 'required|in:cash,credit,debit,khqr,qr_code,deposit',
+            'payments.*.method'    => 'required|in:cash,card,deposit,aba,acleda,true_money,foodpanda,grab,wownow',
             'payments.*.amount'    => 'required|numeric|min:0.01',
             'payments.*.reference' => 'nullable|string',
             'promo_code_id'        => 'nullable|exists:promocodes,id',
@@ -168,6 +170,15 @@ class PosInvoiceController extends Controller
             }
 
             DB::commit();
+            
+            // Clear report caches
+            $date   = $invoice->date;
+            $outlet = $invoice->outlet;
+            $year   = Carbon::parse($date)->year;
+            $month  = Carbon::parse($date)->month;
+            
+            Cache::forget("sales_daily_{$outlet}_{$date}");
+            Cache::forget("sales_monthly_{$outlet}_{$year}_{$month}");
 
             return response()->json(
                 $invoice->load(['items', 'payments', 'customer']),

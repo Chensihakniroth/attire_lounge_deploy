@@ -823,3 +823,13 @@ img {
    but usually just slowing it down or making it a simple spinner is better. 
    Keeping it subtle. */
 
+
+/* Hide number input spin buttons globally */
+input[type="number"]::-webkit-inner-spin-button, 
+input[type="number"]::-webkit-outer-spin-button { 
+    -webkit-appearance: none; 
+    margin: 0; 
+}
+input[type="number"] {
+    -moz-appearance: textfield;
+}

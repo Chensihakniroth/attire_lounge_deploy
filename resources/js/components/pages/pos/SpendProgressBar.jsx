@@ -4,9 +4,9 @@ import { Sparkles, ShieldCheck } from 'lucide-react';
 
 const SpendProgressBar = ({ currentSpend, isVip }) => {
     if (isVip) return (
-        <div className="flex items-center gap-3 px-4 py-3 rounded-xl bg-[#0d3542]/8 dark:bg-[#58a6ff]/8 border border-[#0d3542]/15 dark:border-[#58a6ff]/15">
-            <ShieldCheck size={14} className="text-[#0d3542] dark:text-[#58a6ff] shrink-0" />
-            <span className="text-[9px] font-black uppercase tracking-[0.2em] text-[#0d3542] dark:text-[#58a6ff]">
+        <div className="flex items-center gap-3 px-4 py-3 rounded-xl bg-[#0d3542]/8 dark:bg-[#f5a81c]/8 border border-[#0d3542]/15 dark:border-[#f5a81c]/15">
+            <ShieldCheck size={14} className="text-[#0d3542] dark:text-[#f5a81c] shrink-0" />
+            <span className="text-[9px] font-black uppercase tracking-[0.2em] text-[#0d3542] dark:text-[#f5a81c]">
                 Platinum VIP · Status Active
             </span>
         </div>
@@ -41,7 +41,7 @@ const SpendProgressBar = ({ currentSpend, isVip }) => {
                     initial={{ width: 0 }}
                     animate={{ width: `${percentage}%` }}
                     transition={{ duration: 0.8, ease: 'easeOut' }}
-                    className="absolute inset-y-0 left-0 bg-attire-accent dark:bg-[#58a6ff] rounded-full"
+                    className="absolute inset-y-0 left-0 bg-attire-accent dark:bg-[#f5a81c] rounded-full"
                 />
                 {/* Tier markers */}
                 {tiers.map((tier, i) => (
@@ -49,7 +49,7 @@ const SpendProgressBar = ({ currentSpend, isVip }) => {
                         key={i}
                         className={`absolute top-1/2 -translate-y-1/2 w-1.5 h-1.5 rounded-full border-2 transition-colors duration-300 ${
                             currentSpend >= tier.threshold
-                                ? 'bg-attire-accent dark:bg-[#58a6ff] border-attire-accent dark:border-[#58a6ff]'
+                                ? 'bg-attire-accent dark:bg-[#f5a81c] border-attire-accent dark:border-[#f5a81c]'
                                 : 'bg-white dark:bg-[#0d1117] border-gray-300 dark:border-[#30363d]'
                         }`}
                         style={{ left: `${(tier.threshold / maxThreshold) * 100}%`, transform: 'translate(-50%, -50%)' }}
@@ -64,7 +64,7 @@ const SpendProgressBar = ({ currentSpend, isVip }) => {
                         key={i}
                         className={`absolute text-[7px] font-black uppercase tracking-wider transition-colors duration-300 ${
                             currentSpend >= tier.threshold
-                                ? 'text-attire-accent dark:text-[#58a6ff]'
+                                ? 'text-attire-accent dark:text-[#f5a81c]'
                                 : 'text-gray-300 dark:text-[#8b949e]/25'
                         }`}
                         style={{ left: `${(tier.threshold / maxThreshold) * 100}%`, transform: 'translateX(-50%)' }}

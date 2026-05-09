@@ -32,14 +32,14 @@ const ProductLogRow = React.memo(React.forwardRef(({ product, isSelected, onTogg
             onClick={() => onToggleSelect(product)}
         >
             <div
-                className={`w-full min-h-13 flex items-center transition-all cursor-pointer hover:bg-black/[0.02] dark:hover:bg-[#161b22] active:bg-black/[0.04] dark:active:bg-[#0d1117] ${isSelected ? 'bg-[#0d3542]/10 dark:bg-[#58a6ff]/10' : ''}`}
+                className={`w-full min-h-13 flex items-center transition-all cursor-pointer hover:bg-black/[0.02] dark:hover:bg-[#161b22] active:bg-black/[0.04] dark:active:bg-[#0d1117] ${isSelected ? 'bg-[#0d3542]/10 dark:bg-[#f5a81c]/10' : ''}`}
             >
                 {/* Selection Indicator Bar - Absolute to prevent shifting */}
-                {isSelected && <div className="absolute left-0 top-0 bottom-0 w-1 bg-[#0d3542] dark:bg-[#58a6ff] z-10" />}
+                {isSelected && <div className="absolute left-0 top-0 bottom-0 w-1 bg-[#0d3542] dark:bg-[#f5a81c] z-10" />}
 
                 {/* Custom Checkbox */}
                 <div className="w-16 h-13 border-r border-black/5 dark:border-[#30363d] flex items-center justify-center transition-all flex-shrink-0">
-                    <div className={`w-4 h-4 rounded-md border-2 flex items-center justify-center transition-all ${isSelected ? 'bg-[#0d3542] dark:bg-[#58a6ff] border-[#0d3542] dark:border-[#58a6ff]' : 'border-black/10 dark:border-[#30363d] group-hover:border-[#0d3542]/40 dark:group-hover:border-[#58a6ff]/40'}`}>
+                    <div className={`w-4 h-4 rounded-md border-2 flex items-center justify-center transition-all ${isSelected ? 'bg-[#0d3542] dark:bg-[#f5a81c] border-[#0d3542] dark:border-[#f5a81c]' : 'border-black/10 dark:border-[#30363d] group-hover:border-[#0d3542]/40 dark:group-hover:border-[#f5a81c]/40'}`}>
                         {isSelected && <Check size={10} className="text-white dark:text-black font-black" />}
                     </div>
                 </div>
@@ -54,12 +54,12 @@ const ProductLogRow = React.memo(React.forwardRef(({ product, isSelected, onTogg
                     </div>
                 </div>
 
-                <div className="w-40 border-r border-black/5 dark:border-[#30363d] px-5 h-13 flex items-center flex-shrink-0 font-mono text-[13px] font-black text-[#0d3542] dark:text-[#58a6ff] tracking-tighter truncate">
+                <div className="w-40 border-r border-black/5 dark:border-[#30363d] px-5 h-13 flex items-center flex-shrink-0 font-mono text-[13px] font-black text-[#0d3542] dark:text-[#f5a81c] tracking-tighter truncate">
                     {product.sku}
                 </div>
 
                 <div className="flex-1 border-r border-black/5 dark:border-[#30363d] px-6 h-13 flex items-center min-w-0 overflow-hidden">
-                    <p className={`text-[14px] font-black uppercase tracking-wider truncate transition-colors ${isSelected ? 'text-[#0d3542] dark:text-[#58a6ff]' : 'text-gray-900 dark:text-[#c9d1d9]'}`}>
+                    <p className={`text-[14px] font-black uppercase tracking-wider truncate transition-colors ${isSelected ? 'text-[#0d3542] dark:text-[#f5a81c]' : 'text-gray-900 dark:text-[#c9d1d9]'}`}>
                         {product.display_name || product.name}
                     </p>
                 </div>
@@ -130,7 +130,7 @@ const FilterPanel = ({ filters, categories, onChange, totalResults, searchQuery,
                 {hasActiveFilters && (
                     <button
                         onClick={clearAll}
-                        className="text-[10px] font-black uppercase tracking-widest text-[#0d3542] dark:text-[#58a6ff] hover:underline"
+                        className="text-[10px] font-black uppercase tracking-widest text-[#0d3542] dark:text-[#f5a81c] hover:underline"
                     >
                         Reset
                     </button>
@@ -149,7 +149,7 @@ const FilterPanel = ({ filters, categories, onChange, totalResults, searchQuery,
                             placeholder="PRODUCT NAME..."
                             value={filters.name || ""}
                             onChange={(e) => onChange({...filters, name: e.target.value})}
-                            className="w-full bg-white dark:bg-[#161b22] border-2 border-black/5 dark:border-[#30363d] focus:border-[#0d3542] dark:focus:border-[#58a6ff] rounded-xl py-3.5 pl-5 pr-10 text-[12px] font-black uppercase tracking-widest outline-none transition-all text-gray-900 dark:text-[#c9d1d9] placeholder:text-gray-300 dark:placeholder:text-[#8b949e]/20"
+                            className="w-full bg-white dark:bg-[#161b22] border-2 border-black/5 dark:border-[#30363d] focus:border-[#0d3542] dark:focus:border-[#f5a81c] rounded-xl py-3.5 pl-5 pr-10 text-[12px] font-black uppercase tracking-widest outline-none transition-all text-gray-900 dark:text-[#c9d1d9] placeholder:text-gray-300 dark:placeholder:text-[#8b949e]/20"
                         />
                     </div>
                 </div>
@@ -164,7 +164,7 @@ const FilterPanel = ({ filters, categories, onChange, totalResults, searchQuery,
                             placeholder="SIZE, FABRIC, ETC..."
                             value={filters.attribute || ""}
                             onChange={(e) => onChange({...filters, attribute: e.target.value})}
-                            className="w-full bg-white dark:bg-[#161b22] border-2 border-black/5 dark:border-[#30363d] focus:border-[#0d3542] dark:focus:border-[#58a6ff] rounded-xl py-3.5 pl-5 pr-10 text-[12px] font-black uppercase tracking-widest outline-none transition-all text-gray-900 dark:text-[#c9d1d9] placeholder:text-gray-300 dark:placeholder:text-[#8b949e]/20"
+                            className="w-full bg-white dark:bg-[#161b22] border-2 border-black/5 dark:border-[#30363d] focus:border-[#0d3542] dark:focus:border-[#f5a81c] rounded-xl py-3.5 pl-5 pr-10 text-[12px] font-black uppercase tracking-widest outline-none transition-all text-gray-900 dark:text-[#c9d1d9] placeholder:text-gray-300 dark:placeholder:text-[#8b949e]/20"
                         />
                     </div>
                 </div>
@@ -179,7 +179,7 @@ const FilterPanel = ({ filters, categories, onChange, totalResults, searchQuery,
                             placeholder="SKU OR ID..."
                             value={filters.code || ""}
                             onChange={(e) => onChange({...filters, code: e.target.value})}
-                            className="w-full bg-white dark:bg-[#161b22] border-2 border-black/5 dark:border-[#30363d] focus:border-[#0d3542] dark:focus:border-[#58a6ff] rounded-xl py-3.5 pl-5 pr-10 text-[12px] font-black uppercase tracking-widest outline-none transition-all text-gray-900 dark:text-[#c9d1d9] placeholder:text-gray-300 dark:placeholder:text-[#8b949e]/20"
+                            className="w-full bg-white dark:bg-[#161b22] border-2 border-black/5 dark:border-[#30363d] focus:border-[#0d3542] dark:focus:border-[#f5a81c] rounded-xl py-3.5 pl-5 pr-10 text-[12px] font-black uppercase tracking-widest outline-none transition-all text-gray-900 dark:text-[#c9d1d9] placeholder:text-gray-300 dark:placeholder:text-[#8b949e]/20"
                         />
                     </div>
                 </div>
@@ -199,7 +199,7 @@ const FilterPanel = ({ filters, categories, onChange, totalResults, searchQuery,
                                 onClick={() => toggleFilter("stockStatus", opt)}
                                 className={`flex w-full items-center justify-between px-6 py-4 rounded-xl border-2 text-[11px] font-black uppercase tracking-widest transition-all ${
                                     selected
-                                        ? "border-[#0d3542] dark:border-[#58a6ff] bg-[#0d3542]/10 dark:bg-[#58a6ff]/10 text-[#0d3542] dark:text-[#58a6ff] shadow-none"
+                                        ? "border-[#0d3542] dark:border-[#f5a81c] bg-[#0d3542]/10 dark:bg-[#f5a81c]/10 text-[#0d3542] dark:text-[#f5a81c] shadow-none"
                                         : "border-transparent bg-white dark:bg-[#161b22] text-gray-500 dark:text-[#8b949e] hover:bg-black/5 dark:hover:bg-[#30363d]/50"
                                 }`}
                             >
@@ -226,14 +226,14 @@ const FilterPanel = ({ filters, categories, onChange, totalResults, searchQuery,
                             }
                             setIsGroupOpen(!isGroupOpen);
                         }}
-                        className={`w-full flex items-center justify-between px-6 py-4 bg-white dark:bg-[#161b22] border-2 rounded-xl text-[13px] font-black uppercase tracking-widest transition-all ${isGroupOpen ? 'border-[#0d3542] dark:border-[#58a6ff] ring-4 ring-[#0d3542]/5 dark:ring-[#58a6ff]/5' : 'border-transparent text-gray-900 dark:text-[#c9d1d9] hover:bg-black/5 dark:hover:bg-[#30363d]/50'}`}
+                        className={`w-full flex items-center justify-between px-6 py-4 bg-white dark:bg-[#161b22] border-2 rounded-xl text-[13px] font-black uppercase tracking-widest transition-all ${isGroupOpen ? 'border-[#0d3542] dark:border-[#f5a81c] ring-4 ring-[#0d3542]/5 dark:ring-[#f5a81c]/5' : 'border-transparent text-gray-900 dark:text-[#c9d1d9] hover:bg-black/5 dark:hover:bg-[#30363d]/50'}`}
                     >
                         <span className="truncate">{filters.categories[0] || 'All Groups'}</span>
                         <motion.div
                             animate={{ rotate: isGroupOpen ? 180 : 0 }}
                             transition={{ duration: 0.2 }}
                         >
-                            <ChevronDown size={18} className="text-[#0d3542] dark:text-[#58a6ff]" />
+                            <ChevronDown size={18} className="text-[#0d3542] dark:text-[#f5a81c]" />
                         </motion.div>
                     </button>
 
@@ -260,7 +260,7 @@ const FilterPanel = ({ filters, categories, onChange, totalResults, searchQuery,
                                                 onChange({ ...filters, categories: [] });
                                                 setIsGroupOpen(false);
                                             }}
-                                            className={`w-full px-6 py-4 text-[11px] font-black uppercase tracking-widest text-left transition-all flex items-center justify-between ${filters.categories.length === 0 ? 'bg-[#0d3542] dark:bg-[#58a6ff] text-white dark:text-black' : 'text-gray-400 dark:text-[#8b949e]/40 hover:bg-black/5 dark:hover:bg-[#30363d]/50'}`}
+                                            className={`w-full px-6 py-4 text-[11px] font-black uppercase tracking-widest text-left transition-all flex items-center justify-between ${filters.categories.length === 0 ? 'bg-[#0d3542] dark:bg-[#f5a81c] text-white dark:text-black' : 'text-gray-400 dark:text-[#8b949e]/40 hover:bg-black/5 dark:hover:bg-[#30363d]/50'}`}
                                         >
                                             All Groups
                                             {filters.categories.length === 0 && <Check size={14} />}
@@ -273,7 +273,7 @@ const FilterPanel = ({ filters, categories, onChange, totalResults, searchQuery,
                                                     onChange({ ...filters, categories: [cat] });
                                                     setIsGroupOpen(false);
                                                 }}
-                                                className={`w-full px-6 py-5 text-[13px] font-black uppercase tracking-widest text-left transition-all flex items-center justify-between ${filters.categories.includes(cat) ? 'bg-[#0d3542] dark:bg-[#58a6ff] text-white dark:text-black' : 'text-gray-500 dark:text-[#8b949e] hover:bg-black/5 dark:hover:bg-[#30363d]/50 hover:text-[#0d3542] dark:hover:text-[#58a6ff]'}`}
+                                                className={`w-full px-6 py-5 text-[13px] font-black uppercase tracking-widest text-left transition-all flex items-center justify-between ${filters.categories.includes(cat) ? 'bg-[#0d3542] dark:bg-[#f5a81c] text-white dark:text-black' : 'text-gray-500 dark:text-[#8b949e] hover:bg-black/5 dark:hover:bg-[#30363d]/50 hover:text-[#0d3542] dark:hover:text-[#f5a81c]'}`}
                                             >
                                                 {cat}
                                                 {filters.categories.includes(cat) && <Check size={16} />}
@@ -429,7 +429,7 @@ const ProductCatalog = ({ onSearchClick }) => {
                     <div>
                         <h1 className="text-[20px] font-black uppercase tracking-[0.4em] text-gray-900 dark:text-[#c9d1d9] leading-none">Catalog</h1>
                         <p className="text-[11px] font-bold text-gray-400 dark:text-[#8b949e]/40 uppercase tracking-widest mt-2 flex items-center gap-3">
-                            <Hash size={12} className="text-[#0d3542] dark:text-[#58a6ff]" /> Product Inventory System
+                            <Hash size={12} className="text-[#0d3542] dark:text-[#f5a81c]" /> Product Inventory System
                         </p>
                     </div>
                 </div>
@@ -461,7 +461,7 @@ const ProductCatalog = ({ onSearchClick }) => {
                                         setSelectedProducts(next);
                                     }
                                 }}
-                                className={`w-5 h-5 rounded-md border-2 flex items-center justify-center transition-all flex-shrink-0 ${selectedProducts.size === products.length && products.length > 0 ? 'bg-[#0d3542] dark:bg-[#58a6ff] border-[#0d3542] dark:border-[#58a6ff]' : 'border-black/20 dark:border-[#30363d]'}`}
+                                className={`w-5 h-5 rounded-md border-2 flex items-center justify-center transition-all flex-shrink-0 ${selectedProducts.size === products.length && products.length > 0 ? 'bg-[#0d3542] dark:bg-[#f5a81c] border-[#0d3542] dark:border-[#f5a81c]' : 'border-black/20 dark:border-[#30363d]'}`}
                             >
                                 {selectedProducts.size === products.length && products.length > 0 && <Check size={12} className="text-white dark:text-black" />}
                             </button>
@@ -500,7 +500,7 @@ const ProductCatalog = ({ onSearchClick }) => {
                                     <p className="text-[12px] text-gray-500 dark:text-[#8b949e]/60 mt-4 max-w-sm">Try adjusting your filters or search terms for better accuracy.</p>
                                     <button 
                                         onClick={clearAll}
-                                        className="mt-12 px-10 py-5 bg-[#0d3542]/10 dark:bg-[#58a6ff]/10 border-2 border-[#0d3542]/20 dark:border-[#58a6ff]/20 text-[#0d3542] dark:text-[#58a6ff] text-[12px] font-black uppercase tracking-widest rounded-2xl hover:bg-[#0d3542] dark:hover:bg-[#58a6ff] hover:text-white dark:hover:text-black transition-all shadow-none"
+                                        className="mt-12 px-10 py-5 bg-[#0d3542]/10 dark:bg-[#f5a81c]/10 border-2 border-[#0d3542]/20 dark:border-[#f5a81c]/20 text-[#0d3542] dark:text-[#f5a81c] text-[12px] font-black uppercase tracking-widest rounded-2xl hover:bg-[#0d3542] dark:hover:bg-[#f5a81c] hover:text-white dark:hover:text-black transition-all shadow-none"
                                     >
                                         Clear All Filters
                                     </button>
@@ -540,7 +540,7 @@ const ProductCatalog = ({ onSearchClick }) => {
 
                             {/* Count Badge */}
                             <div className="flex items-center gap-2.5 pl-3 pr-4">
-                                <div className="w-5 h-5 rounded-full bg-[#0d3542] dark:bg-[#58a6ff] flex items-center justify-center flex-shrink-0">
+                                <div className="w-5 h-5 rounded-full bg-[#0d3542] dark:bg-[#f5a81c] flex items-center justify-center flex-shrink-0">
                                     <span className="text-[10px] font-black text-white dark:text-black leading-none">{selectedProducts.size}</span>
                                 </div>
                                 <span className="text-[11px] font-black uppercase tracking-widest text-gray-500 dark:text-[#8b949e] whitespace-nowrap">
@@ -562,7 +562,7 @@ const ProductCatalog = ({ onSearchClick }) => {
                             {/* Add Button */}
                             <button
                                 onClick={handleBatchAdd}
-                                className="px-5 py-2.5 bg-[#0d3542] dark:bg-[#58a6ff] text-white dark:text-black text-[11px] font-black uppercase tracking-widest rounded-full hover:opacity-90 active:scale-95 transition-all"
+                                className="px-5 py-2.5 bg-[#0d3542] dark:bg-[#f5a81c] text-white dark:text-black text-[11px] font-black uppercase tracking-widest rounded-full hover:opacity-90 active:scale-95 transition-all"
                             >
                                 Add to Cart
                             </button>

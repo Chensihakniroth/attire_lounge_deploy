@@ -164,6 +164,16 @@ export const POSProvider = ({ children }) => {
         updateActiveTab({ cartItems: newCart });
     };
 
+    const updateItemPrice = (cartItemId, newPrice) => {
+        const newCart = activeTab.cartItems.map(item => {
+            if (item.cart_item_id === cartItemId) {
+                return { ...item, unit_price: parseFloat(newPrice) || 0 };
+            }
+            return item;
+        });
+        updateActiveTab({ cartItems: newCart });
+    };
+
     const toggleGiftWrap = (cartItemId) => {
         const newCart = activeTab.cartItems.map(item => {
             if (item.cart_item_id === cartItemId && item.is_accessory) {
@@ -360,6 +370,7 @@ export const POSProvider = ({ children }) => {
         removeItem,
         updateQty,
         updateItemDiscount,
+        updateItemPrice,
         updateCartDiscount,
         toggleGiftWrap,
         attachCustomer,

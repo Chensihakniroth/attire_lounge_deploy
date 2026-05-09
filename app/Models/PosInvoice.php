@@ -65,7 +65,11 @@ class PosInvoice extends Model
         $date = now()->format('Ymd');
         $prefix = "INV-{$date}-";
 
-        $last = static::where('invoice_number', 'LIKE', "{$prefix}%")
+        // IMPORTANT: We use withoutGlobalScope(OutletScope::class) because invoice_number 
+        // is globally unique in the DB. If we don't, two outlets will both try to generate 
+        // INV-YYYYMMDD-0001 on the same day and collide!
+        $last = static::withoutGlobalScope(\App\Models\Scopes\OutletScope::class)
+            ->where('invoice_number', 'LIKE', "{$prefix}%")
             ->orderByDesc('invoice_number')
             ->value('invoice_number');
 
