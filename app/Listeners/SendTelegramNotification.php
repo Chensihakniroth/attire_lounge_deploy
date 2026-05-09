@@ -6,9 +6,11 @@ use App\Events\AppointmentCreated;
 use App\Events\GiftRequestCreated;
 use App\Models\TelegramSubscriber;
 use App\Services\TelegramService;
+use Illuminate\Contracts\Queue\ShouldQueue;
+use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Support\Facades\Log;
 
-class SendTelegramNotification
+class SendTelegramNotification implements ShouldQueue
 {
     protected TelegramService $telegramService;
 
