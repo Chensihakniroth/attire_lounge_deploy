@@ -62,7 +62,7 @@ class PosProductController extends Controller
         $products = $query
             ->orderBy('category')
             ->orderBy('name')
-            ->simplePaginate($request->get('per_page', 60));
+            ->paginate($request->get('per_page', 60));
 
         return response()->json($products);
     }

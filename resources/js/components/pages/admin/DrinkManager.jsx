@@ -60,6 +60,7 @@ import {
     TrendingUp,
     Info,
     MoreVertical,
+    Loader2,
 } from 'lucide-react';
 import { LumaSpin } from '@/components/ui/luma-spin';
 import { Button } from '@/components/ui/button';
@@ -273,6 +274,84 @@ const BespokeSelect = ({
                                     </button>
                                 );
                             })}
+                        </div>
+                    </motion.div>
+                )}
+            </AnimatePresence>
+        </div>
+    );
+};
+
+const FilterDropdown = ({
+    label,
+    icon: Icon,
+    value,
+    options,
+    onChange,
+    className = "",
+}) => {
+    const [isOpen, setIsOpen] = useState(false);
+    const containerRef = useRef(null);
+
+    useEffect(() => {
+        const handleClickOutside = (event) => {
+            if (containerRef.current && !containerRef.current.contains(event.target)) {
+                setIsOpen(false);
+            }
+        };
+        document.addEventListener("mousedown", handleClickOutside);
+        return () => document.removeEventListener("mousedown", handleClickOutside);
+    }, []);
+
+    const selectedOption = options.find((opt) => opt.value === value);
+
+    return (
+        <div ref={containerRef} className={`relative ${className}`}>
+            <button
+                type="button"
+                onClick={() => setIsOpen(!isOpen)}
+                className={`flex items-center gap-2 px-4 py-2.5 rounded-xl border transition-all text-[11px] font-black uppercase tracking-widest whitespace-nowrap
+                    ${isOpen
+                        ? "bg-[#0d3542] dark:bg-[#58a6ff] text-white dark:text-black border-transparent shadow-lg scale-[1.02]"
+                        : "bg-black/[0.02] dark:bg-[#0d1117] border-black/5 dark:border-[#30363d] text-gray-500 dark:text-[#8b949e] hover:border-[#0d3542]/30 dark:hover:border-[#58a6ff]/30 hover:text-[#0d3542] dark:hover:text-[#58a6ff]"
+                    }`}
+            >
+                <Icon size={14} className={isOpen ? "text-white dark:text-black" : "text-gray-400"} />
+                <span>{selectedOption ? selectedOption.label : label}</span>
+                <ChevronDown
+                    size={14}
+                    className={`transition-transform duration-300 ${isOpen ? "rotate-180" : "opacity-40"}`}
+                />
+            </button>
+
+            <AnimatePresence>
+                {isOpen && (
+                    <motion.div
+                        initial={{ opacity: 0, y: -10, scale: 0.95 }}
+                        animate={{ opacity: 1, y: 0, scale: 1 }}
+                        exit={{ opacity: 0, y: -10, scale: 0.95 }}
+                        transition={{ duration: 0.15, ease: "easeOut" }}
+                        className="absolute right-0 md:left-0 z-[100] mt-2 min-w-[200px] bg-white dark:bg-[#161b22] border-2 border-black/15 dark:border-[#30363d] shadow-2xl rounded-2xl overflow-hidden py-2"
+                    >
+                        <div className="max-h-80 overflow-y-auto attire-scrollbar">
+                            {options.map((option, i) => (
+                                <button
+                                    key={i}
+                                    type="button"
+                                    onClick={() => {
+                                        onChange(option.value);
+                                        setIsOpen(false);
+                                    }}
+                                    className={`w-full px-5 py-3.5 text-left text-[10px] font-black uppercase tracking-widest transition-all flex items-center justify-between group
+                                        ${option.value === value
+                                            ? "bg-[#0d3542]/5 dark:bg-[#58a6ff]/10 text-[#0d3542] dark:text-[#58a6ff]"
+                                            : "text-gray-600 dark:text-[#8b949e] hover:bg-black/5 dark:hover:bg-white/5 hover:text-gray-900 dark:hover:text-white"
+                                        }`}
+                                >
+                                    <span>{option.label}</span>
+                                    {option.value === value && <Check size={14} />}
+                                </button>
+                            ))}
                         </div>
                     </motion.div>
                 )}
@@ -578,6 +657,14 @@ export default function DrinkManager() {
          placeholderData: keepPreviousData,
      });
 
+    // Reset page and filters when outlet changes to maintain consistency
+    useEffect(() => {
+        setPage(1);
+        setFilters(f => ({ ...f, category: '', stockStatus: '' }));
+        setSelectedIds(new Set());
+        setFocusedId(null);
+    }, [activeOutlet]);
+
     // Prefetch for inactive outlets to make switching instant
     useEffect(() => {
         const otherOutlets = Object.keys(
@@ -616,24 +703,35 @@ export default function DrinkManager() {
         });
     }, [activeOutlet, queryClient, OUTLET_CONFIG]);
 
-    const drinks = data?.data || [];
-    const meta = data?.meta || {};
+    // Independent category fetching to prevent filter list shrinking
+    const { data: categoryData } = useQuery({
+        queryKey: ['admin-categories', activeOutlet],
+        queryFn: async () => {
+            const res = await axios.get('/api/v1/admin/pos/products/categories', {
+                headers: { 'X-Active-Outlet': activeOutlet },
+            });
+            return res.data;
+        },
+        staleTime: 1000 * 60 * 5, // 5 minutes
+    });
 
     const categories = useMemo(() => {
-        const cats = new Set(drinks.map((d) => d.category).filter(Boolean));
+        const remoteCats = categoryData || [];
         let baseCategories = [];
-        // Prepend beverage-specific categories only for caffeine outlet
         if (activeOutlet === 'caffeine') {
             baseCategories = ['Espresso', 'Cold', 'Tea', 'Blend'];
         }
-        return [...baseCategories, ...Array.from(cats)]
+        return [...baseCategories, ...remoteCats]
             .filter((v, i, a) => a.indexOf(v) === i)
             .sort();
-    }, [drinks, activeOutlet]);
+    }, [categoryData, activeOutlet]);
+
+    const drinks = data?.data || [];
+    const meta = data?.meta || data || {};
 
     const stats = useMemo(
         () => ({
-            total: drinks.length,
+            total: meta.total || drinks.length,
             lowStock: drinks.filter(
                 (d) => d.stock_qty <= 5 && d.stock_qty > 0 && !d.is_service
             ).length,
@@ -641,40 +739,19 @@ export default function DrinkManager() {
                 .length,
             unlimited: drinks.filter((d) => d.is_service).length,
         }),
-        [drinks]
+        [drinks, meta.total]
     );
 
-    const filteredDrinks = useMemo(() => {
-        let result = drinks;
-        if (filters.search) {
-            const s = filters.search.toLowerCase();
-            result = result.filter(
-                (d) =>
-                    d.name.toLowerCase().includes(s) ||
-                    (d.sku && d.sku.toLowerCase().includes(s)) ||
-                    (d.category && d.category.toLowerCase().includes(s))
-            );
-        }
-        if (filters.category)
-            result = result.filter((d) => d.category === filters.category);
-        if (filters.stockStatus === 'low')
-            result = result.filter(
-                (d) => d.stock_qty <= 5 && d.stock_qty > 0 && !d.is_service
-            );
-        if (filters.stockStatus === 'out')
-            result = result.filter((d) => d.stock_qty <= 0 && !d.is_service);
-        return result;
-    }, [drinks, filters]);
-
+    // Grouping should happen on the API results directly to maintain pagination integrity
     const groupedByCategory = useMemo(() => {
         const groups = {};
-        filteredDrinks.forEach(d => {
+        drinks.forEach(d => {
             const cat = d.category || 'Uncategorized';
             if (!groups[cat]) groups[cat] = { name: cat, items: [] };
             groups[cat].items.push(d);
         });
         return Object.values(groups).sort((a, b) => a.name.localeCompare(b.name));
-    }, [filteredDrinks]);
+    }, [drinks]);
 
     // Mutations
     const mutation = useMutation({
@@ -847,10 +924,10 @@ export default function DrinkManager() {
     }, []);
 
     const handleSelectAll = () => {
-        if (selectedIds.size === filteredDrinks.length) {
+        if (selectedIds.size === drinks.length) {
             setSelectedIds(new Set());
         } else {
-            setSelectedIds(new Set(filteredDrinks.map((d) => d.id)));
+            setSelectedIds(new Set(drinks.map((d) => d.id)));
         }
     };
 
@@ -879,7 +956,7 @@ export default function DrinkManager() {
     const handleBulkEditOpen = () => {
         const ids = Array.from(selectedIds);
         if (ids.length === 0) return;
-        const firstDrink = filteredDrinks.find((d) => ids.includes(d.id));
+        const firstDrink = drinks.find((d) => ids.includes(d.id));
         if (firstDrink) {
             setEditingDrink(firstDrink);
             setFormData({
@@ -904,7 +981,7 @@ export default function DrinkManager() {
                 document.getElementById('search-drinks')?.focus();
             }
 
-            if (filteredDrinks.length === 0) return;
+            if (drinks.length === 0) return;
 
             if (e.key === 'ArrowDown') {
                 if (
@@ -914,10 +991,10 @@ export default function DrinkManager() {
                     return;
                 e.preventDefault();
                 setFocusedId((prev) => {
-                    const idx = filteredDrinks.findIndex((d) => d.id === prev);
-                    if (idx === -1) return filteredDrinks[0]?.id;
-                    return filteredDrinks[
-                        Math.min(idx + 1, filteredDrinks.length - 1)
+                    const idx = drinks.findIndex((d) => d.id === prev);
+                    if (idx === -1) return drinks[0]?.id;
+                    return drinks[
+                        Math.min(idx + 1, drinks.length - 1)
                     ]?.id;
                 });
             }
@@ -929,9 +1006,9 @@ export default function DrinkManager() {
                     return;
                 e.preventDefault();
                 setFocusedId((prev) => {
-                    const idx = filteredDrinks.findIndex((d) => d.id === prev);
-                    if (idx <= 0) return filteredDrinks[0]?.id;
-                    return filteredDrinks[idx - 1]?.id;
+                    const idx = drinks.findIndex((d) => d.id === prev);
+                    if (idx <= 0) return drinks[0]?.id;
+                    return drinks[idx - 1]?.id;
                 });
             }
             if (e.key === ' ') {
@@ -959,7 +1036,7 @@ export default function DrinkManager() {
                     !quickEditField
                 ) {
                     e.preventDefault();
-                    const drink = filteredDrinks.find(
+                    const drink = drinks.find(
                         (d) => d.id === focusedId
                     );
                     if (drink) {
@@ -1001,7 +1078,7 @@ export default function DrinkManager() {
         window.addEventListener('keydown', handleKeyDown);
         return () => window.removeEventListener('keydown', handleKeyDown);
     }, [
-        filteredDrinks,
+        drinks,
         focusedId,
         quickEditField,
         toggleSelect,
@@ -1069,7 +1146,7 @@ export default function DrinkManager() {
             <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
                 {[
                     {
-                        label: 'Total Drinks',
+                        label: 'ALL DRINKS',
                         value: stats.total,
                         icon: <Coffee size={20} />,
                         color: 'text-[#0d3542] dark:text-[#58a6ff]',
@@ -1119,7 +1196,7 @@ export default function DrinkManager() {
             </div>
 
             {/* Filter Bar */}
-            <div className="flex flex-col md:flex-row gap-4 items-center bg-white dark:bg-[#161b22] p-4 rounded-xl border border-black/5 dark:border-[#30363d] shadow-none">
+            <div className="relative z-20 flex flex-col md:flex-row gap-4 items-center bg-white dark:bg-[#161b22] p-4 rounded-xl border border-black/5 dark:border-[#30363d] shadow-none">
                 <div className="relative flex-1 w-full group">
                     <Search
                         size={18}
@@ -1130,63 +1207,60 @@ export default function DrinkManager() {
                         type="text"
                         placeholder="Search drinks... (/)"
                         value={filters.search}
-                        onChange={(e) =>
+                        onChange={(e) => {
                             setFilters((f) => ({
                                 ...f,
                                 search: e.target.value,
-                            }))
-                        }
+                            }));
+                            setPage(1);
+                        }}
                         className="w-full bg-black/[0.02] dark:bg-[#0d1117] border border-black/5 dark:border-[#30363d] rounded-lg py-3 pl-12 pr-4 text-sm font-bold uppercase tracking-widest outline-none focus:border-[#0d3542]/50 dark:focus:border-[#58a6ff]/50 transition-all placeholder:text-gray-400 dark:placeholder:text-[#8b949e]/20"
                     />
                 </div>
-                <div className="flex gap-2 w-full md:w-auto overflow-x-auto pb-1 md:pb-0 hide-scrollbar">
-                    <select
+                <div className="flex flex-wrap gap-2 w-full md:w-auto pb-1 md:pb-0">
+                    <FilterDropdown
+                        label="All Categories"
+                        icon={Layers}
                         value={filters.category}
-                        onChange={(e) =>
-                            setFilters((f) => ({
-                                ...f,
-                                category: e.target.value,
-                            }))
-                        }
-                        className="px-4 py-3 bg-white dark:bg-[#0d1117] border border-black/5 dark:border-[#30363d] rounded-lg text-xs font-bold uppercase tracking-widest text-gray-500 dark:text-[#8b949e] hover:text-[#0d3542] dark:hover:text-[#58a6ff] transition-all outline-none"
-                    >
-                        <option value="">All Categories</option>
-                        {categories.map((cat) => (
-                            <option key={cat} value={cat}>
-                                {cat}
-                            </option>
-                        ))}
-                    </select>
+                        options={['', ...categories].map(cat => ({
+                            label: cat || 'All Categories',
+                            value: cat
+                        }))}
+                        onChange={(val) => {
+                            setFilters(f => ({ ...f, category: val }));
+                            setPage(1);
+                        }}
+                    />
 
-                    <select
+                    <FilterDropdown
+                        label="All Stock"
+                        icon={Package}
                         value={filters.stockStatus}
-                        onChange={(e) =>
-                            setFilters((f) => ({
-                                ...f,
-                                stockStatus: e.target.value,
-                            }))
-                        }
-                        className="px-4 py-3 bg-white dark:bg-[#0d1117] border border-black/5 dark:border-[#30363d] rounded-lg text-xs font-bold uppercase tracking-widest text-gray-500 dark:text-[#8b949e] hover:text-[#0d3542] dark:hover:text-[#58a6ff] transition-all outline-none"
-                    >
-                        <option value="">All Stock</option>
-                        <option value="low">Low Stock</option>
-                        <option value="out">Out of Stock</option>
-                    </select>
+                        options={[
+                            { label: 'All Stock', value: '' },
+                            { label: 'Low Stock', value: 'low' },
+                            { label: 'Out of Stock', value: 'out' }
+                        ]}
+                        onChange={(val) => {
+                            setFilters(f => ({ ...f, stockStatus: val }));
+                            setPage(1);
+                        }}
+                    />
 
-                    <select
+                    <FilterDropdown
+                        label="Active Status"
+                        icon={CheckCircle}
                         value={filters.status}
-                        onChange={(e) =>
-                            setFilters((f) => ({
-                                ...f,
-                                status: e.target.value,
-                            }))
-                        }
-                        className="px-4 py-3 bg-white dark:bg-[#0d1117] border border-black/5 dark:border-[#30363d] rounded-lg text-xs font-bold uppercase tracking-widest text-gray-500 dark:text-[#8b949e] hover:text-[#0d3542] dark:hover:text-[#58a6ff] transition-all outline-none"
-                    >
-                        <option value="active">Active</option>
-                        <option value="inactive">Archived</option>
-                        <option value="all">All Status</option>
-                    </select>
+                        options={[
+                            { label: 'Active', value: 'active' },
+                            { label: 'Archived', value: 'inactive' },
+                            { label: 'All Status', value: 'all' }
+                        ]}
+                        onChange={(val) => {
+                            setFilters(f => ({ ...f, status: val }));
+                            setPage(1);
+                        }}
+                    />
                 </div>
             </div>
 
@@ -1198,11 +1272,11 @@ export default function DrinkManager() {
                             <th className="w-16 px-6 py-5 text-center">
                                 <button
                                     onClick={handleSelectAll}
-                                    className={`w-5 h-5 rounded-md border flex items-center justify-center transition-all mx-auto ${selectedIds.size === filteredDrinks.length && filteredDrinks.length > 0 ? 'bg-[#0d3542] dark:bg-[#58a6ff] border-[#0d3542] dark:border-[#58a6ff]' : 'bg-black/5 dark:bg-[#0d1117] border-black/10 dark:border-[#30363d] hover:border-[#0d3542]/40'}`}
+                                    className={`w-5 h-5 rounded-md border flex items-center justify-center transition-all mx-auto ${selectedIds.size === drinks.length && drinks.length > 0 ? 'bg-[#0d3542] dark:bg-[#58a6ff] border-[#0d3542] dark:border-[#58a6ff]' : 'bg-black/5 dark:bg-[#0d1117] border-black/10 dark:border-[#30363d] hover:border-[#0d3542]/40'}`}
                                 >
                                     {selectedIds.size ===
-                                        filteredDrinks.length &&
-                                        filteredDrinks.length > 0 && (
+                                        drinks.length &&
+                                        drinks.length > 0 && (
                                             <Check
                                                 size={12}
                                                 className="text-white dark:text-black"
@@ -1286,7 +1360,7 @@ export default function DrinkManager() {
                                     </td>
                                 </tr>
                             ))
-                        ) : filteredDrinks.length === 0 ? (
+                        ) : drinks.length === 0 ? (
                             <tr>
                                 <td
                                     colSpan="7"
@@ -1374,7 +1448,7 @@ export default function DrinkManager() {
             {/* Pagination Controls */}
             <div className="flex items-center justify-between pb-10">
                 <p className="text-xs font-bold text-gray-500 dark:text-[#8b949e]/40 uppercase tracking-widest">
-                    Showing {filteredDrinks.length} of{' '}
+                    Showing {drinks.length} of{' '}
                     {meta.total || drinks.length} drinks
                 </p>
                 <div className="flex items-center gap-2">
