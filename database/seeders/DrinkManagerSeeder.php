@@ -29,20 +29,43 @@ class DrinkManagerSeeder extends Seeder
             return;
         }
 
-        // Filter only caffeine/drink manager products
-        $drinkProducts = array_filter($products, function ($item) {
-            return isset($item['outlet']) && $item['outlet'] === 'caffeine';
-        });
+        $caffeineCategories = [
+            'BAKERY', 'KNY', 'BOOKMARK', 'MONTHLY DRINK', 'MOOD REFRESHERS', 
+            'Book', 'COLD', 'FRAPPE', 'GRAB', 'HOT', 'TOPPINGS', 'SET', 'LIBRARY MEMBERSHIP', 
+            'KEYCHAIN', 'BOOK FOR SALE'
+        ];
 
-        $this->command->info("Importing " . count($drinkProducts) . " drink products for caffeine outlet...");
+        // Filter and map to caffeine
+        $caffeineProducts = [];
+        $seenSkus = [];
+
+        foreach ($products as $item) {
+            $category = $item['category'] ?? 'unknown';
+            $sku = $item['sku'] ?? null;
+            
+            if (!$sku || in_array($sku, $seenSkus)) {
+                continue; // Skip without SKU or already processed
+            }
+
+            if (in_array($category, $caffeineCategories)) {
+                $item['outlet'] = 'caffeine';
+                $caffeineProducts[] = $item;
+                $seenSkus[] = $sku;
+            }
+        }
+
+        $this->command->info("Importing " . count($caffeineProducts) . " drink products for caffeine outlet...");
 
         $now = now()->toDateTimeString();
-        $drinkProducts = array_map(fn($p) => array_merge($p, [
+        $caffeineProducts = array_map(fn($p) => array_merge($p, [
             'created_at' => $p['created_at'] ?? $now,
             'updated_at' => $p['updated_at'] ?? $now,
-        ]), $drinkProducts);
+        ]), $caffeineProducts);
 
-        $chunks = array_chunk($drinkProducts, 100);
+        // Delete existing caffeine products to avoid SKU conflicts during upsert
+        DB::table('pos_products')->where('outlet', 'caffeine')->delete();
+
+        $chunks = array_chunk($caffeineProducts, 100);
         foreach ($chunks as $i => $chunk) {
             DB::table('pos_products')->upsert(
                 $chunk,
@@ -52,7 +75,7 @@ class DrinkManagerSeeder extends Seeder
             $this->command->info('  Chunk ' . ($i + 1) . ' / ' . count($chunks) . ' upserted');
         }
 
-        $this->command->info('✅ Done! ' . count($drinkProducts) . ' Drink Manager products imported.');
+        $this->command->info('✅ Done! ' . count($caffeineProducts) . ' Drink Manager products imported.');
 
         $this->command->info("\nDrink Manager Category breakdown:");
         $categories = DB::table('pos_products')

@@ -14,7 +14,8 @@ class KravatDrinkSeeder extends Seeder
      */
     public function run()
     {
-        $jsonPath = storage_path('kravat_products.json');
+        // Now use the same source file to pull Kravat-specific data
+        $jsonPath = storage_path('pos_products.json');
 
         if (!file_exists($jsonPath)) {
             $this->command->error("JSON file not found: {$jsonPath}");
@@ -29,10 +30,33 @@ class KravatDrinkSeeder extends Seeder
             return;
         }
 
-        // Filter only kravat products
-        $kravatProducts = array_filter($products, function ($item) {
-            return isset($item['outlet']) && $item['outlet'] === 'kravat';
-        });
+        $kravatCategories = [
+            'Tequila & Mezcal', '1800s', 'SECRET MENUS', 'Samai International Rum Day', 'Gin', 
+            'Liqueur and Other', 'Vodka', 'CLASSICS', 'SPARKLING FEELING', 'Campari Red Hands', 
+            'Whisky', 'Rum', 'BEER', 'SIGNATURES', 'OLD MENU 1.0', 'WINE', 'Brandy', 
+            'Rare Spirit', 'Bottle', 'Events', 'KRAVAT 2.0', 'WOMAN TAKEOVER', 
+            'Nikka Sora Takeover', 'Christmas 24', 'MARTINI LOVER', 'JUICE', 'SOFT DRINKS', 'CUSTOMIZE', 'unknown',
+            'SPECIAL', 'SNACK', 'SNACKS'
+        ];
+
+        // Filter and map to kravat
+        $kravatProducts = [];
+        $seenSkus = [];
+
+        foreach ($products as $item) {
+            $category = $item['category'] ?? 'unknown';
+            $sku = $item['sku'] ?? null;
+            
+            if (!$sku || in_array($sku, $seenSkus)) {
+                continue; // Skip without SKU or already processed
+            }
+
+            if (in_array($category, $kravatCategories)) {
+                $item['outlet'] = 'kravat';
+                $kravatProducts[] = $item;
+                $seenSkus[] = $sku;
+            }
+        }
 
         $this->command->info("Importing " . count($kravatProducts) . " products for kravat outlet...");
 
