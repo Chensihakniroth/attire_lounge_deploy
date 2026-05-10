@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
-import { User, Mail, Phone, Gift, CheckCircle, XCircle, Trash2, ChevronDown } from 'lucide-react';
+import { User, Mail, Phone, Gift, CheckCircle, XCircle, Trash2, ChevronDown, Loader2 } from 'lucide-react';
 import { LumaSpin } from '@/components/ui/luma-spin';
 import { useAdmin } from './AdminContext';
 import { useQuery, useQueryClient } from '@tanstack/react-query';

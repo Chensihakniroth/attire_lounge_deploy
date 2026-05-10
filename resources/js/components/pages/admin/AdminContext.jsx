@@ -212,6 +212,20 @@ export const AdminProvider = ({ children }) => {
         staleTime: 60 * 1000,
     });
 
+    const { data: collections = [], isLoading: collectionsLoading } = useQuery({
+        queryKey: ['admin-collections', activeOutlet],
+        queryFn: async () => {
+            const response = await axios.get('/api/v1/products/collections', {
+                params: { 
+                    'X-Active-Outlet': activeOutlet
+                }
+            });
+            return response.data.data || [];
+        },
+        enabled: !!adminToken && !!user,
+        staleTime: 60 * 1000,
+    });
+
     const appointmentsPagination = useMemo(() => ({
         total: appointments.length,
     }), [appointments]);
@@ -232,6 +246,10 @@ export const AdminProvider = ({ children }) => {
         const response = await axios.delete('/api/v1/admin/appointments/clear-closed');
         queryClient.invalidateQueries({ queryKey: ['admin-appointments'] });
         return response.data;
+    }, [queryClient]);
+
+    const fetchCollections = useCallback(() => {
+        queryClient.invalidateQueries({ queryKey: ['admin-collections'] });
     }, [queryClient]);
 
     const value = {
@@ -259,11 +277,14 @@ export const AdminProvider = ({ children }) => {
         appointments,
         appointmentsLoading,
         appointmentsPagination,
+        collections,
+        collectionsLoading,
 
         // Appointments
         updateAppointmentStatus,
         createAppointment,
         clearClosedAppointments,
+        fetchCollections,
     };
 
     return (

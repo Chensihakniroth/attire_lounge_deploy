@@ -50,12 +50,12 @@ class PosProductController extends Controller
             $query->where('tier', $tier);
         }
 
-        if ($request->filled('in_stock')) {
-            $inStock = $request->get('in_stock');
-            if ($inStock == 1) {
-                $query->where('stock_qty', '>', 0);
-            } elseif ($inStock == 0) {
+        if ($request->filled('stock_status')) {
+            $stockStatus = $request->get('stock_status');
+            if ($stockStatus === 'out') {
                 $query->where('stock_qty', '<=', 0);
+            } elseif ($stockStatus === 'low') {
+                $query->where('stock_qty', '<=', 5)->where('stock_qty', '>', 0);
             }
         }
 

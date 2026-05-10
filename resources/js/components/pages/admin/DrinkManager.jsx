@@ -545,7 +545,7 @@ const DrinkRow = React.memo(
 /* ─── Main Component ──────────────────────────────────────── */
 export default function DrinkManager() {
     const queryClient = useQueryClient();
-    const { activeOutlet, performanceMode, OUTLET_CONFIG } = useAdmin();
+    const { activeOutlet, performanceMode, OUTLET_CONFIG, stats: apiStats } = useAdmin();
 
     // State
     const [isModalOpen, setIsModalOpen] = useState(false);
@@ -731,15 +731,16 @@ export default function DrinkManager() {
 
     const stats = useMemo(
         () => ({
-            total: meta.total || drinks.length,
-            lowStock: drinks.filter(
+            total: apiStats?.pos_products ?? (meta.total || drinks.length),
+            active: apiStats?.pos_active_products ?? (meta.total || drinks.length),
+            lowStock: apiStats?.low_stock ?? drinks.filter(
                 (d) => d.stock_qty <= 5 && d.stock_qty > 0 && !d.is_service
             ).length,
-            outOfStock: drinks.filter((d) => d.stock_qty <= 0 && !d.is_service)
+            outOfStock: apiStats?.out_of_stock ?? drinks.filter((d) => d.stock_qty <= 0 && !d.is_service)
                 .length,
             unlimited: drinks.filter((d) => d.is_service).length,
         }),
-        [drinks, meta.total]
+        [drinks, meta.total, apiStats]
     );
 
     // Grouping should happen on the API results directly to maintain pagination integrity
@@ -1153,7 +1154,7 @@ export default function DrinkManager() {
                     },
                     {
                         label: 'Active Items',
-                        value: stats.total - stats.outOfStock,
+                        value: stats.active,
                         icon: <CheckCircle size={20} />,
                         color: 'text-green-500',
                     },

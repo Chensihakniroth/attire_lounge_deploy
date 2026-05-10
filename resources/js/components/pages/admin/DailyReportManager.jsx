@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback, useRef } from 'react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import axios from 'axios';
 import {
     Target, TrendingUp, TrendingDown, BarChart2, Award,
@@ -9,6 +9,7 @@ import {
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import DatePicker from '../../ui/DatePicker';
+import { useAdmin } from './AdminContext';
 
 // ─── helpers ────────────────────────────────────────────────────────────────
 const authHeaders = () => {
@@ -39,6 +40,20 @@ const PAY_ICONS = {
     wownow: <Wallet size={13} />,
 };
 
+// ─── Fill missing days helper ────────────────────────────────────────────────
+const fillDays = (data, year, month) => {
+    if (!data || data.length === 0) return [];
+    const daysInMonth = new Date(year, month, 0).getDate();
+    const lookup = {};
+    data.forEach(d => { lookup[d.day] = d; });
+    const filled = [];
+    for (let day = 1; day <= daysInMonth; day++) {
+        const key = `${year}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+        filled.push(lookup[key] || { day: key, revenue: 0, invoices: 0 });
+    }
+    return filled;
+};
+
 // ─── mini bar chart ──────────────────────────────────────────────────────────
 const MiniBar = ({ data, targetRevenue }) => {
     if (!data || data.length === 0) return (
@@ -46,14 +61,15 @@ const MiniBar = ({ data, targetRevenue }) => {
     );
 
     const max = Math.max(...data.map(d => parseFloat(d.revenue)), 1);
-    const dailyTarget = targetRevenue ? targetRevenue / data.length : null;
 
     return (
         <div className="flex items-end gap-[3px] h-32 w-full">
             {data.map((d, i) => {
-                const pct = (parseFloat(d.revenue) / max) * 100;
+                const rev = parseFloat(d.revenue);
+                const pct = (rev / max) * 100;
                 const dayNum = parseInt(d.day.split('-')[2]);
                 const isToday = d.day === new Date().toISOString().split('T')[0];
+                const hasRevenue = rev > 0;
                 return (
                     <div key={i} className="flex-1 flex flex-col items-center gap-1 group relative">
                         {/* Tooltip */}
@@ -62,13 +78,19 @@ const MiniBar = ({ data, targetRevenue }) => {
                             <p>{fmt(d.revenue)}</p>
                             <p className="text-white/40">{d.invoices} invoices</p>
                         </div>
-                        <div className="w-full bg-black/5 dark:bg-white/5 rounded-sm relative overflow-hidden" style={{ height: '100%' }}>
-                            <motion.div
-                                initial={{ height: 0 }}
-                                animate={{ height: `${pct}%` }}
-                                transition={{ duration: 0.6, delay: i * 0.015, ease: [0.22, 1, 0.36, 1] }}
-                                className={`absolute bottom-0 w-full rounded-sm ${isToday ? 'bg-[#0d3542] dark:bg-[#58a6ff]' : 'bg-[#0d3542]/40 dark:bg-[#58a6ff]/40'}`}
-                            />
+                        <div className="w-full bg-black/[0.03] dark:bg-white/[0.03] rounded-sm relative overflow-hidden" style={{ height: '100%' }}>
+                            {hasRevenue && (
+                                <motion.div
+                                    initial={{ height: 0 }}
+                                    animate={{ height: `${Math.max(pct, 2)}%` }}
+                                    transition={{ duration: 0.6, delay: i * 0.015, ease: [0.22, 1, 0.36, 1] }}
+                                    className={`absolute bottom-0 w-full rounded-sm ${
+                                        isToday
+                                            ? 'bg-[#0d3542] dark:bg-[#58a6ff]'
+                                            : 'bg-[#0d3542]/50 dark:bg-[#58a6ff]/50'
+                                    }`}
+                                />
+                            )}
                         </div>
                         {dayNum % 5 === 0 && (
                             <span className="text-[8px] text-gray-400 dark:text-[#8b949e]/40 font-bold">{dayNum}</span>
@@ -163,6 +185,7 @@ const exportCSV = (monthly, daily, selectedDate) => {
 
 // ─── Main Component ──────────────────────────────────────────────────────────
 const DailyReportManager = () => {
+    const { activeOutlet } = useAdmin();
     const today = new Date().toISOString().split('T')[0];
     const [view, setView] = useState('daily'); // 'daily' | 'monthly'
     const [selectedDate, setSelectedDate] = useState(today);
@@ -186,26 +209,26 @@ const DailyReportManager = () => {
         try {
             const res = await axios.get('/api/v1/admin/sales-report/daily', {
                 params: { date: selectedDate },
-                headers: authHeaders(),
+                headers: { ...authHeaders(), 'X-Active-Outlet': activeOutlet },
             });
             setDailyData(res.data);
         } catch (e) {
             console.error(e);
         } finally { setLoading(false); }
-    }, [selectedDate]);
+    }, [selectedDate, activeOutlet]);
 
     const fetchMonthly = useCallback(async () => {
         setLoading(true);
         try {
             const res = await axios.get('/api/v1/admin/sales-report/monthly', {
                 params: { year: selectedYear, month: selectedMonth },
-                headers: authHeaders(),
+                headers: { ...authHeaders(), 'X-Active-Outlet': activeOutlet },
             });
             setMonthlyData(res.data);
         } catch (e) {
             console.error(e);
         } finally { setLoading(false); }
-    }, [selectedYear, selectedMonth]);
+    }, [selectedYear, selectedMonth, activeOutlet]);
 
     const fetchTargets = useCallback(async () => {
         try {
@@ -432,10 +455,81 @@ const DailyReportManager = () => {
                                     )}
                                 </div>
 
-                                {/* Chart */}
+                                {/* Monthly Insights */}
                                 <div className="md:col-span-2 bg-white dark:bg-[#161b22] border border-black/5 dark:border-[#30363d] rounded-2xl p-6">
-                                    <p className="text-[10px] font-black uppercase tracking-[0.2em] text-gray-400 dark:text-[#8b949e]/50 mb-4">Daily Revenue — {MONTHS[selectedMonth - 1]} {selectedYear}</p>
-                                    <MiniBar data={monthlyData?.daily_breakdown} targetRevenue={targetRevenue} />
+                                    <div className="flex items-center gap-2 mb-5">
+                                        <BarChart2 size={14} className="text-[#0d3542] dark:text-[#58a6ff]" />
+                                        <p className="text-[10px] font-black uppercase tracking-[0.2em] text-gray-900 dark:text-[#c9d1d9]">Monthly Insights</p>
+                                    </div>
+
+                                    {(() => {
+                                        const breakdown = monthlyData?.daily_breakdown ?? [];
+                                        const daysWithSales = breakdown.filter(d => parseFloat(d.revenue) > 0);
+                                        const daysInMonth = new Date(selectedYear, selectedMonth, 0).getDate();
+                                        const today = new Date();
+                                        const daysElapsed = (selectedYear === today.getFullYear() && selectedMonth === today.getMonth() + 1)
+                                            ? today.getDate() : daysInMonth;
+                                        const avgDaily = daysElapsed > 0 ? netRevenue / daysElapsed : 0;
+                                        const projected = avgDaily * daysInMonth;
+                                        const bestDay = daysWithSales.length > 0
+                                            ? daysWithSales.reduce((a, b) => parseFloat(a.revenue) >= parseFloat(b.revenue) ? a : b)
+                                            : null;
+                                        const totalInvoices = breakdown.reduce((a, d) => a + (d.invoices || 0), 0);
+
+                                        const insights = [
+                                            {
+                                                label: 'Best Day',
+                                                value: bestDay ? new Date(bestDay.day + 'T00:00:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) : '—',
+                                                sub: bestDay ? fmt(bestDay.revenue) : 'No sales yet',
+                                                icon: <Award size={16} />,
+                                                accent: 'text-amber-500',
+                                            },
+                                            {
+                                                label: 'Avg / Day',
+                                                value: fmt(avgDaily),
+                                                sub: `Over ${daysElapsed} day${daysElapsed !== 1 ? 's' : ''}`,
+                                                icon: <TrendingUp size={16} />,
+                                                accent: 'text-emerald-500',
+                                            },
+                                            {
+                                                label: 'Projected',
+                                                value: fmt(projected),
+                                                sub: targetRevenue > 0
+                                                    ? (projected >= targetRevenue ? '✓ On track' : `${fmt(targetRevenue - projected)} short`)
+                                                    : `${daysInMonth - daysElapsed} days left`,
+                                                icon: <Target size={16} />,
+                                                accent: targetRevenue > 0 && projected >= targetRevenue ? 'text-emerald-500' : 'text-orange-400',
+                                            },
+                                            {
+                                                label: 'Selling Days',
+                                                value: `${daysWithSales.length} / ${daysElapsed}`,
+                                                sub: `${totalInvoices} total invoices`,
+                                                icon: <Calendar size={16} />,
+                                                accent: 'text-[#0d3542] dark:text-[#58a6ff]',
+                                            },
+                                        ];
+
+                                        return (
+                                            <div className="grid grid-cols-2 gap-4">
+                                                {insights.map((item, i) => (
+                                                    <motion.div
+                                                        key={i}
+                                                        initial={{ opacity: 0, y: 8 }}
+                                                        animate={{ opacity: 1, y: 0 }}
+                                                        transition={{ delay: i * 0.06 }}
+                                                        className="bg-black/[0.02] dark:bg-white/[0.02] border border-black/[0.04] dark:border-white/[0.04] rounded-xl p-4 flex items-start gap-3"
+                                                    >
+                                                        <div className={`mt-0.5 ${item.accent}`}>{item.icon}</div>
+                                                        <div className="flex-1 min-w-0">
+                                                            <p className="text-[9px] font-black uppercase tracking-[0.2em] text-gray-400 dark:text-[#8b949e]/50 mb-1">{item.label}</p>
+                                                            <p className="text-lg font-black tracking-tight text-gray-900 dark:text-[#c9d1d9] leading-none">{item.value}</p>
+                                                            <p className="text-[10px] text-gray-400 dark:text-[#8b949e]/40 mt-1 uppercase tracking-widest">{item.sub}</p>
+                                                        </div>
+                                                    </motion.div>
+                                                ))}
+                                            </div>
+                                        );
+                                    })()}
                                 </div>
                             </div>
                         )}
@@ -453,40 +547,31 @@ const DailyReportManager = () => {
                                 {(data?.top_sellers ?? []).length === 0 ? (
                                     <div className="px-6 py-12 text-center opacity-30 text-xs uppercase tracking-widest">No sales data</div>
                                 ) : (
-                                    (data?.top_sellers ?? []).map((item, i) => {
-                                        const maxQty = data.top_sellers[0]?.total_qty ?? 1;
-                                        const barPct = (item.total_qty / maxQty) * 100;
-                                        return (
-                                            <div key={i} className="px-6 py-4 flex items-center gap-4 group hover:bg-black/[0.01] dark:hover:bg-white/[0.01] transition-colors">
-                                                <span className={`w-6 text-center text-[10px] font-black ${i === 0 ? 'text-amber-500' : i === 1 ? 'text-gray-400' : i === 2 ? 'text-orange-600' : 'text-gray-300 dark:text-white/20'}`}>
-                                                    {i + 1}
-                                                </span>
-                                                <div className="flex-1 min-w-0">
-                                                    <div className="flex items-center justify-between gap-3 mb-1">
-                                                        <div className="flex items-center gap-2 min-w-0">
-                                                            <p className="text-xs font-black uppercase tracking-wider text-gray-900 dark:text-[#c9d1d9] truncate">
-                                                                {item.product_name} {item.product_variant ?? ''}
-                                                            </p>
-                                                            {item.product_sku && (
-                                                                <span className="text-[9px] px-1.5 py-0.5 bg-black/5 dark:bg-white/5 rounded text-gray-400 dark:text-[#8b949e]/50 font-bold uppercase tracking-widest whitespace-nowrap">
-                                                                    {item.product_sku}
-                                                                </span>
-                                                            )}
-                                                        </div>
-                                                        <div className="text-right flex-shrink-0">
-                                                            <p className="text-xs font-black text-[#0d3542] dark:text-[#58a6ff]">{fmtNum(item.total_qty)} units</p>
-                                                            <p className="text-[10px] text-gray-400 dark:text-[#8b949e]/40 uppercase tracking-widest">{fmt(item.total_revenue)}</p>
-                                                        </div>
+                                    (data?.top_sellers ?? []).map((item, i) => (
+                                        <div key={i} className="px-6 py-4 flex items-center gap-4 group hover:bg-black/[0.01] dark:hover:bg-white/[0.01] transition-colors">
+                                            <span className={`w-6 text-center text-[10px] font-black ${i === 0 ? 'text-amber-500' : i === 1 ? 'text-gray-400' : i === 2 ? 'text-orange-600' : 'text-gray-300 dark:text-white/20'}`}>
+                                                {i + 1}
+                                            </span>
+                                            <div className="flex-1 min-w-0">
+                                                <div className="flex items-center justify-between gap-3">
+                                                    <div className="flex items-center gap-2 min-w-0">
+                                                        <p className="text-xs font-black uppercase tracking-wider text-gray-900 dark:text-[#c9d1d9] truncate">
+                                                            {item.product_name} {item.product_variant ?? ''}
+                                                        </p>
+                                                        {item.product_sku && (
+                                                            <span className="text-[9px] px-1.5 py-0.5 bg-black/5 dark:bg-white/5 rounded text-gray-400 dark:text-[#8b949e]/50 font-bold uppercase tracking-widest whitespace-nowrap">
+                                                                {item.product_sku}
+                                                            </span>
+                                                        )}
                                                     </div>
-                                                    <div className="h-1 bg-black/5 dark:bg-white/5 rounded-full overflow-hidden">
-                                                        <motion.div initial={{ width: 0 }} animate={{ width: `${barPct}%` }}
-                                                            transition={{ duration: 0.7, delay: i * 0.05 }}
-                                                            className={`h-full rounded-full ${i === 0 ? 'bg-amber-500' : 'bg-[#0d3542]/40 dark:bg-[#58a6ff]/40'}`} />
+                                                    <div className="text-right flex-shrink-0">
+                                                        <p className="text-xs font-black text-[#0d3542] dark:text-[#58a6ff]">{fmtNum(item.total_qty)} units</p>
+                                                        <p className="text-[10px] text-gray-400 dark:text-[#8b949e]/40 uppercase tracking-widest">{fmt(item.total_revenue)}</p>
                                                     </div>
                                                 </div>
                                             </div>
-                                        );
-                                    })
+                                        </div>
+                                    ))
                                 )}
                             </div>
                         </div>

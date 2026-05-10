@@ -105,9 +105,12 @@ class AdminController extends Controller
                 ],
                 // Outlet-specific POS stats (scoped by Global Scope via X-Active-Outlet header)
                 'pos_products' => PosProduct::count(),
+                'pos_active_products' => PosProduct::where('is_active', true)->count(),
+                'pos_archived_products' => PosProduct::where('is_active', false)->count(),
                 'daily_orders' => (int) PosInvoice::whereDate('date', Carbon::now()->toDateString())->where('status', 'completed')->count(),
                 'sales' => (int) PosInvoice::where('status', 'completed')->count(),
-                'low_stock' => PosProduct::where('stock_qty', '<=', 5)->where('stock_qty', '>', 0)->count(),
+                'low_stock' => PosProduct::where('is_active', true)->where('stock_qty', '<=', 5)->where('stock_qty', '>', 0)->count(),
+                'out_of_stock' => PosProduct::where('is_active', true)->where('stock_qty', '<=', 0)->count(),
                 'pos_summary' => [
                     'total_revenue' => (float) PosInvoice::whereDate('date', Carbon::now()->toDateString())->where('status', 'completed')->sum('grand_total'),
                     'invoice_count' => (int) PosInvoice::whereDate('date', Carbon::now()->toDateString())->where('status', 'completed')->count(),
