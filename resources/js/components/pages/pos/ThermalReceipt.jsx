@@ -2,14 +2,17 @@ import React from 'react';
 
 /**
  * ThermalReceipt - Generates receipt HTML and prints via iframe injection.
- * This bypasses all portal/z-index/CSS conflicts by creating an isolated document.
+ * Layout matched to 72mm thermal printer paper (EPSON L805 Series).
+ * Uses bold, high-contrast text optimized for thermal printing.
  */
 
-// Build a self-contained HTML receipt string
+const KHR_RATE = 4100; // USD to KHR exchange rate
+
+// Build a self-contained HTML receipt string matching the physical receipt layout
 const buildReceiptHTML = (invoice, activeOutlet, isRefund = false, refundData = null) => {
     const formattedOutletName = activeOutlet 
         ? activeOutlet.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase()) 
-        : 'Caffeine';
+        : 'Attire Lounge';
 
     const items = isRefund && refundData ? refundData.items : invoice.items;
 
@@ -22,57 +25,65 @@ const buildReceiptHTML = (invoice, activeOutlet, isRefund = false, refundData = 
         : parseFloat(invoice.subtotal || invoice.total || 0);
 
     const totalDiscount = isRefund ? 0 : parseFloat(invoice.tier_discount_amt || invoice.total_discount || invoice.discount_amount || 0);
+    const discountPct = isRefund ? 0 : parseFloat(invoice.tier_discount_pct || 0);
 
-    const itemRows = (items || []).map(item => {
-        const qty = parseInt(item.quantity);
-        const unitPrice = parseFloat(item.unit_price);
-        const price = unitPrice * qty;
+    // Calculate total quantity
+    let totalQty = 0;
+    const itemCount = (items || []).length;
 
-        let lineTotal = price;
+    // Build item rows matching: # | Description | Qty | Price | Disc | Amount
+    const itemRows = (items || []).map((item, idx) => {
+        const qty = parseInt(item.quantity) || 0;
+        const unitPrice = parseFloat(item.unit_price) || 0;
+        totalQty += qty;
+
+        // Calculate per-item discount
+        let itemDisc = 0;
         if (item.discount_type === 'percentage' || item.discount_type === 'percent') {
-            lineTotal = price - (price * (parseFloat(item.discount_value) / 100));
+            itemDisc = (unitPrice * qty) * (parseFloat(item.discount_value) / 100);
         } else if (item.discount_type === 'amount' || item.discount_type === 'price') {
-            lineTotal = price - parseFloat(item.discount_value);
+            itemDisc = parseFloat(item.discount_value) || 0;
         }
-        if (isNaN(lineTotal)) lineTotal = price;
+
+        const lineAmount = (unitPrice * qty) - itemDisc;
+        const discDisplay = itemDisc > 0 ? itemDisc.toFixed(0) : '-';
+
+        // Build description: product name + variant
+        const desc = item.product_name + (item.product_variant ? ` ${item.product_variant}` : '');
 
         return `
             <tr>
-                <td style="padding: 3px 0; vertical-align: top;">
-                    ${item.product_name}
-                    ${item.product_variant ? `<div style="font-size: 9px; color: #555;">${item.product_variant}</div>` : ''}
-                </td>
-                <td style="padding: 3px 0; text-align: center; vertical-align: top;">
-                    ${isRefund ? '-' : ''}${qty}
-                </td>
-                <td style="padding: 3px 0; text-align: right; vertical-align: top;">
-                    $${lineTotal.toFixed(2)}
-                </td>
-            </tr>
-        `;
+                <td>${idx + 1}</td>
+                <td style="text-align: left;">${desc}</td>
+                <td>${qty}</td>
+                <td>${unitPrice.toFixed(0)}</td>
+                <td>${discDisplay}</td>
+                <td>${lineAmount.toFixed(0)}</td>
+            </tr>`;
     }).join('');
 
-    const paymentRows = (!isRefund && invoice.payments && invoice.payments.length > 0)
-        ? invoice.payments.map(p => `
-            <div style="display: flex; justify-content: space-between; font-size: 10px;">
-                <span style="text-transform: uppercase;">${p.method || p.payment_method}</span>
-                <span>$${parseFloat(p.amount).toFixed(2)}</span>
-            </div>
-        `).join('')
-        : '';
+    // Date formatting: DD-MM-YYYY
+    const d = new Date(invoice.created_at || invoice.date || Date.now());
+    const dateStr = `${String(d.getDate()).padStart(2, '0')}-${String(d.getMonth() + 1).padStart(2, '0')}-${d.getFullYear()}`;
 
-    const dateStr = new Date(invoice.created_at || invoice.date || Date.now()).toLocaleString();
+    const sellerName = invoice.cashier?.name || invoice.user?.name || 'alo employee';
+    const customerName = invoice.customer?.name || 'Walk-in Customer';
+    const customerTel = invoice.customer?.phone || '';
+
+    // KHR conversion
+    const grandTotalKHR = Math.round(grandTotal * KHR_RATE);
+    const formattedKHR = grandTotalKHR.toLocaleString();
 
     return `
 <!DOCTYPE html>
 <html>
 <head>
     <meta charset="utf-8">
-    <title>Receipt - ${invoice.invoice_number || 'POS'}</title>
+    <title>Invoice ${invoice.invoice_number || ''}</title>
     <style>
         @page {
-            size: auto;
-            margin: 0mm;
+            size: 72mm 297mm;
+            margin: 0;
         }
         * {
             margin: 0;
@@ -80,138 +91,173 @@ const buildReceiptHTML = (invoice, activeOutlet, isRefund = false, refundData = 
             box-sizing: border-box;
         }
         body {
-            font-family: 'Courier New', Courier, monospace;
-            font-size: 12px;
+            font-family: 'Arial', 'Helvetica', sans-serif;
+            font-size: 11px;
+            font-weight: 700;
             color: #000;
             background: #fff;
-            width: 80mm;
-            padding: 4mm;
-            line-height: 1.3;
+            width: 72mm;
+            padding: 3mm;
+            line-height: 1.4;
+            -webkit-print-color-adjust: exact;
+            print-color-adjust: exact;
         }
-        .header {
+
+        /* ---- Header ---- */
+        .invoice-title {
             text-align: center;
-            margin-bottom: 12px;
-        }
-        .header h1 {
-            font-size: 16px;
-            font-weight: bold;
-            text-transform: uppercase;
-            margin: 0;
-        }
-        .header h2 {
-            font-size: 12px;
-            text-transform: uppercase;
+            font-size: 20px;
+            font-weight: 900;
             letter-spacing: 2px;
-            margin: 4px 0;
+            margin: 4px 0 8px 0;
+            text-transform: uppercase;
         }
-        .header p {
-            font-size: 10px;
-            font-weight: bold;
-        }
-        .divider {
-            border: none;
-            border-top: 1px dashed #000;
-            margin: 6px 0;
+
+        /* ---- Info Section ---- */
+        .info-section {
+            margin-bottom: 6px;
         }
         .info-row {
             display: flex;
-            justify-content: space-between;
             font-size: 10px;
-            padding: 1px 0;
+            font-weight: 700;
+            line-height: 1.6;
         }
-        .info-row .label { }
-        .info-row .value { font-weight: bold; }
+        .info-label {
+            min-width: 60px;
+        }
+        .info-dots {
+            flex: 0 0 auto;
+            margin: 0 2px;
+        }
+        .info-value {
+            flex: 1;
+        }
+
+        /* ---- Divider ---- */
+        .divider {
+            border: none;
+            border-top: 1px dashed #000;
+            margin: 4px 0;
+        }
+        .divider-thick {
+            border: none;
+            border-top: 2px dashed #000;
+            margin: 4px 0;
+        }
+
+        /* ---- Items Table ---- */
         table {
             width: 100%;
             border-collapse: collapse;
-            font-size: 11px;
+            font-size: 10px;
+            font-weight: 700;
         }
         table th {
-            font-weight: normal;
-            text-align: left;
-            padding: 4px 0;
+            font-weight: 900;
+            text-align: center;
+            padding: 3px 1px;
             border-bottom: 1px dashed #000;
+            font-size: 10px;
         }
-        table th:nth-child(2) { text-align: center; }
-        table th:nth-child(3) { text-align: right; }
-        .totals {
-            border-top: 1px dashed #000;
-            padding-top: 8px;
+        table th:nth-child(2) {
+            text-align: left;
+        }
+        table td {
+            padding: 2px 1px;
+            text-align: center;
+            vertical-align: top;
+            font-weight: 700;
+        }
+        table td:nth-child(2) {
+            text-align: left;
+        }
+
+        /* ---- Totals ---- */
+        .totals-section {
             margin-top: 4px;
         }
         .total-row {
             display: flex;
             justify-content: space-between;
+            align-items: baseline;
             font-size: 11px;
-            padding: 2px 0;
+            font-weight: 700;
+            padding: 1px 0;
         }
-        .grand-total {
-            font-size: 14px;
-            font-weight: bold;
-            margin-top: 4px;
+        .total-label {
+            display: flex;
+            gap: 4px;
         }
-        .payments {
-            border-top: 1px dashed #000;
-            padding-top: 8px;
-            margin-top: 8px;
-        }
-        .footer {
-            text-align: center;
-            margin-top: 16px;
-            padding-top: 12px;
-            border-top: 1px dashed #000;
+        .total-label .khmer {
             font-size: 10px;
         }
-        .footer .brand {
-            font-weight: bold;
-            margin-top: 4px;
+        .grand-total-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: baseline;
+            font-size: 13px;
+            font-weight: 900;
+            padding: 3px 0;
+            margin-top: 2px;
         }
-        .footer .notice {
-            margin-top: 8px;
-            font-size: 8px;
-            text-transform: uppercase;
-            letter-spacing: 3px;
-            color: #555;
+
+        /* ---- Footer ---- */
+        .footer {
+            text-align: center;
+            margin-top: 12px;
+            padding-top: 6px;
+            border-top: 1px dashed #000;
+            font-size: 9px;
+            font-weight: 700;
+        }
+        .footer .brand {
+            font-weight: 900;
+            font-size: 10px;
+            margin-top: 2px;
         }
     </style>
 </head>
 <body>
-    <div class="header">
-        <h1>Attire Lounge Official</h1>
-        <h2>${formattedOutletName}</h2>
-        <p>${isRefund ? 'REFUND RECEIPT' : 'Receipt / Tax Invoice'}</p>
+    <!-- INVOICE Header -->
+    <div class="invoice-title">${isRefund ? 'REFUND' : 'INVOICE'}</div>
+
+    <!-- Info Section -->
+    <div class="info-section">
+        <div class="info-row">
+            <span class="info-label">Date</span>
+            <span class="info-dots">:</span>
+            <span class="info-value">${dateStr}</span>
+        </div>
+        <div class="info-row">
+            <span class="info-label">Seller</span>
+            <span class="info-dots">:</span>
+            <span class="info-value">${sellerName}</span>
+        </div>
+        <div class="info-row">
+            <span class="info-label">Customer</span>
+            <span class="info-dots">:</span>
+            <span class="info-value">${customerName}</span>
+        </div>
+        <div class="info-row">
+            <span class="info-label">Tel</span>
+            <span class="info-dots">:</span>
+            <span class="info-value">${customerTel || '...'}</span>
+        </div>
     </div>
 
     <hr class="divider">
 
-    <div style="font-size: 10px; margin-bottom: 6px;">
-        <div class="info-row">
-            <span>Invoice:</span>
-            <span class="value">${invoice.invoice_number || 'N/A'}</span>
-        </div>
-        <div class="info-row">
-            <span>Date:</span>
-            <span>${dateStr}</span>
-        </div>
-        <div class="info-row">
-            <span>Cashier:</span>
-            <span>${invoice.cashier?.name || invoice.user?.name || 'Staff'}</span>
-        </div>
-        ${invoice.customer ? `
-        <div class="info-row">
-            <span>Customer:</span>
-            <span>${invoice.customer.name}</span>
-        </div>` : ''}
-    </div>
-
-    <hr class="divider">
-
+    <!-- Items Table -->
     <table>
         <thead>
             <tr>
-                <th style="width: 50%;">Item</th>
-                <th style="text-align: center;">Qty</th>
-                <th style="text-align: right;">Price</th>
+                <th>#</th>
+                <th>Description</th>
+                <th>Qty</th>
+                <th>Price</th>
+                <th>Disc</th>
+                <th>Amount</th>
             </tr>
         </thead>
         <tbody>
@@ -219,34 +265,73 @@ const buildReceiptHTML = (invoice, activeOutlet, isRefund = false, refundData = 
         </tbody>
     </table>
 
-    <div class="totals">
+    <hr class="divider">
+
+    <!-- Items Count -->
+    <div style="font-size: 10px; font-weight: 700; padding: 2px 0;">
+        Items Purchase : ${itemCount} (Qty : ${totalQty})
+    </div>
+
+    <hr class="divider-thick">
+
+    <!-- Totals Section -->
+    <div class="totals-section">
         <div class="total-row">
-            <span>Subtotal</span>
-            <span>$${subtotal.toFixed(2)}</span>
+            <span class="total-label">
+                <span class="khmer">ផលបូក</span>
+                <span>Sub-Total</span>
+                <span>($)</span>
+            </span>
+            <span>: &nbsp; $ ${subtotal.toFixed(0)}</span>
         </div>
-        ${totalDiscount > 0 ? `
+
         <div class="total-row">
-            <span>Discount</span>
-            <span>-$${totalDiscount.toFixed(2)}</span>
-        </div>` : ''}
-        <div class="total-row grand-total">
-            <span>${isRefund ? 'TOTAL REFUNDED' : 'TOTAL'}</span>
-            <span>$${grandTotal.toFixed(2)}</span>
+            <span class="total-label">
+                <span class="khmer">បញ្ចុះតម្លៃ</span>
+                <span>Disc. (${discountPct}%)</span>
+                <span>($)</span>
+            </span>
+            <span>: &nbsp; $ ${totalDiscount.toFixed(0)}</span>
+        </div>
+
+        <hr class="divider-thick">
+
+        <div class="grand-total-row">
+            <span class="total-label">
+                <span class="khmer">សរុប</span>
+                <span>Grand Total ($)</span>
+            </span>
+            <span>: &nbsp; $ ${grandTotal.toFixed(0)}</span>
+        </div>
+
+        <div class="grand-total-row">
+            <span class="total-label">
+                <span class="khmer">សរុប</span>
+                <span>Grand Total (៛)</span>
+            </span>
+            <span>: &nbsp; ៛ ${formattedKHR}</span>
         </div>
     </div>
 
-    ${paymentRows ? `
-    <div class="payments">
-        ${paymentRows}
+    ${!isRefund && invoice.payments && invoice.payments.length > 0 ? `
+    <hr class="divider">
+    <div style="font-size: 10px; font-weight: 700; padding: 2px 0;">
+        ${invoice.payments.map(p => {
+            const method = (p.method || p.payment_method || '').toUpperCase();
+            return `<div class="total-row">
+                <span>${method}</span>
+                <span>$ ${parseFloat(p.amount).toFixed(0)}</span>
+            </div>`;
+        }).join('')}
     </div>` : ''}
 
+    <!-- Footer -->
     <div class="footer">
         <p>Thank you for shopping at</p>
         <p class="brand">Attire Lounge Official</p>
-        <p class="notice">Please keep receipt for returns</p>
     </div>
 
-    <div style="height: 20px;"></div>
+    <div style="height: 16px;"></div>
 </body>
 </html>`;
 };
@@ -292,7 +377,7 @@ export const printReceipt = (invoice, activeOutlet, isRefund = false, refundData
             }
             // Clean up iframe after a delay to allow print dialog to finish
             setTimeout(() => {
-                document.body.removeChild(iframe);
+                if (iframe.parentNode) document.body.removeChild(iframe);
             }, 3000);
         }, 500);
     };

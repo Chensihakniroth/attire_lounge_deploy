@@ -178,6 +178,12 @@ const InvoicePanel = () => {
                         </span>
                     </div>
 
+                    {/* KHR Conversion */}
+                    <div className="flex items-center justify-between text-[11px] font-bold uppercase tracking-[0.2em] text-gray-400 dark:text-[#8b949e]/50">
+                        <span>៛ Khmer Riel</span>
+                        <span className="font-mono text-[13px]">៛{Math.round(totals.finalTotal * 4100).toLocaleString()}</span>
+                    </div>
+
                     <div className={`flex items-center justify-between text-[11px] font-black uppercase tracking-[0.3em] transition-all duration-700 ${totals.changeDue > 0 ? 'text-emerald-500' : 'text-gray-400/30 dark:text-[#8b949e]/20'}`}>
                         <span>{activeTab.isRefundMode ? 'Return Balance' : (totals.changeDue > 0 ? 'Change Due' : 'Awaiting Payment')}</span>
                         <span className="font-mono text-[14px]">${totals.changeDue.toLocaleString(undefined, { minimumFractionDigits: 2 })}</span>
