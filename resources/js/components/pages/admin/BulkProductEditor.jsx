@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, Check, AlertCircle, RefreshCw, ChevronLeft, Plus, Trash2, ImageIcon, Sparkles } from 'lucide-react';
+import { X, Check, AlertCircle, RefreshCw, ChevronLeft, Plus, Trash2, ImageIcon, Sparkles, Loader2 } from 'lucide-react';
 import axios from 'axios';
 import { useAdmin } from './AdminContext';
 

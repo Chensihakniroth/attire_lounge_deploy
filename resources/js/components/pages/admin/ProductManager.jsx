@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback, useMemo, memo, useTransition } from 'react';
-import { ShoppingBag, Search, Filter, Edit2, Trash2, ExternalLink, Plus, FolderPlus, Check, X, Star, Tag, Save, AlertCircle, Eye, EyeOff, ChevronDown, ChevronLeft, ChevronRight, Sparkles } from 'lucide-react';
+import { ShoppingBag, Search, Filter, Edit2, Trash2, ExternalLink, Plus, FolderPlus, Check, X, Star, Tag, Save, AlertCircle, Eye, EyeOff, ChevronDown, ChevronLeft, ChevronRight, Sparkles, Loader2 } from 'lucide-react';
 import { LumaSpin } from '@/components/ui/luma-spin';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
