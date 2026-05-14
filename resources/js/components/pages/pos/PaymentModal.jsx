@@ -17,7 +17,7 @@ import { usePOS } from './POSContext';
 import { useAdmin } from '../admin/AdminContext';
 import { motion, AnimatePresence } from 'framer-motion';
 import ModernModal from '../../common/ModernModal';
-import ThermalReceipt from './ThermalReceipt';
+import { printReceipt } from './ThermalReceipt';
 
 const PaymentModal = ({ totals, onClose }) => {
     const { activeTab, closeTab, activeTabIndex, updatePayments } = usePOS();
@@ -100,12 +100,18 @@ const PaymentModal = ({ totals, onClose }) => {
                 };
 
                 const response = await axios.post(`/api/v1/admin/pos/invoices/${activeTab.originalInvoice.id}/refund`, payload);
+                console.log('POS Refund Response:', response.data);
+                const refundInvoiceData = response.data.invoice || response.data;
+                setCreatedInvoice(refundInvoiceData);
                 setSuccess(true);
                 
                 setTimeout(() => {
-                    closeTab(activeTabIndex);
-                    onClose();
-                }, 1000); // Shortened delay for snappier UX
+                    console.log('Triggering Refund Print via iframe:', refundInvoiceData);
+                    printReceipt(refundInvoiceData, activeOutlet, true, {
+                        items: activeTab.cartItems.filter(item => item.quantity > 0),
+                        total: totals.finalTotal
+                    });
+                }, 1000);
                 return;
             }
 
@@ -150,13 +156,16 @@ const PaymentModal = ({ totals, onClose }) => {
             };
 
             const response = await axios.post('/api/v1/admin/pos/invoices', payload);
-            setCreatedInvoice(response.data.data);
+            console.log('POS Checkout Response:', response.data);
+            const invoiceData = response.data.data || response.data;
+            setCreatedInvoice(invoiceData);
             setSuccess(true);
             
-            // Auto-print receipt after a brief render delay
+            // Auto-print receipt via iframe injection
             setTimeout(() => {
-                window.print();
-            }, 300);
+                console.log('Triggering Print via iframe with data:', invoiceData);
+                printReceipt(invoiceData, activeOutlet);
+            }, 1000);
         } catch (err) {
             setError(err.response?.data?.message || `Failed to process ${activeTab.isRefundMode ? 'refund' : 'checkout'}. Please try again.`);
         } finally {
@@ -202,7 +211,15 @@ const PaymentModal = ({ totals, onClose }) => {
 
                     <div className="pt-4 flex flex-col md:flex-row gap-4 justify-center">
                         <button 
-                            onClick={() => window.print()}
+                            onClick={() => printReceipt(
+                                createdInvoice, 
+                                activeOutlet,
+                                activeTab.isRefundMode,
+                                activeTab.isRefundMode ? {
+                                    items: activeTab.cartItems.filter(item => item.quantity > 0),
+                                    total: totals.finalTotal
+                                } : null
+                            )}
                             className="px-8 py-3 bg-white text-[#0d3542] dark:bg-[#161b22] dark:text-[#f5a81c] border border-black/10 dark:border-[#30363d] text-[10px] font-bold uppercase tracking-widest rounded-xl hover:scale-105 transition-all active:scale-95"
                         >
                             Reprint Receipt
@@ -218,7 +235,7 @@ const PaymentModal = ({ totals, onClose }) => {
                         </button>
                     </div>
 
-                    <ThermalReceipt invoice={createdInvoice} activeOutlet={activeOutlet} />
+                    {/* Receipt is now printed via iframe injection — no portal needed */}
                 </div>
              ) : (
                 <div className="flex flex-col md:flex-row max-h-[90vh]">

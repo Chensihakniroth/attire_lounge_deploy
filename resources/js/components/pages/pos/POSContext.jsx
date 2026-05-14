@@ -313,11 +313,10 @@ export const POSProvider = ({ children }) => {
             note: `REFUND: ${invoice.invoice_number}`,
             isRefundMode: true,
             originalInvoice: invoice,
-            // Carry over the original cart-level discount so the refund reflects
-            // the actual price paid (including any tier/manual discount)
+            // Inherit original tier discount if it was a VIP/tier discount
             cartDiscount: {
                 type: 'percentage',
-                value: parseFloat(invoice.tier_discount_pct) || 0,
+                value: parseFloat(invoice.tier_discount_pct || 0),
             },
             heldAt: null,
             status: 'active',

@@ -241,14 +241,9 @@ class PosInvoiceController extends Controller
             }
         }
 
-        // Spend-tier discount (on product subtotal only)
-        $tierPct = match (true) {
-            $productSubtotal >= 1500 => 15,
-            $productSubtotal >= 1000 => 10,
-            $productSubtotal >= 500  => 8,
-            default                  => 0,
-        };
-        $tierAmt = round($productSubtotal * ($tierPct / 100), 2);
+        // Removed automatic spend-tier discount
+        $tierPct = 0;
+        $tierAmt = 0;
 
         $afterTier = $productSubtotal - $tierAmt;
 

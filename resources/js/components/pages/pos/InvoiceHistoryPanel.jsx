@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
+import { printReceipt } from './ThermalReceipt';
 import { 
     X, 
     Search, 
@@ -15,7 +16,8 @@ import {
     ArrowUpRight,
     Undo2,
     Check,
-    Copy
+    Copy,
+    Printer
 } from 'lucide-react';
 import { usePOS } from './POSContext';
 import axios from 'axios';
@@ -97,6 +99,17 @@ const InvoiceHistoryPanel = ({ onClose }) => {
             console.error('Failed to fetch invoice details:', err);
         } finally {
             setLoading(false);
+        }
+    };
+
+    const handleReprintReceipt = async (invoice) => {
+        try {
+            const response = await axios.get(`/api/v1/admin/pos/invoices/${invoice.id}`);
+            const invoiceData = response.data;
+            if (!invoiceData) throw new Error('Invoice data is empty');
+            printReceipt(invoiceData, activeOutlet);
+        } catch (err) {
+            console.error('Failed to fetch invoice for reprint:', err);
         }
     };
 
@@ -219,6 +232,12 @@ const InvoiceHistoryPanel = ({ onClose }) => {
                                 </div>
                                 
                                 <div className="mt-4 pt-3 border-t border-black/5 dark:border-white/5 flex justify-end items-center gap-4">
+                                    <button 
+                                        onClick={() => handleReprintReceipt(inv)}
+                                        className="flex items-center gap-1.5 text-[8px] font-bold uppercase tracking-[0.2em] text-gray-400 hover:text-attire-accent hover:scale-105 transition-all"
+                                    >
+                                        <Printer size={10} /> Reprint
+                                    </button>
                                     <button 
                                         onClick={() => handleCloneInvoice(inv)}
                                         className="flex items-center gap-1.5 text-[8px] font-bold uppercase tracking-[0.2em] text-gray-400 hover:text-attire-accent hover:scale-105 transition-all"

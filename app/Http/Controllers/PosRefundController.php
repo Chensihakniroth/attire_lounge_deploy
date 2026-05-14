@@ -107,12 +107,6 @@ class PosRefundController extends Controller
                     );
 
                     $lineTotal = $calc['line_total'];
-                    
-                    // Apply invoice-level discount (if any) to the item refund amount
-                    // so we don't refund more than what they actually paid.
-                    if (!$item->is_service && $invoice->tier_discount_pct > 0) {
-                        $lineTotal = $lineTotal * (1 - ($invoice->tier_discount_pct / 100));
-                    }
 
                     $refund = PosRefund::create([
                         'invoice_id'      => $invoiceId,
