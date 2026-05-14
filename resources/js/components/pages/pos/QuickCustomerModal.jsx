@@ -21,19 +21,27 @@ export default function QuickCustomerModal({ isOpen, onClose, onSuccess }) {
         try {
             const token = localStorage.getItem('admin_token') || sessionStorage.getItem('admin_token');
             const payload = {
-                ...formData,
+                name: formData.name,
+                phone: formData.phone || null,
+                email: formData.email || null,
+                birthday: formData.birthday || null,
+                is_vip: formData.is_vip,
+                remarks: formData.notes || null,
                 date: new Date().toISOString().split('T')[0],
                 client_status: 'New',
-                remarks: formData.notes,
             };
             const response = await axios.post('/api/v1/admin/customer-profiles', payload, {
                 headers: { Authorization: `Bearer ${token}` }
             });
             onSuccess(response.data.data);
+            setFormData({ name: '', phone: '', email: '', is_vip: false, birthday: '', notes: '' });
             onClose();
         } catch (error) {
             console.error('Failed to register customer:', error);
-            alert('Error registering customer. Please check details.');
+            const msg = error.response?.data?.errors
+                ? Object.values(error.response.data.errors).flat().join('\n')
+                : error.response?.data?.message || 'Error registering customer. Please check details.';
+            alert(msg);
         } finally {
             setIsSaving(false);
         }

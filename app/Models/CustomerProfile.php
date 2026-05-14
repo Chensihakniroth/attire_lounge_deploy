@@ -14,6 +14,7 @@ class CustomerProfile extends Model
         'date',
         'client_status',
         'name',
+        'email',
         'nationality',
         'phone',
         'host',
