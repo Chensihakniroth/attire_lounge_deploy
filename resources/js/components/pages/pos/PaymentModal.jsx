@@ -14,11 +14,14 @@ import {
 } from 'lucide-react';
 import axios from 'axios';
 import { usePOS } from './POSContext';
+import { useAdmin } from '../admin/AdminContext';
 import { motion, AnimatePresence } from 'framer-motion';
 import ModernModal from '../../common/ModernModal';
+import ThermalReceipt from './ThermalReceipt';
 
 const PaymentModal = ({ totals, onClose }) => {
     const { activeTab, closeTab, activeTabIndex, updatePayments } = usePOS();
+    const { activeOutlet } = useAdmin();
     const payments = activeTab.payments || [];
     const [currentMethod, setCurrentMethod] = useState('Cash');
     const [amountInput, setAmountInput] = useState('');
@@ -150,10 +153,10 @@ const PaymentModal = ({ totals, onClose }) => {
             setCreatedInvoice(response.data.data);
             setSuccess(true);
             
+            // Auto-print receipt after a brief render delay
             setTimeout(() => {
-                closeTab(activeTabIndex);
-                onClose();
-            }, 1000); // Shortened delay for snappier UX
+                window.print();
+            }, 300);
         } catch (err) {
             setError(err.response?.data?.message || `Failed to process ${activeTab.isRefundMode ? 'refund' : 'checkout'}. Please try again.`);
         } finally {
@@ -197,14 +200,25 @@ const PaymentModal = ({ totals, onClose }) => {
                         </div>
                     )}
 
-                    <div className="pt-4">
+                    <div className="pt-4 flex flex-col md:flex-row gap-4 justify-center">
                         <button 
-                            onClick={onClose}
-                            className="px-8 py-3 bg-black dark:bg-[#161b22] text-white dark:text-[#c9d1d9] text-[10px] font-bold uppercase tracking-widest rounded-xl hover:scale-105 transition-all active:scale-95 border border-black/10 dark:border-[#30363d]"
+                            onClick={() => window.print()}
+                            className="px-8 py-3 bg-white text-[#0d3542] dark:bg-[#161b22] dark:text-[#f5a81c] border border-black/10 dark:border-[#30363d] text-[10px] font-bold uppercase tracking-widest rounded-xl hover:scale-105 transition-all active:scale-95"
+                        >
+                            Reprint Receipt
+                        </button>
+                        <button 
+                            onClick={() => {
+                                closeTab(activeTabIndex);
+                                onClose();
+                            }}
+                            className="px-8 py-3 bg-black dark:bg-[#0d3542] text-white dark:text-white text-[10px] font-bold uppercase tracking-widest rounded-xl hover:scale-105 transition-all active:scale-95 border border-black/10 dark:border-[#30363d]"
                         >
                             Close Terminal
                         </button>
                     </div>
+
+                    <ThermalReceipt invoice={createdInvoice} activeOutlet={activeOutlet} />
                 </div>
              ) : (
                 <div className="flex flex-col md:flex-row max-h-[90vh]">

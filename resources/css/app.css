@@ -833,3 +833,31 @@ input[type="number"]::-webkit-outer-spin-button {
 input[type="number"] {
     -moz-appearance: textfield;
 }
+
+/* ============ THERMAL RECEIPT PRINTING ============ */
+@media print {
+    /* Hide everything by default */
+    body * {
+        visibility: hidden;
+    }
+    
+    /* Only show the print-only wrapper and its children */
+    .print-only, .print-only * {
+        visibility: visible;
+    }
+    
+    .print-only {
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 80mm; /* Standard thermal printer width */
+        margin: 0;
+        padding: 0;
+    }
+
+    /* Remove standard page margins and headers/footers */
+    @page {
+        margin: 0;
+        size: auto;
+    }
+}
