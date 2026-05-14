@@ -20,7 +20,13 @@ export default function QuickCustomerModal({ isOpen, onClose, onSuccess }) {
         setIsSaving(true);
         try {
             const token = localStorage.getItem('admin_token') || sessionStorage.getItem('admin_token');
-            const response = await axios.post('/api/v1/admin/customer-profiles', formData, {
+            const payload = {
+                ...formData,
+                date: new Date().toISOString().split('T')[0],
+                client_status: 'New',
+                remarks: formData.notes,
+            };
+            const response = await axios.post('/api/v1/admin/customer-profiles', payload, {
                 headers: { Authorization: `Bearer ${token}` }
             });
             onSuccess(response.data.data);
