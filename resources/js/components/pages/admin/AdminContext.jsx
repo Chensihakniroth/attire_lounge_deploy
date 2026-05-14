@@ -170,6 +170,9 @@ export const AdminProvider = ({ children }) => {
         }
     }, []);
 
+    // ─── Editing State (used by ProductEditor / BulkProductEditor) ────
+    const [isEditing, setIsEditing] = useState(false);
+
     // ─── Performance Mode ─────────────────────────────────────────────
     const [performanceMode, setPerformanceMode] = useState(() => {
         return localStorage.getItem('sovereign_sync') === 'true';
@@ -269,6 +272,8 @@ export const AdminProvider = ({ children }) => {
         OUTLET_CONFIG,
 
         // UI/Performance
+        isEditing,
+        setIsEditing,
         performanceMode,
         setPerformanceMode,
 
