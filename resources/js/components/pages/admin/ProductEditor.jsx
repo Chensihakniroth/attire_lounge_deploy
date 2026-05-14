@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, Check, AlertCircle, RefreshCw, Eye, EyeOff, ChevronLeft, ChevronDown, Plus, Trash2, ImageIcon, Star, Zap, Package, Search as SearchIcon, GripVertical, ArrowUp } from 'lucide-react';
+import { X, Check, AlertCircle, RefreshCw, Eye, EyeOff, ChevronLeft, ChevronDown, Plus, Trash2, ImageIcon, Star, Zap, Package, Search as SearchIcon, GripVertical, ArrowUp, Loader2 } from 'lucide-react';
 import { LumaSpin } from '../../ui/luma-spin';
 import axios from 'axios';
 import { useAdmin } from './AdminContext';

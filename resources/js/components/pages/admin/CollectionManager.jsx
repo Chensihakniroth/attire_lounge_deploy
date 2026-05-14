@@ -9,6 +9,7 @@ import {
     Image as ImageIcon,
     Upload,
     AlertCircle,
+    Loader2,
 } from 'lucide-react';
 import axios from 'axios';
 import { useQueryClient } from '@tanstack/react-query';

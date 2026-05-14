@@ -20,7 +20,8 @@ import {
     CheckCircle2, 
     Mail,
     ExternalLink,
-    Eye
+    Eye,
+    Loader2
 } from 'lucide-react';
 import { LumaSpin } from '@/components/ui/luma-spin';
 import { Card, CardTitle } from '@/components/ui/card';

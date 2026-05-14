@@ -8,7 +8,7 @@ import {
     ChevronDown, Archive, ChevronLeft, ChevronRight, Search, Package,
     Download, Upload, Tag, 
     Command, AlertCircle,
-    ArrowUp, ArrowDown, Keyboard, Save, Box, Eye, FolderPlus
+    ArrowUp, ArrowDown, Keyboard, Save, Box, Eye, FolderPlus, Loader2
 } from 'lucide-react';
 import { LumaSpin } from '@/components/ui/luma-spin';
 import { Button } from '@/components/ui/button';

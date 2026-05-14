@@ -2,7 +2,7 @@ import React, { useState, useEffect, useCallback, useMemo, memo } from 'react';
 import { 
     User, Mail, Phone, Calendar, Clock, MessageSquare, 
     AlertTriangle, Check, X, Trash2, ChevronDown, Plus, 
-    Filter, ArrowUpRight, History, Tag as TagIcon
+    Filter, ArrowUpRight, History, Tag as TagIcon, Loader2
 } from 'lucide-react';
 import { LumaSpin } from '@/components/ui/luma-spin';
 import { Button } from '@/components/ui/button';
