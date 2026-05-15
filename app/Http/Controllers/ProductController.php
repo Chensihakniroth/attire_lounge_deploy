@@ -133,7 +133,7 @@ class ProductController extends Controller
     {
         $collections = Cache::remember('product_collections', 7200, function () {
             return Collection::active()
-                ->orderBy('sort_order')
+                ->latest()
                 ->get();
         });
 
