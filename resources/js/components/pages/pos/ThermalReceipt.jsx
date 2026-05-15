@@ -10,9 +10,9 @@ const KHR_RATE = 4100; // USD to KHR exchange rate
 
 // Build a self-contained HTML receipt string matching the physical receipt layout
 const buildReceiptHTML = (invoice, activeOutlet, isRefund = false, refundData = null) => {
-    const formattedOutletName = activeOutlet 
-        ? activeOutlet.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase()) 
-        : 'Attire Lounge';
+    let formattedOutletName = 'Attire Lounge';
+    if (activeOutlet === 'caffeine') formattedOutletName = 'CUFFEINE';
+    if (activeOutlet === 'kravat') formattedOutletName = 'Kravat';
 
     const items = isRefund && refundData ? refundData.items : invoice.items;
 
@@ -49,12 +49,23 @@ const buildReceiptHTML = (invoice, activeOutlet, isRefund = false, refundData = 
         const discDisplay = itemDisc > 0 ? itemDisc.toFixed(0) : '-';
 
         // Build description: product name + variant
-        const desc = item.product_name + (item.product_variant ? ` ${item.product_variant}` : '');
+        let descHtml = `<div style="font-weight: 900; font-size: 11px;">${item.product_name}</div>`;
+        if (item.product_variant) {
+            const variants = item.product_variant.split(' | ');
+            const variantHtml = variants.map(v => {
+                // Special formatting for Sugar and Milk
+                if (v.toLowerCase().includes('sugar') || v.toLowerCase().includes('milk')) {
+                    return `<div style="margin-top: 1px; font-weight: 700;">${v}</div>`;
+                }
+                return `<div style="margin-top: 1px;">- ${v}</div>`;
+            }).join('');
+            descHtml += `<div style="font-size: 10px; font-weight: normal; margin-top: 2px; padding-left: 0px; color: #000;">${variantHtml}</div>`;
+        }
 
         return `
             <tr>
                 <td>${idx + 1}</td>
-                <td style="text-align: left;">${desc}</td>
+                <td style="text-align: left; padding-bottom: 4px;">${descHtml}</td>
                 <td>${qty}</td>
                 <td>${unitPrice.toFixed(0)}</td>
                 <td>${discDisplay}</td>
@@ -328,7 +339,7 @@ const buildReceiptHTML = (invoice, activeOutlet, isRefund = false, refundData = 
     <!-- Footer -->
     <div class="footer">
         <p>Thank you for shopping at</p>
-        <p class="brand">Attire Lounge Official</p>
+        <p class="brand">${formattedOutletName}${(!activeOutlet || activeOutlet === 'attire_lounge') ? ' Official' : ''}</p>
     </div>
 
     <div style="height: 16px;"></div>

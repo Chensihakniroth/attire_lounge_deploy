@@ -179,7 +179,7 @@ const InlineSearch = ({ onSearchClick, addItem }) => {
 
 
 const OrderLedger = ({ onSearchClick }) => {
-    const { activeTab, updateQty, removeItem, addItem, updateItemDiscount, updateItemPrice, selectAllRefundItems } = usePOS();
+    const { activeTab, updateQty, removeItem, addItem, updateItemDiscount, updateItemPrice, updateItemAttribute, selectAllRefundItems } = usePOS();
     const { activeOutlet, OUTLET_CONFIG } = useAdmin();
     const outletData = OUTLET_CONFIG?.[activeOutlet] || { label: 'Attire Lounge' };
     const isRefund = activeTab.isRefundMode;
@@ -293,6 +293,48 @@ const OrderLedger = ({ onSearchClick }) => {
                                                                 </span>
                                                             )}
                                                         </div>
+
+                                                        {/* Caffeine Customizations */}
+                                                        {activeOutlet === 'caffeine' && !item.is_service && !isRefund && (
+                                                            <div className="flex flex-col gap-1.5 mt-2.5">
+                                                                <div className="flex items-center gap-2">
+                                                                    <span className="text-[9px] font-black uppercase tracking-widest text-gray-400 dark:text-[#8b949e]/60 w-12">Sugar:</span>
+                                                                    <div className="flex gap-1">
+                                                                        {['100%', '75%', '50%', '25%', '0%'].map((lvl) => (
+                                                                            <button
+                                                                                key={lvl}
+                                                                                onClick={() => updateItemAttribute(item.cart_item_id, 'sugar_level', lvl)}
+                                                                                className={`px-1.5 py-0.5 rounded text-[9px] font-black tracking-wider border transition-all ${
+                                                                                    (item.sugar_level || '100%') === lvl
+                                                                                        ? 'bg-[#6f4e37] text-white border-[#6f4e37]'
+                                                                                        : 'bg-transparent text-gray-500 dark:text-[#8b949e]/60 border-gray-300 dark:border-[#30363d] hover:border-[#6f4e37]/50'
+                                                                                }`}
+                                                                            >
+                                                                                {lvl}
+                                                                            </button>
+                                                                        ))}
+                                                                    </div>
+                                                                </div>
+                                                                <div className="flex items-center gap-2">
+                                                                    <span className="text-[9px] font-black uppercase tracking-widest text-gray-400 dark:text-[#8b949e]/60 w-12">Milk:</span>
+                                                                    <div className="flex gap-1">
+                                                                        {['Fresh', 'Oat', 'soy', 'coconut'].map((mlk) => (
+                                                                            <button
+                                                                                key={mlk}
+                                                                                onClick={() => updateItemAttribute(item.cart_item_id, 'milk_type', mlk)}
+                                                                                className={`px-1.5 py-0.5 rounded text-[9px] font-black tracking-wider uppercase border transition-all ${
+                                                                                    (item.milk_type || 'Fresh') === mlk
+                                                                                        ? 'bg-[#6f4e37] text-white border-[#6f4e37]'
+                                                                                        : 'bg-transparent text-gray-500 dark:text-[#8b949e]/60 border-gray-300 dark:border-[#30363d] hover:border-[#6f4e37]/50'
+                                                                                }`}
+                                                                            >
+                                                                                {mlk}
+                                                                            </button>
+                                                                        ))}
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        )}
                                                     </div>
                                                 </td>
                                                 <td className="px-4 py-4">

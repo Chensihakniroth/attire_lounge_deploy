@@ -136,18 +136,29 @@ const PaymentModal = ({ totals, onClose }) => {
 
             const payload = {
                 customer_profile_id: activeTab.customer?.id,
-                items: activeTab.cartItems.map(item => ({
-                    product_id: item.product_id,
-                    product_name: item.product_name,
-                    product_variant: item.product_variant,
-                    product_sku: item.product_sku,
+                items: activeTab.cartItems.map(item => {
+                    const customizations = [];
+                    if (activeOutlet === 'caffeine' && !item.is_service) {
+                        const sugar = item.sugar_level || '100%';
+                        const milk = item.milk_type || 'Fresh';
+                        customizations.push(`Sugar: ${sugar}`);
+                        customizations.push(`Milk: ${milk}`);
+                    }
+                    const variant = [item.product_variant, ...customizations].filter(Boolean).join(' | ');
+
+                    return {
+                        product_id: item.product_id,
+                        product_name: item.product_name,
+                        product_variant: variant,
+                        product_sku: item.product_sku,
                     is_service: item.is_service,
                     quantity: item.quantity,
                     unit_price: item.unit_price,
                     discount_type: discountTypeMap[item.discount_type] || 'none',
                     discount_value: item.discount_value,
                     gift_wrap: item.gift_wrap
-                })),
+                    };
+                }),
                 payments: payments.map(p => ({
                     method: methodMap[p.method] || p.method.toLowerCase(),
                     amount: p.amount

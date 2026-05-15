@@ -184,6 +184,16 @@ export const POSProvider = ({ children }) => {
         updateActiveTab({ cartItems: newCart });
     };
 
+    const updateItemAttribute = (cartItemId, key, value) => {
+        const newCart = activeTab.cartItems.map(item => {
+            if (item.cart_item_id === cartItemId) {
+                return { ...item, [key]: value };
+            }
+            return item;
+        });
+        updateActiveTab({ cartItems: newCart });
+    };
+
     const attachCustomer = (customer) => {
         updateActiveTab({ customer });
     };
@@ -370,6 +380,7 @@ export const POSProvider = ({ children }) => {
         updateQty,
         updateItemDiscount,
         updateItemPrice,
+        updateItemAttribute,
         updateCartDiscount,
         toggleGiftWrap,
         attachCustomer,
