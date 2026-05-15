@@ -65,6 +65,8 @@ const PaymentModal = ({ totals, onClose }) => {
     };
 
     const handleCheckout = async () => {
+        if (loading) return;
+
         if (!activeTab.isRefundMode && currentPaid < totals.finalTotal) {
             setError('Please pay the full amount before checking out.');
             return;
@@ -140,9 +142,11 @@ const PaymentModal = ({ totals, onClose }) => {
                     const customizations = [];
                     if (activeOutlet === 'caffeine' && !item.is_service) {
                         const sugar = item.sugar_level || '100%';
-                        const milk = item.milk_type || 'Fresh';
                         customizations.push(`Sugar: ${sugar}`);
-                        customizations.push(`Milk: ${milk}`);
+                        const milk = item.milk_type || 'Oat';
+                        if (milk !== 'None') {
+                            customizations.push(`Milk: ${milk}`);
+                        }
                     }
                     const variant = [item.product_variant, ...customizations].filter(Boolean).join(' | ');
 

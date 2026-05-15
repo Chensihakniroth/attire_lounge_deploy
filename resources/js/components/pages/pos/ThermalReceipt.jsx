@@ -85,6 +85,8 @@ const buildReceiptHTML = (invoice, activeOutlet, isRefund = false, refundData = 
     const grandTotalKHR = Math.round(grandTotal * KHR_RATE);
     const formattedKHR = grandTotalKHR.toLocaleString();
 
+    const showSellerAndCustomer = !['caffeine', 'kravat'].includes(activeOutlet);
+
     return `
 <!DOCTYPE html>
 <html>
@@ -212,21 +214,6 @@ const buildReceiptHTML = (invoice, activeOutlet, isRefund = false, refundData = 
             padding: 3px 0;
             margin-top: 2px;
         }
-
-        /* ---- Footer ---- */
-        .footer {
-            text-align: center;
-            margin-top: 12px;
-            padding-top: 6px;
-            border-top: 1px dashed #000;
-            font-size: 9px;
-            font-weight: 700;
-        }
-        .footer .brand {
-            font-weight: 900;
-            font-size: 10px;
-            margin-top: 2px;
-        }
     </style>
 </head>
 <body>
@@ -240,6 +227,7 @@ const buildReceiptHTML = (invoice, activeOutlet, isRefund = false, refundData = 
             <span class="info-dots">:</span>
             <span class="info-value">${dateStr}</span>
         </div>
+        ${showSellerAndCustomer ? `
         <div class="info-row">
             <span class="info-label">Seller</span>
             <span class="info-dots">:</span>
@@ -255,6 +243,7 @@ const buildReceiptHTML = (invoice, activeOutlet, isRefund = false, refundData = 
             <span class="info-dots">:</span>
             <span class="info-value">${customerTel || '...'}</span>
         </div>
+        ` : ''}
     </div>
 
     <hr class="divider">
@@ -336,12 +325,6 @@ const buildReceiptHTML = (invoice, activeOutlet, isRefund = false, refundData = 
         }).join('')}
     </div>` : ''}
 
-    <!-- Footer -->
-    <div class="footer">
-        <p>Thank you for shopping at</p>
-        <p class="brand">${formattedOutletName}${(!activeOutlet || activeOutlet === 'attire_lounge') ? ' Official' : ''}</p>
-    </div>
-
     <div style="height: 16px;"></div>
 </body>
 </html>`;
@@ -377,33 +360,21 @@ export const printReceipt = (invoice, activeOutlet, isRefund = false, refundData
     iframeDoc.write(html);
     iframeDoc.close();
 
-    // Wait for the iframe content to fully render, then print
-    iframe.contentWindow.onload = () => {
-        setTimeout(() => {
-            try {
-                iframe.contentWindow.focus();
-                iframe.contentWindow.print();
-            } catch (e) {
-                console.error('[ThermalReceipt] Print failed:', e);
-            }
-            // Clean up iframe after a delay to allow print dialog to finish
-            setTimeout(() => {
-                if (iframe.parentNode) document.body.removeChild(iframe);
-            }, 3000);
-        }, 500);
-    };
-
-    // Fallback: if onload doesn't fire (e.g. some browsers), trigger after timeout
+    // Wait for the iframe to render, then print using a single robust timeout
     setTimeout(() => {
-        if (iframe.parentNode) {
-            try {
-                iframe.contentWindow.focus();
-                iframe.contentWindow.print();
-            } catch (e) {
-                // Already printed or iframe removed
-            }
+        if (!iframe.parentNode) return;
+        try {
+            iframe.contentWindow.focus();
+            iframe.contentWindow.print();
+        } catch (e) {
+            console.error('[ThermalReceipt] Print failed:', e);
         }
-    }, 2000);
+        
+        // Clean up iframe after a delay to allow print dialog to finish
+        setTimeout(() => {
+            if (iframe.parentNode) document.body.removeChild(iframe);
+        }, 3000);
+    }, 500);
 };
 
 // Keep the component export for backward compatibility, but it renders nothing visually

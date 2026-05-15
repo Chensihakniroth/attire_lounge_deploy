@@ -318,12 +318,12 @@ const OrderLedger = ({ onSearchClick }) => {
                                                                 <div className="flex items-center gap-2">
                                                                     <span className="text-[9px] font-black uppercase tracking-widest text-gray-400 dark:text-[#8b949e]/60 w-12">Milk:</span>
                                                                     <div className="flex gap-1">
-                                                                        {['Fresh', 'Oat', 'soy', 'coconut'].map((mlk) => (
+                                                                        {['None', 'Oat', 'soy', 'coconut'].map((mlk) => (
                                                                             <button
                                                                                 key={mlk}
                                                                                 onClick={() => updateItemAttribute(item.cart_item_id, 'milk_type', mlk)}
                                                                                 className={`px-1.5 py-0.5 rounded text-[9px] font-black tracking-wider uppercase border transition-all ${
-                                                                                    (item.milk_type || 'Fresh') === mlk
+                                                                                    (item.milk_type || 'Oat') === mlk
                                                                                         ? 'bg-[#6f4e37] text-white border-[#6f4e37]'
                                                                                         : 'bg-transparent text-gray-500 dark:text-[#8b949e]/60 border-gray-300 dark:border-[#30363d] hover:border-[#6f4e37]/50'
                                                                                 }`}
