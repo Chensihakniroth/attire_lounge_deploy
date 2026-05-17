@@ -8,9 +8,10 @@ import {
     ChevronDown, Archive, ChevronLeft, ChevronRight, Search, Package,
     Download, Upload, Tag, 
     Command, AlertCircle,
-    ArrowUp, ArrowDown, Keyboard, Save, Box, Eye, FolderPlus, Loader2
+    ArrowUp, ArrowDown, Keyboard, Save, Box, Eye, FolderPlus, Loader2, Printer
 } from 'lucide-react';
 import { LumaSpin } from '@/components/ui/luma-spin';
+import Barcode from 'react-barcode';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { formatPrice } from '@/helpers/format';
@@ -221,6 +222,95 @@ const ProductRow = React.memo(({
     );
 });
 
+const BarcodePrintModal = ({ products, onClose, formatPrice }) => {
+    const labelsRef = useRef(null);
+
+    const handlePrint = () => {
+        if (!labelsRef.current) return;
+        const labelEls = labelsRef.current.querySelectorAll('.bc-label');
+        let labelsHtml = '';
+        labelEls.forEach(el => { labelsHtml += el.outerHTML; });
+
+        const printWindow = window.open('', '_blank');
+        if (!printWindow) { alert('Please allow popups for barcode printing.'); return; }
+        printWindow.document.write(`<html><head><title>Barcode Labels</title>
+            <style>
+                *{margin:0;padding:0;box-sizing:border-box}
+                body{background:#fff;color:#000;font-family:Arial,Helvetica,sans-serif}
+                @media print{@page{size:80mm auto;margin:0}}
+                .lg{display:flex;flex-wrap:wrap;gap:1mm 2mm;justify-content:flex-start}
+                .bc-label{width:38mm;height:28mm;border:none;padding:1.5mm 2mm;display:flex;flex-direction:column;align-items:center;justify-content:space-between;text-align:center;page-break-inside:avoid;overflow:hidden}
+                .ln{font-size:6pt;font-weight:900;text-transform:uppercase;letter-spacing:.3px;line-height:1.2;margin:0 0 .5mm}
+                .lv{font-size:5pt;color:#555;text-transform:uppercase;letter-spacing:.5px}
+                .lbc{margin:.5mm 0}.lbc svg{max-width:34mm;height:auto}
+                .ls{font-size:5.5pt;font-family:'Courier New',monospace;letter-spacing:1px;color:#333}
+                .lp{font-size:7.5pt;font-weight:900;border-top:.3px solid #000;width:100%;padding-top:.5mm;margin-top:.5mm}
+            </style></head><body>
+            <div class="lg">${labelsHtml}</div>
+            <script>window.onload=function(){setTimeout(function(){window.print();window.close()},500)}<\/script>
+        </body></html>`);
+        printWindow.document.close();
+    };
+
+    if (!products || products.length === 0) return null;
+
+    return (
+        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 z-[200] flex items-center justify-center">
+            <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={onClose} />
+            <motion.div
+                initial={{ scale: 0.95, opacity: 0, y: 20 }}
+                animate={{ scale: 1, opacity: 1, y: 0 }}
+                exit={{ scale: 0.95, opacity: 0, y: 20 }}
+                transition={{ duration: 0.3, ease: 'easeOut' }}
+                className="relative bg-white dark:bg-[#111] rounded-3xl shadow-2xl border border-black/10 dark:border-white/10 w-[90vw] max-w-5xl max-h-[85vh] flex flex-col overflow-hidden"
+            >
+                <div className="px-8 py-5 border-b border-black/10 dark:border-white/10 flex items-center justify-between bg-[#fdfdfc] dark:bg-[#0d1117] shrink-0">
+                    <div className="flex items-center gap-4">
+                        <div className="h-10 w-10 rounded-xl bg-[#0d3542]/10 dark:bg-[#58a6ff]/10 flex items-center justify-center">
+                            <Printer size={20} className="text-[#0d3542] dark:text-[#58a6ff]" />
+                        </div>
+                        <div>
+                            <h2 className="text-lg font-black text-[#0d3542] dark:text-[#58a6ff] uppercase tracking-[0.3em]">Barcode Labels</h2>
+                            <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mt-0.5">{products.length} label{products.length > 1 ? 's' : ''} · 2-up 38×28mm</p>
+                        </div>
+                    </div>
+                    <div className="flex items-center gap-3">
+                        <Button onClick={handlePrint} className="h-11 px-8 bg-[#0d3542] dark:bg-[#58a6ff] text-white dark:text-black text-[10px] font-black uppercase tracking-[0.2em] rounded-xl hover:opacity-90 transition-all">
+                            <Printer size={14} className="mr-2" /> Print All
+                        </Button>
+                        <button onClick={onClose} className="h-11 w-11 rounded-xl bg-black/5 dark:bg-white/5 flex items-center justify-center text-gray-400 hover:text-gray-900 dark:hover:text-white transition-all">
+                            <X size={18} />
+                        </button>
+                    </div>
+                </div>
+
+                <div className="flex-1 overflow-y-auto p-8 bg-gray-50 dark:bg-[#0a0a0a] attire-scrollbar">
+                    {/* Preview mirrors the 2-up print layout */}
+                    <div ref={labelsRef} className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-6 gap-3">
+                        {products.map((p) => (
+                            <div key={p.id} className="bc-label bg-white border border-gray-200 rounded-lg p-3 flex flex-col items-center justify-between text-center" style={{ minHeight: '120px' }}>
+                                <div className="space-y-0.5 w-full">
+                                    <div className="ln text-[10px] font-black text-gray-900 uppercase tracking-wide leading-tight line-clamp-1">{p.name}</div>
+                                    {(p.variant || (p.attributes && p.attributes.length > 0)) && (
+                                        <div className="lv text-[8px] font-bold text-gray-400 uppercase tracking-widest">
+                                            {p.attributes?.map(a => a.value).join(' · ') || p.variant}
+                                        </div>
+                                    )}
+                                </div>
+                                <div className="lbc my-1">
+                                    <Barcode value={p.barcode || p.sku || 'N/A'} format="CODE128" width={1.2} height={28} displayValue={false} margin={0} background="transparent" />
+                                </div>
+                                <div className="ls text-[8px] font-mono font-bold text-gray-500 tracking-[0.1em] uppercase">{p.sku}</div>
+                                <div className="lp text-[12px] font-black text-gray-900 border-t border-gray-200 w-full pt-1 mt-1">{formatPrice(p.price)}</div>
+                            </div>
+                        ))}
+                    </div>
+                </div>
+            </motion.div>
+        </motion.div>
+    );
+};
+
 const ProductsPage = () => {
     const queryClient = useQueryClient();
     const { performanceMode, activeOutlet } = useAdmin();
@@ -256,6 +346,7 @@ const ProductsPage = () => {
     const [focusedId, setFocusedId] = useState(null);
     const [quickEditField, setQuickEditField] = useState(null); // 'price' | 'stock' | null
     const [isSaving, setIsSaving] = useState(false);
+    const [barcodePrintProducts, setBarcodePrintProducts] = useState([]);
     const [currentPage, setCurrentPage] = useState(1);
     const [currentGroupPage, setCurrentGroupPage] = useState(1);
     const pageSize = 200;
@@ -822,6 +913,11 @@ const ProductsPage = () => {
             if (fileInputRef.current) fileInputRef.current.value = '';
         }
     };
+    const handlePrintLabels = (productList) => {
+        if (!productList || productList.length === 0) return;
+        setBarcodePrintProducts(productList);
+    };
+
     const handleAddSimilar = (group) => {
         const firstItem = group.items[0];
         setEditingProduct(null);
@@ -1368,12 +1464,21 @@ const ProductsPage = () => {
                                                                                 <span className="text-[12px] font-black uppercase tracking-[0.3em] text-[#0d3542] dark:text-[#58a6ff]">{group.name}</span>
                                                                                 <span className="px-2 py-0.5 bg-black/10 dark:bg-white/10 text-[9px] font-black text-gray-500 dark:text-white/40 uppercase tracking-widest rounded">{group.items.length} variants</span>
                                                                             </div>
-                                                                            <button 
-                                                                                onClick={() => handleAddSimilar(group)}
-                                                                                className="flex items-center gap-2 px-3 py-1.5 bg-[#0d3542] dark:bg-[#58a6ff] text-white dark:text-black text-[9px] font-black uppercase tracking-widest rounded-lg hover:opacity-90 transition-all"
-                                                                            >
-                                                                                <Plus size={12} /> Add Similar
-                                                                            </button>
+                                                                            <div className="flex items-center gap-2">
+                                                                                <button 
+                                                                                    onClick={() => handlePrintLabels(group.items)}
+                                                                                    className="flex items-center gap-2 px-3 py-1.5 bg-black/5 dark:bg-white/5 text-gray-500 dark:text-white/40 hover:text-[#0d3542] dark:hover:text-[#58a6ff] text-[9px] font-black uppercase tracking-widest rounded-lg hover:bg-[#0d3542]/10 dark:hover:bg-[#58a6ff]/10 transition-all border border-black/10 dark:border-white/10"
+                                                                                    title="Print barcode labels for this group"
+                                                                                >
+                                                                                    <Printer size={12} /> Print Labels
+                                                                                </button>
+                                                                                <button 
+                                                                                    onClick={() => handleAddSimilar(group)}
+                                                                                    className="flex items-center gap-2 px-3 py-1.5 bg-[#0d3542] dark:bg-[#58a6ff] text-white dark:text-black text-[9px] font-black uppercase tracking-widest rounded-lg hover:opacity-90 transition-all"
+                                                                                >
+                                                                                    <Plus size={12} /> Add Similar
+                                                                                </button>
+                                                                            </div>
                                                                         </div>
                                                                     </td>
                                                                 </tr>
@@ -1636,6 +1741,11 @@ const ProductsPage = () => {
                                     <span className="text-[9px] font-black uppercase tracking-[0.2em]">Bulk Edit</span>
                                 </button>
                                 <div className="w-px h-4 bg-black/10 dark:bg-white/10" />
+                                <button onClick={() => handlePrintLabels(selectedProducts)} className="flex items-center gap-2 text-gray-500 dark:text-white/40 hover:text-[#0d3542] dark:hover:text-[#58a6ff] transition-colors group">
+                                    <Printer size={12} className="group-hover:scale-110 transition-transform" />
+                                    <span className="text-[9px] font-black uppercase tracking-[0.2em]">Print Labels</span>
+                                </button>
+                                <div className="w-px h-4 bg-black/10 dark:bg-white/10" />
                                 <button
                                     onClick={() => {
                                         const count = selectedIds.size;
@@ -1660,7 +1770,15 @@ const ProductsPage = () => {
                 )}
             </AnimatePresence>
 
-
+            <AnimatePresence>
+                {barcodePrintProducts.length > 0 && (
+                    <BarcodePrintModal 
+                        products={barcodePrintProducts} 
+                        onClose={() => setBarcodePrintProducts([])} 
+                        formatPrice={formatPrice} 
+                    />
+                )}
+            </AnimatePresence>
 
         </div>
     );
