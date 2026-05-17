@@ -237,14 +237,14 @@ const BarcodePrintModal = ({ products, onClose, formatPrice }) => {
             <style>
                 *{margin:0;padding:0;box-sizing:border-box}
                 body{background:#fff;color:#000;font-family:Arial,Helvetica,sans-serif}
-                @media print{@page{size:80mm auto;margin:0}}
-                .lg{display:flex;flex-wrap:wrap;gap:1mm 2mm;justify-content:flex-start}
-                .bc-label{width:38mm;height:28mm;border:none;padding:1.5mm 2mm;display:flex;flex-direction:column;align-items:center;justify-content:space-between;text-align:center;page-break-inside:avoid;overflow:hidden}
-                .ln{font-size:6pt;font-weight:900;text-transform:uppercase;letter-spacing:.3px;line-height:1.2;margin:0 0 .5mm}
-                .lv{font-size:5pt;color:#555;text-transform:uppercase;letter-spacing:.5px}
-                .lbc{margin:.5mm 0}.lbc svg{max-width:34mm;height:auto}
-                .ls{font-size:5.5pt;font-family:'Courier New',monospace;letter-spacing:1px;color:#333}
-                .lp{font-size:7.5pt;font-weight:900;border-top:.3px solid #000;width:100%;padding-top:.5mm;margin-top:.5mm}
+                @media print{@page{size:72mm 22mm;margin:0}body{-webkit-print-color-adjust:exact}}
+                .lg{display:flex;flex-wrap:wrap;gap:0 2mm;justify-content:flex-start}
+                .bc-label{width:35mm;height:22mm;border:none;padding:1mm 1.5mm;display:flex;flex-direction:column;align-items:center;justify-content:space-between;text-align:center;page-break-inside:avoid;overflow:hidden}
+                .ln{font-size:5pt;font-weight:900;text-transform:uppercase;letter-spacing:.2px;line-height:1.1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}
+                .lv{font-size:4pt;color:#555;text-transform:uppercase;letter-spacing:.3px}
+                .lbc{margin:.3mm 0}.lbc svg{max-width:31mm;height:auto}
+                .ls{font-size:4.5pt;font-family:'Courier New',monospace;letter-spacing:1px;color:#333}
+                .lp{font-size:6.5pt;font-weight:900;border-top:.3px solid #000;width:100%;padding-top:.3mm;margin-top:.3mm}
             </style></head><body>
             <div class="lg">${labelsHtml}</div>
             <script>window.onload=function(){setTimeout(function(){window.print();window.close()},500)}<\/script>
@@ -271,7 +271,7 @@ const BarcodePrintModal = ({ products, onClose, formatPrice }) => {
                         </div>
                         <div>
                             <h2 className="text-lg font-black text-[#0d3542] dark:text-[#58a6ff] uppercase tracking-[0.3em]">Barcode Labels</h2>
-                            <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mt-0.5">{products.length} label{products.length > 1 ? 's' : ''} · 2-up 38×28mm</p>
+                            <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mt-0.5">{products.length} label{products.length > 1 ? 's' : ''} · 2-up 35×22mm</p>
                         </div>
                     </div>
                     <div className="flex items-center gap-3">
@@ -297,8 +297,8 @@ const BarcodePrintModal = ({ products, onClose, formatPrice }) => {
                                         </div>
                                     )}
                                 </div>
-                                <div className="lbc my-1">
-                                    <Barcode value={p.barcode || p.sku || 'N/A'} format="CODE128" width={1.2} height={28} displayValue={false} margin={0} background="transparent" />
+                                <div className="lbc my-0.5">
+                                    <Barcode value={p.barcode || p.sku || 'N/A'} format="CODE128" width={1} height={20} displayValue={false} margin={0} background="transparent" />
                                 </div>
                                 <div className="ls text-[8px] font-mono font-bold text-gray-500 tracking-[0.1em] uppercase">{p.sku}</div>
                                 <div className="lp text-[12px] font-black text-gray-900 border-t border-gray-200 w-full pt-1 mt-1">{formatPrice(p.price)}</div>
