@@ -236,18 +236,23 @@ const BarcodePrintModal = ({ products, onClose, formatPrice }) => {
         printWindow.document.write(`<html><head><title>Barcode Labels</title>
             <style>
                 *{margin:0;padding:0;box-sizing:border-box}
-                body{background:#fff;color:#000;font-family:Arial,Helvetica,sans-serif}
-                @media print{@page{size:72mm 22mm;margin:0}body{-webkit-print-color-adjust:exact}}
-                .lg{display:flex;flex-wrap:wrap;gap:0 2mm;justify-content:flex-start}
-                .bc-label{width:35mm;height:22mm;border:none;padding:1mm 1.5mm;display:flex;flex-direction:column;align-items:center;justify-content:space-between;text-align:center;page-break-inside:avoid;overflow:hidden}
-                .ln{font-size:5pt;font-weight:900;text-transform:uppercase;letter-spacing:.2px;line-height:1.1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}
-                .lv{font-size:4pt;color:#555;text-transform:uppercase;letter-spacing:.3px}
-                .lbc{margin:.3mm 0}.lbc svg{max-width:31mm;height:auto}
-                .ls{font-size:4.5pt;font-family:'Courier New',monospace;letter-spacing:1px;color:#333}
-                .lp{font-size:6.5pt;font-weight:900;border-top:.3px solid #000;width:100%;padding-top:.3mm;margin-top:.3mm}
+                html,body{width:72mm;height:21.5mm;overflow:hidden;background:#fff;color:#000;font-family:'Arial Black',Arial,Helvetica,sans-serif;font-size:0;margin:0;padding:0}
+                @media print{@page{size:72mm 22mm;margin:0}html,body{width:72mm;height:21.5mm;overflow:hidden;-webkit-print-color-adjust:exact}}
+                .lg{display:grid !important;grid-template-columns:35mm 35mm !important;justify-content:space-between !important;width:72mm !important;height:21.5mm !important;max-height:21.5mm !important;overflow:hidden !important;align-items:center !important;page-break-inside:avoid !important;page-break-after:avoid !important}
+                .bc-label{width:35mm !important;height:21.5mm !important;max-height:21.5mm !important;min-height:21.5mm !important;padding:0 !important;display:flex !important;flex-direction:column !important;align-items:center !important;justify-content:center !important;text-align:center !important;overflow:hidden !important;box-sizing:border-box !important;border:none !important;background:transparent !important;border-radius:0 !important;page-break-inside:avoid !important;page-break-after:avoid !important}
+                .bc-label > div { margin: 0 !important; padding: 0 !important; border: none !important; }
+                .ln{font-size:9pt !important;font-weight:900 !important;text-transform:uppercase !important;letter-spacing:.2px !important;line-height:1 !important;white-space:nowrap !important;overflow:hidden !important;text-overflow:ellipsis !important;max-width:100% !important;margin:0 0 1px 0 !important;padding:0 !important;color:#000 !important}
+                .lv{font-size:6.5pt !important;font-weight:900 !important;color:#000 !important;text-transform:uppercase !important;letter-spacing:.3px !important;line-height:1 !important;margin:1px 0 0 0 !important}
+                .lbc{margin:2px 0 !important;line-height:0 !important;width:100% !important;text-align:center !important}.lbc svg{max-width:34mm !important;height:16px !important;display:inline-block !important}
+                .ls{font-size:5.5pt !important;font-weight:900 !important;font-family:'Courier New',monospace !important;letter-spacing:0.5px !important;color:#000 !important;line-height:1 !important;margin:0 0 1px 0 !important}
+                .lp{font-size:11pt !important;font-weight:900 !important;line-height:1 !important;margin:1px 0 0 0 !important;padding:0 !important;color:#000 !important;border:none !important}
             </style></head><body>
             <div class="lg">${labelsHtml}</div>
-            <script>window.onload=function(){setTimeout(function(){window.print();window.close()},500)}<\/script>
+            <script>
+                window.onload = function() {
+                    setTimeout(function(){ window.print(); window.close(); }, 300);
+                }
+            </script>
         </body></html>`);
         printWindow.document.close();
     };
