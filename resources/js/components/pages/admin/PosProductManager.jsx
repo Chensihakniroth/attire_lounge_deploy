@@ -243,7 +243,7 @@ const BarcodePrintModal = ({ products, onClose, formatPrice }) => {
                 .bc-label > div { margin: 0 !important; padding: 0 !important; border: none !important; }
                 .ln{font-size:9pt !important;font-weight:900 !important;text-transform:uppercase !important;letter-spacing:.2px !important;line-height:1 !important;white-space:nowrap !important;overflow:hidden !important;text-overflow:ellipsis !important;max-width:100% !important;margin:0 0 1px 0 !important;padding:0 !important;color:#000 !important}
                 .lv{font-size:6.5pt !important;font-weight:900 !important;color:#000 !important;text-transform:uppercase !important;letter-spacing:.3px !important;line-height:1 !important;margin:1px 0 0 0 !important}
-                .lbc{margin:2px 0 !important;line-height:0 !important;width:100% !important;text-align:center !important}.lbc svg{max-width:34mm !important;height:16px !important;display:inline-block !important}
+                .lbc{margin:1px 0 !important;line-height:0 !important;width:100% !important;text-align:center !important}.lbc svg{max-width:33mm !important;height:auto !important;max-height:8mm !important;display:inline-block !important;shape-rendering:crispEdges !important}
                 .ls{font-size:5.5pt !important;font-weight:900 !important;font-family:'Courier New',monospace !important;letter-spacing:0.5px !important;color:#000 !important;line-height:1 !important;margin:0 0 1px 0 !important}
                 .lp{font-size:11pt !important;font-weight:900 !important;line-height:1 !important;margin:1px 0 0 0 !important;padding:0 !important;color:#000 !important;border:none !important}
             </style></head><body>
@@ -303,7 +303,7 @@ const BarcodePrintModal = ({ products, onClose, formatPrice }) => {
                                     )}
                                 </div>
                                 <div className="lbc my-0.5">
-                                    <Barcode value={p.barcode || p.sku || 'N/A'} format="CODE128" width={1} height={20} displayValue={false} margin={0} background="transparent" />
+                                    <Barcode value={p.barcode || p.sku || 'N/A'} format="CODE128" width={1} height={35} displayValue={false} margin={0} background="transparent" />
                                 </div>
                                 <div className="ls text-[8px] font-mono font-bold text-gray-500 tracking-[0.1em] uppercase">{p.sku}</div>
                                 <div className="lp text-[12px] font-black text-gray-900 border-t border-gray-200 w-full pt-1 mt-1">{formatPrice(p.price)}</div>
