@@ -76,6 +76,8 @@ class PosInvoiceController extends Controller
     {
         $validated = $request->validate([
             'customer_profile_id'  => 'nullable|exists:customer_profiles,id',
+            'discount_type'        => 'nullable|in:percentage,fixed',
+            'discount_value'       => 'nullable|numeric|min:0',
             'items'                => 'required|array|min:1',
             'items.*.product_id'   => 'nullable|exists:pos_products,id',
             'items.*.product_name' => 'required|string',
@@ -100,7 +102,9 @@ class PosInvoiceController extends Controller
             // Compute totals
             $totals = $this->computeTotals(
                 $validated['items'],
-                $validated['promo_code_id'] ?? null
+                $validated['promo_code_id'] ?? null,
+                $validated['discount_type'] ?? null,
+                $validated['discount_value'] ?? 0
             );
 
             // Determine payment status
@@ -199,24 +203,32 @@ class PosInvoiceController extends Controller
     public function dailySummary(Request $request): JsonResponse
     {
         $date   = $request->get('date', now()->toDateString());
-        $outlet = $request->header('X-Active-Outlet');
+        $outlet = $request->header('X-Active-Outlet') ?? $request->query('outlet', 'attire_lounge');
 
         $fullReport = $this->salesService->getDailyReport($date, $outlet);
 
+        $pendingRefundedCount = (int) PosInvoice::whereDate('date', $date)
+            ->where(function ($q) {
+                $q->whereIn('status', ['refunded', 'void', 'held', 'active'])
+                  ->orWhereIn('payment_status', ['pending', 'partial']);
+            })
+            ->count();
+
         return response()->json([
-            'date'           => $fullReport['date'],
-            'invoice_count'  => $fullReport['invoice_count'],
-            'total_revenue'  => $fullReport['total_revenue'],
-            'avg_order'      => $fullReport['avg_order_value'],
-            'total_refunds'  => $fullReport['total_refunds'],
-            'net_revenue'    => $fullReport['net_revenue'],
+            'date'                   => $fullReport['date'],
+            'invoice_count'          => $fullReport['invoice_count'],
+            'total_revenue'          => $fullReport['total_revenue'],
+            'avg_order'              => $fullReport['avg_order_value'],
+            'total_refunds'          => $fullReport['total_refunds'],
+            'net_revenue'            => $fullReport['net_revenue'],
+            'pending_refunded_count' => $pendingRefundedCount,
         ]);
     }
 
     /**
      * Compute invoice totals from items + promo code.
      */
-    private function computeTotals(array $items, ?int $promoCodeId): array
+    private function computeTotals(array $items, ?int $promoCodeId, ?string $cartDiscountType = null, float $cartDiscountValue = 0): array
     {
         $productSubtotal = 0;
         $serviceSubtotal = 0;
@@ -241,13 +253,24 @@ class PosInvoiceController extends Controller
             }
         }
 
-        // Removed automatic spend-tier discount
+        // Cart-level discount (manual discount applied from POS UI)
         $tierPct = 0;
         $tierAmt = 0;
 
+        if ($cartDiscountValue > 0 && $cartDiscountType) {
+            if ($cartDiscountType === 'percentage') {
+                $tierPct = $cartDiscountValue;
+                $tierAmt = round($productSubtotal * ($cartDiscountValue / 100), 2);
+            } else {
+                // Fixed amount discount
+                $tierPct = 0;
+                $tierAmt = min($cartDiscountValue, $productSubtotal);
+            }
+        }
+
         $afterTier = $productSubtotal - $tierAmt;
 
-        // Promo code discount (applied after tier, on product total)
+        // Promo code discount (applied after cart discount, on product total)
         $promoAmt = 0;
         if ($promoCodeId) {
             $promo = Promocode::find($promoCodeId);
@@ -262,7 +285,7 @@ class PosInvoiceController extends Controller
             'subtotal'          => round($productSubtotal + $serviceSubtotal + $itemsDiscount, 2),
             'items_discount'    => round($itemsDiscount, 2),
             'tier_discount_pct' => $tierPct,
-            'tier_discount_amt' => $tierAmt,
+            'tier_discount_amt' => round($tierAmt, 2),
             'promo_discount_amt'=> $promoAmt,
             'grand_total'       => round($grandTotal, 2),
         ];

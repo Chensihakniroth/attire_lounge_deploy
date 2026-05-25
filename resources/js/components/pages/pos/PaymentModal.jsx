@@ -136,8 +136,14 @@ const PaymentModal = ({ totals, onClose }) => {
                 'price': 'amount'
             };
 
+            // Map cart-level discount type to backend format
+            const cartDiscount = activeTab.cartDiscount || { type: 'percentage', value: 0 };
+            const cartDiscountType = cartDiscount.type === 'fixed' ? 'fixed' : 'percentage';
+
             const payload = {
                 customer_profile_id: activeTab.customer?.id,
+                discount_type: cartDiscountType,
+                discount_value: cartDiscount.value || 0,
                 items: activeTab.cartItems.map(item => {
                     const customizations = [];
                     if (activeOutlet === 'caffeine' && !item.is_service) {

@@ -143,6 +143,15 @@ class PosRefundController extends Controller
 
             DB::commit();
 
+            // Clear report caches
+            $date   = $invoice->date;
+            $outlet = $invoice->outlet;
+            $year   = \Carbon\Carbon::parse($date)->year;
+            $month  = \Carbon\Carbon::parse($date)->month;
+            
+            \Illuminate\Support\Facades\Cache::forget("sales_daily_{$outlet}_{$date}");
+            \Illuminate\Support\Facades\Cache::forget("sales_monthly_{$outlet}_{$year}_{$month}");
+
             return response()->json([
                 'message' => 'Refund processed successfully',
                 'refunds' => $refunds,

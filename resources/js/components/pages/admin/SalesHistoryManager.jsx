@@ -17,7 +17,8 @@ import {
     ChevronRight,
     RefreshCw,
     Wallet,
-    Copy
+    Copy,
+    X
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
@@ -27,16 +28,40 @@ const SalesHistoryManager = () => {
     const [loading, setLoading] = useState(true);
     const [search, setSearch] = useState('');
     const [page, setPage] = useState(1);
-    const [stats, setStats] = useState({ total_sales: 0, total_invoices: 0, total_refunds: 0 });
+    const [date, setDate] = useState('');
+    const [pagination, setPagination] = useState({
+        current_page: 1,
+        last_page: 1,
+        total: 0,
+        from: 0,
+        to: 0
+    });
+    const [stats, setStats] = useState({ total_sales: 0, completed_count: 0, pending_refunded_count: 0 });
 
-    const fetchInvoices = async () => {
+    const getTodayString = () => {
+        const d = new Date();
+        return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+    };
+
+    const fetchInvoices = async (pageOverride) => {
         setLoading(true);
+        const targetPage = pageOverride !== undefined ? pageOverride : page;
         try {
             const response = await axios.get('/api/v1/admin/pos/invoices', {
-                params: { search, page }
+                params: { 
+                    search, 
+                    page: targetPage,
+                    date: date || undefined
+                }
             });
-            setInvoices(response.data.data);
-            // Optionally fetch stats if the API provides it or have a separate endpoint
+            setInvoices(response.data.data || []);
+            setPagination({
+                current_page: response.data.current_page || 1,
+                last_page: response.data.last_page || 1,
+                total: response.data.total || 0,
+                from: response.data.from || 0,
+                to: response.data.to || 0
+            });
         } catch (error) {
             console.error('Fetch invoices failed', error);
         } finally {
@@ -44,9 +69,42 @@ const SalesHistoryManager = () => {
         }
     };
 
+    const fetchStats = async (selectedDate) => {
+        try {
+            const dateToFetch = selectedDate || getTodayString();
+            const response = await axios.get('/api/v1/admin/pos/summary/daily', {
+                params: { date: dateToFetch }
+            });
+            setStats({
+                total_sales: response.data.total_revenue || 0,
+                completed_count: response.data.invoice_count || 0,
+                pending_refunded_count: response.data.pending_refunded_count || 0
+            });
+        } catch (error) {
+            console.error('Fetch stats failed', error);
+        }
+    };
+
+    const handleSearch = () => {
+        setPage(1);
+        fetchInvoices(1);
+    };
+
+    const handleDateChange = (newDate) => {
+        setDate(newDate);
+        setPage(1);
+    };
+
+    const handleRefresh = () => {
+        setPage(1);
+        fetchInvoices(1);
+        fetchStats(date);
+    };
+
     useEffect(() => {
         fetchInvoices();
-    }, [page]);
+        fetchStats(date);
+    }, [page, date]);
 
     return (
         <div className="p-8 space-y-8 font-sans">
@@ -71,9 +129,24 @@ const SalesHistoryManager = () => {
             {/* Quick Stats */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                 {[
-                    { label: 'Today Total Sales', value: '$0.00', icon: <Wallet size={20} />, color: 'text-[#0d3542] dark:text-[#58a6ff]' },
-                    { label: 'Completed Invoices', value: '0', icon: <CheckCircle size={20} />, color: 'text-green-500' },
-                    { label: 'Pending/Refunded', value: '0', icon: <AlertCircle size={20} />, color: 'text-red-500' }
+                    { 
+                        label: date ? 'Selected Date Total Sales' : 'Today Total Sales', 
+                        value: `$${parseFloat(stats.total_sales || 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`, 
+                        icon: <Wallet size={20} />, 
+                        color: 'text-[#0d3542] dark:text-[#58a6ff]' 
+                    },
+                    { 
+                        label: 'Completed Invoices', 
+                        value: String(stats.completed_count || 0), 
+                        icon: <CheckCircle size={20} />, 
+                        color: 'text-green-500' 
+                    },
+                    { 
+                        label: 'Pending/Refunded', 
+                        value: String(stats.pending_refunded_count || 0), 
+                        icon: <AlertCircle size={20} />, 
+                        color: 'text-red-500' 
+                    }
                 ].map((stat, idx) => (
                     <div key={idx} className="p-6 bg-white dark:bg-[#161b22] border border-black/5 dark:border-[#30363d] rounded-xl shadow-none relative overflow-hidden group">
                         <div className="flex items-center justify-between relative z-10">
@@ -99,15 +172,30 @@ const SalesHistoryManager = () => {
                         className="w-full bg-black/[0.02] dark:bg-[#0d1117] border border-black/5 dark:border-[#30363d] rounded-lg py-3 pl-12 pr-4 text-sm font-bold uppercase tracking-widest outline-none focus:border-[#0d3542]/50 dark:focus:border-[#58a6ff]/50 transition-all placeholder:text-gray-400 dark:placeholder:text-[#8b949e]/20"
                         value={search}
                         onChange={(e) => setSearch(e.target.value)}
-                        onKeyDown={(e) => e.key === 'Enter' && fetchInvoices()}
+                        onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
                     />
                 </div>
                 <div className="flex gap-2 w-full md:w-auto">
-                    <button className="flex items-center gap-2 px-6 py-3 bg-white dark:bg-[#0d1117] border border-black/5 dark:border-[#30363d] rounded-lg text-xs font-bold uppercase tracking-widest text-gray-500 dark:text-[#8b949e]/60 hover:text-[#0d3542] dark:hover:text-[#58a6ff] transition-all whitespace-nowrap">
-                        <Calendar size={14} /> Filter Date
-                    </button>
+                    <div className="relative flex items-center bg-white dark:bg-[#0d1117] border border-black/5 dark:border-[#30363d] rounded-lg px-4 py-2 hover:text-[#0d3542] dark:hover:text-[#58a6ff] transition-all whitespace-nowrap">
+                        <Calendar size={14} className="text-gray-400 dark:text-[#8b949e]/40 mr-2" />
+                        <input 
+                            type="date"
+                            className="bg-transparent text-xs font-bold uppercase tracking-widest text-gray-500 dark:text-[#8b949e]/60 outline-none border-none cursor-pointer"
+                            value={date}
+                            onChange={(e) => handleDateChange(e.target.value)}
+                        />
+                        {date && (
+                            <button 
+                                onClick={() => handleDateChange('')}
+                                className="ml-2 text-xs font-bold text-gray-400 hover:text-red-500"
+                                title="Clear date filter"
+                            >
+                                <X size={12} />
+                            </button>
+                        )}
+                    </div>
                     <button 
-                        onClick={fetchInvoices}
+                        onClick={handleRefresh}
                         className="p-3 bg-white dark:bg-[#0d1117] border border-black/5 dark:border-[#30363d] rounded-lg text-gray-400 hover:text-[#0d3542] dark:hover:text-[#58a6ff] transition-all"
                     >
                         <RefreshCw size={16} className={loading ? 'animate-spin' : ''} />
@@ -145,7 +233,7 @@ const SalesHistoryManager = () => {
                                     <td className="px-6 py-6">
                                         <div className="flex items-center gap-3">
                                             <div className="w-8 h-8 rounded-lg bg-black/5 dark:bg-[#0d1117] flex items-center justify-center text-gray-400 group-hover:text-[#0d3542] dark:group-hover:text-[#58a6ff] font-bold text-xs border border-transparent dark:border-[#30363d]">
-                                                {inv.customer?.name.charAt(0) || 'W'}
+                                                {inv.customer?.name?.charAt(0) || 'W'}
                                             </div>
                                             <div>
                                                 <p className="text-sm font-bold text-gray-900 dark:text-[#c9d1d9] uppercase tracking-wider">{inv.customer?.name || 'Walk-in'}</p>
@@ -201,12 +289,29 @@ const SalesHistoryManager = () => {
                 </table>
             </div>
 
-            {/* Pagination Placeholder */}
+            {/* Pagination Controls */}
             <div className="flex items-center justify-between pb-10">
-                <p className="text-xs font-bold text-gray-500 dark:text-[#8b949e]/40 uppercase tracking-widest">Showing {invoices.length} transactions</p>
+                <p className="text-xs font-bold text-gray-500 dark:text-[#8b949e]/40 uppercase tracking-widest">
+                    Showing {pagination.from}-{pagination.to} of {pagination.total} transactions
+                </p>
                 <div className="flex items-center gap-2">
-                    <button className="p-2 rounded-xl border border-black/5 dark:border-[#30363d] text-gray-400 hover:text-[#0d3542] dark:hover:text-[#58a6ff] transition-all disabled:opacity-30"><ChevronLeft size={16} /></button>
-                    <button className="p-2 rounded-xl border border-black/5 dark:border-[#30363d] text-gray-400 hover:text-[#0d3542] dark:hover:text-[#58a6ff] transition-all disabled:opacity-30"><ChevronRight size={16} /></button>
+                    <button 
+                        disabled={pagination.current_page <= 1}
+                        onClick={() => setPage(prev => Math.max(1, prev - 1))}
+                        className="p-2 rounded-xl border border-black/5 dark:border-[#30363d] text-gray-400 hover:text-[#0d3542] dark:hover:text-[#58a6ff] transition-all disabled:opacity-30 disabled:pointer-events-none"
+                    >
+                        <ChevronLeft size={16} />
+                    </button>
+                    <span className="text-xs font-bold text-gray-500 dark:text-[#8b949e]/40 uppercase tracking-widest px-2">
+                        Page {pagination.current_page} of {pagination.last_page}
+                    </span>
+                    <button 
+                        disabled={pagination.current_page >= pagination.last_page}
+                        onClick={() => setPage(prev => Math.min(pagination.last_page, prev + 1))}
+                        className="p-2 rounded-xl border border-black/5 dark:border-[#30363d] text-gray-400 hover:text-[#0d3542] dark:hover:text-[#58a6ff] transition-all disabled:opacity-30 disabled:pointer-events-none"
+                    >
+                        <ChevronRight size={16} />
+                    </button>
                 </div>
             </div>
         </div>

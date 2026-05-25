@@ -26,6 +26,8 @@ const buildReceiptHTML = (invoice, activeOutlet, isRefund = false, refundData = 
 
     const totalDiscount = isRefund ? 0 : parseFloat(invoice.tier_discount_amt || invoice.total_discount || invoice.discount_amount || 0);
     const discountPct = isRefund ? 0 : parseFloat(invoice.tier_discount_pct || 0);
+    // Determine discount display: percentage shows "X%", fixed shows "$X"
+    const discountLabel = discountPct > 0 ? `${discountPct}%` : (totalDiscount > 0 ? `$${totalDiscount.toFixed(2)}` : '0%');
 
     // Calculate total quantity
     let totalQty = 0;
@@ -46,7 +48,7 @@ const buildReceiptHTML = (invoice, activeOutlet, isRefund = false, refundData = 
         }
 
         const lineAmount = (unitPrice * qty) - itemDisc;
-        const discDisplay = itemDisc > 0 ? itemDisc.toFixed(0) : '-';
+        const discDisplay = itemDisc > 0 ? itemDisc.toFixed(2) : '-';
 
         // Build description: product name + variant
         let descHtml = `<div style="font-weight: 900; font-size: 11px;">${item.product_name}</div>`;
@@ -67,9 +69,9 @@ const buildReceiptHTML = (invoice, activeOutlet, isRefund = false, refundData = 
                 <td>${idx + 1}</td>
                 <td style="text-align: left; padding-bottom: 4px;">${descHtml}</td>
                 <td>${qty}</td>
-                <td>${unitPrice.toFixed(0)}</td>
+                <td>${unitPrice.toFixed(2)}</td>
                 <td>${discDisplay}</td>
-                <td>${lineAmount.toFixed(0)}</td>
+                <td>${lineAmount.toFixed(2)}</td>
             </tr>`;
     }).join('');
 
@@ -282,16 +284,16 @@ const buildReceiptHTML = (invoice, activeOutlet, isRefund = false, refundData = 
                 <span>Sub-Total</span>
                 <span>($)</span>
             </span>
-            <span>: &nbsp; $ ${subtotal.toFixed(0)}</span>
+            <span>: &nbsp; $ ${subtotal.toFixed(2)}</span>
         </div>
 
         <div class="total-row">
             <span class="total-label">
                 <span class="khmer">បញ្ចុះតម្លៃ</span>
-                <span>Disc. (${discountPct}%)</span>
+                <span>Disc. (${discountLabel})</span>
                 <span>($)</span>
             </span>
-            <span>: &nbsp; $ ${totalDiscount.toFixed(0)}</span>
+            <span>: &nbsp; $ ${totalDiscount.toFixed(2)}</span>
         </div>
 
         <hr class="divider-thick">
@@ -301,7 +303,7 @@ const buildReceiptHTML = (invoice, activeOutlet, isRefund = false, refundData = 
                 <span class="khmer">សរុប</span>
                 <span>Grand Total ($)</span>
             </span>
-            <span>: &nbsp; $ ${grandTotal.toFixed(0)}</span>
+            <span>: &nbsp; $ ${grandTotal.toFixed(2)}</span>
         </div>
 
         <div class="grand-total-row">
@@ -320,7 +322,7 @@ const buildReceiptHTML = (invoice, activeOutlet, isRefund = false, refundData = 
             const method = (p.method || p.payment_method || '').toUpperCase();
             return `<div class="total-row">
                 <span>${method}</span>
-                <span>$ ${parseFloat(p.amount).toFixed(0)}</span>
+                <span>$ ${parseFloat(p.amount).toFixed(2)}</span>
             </div>`;
         }).join('')}
     </div>` : ''}
