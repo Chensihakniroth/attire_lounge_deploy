@@ -218,6 +218,16 @@ const Navigation = () => {
 
     return (
         <>
+            {/* Fallback visible menu button so nav is always accessible */}
+            {!isMobile && !isVisible && (
+                <button
+                    onClick={() => setIsMenuOpen(true)}
+                    aria-label="Open menu"
+                    className="fixed top-3 left-3 z-[60] p-2 rounded-md bg-white/5 text-white hover:bg-white/10 transition-colors"
+                >
+                    <Menu className="w-5 h-5" />
+                </button>
+            )}
             {/* Invisible Trigger Area for Desktop Hover */}
             {!isMobile && (
                 <div
