@@ -202,12 +202,13 @@ const Navigation = () => {
                 <div
                     className="fixed top-0 left-0 right-0 h-24 z-40 bg-transparent"
                     onMouseEnter={() => setIsHovered(true)}
+                    onMouseLeave={() => setIsHovered(false)}
                 />
             )}
 
             <motion.nav
                 animate={isVisible ? 'visible' : 'hidden'}
-                initial="visible"
+                initial={isVisible ? 'visible' : 'hidden'}
                 variants={navVariants}
                 transition={{ duration: 0.3 }} // Control duration here via Framer Motion
                 className={`fixed top-0 left-0 right-0 z-50 ${navBackgroundClass}`}
