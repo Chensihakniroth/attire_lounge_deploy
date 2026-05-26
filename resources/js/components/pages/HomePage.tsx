@@ -11,6 +11,7 @@ import LiquidButton from '../common/LiquidButton.jsx';
 import SEO from '../common/SEO';
 import { isSafari } from '../../helpers/browserUtils.js';
 import Navigation from '../layouts/Navigation.jsx';
+import minioBaseUrl from '../../config.js';
 
 interface Service {
   name: string;
