@@ -19,7 +19,7 @@
             };
         </script>
     </head>
-    <body class="bg-background text-foreground antialiased" style="background-color: #0d1117;">
+    <body class="bg-background text-foreground antialiased" style="background-color: #000000;">
         <div id="app"></div>
         <script type="module" src="{{ asset('/js/app.js') }}?v={{ time() }}"></script>
     </body>

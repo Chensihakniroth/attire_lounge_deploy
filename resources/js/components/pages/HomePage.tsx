@@ -674,7 +674,7 @@ const TipsAndTricksSection = memo(forwardRef<HTMLElement, TipsAndTricksSectionPr
 
 
 const FooterSection = memo(forwardRef<HTMLElement>((_props, ref) => (
-  <section className="relative snap-section !h-auto !min-h-screen !overflow-visible bg-black" ref={ref}>
+  <section className="relative snap-section bg-black" ref={ref}>
     <div className="w-full">
       <Footer />
     </div>

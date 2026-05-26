@@ -22,10 +22,10 @@ import { useFavorites } from '../../context/FavoritesContext.jsx';
 const Navigation = () => {
     const [isMenuOpen, setIsMenuOpen] = useState(false);
     const [isScrolled, setIsScrolled] = useState(false);
-    const [isHovered, setIsHovered] = useState(false);
     const [isMobile, setIsMobile] = useState(false);
     const [isLookbookFilterOpen, setIsLookbookFilterOpen] = useState(false);
     const { favorites } = useFavorites();
+    const navRef = useRef(null);
 
     useEffect(() => {
         const handler = ({ detail }) =>
@@ -64,23 +64,12 @@ const Navigation = () => {
     ];
 
     // --- Smart Header & Animation Logic (Lenis-aware) ---
-    const [hidden, setHidden] = useState(false);
-    const prevScrollRef = useRef(0);
-
     // Listen to Lenis scroll events directly, with native scroll fallback
     useEffect(() => {
-        const onScroll = ({ scroll, direction }) => {
-            // direction: 1 = down, -1 = up (from Lenis)
-            if (scroll < 50) {
-                setHidden(false);
+        const onScroll = ({ scroll }) => {
+            if (scroll < 5) {
                 setIsScrolled(false);
-            } else if (direction === -1) {
-                // Scrolling UP → show nav
-                setHidden(false);
-                setIsScrolled(true);
-            } else if (direction === 1) {
-                // Scrolling DOWN → hide nav
-                setHidden(true);
+            } else {
                 setIsScrolled(true);
             }
         };
@@ -88,20 +77,11 @@ const Navigation = () => {
         // Native scroll fallback for when Lenis isn't active
         const onNativeScroll = () => {
             const current = window.scrollY;
-            const prev = prevScrollRef.current;
-
-            if (current < 50) {
-                setHidden(false);
+            if (current < 5) {
                 setIsScrolled(false);
-            } else if (current < prev) {
-                setHidden(false);
-                setIsScrolled(true);
-            } else if (current > prev) {
-                setHidden(true);
+            } else {
                 setIsScrolled(true);
             }
-
-            prevScrollRef.current = current;
         };
 
         // Try Lenis first
@@ -129,27 +109,7 @@ const Navigation = () => {
         return () => document.removeEventListener('keydown', handleEscape);
     }, []);
 
-    // --- Style & Animation Logic ---
-    // Hide navbar unless:
-    // 1. Menu is open
-    // 2. We are on mobile (often better to keep accessible, or can hide too)
-    // 3. User is hovering over the nav area
-    // 4. We are at the very top of the homepage (transparent mode) - optional, user asked to disappear if not hover
-
-    // User request: "make the nav bar dissapare if not hover in every section"
-    // Interpretation: It should be hidden by default and slide down on hover.
-
-    // Let's go with strict hover for desktop, and maybe always visible or scroll-aware for mobile.
-    // Actually, "disappear if not hover" usually implies a "hide on scroll down, show on hover/scroll up" OR "fixed top strip that expands".
-    // But typically for this requested behavior: Hidden by default (y: -100%), shows on mouse enter (top area).
-
-    // To detect hover on a hidden element, we need a trigger area at the top.
-
-    // Revised logic:
-    // Desktop: Hidden (-100% y) by default. Shows when mouse is near top (handled by a fixed invisible trigger div) or hovered on nav itself.
-    // Mobile: Standard behavior (visible) or scroll-aware? Let's stick to the requested "disappear".
-
-    const isVisible = isMenuOpen || isHovered || !hidden;
+    const isVisible = true;
 
     // Determine if we are in "transparent mode" (at top of homepage)
     const isTransparentNav = isHomePage && !isScrolled && !isMenuOpen;
@@ -197,22 +157,13 @@ const Navigation = () => {
 
     return (
         <>
-            {/* Invisible Trigger Area for Desktop Hover */}
-            {!isMobile && (
-                <div
-                    className="fixed top-0 left-0 right-0 h-24 z-40 bg-transparent"
-                    onMouseEnter={() => setIsHovered(true)}
-                />
-            )}
-
             <motion.nav
+                ref={navRef}
                 animate={isVisible ? 'visible' : 'hidden'}
                 initial="visible"
                 variants={navVariants}
-                transition={{ duration: 0.3 }} // Control duration here via Framer Motion
-                className={`fixed top-0 left-0 right-0 z-50 ${navBackgroundClass}`}
-                onMouseEnter={() => setIsHovered(true)}
-                onMouseLeave={() => setIsHovered(false)}
+                transition={{ duration: 0.3 }}
+                className={`fixed top-0 left-0 right-0 z-50 transition-[background-color,backdrop-filter,border-color,box-shadow] duration-500 ${navBackgroundClass}`}
             >
                 <div className="max-w-7xl mx-auto px-6">
                     <div className="flex items-center justify-between h-20 md:h-24">

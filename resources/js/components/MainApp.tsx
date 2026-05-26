@@ -116,7 +116,7 @@ interface LayoutProps {
 const Layout: React.FC<LayoutProps> = ({ children, includeHeader = true, includeFooter = true, includePadding = true }) => {
     return (
         <PageTransition>
-            <div className="min-h-screen flex flex-col">
+            <div className="min-h-screen flex flex-col bg-black">
                 {includeHeader && <Navigation />}
                 <main className={`flex-grow ${includePadding ? 'pt-24 md:pt-0' : ''}`}>
                     {children}
