@@ -542,6 +542,14 @@
     contain-intrinsic-size: 100vh;
 }
 
+/* Fix: ensure the last snap section (footer) sizes to its content
+   so it doesn't force an extra viewport-height gap at the bottom. */
+.snap-section:last-child {
+    height: auto !important;
+    min-height: 0 !important;
+    overflow: visible !important;
+}
+
 /* === Safari 60FPS Force === */
 [data-safari="true"] .snap-section {
     /* Only apply will-change to active layers or keep it simple */
@@ -826,17 +834,17 @@ img {
 }
 
 /* ============ SOVEREIGN SYNC: PERFORMANCE MODE OVERRIDES ============ */
-.performance-mode *, 
-.performance-mode *::before, 
+.performance-mode *,
+.performance-mode *::before,
 .performance-mode *::after {
     /* 1. Disable expensive filters */
     backdrop-filter: none !important;
     -webkit-backdrop-filter: none !important;
     filter: none !important;
-    
+
     /* 2. Disable layout-triggering blend modes */
     mix-blend-mode: normal !important;
-    
+
     /* 3. Simplify shadows to basic versions */
     box-shadow: none !important;
 }
@@ -882,16 +890,16 @@ img {
     transition-duration: 0s !important;
 }
 
-/* 6. Specifically target the LumaSpin within performance mode to be a simple static state if needed, 
-   but usually just slowing it down or making it a simple spinner is better. 
+/* 6. Specifically target the LumaSpin within performance mode to be a simple static state if needed,
+   but usually just slowing it down or making it a simple spinner is better.
    Keeping it subtle. */
 
 
 /* Hide number input spin buttons globally */
-input[type="number"]::-webkit-inner-spin-button, 
-input[type="number"]::-webkit-outer-spin-button { 
-    -webkit-appearance: none; 
-    margin: 0; 
+input[type="number"]::-webkit-inner-spin-button,
+input[type="number"]::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
 }
 input[type="number"] {
     -moz-appearance: textfield;
@@ -914,12 +922,12 @@ input[type="number"] {
     body * {
         visibility: hidden;
     }
-    
+
     /* Only show the print-only wrapper and its children */
     .print-only, .print-only * {
         visibility: visible !important;
     }
-    
+
     .print-only {
         position: absolute !important;
         left: 0 !important;
