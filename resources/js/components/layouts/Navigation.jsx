@@ -71,50 +71,39 @@ const Navigation = () => {
 
     // Listen to Lenis scroll events directly, with native scroll fallback
     useEffect(() => {
-        const onScroll = ({ scroll, direction }) => {
-            // direction: 1 = down, -1 = up (from Lenis)
-            if (scroll < 50) {
-                // Consider this the first/home section — hide the nav by default
+        const updateScrollState = (current, direction = 0) => {
+            const atFirstSection = isHomePage && current < 50;
+
+            if (atFirstSection) {
                 setHidden(true);
                 setIsScrolled(false);
                 setIsInFirstSection(true);
-            } else if (direction === -1) {
-                // Scrolling UP → show nav
+            } else if (direction === -1 || current < prevScrollRef.current) {
                 setHidden(false);
                 setIsScrolled(true);
                 setIsInFirstSection(false);
-            } else if (direction === 1) {
-                // Scrolling DOWN → hide nav
+            } else if (direction === 1 || current > prevScrollRef.current) {
                 setHidden(true);
                 setIsScrolled(true);
                 setIsInFirstSection(false);
             }
+        };
+
+        const onScroll = ({ scroll, direction }) => {
+            updateScrollState(scroll, direction);
+            prevScrollRef.current = scroll;
         };
 
         // Native scroll fallback for when Lenis isn't active
         const onNativeScroll = () => {
             const current = window.scrollY;
-            const prev = prevScrollRef.current;
-
-            if (current < 50) {
-                // First/home section
-                setHidden(true);
-                setIsScrolled(false);
-                setIsInFirstSection(true);
-            } else if (current < prev) {
-                // Scrolling up
-                setHidden(false);
-                setIsScrolled(true);
-                setIsInFirstSection(false);
-            } else if (current > prev) {
-                // Scrolling down
-                setHidden(true);
-                setIsScrolled(true);
-                setIsInFirstSection(false);
-            }
-
+            updateScrollState(current);
             prevScrollRef.current = current;
         };
+
+        // Initialize state on mount
+        updateScrollState(window.scrollY);
+        prevScrollRef.current = window.scrollY;
 
         // Try Lenis first
         const lenis = window.lenis;
@@ -131,7 +120,27 @@ const Navigation = () => {
                 window.removeEventListener('scroll', onNativeScroll);
             }
         };
-    }, []);
+    }, [isHomePage]);
+
+    useEffect(() => {
+        if (isMobile) return;
+
+        const onMouseMove = (event) => {
+            if (isInFirstSection) {
+                setIsHovered(false);
+                return;
+            }
+
+            if (event.clientY < 80) {
+                setIsHovered(true);
+            } else {
+                setIsHovered(false);
+            }
+        };
+
+        window.addEventListener('mousemove', onMouseMove);
+        return () => window.removeEventListener('mousemove', onMouseMove);
+    }, [isMobile, isInFirstSection]);
 
     useEffect(() => {
         const handleEscape = (e) => {
