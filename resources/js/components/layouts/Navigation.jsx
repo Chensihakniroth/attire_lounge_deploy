@@ -66,22 +66,28 @@ const Navigation = () => {
     // --- Smart Header & Animation Logic (Lenis-aware) ---
     const [hidden, setHidden] = useState(false);
     const prevScrollRef = useRef(0);
+    // Track whether the viewport is inside the first (home) section
+    const [isInFirstSection, setIsInFirstSection] = useState(false);
 
     // Listen to Lenis scroll events directly, with native scroll fallback
     useEffect(() => {
         const onScroll = ({ scroll, direction }) => {
             // direction: 1 = down, -1 = up (from Lenis)
             if (scroll < 50) {
-                setHidden(false);
+                // Consider this the first/home section — hide the nav by default
+                setHidden(true);
                 setIsScrolled(false);
+                setIsInFirstSection(true);
             } else if (direction === -1) {
                 // Scrolling UP → show nav
                 setHidden(false);
                 setIsScrolled(true);
+                setIsInFirstSection(false);
             } else if (direction === 1) {
                 // Scrolling DOWN → hide nav
                 setHidden(true);
                 setIsScrolled(true);
+                setIsInFirstSection(false);
             }
         };
 
@@ -91,14 +97,20 @@ const Navigation = () => {
             const prev = prevScrollRef.current;
 
             if (current < 50) {
-                setHidden(false);
+                // First/home section
+                setHidden(true);
                 setIsScrolled(false);
+                setIsInFirstSection(true);
             } else if (current < prev) {
+                // Scrolling up
                 setHidden(false);
                 setIsScrolled(true);
+                setIsInFirstSection(false);
             } else if (current > prev) {
+                // Scrolling down
                 setHidden(true);
                 setIsScrolled(true);
+                setIsInFirstSection(false);
             }
 
             prevScrollRef.current = current;
@@ -201,7 +213,7 @@ const Navigation = () => {
             {!isMobile && (
                 <div
                     className="fixed top-0 left-0 right-0 h-24 z-40 bg-transparent"
-                    onMouseEnter={() => setIsHovered(true)}
+                    onMouseEnter={() => { if (!isInFirstSection) setIsHovered(true); }}
                     onMouseLeave={() => setIsHovered(false)}
                 />
             )}
@@ -212,7 +224,7 @@ const Navigation = () => {
                 variants={navVariants}
                 transition={{ duration: 0.3 }} // Control duration here via Framer Motion
                 className={`fixed top-0 left-0 right-0 z-50 ${navBackgroundClass}`}
-                onMouseEnter={() => setIsHovered(true)}
+                onMouseEnter={() => { if (!isInFirstSection) setIsHovered(true); }}
                 onMouseLeave={() => setIsHovered(false)}
             >
                 <div className="max-w-7xl mx-auto px-6">
