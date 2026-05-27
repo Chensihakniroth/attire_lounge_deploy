@@ -179,7 +179,7 @@ const CustomizeGiftPage = () => {
     const [note, setNote] = useState('');
     const [submissionStatus, setSubmissionStatus] = useState({ state: 'idle' });
     const [formErrors, setFormErrors] = useState({});
-    
+
     // Promocode states
     const [promoCode, setPromoCode] = useState('');
     const [appliedPromo, setAppliedPromo] = useState(null);
@@ -309,15 +309,15 @@ const CustomizeGiftPage = () => {
     };
 
     return (
-        <div className="min-h-screen bg-attire-navy text-white selection:bg-attire-accent selection:text-black">
+        <div className="bg-attire-navy text-white selection:bg-attire-accent selection:text-black min-h-screen">
             {/* Immersive Background - Filtered via CSS [data-safari="true"] */}
             <div className="fixed inset-0 z-0 pointer-events-none">
                 <div className="absolute top-[-10%] right-[-10%] w-[50%] h-[50%] bg-attire-accent/5 blur-[120px] rounded-full" />
-                <div className="absolute bottom-[-10%] left-[-10%] w-[50%] h-[50%] bg-white/5 blur-[120px] rounded-full" />
+                {/* Removed white blurred gradient that caused layout gaps under the footer */}
                 <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')] opacity-[0.03] mix-blend-overlay" />
             </div>
 
-            <div className="relative z-10 max-w-[1400px] mx-auto px-6 py-28 sm:py-40">
+            <div className="relative z-10 max-w-[1400px] mx-auto px-6 pt-28 sm:pt-40">
                 {/* Header Section */}
                 <header className="max-w-3xl mx-auto text-center mb-24">
                     <motion.div
@@ -356,7 +356,7 @@ const CustomizeGiftPage = () => {
                 {/* Main Content Layout with stable height & scroll ref 💖 */}
                 <div
                     ref={contentRef}
-                    className="grid grid-cols-1 lg:grid-cols-12 gap-16 items-start min-h-[120vh] pb-32"
+                    className="grid grid-cols-1 lg:grid-cols-12 gap-16 items-start"
                 >
                     {/* Interaction Area */}
                     <div

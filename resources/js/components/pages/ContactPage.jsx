@@ -245,7 +245,7 @@ const ContactPage = () => {
     };
 
     return (
-        <div className="min-h-screen bg-attire-navy relative selection:bg-attire-accent selection:text-black">
+        <div className="bg-attire-navy relative selection:bg-attire-accent selection:text-black min-h-screen">
             {/* Ambient Background - Disabled on Safari for performance */}
             {!isSafariBrowser && (
                 <div className="fixed inset-0 z-0 pointer-events-none opacity-20">
@@ -254,7 +254,7 @@ const ContactPage = () => {
                 </div>
             )}
 
-            <div className="relative z-10 max-w-[1400px] mx-auto px-6 py-28 sm:py-40">
+            <div className="relative z-10 max-w-[1400px] mx-auto px-6 pt-28 sm:pt-40">
                 {/* Atelier Header */}
                 <header className="max-w-3xl mx-auto text-center mb-24">
                     <motion.div initial="hidden" animate="visible" variants={fadeUp} className="space-y-8">
@@ -271,7 +271,7 @@ const ContactPage = () => {
                     </motion.div>
                 </header>
 
-                <div ref={contentRef} className="grid grid-cols-1 lg:grid-cols-12 gap-16 items-start min-h-[1000px] pb-32">
+                <div ref={contentRef} className="grid grid-cols-1 lg:grid-cols-12 gap-16 items-start">
 
                     {/* Information Sidebar */}
                     <div className="lg:col-span-4 space-y-12 order-2 lg:order-1">
@@ -347,7 +347,7 @@ const ContactPage = () => {
                                             <div className="grid grid-cols-2 gap-6">
                                                 <div className="space-y-2">
                                                     <label className="block text-[10px] font-black text-white/80 uppercase tracking-[0.3em] ml-1">Preferred Date</label>
-                                                    <DatePicker 
+                                                    <DatePicker
                                                         name="date"
                                                         value={formData.date}
                                                         onChange={(e) => setFormData({...formData, date: e.target.value})}
@@ -358,7 +358,7 @@ const ContactPage = () => {
                                                 </div>
                                                  <div className="space-y-2">
                                                     <label className="block text-[10px] font-black text-white/80 uppercase tracking-[0.3em] ml-1">Time</label>
-                                                    <TimePicker 
+                                                    <TimePicker
                                                         use12HourFormat={true}
                                                         value={formData.time ? parse(formData.time, 'HH:mm', new Date()) : new Date()}
                                                         onChange={(date) => setFormData({...formData, time: format(date, 'HH:mm')})}

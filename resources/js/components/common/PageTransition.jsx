@@ -7,12 +7,12 @@ const PageTransition = ({ children }) => {
 
     return (
         <motion.div
-            initial={{ opacity: 0, filter: 'blur(4px)' }}
-            animate={{ opacity: 1, filter: 'blur(0px)' }}
-            exit={{ opacity: 0, filter: 'blur(4px)' }}
-            transition={{ duration: 0.3, ease: 'easeInOut' }}
-            className="w-full flex-grow flex flex-col will-change-opacity"
-        >
+                initial={{ opacity: 0, filter: 'blur(4px)' }}
+                animate={{ opacity: 1, filter: 'blur(0px)' }}
+                exit={{ opacity: 0, filter: 'blur(4px)' }}
+                transition={{ duration: 0.3, ease: 'easeInOut' }}
+                className="w-full min-h-screen flex flex-col will-change-opacity"
+            >
             {children}
         </motion.div>
     );
