@@ -20,7 +20,6 @@ const queryClient = new QueryClient({
 });
 
 // Components
-import Navigation from './layouts/Navigation.jsx';
 import LoadingSpinner from './common/LoadingSpinner.jsx';
 import Footer from './layouts/Footer.jsx';
 import PageTransition from './common/PageTransition.jsx';
@@ -192,11 +191,9 @@ const AnimatedRoutes: React.FC = () => {
                 <Route path="/" element={
                     <PageTransition>
                         <div className="min-h-screen flex flex-col">
-                            <Navigation />
                             <main className="flex-grow">
                                 <HomePage />
                             </main>
-                            {/* Footer is now INSIDE HomePage as section 4 */}
                         </div>
                     </PageTransition>
                 } />

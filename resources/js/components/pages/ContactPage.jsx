@@ -254,7 +254,7 @@ const ContactPage = () => {
                 </div>
             )}
 
-            <div className="relative z-10 max-w-[1400px] mx-auto px-6 pt-28 sm:pt-40">
+            <div className="relative z-10 max-w-[1400px] mx-auto px-6 pt-28 sm:pt-40 pb-24 md:pb-40">
                 {/* Atelier Header */}
                 <header className="max-w-3xl mx-auto text-center mb-24">
                     <motion.div initial="hidden" animate="visible" variants={fadeUp} className="space-y-8">

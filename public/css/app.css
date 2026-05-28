@@ -628,6 +628,9 @@
   .top-2 {
     top: calc(var(--spacing) * 2);
   }
+  .top-3 {
+    top: calc(var(--spacing) * 3);
+  }
   .top-4 {
     top: calc(var(--spacing) * 4);
   }
@@ -1092,6 +1095,9 @@
     display: -webkit-box;
     -webkit-box-orient: vertical;
     -webkit-line-clamp: 2;
+  }
+  .\!hidden {
+    display: none !important;
   }
   .block {
     display: block;
@@ -8102,6 +8108,11 @@
   .md\:pb-0 {
     @media (width >= 48rem) {
       padding-bottom: calc(var(--spacing) * 0);
+    }
+  }
+  .md\:pb-40 {
+    @media (width >= 48rem) {
+      padding-bottom: calc(var(--spacing) * 40);
     }
   }
   .md\:text-right {

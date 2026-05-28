@@ -10,7 +10,7 @@ import OptimizedImage from '../common/OptimizedImage.jsx';
 import LiquidButton from '../common/LiquidButton.jsx';
 import SEO from '../common/SEO';
 import { isSafari } from '../../helpers/browserUtils.js';
-
+import Navigation from '../layouts/Navigation.jsx';
 import minioBaseUrl from '../../config.js';
 
 interface Service {
@@ -804,8 +804,9 @@ const HomePage: React.FC = () => {
   const sectionNames = ['Home', 'Philosophy', 'Collections', 'Fashion Show', 'Experience', 'Membership', 'Lookbook', 'Tips & Tricks', 'Appointment and Contact'];
 
   return (
-    <div className="snap-scroll-container bg-[#111111]">
-      <SEO
+<div className="snap-scroll-container bg-[#111111]">
+       <Navigation />
+       <SEO
         title="Attire Lounge Official | Gentleman Styling House & Ready-to-Wear"
         description="Attire Lounge Official is Phnom Penh's premier Styling House, offering Milan-certified expert styling, curated luxury menswear collections, and personalized fashion consulting for the modern gentleman."
       />
