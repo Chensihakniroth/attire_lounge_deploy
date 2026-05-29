@@ -808,7 +808,7 @@ const HomePage: React.FC = () => {
        <Navigation />
        <SEO
         title="Attire Lounge Official | Gentleman Styling House & Ready-to-Wear"
-        description="Attire Lounge Official is Phnom Penh's premier Styling House, offering Milan-certified expert styling, curated luxury menswear collections, and personalized fashion consulting for the modern gentleman."
+        description="Attire Lounge Official is Phnom Penh's Styling House, offering Milan-certified expert styling, curated luxury menswear collections, and personalized fashion consulting for the modern gentleman."
       />
       <SectionIndicator
         sections={sectionNames}
