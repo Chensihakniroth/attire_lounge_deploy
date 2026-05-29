@@ -1,24 +1,69 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 
 const SectionIndicator = ({ sections, activeSection, scrollToSection, isMenuOpen }) => {
     if (isMenuOpen) return null;
+    
+    const [isDragging, setIsDragging] = useState(false);
+    const [dragStartY, setDragStartY] = useState(0);
+    const [activeSectionStart, setActiveSectionStart] = useState(activeSection);
+
+    const handleDragStart = (e) => {
+        setIsDragging(true);
+        setDragStartY(e.clientY);
+        setActiveSectionStart(activeSection);
+    };
+
+    const handleDragMove = (e) => {
+        if (!isDragging) return;
+        
+        const container = e.currentTarget.parentElement;
+        if (!container) return;
+        
+        const containerRect = container.getBoundingClientRect();
+        const containerHeight = containerRect.height;
+        const deltaY = e.clientY - dragStartY;
+        
+        // Calculate progress based on drag movement
+        const progress = Math.max(0, Math.min(1, (activeSectionStart / (sections.length - 1)) + (deltaY / containerHeight)));
+        const newActiveSection = Math.round(progress * (sections.length - 1));
+        
+        // Update active section and scroll to it
+        if (newActiveSection !== activeSection) {
+            scrollToSection(newActiveSection);
+        }
+    };
+
+    const handleDragEnd = () => {
+        setIsDragging(false);
+    };
 
     return (
         <div className="hidden md:flex fixed right-8 top-1/2 -translate-y-1/2 z-40 h-[25vh] flex-col items-center justify-center">
             {/* Glass Track */}
-            <div className="relative w-[1px] h-full bg-white/10 backdrop-blur-sm rounded-full overflow-visible border-0">
+            <div 
+                className="relative w-[1px] h-full bg-white/10 backdrop-blur-sm rounded-full overflow-visible border-0"
+                onMouseDown={handleDragStart}
+                onMouseMove={handleDragMove}
+                onMouseUp={handleDragEnd}
+                onMouseLeave={handleDragEnd}
+                onTouchStart={(e) => handleDragStart(e.touches[0])}
+                onTouchMove={(e) => handleDragMove(e.touches[0])}
+                onTouchEnd={handleDragEnd}
+                onTouchCancel={handleDragEnd}
+                style={{ userSelect: 'none', WebkitUserSelect: 'none' }}
+            >
                 {/* Active Indicator Pill */}
-                <motion.div 
-                    className="absolute left-[-0.5px] w-0.5 bg-attire-accent shadow-[0_0_10px_rgba(212,168,76,0.8)] rounded-full"
+                <motion.div
+                    className={`absolute left-[-0.5px] w-0.5 bg-attire-accent shadow-[0_0_10px_rgba(212,168,76,0.8)] rounded-full ${isDragging ? 'animate-pulse' : ''}`}
                     initial={false}
-                    animate={{ 
+                    animate={{
                         top: `${(activeSection / (sections.length - 1)) * 100}%`,
                         y: '-50%'
                     }}
                     style={{
                         height: '10%', // Smaller pill height
-                        top: 0 
+                        top: 0
                     }}
                     transition={{ type: "spring", stiffness: 300, damping: 30 }}
                 />
@@ -27,8 +72,8 @@ const SectionIndicator = ({ sections, activeSection, scrollToSection, isMenuOpen
             {/* Clickable Overlay & Labels */}
             <div className="absolute inset-0 flex flex-col justify-between h-full w-6 -left-3">
                 {sections.map((section, index) => (
-                    <div 
-                        key={index} 
+                    <div
+                        key={index}
                         className="relative flex-1 flex items-center justify-center group cursor-pointer"
                         onClick={() => scrollToSection(index)}
                     >

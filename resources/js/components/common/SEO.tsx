@@ -12,7 +12,7 @@ interface SEOProps {
 
 const SEO: React.FC<SEOProps> = ({
   title = "Attire Lounge Official | Gentleman Styling House",
-  description = "Attire Lounge Official is Phnom Penh's premier Styling House, offering Milan-certified expert styling, curated luxury menswear collections, and personalized fashion consulting for the modern gentleman.",
+  description = "Attire Lounge Official is Phnom Penh's Styling House, offering Milan-certified expert styling, curated luxury menswear collections, and personalized fashion consulting for the modern gentleman.",
   keywords = "styling house, curated menswear, luxury fashion, Attire Lounge Official, modern gentleman, Phnom Penh styling, menswear consulting",
   image = "/images/og-image.jpg",
   url = "https://www.attireloungeofficial.com/",

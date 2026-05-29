@@ -22,6 +22,7 @@ const queryClient = new QueryClient({
 // Components
 import LoadingSpinner from './common/LoadingSpinner.jsx';
 import Footer from './layouts/Footer.jsx';
+import Navigation from './layouts/Navigation.jsx';
 import PageTransition from './common/PageTransition.jsx';
 
 // Declare global for Lenis
@@ -36,7 +37,7 @@ const RealtimeUpdater: React.FC = () => {
     useEffect(() => {
         if (typeof window !== 'undefined' && window.Echo) {
             const channel = window.Echo.channel('admin-notifications');
-            
+
             const handleUpdate = () => {
                 console.log('MainApp: Real-time update received! Invalidating queries...');
                 queryClient.invalidateQueries();
@@ -45,7 +46,7 @@ const RealtimeUpdater: React.FC = () => {
             channel.listen('.collection.updated', handleUpdate);
             channel.listen('.product.updated', handleUpdate);
             channel.listen('.stock.updated', handleUpdate);
-            
+
             return () => {
                 window.Echo.leaveChannel('admin-notifications');
             };
