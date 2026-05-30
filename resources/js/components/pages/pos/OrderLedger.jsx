@@ -33,6 +33,9 @@ const InlineSearch = ({ onSearchClick, addItem }) => {
     }, []);
 
     const searchProducts = useCallback(async (q) => {
+        // Clear any pending timeout immediately to prevent stale queries from executing
+        clearTimeout(debounceRef.current);
+
         if (!q || q.trim().length < 1) {
             setResults([]);
             setIsOpen(false);
@@ -65,14 +68,39 @@ const InlineSearch = ({ onSearchClick, addItem }) => {
         }
 
         // 2. Debounced API fallback
-        clearTimeout(debounceRef.current);
         debounceRef.current = setTimeout(async () => {
+            // Guard: check if input has been cleared since the timeout was scheduled
+            if (!inputRef.current?.value?.trim()) {
+                setResults([]);
+                setIsOpen(false);
+                return;
+            }
+
             setIsLoading(true);
             try {
                 const res = await axios.get('/api/v1/admin/pos/products', {
                     params: { search: trimmed, name: trimmed, code: trimmed, per_page: 8 }
                 });
+                
+                // Guard: check if input was cleared while the request was in flight
+                if (!inputRef.current?.value?.trim()) {
+                    setResults([]);
+                    setIsOpen(false);
+                    return;
+                }
+
                 const data = res.data?.data || res.data || [];
+                
+                // Exact SKU match in API results → auto-add and clear!
+                const exactSku = data.find(p => p.sku?.toLowerCase() === trimmed.toLowerCase());
+                if (exactSku) {
+                    addItem(exactSku);
+                    setQuery('');
+                    setResults([]);
+                    setIsOpen(false);
+                    return;
+                }
+
                 setResults(data);
                 setIsOpen(data.length > 0);
             } catch (e) {
