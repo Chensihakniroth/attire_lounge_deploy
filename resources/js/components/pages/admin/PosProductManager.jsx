@@ -229,16 +229,21 @@ const BarcodePrintModal = ({ products, onClose, formatPrice }) => {
         if (!labelsRef.current) return;
         const labelEls = labelsRef.current.querySelectorAll('.bc-label');
         let labelsHtml = '';
-        labelEls.forEach(el => { labelsHtml += el.outerHTML; });
+        for (let i = 0; i < labelEls.length; i += 2) {
+            const label1 = labelEls[i].outerHTML;
+            const label2 = labelEls[i + 1] ? labelEls[i + 1].outerHTML : '';
+            labelsHtml += `<div class="lg">${label1}${label2}</div>`;
+        }
 
         const printWindow = window.open('', '_blank');
         if (!printWindow) { alert('Please allow popups for barcode printing.'); return; }
         printWindow.document.write(`<html><head><title>Barcode Labels</title>
             <style>
                 *{margin:0;padding:0;box-sizing:border-box}
-                html,body{width:72mm;height:21.5mm;overflow:hidden;background:#fff;color:#000;font-family:'Arial Black',Arial,Helvetica,sans-serif;font-size:0;margin:0;padding:0}
-                @media print{@page{size:72mm 22mm;margin:0}html,body{width:72mm;height:21.5mm;overflow:hidden;-webkit-print-color-adjust:exact}}
-                .lg{display:grid !important;grid-template-columns:35mm 35mm !important;justify-content:space-between !important;width:72mm !important;height:21.5mm !important;max-height:21.5mm !important;overflow:hidden !important;align-items:center !important;page-break-inside:avoid !important;page-break-after:avoid !important}
+                html,body{width:72mm;background:#fff;color:#000;font-family:'Arial Black',Arial,Helvetica,sans-serif;font-size:0;margin:0;padding:0}
+                @media print{@page{size:72mm 22mm;margin:0}html,body{width:72mm;-webkit-print-color-adjust:exact}}
+                .lg{display:grid !important;grid-template-columns:35mm 35mm !important;justify-content:space-between !important;width:72mm !important;height:21.5mm !important;max-height:21.5mm !important;overflow:hidden !important;align-items:center !important;page-break-inside:avoid !important;page-break-after:always !important;break-after:page !important}
+                .lg:last-child{page-break-after:avoid !important;break-after:avoid !important}
                 .bc-label{width:35mm !important;height:21.5mm !important;max-height:21.5mm !important;min-height:21.5mm !important;padding:0 !important;display:flex !important;flex-direction:column !important;align-items:center !important;justify-content:center !important;text-align:center !important;overflow:hidden !important;box-sizing:border-box !important;border:none !important;background:transparent !important;border-radius:0 !important;page-break-inside:avoid !important;page-break-after:avoid !important}
                 .bc-label > div { margin: 0 !important; padding: 0 !important; border: none !important; }
                 .ln{font-size:9pt !important;font-weight:900 !important;text-transform:uppercase !important;letter-spacing:.2px !important;line-height:1 !important;white-space:nowrap !important;overflow:hidden !important;text-overflow:ellipsis !important;max-width:100% !important;margin:0 0 1px 0 !important;padding:0 !important;color:#000 !important}
@@ -247,7 +252,7 @@ const BarcodePrintModal = ({ products, onClose, formatPrice }) => {
                 .ls{font-size:5.5pt !important;font-weight:900 !important;font-family:'Courier New',monospace !important;letter-spacing:0.5px !important;color:#000 !important;line-height:1 !important;margin:0 0 1px 0 !important}
                 .lp{font-size:11pt !important;font-weight:900 !important;line-height:1 !important;margin:1px 0 0 0 !important;padding:0 !important;color:#000 !important;border:none !important}
             </style></head><body>
-            <div class="lg">${labelsHtml}</div>
+            ${labelsHtml}
             <script>
                 window.onload = function() {
                     setTimeout(function(){ window.print(); window.close(); }, 300);
