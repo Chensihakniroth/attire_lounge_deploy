@@ -28,7 +28,8 @@ class PosProductController extends Controller
             $query->products();
         }
 
-        if ($search = $request->get('search') || $request->get('name') || $request->get('attribute') || $request->get('code')) {
+        $hasSearch = $request->filled('search') || $request->filled('name') || $request->filled('attribute') || $request->filled('code');
+        if ($hasSearch) {
             $query->search(
                 $request->get('search'),
                 $request->get('name'),

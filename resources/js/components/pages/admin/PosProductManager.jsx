@@ -352,7 +352,8 @@ const ProductsPage = () => {
         }
     };
 
-    const [selectedIds, setSelectedIds] = useState(new Set());
+    const [selectedProductsMap, setSelectedProductsMap] = useState(new Map());
+    const selectedIds = useMemo(() => new Set(selectedProductsMap.keys()), [selectedProductsMap]);
     const [focusedId, setFocusedId] = useState(null);
     const [quickEditField, setQuickEditField] = useState(null); // 'price' | 'stock' | null
     const [isSaving, setIsSaving] = useState(false);
@@ -433,7 +434,9 @@ const ProductsPage = () => {
             const { data } = await axios.get('/api/v1/admin/pos/products', {
                 params: { 
                     type: 'all',
-                    search: debouncedFilters.nameBarcode || debouncedFilters.code || debouncedFilters.attribute, 
+                    name: debouncedFilters.nameBarcode,
+                    code: debouncedFilters.code,
+                    attribute: debouncedFilters.attribute,
                     category: debouncedFilters.group !== 'ALL GROUPS' ? debouncedFilters.group : '',
                     page: currentPage,
                     per_page: pageSize 
@@ -531,8 +534,8 @@ const ProductsPage = () => {
     }, [products]);
 
     const selectedProducts = useMemo(() => 
-        products.filter(p => selectedIds.has(p.id)),
-    [products, selectedIds]);
+        Array.from(selectedProductsMap.values()),
+    [selectedProductsMap]);
 
     // --- Mutations ---
     const mutation = useMutation({
@@ -563,7 +566,7 @@ const ProductsPage = () => {
         mutationFn: (data) => axios.post('/api/v1/admin/pos/products/bulk-update', data),
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ['admin-pos-products'] });
-            setSelectedIds(new Set());
+            setSelectedProductsMap(new Map());
             setIsBulkDialogOpen(false);
         }
     });
@@ -572,7 +575,7 @@ const ProductsPage = () => {
         mutationFn: (data) => axios.post('/api/v1/admin/pos/products/bulk-deactivate', data),
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ['admin-pos-products'] });
-            setSelectedIds(new Set());
+            setSelectedProductsMap(new Map());
             setIsBulkDialogOpen(false);
         }
     });
@@ -666,7 +669,7 @@ const ProductsPage = () => {
                     if (document.activeElement.tagName === 'INPUT') {
                         document.activeElement.blur();
                     } else {
-                        setSelectedIds(new Set());
+                        setSelectedProductsMap(new Map());
                         // Clear both local (visual) and debounced filters
                         setLocalFilters({ code: '', nameBarcode: '', attribute: '' });
                         setFilters(prev => ({ ...prev, nameBarcode: '', code: '', attribute: '' }));
@@ -689,18 +692,29 @@ const ProductsPage = () => {
 
     // --- Handlers ---
     const toggleSelect = (id) => {
-        const newSet = new Set(selectedIds);
-        if (newSet.has(id)) newSet.delete(id);
-        else newSet.add(id);
-        setSelectedIds(newSet);
+        setSelectedProductsMap(prev => {
+            const next = new Map(prev);
+            if (next.has(id)) {
+                next.delete(id);
+            } else {
+                const product = products.find(p => p.id === id);
+                if (product) next.set(id, product);
+            }
+            return next;
+        });
     };
 
     const handleSelectAll = (e) => {
-        if (selectedIds.size === products.length && products.length > 0) {
-            setSelectedIds(new Set());
-        } else {
-            setSelectedIds(new Set(products.map(p => p.id)));
-        }
+        const allCurrentSelected = products.length > 0 && products.every(p => selectedProductsMap.has(p.id));
+        setSelectedProductsMap(prev => {
+            const next = new Map(prev);
+            if (allCurrentSelected) {
+                products.forEach(p => next.delete(p.id));
+            } else {
+                products.forEach(p => next.set(p.id, p));
+            }
+            return next;
+        });
     };
 
     const handleBulkApply = (action, config) => {
@@ -1458,13 +1472,15 @@ const ProductsPage = () => {
                                                                             <div className="flex items-center gap-3">
                                                                                 <button
                                                                                     onClick={() => {
-                                                                                        const newSet = new Set(selectedIds);
-                                                                                        const isGroupSelected = group.items.every(p => newSet.has(p.id));
-                                                                                        group.items.forEach(p => {
-                                                                                            if (isGroupSelected) newSet.delete(p.id);
-                                                                                            else newSet.add(p.id);
+                                                                                        const isGroupSelected = group.items.every(p => selectedProductsMap.has(p.id));
+                                                                                        setSelectedProductsMap(prev => {
+                                                                                            const next = new Map(prev);
+                                                                                            group.items.forEach(p => {
+                                                                                                if (isGroupSelected) next.delete(p.id);
+                                                                                                else next.set(p.id, p);
+                                                                                            });
+                                                                                            return next;
                                                                                         });
-                                                                                        setSelectedIds(newSet);
                                                                                     }}
                                                                                     className={`w-5 h-5 rounded-md border-2 flex items-center justify-center transition-all ${group.items.every(p => selectedIds.has(p.id)) ? 'bg-[#0d3542] dark:bg-[#58a6ff] border-[#0d3542] dark:border-[#58a6ff]' : 'border-black/25 dark:border-[#30363d]'}`}
                                                                                 >
@@ -1764,7 +1780,7 @@ const ProductsPage = () => {
                                             Array.from(selectedIds).map(id => axios.delete(`/api/v1/admin/pos/products/${id}`))
                                         ).then(() => {
                                             queryClient.invalidateQueries({ queryKey: ['admin-pos-products'] });
-                                            setSelectedIds(new Set());
+                                            setSelectedProductsMap(new Map());
                                         }).catch(err => alert('Delete failed: ' + (err.response?.data?.message || err.message)));
                                     }}
                                     className="flex items-center gap-2 text-red-400 hover:text-red-500 transition-colors group"
@@ -1773,7 +1789,7 @@ const ProductsPage = () => {
                                     <span className="text-[9px] font-black uppercase tracking-[0.2em]">Delete</span>
                                 </button>
                                 <div className="w-px h-4 bg-black/10 dark:bg-white/10" />
-                                <button onClick={() => setSelectedIds(new Set())} className="text-gray-400 dark:text-white/20 hover:text-[#0d3542] dark:hover:text-[#58a6ff] text-[9px] font-black uppercase tracking-[0.2em]">Clear</button>
+                                <button onClick={() => setSelectedProductsMap(new Map())} className="text-gray-400 dark:text-white/20 hover:text-[#0d3542] dark:hover:text-[#58a6ff] text-[9px] font-black uppercase tracking-[0.2em]">Clear</button>
                             </div>
                         </div>
                     </motion.div>

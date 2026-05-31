@@ -57,8 +57,9 @@ class PosProduct extends Model
 
     public function scopeSearch($query, ?string $term = null, ?string $name = null, ?string $attribute = null, ?string $code = null)
     {
-        return $query->where(function ($q) use ($term, $name, $attribute, $code) {
-            if ($term) {
+        // Generic search term: OR across all columns (wrapped in its own group)
+        if ($term) {
+            $query->where(function ($q) use ($term) {
                 $q->where('name', 'LIKE', "%{$term}%")
                   ->orWhere('variant', 'LIKE', "%{$term}%")
                   ->orWhere('sku', 'LIKE', "%{$term}%")
@@ -66,24 +67,27 @@ class PosProduct extends Model
                   ->orWhere('category', 'LIKE', "%{$term}%")
                   ->orWhere('tier', 'LIKE', "%{$term}%")
                   ->orWhere('id', 'LIKE', "%{$term}%");
-            }
+            });
+        }
 
-            if ($name) {
-                $q->where('name', 'LIKE', "%{$name}%");
-            }
+        // Targeted filters: each is AND'd at the top level for precise filtering
+        if ($name) {
+            $query->where('name', 'LIKE', "%{$name}%");
+        }
 
-            if ($attribute) {
-                $q->where('variant', 'LIKE', "%{$attribute}%");
-            }
+        if ($attribute) {
+            $query->where('variant', 'LIKE', "%{$attribute}%");
+        }
 
-            if ($code) {
-                $q->where(function ($cq) use ($code) {
-                    $cq->where('sku', 'LIKE', "{$code}%")
-                       ->orWhere('barcode', 'LIKE', "{$code}%")
-                       ->orWhere('id', 'LIKE', "{$code}%");
-                });
-            }
-        });
+        if ($code) {
+            $query->where(function ($cq) use ($code) {
+                $cq->where('sku', 'LIKE', "{$code}%")
+                   ->orWhere('barcode', 'LIKE', "{$code}%")
+                   ->orWhere('id', 'LIKE', "{$code}%");
+            });
+        }
+
+        return $query;
     }
 
     /**

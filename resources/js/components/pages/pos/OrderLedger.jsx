@@ -51,15 +51,19 @@ const InlineSearch = ({ onSearchClick, addItem }) => {
             const matched = cached.filter(p =>
                 p.name?.toLowerCase().includes(lower) ||
                 p.sku?.toLowerCase().includes(lower) ||
+                p.barcode?.toLowerCase().includes(lower) ||
                 p.display_name?.toLowerCase().includes(lower)
             ).slice(0, 8);
             setResults(matched);
             setIsOpen(matched.length > 0);
 
-            // Exact SKU match → auto-add and clear
-            const exactSku = cached.find(p => p.sku?.toLowerCase() === lower);
-            if (exactSku) {
-                addItem(exactSku);
+            // Exact SKU or Barcode match → auto-add and clear
+            const exactMatch = cached.find(p => 
+                p.sku?.toLowerCase() === lower || 
+                p.barcode?.toLowerCase() === lower
+            );
+            if (exactMatch) {
+                addItem(exactMatch);
                 setQuery('');
                 setResults([]);
                 setIsOpen(false);
@@ -91,10 +95,13 @@ const InlineSearch = ({ onSearchClick, addItem }) => {
 
                 const data = res.data?.data || res.data || [];
                 
-                // Exact SKU match in API results → auto-add and clear!
-                const exactSku = data.find(p => p.sku?.toLowerCase() === trimmed.toLowerCase());
-                if (exactSku) {
-                    addItem(exactSku);
+                // Exact SKU or Barcode match in API results → auto-add and clear!
+                const exactMatch = data.find(p => 
+                    p.sku?.toLowerCase() === trimmed.toLowerCase() ||
+                    p.barcode?.toLowerCase() === trimmed.toLowerCase()
+                );
+                if (exactMatch) {
+                    addItem(exactMatch);
                     setQuery('');
                     setResults([]);
                     setIsOpen(false);
@@ -114,6 +121,12 @@ const InlineSearch = ({ onSearchClick, addItem }) => {
     const handleChange = (e) => {
         const val = e.target.value;
         setQuery(val);
+        if (!val || val.trim().length < 1) {
+            setResults([]);
+            setIsOpen(false);
+            clearTimeout(debounceRef.current);
+            return;
+        }
         searchProducts(val);
     };
 
@@ -132,6 +145,19 @@ const InlineSearch = ({ onSearchClick, addItem }) => {
         inputRef.current?.focus();
     };
 
+    const handleKeyDown = (e) => {
+        if (e.key === 'Enter') {
+            if (results.length > 0) {
+                const lower = query.trim().toLowerCase();
+                const exactMatch = results.find(p => 
+                    p.sku?.toLowerCase() === lower || 
+                    p.barcode?.toLowerCase() === lower
+                ) || results[0];
+                handleSelect(exactMatch);
+            }
+        }
+    };
+
     return (
         <div ref={containerRef} className="relative w-full group">
             <Search className="absolute left-6 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-[#f5a81c] transition-colors pointer-events-none" size={18} />
@@ -140,6 +166,7 @@ const InlineSearch = ({ onSearchClick, addItem }) => {
                 type="text"
                 value={query}
                 onChange={handleChange}
+                onKeyDown={handleKeyDown}
                 onFocus={() => query && results.length > 0 && setIsOpen(true)}
                 placeholder="Scan or search product name / SKU..."
                 className="w-full bg-black/[0.02] dark:bg-[#161b22] border-2 border-transparent hover:border-[#f5a81c]/20 dark:hover:border-[#30363d] rounded-xl py-4 pl-14 pr-24 text-[13px] font-black uppercase tracking-[0.2em] text-gray-900 dark:text-[#c9d1d9] outline-none focus:border-[#f5a81c]/50 focus:bg-background dark:focus:bg-[#0d1117] transition-all placeholder:text-gray-400/50 dark:placeholder:text-[#8b949e]/20"
