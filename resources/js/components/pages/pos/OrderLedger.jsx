@@ -83,7 +83,7 @@ const InlineSearch = ({ onSearchClick, addItem }) => {
             setIsLoading(true);
             try {
                 const res = await axios.get('/api/v1/admin/pos/products', {
-                    params: { search: trimmed, name: trimmed, code: trimmed, per_page: 8 }
+                    params: { search: trimmed, per_page: 8 }
                 });
                 
                 // Guard: check if input was cleared while the request was in flight

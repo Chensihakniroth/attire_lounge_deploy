@@ -127,6 +127,7 @@ Route::prefix('v1')->group(function () {
             Route::delete('/pos/products/{id}', [PosProductController::class, 'destroy']);
             Route::get('/pos/products/services', [PosProductController::class, 'services']);
             Route::get('/pos/products/categories', [PosProductController::class, 'categories']);
+            Route::get('/pos/products/export', [PosProductController::class, 'export']);
             Route::get('/pos/products/{id}', [PosProductController::class, 'show']);
             Route::get('/pos/products/{id}/label', [PosProductController::class, 'label']);
             Route::patch('/pos/products/{id}/stock', [PosProductController::class, 'updateStock']);
@@ -134,7 +135,6 @@ Route::prefix('v1')->group(function () {
             Route::post('/pos/products/bulk-deactivate', [PosProductController::class, 'bulkDeactivate']);
             Route::post('/pos/products/bulk-restore', [PosProductController::class, 'bulkRestore']);
             Route::post('/pos/products/bulk-delete', [PosProductController::class, 'bulkDestroy']);
-            Route::get('/pos/products/export', [PosProductController::class, 'export']);
             Route::post('/pos/products/import', [PosProductController::class, 'import']);
 
             // Invoices
