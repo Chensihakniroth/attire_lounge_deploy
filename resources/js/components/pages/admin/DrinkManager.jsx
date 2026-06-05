@@ -242,6 +242,7 @@ const BespokeSelect = ({
                     >
                         <div className="max-h-75 overflow-y-auto attire-scrollbar">
                             {options.map((option, i) => {
+                                if (!option) return null;
                                 const isString = typeof option === 'string';
                                 const label = isString ? option : option.label;
                                 const val = isString ? option : option.value;
@@ -549,7 +550,12 @@ export default function DrinkManager() {
 
     // State
     const [isModalOpen, setIsModalOpen] = useState(false);
-    const [isBulkModalOpen, setIsBulkModalOpen] = useState(false);
+    const [isBulkEditOpen, setIsBulkEditOpen] = useState(false);
+    const [bulkProducts, setBulkProducts] = useState([]);
+    const [bulkBatchCategory, setBulkBatchCategory] = useState('');
+    const [bulkBatchPriceType, setBulkBatchPriceType] = useState('set'); // 'set', 'fixed_inc', 'fixed_dec', 'percent_inc', 'percent_dec'
+    const [bulkBatchPriceVal, setBulkBatchPriceVal] = useState('');
+    const [bulkBatchStockVal, setBulkBatchStockVal] = useState('');
     const [editingDrink, setEditingDrink] = useState(null);
     const [isSaving, setIsSaving] = useState(false);
     const [page, setPage] = useState(1);
@@ -563,7 +569,7 @@ export default function DrinkManager() {
     });
 
     // High Performance Matrix State
-    const [selectedIds, setSelectedIds] = useState(new Set());
+    const [selectedDrinksMap, setSelectedDrinksMap] = useState({});
     const [focusedId, setFocusedId] = useState(null);
     const [quickEditField, setQuickEditField] = useState(null);
 
@@ -661,7 +667,7 @@ export default function DrinkManager() {
     useEffect(() => {
         setPage(1);
         setFilters(f => ({ ...f, category: '', stockStatus: '' }));
-        setSelectedIds(new Set());
+        setSelectedDrinksMap({});
         setFocusedId(null);
     }, [activeOutlet]);
 
@@ -827,7 +833,7 @@ export default function DrinkManager() {
                 message: 'Drink deleted successfully!',
                 type: 'success',
             });
-            setSelectedIds(new Set());
+            setSelectedDrinksMap({});
         },
         onError: (err) => {
             setToast({
@@ -850,7 +856,7 @@ export default function DrinkManager() {
                 message: 'Selected drinks deactivated.',
                 type: 'success',
             });
-            setSelectedIds(new Set());
+            setSelectedDrinksMap({});
         },
         onError: (err) => {
             setToast({
@@ -869,7 +875,7 @@ export default function DrinkManager() {
             queryClient.invalidateQueries({ queryKey: ['admin-drinks'] });
             queryClient.invalidateQueries({ queryKey: ['admin-stats'] });
             setToast({ message: 'Selected drinks restored.', type: 'success' });
-            setSelectedIds(new Set());
+            setSelectedDrinksMap({});
         },
         onError: (err) => {
             setToast({
@@ -891,7 +897,7 @@ export default function DrinkManager() {
                 message: `${ids.length} drink(s) permanently deleted.`,
                 type: 'success',
             });
-            setSelectedIds(new Set());
+            setSelectedDrinksMap({});
         },
         onError: (err) => {
             setToast({
@@ -915,63 +921,197 @@ export default function DrinkManager() {
     });
 
     // Handlers
-    const toggleSelect = useCallback((id) => {
-        setSelectedIds((prev) => {
-            const next = new Set(prev);
-            if (next.has(id)) next.delete(id);
-            else next.add(id);
+    // Selection state helpers
+    const selectedCount = useMemo(() => Object.keys(selectedDrinksMap).length, [selectedDrinksMap]);
+
+    const toggleSelect = useCallback((drinkOrId) => {
+        setSelectedDrinksMap((prev) => {
+            const next = { ...prev };
+            const id = typeof drinkOrId === 'object' ? drinkOrId.id : drinkOrId;
+            if (next[id]) {
+                delete next[id];
+            } else {
+                const drink = typeof drinkOrId === 'object' ? drinkOrId : drinks.find(d => d.id === id);
+                if (drink) {
+                    next[id] = drink;
+                }
+            }
             return next;
         });
-    }, []);
+    }, [drinks]);
 
     const handleSelectAll = () => {
-        if (selectedIds.size === drinks.length) {
-            setSelectedIds(new Set());
-        } else {
-            setSelectedIds(new Set(drinks.map((d) => d.id)));
-        }
+        const allOnPageSelected = drinks.length > 0 && drinks.every(d => !!selectedDrinksMap[d.id]);
+        setSelectedDrinksMap((prev) => {
+            const next = { ...prev };
+            drinks.forEach(d => {
+                if (allOnPageSelected) {
+                    delete next[d.id];
+                } else {
+                    next[d.id] = d;
+                }
+            });
+            return next;
+        });
     };
 
     const handleBulkDeactivate = () => {
-        if (!window.confirm(`Deactivate ${selectedIds.size} selected drinks?`))
+        const ids = Object.keys(selectedDrinksMap).map(Number);
+        if (ids.length === 0) return;
+        if (!window.confirm(`Deactivate ${ids.length} selected drinks?`))
             return;
-        bulkDeactivateMutation.mutate(Array.from(selectedIds));
+        bulkDeactivateMutation.mutate(ids);
     };
 
     const handleBulkRestore = () => {
-        if (!window.confirm(`Restore ${selectedIds.size} selected drinks?`))
+        const ids = Object.keys(selectedDrinksMap).map(Number);
+        if (ids.length === 0) return;
+        if (!window.confirm(`Restore ${ids.length} selected drinks?`))
             return;
-        bulkRestoreMutation.mutate(Array.from(selectedIds));
+        bulkRestoreMutation.mutate(ids);
     };
 
     const handleBulkDelete = () => {
+        const ids = Object.keys(selectedDrinksMap).map(Number);
+        if (ids.length === 0) return;
         if (
             !window.confirm(
-                `⚠️ PERMANENTLY DELETE ${selectedIds.size} selected drink(s)?\n\nThis action cannot be undone. The products will be removed from the database forever.`
+                `⚠️ PERMANENTLY DELETE ${ids.length} selected drink(s)?\n\nThis action cannot be undone. The products will be removed from the database forever.`
             )
         )
             return;
-        bulkDeleteMutation.mutate(Array.from(selectedIds));
+        bulkDeleteMutation.mutate(ids);
     };
 
-    const handleBulkEditOpen = () => {
-        const ids = Array.from(selectedIds);
-        if (ids.length === 0) return;
-        const firstDrink = drinks.find((d) => ids.includes(d.id));
-        if (firstDrink) {
-            setEditingDrink(firstDrink);
-            setFormData({
-                sku: firstDrink.sku || '',
-                name: firstDrink.name || '',
-                price: firstDrink.price || '',
-                stock_qty: firstDrink.stock_qty || '',
-                category: firstDrink.category || '',
-                is_active: firstDrink.is_active ?? true,
-                is_service: firstDrink.is_service || false,
-                image_path: firstDrink.image_path || '',
+    const bulkUpdateProductsMutation = useMutation({
+        mutationFn: async (updatedProducts) => {
+            const payload = {
+                products: updatedProducts.map((p) => ({
+                    id: p.id,
+                    sku: p.sku || '',
+                    name: p.name || '',
+                    price: p.price !== '' ? parseFloat(p.price) : null,
+                    stock_qty: p.is_service ? 0 : (p.stock_qty !== '' ? parseInt(p.stock_qty, 10) : 0),
+                    category: p.category || '',
+                    is_active: p.is_active,
+                    is_service: p.is_service,
+                }))
+            };
+            return axios.post('/api/v1/admin/pos/products/bulk-update', payload, {
+                headers: { 'X-Active-Outlet': activeOutlet },
             });
-            setIsModalOpen(true);
+        },
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ['admin-drinks'] });
+            queryClient.invalidateQueries({ queryKey: ['admin-stats'] });
+            setIsBulkEditOpen(false);
+            setSelectedDrinksMap({});
+            setToast({ message: 'Beverages bulk updated successfully!', type: 'success' });
+        },
+        onError: (err) => {
+            const errors = err.response?.data?.errors;
+            let detail = '';
+            if (errors) {
+                detail = ': ' + Object.values(errors).map((e) => e.join(', ')).join(' | ');
+            }
+            setToast({
+                message: (err.response?.data?.message || 'Failed to update beverages.') + detail,
+                type: 'error',
+            });
         }
+    });
+
+    const handleBulkEditOpen = () => {
+        const stored = Object.values(selectedDrinksMap);
+        if (stored.length === 0) return;
+        const selectedDrinks = stored.map((d) => ({
+            id: d.id,
+            sku: d.sku || '',
+            name: d.name || '',
+            price: d.price ?? '',
+            stock_qty: d.stock_qty ?? 0,
+            category: d.category || '',
+            is_active: d.is_active ?? true,
+            is_service: d.is_service ?? false,
+            image_path: d.image_path || '',
+        }));
+        setBulkProducts(selectedDrinks);
+        setBulkBatchCategory('');
+        setBulkBatchPriceType('set');
+        setBulkBatchPriceVal('');
+        setBulkBatchStockVal('');
+        setIsBulkEditOpen(true);
+    };
+
+    const applyCategoryToAll = () => {
+        if (!bulkBatchCategory) return;
+        setBulkProducts((prev) =>
+            prev.map((p) => ({ ...p, category: bulkBatchCategory }))
+        );
+        setToast({ message: `Applied category "${bulkBatchCategory}" to all rows.`, type: 'success' });
+    };
+
+    const applyPriceToAll = () => {
+        const val = parseFloat(bulkBatchPriceVal);
+        if (isNaN(val)) return;
+
+        setBulkProducts((prev) =>
+            prev.map((p) => {
+                let newPrice = parseFloat(p.price);
+                if (isNaN(newPrice)) newPrice = 0;
+
+                switch (bulkBatchPriceType) {
+                    case 'set':
+                        newPrice = val;
+                        break;
+                    case 'fixed_inc':
+                        newPrice = newPrice + val;
+                        break;
+                    case 'fixed_dec':
+                        newPrice = Math.max(0, newPrice - val);
+                        break;
+                    case 'percent_inc':
+                        newPrice = newPrice * (1 + val / 100);
+                        break;
+                    case 'percent_dec':
+                        newPrice = Math.max(0, newPrice * (1 - val / 100));
+                        break;
+                }
+                return { ...p, price: parseFloat(newPrice.toFixed(2)) };
+            })
+        );
+        setToast({ message: 'Applied price updates to all rows.', type: 'success' });
+    };
+
+    const applyStockToAll = () => {
+        const val = parseInt(bulkBatchStockVal, 10);
+        if (isNaN(val)) return;
+
+        setBulkProducts((prev) =>
+            prev.map((p) => {
+                if (p.is_service) return p;
+                return { ...p, stock_qty: Math.max(0, val) };
+            })
+        );
+        setToast({ message: `Set stock quantity to ${val} for all products.`, type: 'success' });
+    };
+
+    const applyServiceStateToAll = (val) => {
+        setBulkProducts((prev) =>
+            prev.map((p) => ({
+                ...p,
+                is_service: val,
+                stock_qty: val ? '' : (p.stock_qty || 0),
+            }))
+        );
+        setToast({ message: `Marked all selected items as ${val ? 'Services' : 'Products'}.`, type: 'success' });
+    };
+
+    const applyActiveStateToAll = (val) => {
+        setBulkProducts((prev) =>
+            prev.map((p) => ({ ...p, is_active: val }))
+        );
+        setToast({ message: `Marked all selected items as ${val ? 'Active' : 'Archived'}.`, type: 'success' });
     };
 
     // Keyboard Navigation
@@ -1065,8 +1205,8 @@ export default function DrinkManager() {
                     setQuickEditField(null);
                     return;
                 }
-                if (selectedIds.size > 0) {
-                    setSelectedIds(new Set());
+                if (selectedCount > 0) {
+                    setSelectedDrinksMap({});
                     return;
                 }
                 if (focusedId) {
@@ -1085,7 +1225,8 @@ export default function DrinkManager() {
         toggleSelect,
         isModalOpen,
         closeModal,
-        selectedIds,
+        selectedDrinksMap,
+        selectedCount,
     ]);
 
     // UI Render Matrix
@@ -1273,11 +1414,10 @@ export default function DrinkManager() {
                             <th className="w-16 px-6 py-5 text-center">
                                 <button
                                     onClick={handleSelectAll}
-                                    className={`w-5 h-5 rounded-md border flex items-center justify-center transition-all mx-auto ${selectedIds.size === drinks.length && drinks.length > 0 ? 'bg-[#0d3542] dark:bg-[#58a6ff] border-[#0d3542] dark:border-[#58a6ff]' : 'bg-black/5 dark:bg-[#0d1117] border-black/10 dark:border-[#30363d] hover:border-[#0d3542]/40'}`}
+                                    className={`w-5 h-5 rounded-md border flex items-center justify-center transition-all mx-auto ${drinks.length > 0 && drinks.every(d => !!selectedDrinksMap[d.id]) ? 'bg-[#0d3542] dark:bg-[#58a6ff] border-[#0d3542] dark:border-[#58a6ff]' : 'bg-black/5 dark:bg-[#0d1117] border-black/10 dark:border-[#30363d] hover:border-[#0d3542]/40'}`}
                                 >
-                                    {selectedIds.size ===
-                                        drinks.length &&
-                                        drinks.length > 0 && (
+                                    {drinks.length > 0 &&
+                                        drinks.every(d => !!selectedDrinksMap[d.id]) && (
                                             <Check
                                                 size={12}
                                                 className="text-white dark:text-black"
@@ -1387,21 +1527,23 @@ export default function DrinkManager() {
                                             <div className="flex items-center gap-3">
                                                 <button
                                                     onClick={() => {
-                                                        const newSet = new Set(selectedIds);
-                                                        const allSelected = group.items.every(d => newSet.has(d.id));
-                                                        group.items.forEach(d => {
-                                                            if (allSelected) newSet.delete(d.id);
-                                                            else newSet.add(d.id);
+                                                        setSelectedDrinksMap((prev) => {
+                                                            const next = { ...prev };
+                                                            const allSelected = group.items.every(d => !!next[d.id]);
+                                                            group.items.forEach(d => {
+                                                                if (allSelected) delete next[d.id];
+                                                                else next[d.id] = d;
+                                                            });
+                                                            return next;
                                                         });
-                                                        setSelectedIds(newSet);
                                                     }}
                                                     className={`w-5 h-5 rounded-md border-2 flex items-center justify-center transition-all shrink-0 ${
-                                                        group.items.every(d => selectedIds.has(d.id))
+                                                        group.items.every(d => !!selectedDrinksMap[d.id])
                                                             ? 'bg-[#0d3542] dark:bg-[#58a6ff] border-[#0d3542] dark:border-[#58a6ff]'
                                                             : 'border-black/25 dark:border-[#30363d]'
                                                     }`}
                                                 >
-                                                    {group.items.every(d => selectedIds.has(d.id)) && <Check size={12} className="text-white dark:text-black" />}
+                                                     {group.items.every(d => !!selectedDrinksMap[d.id]) && <Check size={12} className="text-white dark:text-black" />}
                                                 </button>
                                                 <div className="h-1 w-8 bg-[#0d3542] dark:bg-[#58a6ff] rounded-full" />
                                                 <span className="text-[11px] font-black uppercase tracking-[0.25em] text-[#0d3542] dark:text-[#58a6ff]">{group.name}</span>
@@ -1413,7 +1555,7 @@ export default function DrinkManager() {
                                         <DrinkRow
                                             key={d.id}
                                             drink={d}
-                                            isSelected={selectedIds.has(d.id)}
+                                            isSelected={!!selectedDrinksMap[d.id]}
                                             isFocused={focusedId === d.id}
                                             quickEditField={quickEditField}
                                             onToggleSelect={toggleSelect}
@@ -1818,105 +1960,371 @@ export default function DrinkManager() {
 
             {/* --- Floating Command Bar --- */}
             <AnimatePresence>
-                {selectedIds.size > 0 && (
+                {selectedCount > 0 && (
                     <motion.div initial={{ y: 50, opacity: 0 }} animate={{ y: 0, opacity: 1 }} exit={{ y: 50, opacity: 0 }} className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50">
-                        <div className="bg-[#fdfdfc] dark:bg-[#111] rounded-xl px-6 h-14 flex items-center gap-6 shadow-xl border border-[#0d3542]/20 dark:border-[#58a6ff]/20 ring-1 ring-inset ring-white/10 dark:ring-black/10 transition-all duration-300">
-                            <div className="flex items-center gap-3 pr-6 border-r border-black/10 dark:border-white/10">
-                                <div className="bg-[#0d3542] dark:bg-[#58a6ff] text-white dark:text-black text-[10px] font-black h-6 w-6 rounded-md flex items-center justify-center shadow-lg">{selectedIds.size}</div>
-                                <span className="text-[#0d3542] dark:text-[#58a6ff] text-[10px] font-black uppercase tracking-[0.2em] whitespace-nowrap">Selected</span>
+                        <div className="bg-[#fdfdfc] dark:bg-[#111] rounded-xl px-6 h-14 flex items-center gap-4 shadow-xl border border-[#0d3542]/20 dark:border-[#58a6ff]/20 ring-1 ring-inset ring-white/10 dark:ring-black/10 transition-all duration-300">
+                            <div className="flex items-center gap-2 pr-4 border-r border-black/10 dark:border-white/10">
+                                <div className="bg-[#0d3542] dark:bg-[#58a6ff] text-white dark:text-black text-[10px] font-black h-6 w-6 rounded-md flex items-center justify-center shadow-lg">{selectedCount}</div>
+                                <span className="text-[#0d3542] dark:text-[#58a6ff] text-[10px] font-black uppercase tracking-[0.2em] whitespace-nowrap hidden sm:inline">Selected</span>
                             </div>
-                            <div className="flex items-center gap-6">
-                                <button onClick={() => setIsBulkModalOpen(true)} className="flex items-center gap-2 text-gray-500 dark:text-white/40 hover:text-[#0d3542] dark:hover:text-[#58a6ff] transition-colors group">
-                                    <Command size={12} className="group-hover:scale-110 transition-transform" />
+                            <div className="flex items-center gap-4">
+                                <button onClick={handleBulkEditOpen} className="flex items-center gap-1.5 text-gray-500 dark:text-white/40 hover:text-[#0d3542] dark:hover:text-[#58a6ff] transition-colors group">
+                                    <Edit size={12} className="group-hover:scale-110 transition-transform" />
                                     <span className="text-[9px] font-black uppercase tracking-[0.2em]">Bulk Edit</span>
                                 </button>
                                 <div className="w-px h-4 bg-black/10 dark:bg-white/10" />
-                                <button onClick={() => setSelectedIds(new Set())} className="text-gray-400 dark:text-white/20 hover:text-[#0d3542] dark:hover:text-[#58a6ff] text-[9px] font-black uppercase tracking-[0.2em]">Clear</button>
+                                <button onClick={handleBulkDeactivate} className="flex items-center gap-1.5 text-gray-500 dark:text-white/40 hover:text-amber-500 transition-colors group">
+                                    <Archive size={12} className="group-hover:scale-110 transition-transform" />
+                                    <span className="text-[9px] font-black uppercase tracking-[0.2em]">Deactivate</span>
+                                </button>
+                                <div className="w-px h-4 bg-black/10 dark:bg-white/10" />
+                                <button onClick={handleBulkRestore} className="flex items-center gap-1.5 text-gray-500 dark:text-white/40 hover:text-emerald-500 transition-colors group">
+                                    <RefreshCw size={12} className="group-hover:scale-110 transition-transform" />
+                                    <span className="text-[9px] font-black uppercase tracking-[0.2em]">Restore</span>
+                                </button>
+                                <div className="w-px h-4 bg-black/10 dark:bg-white/10" />
+                                <button onClick={handleBulkDelete} className="flex items-center gap-1.5 text-gray-500 dark:text-white/40 hover:text-red-500 transition-colors group">
+                                    <Trash2 size={12} className="group-hover:scale-110 transition-transform" />
+                                    <span className="text-[9px] font-black uppercase tracking-[0.2em]">Delete</span>
+                                </button>
+                                <div className="w-px h-4 bg-black/10 dark:bg-white/10" />
+                                <button onClick={() => setSelectedDrinksMap({})} className="text-gray-400 dark:text-white/20 hover:text-gray-900 dark:hover:text-white text-[9px] font-black uppercase tracking-[0.2em]">Clear</button>
                             </div>
                         </div>
                     </motion.div>
                 )}
             </AnimatePresence>
 
-            {/* --- Bulk Action Modal --- */}
-            <AnimatePresence>
-                {isBulkModalOpen && (
-                    <motion.div
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        exit={{ opacity: 0 }}
-                        className="fixed inset-0 z-[100] flex items-center justify-center bg-black/40 dark:bg-black/60 backdrop-blur-sm p-4"
-                    >
-                        <motion.div
-                            initial={{ scale: 0.95, opacity: 0, y: 20 }}
-                            animate={{ scale: 1, opacity: 1, y: 0 }}
-                            exit={{ scale: 0.95, opacity: 0, y: 20 }}
-                            className="bg-[#fdfdfc] dark:bg-[#161b22] w-full max-w-md rounded-2xl shadow-2xl border border-black/10 dark:border-[#30363d] overflow-hidden"
-                        >
-                            <div className="flex items-center justify-between p-6 border-b border-black/5 dark:border-[#30363d]/50">
-                                <h2 className="text-[14px] font-black text-gray-900 dark:text-[#c9d1d9] uppercase tracking-widest flex items-center gap-3">
-                                    <Command size={16} className="text-[#0d3542] dark:text-[#58a6ff]" />
-                                    Bulk Actions
-                                </h2>
-                                <button onClick={() => setIsBulkModalOpen(false)} className="text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors">
-                                    <X size={18} />
-                                </button>
-                            </div>
-                            <div className="p-6 space-y-6">
-                                <p className="text-sm text-gray-500 dark:text-[#8b949e]">
-                                    Perform actions on <span className="font-bold text-gray-900 dark:text-white">{selectedIds.size}</span> selected drink{selectedIds.size > 1 ? 's' : ''}.
-                                </p>
-                                <div className="grid grid-cols-2 gap-3">
-                                    {/* ── Edit ── */}
-                                    <button
-                                        onClick={() => {
-                                            handleBulkEditOpen();
-                                            setIsBulkModalOpen(false);
-                                        }}
-                                        className="flex flex-col items-center justify-center gap-3 p-4 rounded-xl border border-black/10 dark:border-[#30363d] bg-black/5 dark:bg-white/5 hover:bg-[#0d3542]/10 dark:hover:bg-[#58a6ff]/10 hover:border-[#0d3542]/30 dark:hover:border-[#58a6ff]/30 hover:text-[#0d3542] dark:hover:text-[#58a6ff] transition-all text-gray-600 dark:text-[#8b949e] group"
+            {/* --- Bulk Edit Spreadsheet Modal --- */}
+            <ModernModal
+                isOpen={isBulkEditOpen}
+                onClose={() => setIsBulkEditOpen(false)}
+                title={`Bulk Edit ${bulkProducts.length} Beverages`}
+                maxWidth="max-w-7xl"
+                overflowVisible={true}
+            >
+                <div className="p-6 space-y-6 max-h-[85vh] flex flex-col font-sans">
+                    {/* --- Batch Apply Card (Top) --- */}
+                    <div className="bg-black/[0.02] dark:bg-[#0d1117] border border-black/5 dark:border-[#30363d] rounded-xl p-4 shrink-0">
+                        <h4 className="text-[10px] font-black uppercase tracking-[0.2em] text-[#0d3542] dark:text-[#58a6ff] mb-3 flex items-center gap-2">
+                            <Command size={12} />
+                            Quick-Apply to All Rows
+                        </h4>
+                        <div className="grid grid-cols-1 md:grid-cols-5 gap-4 items-end">
+                            {/* Category Batch */}
+                            <div className="space-y-1 col-span-1 md:col-span-2">
+                                <label className="block text-[9px] font-bold text-gray-500 uppercase tracking-widest">
+                                    Category
+                                </label>
+                                <div className="flex items-center bg-white dark:bg-[#161b22] rounded-xl border border-black/10 dark:border-[#30363d] focus-within:border-[#0d3542] dark:focus-within:border-[#58a6ff] overflow-hidden">
+                                    <select
+                                        value={bulkBatchCategory}
+                                        onChange={(e) => setBulkBatchCategory(e.target.value)}
+                                        className="flex-1 min-w-0 bg-transparent text-gray-900 dark:text-white px-3 py-2 text-xs font-bold uppercase tracking-wider outline-none border-none cursor-pointer focus:ring-0 focus:outline-none"
                                     >
-                                        <Edit size={20} className="group-hover:scale-110 transition-transform" />
-                                        <span className="text-[10px] font-black uppercase tracking-widest">Edit</span>
-                                    </button>
-                                    {/* ── Deactivate ── */}
+                                        <option value="">Select Category...</option>
+                                        {categories.map((cat, idx) => (
+                                            <option key={idx} value={cat}>
+                                                {cat}
+                                            </option>
+                                        ))}
+                                    </select>
                                     <button
-                                        onClick={() => {
-                                            handleBulkDeactivate();
-                                            setIsBulkModalOpen(false);
-                                        }}
-                                        className="flex flex-col items-center justify-center gap-3 p-4 rounded-xl border border-black/10 dark:border-[#30363d] bg-black/5 dark:bg-white/5 hover:bg-amber-500/10 hover:border-amber-500/30 hover:text-amber-500 transition-all text-gray-600 dark:text-[#8b949e] group"
+                                        type="button"
+                                        onClick={applyCategoryToAll}
+                                        className="px-3 py-2 bg-[#0d3542] dark:bg-[#58a6ff] text-white dark:text-black hover:opacity-90 shrink-0 h-full border-l border-black/10 dark:border-[#30363d] transition-all cursor-pointer flex items-center justify-center"
+                                        title="Apply Category to All"
                                     >
-                                        <Archive size={20} className="group-hover:scale-110 transition-transform" />
-                                        <span className="text-[10px] font-black uppercase tracking-widest">Deactivate</span>
-                                    </button>
-                                    {/* ── Restore ── */}
-                                    <button
-                                        onClick={() => {
-                                            handleBulkRestore();
-                                            setIsBulkModalOpen(false);
-                                        }}
-                                        className="flex flex-col items-center justify-center gap-3 p-4 rounded-xl border border-black/10 dark:border-[#30363d] bg-black/5 dark:bg-white/5 hover:bg-emerald-500/10 hover:border-emerald-500/30 hover:text-emerald-500 transition-all text-gray-600 dark:text-[#8b949e] group"
-                                    >
-                                        <RefreshCw size={20} className="group-hover:scale-110 transition-transform" />
-                                        <span className="text-[10px] font-black uppercase tracking-widest">Restore</span>
-                                    </button>
-                                    {/* ── Delete (permanent) ── */}
-                                    <button
-                                        onClick={() => {
-                                            handleBulkDelete();
-                                            setIsBulkModalOpen(false);
-                                        }}
-                                        className="flex flex-col items-center justify-center gap-3 p-4 rounded-xl border border-red-200/60 dark:border-red-900/40 bg-red-50/50 dark:bg-red-900/10 hover:bg-red-500/20 hover:border-red-500/50 hover:text-red-600 dark:hover:text-red-400 transition-all text-red-400 dark:text-red-500/60 group"
-                                    >
-                                        <AlertTriangle size={20} className="group-hover:scale-110 transition-transform" />
-                                        <span className="text-[10px] font-black uppercase tracking-widest">Delete</span>
+                                        <Check size={16} strokeWidth={3} />
                                     </button>
                                 </div>
                             </div>
-                        </motion.div>
-                    </motion.div>
-                )}
-            </AnimatePresence>
+
+                            {/* Price Batch */}
+                            <div className="space-y-1 col-span-1 md:col-span-2">
+                                <label className="block text-[9px] font-bold text-gray-500 uppercase tracking-widest">
+                                    Price Change
+                                </label>
+                                <div className="flex items-center bg-white dark:bg-[#161b22] rounded-xl border border-black/10 dark:border-[#30363d] focus-within:border-[#0d3542] dark:focus-within:border-[#58a6ff] overflow-hidden">
+                                    <select
+                                        value={bulkBatchPriceType}
+                                        onChange={(e) => setBulkBatchPriceType(e.target.value)}
+                                        className="w-1/3 min-w-[100px] bg-transparent text-gray-900 dark:text-white px-3 py-2 text-xs font-bold uppercase tracking-wider outline-none border-none border-r border-black/10 dark:border-[#30363d] cursor-pointer focus:ring-0 focus:outline-none"
+                                    >
+                                        <option value="set">Set to $</option>
+                                        <option value="fixed_inc">Increase by $</option>
+                                        <option value="fixed_dec">Decrease by $</option>
+                                        <option value="percent_inc">Increase by %</option>
+                                        <option value="percent_dec">Decrease by %</option>
+                                    </select>
+                                    <input
+                                        type="number"
+                                        step="0.01"
+                                        placeholder="0.00"
+                                        value={bulkBatchPriceVal}
+                                        onChange={(e) => setBulkBatchPriceVal(e.target.value)}
+                                        className="flex-1 bg-transparent text-gray-900 dark:text-white px-3 py-2 text-xs font-bold outline-none border-none focus:ring-0 focus:outline-none"
+                                    />
+                                    <button
+                                        type="button"
+                                        onClick={applyPriceToAll}
+                                        className="px-3 py-2 bg-[#0d3542] dark:bg-[#58a6ff] text-white dark:text-black hover:opacity-90 shrink-0 h-full border-l border-black/10 dark:border-[#30363d] transition-all cursor-pointer flex items-center justify-center"
+                                        title="Apply Price to All"
+                                    >
+                                        <Check size={16} strokeWidth={3} />
+                                    </button>
+                                </div>
+                            </div>
+
+                            {/* Stock Batch */}
+                            <div className="space-y-1">
+                                <label className="block text-[9px] font-bold text-gray-500 uppercase tracking-widest">
+                                    Stock Level
+                                </label>
+                                <div className="flex items-center bg-white dark:bg-[#161b22] rounded-xl border border-black/10 dark:border-[#30363d] focus-within:border-[#0d3542] dark:focus-within:border-[#58a6ff] overflow-hidden">
+                                    <input
+                                        type="number"
+                                        placeholder="Reset Qty"
+                                        value={bulkBatchStockVal}
+                                        onChange={(e) => setBulkBatchStockVal(e.target.value)}
+                                        className="flex-1 bg-transparent text-gray-900 dark:text-white px-3 py-2 text-xs font-bold outline-none border-none focus:ring-0 focus:outline-none"
+                                    />
+                                    <button
+                                        type="button"
+                                        onClick={applyStockToAll}
+                                        className="px-3 py-2 bg-[#0d3542] dark:bg-[#58a6ff] text-white dark:text-black hover:opacity-90 shrink-0 h-full border-l border-black/10 dark:border-[#30363d] transition-all cursor-pointer flex items-center justify-center"
+                                        title="Apply Stock to All"
+                                    >
+                                        <Check size={16} strokeWidth={3} />
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Additional Quick Status Toggles */}
+                        <div className="flex flex-wrap gap-3 mt-4 pt-3 border-t border-black/5 dark:border-[#30363d]/40">
+                            <span className="text-[9px] font-bold text-gray-500 uppercase tracking-widest mr-2 flex items-center">Status Shortcuts:</span>
+                            <button
+                                type="button"
+                                onClick={() => applyActiveStateToAll(true)}
+                                className="px-3 py-1.5 bg-green-500/10 hover:bg-green-500/20 text-green-600 dark:text-green-400 border border-green-500/20 rounded-lg text-[10px] font-bold uppercase tracking-wider"
+                            >
+                                Activate All
+                            </button>
+                            <button
+                                type="button"
+                                onClick={() => applyActiveStateToAll(false)}
+                                className="px-3 py-1.5 bg-gray-500/10 hover:bg-gray-500/20 text-gray-600 dark:text-gray-400 border border-gray-500/20 rounded-lg text-[10px] font-bold uppercase tracking-wider"
+                            >
+                                Archive All
+                            </button>
+                            <button
+                                type="button"
+                                onClick={() => applyServiceStateToAll(true)}
+                                className="px-3 py-1.5 bg-blue-500/10 hover:bg-blue-500/20 text-blue-600 dark:text-blue-400 border border-blue-500/20 rounded-lg text-[10px] font-bold uppercase tracking-wider"
+                            >
+                                Set All as Service (No Stock)
+                            </button>
+                            <button
+                                type="button"
+                                onClick={() => applyServiceStateToAll(false)}
+                                className="px-3 py-1.5 bg-amber-500/10 hover:bg-amber-500/20 text-amber-600 dark:text-amber-400 border border-amber-500/20 rounded-lg text-[10px] font-bold uppercase tracking-wider"
+                            >
+                                Set All as Product (Stock Enabled)
+                            </button>
+                        </div>
+                    </div>
+
+                    {/* --- Spreadsheet Table (Middle) --- */}
+                    <div className="flex-1 overflow-auto border border-black/5 dark:border-[#30363d] rounded-xl attire-scrollbar">
+                        <table className="w-full text-left border-collapse table-fixed">
+                            <thead className="sticky top-0 z-30 bg-gray-50 dark:bg-[#0d1117] border-b border-black/10 dark:border-[#30363d]">
+                                <tr>
+                                    <th className="w-1/4 px-4 py-3 text-xs font-bold uppercase tracking-widest text-gray-500 dark:text-[#8b949e]/40">Beverage</th>
+                                    <th className="w-1/6 px-4 py-3 text-xs font-bold uppercase tracking-widest text-gray-500 dark:text-[#8b949e]/40">SKU</th>
+                                    <th className="w-1/6 px-4 py-3 text-xs font-bold uppercase tracking-widest text-gray-500 dark:text-[#8b949e]/40">Category</th>
+                                    <th className="w-1/8 px-4 py-3 text-xs font-bold uppercase tracking-widest text-gray-500 dark:text-[#8b949e]/40 text-center">Stock</th>
+                                    <th className="w-1/8 px-4 py-3 text-xs font-bold uppercase tracking-widest text-gray-500 dark:text-[#8b949e]/40 text-center">Price ($)</th>
+                                    <th className="w-28 px-4 py-3 text-xs font-bold uppercase tracking-widest text-gray-500 dark:text-[#8b949e]/40 text-center">Service?</th>
+                                    <th className="w-24 px-4 py-3 text-xs font-bold uppercase tracking-widest text-gray-500 dark:text-[#8b949e]/40 text-center">Active?</th>
+                                </tr>
+                            </thead>
+                            <tbody className="divide-y divide-black/5 dark:divide-[#30363d]">
+                                {bulkProducts.map((p, idx) => {
+                                    const colorScheme = getCategoryColor(p.category);
+                                    return (
+                                        <tr key={p.id} className="hover:bg-black/[0.01] dark:hover:bg-white/[0.02]">
+                                            {/* Name & Icon */}
+                                            <td className="px-4 py-2">
+                                                <div className="flex items-center gap-2 truncate">
+                                                    <div className={`w-6 h-6 rounded flex items-center justify-center shrink-0 ${colorScheme.bg} border ${colorScheme.border}`}>
+                                                        {p.image_path ? (
+                                                            <img src={p.image_path} alt={p.name} className="w-full h-full object-cover rounded" />
+                                                        ) : (
+                                                            React.createElement(getCatIcon(p.category), { size: 12, className: colorScheme.text })
+                                                        )}
+                                                    </div>
+                                                    <span className="font-bold text-xs uppercase tracking-wider text-gray-900 dark:text-[#c9d1d9] truncate">
+                                                        {p.name}
+                                                    </span>
+                                                </div>
+                                            </td>
+
+                                            {/* SKU */}
+                                            <td className="px-4 py-2">
+                                                <input
+                                                    type="text"
+                                                    value={p.sku}
+                                                    onChange={(e) => {
+                                                        const val = e.target.value;
+                                                        setBulkProducts((prev) =>
+                                                            prev.map((item, i) => (i === idx ? { ...item, sku: val } : item))
+                                                        );
+                                                    }}
+                                                    className="w-full bg-white dark:bg-[#161b22] text-gray-900 dark:text-white px-2 py-1 rounded-lg border border-black/10 dark:border-[#30363d] text-xs font-semibold focus:border-[#0d3542] dark:focus:border-[#58a6ff] outline-none"
+                                                />
+                                            </td>
+
+                                            {/* Category */}
+                                            <td className="px-4 py-2">
+                                                <select
+                                                    value={p.category}
+                                                    onChange={async (e) => {
+                                                        const val = e.target.value;
+                                                        if (val === 'NEW_CATEGORY') {
+                                                            const { value: newCat } = await Swal.fire({
+                                                                title: 'Create New Category',
+                                                                input: 'text',
+                                                                inputPlaceholder: 'Enter category name...',
+                                                                showCancelButton: true,
+                                                                background: document.documentElement.classList.contains('dark') ? '#161b22' : '#fff',
+                                                                color: document.documentElement.classList.contains('dark') ? '#c9d1d9' : '#111',
+                                                                inputValidator: (value) => {
+                                                                    if (!value) return 'You need to write something!';
+                                                                }
+                                                            });
+                                                            if (newCat) {
+                                                                const formattedNewCat = newCat.trim().toUpperCase();
+                                                                // Dynamically add to products
+                                                                setBulkProducts((prev) =>
+                                                                    prev.map((item, i) => (i === idx ? { ...item, category: formattedNewCat } : item))
+                                                                );
+                                                            }
+                                                        } else {
+                                                            setBulkProducts((prev) =>
+                                                                    prev.map((item, i) => (i === idx ? { ...item, category: val } : item))
+                                                            );
+                                                        }
+                                                    }}
+                                                    className="w-full bg-white dark:bg-[#161b22] text-gray-900 dark:text-white px-2 py-1 rounded-lg border border-black/10 dark:border-[#30363d] text-xs font-semibold uppercase tracking-wider outline-none"
+                                                >
+                                                    {categories.map((cat, cIdx) => (
+                                                        <option key={cIdx} value={cat}>
+                                                            {cat}
+                                                        </option>
+                                                    ))}
+                                                    <option value="NEW_CATEGORY">+ Create New...</option>
+                                                </select>
+                                            </td>
+
+                                            {/* Stock */}
+                                            <td className="px-4 py-2">
+                                                <input
+                                                    type="number"
+                                                    disabled={p.is_service}
+                                                    value={p.is_service ? '' : p.stock_qty}
+                                                    placeholder={p.is_service ? '∞' : '0'}
+                                                    onChange={(e) => {
+                                                        const val = e.target.value;
+                                                        setBulkProducts((prev) =>
+                                                            prev.map((item, i) => (i === idx ? { ...item, stock_qty: val } : item))
+                                                        );
+                                                    }}
+                                                    className="w-full bg-white dark:bg-[#161b22] text-gray-900 dark:text-white px-2 py-1 rounded-lg border border-black/10 dark:border-[#30363d] text-xs text-center font-bold outline-none disabled:opacity-40"
+                                                />
+                                            </td>
+
+                                            {/* Price */}
+                                            <td className="px-4 py-2">
+                                                <input
+                                                    type="number"
+                                                    step="0.01"
+                                                    value={p.price}
+                                                    onChange={(e) => {
+                                                        const val = e.target.value;
+                                                        setBulkProducts((prev) =>
+                                                            prev.map((item, i) => (i === idx ? { ...item, price: val } : item))
+                                                        );
+                                                    }}
+                                                    className="w-full bg-white dark:bg-[#161b22] text-gray-900 dark:text-white px-2 py-1 rounded-lg border border-black/10 dark:border-[#30363d] text-xs text-center font-bold outline-none"
+                                                />
+                                            </td>
+
+                                            {/* Service */}
+                                            <td className="px-4 py-2 text-center">
+                                                <input
+                                                    type="checkbox"
+                                                    checked={p.is_service}
+                                                    onChange={(e) => {
+                                                        const checked = e.target.checked;
+                                                        setBulkProducts((prev) =>
+                                                            prev.map((item, i) =>
+                                                                i === idx
+                                                                    ? { ...item, is_service: checked, stock_qty: checked ? '' : (item.stock_qty || 0) }
+                                                                    : item
+                                                            )
+                                                        );
+                                                    }}
+                                                    className="w-4 h-4 text-[#0d3542] dark:text-[#58a6ff] bg-white border-gray-300 rounded focus:ring-[#0d3542] dark:focus:ring-[#58a6ff]"
+                                                />
+                                            </td>
+
+                                            {/* Active */}
+                                            <td className="px-4 py-2 text-center">
+                                                <input
+                                                    type="checkbox"
+                                                    checked={p.is_active}
+                                                    onChange={(e) => {
+                                                        const checked = e.target.checked;
+                                                        setBulkProducts((prev) =>
+                                                            prev.map((item, i) => (i === idx ? { ...item, is_active: checked } : item))
+                                                        );
+                                                    }}
+                                                    className="w-4 h-4 text-[#0d3542] dark:text-[#58a6ff] bg-white border-gray-300 rounded focus:ring-[#0d3542] dark:focus:ring-[#58a6ff]"
+                                                />
+                                            </td>
+                                        </tr>
+                                    );
+                                })}
+                            </tbody>
+                        </table>
+                    </div>
+
+                    {/* --- Footer Buttons (Bottom) --- */}
+                    <div className="flex justify-end gap-3 pt-4 border-t border-black/5 dark:border-[#30363d] shrink-0">
+                        <button
+                            type="button"
+                            onClick={() => setIsBulkEditOpen(false)}
+                            className="px-5 py-2.5 rounded-xl text-xs font-bold uppercase tracking-widest border border-black/10 dark:border-[#30363d] hover:bg-black/5 dark:hover:bg-white/5 transition-colors"
+                        >
+                            Cancel
+                        </button>
+                        <button
+                            type="button"
+                            disabled={bulkUpdateProductsMutation.isPending}
+                            onClick={() => bulkUpdateProductsMutation.mutate(bulkProducts)}
+                            className="px-6 py-2.5 bg-[#0d3542] dark:bg-[#58a6ff] text-white dark:text-black rounded-xl text-xs font-bold uppercase tracking-widest hover:opacity-90 disabled:opacity-50 flex items-center gap-2 shadow-none"
+                        >
+                            {bulkUpdateProductsMutation.isPending ? (
+                                <Loader2 size={14} className="animate-spin" />
+                            ) : (
+                                <Save size={14} />
+                            )}
+                            Save Changes ({bulkProducts.length} items)
+                        </button>
+                    </div>
+                </div>
+            </ModernModal>
         </div>
     );
 }

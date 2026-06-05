@@ -269,6 +269,8 @@ class PosProductController extends Controller
                 'products.*.max_stock' => 'nullable|integer|min:0',
                 'products.*.status' => 'nullable|string|in:available,unavailable,discontinued',
                 'products.*.barcode' => 'nullable|string',
+                'products.*.is_active' => 'nullable|boolean',
+                'products.*.is_service' => 'nullable|boolean',
             ]);
 
             $count = 0;
@@ -286,6 +288,8 @@ class PosProductController extends Controller
                         'max_stock' => isset($productData['max_stock']) ? $productData['max_stock'] : null,
                         'status' => $productData['status'] ?? null,
                         'barcode' => $productData['barcode'] ?? null,
+                        'is_active' => isset($productData['is_active']) ? $productData['is_active'] : null,
+                        'is_service' => isset($productData['is_service']) ? $productData['is_service'] : null,
                     ], function($value) {
                         return $value !== null;
                     });

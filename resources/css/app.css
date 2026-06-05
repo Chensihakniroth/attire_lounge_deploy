@@ -944,3 +944,9 @@ input[type="number"] {
         size: auto;
     }
 }
+
+/* Fix for <select> options being white-on-white in dark mode */
+html.dark select option {
+    background-color: #161b22;
+    color: #c9d1d9;
+}
