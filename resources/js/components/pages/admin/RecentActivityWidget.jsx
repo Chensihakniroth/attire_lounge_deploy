@@ -6,7 +6,7 @@ import { useAdmin } from './AdminContext';
 import { useQuery } from '@tanstack/react-query';
 import API from '../../../api';
 
-const ActivityItem = ({ item, type, isLast }) => {
+const ActivityItem = React.forwardRef(({ item, type, isLast }, ref) => {
     const getIcon = () => {
         switch (type) {
             case 'appointment': return <Calendar size={10} />;
@@ -48,7 +48,7 @@ const ActivityItem = ({ item, type, isLast }) => {
                 </div>
                 {!isLast && <div className="w-[1px] h-full bg-black/[0.05] dark:bg-white/[0.05] mt-2" />}
             </div>
-            
+
             <div className="flex-grow pt-1 min-w-0">
                 <div className="flex items-center justify-between gap-2">
                     <p className="text-[10px] font-black text-gray-900 dark:text-white uppercase tracking-wider truncate">
@@ -64,8 +64,7 @@ const ActivityItem = ({ item, type, isLast }) => {
             </div>
         </div>
     );
-};
-
+});
 const RecentActivityWidget = ({ loading: appointmentsLoading }) => {
     const { performanceMode } = useAdmin();
 
@@ -86,7 +85,7 @@ const RecentActivityWidget = ({ loading: appointmentsLoading }) => {
     });
 
     return (
-        <motion.div 
+        <motion.div
             initial={performanceMode ? { opacity: 0 } : { opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             className="h-full flex flex-col pt-2"
@@ -110,18 +109,18 @@ const RecentActivityWidget = ({ loading: appointmentsLoading }) => {
             <div className="flex-grow space-y-6 overflow-y-auto custom-scrollbar pr-2 mb-6">
                 <AnimatePresence mode="popLayout">
                     {recentActivities.map((item, index) => (
-                        <ActivityItem 
-                            key={`${item.type}-${item.id}`} 
-                            item={item} 
-                            type={item.type} 
+                        <ActivityItem
+                            key={`${item.type}-${item.id}`}
+                            item={item}
+                            type={item.type}
                             isLast={index === recentActivities.length - 1}
                         />
                     ))}
                 </AnimatePresence>
             </div>
 
-            <Link 
-                to="/admin/appointments" 
+            <Link
+                to="/admin/appointments"
                 className="mt-auto w-full py-3 bg-black/[0.02] dark:bg-white/[0.02] border border-black/5 dark:border-white/5 rounded-2xl flex items-center justify-center gap-2 text-[10px] font-black uppercase tracking-widest text-gray-400 hover:text-indigo-500 hover:border-indigo-500/20 transition-all group"
             >
                 See All

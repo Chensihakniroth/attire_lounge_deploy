@@ -340,6 +340,21 @@ const OrderLedger = ({ onSearchClick }) => {
                                                                 </span>
                                                             )}
                                                         </div>
+
+                                                        {/* Item Note */}
+                                                        {!isRefund && (
+                                                            <div className="mt-1 flex items-center gap-1.5 opacity-60 hover:opacity-100 focus-within:opacity-100 transition-opacity">
+                                                                <span className="text-[8px] font-black uppercase tracking-widest text-gray-400 dark:text-[#8b949e]/60">Note:</span>
+                                                                <input
+                                                                    type="text"
+                                                                    placeholder="Add small note..."
+                                                                    value={item.note || ''}
+                                                                    onChange={(e) => updateItemAttribute(item.cart_item_id, 'note', e.target.value)}
+                                                                    className="flex-1 bg-transparent border-none p-0 text-[10px] font-bold text-[#0d3542] dark:text-[#f5a81c] placeholder:text-gray-300 dark:placeholder:text-white/10 focus:ring-0 focus:outline-none"
+                                                                />
+                                                            </div>
+                                                        )}
+
                                                         <div className="flex items-center gap-2">
                                                             {item.gift_wrap && <span className="text-[9px] px-2 py-0.5 bg-[#0d3542]/10 dark:bg-[#f5a81c]/10 text-[#0d3542] dark:text-[#f5a81c] rounded-md font-black uppercase tracking-widest border border-[#0d3542]/20 dark:border-[#f5a81c]/20">Gift Wrap</span>}
                                                             {item.total_original_qty > 0 && (
@@ -489,6 +504,18 @@ const OrderLedger = ({ onSearchClick }) => {
                                                 <div className="flex flex-col">
                                                     <span className="uppercase text-[16px] font-black leading-tight tracking-[0.02em] text-gray-900 dark:text-[#c9d1d9] group-hover:text-blue-400 transition-colors">{item.product_name}</span>
                                                     <span className="text-[8px] font-black uppercase tracking-widest text-blue-400/60">+ Service Add-on</span>
+                                                    
+                                                    {/* Service Item Note */}
+                                                    <div className="mt-1 flex items-center gap-1.5 opacity-40 hover:opacity-100 focus-within:opacity-100 transition-opacity">
+                                                        <span className="text-[8px] font-black uppercase tracking-widest text-gray-400 dark:text-[#8b949e]/60">Note:</span>
+                                                        <input
+                                                            type="text"
+                                                            placeholder="Add small note..."
+                                                            value={item.note || ''}
+                                                            onChange={(e) => updateItemAttribute(item.cart_item_id, 'note', e.target.value)}
+                                                            className="flex-1 bg-transparent border-none p-0 text-[10px] font-bold text-blue-500/60 placeholder:text-gray-300 dark:placeholder:text-white/10 focus:ring-0 focus:outline-none"
+                                                        />
+                                                    </div>
                                                 </div>
                                             </td>
                                             <td className="px-4 py-4 text-center">

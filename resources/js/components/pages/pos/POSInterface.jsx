@@ -112,17 +112,18 @@ const POSInterface = () => {
                     <OrderLedger onSearchClick={() => setIsSearchOpen(true)} />
                 </div>
 
-                {/* Floating Service Toggle Button */}
+                {/* Stealthy Service Toggle Button */}
                 {!isServiceOpen && (
                     <motion.button
-                        initial={{ y: 20, opacity: 0 }}
-                        animate={{ y: 0, opacity: 1 }}
-                        transition={{ delay: 0.5 }}
+                        initial={{ opacity: 0, x: -10 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        whileHover={{ scale: 1.05, x: 5 }}
+                        whileTap={{ scale: 0.95 }}
                         onClick={() => setIsServiceOpen(true)}
-                        className="absolute bottom-6 left-6 p-4 rounded-2xl bg-attire-accent text-gray-900 dark:text-white shadow-none border border-white/20 hover:scale-105 active:scale-95 transition-all z-30 group flex items-center gap-3"
+                        className="absolute bottom-8 left-0 pl-4 pr-6 py-2.5 rounded-r-full bg-black/10 dark:bg-white/5 text-gray-400 hover:bg-attire-accent hover:text-gray-900 dark:hover:text-white border border-l-0 border-black/10 dark:border-white/10 backdrop-blur-md transition-all z-30 group flex items-center gap-3 shadow-sm hover:shadow-attire-accent/20"
                     >
-                        <Zap size={20} fill="currentColor" />
-                        <span className="text-[12px] font-black uppercase tracking-[0.2em] pr-2">Quick Access</span>
+                        <Zap size={16} className="group-hover:fill-current" />
+                        <span className="text-[10px] font-black uppercase tracking-[0.2em] opacity-0 group-hover:opacity-100 transition-opacity w-0 group-hover:w-auto overflow-hidden whitespace-nowrap">Quick Access</span>
                     </motion.button>
                 )}
 

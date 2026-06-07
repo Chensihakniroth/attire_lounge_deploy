@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { 
     LayoutDashboard, 
@@ -11,12 +11,14 @@ import {
     User,
     Sun,
     Moon,
-    Undo2
+    Undo2,
+    AlertTriangle
 } from 'lucide-react';
 import { usePOS } from './POSContext';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useTheme } from '../admin/ThemeContext';
 import { useAdmin } from '../admin/AdminContext';
+import ModernModal from '../../common/ModernModal';
 
 const POSHeader = () => {
     const navigate = useNavigate();
@@ -32,6 +34,21 @@ const POSHeader = () => {
     const { isDarkMode, toggleDarkMode } = useTheme();
     const { activeOutlet, OUTLET_CONFIG } = useAdmin();
     const outletData = OUTLET_CONFIG?.[activeOutlet] || { label: 'Attire Lounge' };
+
+    const [showWarningModal, setShowWarningModal] = useState(false);
+
+    // Check if any tab has active content that would be lost on navigation
+    const hasActiveContent = useMemo(() => {
+        return invoiceTabs.some(tab => tab.cartItems.length > 0 || tab.customer);
+    }, [invoiceTabs]);
+
+    const handleAdminSwitch = () => {
+        if (hasActiveContent) {
+            setShowWarningModal(true);
+        } else {
+            navigate('/admin');
+        }
+    };
 
     return (
         <header className="h-16 flex items-center px-6 bg-transparent border-b border-white/10 relative z-50 transition-colors duration-300">
@@ -62,13 +79,53 @@ const POSHeader = () => {
                 <div className="h-6 w-px bg-white/20" />
                 
                 <button 
-                    onClick={() => navigate('/admin')}
+                    onClick={handleAdminSwitch}
                     className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-white/5 hover:bg-white/10 text-white/60 hover:text-white transition-all group"
                 >
                     <ArrowLeftRight size={14} className="group-hover:rotate-180 transition-transform duration-500" />
                     <span className="text-[10px] font-bold uppercase tracking-widest">To Admin</span>
                 </button>
             </div>
+
+            {/* Warning Modal */}
+            <ModernModal
+                isOpen={showWarningModal}
+                onClose={() => setShowWarningModal(false)}
+                title="Discard Active Sale?"
+                maxWidth="max-w-md"
+            >
+                <div className="p-6">
+                    <div className="flex items-center gap-4 mb-4">
+                        <div className="w-12 h-12 rounded-full bg-orange-500/10 flex items-center justify-center text-orange-500 shrink-0">
+                            <AlertTriangle size={24} />
+                        </div>
+                        <div>
+                            <p className="text-sm font-bold text-gray-900 dark:text-white mb-1">Unsaved Progress Detected</p>
+                            <p className="text-xs text-gray-500 dark:text-[#8b949e] leading-relaxed">
+                                You have active tabs with items or customers. Switching to the Admin panel will clear your current cart.
+                            </p>
+                        </div>
+                    </div>
+
+                    <div className="flex items-center gap-3 mt-8">
+                        <button
+                            onClick={() => setShowWarningModal(false)}
+                            className="flex-1 px-4 py-3 rounded-xl bg-gray-100 dark:bg-white/5 text-gray-600 dark:text-[#8b949e] text-[10px] font-black uppercase tracking-widest hover:bg-gray-200 dark:hover:bg-white/10 transition-all"
+                        >
+                            Stay in POS
+                        </button>
+                        <button
+                            onClick={() => {
+                                setShowWarningModal(false);
+                                navigate('/admin');
+                            }}
+                            className="flex-1 px-4 py-3 rounded-xl bg-orange-500 text-white text-[10px] font-black uppercase tracking-widest hover:bg-orange-600 transition-all shadow-lg shadow-orange-500/20"
+                        >
+                            Yes, Discard
+                        </button>
+                    </div>
+                </div>
+            </ModernModal>
 
             {/* Tab Navigation */}
             <div className="flex-1 flex items-center gap-2 overflow-x-auto no-scrollbar py-2">

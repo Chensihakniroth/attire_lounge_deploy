@@ -44,6 +44,7 @@ import { AdminProvider, useAdmin } from './AdminContext';
 import { motion, AnimatePresence } from 'framer-motion';
 import axios from 'axios';
 import { isSafari } from '../../../helpers/browserUtils';
+import ModernModal from '../../common/ModernModal';
 
 const NavItem = ({ item, isCollapsed, setOpen }) => {
     return (
@@ -53,10 +54,9 @@ const NavItem = ({ item, isCollapsed, setOpen }) => {
                 end={item.to === '/admin'}
                 onClick={() => setOpen && setOpen(false)}
                 className={({ isActive }) =>
-                    `flex items-center px-4 py-2.5 text-[11px] font-black uppercase tracking-[0.2em] rounded-lg transition-colors duration-200 ${
-                        isActive
-                            ? 'bg-white/20 text-white'
-                            : 'text-white/60 hover:bg-white/10 hover:text-white'
+                    `flex items-center px-4 py-2.5 text-[11px] font-black uppercase tracking-[0.2em] rounded-lg transition-colors duration-200 ${isActive
+                        ? 'bg-white/20 text-white'
+                        : 'text-white/60 hover:bg-white/10 hover:text-white'
                     } ${isCollapsed ? 'justify-center px-2' : ''} active:scale-[0.98] transform group-hover/nav:translate-x-1 transition-transform`
                 }
                 title={isCollapsed ? item.name : ''}
@@ -128,16 +128,14 @@ const OutletSwitcher = () => {
                                         setIsOpen(false);
                                         navigate('/admin');
                                     }}
-                                    className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all text-left ${
-                                        activeOutlet === key
+                                    className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all text-left ${activeOutlet === key
                                             ? 'bg-white/15 text-white'
                                             : 'text-white/60 hover:bg-white/5 hover:text-white'
-                                    }`}
+                                        }`}
                                 >
                                     <div
-                                        className={`w-2.5 h-2.5 rounded-full flex-shrink-0 ${
-                                            activeOutlet === key ? 'ring-2 ring-white/40' : ''
-                                        }`}
+                                        className={`w-2.5 h-2.5 rounded-full flex-shrink-0 ${activeOutlet === key ? 'ring-2 ring-white/40' : ''
+                                            }`}
                                         style={{ backgroundColor: config.color }}
                                     />
                                     <span className="text-[10px] font-bold uppercase tracking-[0.15em]">
@@ -217,7 +215,7 @@ const SidebarContent = ({ setOpen, isMobile }) => {
                     <ArrowLeftRight size={16} />
                 </button>
             </div>
-            
+
             <nav className="flex-grow p-5 space-y-1.5 mt-2 overflow-y-auto no-scrollbar">
                 {filteredNavItems.map((item) => (
                     <NavItem key={item.name} item={item} isCollapsed={false} setOpen={setOpen} />
@@ -314,11 +312,12 @@ const AdminLayoutContent = ({
     setSidebarOpen,
     isDesktop
 }) => {
-    const { isEditing, performanceMode, activeOutlet, OUTLET_CONFIG } = useAdmin();
+    const { isEditing, setIsEditing, performanceMode, activeOutlet, OUTLET_CONFIG } = useAdmin();
     const navigate = useNavigate();
     const location = useLocation();
     const currentOutlet = useOutlet();
     const [isSafariBrowser, setIsSafariBrowser] = useState(false);
+    const [showPOSWarning, setShowPOSWarning] = useState(false);
 
     useEffect(() => {
         setIsSafariBrowser(isSafari());
@@ -331,11 +330,60 @@ const AdminLayoutContent = ({
         }
     }, [isEditing, setSidebarOpen]);
 
+    const handlePOSSwitch = () => {
+        if (isEditing) {
+            setShowPOSWarning(true);
+        } else {
+            navigate('/admin/pos');
+        }
+    };
+
     return (
         <div
             id="admin-root"
             className={`flex h-screen bg-[#fdfdfc] dark:bg-[#0d1117] font-sans text-gray-900 dark:text-[#c9d1d9] selection:bg-[#0d3542] selection:text-white transition-colors duration-300 relative ${performanceMode ? 'performance-mode' : ''}`}
         >
+            {/* Warning Modal */}
+            <ModernModal
+                isOpen={showPOSWarning}
+                onClose={() => setShowPOSWarning(false)}
+                title="Discard Unsaved Changes?"
+                maxWidth="max-w-md"
+            >
+                <div className="p-6">
+                    <div className="flex items-center gap-4 mb-4">
+                        <div className="w-12 h-12 rounded-full bg-orange-500/10 flex items-center justify-center text-orange-500 shrink-0">
+                            <AlertCircle size={24} />
+                        </div>
+                        <div>
+                            <p className="text-sm font-bold text-gray-900 dark:text-white mb-1">Unsaved Progress Detected</p>
+                            <p className="text-xs text-gray-500 dark:text-[#8b949e] leading-relaxed">
+                                You are currently editing a record. Switching to the POS system will discard your unsaved changes.
+                            </p>
+                        </div>
+                    </div>
+
+                    <div className="flex items-center gap-3 mt-8">
+                        <button
+                            onClick={() => setShowPOSWarning(false)}
+                            className="flex-1 px-4 py-3 rounded-xl bg-gray-100 dark:bg-white/5 text-gray-600 dark:text-[#8b949e] text-[10px] font-black uppercase tracking-widest hover:bg-gray-200 dark:hover:bg-white/10 transition-all"
+                        >
+                            Stay in Admin
+                        </button>
+                        <button
+                            onClick={() => {
+                                setShowPOSWarning(false);
+                                setIsEditing(false); // Clear editing state
+                                navigate('/admin/pos');
+                            }}
+                            className="flex-1 px-4 py-3 rounded-xl bg-orange-500 text-white text-[10px] font-black uppercase tracking-widest hover:bg-orange-600 transition-all shadow-lg shadow-orange-500/20"
+                        >
+                            Yes, Discard
+                        </button>
+                    </div>
+                </div>
+            </ModernModal>
+
             {/* Unified Sidebar Overlay */}
             <Sidebar
                 isOpen={!isEditing && isSidebarOpen}
@@ -358,8 +406,8 @@ const AdminLayoutContent = ({
 
                         <div className="flex items-center gap-4">
                             {/* POS Switcher Button */}
-                             <button
-                                onClick={() => navigate('/admin/pos')}
+                            <button
+                                onClick={handlePOSSwitch}
                                 className="flex items-center gap-2 px-4 py-2 bg-white/10 border border-white/20 rounded-xl hover:bg-white hover:text-attire-navy transition-all group"
                                 title="Open POS System"
                             >
