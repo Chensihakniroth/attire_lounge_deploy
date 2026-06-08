@@ -227,7 +227,7 @@ const InvoicePanel = () => {
             </div>
 
             <AnimatePresence>
-                {showPaymentModal && <PaymentModal totals={totals} onClose={() => setShowPaymentModal(false)} />}
+                {showPaymentModal && <PaymentModal onClose={() => setShowPaymentModal(false)} />}
             </AnimatePresence>
         </div>
     );

@@ -19,10 +19,12 @@ import { motion, AnimatePresence } from 'framer-motion';
 import ModernModal from '../../common/ModernModal';
 import { printReceipt } from './ThermalReceipt';
 
-const PaymentModal = ({ totals, onClose }) => {
-    const { activeTab, closeTab, activeTabIndex, updatePayments } = usePOS();
+const PaymentModal = ({ onClose }) => {
+    const { activeTab, closeTab, activeTabIndex, updatePayments, totals } = usePOS();
     const { activeOutlet } = useAdmin();
     const payments = activeTab.payments || [];
+    const currentPaid = totals.currentPaid || 0;
+    const remaining = totals.remaining || Math.max(0, totals.finalTotal - currentPaid);
     const [currentMethod, setCurrentMethod] = useState('Cash');
     const [amountInput, setAmountInput] = useState('');
     const [loading, setLoading] = useState(false);
@@ -41,9 +43,6 @@ const PaymentModal = ({ totals, onClose }) => {
         { name: 'WOWNOW', icon: <Wallet size={20} /> },
         { name: 'Deposit', icon: <Wallet size={20} /> }
     ];
-
-    const currentPaid = payments.reduce((sum, p) => sum + p.amount, 0);
-    const remaining = Math.max(0, totals.finalTotal - currentPaid);
 
     useEffect(() => {
         setAmountInput(parseFloat(remaining.toFixed(2)).toString());

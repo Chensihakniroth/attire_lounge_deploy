@@ -277,6 +277,7 @@ export const POSProvider = ({ children }) => {
 
         const currentPaid = (activeTab?.payments || []).reduce((sum, p) => sum + p.amount, 0);
         const changeDue = Math.max(0, currentPaid - finalTotal);
+        const remaining = Math.max(0, finalTotal - currentPaid);
 
         return {
             subtotal: productSubtotal + serviceSubtotal,
@@ -287,7 +288,8 @@ export const POSProvider = ({ children }) => {
             cartDiscountValue: cartDiscount.value,
             finalTotal,
             currentPaid,
-            changeDue
+            changeDue,
+            remaining
         };
     }, [activeTab.cartItems, activeTab.payments, activeTab.cartDiscount]);
 
