@@ -80,6 +80,15 @@ class SalesReportController extends Controller
             ->limit(10)
             ->get();
 
+        $data['payment_breakdown'] = DB::table('pos_payments')
+            ->join('pos_invoices', 'pos_payments.invoice_id', '=', 'pos_invoices.id')
+            ->whereBetween('pos_invoices.date', [$start->toDateString(), $end->toDateString()])
+            ->where('pos_invoices.status', 'completed')
+            ->where('pos_invoices.outlet', $outlet)
+            ->select('pos_payments.method', DB::raw('SUM(pos_payments.amount) as total'))
+            ->groupBy('pos_payments.method')
+            ->get();
+
         return response()->json($data);
     }
 

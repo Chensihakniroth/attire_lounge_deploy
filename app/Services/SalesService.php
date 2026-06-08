@@ -106,13 +106,30 @@ class SalesService
 
             $netRevenue = $totalRevenue - $totalRefunds;
 
+            // Category breakdown
+            $categoryBreakdown = DB::table('pos_invoice_items')
+                ->join('pos_invoices', 'pos_invoice_items.invoice_id', '=', 'pos_invoices.id')
+                ->leftJoin('pos_products', 'pos_invoice_items.product_id', '=', 'pos_products.id')
+                ->whereBetween('pos_invoices.date', [$start->toDateString(), $end->toDateString()])
+                ->where('pos_invoices.status', 'completed')
+                ->where('pos_invoices.outlet', $outlet)
+                ->select(
+                    DB::raw('COALESCE(pos_products.category, "Uncategorized") as category'),
+                    DB::raw('SUM(pos_invoice_items.quantity) as total_qty'),
+                    DB::raw('SUM(pos_invoice_items.line_total) as total_revenue')
+                )
+                ->groupBy('category')
+                ->orderByDesc('total_revenue')
+                ->get();
+
             return [
-                'year'            => $year,
-                'month'           => $month,
-                'total_revenue'   => round($totalRevenue, 2),
-                'total_refunds'   => round($totalRefunds, 2),
-                'net_revenue'     => round($netRevenue, 2),
-                'daily_breakdown' => $dailyRevenue,
+                'year'               => $year,
+                'month'              => $month,
+                'total_revenue'      => round($totalRevenue, 2),
+                'total_refunds'      => round($totalRefunds, 2),
+                'net_revenue'        => round($netRevenue, 2),
+                'daily_breakdown'    => $dailyRevenue,
+                'category_breakdown' => $categoryBreakdown,
             ];
         });
     }
