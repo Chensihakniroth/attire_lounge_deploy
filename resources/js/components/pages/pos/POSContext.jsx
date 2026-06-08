@@ -84,7 +84,9 @@ export const POSProvider = ({ children }) => {
     const addItems = (products) => {
         setInvoiceTabs(prevTabs => {
             const nextTabs = [...prevTabs];
-            const tab = { ...nextTabs[activeTabIndex] };
+            // Use prevTabs.length - 1 to get the last tab (current active) in case index is stale
+            const activeIdx = prevTabs.length - 1;
+            const tab = { ...nextTabs[activeIdx] };
             const currentCart = [...tab.cartItems];
 
             products.forEach(product => {
@@ -116,7 +118,7 @@ export const POSProvider = ({ children }) => {
             });
 
             tab.cartItems = currentCart;
-            nextTabs[activeTabIndex] = tab;
+            nextTabs[activeIdx] = tab;
             return nextTabs;
         });
     };
