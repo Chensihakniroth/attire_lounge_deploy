@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useEffect, useMemo } from 'react';
+import React, { createContext, useContext, useState, useEffect, useMemo, useRef, useCallback } from 'react';
 
 const POSContext = createContext();
 
@@ -25,6 +25,8 @@ export const POSProvider = ({ children }) => {
         }
     ]);
     const [activeTabIndex, setActiveTabIndex] = useState(0);
+    const activeTabIndexRef = useRef(activeTabIndex);
+    activeTabIndexRef.current = activeTabIndex;
     const [isHistoryOpen, setIsHistoryOpen] = useState(false);
     const [isServiceOpen, setIsServiceOpen] = useState(false);
 
@@ -45,8 +47,11 @@ export const POSProvider = ({ children }) => {
             payments: [],
             cartDiscount: { type: 'percentage', value: 0 }
         };
-        setInvoiceTabs([...invoiceTabs, newTab]);
-        setActiveTabIndex(invoiceTabs.length);
+        setInvoiceTabs(prevTabs => {
+            const newIndex = prevTabs.length;
+            setActiveTabIndex(newIndex);
+            return [...prevTabs, newTab];
+        });
     };
 
     const closeTab = (index) => {
@@ -84,8 +89,8 @@ export const POSProvider = ({ children }) => {
     const addItems = (products) => {
         setInvoiceTabs(prevTabs => {
             const nextTabs = [...prevTabs];
-            // Use prevTabs.length - 1 to get the last tab (current active) in case index is stale
-            const activeIdx = prevTabs.length - 1;
+            // Use ref to avoid stale closure on activeTabIndex
+            const activeIdx = activeTabIndexRef.current;
             const tab = { ...nextTabs[activeIdx] };
             const currentCart = [...tab.cartItems];
 
