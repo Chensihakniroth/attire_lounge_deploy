@@ -55,35 +55,44 @@ export const POSProvider = ({ children }) => {
     };
 
     const closeTab = (index) => {
-        if (invoiceTabs.length === 1) {
-            // Last tab, just clear it
-            setInvoiceTabs([{
-                id: Date.now(),
-                customer: null,
-                cartItems: [],
-                notes: '',
-                heldAt: null,
-                status: 'active',
-                cartDiscount: { type: 'percentage', value: 0 }
-            }]);
-            setActiveTabIndex(0);
-            return;
-        }
+        setInvoiceTabs(prevTabs => {
+            if (prevTabs.length === 1) {
+                // Last tab, just clear it
+                setActiveTabIndex(0);
+                return [{
+                    id: Date.now(),
+                    customer: null,
+                    cartItems: [],
+                    notes: '',
+                    heldAt: null,
+                    status: 'active',
+                    payments: [],
+                    cartDiscount: { type: 'percentage', value: 0 }
+                }];
+            }
 
-        const newTabs = invoiceTabs.filter((_, i) => i !== index);
-        setInvoiceTabs(newTabs);
-        
-        if (activeTabIndex >= newTabs.length) {
-            setActiveTabIndex(newTabs.length - 1);
-        } else if (activeTabIndex === index && index > 0) {
-            setActiveTabIndex(index - 1);
-        }
+            const newTabs = prevTabs.filter((_, i) => i !== index);
+            const currentIdx = activeTabIndexRef.current;
+            
+            if (currentIdx >= newTabs.length) {
+                setActiveTabIndex(newTabs.length - 1);
+            } else if (currentIdx === index && index > 0) {
+                setActiveTabIndex(index - 1);
+            }
+            return newTabs;
+        });
     };
 
     const updateActiveTab = (updates) => {
-        const newTabs = [...invoiceTabs];
-        newTabs[activeTabIndex] = { ...newTabs[activeTabIndex], ...updates };
-        setInvoiceTabs(newTabs);
+        setInvoiceTabs(prevTabs => {
+            const idx = activeTabIndexRef.current;
+            const newTabs = [...prevTabs];
+            const currentTab = newTabs[idx];
+            const resolvedUpdates = typeof updates === 'function' ? updates(currentTab) : updates;
+            if (!resolvedUpdates || Object.keys(resolvedUpdates).length === 0) return prevTabs;
+            newTabs[idx] = { ...currentTab, ...resolvedUpdates };
+            return newTabs;
+        });
     };
 
     const addItems = (products) => {
@@ -133,72 +142,81 @@ export const POSProvider = ({ children }) => {
     };
 
     const removeItem = (cartItemId) => {
-        const newCart = activeTab.cartItems.filter(item => item.cart_item_id !== cartItemId);
-        updateActiveTab({ cartItems: newCart });
+        updateActiveTab(tab => ({
+            cartItems: tab.cartItems.filter(item => item.cart_item_id !== cartItemId)
+        }));
     };
 
     const updateQty = (cartItemId, delta) => {
-        const newCart = activeTab.cartItems.map(item => {
-            if (item.cart_item_id === cartItemId) {
-                // If in refund mode, allow 0 min and enforce max_quantity cap
-                const min = activeTab.isRefundMode ? 0 : 1;
-                const max = activeTab.isRefundMode ? (item.max_quantity || item.quantity) : Infinity;
-                
-                const newQty = Math.max(min, Math.min(max, item.quantity + delta));
-                return { ...item, quantity: newQty };
-            }
-            return item;
-        });
-        updateActiveTab({ cartItems: newCart });
+        updateActiveTab(tab => ({
+            cartItems: tab.cartItems.map(item => {
+                if (item.cart_item_id === cartItemId) {
+                    // If in refund mode, allow 0 min and enforce max_quantity cap
+                    const min = tab.isRefundMode ? 0 : 1;
+                    const max = tab.isRefundMode ? (item.max_quantity || item.quantity) : Infinity;
+                    
+                    const newQty = Math.max(min, Math.min(max, item.quantity + delta));
+                    return { ...item, quantity: newQty };
+                }
+                return item;
+            })
+        }));
     };
 
     const selectAllRefundItems = () => {
-        if (!activeTab.isRefundMode) return;
-        const newCart = activeTab.cartItems.map(item => ({
-            ...item,
-            quantity: item.max_quantity
-        }));
-        updateActiveTab({ cartItems: newCart });
+        updateActiveTab(tab => {
+            if (!tab.isRefundMode) return {};
+            return {
+                cartItems: tab.cartItems.map(item => ({
+                    ...item,
+                    quantity: item.max_quantity
+                }))
+            };
+        });
     };
 
     const updateItemDiscount = (cartItemId, type, value) => {
-        const newCart = activeTab.cartItems.map(item => {
-            if (item.cart_item_id === cartItemId) {
-                return { ...item, discount_type: type, discount_value: parseFloat(value) || 0 };
-            }
-            return item;
-        });
-        updateActiveTab({ cartItems: newCart });
+        updateActiveTab(tab => ({
+            cartItems: tab.cartItems.map(item => {
+                if (item.cart_item_id === cartItemId) {
+                    return { ...item, discount_type: type, discount_value: parseFloat(value) || 0 };
+                }
+                return item;
+            })
+        }));
     };
 
     const updateItemPrice = (cartItemId, newPrice) => {
-        const newCart = activeTab.cartItems.map(item => {
-            if (item.cart_item_id === cartItemId) {
-                return { ...item, unit_price: parseFloat(newPrice) || 0 };
-            }
-            return item;
-        });
-        updateActiveTab({ cartItems: newCart });
+        updateActiveTab(tab => ({
+            cartItems: tab.cartItems.map(item => {
+                if (item.cart_item_id === cartItemId) {
+                    return { ...item, unit_price: parseFloat(newPrice) || 0 };
+                }
+                return item;
+            })
+        }));
     };
 
     const toggleGiftWrap = (cartItemId) => {
-        const newCart = activeTab.cartItems.map(item => {
-            if (item.cart_item_id === cartItemId && item.is_accessory) {
-                return { ...item, gift_wrap: !item.gift_wrap };
-            }
-            return item;
-        });
-        updateActiveTab({ cartItems: newCart });
+        updateActiveTab(tab => ({
+            cartItems: tab.cartItems.map(item => {
+                if (item.cart_item_id === cartItemId && item.is_accessory) {
+                    return { ...item, gift_wrap: !item.gift_wrap };
+                }
+                return item;
+            })
+        }));
     };
 
     const updateItemAttribute = (cartItemId, key, value) => {
-        const newCart = activeTab.cartItems.map(item => {
-            if (item.cart_item_id === cartItemId) {
-                return { ...item, [key]: value };
-            }
-            return item;
-        });
-        updateActiveTab({ cartItems: newCart });
+        updateActiveTab(tab => ({
+            cartItems: tab.cartItems.map(item => {
+                if (item.cart_item_id === cartItemId) {
+                    return { ...item, [key]: value };
+                }
+                return item;
+            })
+        }));
     };
 
     const attachCustomer = (customer) => {
@@ -225,10 +243,29 @@ export const POSProvider = ({ children }) => {
     };
 
     const holdInvoice = () => {
-        if (activeTab.cartItems.length === 0 && !activeTab.customer) return;
-        
-        updateActiveTab({ status: 'held', heldAt: new Date() });
-        addNewTab(); // Automatically open a new tab after holding
+        setInvoiceTabs(prevTabs => {
+            const idx = activeTabIndexRef.current;
+            const currentTab = prevTabs[idx];
+            if (currentTab.cartItems.length === 0 && !currentTab.customer) return prevTabs;
+
+            const newTabs = [...prevTabs];
+            newTabs[idx] = { ...currentTab, status: 'held', heldAt: new Date() };
+
+            const newTab = {
+                id: Date.now(),
+                customer: null,
+                cartItems: [],
+                notes: '',
+                note: '',
+                heldAt: null,
+                status: 'active',
+                payments: [],
+                cartDiscount: { type: 'percentage', value: 0 }
+            };
+            
+            setActiveTabIndex(newTabs.length);
+            return [...newTabs, newTab];
+        });
     };
 
     const updatePayments = (payments) => {
@@ -341,8 +378,10 @@ export const POSProvider = ({ children }) => {
             status: 'active',
             payments: []
         };
-        setInvoiceTabs(prev => [...prev, newTab]);
-        setActiveTabIndex(invoiceTabs.length);
+        setInvoiceTabs(prev => {
+            setActiveTabIndex(prev.length);
+            return [...prev, newTab];
+        });
     };
 
     const cloneInvoiceIntoCart = (invoice) => {
@@ -371,8 +410,10 @@ export const POSProvider = ({ children }) => {
             status: 'active',
             payments: []
         };
-        setInvoiceTabs(prev => [...prev, newTab]);
-        setActiveTabIndex(invoiceTabs.length); // Assuming this triggers length change immediately or use callback state
+        setInvoiceTabs(prev => {
+            setActiveTabIndex(prev.length);
+            return [...prev, newTab];
+        });
     };
 
     const value = {

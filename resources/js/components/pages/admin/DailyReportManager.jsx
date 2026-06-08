@@ -55,7 +55,7 @@ const fillDays = (data, year, month) => {
 };
 
 // ─── mini bar chart ──────────────────────────────────────────────────────────
-const MiniBar = ({ data, targetRevenue }) => {
+const MiniBar = ({ data }) => {
     if (!data || data.length === 0) return (
         <div className="h-32 flex items-center justify-center opacity-20 text-xs uppercase tracking-widest">No data</div>
     );
@@ -106,7 +106,7 @@ const MiniBar = ({ data, targetRevenue }) => {
 const ProgressRing = ({ value, max, size = 80, strokeWidth = 7 }) => {
     const radius = (size - strokeWidth * 2) / 2;
     const circumference = 2 * Math.PI * radius;
-    const pct = Math.min((value / max) * 100, 100);
+    const pct = max > 0 ? Math.min((value / max) * 100, 100) : 0;
     const offset = circumference - (pct / 100) * circumference;
     const color = pct >= 100 ? '#22c55e' : pct >= 70 ? '#f59e0b' : '#0d3542';
 
@@ -232,10 +232,12 @@ const DailyReportManager = () => {
 
     const fetchTargets = useCallback(async () => {
         try {
-            const res = await axios.get('/api/v1/admin/sales-report/targets', { headers: authHeaders() });
+            const res = await axios.get('/api/v1/admin/sales-report/targets', {
+                headers: { ...authHeaders(), 'X-Active-Outlet': activeOutlet },
+            });
             setTargets(res.data);
         } catch (e) { console.error(e); }
-    }, []);
+    }, [activeOutlet]);
 
     useEffect(() => { if (view === 'daily') fetchDaily(); }, [view, fetchDaily]);
     useEffect(() => { if (view === 'monthly') { fetchMonthly(); fetchTargets(); } }, [view, fetchMonthly, fetchTargets]);
@@ -260,7 +262,7 @@ const DailyReportManager = () => {
                 year: selectedYear, month: selectedMonth,
                 target_revenue: parseFloat(targetInput),
                 notes: targetNotes || null,
-            }, { headers: authHeaders() });
+            }, { headers: { ...authHeaders(), 'X-Active-Outlet': activeOutlet } });
             await fetchTargets();
             await fetchMonthly();
             setEditingTarget(false);
@@ -589,7 +591,7 @@ const DailyReportManager = () => {
                                         <div className="px-6 py-10 text-center opacity-30 text-xs uppercase tracking-widest">No data</div>
                                     ) : (
                                         (data?.category_breakdown ?? []).map((cat, i) => {
-                                            const maxRev = data.category_breakdown[0]?.total_revenue ?? 1;
+                                            const maxRev = parseFloat(data.category_breakdown[0]?.total_revenue) || 1;
                                             return (
                                                 <div key={i} className="px-6 py-3 flex items-center gap-3">
                                                     <div className="flex-1">
@@ -598,7 +600,7 @@ const DailyReportManager = () => {
                                                             <p className="text-[10px] font-black text-[#0d3542] dark:text-[#58a6ff]">{fmt(cat.total_revenue)}</p>
                                                         </div>
                                                         <div className="h-1 bg-black/5 dark:bg-white/5 rounded-full overflow-hidden">
-                                                            <motion.div initial={{ width: 0 }} animate={{ width: `${(cat.total_revenue / maxRev) * 100}%` }}
+                                                            <motion.div initial={{ width: 0 }} animate={{ width: `${(parseFloat(cat.total_revenue) / maxRev) * 100}%` }}
                                                                 transition={{ duration: 0.7, delay: i * 0.04 }}
                                                                 className="h-full bg-[#0d3542]/50 dark:bg-[#58a6ff]/50 rounded-full" />
                                                         </div>
@@ -628,7 +630,7 @@ const DailyReportManager = () => {
                                                     <div className="flex items-center justify-between">
                                                         <div className="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-gray-700 dark:text-[#c9d1d9]">
                                                             {PAY_ICONS[p.method] ?? <Banknote size={13} />}
-                                                            {p.method.replace('_', ' ')}
+                                                            {p.method.replaceAll('_', ' ')}
                                                         </div>
                                                         <p className="text-[10px] font-black text-[#0d3542] dark:text-[#58a6ff]">{fmt(p.total)}</p>
                                                     </div>
@@ -684,7 +686,7 @@ const DailyReportManager = () => {
                                                             {(inv.payments ?? []).map((p, j) => (
                                                                 <span key={j} className="flex items-center gap-1 px-1.5 py-0.5 bg-black/5 dark:bg-white/5 rounded text-[9px] font-bold uppercase tracking-widest text-gray-600 dark:text-[#8b949e]">
                                                                     {PAY_ICONS[p.method] ?? null}
-                                                                    {p.method.replace('_', ' ')}
+                                                                    {p.method.replaceAll('_', ' ')}
                                                                     {inv.payments.length > 1 && ` (${fmt(p.amount)})`}
                                                                 </span>
                                                             ))}
