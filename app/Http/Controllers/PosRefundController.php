@@ -146,10 +146,11 @@ class PosRefundController extends Controller
             // Clear report caches
             $date   = $invoice->date;
             $outlet = $invoice->outlet;
+            $dateStr = $date instanceof \Carbon\Carbon ? $date->toDateString() : \Carbon\Carbon::parse($date)->toDateString();
             $year   = \Carbon\Carbon::parse($date)->year;
             $month  = \Carbon\Carbon::parse($date)->month;
             
-            \Illuminate\Support\Facades\Cache::forget("sales_daily_{$outlet}_{$date}");
+            \Illuminate\Support\Facades\Cache::forget("sales_daily_{$outlet}_{$dateStr}");
             \Illuminate\Support\Facades\Cache::forget("sales_monthly_{$outlet}_{$year}_{$month}");
 
             return response()->json([
