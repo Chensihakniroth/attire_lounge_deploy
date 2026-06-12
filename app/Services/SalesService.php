@@ -17,7 +17,6 @@ class SalesService
         return Cache::remember("sales_daily_{$outlet}_{$date}", 3600, function () use ($date, $outlet) {
             $invoices = PosInvoice::where('date', $date)
                 ->where('status', 'completed')
-                ->where('outlet', $outlet)
                 ->with(['items', 'payments', 'customer'])
                 ->orderByDesc('created_at')
                 ->get();
