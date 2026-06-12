@@ -144,15 +144,25 @@ class AlteringController extends Controller
     public function bulkDestroy(Request $request): JsonResponse
     {
         $ids = $request->input('ids', []);
-        
+
         if (empty($ids)) {
             return response()->json(['message' => 'No items selected.'], 400);
         }
 
-        Altering::whereIn('id', $ids)->delete();
+        // Limit bulk delete to prevent abuse
+        if (count($ids) > 100) {
+            return response()->json(['message' => 'Cannot delete more than 100 items at once.'], 400);
+        }
+
+        // Scope to outlet — only delete records belonging to the admin's outlet
+        $outlet = $request->header('X-Active-Outlet', 'attire_lounge');
+        $deletedCount = Altering::whereIn('id', $ids)
+            ->where('outlet', $outlet)
+            ->delete();
 
         return response()->json([
-            'message' => 'Selected altering records deleted successfully.'
+            'message' => 'Selected altering records deleted successfully.',
+            'deleted_count' => $deletedCount,
         ]);
     }
 
@@ -240,21 +250,25 @@ class AlteringController extends Controller
                 $status = 'in_progress';
             }
 
+            // Sanitize string inputs to prevent XSS in admin panel
+            $sanitize = fn($v) => is_string($v) ? strip_tags(trim($v)) : $v;
+
             Altering::create([
-                'order_no' => $item['order_no'] ?? null,
-                'customer_name' => $item['customer_name'] ?? 'Unknown',
-                'mobile' => $item['mobile'] ?? null,
-                'delivery_address' => $item['delivery_address'] ?? null,
-                'product' => $item['product'] ?? null,
+                'order_no' => $sanitize($item['order_no'] ?? null),
+                'customer_name' => $sanitize($item['customer_name'] ?? 'Unknown'),
+                'mobile' => $sanitize($item['mobile'] ?? null),
+                'delivery_address' => $sanitize($item['delivery_address'] ?? null),
+                'product' => $sanitize($item['product'] ?? null),
                 'purchased_date' => $item['purchased_date'] ?? null,
                 'tailor_pickup_date' => $item['tailor_pick_up_date'] ?? null,
-                'pickup_status' => $item['pick_up_status'] ?? null,
+                'pickup_status' => $sanitize($item['pick_up_status'] ?? null),
                 'customer_pickup_date' => $item['customer_pickup_date'] ?? null,
-                'customer_pickup_status' => $item['pickup_status'] ?? null,
-                'remark' => $item['remark'] ?? null,
+                'customer_pickup_status' => $sanitize($item['pickup_status'] ?? null),
+                'remark' => $sanitize($item['remark'] ?? null),
                 'status' => $status,
                 'start_date' => $startDate ?: now()->toDateString(),
                 'ready_at' => $readyAt,
+                'outlet' => $request->header('X-Active-Outlet', 'attire_lounge'),
             ]);
             $imported++;
         }

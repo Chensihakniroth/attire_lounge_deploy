@@ -95,7 +95,6 @@ class AdminLoginController extends Controller
             Log::error('Login Error: ' . $e->getMessage());
             return response()->json([
                 'message' => 'Something went wrong on our end. Please try again in a little bit! (っ˘ω˘ς)',
-                'debug' => $e->getMessage()
             ], 500);
         }
     }

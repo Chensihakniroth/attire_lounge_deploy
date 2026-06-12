@@ -138,32 +138,52 @@ const LenisScroll: React.FC = () => {
         if (!window.lenis) {
             const isSafariBrowser = isSafari();
 
-            // Use lerp instead of duration/easing to fix Magic Mouse and Trackpad lag
-            // Continuous input devices feel heavy/laggy when using time-based duration.
+            // Detect mobile/touch devices — disable smooth scroll on mobile
+            // Mobile browsers have optimized native scroll that Lenis can't improve
+            const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
+                navigator.userAgent
+            ) || (window.matchMedia && window.matchMedia('(pointer: coarse)').matches);
+
             const lenis = new Lenis({
-                lerp: 0.1, // Linear interpolation (0.1 is standard, lower is smoother)
+                lerp: isMobile ? 1 : 0.1,           // No smoothing on mobile (instant)
                 orientation: 'vertical',
                 gestureOrientation: 'vertical',
-                smoothWheel: true,
-                wheelMultiplier: isSafariBrowser ? 0.8 : 1.0, // Reduced for Safari
-                touchMultiplier: 1.5,
-                syncTouch: true, // Syncs touch scroll to native scroll
+                smoothWheel: !isMobile,               // Disable smooth wheel on mobile
+                wheelMultiplier: isSafariBrowser ? 0.8 : 1.0,
+                touchMultiplier: isMobile ? 0 : 1.5,  // Disable touch smoothing on mobile
+                syncTouch: false,                     // NEVER sync touch — causes jank on mobile
                 infinite: false,
             });
 
             window.lenis = lenis;
 
-            // Optimized RAF loop
+            // Optimized RAF loop — only run when tab is visible
             let rafId: number;
+            let isRunning = true;
+
             function raf(time: number) {
+                if (!isRunning) return;
                 lenis.raf(time);
                 rafId = requestAnimationFrame(raf);
             }
 
             rafId = requestAnimationFrame(raf);
 
+            // Pause RAF when tab is hidden (saves battery + prevents jank)
+            const handleVisibility = () => {
+                if (document.hidden) {
+                    isRunning = false;
+                } else {
+                    isRunning = true;
+                    rafId = requestAnimationFrame(raf);
+                }
+            };
+            document.addEventListener('visibilitychange', handleVisibility);
+
             return () => {
+                isRunning = false;
                 cancelAnimationFrame(rafId);
+                document.removeEventListener('visibilitychange', handleVisibility);
                 lenis.destroy();
                 window.lenis = null;
             };

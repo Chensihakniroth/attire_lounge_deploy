@@ -20,6 +20,12 @@ return Application::configure(basePath: dirname(__DIR__))
             'role' => \Spatie\Permission\Middleware\RoleMiddleware::class,
             'permission' => \Spatie\Permission\Middleware\PermissionMiddleware::class,
         ]);
+
+        // Apply security headers to all responses
+        $middleware->append(\App\Http\Middleware\SecurityHeaders::class);
+
+        // Apply CORS headers to API routes
+        $middleware->append(\App\Http\Middleware\CorsHeaders::class);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         //

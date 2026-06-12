@@ -17,6 +17,19 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Default Image Upload Disk
+    |--------------------------------------------------------------------------
+    |
+    | The disk used by ImageUploadController for image uploads.
+    | This is separate from the default disk to allow restricting uploads
+    | to a specific storage backend.
+    |
+    */
+
+    'default_image_disk' => env('IMAGE_UPLOAD_DISK', 'minio'),
+
+    /*
+    |--------------------------------------------------------------------------
     | Filesystem Disks
     |--------------------------------------------------------------------------
     |

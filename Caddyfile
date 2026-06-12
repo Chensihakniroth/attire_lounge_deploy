@@ -11,5 +11,14 @@
         output stdout
     }
 
+    # Block access to source maps and other sensitive files
+    @blocked {
+        path *.map
+        path .env*
+        path *.sql
+        path *.log
+    }
+    respond @blocked 404
+
     php_server
 }

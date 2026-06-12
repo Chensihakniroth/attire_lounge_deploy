@@ -18,6 +18,12 @@ class CustomerProfileController extends Controller
     public function index(Request $request): JsonResponse
     {
         $filters = $request->only(['search', 'status', 'per_page']);
+        // Enforce per_page maximum to prevent data dumps
+        if (isset($filters['per_page']) && $filters['per_page'] > 100) {
+            $filters['per_page'] = 100;
+        }
+        // Scope to the authenticated admin's outlet
+        $filters['outlet'] = $request->header('X-Active-Outlet', 'attire_lounge');
         $customerProfiles = $this->customerProfileService->getAllCustomerProfiles($filters);
         return response()->json($customerProfiles);
     }
@@ -45,6 +51,9 @@ class CustomerProfileController extends Controller
             'is_vip' => 'nullable|boolean',
         ]);
 
+        // Set outlet from request context, not user input
+        $validatedData['outlet'] = $request->header('X-Active-Outlet', 'attire_lounge');
+
         $customerProfile = $this->customerProfileService->createCustomerProfile($validatedData);
 
         return response()->json($customerProfile, 201);
@@ -53,11 +62,34 @@ class CustomerProfileController extends Controller
     public function show(int $id): JsonResponse
     {
         $customerProfile = $this->customerProfileService->getCustomerProfileById($id);
+
+        if (!$customerProfile) {
+            return response()->json(['message' => 'Customer profile not found.'], 404);
+        }
+
+        // Enforce outlet scoping — admin can only view profiles from their outlet
+        $outlet = $request->header('X-Active-Outlet', 'attire_lounge');
+        if ($customerProfile->outlet !== $outlet) {
+            return response()->json(['message' => 'Customer profile not found.'], 404);
+        }
+
         return response()->json($customerProfile);
     }
 
     public function update(Request $request, int $id): JsonResponse
     {
+        $customerProfile = $this->customerProfileService->getCustomerProfileById($id);
+
+        if (!$customerProfile) {
+            return response()->json(['message' => 'Customer profile not found.'], 404);
+        }
+
+        // Enforce outlet scoping
+        $outlet = $request->header('X-Active-Outlet', 'attire_lounge');
+        if ($customerProfile->outlet !== $outlet) {
+            return response()->json(['message' => 'Customer profile not found.'], 404);
+        }
+
         $validatedData = $request->validate([
             'date' => 'sometimes|required|date',
             'client_status' => 'sometimes|required|string',
@@ -86,6 +118,18 @@ class CustomerProfileController extends Controller
 
     public function destroy(int $id): JsonResponse
     {
+        $customerProfile = $this->customerProfileService->getCustomerProfileById($id);
+
+        if (!$customerProfile) {
+            return response()->json(['message' => 'Customer profile not found.'], 404);
+        }
+
+        // Enforce outlet scoping
+        $outlet = request()->header('X-Active-Outlet', 'attire_lounge');
+        if ($customerProfile->outlet !== $outlet) {
+            return response()->json(['message' => 'Customer profile not found.'], 404);
+        }
+
         $this->customerProfileService->deleteCustomerProfile($id);
         return response()->json(null, 204);
     }

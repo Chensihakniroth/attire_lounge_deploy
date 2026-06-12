@@ -20,7 +20,8 @@ class NewsletterSubscriptionController extends Controller
         $query = NewsletterSubscription::latest();
 
         if ($request->has('search')) {
-            $query->where('phone_number', 'like', '%' . $request->search . '%');
+            $search = addcslashes($request->search, '%_');
+            $query->where('phone_number', 'like', '%' . $search . '%');
         }
 
         $subscribers = $query->paginate($request->get('per_page', 50));

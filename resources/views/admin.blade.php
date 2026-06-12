@@ -33,13 +33,6 @@
                     </style>
                 `);
             })();
-            
-            window.REVERB_CONFIG = {
-                key: "{{ config('reverb.apps.apps.0.key') }}",
-                host: "{{ config('reverb.apps.apps.0.options.host') }}",
-                port: "{{ config('reverb.apps.apps.0.options.port', 443) }}",
-                scheme: "{{ config('reverb.apps.apps.0.options.scheme', 'https') }}"
-            };
         </script>
         <style>
             .initial-loader {

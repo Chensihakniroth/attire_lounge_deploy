@@ -23,3 +23,14 @@
     RewriteCond %{REQUEST_FILENAME} !-f
     RewriteRule ^ index.php [L]
 </IfModule>
+
+# Block access to source maps and sensitive files
+<IfModule mod_rewrite.c>
+    RewriteRule \.(map|sql|log|env|bak|zip)$ - [F,L]
+</IfModule>
+
+# Remove server signature
+<IfModule mod_headers.c>
+    Header unset X-Powered-By
+    Header unset Server
+</IfModule>

@@ -6,6 +6,7 @@ use App\Http\Controllers\AppointmentController;
 use App\Http\Controllers\ImageUploadController;
 use App\Http\Controllers\NewsletterSubscriptionController;
 use App\Http\Controllers\AdminLoginController;
+use App\Http\Controllers\ReverbConfigController;
 use App\Http\Controllers\GiftRequestController;
 use App\Http\Controllers\GiftItemStockController;
 use App\Http\Controllers\AdminController;
@@ -19,44 +20,49 @@ use App\Http\Controllers\PosRefundController;
 use App\Http\Controllers\SalesReportController;
 
 Route::prefix('v1')->group(function () {
-    // Public Product routes (accessible to all)
-    Route::get('/products', [ProductController::class, 'index'])->name('products.index');
-    Route::get('/products/featured', [ProductController::class, 'featured'])->name('products.featured');
-    Route::get('/products/categories', [ProductController::class, 'categories'])->name('products.categories');
-    Route::get('/products/collections', [ProductController::class, 'collections'])->name('products.collections');
-    Route::get('/products/{slug}', [ProductController::class, 'show'])->name('products.show');
-
-    // Search
-    Route::get('/search', [ProductController::class, 'search']);
+    // Public Product routes (accessible to all, rate limited)
+    Route::middleware('throttle:60,1')->group(function () {
+        Route::get('/products', [ProductController::class, 'index'])->name('products.index');
+        Route::get('/products/featured', [ProductController::class, 'featured'])->name('products.featured');
+        Route::get('/products/categories', [ProductController::class, 'categories'])->name('products.categories');
+        Route::get('/products/collections', [ProductController::class, 'collections'])->name('products.collections');
+        Route::get('/products/{slug}', [ProductController::class, 'show'])->name('products.show');
+        Route::get('/search', [ProductController::class, 'search']);
+    });
 
     // Public Appointments route (for users to store appointments)
-    Route::post('/appointments', [AppointmentController::class, 'store']);
+    Route::post('/appointments', [AppointmentController::class, 'store'])->middleware('throttle:10,1');
 
-    // Gift Requests (Public routes for viewing and submitting)
-    Route::get('/gift-requests', [GiftRequestController::class, 'index']);
-    Route::post('/gift-requests', [GiftRequestController::class, 'store']);
+    // Gift Requests (Public route for submitting; viewing requires auth)
+    Route::post('/gift-requests', [GiftRequestController::class, 'store'])->middleware('throttle:10,1');
 
     // Gift Item Stock (public access for fetching status)
-    Route::get('/gift-items/out-of-stock', [\App\Http\Controllers\GiftItemStockController::class, 'index']);
+    Route::get('/gift-items/out-of-stock', [\App\Http\Controllers\GiftItemStockController::class, 'index'])->middleware('throttle:60,1');
 
     // Promocodes (Public validate route)
-    Route::post('/promocodes/validate', [PromocodeController::class, 'validateCode']);
+    Route::post('/promocodes/validate', [PromocodeController::class, 'validateCode'])->middleware('throttle:10,1');
 
     // Newsletter Subscription (public)
-    Route::post('/newsletter-subscriptions', [NewsletterSubscriptionController::class, 'store']);
+    Route::post('/newsletter-subscriptions', [NewsletterSubscriptionController::class, 'store'])->middleware('throttle:5,1');
 
     // Admin Login Route (public, as authentication is done here)
     Route::post('/admin/login', [AdminLoginController::class, 'login'])->middleware('throttle:5,1');
 
     // Admin-specific routes - protected by authentication middleware
     Route::middleware(['auth:sanctum'])->prefix('admin')->group(function () {
-        
+
         // User Profile Management (Self-service)
         Route::get('/user', function (Illuminate\Http\Request $request) {
             return $request->user();
         });
         Route::get('/me', [AdminLoginController::class, 'me']);
         Route::put('/user/profile', [UserController::class, 'updateProfile']);
+
+        // Gift Requests — admin-only access for viewing
+        Route::get('/gift-requests', [GiftRequestController::class, 'index']);
+
+        // Reverb WebSocket config — served server-side, never exposed in HTML
+        Route::get('/reverb/config', [ReverbConfigController::class, 'show']);
 
         // Restricted to Admin & Super Admin
         Route::middleware(['role:admin|super-admin'])->group(function () {

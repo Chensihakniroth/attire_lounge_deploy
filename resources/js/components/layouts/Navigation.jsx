@@ -67,9 +67,19 @@ const Navigation = () => {
   const navIconColor = 'text-white transition-colors duration-300 hover:text-attire-accent';
 
   const navVariants = { visible: { y: '0%', opacity: 1 }, hidden: { y: '-100%', opacity: 0 } };
-  const sidebarVariants = { open: { x: 0, transition: { duration: 0.5 } }, closed: { x: '-100%', transition: { duration: 0.4 } } };
-  const listVariants = { open: { transition: { staggerChildren: 0.1, delayChildren: 0.3 } }, closed: { transition: { staggerChildren: 0.05, staggerDirection: -1 } } };
-  const itemVariants = { open: { y: 0, opacity: 1, transition: { duration: 0.4 } }, closed: { y: 20, opacity: 0, transition: { duration: 0.3 } } };
+  const navTransition = { duration: 0.2, ease: 'easeInOut' };
+  const sidebarVariants = { 
+    open: { x: 0, transition: { duration: 0.25, ease: [0.25, 0.46, 0.45, 0.94] } }, 
+    closed: { x: '-100%', transition: { duration: 0.2, ease: [0.25, 0.46, 0.45, 0.94] } } 
+  };
+  const listVariants = { 
+    open: { transition: { staggerChildren: 0.04, delayChildren: 0.08 } }, 
+    closed: { transition: { staggerChildren: 0.02, staggerDirection: -1 } } 
+  };
+  const itemVariants = { 
+    open: { y: 0, opacity: 1, transition: { duration: 0.2, ease: 'easeOut' } }, 
+    closed: { y: 10, opacity: 0, transition: { duration: 0.15, ease: 'easeIn' } } 
+  };
 
   if ((isLookbookFilterOpen && isMobile) || isAdminRoute) return null;
 
@@ -80,7 +90,7 @@ const Navigation = () => {
         animate={isVisible ? 'visible' : 'hidden'}
         initial="visible"
         variants={navVariants}
-        transition={{ duration: 0.3 }}
+        transition={navTransition}
         className={`fixed top-0 left-0 right-0 z-50 transition-[background-color,backdrop-filter,border-color,box-shadow] duration-500 ${navBackgroundClass}`}
       >
         <div className="max-w-7xl mx-auto px-6">
@@ -108,7 +118,7 @@ const Navigation = () => {
       <AnimatePresence>
         {isMenuOpen && (
           <>
-            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.4 }} className="fixed inset-0 bg-black/60 backdrop-blur-sm z-40" onClick={() => setIsMenuOpen(false)} />
+            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.2 }} className="fixed inset-0 bg-black/60 backdrop-blur-sm z-40" onClick={() => setIsMenuOpen(false)} />
             <motion.div variants={sidebarVariants} initial="closed" animate="open" exit="closed" className="fixed top-0 left-0 bottom-0 w-full max-w-sm bg-attire-navy z-50 border-r border-white/10 shadow-2xl flex flex-col">
               <div className="p-8 flex items-center justify-between">
                 <span className="font-serif text-xl text-white tracking-[0.2em] uppercase">Menu</span>

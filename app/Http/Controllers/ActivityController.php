@@ -33,7 +33,8 @@ class ActivityController extends Controller
             $query->where('model_type', $request->model_type);
         }
 
-        $activities = $query->paginate($request->get('per_page', 50));
+        $perPage = min((int) $request->get('per_page', 50), 100);
+        $activities = $query->paginate($perPage);
 
         return response()->json([
             'success' => true,

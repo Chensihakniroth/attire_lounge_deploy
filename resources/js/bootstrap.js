@@ -24,30 +24,49 @@ window.axios.interceptors.request.use(
     }
 );
 
-/**
- * Echo exposes an expressive API for subscribing to channels and listening
- * for events that are broadcast by Laravel. Echo and event broadcasting
- * allow your team to quickly build robust real-time web applications.
- */
+// Only initialize Echo for admin panel (when auth token exists)
+// The public frontend does not need WebSocket connectivity
+const token = localStorage.getItem('admin_token') || sessionStorage.getItem('admin_token');
 
-import Echo from 'laravel-echo';
-import Pusher from 'pusher-js';
+if (token) {
+    // Dynamically import Echo/Pusher only for admin panel
+    // This prevents bundling WebSocket libraries in the public frontend
+    const initializeEcho = async () => {
+        try {
+            const [EchoModule, PusherModule] = await Promise.all([
+                import('laravel-echo'),
+                import('pusher-js'),
+            ]);
 
-window.Pusher = Pusher;
+            const Echo = EchoModule.default;
+            const Pusher = PusherModule.default;
 
-const reverbConfig = window.REVERB_CONFIG || {};
+            window.Pusher = Pusher;
 
-window.Echo = new Echo({
-    broadcaster: 'reverb',
-    key: reverbConfig.key,
-    wsHost: reverbConfig.host,
-    wsPort: reverbConfig.port ?? 80,
-    wssPort: reverbConfig.port ?? 443,
-    forceTLS: (reverbConfig.scheme ?? 'https') === 'https',
-    enabledTransports: ['ws', 'wss'],
-});
+            const { data } = await axios.get('/api/v1/admin/reverb/config');
 
-console.log('%c✦ Attire Lounge Admin', 'color: #f5a81c; font-weight: bold;');
+            window.Echo = new Echo({
+                broadcaster: 'reverb',
+                key: data.key,
+                wsHost: data.host,
+                wsPort: data.port ?? 80,
+                wssPort: data.port ?? 443,
+                forceTLS: (data.scheme ?? 'https') === 'https',
+                enabledTransports: ['ws', 'wss'],
+            });
+
+            console.log('%c✦ Attire Lounge Admin — Reverb connected', 'color: #f5a81c; font-weight: bold;');
+        } catch (error) {
+            console.warn('%c✦ Attire Lounge Admin — Reverb not available (offline mode)', 'color: #f5a81c; font-weight: bold;');
+            window.Echo = null;
+        }
+    };
+
+    initializeEcho();
+} else {
+    // Public frontend — Echo is not needed
+    window.Echo = null;
+}
 
 // 🎮 Initialize Senior Developer Admin Commands
 import { initAdminCommands } from './helpers/adminCommands';
