@@ -44,4 +44,12 @@ return [
         'group_chat_id' => env('TELEGRAM_GROUP_CHAT_ID'),
     ],
 
+    'webhook' => [
+        'api_key' => env('WEBHOOK_API_KEY'),
+    ],
+
+    'api' => [
+        'key' => env('API_KEY'),
+    ],
+
 ];

@@ -13,7 +13,8 @@ import {
     ShieldCheck,
     PieChart as PieIcon,
     BarChart,
-    Loader2
+    Loader2,
+    Footprints
 } from 'lucide-react';
 import ErrorBoundary from '../../common/ErrorBoundary.jsx';
 import { LumaSpin } from '@/components/ui/luma-spin';
@@ -588,7 +589,7 @@ const AdminDashboard = () => {
                                 icon={<ShoppingBag />}
                                 title="Menu Items"
                                 value={stats.pos_products || 0}
-                                link="/admin/drink-manager"
+                                link={activeOutlet === 'nile' ? "/admin/shoe-manager" : "/admin/drink-manager"}
                                 loading={
                                     appointmentsLoading && appointments.length === 0
                                 }
@@ -607,7 +608,7 @@ const AdminDashboard = () => {
                                 icon={<Package />}
                                 title="Stock Alerts"
                                 value={stats.low_stock || 0}
-                                link="/admin/drink-manager"
+                                link={activeOutlet === 'nile' ? "/admin/shoe-manager" : "/admin/drink-manager"}
                                 loading={
                                     appointmentsLoading && appointments.length === 0
                                 }
@@ -1003,31 +1004,58 @@ const AdminDashboard = () => {
                                         link="/admin/customize-gift"
                                     />
                                 </>
+                            ) : activeOutlet === 'nile' ? (
+                                <>
+                                    <QuickAction
+                                        icon={<Footprints />}
+                                        title="Shoe Collection"
+                                        description="Manage Shoes"
+                                        link="/admin/shoe-manager"
+                                    />
+                                    <QuickAction
+                                        icon={<TrendingUp />}
+                                        title="Sales"
+                                        description="History"
+                                        link="/admin/sales-history"
+                                    />
+                                    <QuickAction
+                                        icon={<Activity />}
+                                        title="Reports"
+                                        description="Daily Summary"
+                                        link="/admin/daily-report"
+                                    />
+                                    <QuickAction
+                                        icon={<Users />}
+                                        title="Staff"
+                                        description="User Manager"
+                                        link="/admin/users"
+                                    />
+                                </>
                             ) : (
                                 <>
-                                    <QuickAction 
-                                        icon={<Package />} 
-                                        title="Drink Menu" 
-                                        description="Manage Drinks" 
-                                        link="/admin/drink-manager" 
+                                    <QuickAction
+                                        icon={<Package />}
+                                        title="Drink Menu"
+                                        description="Manage Drinks"
+                                        link="/admin/drink-manager"
                                     />
-                                    <QuickAction 
-                                        icon={<TrendingUp />} 
-                                        title="Sales" 
-                                        description="History" 
-                                        link="/admin/sales-history" 
+                                    <QuickAction
+                                        icon={<TrendingUp />}
+                                        title="Sales"
+                                        description="History"
+                                        link="/admin/sales-history"
                                     />
-                                    <QuickAction 
-                                        icon={<Activity />} 
-                                        title="Reports" 
-                                        description="Daily Summary" 
-                                        link="/admin/daily-report" 
+                                    <QuickAction
+                                        icon={<Activity />}
+                                        title="Reports"
+                                        description="Daily Summary"
+                                        link="/admin/daily-report"
                                     />
-                                    <QuickAction 
-                                        icon={<Users />} 
-                                        title="Staff" 
-                                        description="User Manager" 
-                                        link="/admin/users" 
+                                    <QuickAction
+                                        icon={<Users />}
+                                        title="Staff"
+                                        description="User Manager"
+                                        link="/admin/users"
                                     />
                                 </>
                             )}

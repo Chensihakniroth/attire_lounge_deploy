@@ -34,8 +34,32 @@ class PosInvoiceController extends Controller
             $query->whereDate('date', $date);
         }
 
+        if ($fromDate = $request->get('from_date')) {
+            $query->whereDate('date', '>=', $fromDate);
+        }
+
+        if ($toDate = $request->get('to_date')) {
+            $query->whereDate('date', '<=', $toDate);
+        }
+
         if ($status = $request->get('status')) {
             $query->where('status', $status);
+        }
+
+        if ($orderSource = $request->get('order_source')) {
+            $query->where('order_source', $orderSource);
+        }
+
+        if ($wcOrderId = $request->get('wc_order_id')) {
+            $query->where('wc_order_id', $wcOrderId);
+        }
+
+        if ($search = $request->get('search')) {
+            $query->where(function ($q) use ($search) {
+                $q->where('invoice_number', 'LIKE', "%{$search}%")
+                  ->orWhere('wc_order_id', 'LIKE', "%{$search}%")
+                  ->orWhereHas('customer', fn($cq) => $cq->where('name', 'LIKE', "%{$search}%"));
+            });
         }
 
         if ($customerId = $request->get('customer_profile_id')) {

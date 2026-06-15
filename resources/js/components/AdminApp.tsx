@@ -104,6 +104,8 @@ const POSInterface = lazyWithRetry(() => import('./pages/pos/POSInterface.jsx'))
 const SalesHistoryManager = lazyWithRetry(() => import('./pages/admin/SalesHistoryManager.jsx'));
 const PosProductManager = lazyWithRetry(() => import('./pages/admin/PosProductManager.jsx'));
 const DrinkManager = lazyWithRetry(() => import('./pages/admin/DrinkManager.jsx'));
+const ShoeManager = lazyWithRetry(() => import('./pages/admin/ShoeManager.jsx'));
+const OrderManager = lazyWithRetry(() => import('./pages/admin/OrderManager.jsx'));
 const DailyReportManager = lazyWithRetry(() => import('./pages/admin/DailyReportManager.jsx'));
 
 // ─── Eager Chunk Preloader ─────────────────────────────────────────
@@ -111,6 +113,7 @@ const DailyReportManager = lazyWithRetry(() => import('./pages/admin/DailyReport
 const preloadChunks = () => {
     const chunks = [
         () => import('./pages/admin/DrinkManager.jsx'),
+        () => import('./pages/admin/ShoeManager.jsx'),
         () => import('./pages/admin/PosProductManager.jsx'),
         () => import('./pages/admin/SalesHistoryManager.jsx'),
         () => import('./pages/admin/DailyReportManager.jsx'),
@@ -198,6 +201,8 @@ function AdminApp() {
                                             <Route path="/admin/collections" element={<CollectionManager />} />
                                             <Route path="/admin/pos-products" element={<PosProductManager />} />
                                             <Route path="/admin/drink-manager" element={<DrinkManager />} />
+                                            <Route path="/admin/shoe-manager" element={<ShoeManager />} />
+                                            <Route path="/admin/order-manager" element={<OrderManager />} />
                                             <Route path="/admin/products/bulk" element={<BulkProductEditor />} />
                                             <Route path="/admin/products/new" element={<ProductEditor isNew={true} />} />
                                             <Route path="/admin/products/:productId/edit" element={<ProductEditor />} />

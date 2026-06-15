@@ -37,7 +37,7 @@ trait BelongsToOutlet
             ?? $request->get('outlet')
             ?? 'attire_lounge';
 
-        $allowed = ['attire_lounge', 'caffeine', 'kravat'];
+        $allowed = ['attire_lounge', 'caffeine', 'kravat', 'nile'];
         return in_array($outlet, $allowed) ? $outlet : 'attire_lounge';
     }
 

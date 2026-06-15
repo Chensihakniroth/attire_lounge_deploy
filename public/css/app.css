@@ -1242,6 +1242,9 @@
   .h-48 {
     height: calc(var(--spacing) * 48);
   }
+  .h-60 {
+    height: calc(var(--spacing) * 60);
+  }
   .h-64 {
     height: calc(var(--spacing) * 64);
   }
@@ -2776,6 +2779,12 @@
   }
   .bg-\[\#0d3542\]\/\[0\.02\] {
     background-color: color-mix(in oklab, #0d3542 2%, transparent);
+  }
+  .bg-\[\#1a1a2e\] {
+    background-color: #1a1a2e;
+  }
+  .bg-\[\#1a1a2e\]\/10 {
+    background-color: color-mix(in oklab, #1a1a2e 10%, transparent);
   }
   .bg-\[\#1b1b18\] {
     background-color: #1b1b18;
@@ -4314,6 +4323,9 @@
   .text-\[\#1a0dab\] {
     color: #1a0dab;
   }
+  .text-\[\#1a1a2e\] {
+    color: #1a1a2e;
+  }
   .text-\[\#1b1b18\] {
     color: #1b1b18;
   }
@@ -4343,9 +4355,6 @@
   }
   .text-\[\#E5E7EB\]\/80 {
     color: color-mix(in oklab, #E5E7EB 80%, transparent);
-  }
-  .text-\[\#E5E7EB\]\/90 {
-    color: color-mix(in oklab, #E5E7EB 90%, transparent);
   }
   .text-\[\#F53003\] {
     color: #F53003;
@@ -5830,6 +5839,16 @@
       }
     }
   }
+  .group-hover\:text-white\/80 {
+    &:is(:where(.group):hover *) {
+      @media (hover: hover) {
+        color: color-mix(in srgb, #fff 80%, transparent);
+        @supports (color: color-mix(in lab, red, red)) {
+          color: color-mix(in oklab, var(--color-white) 80%, transparent);
+        }
+      }
+    }
+  }
   .group-hover\:opacity-80 {
     &:is(:where(.group):hover *) {
       @media (hover: hover) {
@@ -6261,6 +6280,13 @@
     &:hover {
       @media (hover: hover) {
         border-color: color-mix(in oklab, #0d3542 50%, transparent);
+      }
+    }
+  }
+  .hover\:border-\[\#1a1a2e\]\/30 {
+    &:hover {
+      @media (hover: hover) {
+        border-color: color-mix(in oklab, #1a1a2e 30%, transparent);
       }
     }
   }
@@ -7208,6 +7234,16 @@
   .focus\:border-\[\#0d3542\]\/50 {
     &:focus {
       border-color: color-mix(in oklab, #0d3542 50%, transparent);
+    }
+  }
+  .focus\:border-\[\#1a1a2e\] {
+    &:focus {
+      border-color: #1a1a2e;
+    }
+  }
+  .focus\:border-\[\#1a1a2e\]\/50 {
+    &:focus {
+      border-color: color-mix(in oklab, #1a1a2e 50%, transparent);
     }
   }
   .focus\:border-\[\#58a6ff\]\/50 {

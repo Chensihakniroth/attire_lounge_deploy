@@ -99,29 +99,33 @@ const CollectionsPage = () => {
                         layout
                         className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"
                     >
-                        {visibleCollections.map((collection, index) => (
-                            <Link
-                                to={
-                                    collection.id === 0
-                                        ? '/products'
-                                        : `/products?collection=${collection.slug}`
-                                }
-                                key={collection.id}
-                                className="block h-full"
-                            >
-                                <motion.div
-                                    layout
-                                    initial={{ opacity: 0, y: 30 }}
-                                    animate={{ opacity: 1, y: 0 }}
-                                    transition={{
-                                        duration: 0.4,
-                                        delay: index * 0.1,
-                                        ease: 'easeOut',
-                                    }}
-                                    className="h-full"
+                        {visibleCollections.map((collection, index) => {
+                            const href =
+                                collection.id === 0
+                                    ? '/products'
+                                    : `/products?collection=${collection.slug}`;
+                            const key =
+                                collection.id === 0 ? 'browse-all' : collection.id;
+
+                            return (
+                                <Link
+                                    to={href}
+                                    key={key}
+                                    className="block h-full"
                                 >
-                                    {collection.id === 0 ? (
-                                        <div className="group relative h-[24rem] rounded-2xl overflow-hidden shadow-xl border border-white/5">
+                                    <motion.div
+                                        layout
+                                        initial={{ opacity: 0, y: 30 }}
+                                        animate={{ opacity: 1, y: 0 }}
+                                        transition={{
+                                            duration: 0.4,
+                                            delay: index * 0.1,
+                                            ease: 'easeOut',
+                                        }}
+                                        className="h-full"
+                                    >
+                                        {collection.id === 0 ? (
+                                            <div className="group relative h-[24rem] rounded-2xl overflow-hidden shadow-xl border border-white/5">
                                             {/* Background Image */}
                                             <div className="absolute inset-0">
                                                 <OptimizedImage
@@ -158,7 +162,8 @@ const CollectionsPage = () => {
                                     )}
                                 </motion.div>
                             </Link>
-                        ))}
+                            );
+                        })}
 
                         {hasMore && (
                             <div

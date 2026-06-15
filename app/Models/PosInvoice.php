@@ -14,6 +14,8 @@ class PosInvoice extends Model
 
     protected $fillable = [
         'outlet',
+        'order_source',
+        'wc_order_id',
         'invoice_number',
         'customer_profile_id',
         'cashier_id',
@@ -25,6 +27,7 @@ class PosInvoice extends Model
         'promo_code_id',
         'promo_discount_amt',
         'grand_total',
+        'currency',
         'notes',
         'status',
         'payment_status',

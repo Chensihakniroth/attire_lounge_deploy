@@ -19,6 +19,8 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->alias([
             'role' => \Spatie\Permission\Middleware\RoleMiddleware::class,
             'permission' => \Spatie\Permission\Middleware\PermissionMiddleware::class,
+            'api.key' => \App\Http\Middleware\VerifyApiKey::class,
+            'product.api.key' => \App\Http\Middleware\VerifyProductApiKey::class,
         ]);
 
         // Apply security headers to all responses

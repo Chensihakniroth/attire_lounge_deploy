@@ -36,7 +36,8 @@ import {
     BarChart2,
     Store,
     ChevronDown,
-    Coffee
+    Coffee,
+    Footprints
 } from 'lucide-react';
 import { LumaSpin } from '@/components/ui/luma-spin';
 import { ThemeProvider, useTheme } from './ThemeContext';
@@ -182,6 +183,8 @@ const SidebarContent = ({ setOpen, isMobile }) => {
         { name: 'Product Manager', to: '/admin/products', icon: ShoppingBag, outlets: ['attire_lounge'] },
         { name: 'POS Products', to: '/admin/pos-products', icon: Package, outlets: ['attire_lounge'] },
         { name: 'Drink Manager', to: '/admin/drink-manager', icon: Coffee, outlets: ['caffeine', 'kravat'] },
+        { name: 'Shoe Manager', to: '/admin/shoe-manager', icon: Footprints, outlets: ['nile'] },
+        { name: 'Order Manager', to: '/admin/order-manager', icon: ShoppingBag, outlets: ['nile'] },
         { name: 'Promocodes', to: '/admin/promocodes', icon: Ticket },
         { name: 'Sales History', to: '/admin/sales-history', icon: History },
         { name: 'Daily Report', to: '/admin/daily-report', icon: BarChart2 },

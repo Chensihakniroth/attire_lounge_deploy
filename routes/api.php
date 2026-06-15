@@ -18,29 +18,39 @@ use App\Http\Controllers\PosProductController;
 use App\Http\Controllers\PosInvoiceController;
 use App\Http\Controllers\PosRefundController;
 use App\Http\Controllers\SalesReportController;
+use App\Http\Controllers\Api\OrderWebhookController;
+use App\Http\Controllers\Api\NotificationController;
+use App\Http\Controllers\Api\ProductApiController;
+use App\Http\Controllers\Api\StockApiController;
 
 Route::prefix('v1')->group(function () {
-    // Public Product routes (accessible to all, rate limited)
-    Route::middleware('throttle:60,1')->group(function () {
-        Route::get('/products', [ProductController::class, 'index'])->name('products.index');
-        Route::get('/products/featured', [ProductController::class, 'featured'])->name('products.featured');
-        Route::get('/products/categories', [ProductController::class, 'categories'])->name('products.categories');
-        Route::get('/products/collections', [ProductController::class, 'collections'])->name('products.collections');
-        Route::get('/products/{slug}', [ProductController::class, 'show'])->name('products.show');
-        Route::get('/search', [ProductController::class, 'search']);
+    // ═══════════════════════════════════════════════════════════════════════
+    // KHRON API ROUTES (must be before ProductController routes to avoid conflicts)
+    // ═══════════════════════════════════════════════════════════════════════
+
+    // WooCommerce Order Webhook (called by Khron's integration)
+    Route::post('/orders/webhook', [OrderWebhookController::class, 'store'])
+        ->middleware(['api.key', 'throttle:30,1'])
+        ->name('orders.webhook');
+
+    // Public Product & Stock API (for Khron — separate API key, Nile-only)
+    Route::middleware(['product.api.key', 'throttle:60,1'])->group(function () {
+        Route::get('/products/nile', [ProductApiController::class, 'index']);
+        Route::get('/products/nile/categories', [ProductApiController::class, 'categories']);
+        Route::get('/products/nile/{sku}', [ProductApiController::class, 'show']);
+        Route::get('/stock/nile', [StockApiController::class, 'index']);
+        Route::get('/stock/nile/{sku}', [StockApiController::class, 'show']);
+        Route::put('/stock/nile/{sku}', [StockApiController::class, 'update']);
     });
 
-    // Public Appointments route (for users to store appointments)
-    Route::post('/appointments', [AppointmentController::class, 'store'])->middleware('throttle:10,1');
+    // Notifications
+    Route::get('/notifications', [NotificationController::class, 'index']);
+    Route::patch('/notifications/{id}/read', [NotificationController::class, 'markAsRead']);
+    Route::post('/notifications/read-all', [NotificationController::class, 'markAllAsRead']);
 
-    // Gift Requests (Public route for submitting; viewing requires auth)
-    Route::post('/gift-requests', [GiftRequestController::class, 'store'])->middleware('throttle:10,1');
-
-    // Gift Item Stock (public access for fetching status)
-    Route::get('/gift-items/out-of-stock', [\App\Http\Controllers\GiftItemStockController::class, 'index'])->middleware('throttle:60,1');
-
-    // Promocodes (Public validate route)
-    Route::post('/promocodes/validate', [PromocodeController::class, 'validateCode'])->middleware('throttle:10,1');
+    // ═══════════════════════════════════════════════════════════════════════
+    // PUBLIC ROUTES (storefront)
+    // ═══════════════════════════════════════════════════════════════════════
 
     // Newsletter Subscription (public)
     Route::post('/newsletter-subscriptions', [NewsletterSubscriptionController::class, 'store'])->middleware('throttle:5,1');
@@ -150,6 +160,11 @@ Route::prefix('v1')->group(function () {
 
             // Refunds
             Route::post('/pos/invoices/{id}/refund', [PosRefundController::class, 'store']);
+
+            // Notifications
+            Route::get('/notifications', [\App\Http\Controllers\Api\NotificationController::class, 'index']);
+            Route::patch('/notifications/{id}/read', [\App\Http\Controllers\Api\NotificationController::class, 'markAsRead']);
+            Route::post('/notifications/read-all', [\App\Http\Controllers\Api\NotificationController::class, 'markAllAsRead']);
 
             // Daily summary (for Admin Dashboard widget)
             Route::get('/pos/summary/daily', [PosInvoiceController::class, 'dailySummary']);

@@ -28,7 +28,10 @@ const SalesHistoryManager = () => {
     const [loading, setLoading] = useState(true);
     const [search, setSearch] = useState('');
     const [page, setPage] = useState(1);
-    const [date, setDate] = useState('');
+    const [date, setDate] = useState(() => {
+        const d = new Date();
+        return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+    });
     const [pagination, setPagination] = useState({
         current_page: 1,
         last_page: 1,

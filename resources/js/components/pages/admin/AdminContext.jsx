@@ -26,6 +26,7 @@ export const AdminProvider = ({ children }) => {
         },
         caffeine: { label: 'CUFFEINE', shortLabel: 'CF', color: '#6f4e37', logo: 'https://bucket-production-4ca0.up.railway.app/product-assets/uploads/asset/cuff.png' },
         kravat: { label: 'Kravat', shortLabel: 'KV', color: '#3d2b56', logo: 'https://bucket-production-4ca0.up.railway.app/product-assets/uploads/asset/@asset5.png' },
+        nile: { label: 'Nile', shortLabel: 'NL', color: '#1a1a2e', logo: 'https://bucket-production-4ca0.up.railway.app/product-assets/uploads/asset/nile-logo-white.png' },
     };
 
     const [activeOutlet, setActiveOutletState] = useState(() => {

@@ -115,16 +115,6 @@ const HeroSection = memo(forwardRef<HTMLElement, HeroSectionProps>(({ scrollToSe
         objectFit="contain"
       />
 
-      {/* Minimal Tagline */}
-      <motion.p
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay: 0.8, duration: 1 }}
-        className="text-[#E5E7EB]/90 text-xs md:text-sm tracking-[0.6em] uppercase font-light text-center mb-12"
-      >
-        Phnom Penh
-      </motion.p>
-
       {/* Simplified Scroll Indicator */}
       <motion.div
         className="absolute bottom-12 flex flex-col items-center gap-4 cursor-pointer group mix-blend-screen"
@@ -133,13 +123,33 @@ const HeroSection = memo(forwardRef<HTMLElement, HeroSectionProps>(({ scrollToSe
         animate={{ opacity: 1 }}
         transition={{ delay: 1.5, duration: 1 }}
       >
+        {/* Tagline */}
+        <motion.p
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.8, duration: 1 }}
+          className="text-white/70 text-xs md:text-sm font-light tracking-wide text-center max-w-lg leading-snug whitespace-nowrap"
+        >
+          "We help you create the right outfit for any special occasion and daily-wear."
+        </motion.p>
         <span className="text-xs md:text-sm tracking-[0.5em] text-white/80 uppercase group-hover:text-white transition-colors duration-500">Discover</span>
-        <div className="w-[1px] h-16 bg-white/10 overflow-hidden rounded-full">
-          <motion.div
-            className="w-full h-1/2 bg-gradient-to-b from-transparent to-[#f5a81c]"
-            animate={{ y: ["-100%", "100%"] }}
-            transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
-          />
+        <div className="flex flex-col items-center gap-1">
+          <div className="w-[1px] h-8 bg-white/20 rounded-full overflow-hidden">
+            <motion.div
+              className="w-full h-1/2 bg-gradient-to-b from-transparent to-[#f5a81c]"
+              animate={{ y: ["-100%", "100%"] }}
+              transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
+            />
+          </div>
+          <svg
+            width="12"
+            height="8"
+            viewBox="0 0 12 8"
+            fill="none"
+            className="text-white/40 group-hover:text-white/80 transition-colors duration-500"
+          >
+            <path d="M1 1L6 6L11 1" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+          </svg>
         </div>
       </motion.div>
     </motion.div>
@@ -808,7 +818,7 @@ const HomePage: React.FC = () => {
        <Navigation />
        <SEO
         title="Attire Lounge Official | Gentleman Styling House & Ready-to-Wear"
-        description="Attire Lounge Official is Phnom Penh's Styling House, offering Milan-certified expert styling, curated luxury menswear collections, and personalized fashion consulting for the modern gentleman."
+        description="Attire Lounge Official — we help you create the right outfit for any special occasion and daily-wear. Milan-certified expert styling, curated luxury menswear collections, and personalized fashion consulting for the modern gentleman."
       />
       <SectionIndicator
         sections={sectionNames}

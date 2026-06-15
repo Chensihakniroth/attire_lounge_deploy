@@ -40,7 +40,7 @@ class OutletScope implements Scope
             ?? 'attire_lounge';
 
         // Validate against allowed values
-        $allowed = ['attire_lounge', 'caffeine', 'kravat'];
+        $allowed = ['attire_lounge', 'caffeine', 'kravat', 'nile'];
         return in_array($outlet, $allowed) ? $outlet : 'attire_lounge';
     }
 }
