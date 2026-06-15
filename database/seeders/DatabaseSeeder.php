@@ -47,6 +47,7 @@ class DatabaseSeeder extends Seeder
         // ── LAYER 2 — Core entities ───────────────────────
         $this->call(ProductsSeeder::class);
         $this->call(PosProductSeeder::class);
+        $this->call(NileProductSeeder::class);
         $this->call(CustomerProfileSeeder::class);
         $this->call(PromocodeSeeder::class);
         $this->call(NewsletterSubscriptionSeeder::class);

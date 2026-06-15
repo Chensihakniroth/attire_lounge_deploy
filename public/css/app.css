@@ -7236,11 +7236,6 @@
       border-color: color-mix(in oklab, #0d3542 50%, transparent);
     }
   }
-  .focus\:border-\[\#1a1a2e\] {
-    &:focus {
-      border-color: #1a1a2e;
-    }
-  }
   .focus\:border-\[\#1a1a2e\]\/50 {
     &:focus {
       border-color: color-mix(in oklab, #1a1a2e 50%, transparent);
