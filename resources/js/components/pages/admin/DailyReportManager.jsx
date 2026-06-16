@@ -24,6 +24,13 @@ const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', '
 const MONTH_NAMES = ['January', 'February', 'March', 'April', 'May', 'June',
     'July', 'August', 'September', 'October', 'November', 'December'];
 
+// ─── outlet-aware unit label ────────────────────────────────────────────────
+const useUnitLabel = (outlet) => {
+    if (outlet === 'kravat' || outlet === 'caffeine') return { sold: 'Cups Sold', unit: 'cups', shortUnit: 'cups' };
+    if (outlet === 'attire_lounge') return { sold: 'Items Sold', unit: 'items', shortUnit: 'items' };
+    return { sold: 'Pairs Sold', unit: 'pairs', shortUnit: 'pairs' }; // nile (default)
+};
+
 const PAY_ICONS = {
     cash: <Banknote size={13} />,
     card: <CreditCard size={13} />,
@@ -151,7 +158,8 @@ const StatCard = ({ label, value, sub, icon, trend, color = 'text-[#0d3542] dark
 );
 
 // ─── Export helpers ───────────────────────────────────────────────────────────
-const exportCSV = (monthly, daily, selectedDate) => {
+const exportCSV = (monthly, daily, selectedDate, outlet) => {
+    const unitLabel = useUnitLabel(outlet);
     const rows = [];
     rows.push(['ATTIRE LOUNGE — DAILY REPORT', selectedDate]);
     rows.push([]);
@@ -159,7 +167,7 @@ const exportCSV = (monthly, daily, selectedDate) => {
     rows.push(['Metric', 'Value']);
     rows.push(['Total Revenue', daily?.total_revenue ?? '']);
     rows.push(['Total Refunds', daily?.total_refunds ?? '']);
-    rows.push(['Pairs Sold', daily?.total_items ?? '']);
+    rows.push([unitLabel.sold, daily?.total_items ?? '']);
     rows.push(['Invoice Count', daily?.invoice_count ?? '']);
     rows.push(['Avg Order Value', daily?.avg_order_value ?? '']);
     rows.push([]);
@@ -296,6 +304,7 @@ const DailyReportManager = () => {
     };
 
     const data = view === 'daily' ? dailyData : monthlyData;
+    const unitLabel = useUnitLabel(activeOutlet);
 
     return (
         <div className="p-6 md:p-8 space-y-8 font-sans">
@@ -324,7 +333,7 @@ const DailyReportManager = () => {
                         <RefreshCw size={14} className={loading ? 'animate-spin' : ''} />
                     </button>
                     {view === 'daily' && (
-                        <button onClick={() => exportCSV(monthlyData, dailyData, selectedDate)}
+                        <button onClick={() => exportCSV(monthlyData, dailyData, selectedDate, activeOutlet)}
                             className="flex items-center gap-2 px-4 py-2 bg-[#0d3542] dark:bg-[#58a6ff] text-white dark:text-black rounded-xl text-[10px] font-black uppercase tracking-widest hover:opacity-90 transition-all">
                             <Download size={13} /> Export CSV
                         </button>
@@ -379,7 +388,7 @@ const DailyReportManager = () => {
 
                         {/* ── KPI Grid ── */}
                         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                            <StatCard label="Pairs Sold" value={fmtNum(data?.total_items)} sub="pairs sold" icon={<ShoppingBag size={18} />} />
+                            <StatCard label={unitLabel.sold} value={fmtNum(data?.total_items)} sub={`${unitLabel.unit} sold`} icon={<ShoppingBag size={18} />} />
                             <StatCard label="Total Sales" value={fmt(data?.total_revenue)} icon={<TrendingUp size={18} />} />
                             <StatCard label="Refunds" value={fmt(data?.total_refunds)} icon={<TrendingDown size={18} />} color="text-red-500" />
                             <StatCard
@@ -492,7 +501,7 @@ const DailyReportManager = () => {
                                             {
                                                 label: 'Avg / Day',
                                                 value: fmtNum(Math.round(avgDaily)),
-                                                sub: `pairs over ${daysElapsed} day${daysElapsed !== 1 ? 's' : ''}`,
+                                                sub: `${unitLabel.unit} over ${daysElapsed} day${daysElapsed !== 1 ? 's' : ''}`,
                                                 icon: <TrendingUp size={16} />,
                                                 accent: 'text-emerald-500',
                                             },
