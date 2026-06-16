@@ -60,11 +60,11 @@ const GalleryItem = memo(({ image }) => {
                         <h4 className="text-lg font-serif text-white leading-tight">{image.title || 'Untitled Work'}</h4>
                     </div>
                     {!isStaticItem ? (
-                        <div className="w-10 h-10 rounded-full bg-white/10 border border-white/20 flex items-center justify-center text-white backdrop-blur-md">
+                        <div className="w-10 h-10 rounded-full bg-white/10 border border-white/20 flex items-center justify-center text-white">
                             <ArrowUpRight size={18} strokeWidth={1.5} />
                         </div>
                     ) : (
-                        <div className="w-10 h-10 rounded-full bg-attire-accent/10 border border-attire-accent/20 flex items-center justify-center text-attire-accent backdrop-blur-md">
+                        <div className="w-10 h-10 rounded-full bg-attire-accent/10 border border-attire-accent/20 flex items-center justify-center text-attire-accent">
                             <Search size={16} strokeWidth={2} />
                         </div>
                     )}

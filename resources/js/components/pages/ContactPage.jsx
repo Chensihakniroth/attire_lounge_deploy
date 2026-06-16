@@ -95,7 +95,7 @@ const SelectField = ({ label, options, value, onChange, name }) => {
                         </span>
                     </Listbox.Button>
                     <Transition as={Fragment} leave="transition ease-in duration-100" leaveFrom="opacity-100" leaveTo="opacity-0">
-                        <Listbox.Options className="absolute z-[300] mt-3 max-h-80 w-full overflow-auto rounded-[2rem] bg-[#0a0f1a] border border-white/10 py-2 shadow-2xl backdrop-blur-3xl">
+                        <Listbox.Options className="absolute z-[300] mt-3 max-h-80 w-full overflow-auto rounded-[2rem] bg-[#0a0f1a] border border-white/10 py-2 shadow-2xl">
                             {options.map((option, idx) => (
                                 <Listbox.Option
                                     key={idx}
@@ -246,14 +246,6 @@ const ContactPage = () => {
 
     return (
         <div className="bg-attire-navy relative selection:bg-attire-accent selection:text-black min-h-screen">
-            {/* Ambient Background - Disabled on Safari for performance */}
-            {!isSafariBrowser && (
-                <div className="fixed inset-0 z-0 pointer-events-none opacity-20">
-                    <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-attire-accent/10 blur-[120px] rounded-full" />
-                    <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-white/5 blur-[120px] rounded-full" />
-                </div>
-            )}
-
             <div className="relative z-10 max-w-[1400px] mx-auto px-6 pt-28 sm:pt-40 pb-24 md:pb-40">
                 {/* Atelier Header */}
                 <header className="max-w-3xl mx-auto text-center mb-24">
@@ -312,7 +304,7 @@ const ContactPage = () => {
                     <div className="lg:col-span-8 order-1 lg:order-2">
                         <AnimatePresence mode="wait">
                             {generatedMessage ? (
-                                <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} className="bg-white/[0.02] border border-white/10 p-12 md:p-20 rounded-[3rem] text-center backdrop-blur-3xl">
+                                <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} className="bg-white/[0.02] border border-white/10 p-12 md:p-20 rounded-[3rem] text-center">
                                     <div className="w-24 h-24 bg-green-500/10 rounded-full flex items-center justify-center mx-auto mb-10 border border-green-500/20">
                                         <CheckCircle size={48} className="text-green-400" />
                                     </div>
@@ -323,8 +315,7 @@ const ContactPage = () => {
                                     </button>
                                 </motion.div>
                             ) : (
-                                <div className="bg-white/[0.02] border border-white/10 p-8 md:p-16 rounded-[3rem] backdrop-blur-3xl relative overflow-hidden">
-                                    <div className="absolute top-0 right-0 w-64 h-64 bg-attire-accent/5 blur-[80px] rounded-full translate-x-1/2 -translate-y-1/2 pointer-events-none" />
+                                <div className="bg-white/[0.02] border border-white/10 p-8 md:p-16 rounded-[3rem] relative overflow-hidden">
 
                                     <div className="flex items-center gap-6 mb-16">
                                         <div className="w-14 h-14 rounded-2xl bg-attire-accent/10 flex items-center justify-center border border-attire-accent/20">

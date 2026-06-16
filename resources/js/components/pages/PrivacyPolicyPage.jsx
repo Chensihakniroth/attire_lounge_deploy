@@ -5,7 +5,7 @@ import { FileText, Database, Share2, Shield, Mail, Phone, CheckCircle } from 'lu
 
 const InfoSection = ({ icon: Icon, title, children }) => (
     <motion.div 
-        className="bg-black/20 backdrop-blur-sm border border-white/5 rounded-3xl p-8 transition-all duration-300 hover:border-white/10 hover:bg-black/30"
+        className="bg-black/20 border border-white/5 rounded-3xl p-8 transition-all duration-300 hover:border-white/10 hover:bg-black/30"
         initial={{ opacity: 0, y: 20 }}
         whileInView={{ opacity: 1, y: 0 }}
         viewport={{ once: true, amount: 0.2 }}

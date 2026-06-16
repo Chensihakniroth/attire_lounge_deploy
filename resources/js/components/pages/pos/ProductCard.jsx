@@ -78,7 +78,7 @@ const ProductCard = ({ product }) => {
         >
             {/* Stock Badge */}
             <div
-                className={`absolute top-2 left-2 z-10 px-2 py-1 rounded-lg text-[10px] font-bold uppercase tracking-widest backdrop-blur-md ${
+                className={`absolute top-2 left-2 z-10 px-2 py-1 rounded-lg text-[10px] font-bold uppercase tracking-widest ${
                     product.stock_qty > 10
                         ? 'bg-green-500/10 text-green-500 border border-green-500/20'
                         : product.stock_qty > 0
@@ -94,7 +94,7 @@ const ProductCard = ({ product }) => {
             {/* Print Button (Hover only) */}
             <button
                 onClick={handlePrint}
-                className="absolute top-2 right-12 z-20 p-2 rounded-xl bg-background/10 opacity-0 group-hover:opacity-100 backdrop-blur-md text-gray-400 hover:text-attire-accent transition-all hover:bg-background/20"
+                className="absolute top-2 right-12 z-20 p-2 rounded-xl bg-background/10 opacity-0 group-hover:opacity-100 text-gray-400 hover:text-attire-accent transition-all hover:bg-background/20"
                 title="Print Label"
             >
                 <Printer size={14} />
@@ -102,7 +102,7 @@ const ProductCard = ({ product }) => {
 
             {/* Product Rarity/Tier Badge */}
             <div
-                className={`absolute top-2 right-2 z-10 px-2 py-1 rounded-lg text-[10px] font-bold uppercase tracking-widest border backdrop-blur-md ${tierStyle}`}
+                className={`absolute top-2 right-2 z-10 px-2 py-1 rounded-lg text-[10px] font-bold uppercase tracking-widest border ${tierStyle}`}
             >
                 {product.tier}
             </div>

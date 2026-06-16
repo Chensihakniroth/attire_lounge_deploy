@@ -137,7 +137,7 @@ const ActGallery = memo(
                             disabled={currentX >= 0}
                             className="
               w-11 h-11 rounded-full flex items-center justify-center
-              bg-white/10 backdrop-blur-md border border-white/25
+              bg-white/10 border border-white/25
               text-white/60 hover:text-white
               hover:bg-attire-accent/25 hover:border-attire-accent/70
               hover:shadow-[0_0_20px_4px_rgba(180,140,100,0.45)]
@@ -156,7 +156,7 @@ const ActGallery = memo(
                             disabled={currentX <= constraints.left}
                             className="
               w-11 h-11 rounded-full flex items-center justify-center
-              bg-white/10 backdrop-blur-md border border-white/25
+              bg-white/10 border border-white/25
               text-white/60 hover:text-white
               hover:bg-attire-accent/25 hover:border-attire-accent/70
               hover:shadow-[0_0_20px_4px_rgba(180,140,100,0.45)]
@@ -415,7 +415,7 @@ const FashionShowPage = () => {
                             viewport={{ once: true }}
                             className="lg:col-span-5 lg:col-start-8"
                         >
-                            <div className="relative p-12 lg:p-20 bg-white/[0.02] border border-white/5 backdrop-blur-xl shadow-2xl">
+                            <div className="relative p-12 lg:p-20 bg-white/[0.02] border border-white/5 shadow-2xl">
                                 {/* Decorative Elements */}
                                 <div className="absolute -top-px -left-px w-12 h-12 border-t border-l border-attire-accent/40" />
                                 <div className="absolute -bottom-px -right-px w-12 h-12 border-b border-r border-attire-accent/40" />

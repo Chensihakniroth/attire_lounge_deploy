@@ -70,14 +70,6 @@ const Footer = () => {
 
   return (
     <footer className="mt-auto bg-black text-white border-t border-white/5 relative overflow-hidden font-light">
-      {/* Decorative Background Elements */}
-      {!isSafariBrowser && (
-        <>
-          <div className="fixed top-0 right-0 w-[600px] h-[600px] bg-attire-navy/20 rounded-full blur-[150px] pointer-events-none -translate-y-1/2 translate-x-1/2" />
-          <div className="fixed bottom-0 left-0 w-[400px] h-[400px] bg-attire-accent/5 rounded-full blur-[120px] pointer-events-none translate-y-1/2 -translate-x-1/2" />
-        </>
-      )}
-
       {/* Main Footer Content */}
       <div className="relative z-10 max-w-screen-2xl mx-auto px-6 pt-20 pb-12">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16">

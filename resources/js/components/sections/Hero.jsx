@@ -105,7 +105,7 @@ const Hero = () => {
                     </p>
 
                     <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-                        <button className="btn-primary-slim group bg-white/10 backdrop-blur-sm hover:bg-white/20 border border-white/20">
+                        <button className="btn-primary-slim group bg-white/10 hover:bg-white/20 border border-white/20">
                             Explore Collection
                             <ChevronRight className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform inline" />
                         </button>

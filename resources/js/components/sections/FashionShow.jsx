@@ -24,7 +24,6 @@ const FashionShow = memo(forwardRef((props, ref) => {
       {/* Dynamic Background Color Layer - Filtered via CSS on Safari */}
       <div className="absolute inset-0 z-0">
         <div className="absolute inset-0 bg-attire-navy" />
-        <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-white/5 rounded-full blur-[120px] -translate-y-1/2 translate-x-1/2" />
       </div>
 
       <div className="container mx-auto px-6 md:px-12 lg:px-20 relative z-10 py-20 lg:py-0">
@@ -63,7 +62,7 @@ const FashionShow = memo(forwardRef((props, ref) => {
               <motion.div variants={itemVariants} className="pt-4 lg:pt-6">
                 <Link 
                   to="/fashion-show" 
-                  className="group inline-flex items-center gap-6 lg:gap-8 py-4 lg:py-5 px-8 lg:px-10 border border-white/10 bg-white/[0.02] hover:bg-white hover:text-black transition-all duration-700 rounded-full backdrop-blur-sm"
+                  className="group inline-flex items-center gap-6 lg:gap-8 py-4 lg:py-5 px-8 lg:px-10 border border-white/10 bg-white/[0.02] hover:bg-white hover:text-black transition-all duration-700 rounded-full"
                 >
                   <span className="text-[8px] lg:text-[10px] font-bold uppercase tracking-[0.4em]">View Event Report</span>
                   <div className="w-8 lg:w-10 h-8 lg:h-10 rounded-full border border-current flex items-center justify-center group-hover:bg-black group-hover:text-white transition-all duration-500">
@@ -117,7 +116,6 @@ const FashionShow = memo(forwardRef((props, ref) => {
               />
               
               {/* Visual Accent */}
-              <div className="absolute -top-6 -right-6 w-24 h-24 bg-attire-accent/10 blur-3xl rounded-full" />
             </div>
           </div>
         </div>

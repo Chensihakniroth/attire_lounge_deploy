@@ -4,9 +4,6 @@ import { LumaSpin } from "../ui/luma-spin";
 const AdminLoadingSpinner = () => {
     return (
         <div className="flex-1 w-full h-full min-h-[100vh] bg-background flex flex-col items-center justify-center space-y-12 transition-colors duration-500 overflow-hidden relative">
-            {/* Ambient Background Glow */}
-            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[300px] h-[300px] bg-primary/5 blur-[100px] rounded-full pointer-events-none" />
-            
             {/* The Loader Component */}
             <div className="relative z-10 flex flex-col items-center space-y-8 animate-fade-in">
                 <LumaSpin size="xl" className="opacity-90 drop-shadow-sm" />

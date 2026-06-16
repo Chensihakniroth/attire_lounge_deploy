@@ -311,11 +311,6 @@ const CustomizeGiftPage = () => {
     return (
         <div className="bg-attire-navy text-white selection:bg-attire-accent selection:text-black min-h-screen">
             {/* Immersive Background - Filtered via CSS [data-safari="true"] */}
-            <div className="fixed inset-0 z-0 pointer-events-none">
-                <div className="absolute top-[-10%] right-[-10%] w-[50%] h-[50%] bg-attire-accent/5 blur-[120px] rounded-full" />
-                {/* Removed white blurred gradient that caused layout gaps under the footer */}
-                <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')] opacity-[0.03] mix-blend-overlay" />
-            </div>
 
             <div className="relative z-10 max-w-[1400px] mx-auto px-6 pt-28 sm:pt-40">
                 {/* Header Section */}
@@ -647,8 +642,7 @@ const CustomizeGiftPage = () => {
                                 )}
 
                                 {step === 3 && (
-                                    <div className="space-y-12 bg-white/[0.02] border border-white/10 p-12 rounded-[2.5rem] backdrop-blur-3xl relative overflow-hidden">
-                                        <div className="absolute top-0 right-0 w-32 h-32 bg-attire-accent/10 blur-3xl rounded-full translate-x-1/2 -translate-y-1/2" />
+                                    <div className="space-y-12 bg-white/[0.02] border border-white/10 p-12 rounded-[2.5rem] relative overflow-hidden">
 
                                         <button
                                             onClick={() => setStep(2)}
@@ -869,7 +863,7 @@ const CustomizeGiftPage = () => {
 
                     {/* Live Preview Sidebar */}
                     <div className="lg:col-span-5 xl:col-span-4 sticky top-40 space-y-8 hidden lg:block">
-                        <div className="bg-white/[0.02] border border-white/10 p-10 rounded-[2.5rem] backdrop-blur-3xl space-y-10">
+                        <div className="bg-white/[0.02] border border-white/10 p-10 rounded-[2.5rem] space-y-10">
                             <div className="flex items-center justify-between border-b border-white/10 pb-8">
                                 <h4 className="text-[11px] font-black uppercase tracking-[0.4em] text-attire-accent">
                                     Your Curation

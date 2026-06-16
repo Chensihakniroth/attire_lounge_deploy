@@ -159,8 +159,6 @@ const HeroSection = memo(forwardRef<HTMLElement, HeroSectionProps>(({ scrollToSe
 const PhilosophySection = memo(forwardRef<HTMLElement>((_props, ref) => {
     return (
     <section className="relative snap-section min-h-screen h-screen grid grid-cols-1 lg:grid-cols-2 items-center bg-[#0d3542] overflow-hidden" ref={ref}>
-      {/* Ambient Light - Filtered via CSS on Safari */}
-      <div className="absolute top-0 left-0 w-[400px] h-[400px] bg-[#f5a81c]/5 rounded-full blur-[120px] pointer-events-none" />
 
       {/* Left side - Text Content */}
       <div className="relative z-10 flex flex-col justify-center text-[#FAF8F3] p-8 md:p-16 lg:p-24 h-full order-2 lg:order-1">
@@ -664,7 +662,7 @@ const TipsAndTricksSection = memo(forwardRef<HTMLElement, TipsAndTricksSectionPr
                                     </p>
 
                                     <a href={tip.link} target="_blank" rel="noreferrer" className="inline-flex items-center gap-3 text-white uppercase tracking-widest text-[10px] md:text-xs font-semibold group/btn hover:text-[#f5a81c] transition-colors">
-                                        <div className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center backdrop-blur-sm border border-white/10 group-hover/btn:bg-[#f5a81c] group-hover/btn:border-[#f5a81c] group-hover/btn:text-white transition-all">
+                                        <div className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center border border-white/10 group-hover/btn:bg-[#f5a81c] group-hover/btn:border-[#f5a81c] group-hover/btn:text-white transition-all">
                                             <Play size={14} fill="currentColor" className="ml-0.5" />
                                         </div>
                                         <span>Watch Tutorial</span>
