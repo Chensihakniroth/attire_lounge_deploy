@@ -13,12 +13,12 @@ import { useAdmin } from './AdminContext';
 import { useQuery } from '@tanstack/react-query';
 import API from '../../../api';
 
-const GOALS_KEY = 'attire_earning_goals';
+const GOALS_KEY = 'attire_cup_goals';
 
 const defaultGoals = {
-    daily: 5000,
-    weekly: 35000,
-    monthly: 150000,
+    daily: 50,
+    weekly: 350,
+    monthly: 1500,
 };
 
 function loadGoals() {
@@ -53,28 +53,28 @@ const DailySummaryWidget = () => {
     const { stats = {} } = reportData || {};
     const total_revenue = stats.total_revenue || 0;
     const invoice_count = stats.total_invoices || 0;
-    const net_revenue = stats.net_revenue || 0;
+    const total_items = stats.total_items || 0;
 
     const goalRows = [
         {
             id: 'daily',
             label: 'Day',
             target: goals.daily,
-            current: net_revenue,
+            current: total_items,
             color: 'from-indigo-500 to-blue-400',
         },
         {
             id: 'weekly',
             label: 'Week',
             target: goals.weekly,
-            current: net_revenue * 7 * 0.8,
+            current: total_items * 7 * 0.8,
             color: 'from-emerald-500 to-teal-400',
         },
         {
             id: 'monthly',
             label: 'Month',
             target: goals.monthly,
-            current: net_revenue * 30 * 0.6,
+            current: total_items * 30 * 0.6,
             color: 'from-blue-600 to-indigo-400',
         },
     ];
@@ -115,7 +115,7 @@ const DailySummaryWidget = () => {
                     </div>
                     <div>
                         <h3 className="text-sm font-black text-gray-900 dark:text-white uppercase tracking-[0.1em] leading-none mb-1">
-                            Earnings
+                            Cups Sold
                         </h3>
                         <p className="text-[10px] text-gray-400 dark:text-[#8b949e]/40 uppercase tracking-[0.3em] font-black">
                             Daily Stats
@@ -124,10 +124,10 @@ const DailySummaryWidget = () => {
                 </div>
                 <div className="flex flex-col items-end">
                     <span className="text-[10px] font-black text-gray-400 dark:text-[#8b949e]/30 uppercase tracking-[0.2em] mb-1">
-                        Profit
+                        Cups Sold
                     </span>
                     <div className="text-xl font-black text-[#0d3542] dark:text-[#58a6ff] tabular-nums tracking-tighter">
-                        ${parseFloat(net_revenue).toLocaleString()}
+                        {total_items.toLocaleString()}
                     </div>
                 </div>
             </div>
@@ -175,7 +175,7 @@ const DailySummaryWidget = () => {
                             />
                         </div>
                         <span className="text-[10px] font-black uppercase tracking-[0.3em] text-gray-400 dark:text-white/10">
-                            Projected Goals
+                            Cup Goals
                         </span>
                     </div>
                     <div className="flex items-center gap-2">
@@ -225,7 +225,7 @@ const DailySummaryWidget = () => {
                         >
                             <div className="p-4 rounded-2xl bg-[#0d3542]/5 dark:bg-[#58a6ff]/5 border border-[#0d3542]/10 dark:border-[#58a6ff]/10 space-y-3 mb-4">
                                 <p className="text-[9px] font-black text-[#0d3542] dark:text-[#58a6ff] uppercase tracking-[0.25em] mb-3">
-                                    Set Target ($)
+                                    Set Target (cups)
                                 </p>
                                 {[
                                     { key: 'daily', label: 'Day Goal' },
@@ -240,9 +240,6 @@ const DailySummaryWidget = () => {
                                             {label}
                                         </span>
                                         <div className="relative flex-1">
-                                            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-[11px] font-black text-gray-400 dark:text-white/30">
-                                                $
-                                            </span>
                                             <input
                                                 type="number"
                                                 value={draft[key]}
@@ -258,7 +255,7 @@ const DailySummaryWidget = () => {
                                                     if (e.key === 'Escape')
                                                         cancelEdit();
                                                 }}
-                                                className="w-full bg-white dark:bg-black/30 border border-[#0d3542]/15 dark:border-[#58a6ff]/15 focus:border-[#0d3542] dark:focus:border-[#58a6ff] rounded-xl pl-6 pr-3 py-2 text-[12px] font-black font-mono text-gray-900 dark:text-white outline-none transition-all [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                                                className="w-full bg-white dark:bg-black/30 border border-[#0d3542]/15 dark:border-[#58a6ff]/15 focus:border-[#0d3542] dark:focus:border-[#58a6ff] rounded-xl px-3 py-2 text-[12px] font-black font-mono text-gray-900 dark:text-white outline-none transition-all [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                                                 placeholder="0"
                                                 min="1"
                                             />
@@ -285,10 +282,10 @@ const DailySummaryWidget = () => {
                                 </div>
                                 <div className="flex items-center gap-3">
                                     <span className="text-[9px] font-mono font-black text-gray-400 dark:text-gray-600">
-                                        / ${(goal.target / 1000).toFixed(0)}k
+                                        / {goal.target.toLocaleString()}
                                     </span>
                                     <span className="text-[9px] font-mono font-black text-[#0d3542] dark:text-[#58a6ff]">
-                                        ${Math.round(goal.current / 1000)}k
+                                        {Math.round(goal.current).toLocaleString()}
                                     </span>
                                     <div className="w-8 text-right">
                                         <span

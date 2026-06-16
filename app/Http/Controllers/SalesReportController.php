@@ -33,6 +33,7 @@ class SalesReportController extends Controller
         $data = $this->salesService->getDailyReport($date, $outlet);
 
         // Add payment breakdown which is specific to this controller for now
+        // Include both pos_payments and WooCommerce orders (which don't have pos_payments records)
         $data['payment_breakdown'] = DB::table('pos_payments')
             ->join('pos_invoices', 'pos_payments.invoice_id', '=', 'pos_invoices.id')
             ->where('pos_invoices.date', $date)
@@ -40,7 +41,22 @@ class SalesReportController extends Controller
             ->where('pos_invoices.outlet', $outlet)
             ->select('pos_payments.method', DB::raw('SUM(pos_payments.amount) as total'))
             ->groupBy('pos_payments.method')
-            ->get();
+            ->get()
+            ->merge(
+                DB::table('pos_invoices')
+                    ->leftJoin('pos_payments', 'pos_invoices.id', '=', 'pos_payments.invoice_id')
+                    ->where('pos_invoices.date', $date)
+                    ->where('pos_invoices.status', 'completed')
+                    ->where('pos_invoices.outlet', $outlet)
+                    ->whereNull('pos_payments.id')
+                    ->where(function ($q) {
+                        $q->where('pos_invoices.order_source', 'woocommerce')
+                          ->orWhereNotNull('pos_invoices.wc_order_id');
+                    })
+                    ->select(DB::raw("'wc' as method"), DB::raw('SUM(pos_invoices.grand_total) as total'))
+                    ->groupBy('method')
+                    ->get()
+            );
 
         return response()->json($data);
     }
@@ -87,7 +103,22 @@ class SalesReportController extends Controller
             ->where('pos_invoices.outlet', $outlet)
             ->select('pos_payments.method', DB::raw('SUM(pos_payments.amount) as total'))
             ->groupBy('pos_payments.method')
-            ->get();
+            ->get()
+            ->merge(
+                DB::table('pos_invoices')
+                    ->leftJoin('pos_payments', 'pos_invoices.id', '=', 'pos_payments.invoice_id')
+                    ->whereBetween('pos_invoices.date', [$start->toDateString(), $end->toDateString()])
+                    ->where('pos_invoices.status', 'completed')
+                    ->where('pos_invoices.outlet', $outlet)
+                    ->whereNull('pos_payments.id')
+                    ->where(function ($q) {
+                        $q->where('pos_invoices.order_source', 'woocommerce')
+                          ->orWhereNotNull('pos_invoices.wc_order_id');
+                    })
+                    ->select(DB::raw("'wc' as method"), DB::raw('SUM(pos_invoices.grand_total) as total'))
+                    ->groupBy('method')
+                    ->get()
+            );
 
         return response()->json($data);
     }
@@ -142,7 +173,7 @@ class SalesReportController extends Controller
             ?? $request->get('outlet')
             ?? 'attire_lounge';
 
-        $allowed = ['attire_lounge', 'caffeine', 'kravat'];
+        $allowed = ['attire_lounge', 'caffeine', 'kravat', 'nile'];
         return in_array($outlet, $allowed) ? $outlet : 'attire_lounge';
     }
 }

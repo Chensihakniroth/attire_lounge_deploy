@@ -29,6 +29,14 @@ class SalesService
 
             $netRevenue = $totalRevenue - $totalRefunds;
 
+            // Total items (cups) sold
+            $totalItems = (int) DB::table('pos_invoice_items')
+                ->join('pos_invoices', 'pos_invoice_items.invoice_id', '=', 'pos_invoices.id')
+                ->where('pos_invoices.date', $date)
+                ->where('pos_invoices.status', 'completed')
+                ->where('pos_invoices.outlet', $outlet)
+                ->sum('pos_invoice_items.quantity');
+
             // Top sellers
             $topSellers = DB::table('pos_invoice_items')
                 ->join('pos_invoices', 'pos_invoice_items.invoice_id', '=', 'pos_invoices.id')
@@ -70,6 +78,7 @@ class SalesService
                 'total_refunds'      => round($totalRefunds, 2),
                 'net_revenue'        => round($netRevenue, 2),
                 'avg_order_value'    => $invoices->count() > 0 ? round($totalRevenue / $invoices->count(), 2) : 0,
+                'total_items'        => $totalItems,
                 'top_sellers'        => $topSellers,
                 'category_breakdown' => $categoryBreakdown,
                 'invoices'           => $invoices,
@@ -105,6 +114,14 @@ class SalesService
 
             $netRevenue = $totalRevenue - $totalRefunds;
 
+            // Total items (cups) sold
+            $totalItems = (int) DB::table('pos_invoice_items')
+                ->join('pos_invoices', 'pos_invoice_items.invoice_id', '=', 'pos_invoices.id')
+                ->whereBetween('pos_invoices.date', [$start->toDateString(), $end->toDateString()])
+                ->where('pos_invoices.status', 'completed')
+                ->where('pos_invoices.outlet', $outlet)
+                ->sum('pos_invoice_items.quantity');
+
             // Category breakdown
             $categoryBreakdown = DB::table('pos_invoice_items')
                 ->join('pos_invoices', 'pos_invoice_items.invoice_id', '=', 'pos_invoices.id')
@@ -127,6 +144,7 @@ class SalesService
                 'total_revenue'      => round($totalRevenue, 2),
                 'total_refunds'      => round($totalRefunds, 2),
                 'net_revenue'        => round($netRevenue, 2),
+                'total_items'        => $totalItems,
                 'daily_breakdown'    => $dailyRevenue,
                 'category_breakdown' => $categoryBreakdown,
             ];

@@ -38,6 +38,8 @@ const PAY_ICONS = {
     foodpanda: <Wallet size={13} />,
     grab: <Wallet size={13} />,
     wownow: <Wallet size={13} />,
+    woocommerce: <Wallet size={13} />,
+    wc: <Wallet size={13} />,
 };
 
 // ─── Fill missing days helper ────────────────────────────────────────────────
@@ -157,7 +159,7 @@ const exportCSV = (monthly, daily, selectedDate) => {
     rows.push(['Metric', 'Value']);
     rows.push(['Total Revenue', daily?.total_revenue ?? '']);
     rows.push(['Total Refunds', daily?.total_refunds ?? '']);
-    rows.push(['Net Revenue', daily?.net_revenue ?? '']);
+    rows.push(['Pairs Sold', daily?.total_items ?? '']);
     rows.push(['Invoice Count', daily?.invoice_count ?? '']);
     rows.push(['Avg Order Value', daily?.avg_order_value ?? '']);
     rows.push([]);
@@ -246,6 +248,7 @@ const DailyReportManager = () => {
     const currentTarget = targets.find(t => t.year === selectedYear && t.month === selectedMonth);
     const targetRevenue = parseFloat(currentTarget?.target_revenue ?? 0);
     const netRevenue = parseFloat(monthlyData?.net_revenue ?? 0);
+    const totalCups = parseInt(monthlyData?.total_items ?? 0);
     const targetPct = targetRevenue > 0 ? Math.min((netRevenue / targetRevenue) * 100, 100) : 0;
 
     const openTargetEditor = () => {
@@ -376,13 +379,13 @@ const DailyReportManager = () => {
 
                         {/* ── KPI Grid ── */}
                         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                            <StatCard label="Net Revenue" value={fmt(data?.net_revenue)} icon={<Wallet size={18} />} />
+                            <StatCard label="Pairs Sold" value={fmtNum(data?.total_items)} sub="pairs sold" icon={<ShoppingBag size={18} />} />
                             <StatCard label="Total Sales" value={fmt(data?.total_revenue)} icon={<TrendingUp size={18} />} />
                             <StatCard label="Refunds" value={fmt(data?.total_refunds)} icon={<TrendingDown size={18} />} color="text-red-500" />
                             <StatCard
                                 label={view === 'daily' ? 'Avg Order Value' : 'Invoices'}
                                 value={view === 'daily' ? fmt(data?.avg_order_value) : fmtNum(data?.daily_breakdown?.reduce((a, d) => a + d.invoices, 0))}
-                                icon={<ShoppingBag size={18} />}
+                                icon={<Wallet size={18} />}
                             />
                         </div>
 
@@ -471,7 +474,7 @@ const DailyReportManager = () => {
                                         const today = new Date();
                                         const daysElapsed = (selectedYear === today.getFullYear() && selectedMonth === today.getMonth() + 1)
                                             ? today.getDate() : daysInMonth;
-                                        const avgDaily = daysElapsed > 0 ? netRevenue / daysElapsed : 0;
+                                        const avgDaily = daysElapsed > 0 ? totalCups / daysElapsed : 0;
                                         const projected = avgDaily * daysInMonth;
                                         const bestDay = daysWithSales.length > 0
                                             ? daysWithSales.reduce((a, b) => parseFloat(a.revenue) >= parseFloat(b.revenue) ? a : b)
@@ -488,19 +491,17 @@ const DailyReportManager = () => {
                                             },
                                             {
                                                 label: 'Avg / Day',
-                                                value: fmt(avgDaily),
-                                                sub: `Over ${daysElapsed} day${daysElapsed !== 1 ? 's' : ''}`,
+                                                value: fmtNum(Math.round(avgDaily)),
+                                                sub: `pairs over ${daysElapsed} day${daysElapsed !== 1 ? 's' : ''}`,
                                                 icon: <TrendingUp size={16} />,
                                                 accent: 'text-emerald-500',
                                             },
                                             {
                                                 label: 'Projected',
-                                                value: fmt(projected),
-                                                sub: targetRevenue > 0
-                                                    ? (projected >= targetRevenue ? '✓ On track' : `${fmt(targetRevenue - projected)} short`)
-                                                    : `${daysInMonth - daysElapsed} days left`,
+                                                value: fmtNum(Math.round(projected)),
+                                                sub: `${daysInMonth - daysElapsed} days left`,
                                                 icon: <Target size={16} />,
-                                                accent: targetRevenue > 0 && projected >= targetRevenue ? 'text-emerald-500' : 'text-orange-400',
+                                                accent: 'text-orange-400',
                                             },
                                             {
                                                 label: 'Selling Days',
@@ -673,7 +674,9 @@ const DailyReportManager = () => {
                                                         <p className="text-[10px] text-gray-400 dark:text-[#8b949e]/50 mt-0.5">{new Date(inv.created_at).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })}</p>
                                                     </td>
                                                     <td className="px-6 py-4 text-xs font-bold text-gray-700 dark:text-[#c9d1d9]">
-                                                        {inv.customer ? `${inv.customer.first_name} ${inv.customer.last_name || ''}`.trim() : 'Walk-in'}
+                                                        {inv.order_source === 'woocommerce' || inv.wc_order_id
+                                                            ? 'Nile website'
+                                                            : inv.customer ? `${inv.customer.first_name} ${inv.customer.last_name || ''}`.trim() : 'Walk-in'}
                                                     </td>
                                                     <td className="px-6 py-4 text-xs text-gray-500 dark:text-[#8b949e]">
                                                         {inv.items?.reduce((a, item) => a + item.quantity, 0) || 0} pcs
@@ -683,14 +686,20 @@ const DailyReportManager = () => {
                                                     </td>
                                                     <td className="px-6 py-4 text-right">
                                                         <div className="flex items-center justify-end gap-1 flex-wrap">
-                                                            {(inv.payments ?? []).map((p, j) => (
-                                                                <span key={j} className="flex items-center gap-1 px-1.5 py-0.5 bg-black/5 dark:bg-white/5 rounded text-[9px] font-bold uppercase tracking-widest text-gray-600 dark:text-[#8b949e]">
-                                                                    {PAY_ICONS[p.method] ?? null}
-                                                                    {p.method.replaceAll('_', ' ')}
-                                                                    {inv.payments.length > 1 && ` (${fmt(p.amount)})`}
+                                                            {(inv.payments ?? []).length > 0 ? (
+                                                                (inv.payments ?? []).map((p, j) => (
+                                                                    <span key={j} className="flex items-center gap-1 px-1.5 py-0.5 bg-black/5 dark:bg-white/5 rounded text-[9px] font-bold uppercase tracking-widest text-gray-600 dark:text-[#8b949e]">
+                                                                        {PAY_ICONS[p.method] ?? null}
+                                                                        {p.method.replaceAll('_', ' ')}
+                                                                        {inv.payments.length > 1 && ` (${fmt(p.amount)})`}
+                                                                    </span>
+                                                                ))
+                                                            ) : inv.order_source === 'woocommerce' || inv.wc_order_id ? (
+                                                                <span className="flex items-center gap-1 px-1.5 py-0.5 bg-black/5 dark:bg-white/5 rounded text-[9px] font-bold uppercase tracking-widest text-gray-600 dark:text-[#8b949e]">
+                                                                    {PAY_ICONS['wc']}
+                                                                    WC
                                                                 </span>
-                                                            ))}
-                                                            {(!inv.payments || inv.payments.length === 0) && (
+                                                            ) : (
                                                                 <span className="text-[9px] font-bold uppercase tracking-widest text-gray-400">N/A</span>
                                                             )}
                                                         </div>
