@@ -61,6 +61,8 @@ import {
     Info,
     MoreVertical,
     Loader2,
+    Rows,
+    ClipboardList,
 } from 'lucide-react';
 import { LumaSpin } from '@/components/ui/luma-spin';
 import { Button } from '@/components/ui/button';
@@ -1010,6 +1012,87 @@ export default function ShoeManager() {
         }
     });
 
+    // ─── Bulk Add state ───────────────────────────────────────────────────────
+    const [isBulkAddOpen, setIsBulkAddOpen] = useState(false);
+    const [bulkAddProducts, setBulkAddProducts] = useState([]);
+    const [bulkAddDefaultCategory, setBulkAddDefaultCategory] = useState('');
+    const [bulkAddDefaultPrice, setBulkAddDefaultPrice] = useState('');
+    const [bulkAddDefaultStock, setBulkAddDefaultStock] = useState('');
+    const [bulkAddDefaultService, setBulkAddDefaultService] = useState(false);
+
+    const bulkAddProductsMutation = useMutation({
+        mutationFn: async (products) => {
+            const payload = {
+                products: products.map((p) => ({
+                    sku: p.sku || '',
+                    name: p.name || '',
+                    price: p.price !== '' && p.price !== null ? parseFloat(p.price) : null,
+                    stock_qty: p.is_service ? 00 : (p.stock_qty !== '' && p.stock_qty !== null ? parseInt(p.stock_qty, 10) : 0),
+                    category: p.category || '',
+                    is_active: true,
+                    is_service: p.is_service || false,
+                }))
+            };
+            return axios.post('/api/v1/admin/pos/products/bulk-create', payload, {
+                headers: { 'X-Active-Outlet': activeOutlet },
+            });
+        },
+        onSuccess: (res) => {
+            queryClient.invalidateQueries({ queryKey: ['admin-shoes'] });
+            queryClient.invalidateQueries({ queryKey: ['admin-stats'] });
+            setIsBulkAddOpen(false);
+            setBulkAddProducts([]);
+            setToast({ message: `Successfully created ${bulkAddProducts.length} products!`, type: 'success' });
+        },
+        onError: (err) => {
+            const errors = err.response?.data?.errors;
+            let detail = '';
+            if (errors) {
+                detail = ': ' + Object.values(errors).map((e) => e.join(', ')).join(' | ');
+            }
+            setToast({
+                message: (err.response?.data?.message || 'Failed to create products.') + detail,
+                type: 'error',
+            });
+        }
+    });
+
+    const openBulkAdd = () => {
+        setBulkAddDefaultCategory('');
+        setBulkAddDefaultPrice('');
+        setBulkAddDefaultStock('');
+        setBulkAddDefaultService(false);
+        setBulkAddProducts([
+            { tempId: 1, sku: '', name: '', price: '', stock_qty: '', category: '', is_service: false },
+        ]);
+        setIsBulkAddOpen(true);
+    };
+
+    const addBulkAddRow = () => {
+        const maxId = bulkAddProducts.reduce((max, p) => Math.max(max, p.tempId), 0);
+        setBulkAddProducts((prev) => [
+            ...prev,
+            { tempId: maxId + 1, sku: '', name: '', price: '', stock_qty: '', category: '', is_service: false },
+        ]);
+    };
+
+    const removeBulkAddRow = (tempId) => {
+        setBulkAddProducts((prev) => prev.filter((p) => p.tempId !== tempId));
+    };
+
+    const applyBulkAddDefaults = () => {
+        setBulkAddProducts((prev) =>
+            prev.map((p) => ({
+                ...p,
+                category: bulkAddDefaultCategory || p.category,
+                price: bulkAddDefaultPrice !== '' ? bulkAddDefaultPrice : p.price,
+                stock_qty: bulkAddDefaultStock !== '' ? bulkAddDefaultStock : p.stock_qty,
+                is_service: bulkAddDefaultService,
+            }))
+        );
+        setToast({ message: 'Defaults applied to all rows.', type: 'success' });
+    };
+
     const handleBulkEditOpen = () => {
         const stored = Object.values(selectedShoesMap);
         if (stored.length === 0) return;
@@ -1271,6 +1354,12 @@ export default function ShoeManager() {
                         className="flex items-center gap-2 px-4 py-2 bg-[#0d3542] dark:bg-[#58a6ff] text-white dark:text-black rounded-xl text-xs font-bold uppercase tracking-widest hover:scale-105 transition-all shadow-none border border-transparent"
                     >
                         <Plus size={14} /> New Shoe
+                    </button>
+                    <button
+                        onClick={openBulkAdd}
+                        className="flex items-center gap-2 px-4 py-2 bg-white dark:bg-[#161b22] border border-black/10 dark:border-[#30363d] text-gray-700 dark:text-[#c9d1d9] rounded-xl text-xs font-bold uppercase tracking-widest hover:border-[#0d3542]/40 dark:hover:border-[#58a6ff]/40 hover:text-[#0d3542] dark:hover:text-[#58a6ff] transition-all"
+                    >
+                        <ClipboardList size={14} /> Bulk Add
                     </button>
                 </div>
             </div>
@@ -2332,6 +2421,300 @@ export default function ShoeManager() {
                             )}
                             Save Changes ({bulkProducts.length} items)
                         </button>
+                    </div>
+                </div>
+            </ModernModal>
+
+            {/* --- Bulk Add Spreadsheet Modal --- */}
+            <ModernModal
+                isOpen={isBulkAddOpen}
+                onClose={() => { setIsBulkAddOpen(false); setBulkAddProducts([]); }}
+                title={`Bulk Add Products`}
+                icon={ClipboardList}
+                maxWidth="max-w-7xl"
+                overflowVisible={true}
+            >
+                <div className="p-6 space-y-6 max-h-[85vh] flex flex-col font-sans">
+                    {/* --- Defaults Card (Top) --- */}
+                    <div className="bg-black/[0.02] dark:bg-[#0d1117] border border-black/5 dark:border-[#30363d] rounded-xl p-4 shrink-0">
+                        <h4 className="text-[10px] font-black uppercase tracking-[0.2em] text-[#0d3542] dark:text-[#58a6ff] mb-3 flex items-center gap-2">
+                            <Command size={12} />
+                            Default Values (Apply to All Rows)
+                        </h4>
+                        <div className="grid grid-cols-1 md:grid-cols-5 gap-4 items-end">
+                            {/* Category Default */}
+                            <div className="space-y-1 col-span-1 md:col-span-2">
+                                <label className="block text-[9px] font-bold text-gray-500 uppercase tracking-widest">
+                                    Category
+                                </label>
+                                <select
+                                    value={bulkAddDefaultCategory}
+                                    onChange={(e) => setBulkAddDefaultCategory(e.target.value)}
+                                    className="w-full bg-white dark:bg-[#161b22] text-gray-900 dark:text-white px-3 py-2 rounded-xl border border-black/10 dark:border-[#30363d] text-xs font-bold uppercase tracking-wider outline-none cursor-pointer focus:border-[#0d3542] dark:focus:border-[#58a6ff]"
+                                >
+                                    <option value="">Select Category...</option>
+                                    {categories.map((cat, idx) => (
+                                        <option key={idx} value={cat}>{cat}</option>
+                                    ))}
+                                </select>
+                            </div>
+
+                            {/* Price Default */}
+                            <div className="space-y-1">
+                                <label className="block text-[9px] font-bold text-gray-500 uppercase tracking-widest">
+                                    Price ($)
+                                </label>
+                                <input
+                                    type="number"
+                                    step="0.01"
+                                    placeholder="0.00"
+                                    value={bulkAddDefaultPrice}
+                                    onChange={(e) => setBulkAddDefaultPrice(e.target.value)}
+                                    className="w-full bg-white dark:bg-[#161b22] text-gray-900 dark:text-white px-3 py-2 rounded-xl border border-black/10 dark:border-[#30363d] text-xs font-bold outline-none focus:border-[#0d3542] dark:focus:border-[#58a6ff]"
+                                />
+                            </div>
+
+                            {/* Stock Default */}
+                            <div className="space-y-1">
+                                <label className="block text-[9px] font-bold text-gray-500 uppercase tracking-widest">
+                                    Stock Qty
+                                </label>
+                                <input
+                                    type="number"
+                                    placeholder="0"
+                                    value={bulkAddDefaultStock}
+                                    onChange={(e) => setBulkAddDefaultStock(e.target.value)}
+                                    className="w-full bg-white dark:bg-[#161b22] text-gray-900 dark:text-white px-3 py-2 rounded-xl border border-black/10 dark:border-[#30363d] text-xs font-bold outline-none focus:border-[#0d3542] dark:focus:border-[#58a6ff]"
+                                />
+                            </div>
+
+                            {/* Apply Button */}
+                            <div className="space-y-1">
+                                <label className="block text-[9px] font-bold text-transparent uppercase tracking-widest">
+                                    Apply
+                                </label>
+                                <button
+                                    type="button"
+                                    onClick={applyBulkAddDefaults}
+                                    className="w-full px-3 py-2 bg-[#0d3542] dark:bg-[#58a6ff] text-white dark:text-black rounded-xl text-xs font-bold uppercase tracking-widest hover:opacity-90 transition-all flex items-center justify-center gap-1.5"
+                                >
+                                    <Check size={14} strokeWidth={3} /> Apply to All
+                                </button>
+                            </div>
+                        </div>
+
+                        {/* Service Toggle */}
+                        <div className="flex flex-wrap gap-3 mt-4 pt-3 border-t border-black/5 dark:border-[#30363d]/40">
+                            <span className="text-[9px] font-bold text-gray-500 uppercase tracking-widest mr-2 flex items-center">Quick Set:</span>
+                            <button
+                                type="button"
+                                onClick={() => {
+                                    setBulkAddDefaultService(false);
+                                    setBulkAddProducts((prev) => prev.map((p) => ({ ...p, is_service: false })));
+                                }}
+                                className="px-3 py-1.5 bg-amber-500/10 hover:bg-amber-500/20 text-amber-600 dark:text-amber-400 border border-amber-500/20 rounded-lg text-[10px] font-bold uppercase tracking-wider"
+                            >
+                                All Products (Stock Enabled)
+                            </button>
+                            <button
+                                type="button"
+                                onClick={() => {
+                                    setBulkAddDefaultService(true);
+                                    setBulkAddProducts((prev) => prev.map((p) => ({ ...p, is_service: true, stock_qty: '' })));
+                                }}
+                                className="px-3 py-1.5 bg-blue-500/10 hover:bg-blue-500/20 text-blue-600 dark:text-blue-400 border border-blue-500/20 rounded-lg text-[10px] font-bold uppercase tracking-wider"
+                            >
+                                All Services (No Stock)
+                            </button>
+                        </div>
+                    </div>
+
+                    {/* --- Spreadsheet Table (Middle) --- */}
+                    <div className="flex-1 overflow-auto border border-black/5 dark:border-[#30363d] rounded-xl attire-scrollbar">
+                        <table className="w-full text-left border-collapse table-fixed">
+                            <thead className="sticky top-0 z-30 bg-gray-50 dark:bg-[#0d1117] border-b border-black/10 dark:border-[#30363d]">
+                                <tr>
+                                    <th className="w-8 px-3 py-3 text-xs font-bold uppercase tracking-widest text-gray-500 dark:text-[#8b949e]/40 text-center">#</th>
+                                    <th className="w-1/4 px-4 py-3 text-xs font-bold uppercase tracking-widest text-gray-500 dark:text-[#8b949e]/40">Name</th>
+                                    <th className="w-1/6 px-4 py-3 text-xs font-bold uppercase tracking-widest text-gray-500 dark:text-[#8b949e]/40">SKU</th>
+                                    <th className="w-1/6 px-4 py-3 text-xs font-bold uppercase tracking-widest text-gray-500 dark:text-[#8b949e]/40">Category</th>
+                                    <th className="w-20 px-4 py-3 text-xs font-bold uppercase tracking-widest text-gray-500 dark:text-[#8b949e]/40 text-center">Stock</th>
+                                    <th className="w-24 px-4 py-3 text-xs font-bold uppercase tracking-widest text-gray-500 dark:text-[#8b949e]/40 text-center">Price ($)</th>
+                                    <th className="w-20 px-4 py-3 text-xs font-bold uppercase tracking-widest text-gray-500 dark:text-[#8b949e]/40 text-center">Service</th>
+                                    <th className="w-12 px-2 py-3"></th>
+                                </tr>
+                            </thead>
+                            <tbody className="divide-y divide-black/5 dark:divide-[#30363d]">
+                                {bulkAddProducts.map((p, idx) => {
+                                    const colorScheme = getCategoryColor(p.category);
+                                    return (
+                                        <tr key={p.tempId} className="hover:bg-black/[0.01] dark:hover:bg-white/[0.02]">
+                                            {/* Row Number */}
+                                            <td className="px-3 py-2 text-center">
+                                                <span className="text-[10px] font-black text-gray-400 dark:text-[#8b949e]/40">{idx + 1}</span>
+                                            </td>
+
+                                            {/* Name */}
+                                            <td className="px-4 py-2">
+                                                <input
+                                                    type="text"
+                                                    value={p.name}
+                                                    onChange={(e) => {
+                                                        const val = e.target.value;
+                                                        setBulkAddProducts((prev) =>
+                                                            prev.map((item) => (item.tempId === p.tempId ? { ...item, name: val } : item))
+                                                        );
+                                                    }}
+                                                    placeholder="Product name..."
+                                                    className="w-full bg-white dark:bg-[#161b22] text-gray-900 dark:text-white px-2 py-1 rounded-lg border border-black/10 dark:border-[#30363d] text-xs font-bold outline-none focus:border-[#0d3542] dark:focus:border-[#58a6ff] placeholder:text-gray-400 placeholder:font-medium placeholder:normal-case"
+                                                />
+                                            </td>
+
+                                            {/* SKU */}
+                                            <td className="px-4 py-2">
+                                                <input
+                                                    type="text"
+                                                    value={p.sku}
+                                                    onChange={(e) => {
+                                                        const val = e.target.value;
+                                                        setBulkAddProducts((prev) =>
+                                                            prev.map((item) => (item.tempId === p.tempId ? { ...item, sku: val } : item))
+                                                        );
+                                                    }}
+                                                    placeholder="SKU"
+                                                    className="w-full bg-white dark:bg-[#161b22] text-gray-900 dark:text-white px-2 py-1 rounded-lg border border-black/10 dark:border-[#30363d] text-xs font-semibold outline-none focus:border-[#0d3542] dark:focus:border-[#58a6ff] placeholder:text-gray-400 placeholder:font-medium placeholder:normal-case"
+                                                />
+                                            </td>
+
+                                            {/* Category */}
+                                            <td className="px-4 py-2">
+                                                <select
+                                                    value={p.category}
+                                                    onChange={(e) => {
+                                                        const val = e.target.value;
+                                                        setBulkAddProducts((prev) =>
+                                                            prev.map((item) => (item.tempId === p.tempId ? { ...item, category: val } : item))
+                                                        );
+                                                    }}
+                                                    className="w-full bg-white dark:bg-[#161b22] text-gray-900 dark:text-white px-2 py-1 rounded-lg border border-black/10 dark:border-[#30363d] text-xs font-semibold uppercase tracking-wider outline-none focus:border-[#0d3542] dark:focus:border-[#58a6ff]"
+                                                >
+                                                    <option value="">—</option>
+                                                    {categories.map((cat, cIdx) => (
+                                                        <option key={cIdx} value={cat}>{cat}</option>
+                                                    ))}
+                                                </select>
+                                            </td>
+
+                                            {/* Stock */}
+                                            <td className="px-4 py-2">
+                                                <input
+                                                    type="number"
+                                                    disabled={p.is_service}
+                                                    value={p.is_service ? '' : p.stock_qty}
+                                                    placeholder={p.is_service ? '∞' : '0'}
+                                                    onChange={(e) => {
+                                                        const val = e.target.value;
+                                                        setBulkAddProducts((prev) =>
+                                                            prev.map((item) => (item.tempId === p.tempId ? { ...item, stock_qty: val } : item))
+                                                        );
+                                                    }}
+                                                    className="w-full bg-white dark:bg-[#161b22] text-gray-900 dark:text-white px-2 py-1 rounded-lg border border-black/10 dark:border-[#30363d] text-xs text-center font-bold outline-none focus:border-[#0d3542] dark:focus:border-[#58a6ff] disabled:opacity-40"
+                                                />
+                                            </td>
+
+                                            {/* Price */}
+                                            <td className="px-4 py-2">
+                                                <input
+                                                    type="number"
+                                                    step="0.01"
+                                                    value={p.price}
+                                                    onChange={(e) => {
+                                                        const val = e.target.value;
+                                                        setBulkAddProducts((prev) =>
+                                                            prev.map((item) => (item.tempId === p.tempId ? { ...item, price: val } : item))
+                                                        );
+                                                    }}
+                                                    placeholder="0.00"
+                                                    className="w-full bg-white dark:bg-[#161b22] text-gray-900 dark:text-white px-2 py-1 rounded-lg border border-black/10 dark:border-[#30363d] text-xs text-center font-bold outline-none focus:border-[#0d3542] dark:focus:border-[#58a6ff] placeholder:text-gray-400 placeholder:font-medium"
+                                                />
+                                            </td>
+
+                                            {/* Service */}
+                                            <td className="px-4 py-2 text-center">
+                                                <input
+                                                    type="checkbox"
+                                                    checked={p.is_service}
+                                                    onChange={(e) => {
+                                                        const checked = e.target.checked;
+                                                        setBulkAddProducts((prev) =>
+                                                            prev.map((item) =>
+                                                                item.tempId === p.tempId
+                                                                    ? { ...item, is_service: checked, stock_qty: checked ? '' : (item.stock_qty || 0) }
+                                                                    : item
+                                                            )
+                                                        );
+                                                    }}
+                                                    className="w-4 h-4 text-[#0d3542] dark:text-[#58a6ff] bg-white border-gray-300 rounded focus:ring-[#0d3542] dark:focus:ring-[#58a6ff]"
+                                                />
+                                            </td>
+
+                                            {/* Remove Row */}
+                                            <td className="px-2 py-2 text-center">
+                                                <button
+                                                    type="button"
+                                                    onClick={() => removeBulkAddRow(p.tempId)}
+                                                    className="p-1 rounded-lg text-gray-300 dark:text-white/20 hover:text-red-500 hover:bg-red-500/10 transition-all"
+                                                    title="Remove row"
+                                                >
+                                                    <X size={14} />
+                                                </button>
+                                            </td>
+                                        </tr>
+                                    );
+                                })}
+                            </tbody>
+                        </table>
+                    </div>
+
+                    {/* --- Add Row + Footer Buttons --- */}
+                    <div className="flex items-center justify-between pt-4 border-t border-black/5 dark:border-[#30363d] shrink-0">
+                        <button
+                            type="button"
+                            onClick={addBulkAddRow}
+                            className="flex items-center gap-2 px-4 py-2.5 bg-black/[0.03] dark:bg-white/[0.03] border border-black/10 dark:border-[#30363d] rounded-xl text-xs font-bold uppercase tracking-widest text-gray-600 dark:text-[#8b949e] hover:border-[#0d3542]/40 dark:hover:border-[#58a6ff]/40 hover:text-[#0d3542] dark:hover:text-[#58a6ff] transition-all"
+                        >
+                            <Plus size={14} /> Add Row
+                        </button>
+                        <div className="flex gap-3">
+                            <button
+                                type="button"
+                                onClick={() => { setIsBulkAddOpen(false); setBulkAddProducts([]); }}
+                                className="px-5 py-2.5 rounded-xl text-xs font-bold uppercase tracking-widest border border-black/10 dark:border-[#30363d] hover:bg-black/5 dark:hover:bg-white/5 transition-colors"
+                            >
+                                Cancel
+                            </button>
+                            <button
+                                type="button"
+                                disabled={bulkAddProductsMutation.isPending || bulkAddProducts.length === 0}
+                                onClick={() => {
+                                    const hasNames = bulkAddProducts.some((p) => p.name.trim());
+                                    if (!hasNames) {
+                                        setToast({ message: 'At least one product must have a name.', type: 'error' });
+                                        return;
+                                    }
+                                    const productsToSend = bulkAddProducts.filter((p) => p.name.trim());
+                                    bulkAddProductsMutation.mutate(productsToSend);
+                                }}
+                                className="px-6 py-2.5 bg-[#0d3542] dark:bg-[#58a6ff] text-white dark:text-black rounded-xl text-xs font-bold uppercase tracking-widest hover:opacity-90 disabled:opacity-50 flex items-center gap-2 shadow-none"
+                            >
+                                {bulkAddProductsMutation.isPending ? (
+                                    <Loader2 size={14} className="animate-spin" />
+                                ) : (
+                                    <Save size={14} />
+                                )}
+                                Create {bulkAddProducts.filter((p) => p.name.trim()).length} Products
+                            </button>
+                        </div>
                     </div>
                 </div>
             </ModernModal>

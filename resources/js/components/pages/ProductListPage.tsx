@@ -46,7 +46,7 @@ const ProductListPage: React.FC = () => {
     });
 
     const allLoadedProducts = useMemo<Product[]>(
-        () => data?.pages.flatMap((page) => page.data) ?? [],
+        () => data?.pages.flatMap((page: any) => page.data ?? page ?? []) ?? [],
         [data]
     );
 
@@ -177,16 +177,16 @@ const ProductListPage: React.FC = () => {
                         </m.div>
                     ) : allLoadedProducts.length > 0 ? (
                         <div
-                            key="results"
+                            key="product-results"
                             className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-8 lg:gap-12"
                             style={{ 
                                 contain: 'content',
                                 minHeight: '50vh'
                             }}
                         >
-                            {allLoadedProducts.map((item) => (
+                            {allLoadedProducts.map((item, idx) => (
                                 <div 
-                                    key={item.id} 
+                                    key={item.id ?? `product-${idx}`} 
                                     style={{ 
                                         contentVisibility: 'auto', 
                                         containIntrinsicSize: 'auto 500px'

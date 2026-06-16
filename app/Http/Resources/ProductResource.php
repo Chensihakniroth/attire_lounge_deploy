@@ -26,7 +26,7 @@ class ProductResource extends JsonResource
             'fabric' => $this->fabric,
             'silhouette' => $this->silhouette,
             'details' => $this->details,
-            'images' => $this->images,
+            'images' => $this->images ?? [],
             'sizes' => $this->sizing,
         ];
     }

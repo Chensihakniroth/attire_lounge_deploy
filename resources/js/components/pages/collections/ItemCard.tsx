@@ -9,16 +9,20 @@ interface ItemCardProps {
 
 const ItemCard: React.FC<ItemCardProps> = memo(({ product }) => {
     const navigate = useNavigate();
-    const imageUrl = product.images && product.images.length > 0 ? product.images[0] : '/path/to/default/image.jpg';
-    const fallbackUrl = product.images && product.images.length > 1 ? product.images[1] : null;
 
-    const hasSlug = !!product.slug && product.slug !== 'undefined';
+    // Support both old Product type (images[]) and API response (image_path)
+    const imageUrl = product.images?.[0]
+        ?? (product as any).image_path
+        ?? (product as any).thumbnail
+        ?? '/images/placeholder.jpg';
+    const fallbackUrl = product.images?.[1] ?? null;
+
+    const slug = product.slug ?? (product as any).slug;
+    const hasSlug = !!slug && slug !== 'undefined' && slug.trim() !== '';
 
     const handleProductClick = () => {
         if (hasSlug) {
-            navigate(`/product/${product.slug}`);
-        } else {
-            console.error("This product has an invalid slug and cannot be viewed:", product);
+            navigate(`/product/${slug}`);
         }
     };
 

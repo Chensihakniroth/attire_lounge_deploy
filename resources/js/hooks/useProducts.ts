@@ -32,7 +32,10 @@ export const useInfiniteProducts = (filters: Omit<Record<string, any>, 'page'> =
         },
         initialPageParam: 1,
         getNextPageParam: (lastPage) => {
-            const { current_page, last_page } = lastPage.meta;
+            const meta = (lastPage.meta || lastPage) as any;
+            const current_page = meta.current_page ?? meta.current_page;
+            const last_page = meta.last_page ?? meta.last_page;
+            if (!current_page || !last_page) return undefined;
             return current_page < last_page ? current_page + 1 : undefined;
         },
         staleTime: 5 * 60 * 1000, // 5 min — product lists can change
@@ -65,7 +68,10 @@ export const useCollections = () => {
         queryKey: ['collections'],
         queryFn: async () => {
             const { data } = await axios.get(`${API_BASE}/products/collections`);
-            return data.data;
+            if (Array.isArray(data)) return data;
+            if (Array.isArray(data.data)) return data.data;
+            if (Array.isArray(data.collections)) return data.collections;
+            return [];
         },
     });
 };

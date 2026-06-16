@@ -13,7 +13,7 @@ export interface Product {
     featured?: boolean;
     in_stock?: boolean;
     stock_quantity?: number;
-    images: string[];
+    images?: string[];
     sizes?: string[];
     colors?: string[];
     fabric?: string;
