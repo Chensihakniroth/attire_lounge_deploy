@@ -92,7 +92,7 @@ const MultiTrendChart = ({
             transition={performanceMode ? { duration: 0 } : { duration: 0.6 }}
             className="h-[450px] w-full mt-0 text-[#0d3542] dark:text-[#58a6ff]"
         >
-            <ResponsiveContainer width="99%" height="100%" minWidth={1} minHeight={1} debounce={100}>
+            <ResponsiveContainer width="99%" height="100%" minWidth={100} minHeight={200} debounce={200}>
                 <AreaChart
                     data={data}
                     margin={{ top: 10, right: 30, left: 0, bottom: 40 }}

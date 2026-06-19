@@ -55,6 +55,12 @@ Route::prefix('v1')->group(function () {
     // Newsletter Subscription (public)
     Route::post('/newsletter-subscriptions', [NewsletterSubscriptionController::class, 'store'])->middleware('throttle:5,1');
 
+    // Appointment Booking (public)
+    Route::post('/appointments', [AppointmentController::class, 'store'])->middleware('throttle:5,1');
+
+    // Gift Request Submission (public)
+    Route::post('/gift-requests', [GiftRequestController::class, 'store'])->middleware('throttle:5,1');
+
     // ═══════════════════════════════════════════════════════════════════════
     // STOREFRONT PUBLIC API (products, collections, categories)
     // ═══════════════════════════════════════════════════════════════════════

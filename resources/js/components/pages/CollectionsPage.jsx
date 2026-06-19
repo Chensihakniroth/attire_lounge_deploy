@@ -105,12 +105,12 @@ const CollectionsPage = () => {
                                     ? '/products'
                                     : `/products?collection=${collection.slug}`;
                             const key =
-                                collection.id === 0 ? 'browse-all' : collection.id;
+                                collection.id === 0 ? 'browse-all' : (collection.id ?? collection.slug ?? index);
 
                             return (
+                                <div key={key} className="block h-full">
                                 <Link
                                     to={href}
-                                    key={key}
                                     className="block h-full"
                                 >
                                     <motion.div
@@ -162,6 +162,7 @@ const CollectionsPage = () => {
                                     )}
                                 </motion.div>
                             </Link>
+                            </div>
                             );
                         })}
 

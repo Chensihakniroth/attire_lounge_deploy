@@ -53,8 +53,12 @@ const CustomerProfileDetail = () => {
         const fetchProfile = async () => {
             try {
                 const token = localStorage.getItem('admin_token') || sessionStorage.getItem('admin_token');
+                const outlet = localStorage.getItem('active_outlet') || 'attire_lounge';
                 const res = await axios.get(`/api/v1/admin/customer-profiles/${id}`, {
-                    headers: { 'Authorization': `Bearer ${token}` }
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'X-Active-Outlet': outlet,
+                    }
                 });
                 setProfile(res.data);
             } catch (err) {
@@ -71,8 +75,12 @@ const CustomerProfileDetail = () => {
         if (!window.confirm('Are you sure you want to delete this profile? This cannot be undone.')) return;
         try {
             const token = localStorage.getItem('admin_token') || sessionStorage.getItem('admin_token');
+            const outlet = localStorage.getItem('active_outlet') || 'attire_lounge';
             await axios.delete(`/api/v1/admin/customer-profiles/${id}`, {
-                headers: { 'Authorization': `Bearer ${token}` }
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'X-Active-Outlet': outlet,
+                }
             });
             navigate('/admin/customer-profiles');
         } catch (err) {

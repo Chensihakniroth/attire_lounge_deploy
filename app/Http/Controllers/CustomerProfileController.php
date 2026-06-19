@@ -59,7 +59,7 @@ class CustomerProfileController extends Controller
         return response()->json($customerProfile, 201);
     }
 
-    public function show(int $id): JsonResponse
+    public function show(Request $request, int $id): JsonResponse
     {
         $customerProfile = $this->customerProfileService->getCustomerProfileById($id);
 
@@ -68,8 +68,9 @@ class CustomerProfileController extends Controller
         }
 
         // Enforce outlet scoping — admin can only view profiles from their outlet
+        // Profiles with null outlet (legacy data) are visible to all
         $outlet = $request->header('X-Active-Outlet', 'attire_lounge');
-        if ($customerProfile->outlet !== $outlet) {
+        if ($customerProfile->outlet !== null && $customerProfile->outlet !== $outlet) {
             return response()->json(['message' => 'Customer profile not found.'], 404);
         }
 
@@ -85,8 +86,9 @@ class CustomerProfileController extends Controller
         }
 
         // Enforce outlet scoping
+        // Profiles with null outlet (legacy data) are editable by all
         $outlet = $request->header('X-Active-Outlet', 'attire_lounge');
-        if ($customerProfile->outlet !== $outlet) {
+        if ($customerProfile->outlet !== null && $customerProfile->outlet !== $outlet) {
             return response()->json(['message' => 'Customer profile not found.'], 404);
         }
 
@@ -125,11 +127,11 @@ class CustomerProfileController extends Controller
         }
 
         // Enforce outlet scoping
+        // Profiles with null outlet (legacy data) are deletable by all
         $outlet = request()->header('X-Active-Outlet', 'attire_lounge');
-        if ($customerProfile->outlet !== $outlet) {
+        if ($customerProfile->outlet !== null && $customerProfile->outlet !== $outlet) {
             return response()->json(['message' => 'Customer profile not found.'], 404);
         }
-
         $this->customerProfileService->deleteCustomerProfile($id);
         return response()->json(null, 204);
     }

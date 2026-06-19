@@ -219,14 +219,18 @@ const CustomerProfileManager = () => {
         setLoading(true);
         try {
             const token = localStorage.getItem('admin_token') || sessionStorage.getItem('admin_token');
-            const res = await axios.get('/api/v1/admin/customer-profiles', { 
+            const outlet = localStorage.getItem('active_outlet') || 'attire_lounge';
+            const res = await axios.get('/api/v1/admin/customer-profiles', {
                 params: {
                     page,
                     search: searchQuery,
                     status: filterStatus,
                     per_page: pagination.per_page
                 },
-                headers: { 'Authorization': `Bearer ${token}` } 
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'X-Active-Outlet': outlet,
+                }
             });
             setProfiles(res.data.data);
             setPagination({
@@ -320,14 +324,15 @@ const CustomerProfileManager = () => {
         setError(null);
         try {
             const token = localStorage.getItem('admin_token') || sessionStorage.getItem('admin_token');
+            const outlet = localStorage.getItem('active_outlet') || 'attire_lounge';
+            const headers = {
+                'Authorization': `Bearer ${token}`,
+                'X-Active-Outlet': outlet,
+            };
             if (editingProfile) {
-                await axios.put(`/api/v1/admin/customer-profiles/${editingProfile.id}`, formData, {
-                    headers: { 'Authorization': `Bearer ${token}` }
-                });
+                await axios.put(`/api/v1/admin/customer-profiles/${editingProfile.id}`, formData, { headers });
             } else {
-                await axios.post('/api/v1/admin/customer-profiles', formData, {
-                    headers: { 'Authorization': `Bearer ${token}` }
-                });
+                await axios.post('/api/v1/admin/customer-profiles', formData, { headers });
             }
             setShowModal(false);
             fetchData(pagination.current_page);
@@ -343,8 +348,12 @@ const CustomerProfileManager = () => {
         if (!window.confirm('Are you sure you want to delete this profile?')) return;
         try {
             const token = localStorage.getItem('admin_token') || sessionStorage.getItem('admin_token');
+            const outlet = localStorage.getItem('active_outlet') || 'attire_lounge';
             await axios.delete(`/api/v1/admin/customer-profiles/${id}`, {
-                headers: { 'Authorization': `Bearer ${token}` }
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'X-Active-Outlet': outlet,
+                }
             });
             fetchData(pagination.current_page);
         } catch (error) {
