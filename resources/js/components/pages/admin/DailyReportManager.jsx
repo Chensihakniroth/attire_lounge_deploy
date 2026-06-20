@@ -158,7 +158,18 @@ const StatCard = ({ label, value, sub, icon, trend, color = 'text-[#0d3542] dark
 );
 
 // ─── Export helpers ───────────────────────────────────────────────────────────
-const exportCSV = (monthly, daily, selectedDate, outlet) => {
+const downloadCSV = (rows, filename) => {
+    const csv = rows.map(r => r.map(c => `"${c}"`).join(',')).join('\n');
+    const blob = new Blob([csv], { type: 'text/csv' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = filename;
+    a.click();
+    URL.revokeObjectURL(url);
+};
+
+const exportDailyCSV = (daily, selectedDate, outlet) => {
     const unitLabel = useUnitLabel(outlet);
     const rows = [];
     rows.push(['ATTIRE LOUNGE — DAILY REPORT', selectedDate]);
@@ -183,14 +194,69 @@ const exportCSV = (monthly, daily, selectedDate, outlet) => {
         rows.push([p.method.toUpperCase(), p.total]);
     });
 
-    const csv = rows.map(r => r.map(c => `"${c}"`).join(',')).join('\n');
-    const blob = new Blob([csv], { type: 'text/csv' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `attire-lounge-report-${selectedDate}.csv`;
-    a.click();
-    URL.revokeObjectURL(url);
+    downloadCSV(rows, `attire-lounge-daily-${selectedDate}.csv`);
+};
+
+const exportMonthlyCSV = (monthly, selectedYear, selectedMonth, outlet, targetRevenue, currentTarget) => {
+    const unitLabel = useUnitLabel(outlet);
+    const monthName = MONTH_NAMES[selectedMonth - 1];
+    const rows = [];
+
+    // ── Title ──
+    rows.push(['ATTIRE LOUNGE — MONTHLY REPORT', `${monthName} ${selectedYear}`]);
+    rows.push([]);
+
+    // ── Summary ──
+    rows.push(['SUMMARY']);
+    rows.push(['Metric', 'Value']);
+    rows.push(['Total Revenue', monthly?.total_revenue ?? '']);
+    rows.push(['Net Revenue', monthly?.net_revenue ?? '']);
+    rows.push(['Total Refunds', monthly?.total_refunds ?? '']);
+    rows.push([unitLabel.sold, monthly?.total_items ?? '']);
+    rows.push(['Monthly Target', targetRevenue > 0 ? targetRevenue : 'Not set']);
+    if (targetRevenue > 0) {
+        const achieved = parseFloat(monthly?.net_revenue ?? 0);
+        const pct = Math.min((achieved / targetRevenue) * 100, 100);
+        rows.push(['Target Achieved %', `${pct.toFixed(1)}%`]);
+        rows.push(['Remaining to Target', Math.max(targetRevenue - achieved, 0).toFixed(2)]);
+    }
+    if (currentTarget?.notes) {
+        rows.push(['Target Notes', currentTarget.notes]);
+    }
+    rows.push([]);
+
+    // ── Daily Breakdown ──
+    rows.push(['DAILY BREAKDOWN']);
+    rows.push(['Date', 'Revenue', 'Invoices']);
+    (monthly?.daily_breakdown ?? []).forEach(d => {
+        rows.push([d.day, d.revenue, d.invoices]);
+    });
+    rows.push([]);
+
+    // ── Top Sellers ──
+    rows.push(['TOP SELLERS']);
+    rows.push(['Product', 'SKU', 'Qty Sold', 'Revenue']);
+    (monthly?.top_sellers ?? []).forEach(p => {
+        rows.push([`${p.product_name} ${p.product_variant ?? ''}`.trim(), p.product_sku ?? '', p.total_qty, p.total_revenue]);
+    });
+    rows.push([]);
+
+    // ── Category Breakdown ──
+    rows.push(['CATEGORY BREAKDOWN']);
+    rows.push(['Category', 'Qty Sold', 'Revenue']);
+    (monthly?.category_breakdown ?? []).forEach(c => {
+        rows.push([c.category, c.total_qty, c.total_revenue]);
+    });
+    rows.push([]);
+
+    // ── Payment Breakdown ──
+    rows.push(['PAYMENT BREAKDOWN']);
+    rows.push(['Method', 'Total']);
+    (monthly?.payment_breakdown ?? []).forEach(p => {
+        rows.push([p.method.toUpperCase(), p.total]);
+    });
+
+    downloadCSV(rows, `attire-lounge-monthly-${selectedYear}-${String(selectedMonth).padStart(2, '0')}.csv`);
 };
 
 // ─── Main Component ──────────────────────────────────────────────────────────
@@ -333,7 +399,13 @@ const DailyReportManager = () => {
                         <RefreshCw size={14} className={loading ? 'animate-spin' : ''} />
                     </button>
                     {view === 'daily' && (
-                        <button onClick={() => exportCSV(monthlyData, dailyData, selectedDate, activeOutlet)}
+                        <button onClick={() => exportDailyCSV(dailyData, selectedDate, activeOutlet)}
+                            className="flex items-center gap-2 px-4 py-2 bg-[#0d3542] dark:bg-[#58a6ff] text-white dark:text-black rounded-xl text-[10px] font-black uppercase tracking-widest hover:opacity-90 transition-all">
+                            <Download size={13} /> Export CSV
+                        </button>
+                    )}
+                    {view === 'monthly' && (
+                        <button onClick={() => exportMonthlyCSV(monthlyData, selectedYear, selectedMonth, activeOutlet, targetRevenue, currentTarget)}
                             className="flex items-center gap-2 px-4 py-2 bg-[#0d3542] dark:bg-[#58a6ff] text-white dark:text-black rounded-xl text-[10px] font-black uppercase tracking-widest hover:opacity-90 transition-all">
                             <Download size={13} /> Export CSV
                         </button>

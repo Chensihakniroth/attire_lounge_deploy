@@ -63,6 +63,7 @@ import {
     Loader2,
     Rows,
     ClipboardList,
+    Printer,
 } from 'lucide-react';
 import { LumaSpin } from '@/components/ui/luma-spin';
 import { Button } from '@/components/ui/button';
@@ -538,7 +539,7 @@ export default function ShoeManager() {
     const { activeOutlet, performanceMode, OUTLET_CONFIG, stats: apiStats } = useAdmin();
 
     // State
-    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [view, setView] = useState('list'); // 'list' | 'form'
     const [isBulkEditOpen, setIsBulkEditOpen] = useState(false);
     const [bulkProducts, setBulkProducts] = useState([]);
     const [bulkBatchCategory, setBulkBatchCategory] = useState('');
@@ -572,9 +573,44 @@ export default function ShoeManager() {
         is_active: true,
         is_service: false,
         image_path: '',
+        attributes: [],
     });
     const [uploading, setUploading] = useState(false);
     const [toast, setToast] = useState(null);
+
+    // --- Matrix Grid State (for bulk-create from form) ---
+    const [matrixConfig, setMatrixConfig] = useState({
+        primaryKey: 'COLOR',
+        primaryValues: '',
+        secondaryKey: 'SIZE',
+        secondaryValues: ''
+    });
+    const [matrixData, setMatrixData] = useState({});
+
+    // Browser History Integration for Back Button
+    useEffect(() => {
+        const handlePopState = (event) => {
+            if (event.state && event.state.view) {
+                setView(event.state.view);
+            } else {
+                setView('list');
+            }
+        };
+
+        window.addEventListener('popstate', handlePopState);
+        if (!window.history.state || !window.history.state.view) {
+            window.history.replaceState({ view: 'list' }, '');
+        }
+
+        return () => window.removeEventListener('popstate', handlePopState);
+    }, []);
+
+    const navigateToView = (newView) => {
+        setView(newView);
+        if (window.history.state?.view !== newView) {
+            window.history.pushState({ view: newView }, '');
+        }
+    };
 
     const handleImageUpload = async (e) => {
         const file = e.target.files[0];
@@ -609,11 +645,10 @@ export default function ShoeManager() {
         return () => clearTimeout(timer);
     }, [toast]);
 
-    // Centralized modal close — always resets everything
-    const closeModal = useCallback(() => {
-        setIsModalOpen(false);
+    // Centralized form close — always resets everything
+    const closeForm = useCallback(() => {
+        setView('list');
         setIsSaving(false);
-        // Delay state reset so the exit animation plays with current data
         setTimeout(() => {
             setEditingShoe(null);
             setFormData({
@@ -626,6 +661,7 @@ export default function ShoeManager() {
                 is_active: true,
                 is_service: false,
                 image_path: '',
+                attributes: [],
             });
             setIsCreatingCategory(false);
             setNewCategoryName('');
@@ -984,6 +1020,8 @@ export default function ShoeManager() {
                     price: p.price !== '' ? parseFloat(p.price) : null,
                     stock_qty: p.is_service ? 0 : (p.stock_qty !== '' ? parseInt(p.stock_qty, 10) : 0),
                     category: p.category || '',
+                    variant: p.variant || '',
+                    attributes: p.attributes || [],
                     is_active: p.is_active,
                     is_service: p.is_service,
                 }))
@@ -1018,6 +1056,7 @@ export default function ShoeManager() {
     const [bulkAddDefaultCategory, setBulkAddDefaultCategory] = useState('');
     const [bulkAddDefaultPrice, setBulkAddDefaultPrice] = useState('');
     const [bulkAddDefaultStock, setBulkAddDefaultStock] = useState('');
+    const [bulkAddDefaultVariant, setBulkAddDefaultVariant] = useState('');
     const [bulkAddDefaultService, setBulkAddDefaultService] = useState(false);
 
     const bulkAddProductsMutation = useMutation({
@@ -1029,6 +1068,8 @@ export default function ShoeManager() {
                     price: p.price !== '' && p.price !== null ? parseFloat(p.price) : null,
                     stock_qty: p.is_service ? 00 : (p.stock_qty !== '' && p.stock_qty !== null ? parseInt(p.stock_qty, 10) : 0),
                     category: p.category || '',
+                    variant: p.variant || '',
+                    attributes: p.attributes || [],
                     is_active: true,
                     is_service: p.is_service || false,
                 }))
@@ -1061,9 +1102,10 @@ export default function ShoeManager() {
         setBulkAddDefaultCategory('');
         setBulkAddDefaultPrice('');
         setBulkAddDefaultStock('');
+        setBulkAddDefaultVariant('');
         setBulkAddDefaultService(false);
         setBulkAddProducts([
-            { tempId: 1, sku: '', name: '', price: '', stock_qty: '', category: '', is_service: false },
+            { tempId: 1, sku: '', name: '', price: '', stock_qty: '', category: '', variant: '', attributes: [], is_service: false },
         ]);
         setIsBulkAddOpen(true);
     };
@@ -1072,7 +1114,7 @@ export default function ShoeManager() {
         const maxId = bulkAddProducts.reduce((max, p) => Math.max(max, p.tempId), 0);
         setBulkAddProducts((prev) => [
             ...prev,
-            { tempId: maxId + 1, sku: '', name: '', price: '', stock_qty: '', category: '', is_service: false },
+            { tempId: maxId + 1, sku: '', name: '', price: '', stock_qty: '', category: '', variant: '', attributes: [], is_service: false },
         ]);
     };
 
@@ -1085,6 +1127,7 @@ export default function ShoeManager() {
             prev.map((p) => ({
                 ...p,
                 category: bulkAddDefaultCategory || p.category,
+                variant: bulkAddDefaultVariant !== '' ? bulkAddDefaultVariant : p.variant,
                 price: bulkAddDefaultPrice !== '' ? bulkAddDefaultPrice : p.price,
                 stock_qty: bulkAddDefaultStock !== '' ? bulkAddDefaultStock : p.stock_qty,
                 is_service: bulkAddDefaultService,
@@ -1103,6 +1146,8 @@ export default function ShoeManager() {
             price: d.price ?? '',
             stock_qty: d.stock_qty ?? 0,
             category: d.category || '',
+            variant: d.variant || '',
+            attributes: d.attributes || [],
             is_active: d.is_active ?? true,
             is_service: d.is_service ?? false,
             image_path: d.image_path || '',
@@ -1264,14 +1309,15 @@ export default function ShoeManager() {
                             is_active: shoe.is_active ?? true,
                             is_service: shoe.is_service || false,
                             image_path: shoe.image_path || '',
+                            attributes: shoe.attributes || [],
                         });
-                        setIsModalOpen(true);
+                        navigateToView('form');
                     }
                 }
             }
             if (e.key === 'Escape') {
-                if (isModalOpen) {
-                    closeModal();
+                if (view === 'form') {
+                    closeForm();
                     return;
                 }
                 if (quickEditField) {
@@ -1296,8 +1342,8 @@ export default function ShoeManager() {
         focusedId,
         quickEditField,
         toggleSelect,
-        isModalOpen,
-        closeModal,
+        view,
+        closeForm,
         selectedShoesMap,
         selectedCount,
     ]);
@@ -1320,7 +1366,16 @@ export default function ShoeManager() {
                 </div>
             )}
 
-            {/* Header Section */}
+            <AnimatePresence mode="wait">
+                {view === 'list' ? (
+                    <motion.div
+                        key="list"
+                        initial={performanceMode ? { opacity: 0 } : { opacity: 0, x: -20 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        exit={performanceMode ? { opacity: 0 } : { opacity: 0, x: 20 }}
+                        transition={performanceMode ? { duration: 0 } : { duration: 0.3 }}
+                        className="space-y-8"
+                    >
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
                 <div>
                     <h1 className="text-2xl font-serif text-gray-900 dark:text-[#c9d1d9] uppercase tracking-[0.2em]">
@@ -1348,8 +1403,9 @@ export default function ShoeManager() {
                                 is_active: true,
                                 is_service: false,
                                 image_path: '',
+                                attributes: [],
                             });
-                            setIsModalOpen(true);
+                            navigateToView('form');
                         }}
                         className="flex items-center gap-2 px-4 py-2 bg-[#0d3542] dark:bg-[#58a6ff] text-white dark:text-black rounded-xl text-xs font-bold uppercase tracking-widest hover:scale-105 transition-all shadow-none border border-transparent"
                     >
@@ -1654,8 +1710,9 @@ export default function ShoeManager() {
                                                     is_active: shoe.is_active ?? true,
                                                     is_service: shoe.is_service || false,
                                                     image_path: shoe.image_path || '',
+                                                    attributes: shoe.attributes || [],
                                                 });
-                                                setIsModalOpen(true);
+                                                navigateToView('form');
                                             }}
                                             onQuickEdit={setQuickEditField}
                                             onUpdateField={(id, data) =>
@@ -1695,371 +1752,314 @@ export default function ShoeManager() {
                 </div>
             </div>
 
-            {/* Editing Form Modal */}
-            <ModernModal
-                isOpen={isModalOpen}
-                onClose={closeModal}
-                title={editingShoe ? 'Edit Shoe' : 'New Shoe'}
-                icon={Footprints}
-                overflowVisible={true}
-            >
-                <div className="p-6 font-sans">
-                    <form
-                        onSubmit={(e) => {
-                            e.preventDefault();
-                            setIsSaving(true);
-                            mutation.mutate(formData);
-                        }}
-                        className="space-y-6"
+            </motion.div>
+                ) : null}
+            </AnimatePresence>
+
+            {/* --- Full Page Edit/Create Form --- */}
+            <AnimatePresence>
+                {view === 'form' && (
+                    <motion.div
+                        key="form"
+                        initial={performanceMode ? { opacity: 0 } : { opacity: 0, x: 20 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        exit={performanceMode ? { opacity: 0 } : { opacity: 0, x: -20 }}
+                        transition={performanceMode ? { duration: 0 } : { duration: 0.3 }}
+                        className="flex-1 flex flex-col overflow-hidden bg-[#fcfcfa] dark:bg-[#0f0f0f]"
                     >
-                        {/* Image Uploader */}
-                        <div className="flex items-center gap-4 p-4 bg-white dark:bg-[#161b22] border border-black/5 dark:border-[#30363d] rounded-xl shadow-sm">
-                            <label
-                                className={`w-20 h-20 shrink-0 rounded-xl border border-dashed border-black/10 dark:border-[#30363d] bg-black/[0.02] dark:bg-[#0d1117] flex flex-col items-center justify-center cursor-pointer hover:border-[#0d3542]/50 dark:hover:border-[#58a6ff]/50 transition-all group overflow-hidden relative ${uploading ? 'pointer-events-none opacity-50' : ''}`}
-                            >
-                                <input
-                                    type="file"
-                                    className="hidden"
-                                    accept="image/*"
-                                    onChange={handleImageUpload}
-                                />
-                                {formData.image_path ? (
-                                    <img
-                                        src={formData.image_path}
-                                        alt="Preview"
-                                        className="w-full h-full object-cover"
-                                    />
-                                ) : uploading ? (
-                                    <Loader2
-                                        size={20}
-                                        className="animate-spin text-[#0d3542] dark:text-[#58a6ff]"
-                                    />
-                                ) : (
-                                    <Upload
-                                        size={20}
-                                        className="text-gray-400 dark:text-[#8b949e] group-hover:text-[#0d3542] dark:group-hover:text-[#58a6ff] transition-colors mb-1"
-                                    />
-                                )}
-                            </label>
-                            <div className="flex-1">
-                                <h4 className="text-[12px] font-bold uppercase tracking-widest text-gray-900 dark:text-white mb-1">
-                                    Shoe Image
-                                </h4>
-                                <p className="text-[11px] font-medium text-gray-500 dark:text-[#8b949e]">
-                                    Upload a high-quality picture for the POS
-                                    menu (Optional).
-                                </p>
-                                {formData.image_path && (
-                                    <button
-                                        type="button"
-                                        onClick={() =>
-                                            setFormData((f) => ({
-                                                ...f,
-                                                image_path: '',
-                                            }))
-                                        }
-                                        className="mt-2 text-[10px] font-bold uppercase tracking-widest text-red-500 hover:text-red-600 transition-colors"
-                                    >
-                                        Remove Image
-                                    </button>
-                                )}
-                            </div>
-                        </div>
-
-                        <div className="grid grid-cols-2 gap-4">
-                            <div className="space-y-1.5 col-span-2">
-                                <label className="block text-[10px] font-bold text-gray-500 dark:text-[#8b949e]/80 uppercase tracking-[0.15em] ml-0.5">
-                                    Name
-                                </label>
-                                <input
-                                    required
-                                    value={formData.name}
-                                    onChange={(e) =>
-                                        setFormData((f) => ({
-                                            ...f,
-                                            name: e.target.value,
-                                        }))
-                                    }
-                                    className="w-full bg-white dark:bg-[#0d1117] text-gray-900 dark:text-white px-4 py-3 rounded-xl border border-black/5 dark:border-[#30363d] focus:border-[#0d3542] dark:focus:border-[#58a6ff] outline-none text-sm font-bold tracking-wide transition-colors"
-                                    placeholder="Penny Loafer, Chelsea Boot..."
-                                />
-                            </div>
-                            <div className="space-y-1.5">
-                                <label className="block text-[10px] font-bold text-gray-500 dark:text-[#8b949e]/80 uppercase tracking-[0.15em] ml-0.5">
-                                    Category
-                                </label>
-                                {isCreatingCategory ? (
-                                    <div className="flex gap-2">
-                                        <input
-                                            type="text"
-                                            value={newCategoryName}
-                                            onChange={(e) =>
-                                                setNewCategoryName(
-                                                    e.target.value.toUpperCase()
-                                                )
-                                            }
-                                            onKeyDown={(e) => {
-                                                if (
-                                                    e.key === 'Enter' &&
-                                                    newCategoryName.trim()
-                                                ) {
-                                                    setFormData({
-                                                        ...formData,
-                                                        category:
-                                                            newCategoryName.trim(),
-                                                    });
-                                                    setIsCreatingCategory(
-                                                        false
-                                                    );
-                                                    setNewCategoryName('');
-                                                    e.preventDefault();
-                                                }
-                                                if (e.key === 'Escape') {
-                                                    setIsCreatingCategory(
-                                                        false
-                                                    );
-                                                    setNewCategoryName('');
-                                                    e.preventDefault();
-                                                }
-                                            }}
-                                            autoFocus
-                                            className="flex-1 min-w-0 w-full bg-white dark:bg-[#0d1117] text-gray-900 dark:text-white px-4 py-3 rounded-xl border border-black/5 dark:border-[#30363d] focus:border-[#0d3542] dark:focus:border-[#58a6ff] outline-none text-sm font-bold tracking-wide transition-colors"
-                                            placeholder="ENTER CATEGORY..."
-                                        />
-                                        <button
-                                            type="button"
-                                            onClick={() => {
-                                                if (newCategoryName.trim()) {
-                                                    setFormData({
-                                                        ...formData,
-                                                        category:
-                                                            newCategoryName.trim(),
-                                                    });
-                                                    setIsCreatingCategory(
-                                                        false
-                                                    );
-                                                    setNewCategoryName('');
-                                                }
-                                            }}
-                                            className="px-3 py-3 bg-[#0d3542] dark:bg-[#58a6ff] text-white dark:text-black rounded-xl hover:opacity-90 transition-all"
-                                        >
-                                            <Check size={16} />
-                                        </button>
-                                        <button
-                                            type="button"
-                                            onClick={() => {
-                                                setIsCreatingCategory(false);
-                                                setNewCategoryName('');
-                                            }}
-                                            className="px-3 py-3 bg-black/5 dark:bg-white/5 text-gray-500 hover:bg-red-500/10 hover:text-red-500 rounded-xl transition-all"
-                                        >
-                                            <X size={16} />
-                                        </button>
-                                    </div>
-                                ) : (
-                                    <BespokeSelect
-                                        value={formData.category}
-                                        options={[
-                                            ...categories,
-                                            {
-                                                label: '+ Create New Category',
-                                                value: 'NEW_CATEGORY',
-                                                isAction: true,
-                                            },
-                                        ]}
-                                        onChange={(val) =>
-                                            setFormData({
-                                                ...formData,
-                                                category: val,
-                                            })
-                                        }
-                                        onAction={() =>
-                                            setIsCreatingCategory(true)
-                                        }
-                                        placeholder="Select Category"
-                                    />
-                                )}{' '}
-                            </div>
-                            <div className="space-y-1.5">
-                                <label className="block text-[10px] font-bold text-gray-500 dark:text-[#8b949e]/80 uppercase tracking-[0.15em] ml-0.5">
-                                    Size
-                                </label>
-                                <input
-                                    value={formData.variant}
-                                    onChange={(e) =>
-                                        setFormData((f) => ({
-                                            ...f,
-                                            variant: e.target.value,
-                                        }))
-                                    }
-                                    className="w-full bg-white dark:bg-[#0d1117] text-gray-900 dark:text-white px-4 py-3 rounded-xl border border-black/5 dark:border-[#30363d] focus:border-[#0d3542] dark:focus:border-[#58a6ff] outline-none text-sm font-bold tracking-wide transition-colors"
-                                    placeholder="38, 39, 40, 41, 42..."
-                                />
-                            </div>
-                            <div className="space-y-1.5">
-                                <label className="block text-[10px] font-bold text-gray-500 dark:text-[#8b949e]/80 uppercase tracking-[0.15em] ml-0.5">
-                                    Price
-                                </label>
-                                <input
-                                    type="number"
-                                    step="0.01"
-                                    required
-                                    value={formData.price}
-                                    onChange={(e) =>
-                                        setFormData((f) => ({
-                                            ...f,
-                                            price: e.target.value,
-                                        }))
-                                    }
-                                    className="w-full bg-white dark:bg-[#0d1117] text-gray-900 dark:text-white px-4 py-3 rounded-xl border border-black/5 dark:border-[#30363d] focus:border-[#0d3542] dark:focus:border-[#58a6ff] outline-none text-sm font-bold tracking-wide transition-colors"
-                                    placeholder="0.00"
-                                />
-                            </div>
-                            <div className="space-y-1.5">
-                                <label className="block text-[10px] font-bold text-gray-500 dark:text-[#8b949e]/80 uppercase tracking-[0.15em] ml-0.5">
-                                    Stock
-                                </label>
-                                <input
-                                    type="number"
-                                    disabled={formData.is_service}
-                                    value={formData.stock_qty}
-                                    onChange={(e) =>
-                                        setFormData((f) => ({
-                                            ...f,
-                                            stock_qty: e.target.value,
-                                        }))
-                                    }
-                                    className="w-full bg-white dark:bg-[#0d1117] text-gray-900 dark:text-white px-4 py-3 rounded-xl border border-black/5 dark:border-[#30363d] focus:border-[#0d3542] dark:focus:border-[#58a6ff] outline-none text-sm font-bold tracking-wide transition-colors disabled:opacity-50"
-                                    placeholder={
-                                        formData.is_service ? '∞' : '0'
-                                    }
-                                />
-                            </div>
-                            <div className="space-y-1.5">
-                                <label className="block text-[10px] font-bold text-gray-500 dark:text-[#8b949e]/80 uppercase tracking-[0.15em] ml-0.5">
-                                    SKU (Optional)
-                                </label>
-                                <input
-                                    value={formData.sku}
-                                    onChange={(e) =>
-                                        setFormData((f) => ({
-                                            ...f,
-                                            sku: e.target.value,
-                                        }))
-                                    }
-                                    className="w-full bg-white dark:bg-[#0d1117] text-gray-900 dark:text-white px-4 py-3 rounded-xl border border-black/5 dark:border-[#30363d] focus:border-[#0d3542] dark:focus:border-[#58a6ff] outline-none text-sm font-bold tracking-wide transition-colors"
-                                    placeholder="Auto-gen if empty"
-                                />
-                            </div>
-                        </div>
-
-                        <div className="grid grid-cols-2 gap-4">
-                            <div className="p-4 bg-white dark:bg-[#161b22] border border-black/5 dark:border-[#30363d] rounded-xl shadow-sm">
-                                <label className="flex items-center gap-4 cursor-pointer">
-                                    <input
-                                        type="checkbox"
-                                        checked={formData.is_active}
-                                        onChange={(e) =>
-                                            setFormData((f) => ({
-                                                ...f,
-                                                is_active: e.target.checked,
-                                            }))
-                                        }
-                                        className="w-4 h-4 text-[#0d3542] dark:text-[#58a6ff] bg-white border-gray-300 rounded focus:ring-[#0d3542] dark:focus:ring-[#58a6ff]"
-                                    />
-                                    <div>
-                                        <span className="text-xs font-bold uppercase tracking-widest text-gray-900 dark:text-white">
-                                            Active Product
-                                        </span>
-                                        <p className="text-[10px] font-medium text-gray-500 uppercase tracking-widest mt-0.5">
-                                            Uncheck to archive
-                                        </p>
-                                    </div>
-                                </label>
-                            </div>
-                            <div className="p-4 bg-white dark:bg-[#161b22] border border-black/5 dark:border-[#30363d] rounded-xl shadow-sm">
-                                <label className="flex items-center gap-4 cursor-pointer">
-                                    <input
-                                        type="checkbox"
-                                        checked={formData.is_service}
-                                        onChange={(e) =>
-                                            setFormData((f) => ({
-                                                ...f,
-                                                is_service: e.target.checked,
-                                                stock_qty: e.target.checked
-                                                    ? ''
-                                                    : f.stock_qty,
-                                            }))
-                                        }
-                                        className="w-4 h-4 text-[#0d3542] dark:text-[#58a6ff] bg-white border-gray-300 rounded focus:ring-[#0d3542] dark:focus:ring-[#58a6ff]"
-                                    />
-                                    <div>
-                                        <span className="text-xs font-bold uppercase tracking-widest text-gray-900 dark:text-white">
-                                            Service Item
-                                        </span>
-                                        <p className="text-[10px] font-medium text-gray-500 uppercase tracking-widest mt-0.5">
-                                            Does not track stock
-                                        </p>
-                                    </div>
-                                </label>
-                            </div>
-                        </div>
-
-                        <div className="flex gap-3 pt-4 border-t border-black/5 dark:border-[#30363d]">
-                            {editingShoe && (
+                        {/* Form Header */}
+                        <div className="h-20 shrink-0 border-b border-black/15 dark:border-white/5 flex items-center justify-between px-8 bg-white dark:bg-[#111]">
+                            <div className="flex items-center gap-4">
                                 <button
-                                    type="button"
-                                    onClick={() => {
-                                        Swal.fire({
-                                            title: 'Delete this shoe?',
-                                            text: 'This action cannot be undone.',
-                                            icon: 'warning',
-                                            showCancelButton: true,
-                                            confirmButtonColor: '#ef4444',
-                                            cancelButtonColor: '#6b7280',
-                                            confirmButtonText: 'Yes, delete it',
-                                            background: document.documentElement.classList.contains('dark') ? '#161b22' : '#fff',
-                                            color: document.documentElement.classList.contains('dark') ? '#c9d1d9' : '#111',
-                                        }).then((result) => {
-                                            if (result.isConfirmed) {
-                                                deleteMutation.mutate(editingShoe.id);
-                                                closeModal();
-                                            }
-                                        });
-                                    }}
-                                    className="px-4 py-3 rounded-xl text-gray-500 hover:text-red-500 hover:bg-red-500/10 transition-colors border border-transparent"
-                                    title="Delete Shoe"
+                                    onClick={() => window.history.back()}
+                                    className="h-10 w-10 rounded-xl bg-black/5 dark:bg-white/5 flex items-center justify-center text-gray-500 hover:text-[#0d3542] dark:hover:text-[#58a6ff] transition-all hover:bg-[#0d3542]/10 dark:hover:bg-[#58a6ff]/10"
                                 >
-                                    <Trash2 size={16} />
+                                    <ChevronLeft size={18} />
                                 </button>
-                            )}
-                            <button
-                                type="button"
-                                onClick={closeModal}
-                                className="flex-1 py-3 rounded-xl text-[11px] font-bold uppercase tracking-widest border border-black/10 dark:border-[#30363d] hover:bg-black/5 dark:hover:bg-white/5 transition-colors"
-                            >
-                                Cancel
-                            </button>
-                            <button
-                                type="submit"
-                                disabled={isSaving}
-                                className="flex-[2] py-3 bg-[#0d3542] dark:bg-[#58a6ff] text-white dark:text-black rounded-xl text-[11px] font-bold uppercase tracking-widest hover:opacity-90 transition-opacity disabled:opacity-50 flex items-center justify-center gap-2 shadow-none"
-                            >
-                                {isSaving ? (
-                                    <Loader2 className="animate-spin" size={16} />
-                                ) : (
-                                    <Save size={16} />
+                                <div>
+                                    <h2 className="text-lg font-black text-[#0d3542] dark:text-[#58a6ff] tracking-[0.3em] uppercase">
+                                        {editingShoe ? 'Edit Shoe' : 'New Shoe'}
+                                    </h2>
+                                    <p className="text-[9px] font-bold text-gray-400 dark:text-white/30 uppercase tracking-widest mt-0.5">Shoe Settings</p>
+                                </div>
+                            </div>
+                            <div className="flex items-center gap-3">
+                                <Button variant="outline" onClick={closeForm} className="h-10 px-6 text-[10px] font-black uppercase tracking-[0.2em] border-black/25 dark:border-white/10 text-gray-400 rounded-xl hover:bg-black/5 dark:hover:bg-white/5">
+                                    CANCEL
+                                </Button>
+                                {editingShoe && (
+                                    <Button
+                                        variant="outline"
+                                        onClick={() => {
+                                            Swal.fire({
+                                                title: 'Delete this shoe?',
+                                                text: 'This action cannot be undone.',
+                                                icon: 'warning',
+                                                showCancelButton: true,
+                                                confirmButtonColor: '#ef4444',
+                                                cancelButtonColor: '#6b7280',
+                                                confirmButtonText: 'Yes, delete it',
+                                                background: document.documentElement.classList.contains('dark') ? '#161b22' : '#fff',
+                                                color: document.documentElement.classList.contains('dark') ? '#c9d1d9' : '#111',
+                                            }).then((result) => {
+                                                if (result.isConfirmed) {
+                                                    deleteMutation.mutate(editingShoe.id);
+                                                    closeForm();
+                                                }
+                                            });
+                                        }}
+                                        disabled={deleteMutation.isPending}
+                                        className="h-10 px-5 text-[10px] font-black uppercase tracking-[0.2em] border-red-500/30 text-red-500 hover:bg-red-500 hover:text-white hover:border-red-500 rounded-xl transition-all"
+                                    >
+                                        <Trash2 size={14} className="mr-1.5" />
+                                        DELETE
+                                    </Button>
                                 )}
-                                {editingShoe ? 'Save Changes' : 'Create Shoe'}
-                            </button>
+                                <Button onClick={(e) => { e.preventDefault(); setIsSaving(true); mutation.mutate(formData); }} disabled={isSaving} className="h-10 px-8 bg-[#0d3542] dark:bg-[#58a6ff] text-white dark:text-black text-[10px] font-black uppercase tracking-[0.2em] hover:opacity-90 transition-all rounded-xl">
+                                    {isSaving ? <Loader2 className="animate-spin mr-1.5" size={14} /> : <Save size={14} className="mr-1.5" />}
+                                    {editingShoe ? 'SAVE CHANGES' : 'CREATE SHOE'}
+                                </Button>
+                            </div>
                         </div>
-                    </form>
-                </div>
-            </ModernModal>
+
+                        {/* 2-Panel Form Layout */}
+                        <div className="flex-1 flex overflow-hidden bg-[#fdfdfc] dark:bg-[#0d1117]">
+                            {/* Main Content Area (Left) */}
+                            <div className="flex-[2.5] overflow-y-auto p-6 attire-scrollbar space-y-5">
+                                {/* Image + General Info Row */}
+                                <div className="grid xl:grid-cols-3 gap-5">
+                                    {/* Image Uploader Card */}
+                                    <div className="xl:col-span-1">
+                                        <div className="p-4 bg-white dark:bg-[#161b22] border border-black/5 dark:border-[#30363d] rounded-xl shadow-sm space-y-3">
+                                            <label className="text-[9px] font-black text-gray-400 uppercase tracking-[0.2em] block">Shoe Image</label>
+                                            <label
+                                                className={`w-full aspect-square shrink-0 rounded-xl border border-dashed border-black/10 dark:border-[#30363d] bg-black/[0.02] dark:bg-[#0d1117] flex flex-col items-center justify-center cursor-pointer hover:border-[#0d3542]/50 dark:hover:border-[#58a6ff]/50 transition-all group overflow-hidden relative ${uploading ? 'pointer-events-none opacity-50' : ''}`}
+                                            >
+                                                <input type="file" className="hidden" accept="image/*" onChange={handleImageUpload} />
+                                                {formData.image_path ? (
+                                                    <img src={formData.image_path} alt="Preview" className="w-full h-full object-cover" />
+                                                ) : uploading ? (
+                                                    <Loader2 size={24} className="animate-spin text-[#0d3542] dark:text-[#58a6ff]" />
+                                                ) : (
+                                                    <div className="flex flex-col items-center gap-1">
+                                                        <Upload size={24} className="text-gray-400 dark:text-[#8b949e] group-hover:text-[#0d3542] dark:group-hover:text-[#58a6ff] transition-colors" />
+                                                        <span className="text-[8px] font-bold text-gray-400 uppercase tracking-widest">Upload</span>
+                                                    </div>
+                                                )}
+                                            </label>
+                                            {formData.image_path && (
+                                                <button
+                                                    type="button"
+                                                    onClick={() => setFormData(f => ({ ...f, image_path: '' }))}
+                                                    className="w-full text-[9px] font-bold uppercase tracking-widest text-red-500 hover:text-red-600 transition-colors py-1"
+                                                >
+                                                    Remove Image
+                                                </button>
+                                            )}
+                                        </div>
+                                    </div>
+
+                                    {/* General Information */}
+                                    <div className="xl:col-span-2">
+                                        <Section title="General Information" icon={Package}>
+                                            <div className="space-y-4">
+                                                <div className="grid grid-cols-2 gap-4">
+                                                    <Field label="SKU Code" hint="AUTO-GENERATE IF LEFT EMPTY">
+                                                        <input value={formData.sku} onChange={e => setFormData({...formData, sku: e.target.value.toUpperCase()})} className={`${inputBase} uppercase font-mono tracking-widest`} placeholder="AUTO-GENERATE" />
+                                                    </Field>
+                                                    <Field label="Product Group">
+                                                        {isCreatingCategory ? (
+                                                            <div className="flex gap-2">
+                                                                <input
+                                                                    type="text"
+                                                                    value={newCategoryName}
+                                                                    onChange={e => setNewCategoryName(e.target.value.toUpperCase())}
+                                                                    onKeyDown={e => {
+                                                                        if (e.key === 'Enter' && newCategoryName.trim()) {
+                                                                            setFormData({...formData, category: newCategoryName.trim()});
+                                                                            setIsCreatingCategory(false);
+                                                                            setNewCategoryName('');
+                                                                        }
+                                                                        if (e.key === 'Escape') { setIsCreatingCategory(false); setNewCategoryName(''); }
+                                                                    }}
+                                                                    autoFocus
+                                                                    className="flex-1 min-w-0 bg-white dark:bg-[#0d1117] border border-black/5 dark:border-[#30363d] focus:border-[#0d3542] dark:focus:border-[#58a6ff] px-4 py-3 text-[13px] font-black uppercase outline-none transition-all text-gray-900 dark:text-white rounded-xl"
+                                                                    placeholder="ENTER GROUP NAME..."
+                                                                />
+                                                                <button onClick={() => { if (newCategoryName.trim()) { setFormData({...formData, category: newCategoryName.trim()}); setIsCreatingCategory(false); setNewCategoryName(''); } }} className="px-3 py-3 bg-[#0d3542] dark:bg-[#58a6ff] text-white dark:text-black rounded-xl hover:opacity-90 transition-all"><Check size={16} /></button>
+                                                                <button onClick={() => { setIsCreatingCategory(false); setNewCategoryName(''); }} className="px-3 py-3 bg-black/5 dark:bg-white/5 text-gray-500 hover:bg-red-500/10 hover:text-red-500 rounded-xl transition-all"><X size={16} /></button>
+                                                            </div>
+                                                        ) : (
+                                                            <BespokeSelect
+                                                                value={formData.category}
+                                                                options={[
+                                                                    ...categories,
+                                                                    { label: '+ Create New Group', value: 'NEW_GROUP', isAction: true }
+                                                                ]}
+                                                                onChange={val => setFormData({...formData, category: val})}
+                                                                onAction={() => setIsCreatingCategory(true)}
+                                                                placeholder="SELECT GROUP"
+                                                            />
+                                                        )}
+                                                    </Field>
+                                                </div>
+                                                <Field label="Product Name" hint="* Required">
+                                                    <input required value={formData.name} onChange={e => setFormData({...formData, name: e.target.value})} className={`${inputBase} uppercase font-black`} placeholder="ENTER SHOE NAME..." />
+                                                </Field>
+                                                <div className="grid grid-cols-3 gap-4">
+                                                    <Field label="Product Price" hint="Base price">
+                                                        <div className="relative">
+                                                            <input type="number" step="0.01" value={formData.price} onChange={e => setFormData({...formData, price: e.target.value})} className={`${inputBase} pl-8 text-lg font-mono tracking-tight`} placeholder="0.00" />
+                                                            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-[#0d3542] dark:text-[#58a6ff] font-black text-lg">$</span>
+                                                        </div>
+                                                    </Field>
+                                                    <Field label="Stock Qty" hint="Quantity in stock">
+                                                        <input type="number" disabled={formData.is_service} value={formData.stock_qty} onChange={e => setFormData({...formData, stock_qty: e.target.value})} className={`${inputBase} text-center font-mono`} placeholder={formData.is_service ? '∞' : '0'} />
+                                                    </Field>
+                                                    <Field label="Size" hint="Shoe size">
+                                                        <input value={formData.variant} onChange={e => setFormData({...formData, variant: e.target.value})} className={`${inputBase} uppercase text-center`} placeholder="38, 39, 40..." />
+                                                    </Field>
+                                                </div>
+                                            </div>
+                                        </Section>
+                                    </div>
+                                </div>
+
+                                {/* Name Preview */}
+                                <Section title="Name Preview" icon={Eye}>
+                                    <div className="p-5 bg-black/3 dark:bg-white/3 rounded-xl border border-dashed border-black/25 dark:border-white/10 min-h-24 flex flex-col justify-center text-center space-y-2">
+                                        <div className="text-[9px] font-black text-[#0d3542]/50 dark:text-[#58a6ff]/50 uppercase tracking-widest mb-1">Generated Display Name</div>
+                                        <div className="text-xl font-mono font-black text-gray-900 dark:text-white uppercase leading-snug">
+                                            {formData.name || 'SHOE NAME'}
+                                            <br/>
+                                            <span className="text-[#0d3542] dark:text-[#58a6ff] text-base mt-1">
+                                                {(formData.attributes || []).filter(a => a.value).map(a => `-${a.value.toUpperCase()}`).join(' ')}
+                                            </span>
+                                        </div>
+                                    </div>
+                                </Section>
+
+                                {/* Variants & Details */}
+                                <Section title="Variants & Details" icon={Layers}>
+                                    <div className="space-y-4">
+                                        {(formData.attributes || []).map((attr, idx) => (
+                                            <div key={idx} className="flex gap-4 items-end animate-in fade-in slide-in-from-left-2 transition-all">
+                                                <div className="flex-1">
+                                                    <Field label="Variant Type">
+                                                        <input value={attr.key} onChange={e => {
+                                                            const newAttrs = [...formData.attributes];
+                                                            newAttrs[idx].key = e.target.value.toUpperCase();
+                                                            setFormData({...formData, attributes: newAttrs});
+                                                        }} className={`${inputBase} font-bold uppercase text-xs`} placeholder="E.G. COLOR" />
+                                                    </Field>
+                                                </div>
+                                                <div className="flex-2">
+                                                    <Field label="Variant Option">
+                                                        <input value={attr.value} onChange={e => {
+                                                            const newAttrs = [...formData.attributes];
+                                                            newAttrs[idx].value = e.target.value.toUpperCase();
+                                                            setFormData({...formData, attributes: newAttrs});
+                                                        }} className={`${inputBase} font-bold uppercase text-xs`} placeholder="E.G. NAVY BLUE" />
+                                                    </Field>
+                                                </div>
+                                                <button onClick={() => setFormData({...formData, attributes: formData.attributes.filter((_, i) => i !== idx)})} className="h-[48px] w-[48px] flex items-center justify-center text-gray-400 hover:text-white transition-all bg-black/5 dark:bg-white/5 rounded-xl border border-black/15 dark:border-white/5 hover:bg-rose-500 hover:border-rose-500 shrink-0">
+                                                    <Trash2 size={16} />
+                                                </button>
+                                            </div>
+                                        ))}
+                                        <button
+                                            onClick={() => setFormData({...formData, attributes: [...(formData.attributes || []), { key: '', value: '' }]})}
+                                            className="w-full flex items-center justify-center gap-2 bg-black/5 dark:bg-white/5 hover:bg-black/10 dark:hover:bg-white/10 text-gray-500 hover:text-gray-900 dark:hover:text-white py-4 rounded-xl text-xs font-black uppercase tracking-widest transition-all border border-dashed border-black/20 dark:border-white/10"
+                                        >
+                                            <Plus size={14} /> Add Detail
+                                        </button>
+                                    </div>
+                                </Section>
+                            </div>
+
+                            {/* Sidebar Config Area (Right) */}
+                            <div className="w-[300px] shrink-0 border-l border-black/5 dark:border-[#30363d]/50 bg-white/30 dark:bg-[#161b22]/30 overflow-y-auto attire-scrollbar p-5 space-y-5">
+                                <Section title="Status & Visibility" icon={Eye}>
+                                    <div className="space-y-3">
+                                        <div className="p-4 bg-white dark:bg-[#161b22] border border-black/5 dark:border-[#30363d] rounded-xl shadow-sm">
+                                            <label className="flex items-center gap-3 cursor-pointer">
+                                                <input
+                                                    type="checkbox"
+                                                    checked={formData.is_active}
+                                                    onChange={e => setFormData(f => ({ ...f, is_active: e.target.checked }))}
+                                                    className="w-4 h-4 text-[#0d3542] dark:text-[#58a6ff] bg-white border-gray-300 rounded focus:ring-[#0d3542] dark:focus:ring-[#58a6ff]"
+                                                />
+                                                <div>
+                                                    <span className="text-xs font-bold uppercase tracking-widest text-gray-900 dark:text-white">Active Product</span>
+                                                    <p className="text-[10px] font-medium text-gray-500 uppercase tracking-widest mt-0.5">Uncheck to archive</p>
+                                                </div>
+                                            </label>
+                                        </div>
+                                        <div className="p-4 bg-white dark:bg-[#161b22] border border-black/5 dark:border-[#30363d] rounded-xl shadow-sm">
+                                            <label className="flex items-center gap-3 cursor-pointer">
+                                                <input
+                                                    type="checkbox"
+                                                    checked={formData.is_service}
+                                                    onChange={e => setFormData(f => ({ ...f, is_service: e.target.checked, stock_qty: e.target.checked ? '' : f.stock_qty }))}
+                                                    className="w-4 h-4 text-[#0d3542] dark:text-[#58a6ff] bg-white border-gray-300 rounded focus:ring-[#0d3542] dark:focus:ring-[#58a6ff]"
+                                                />
+                                                <div>
+                                                    <span className="text-xs font-bold uppercase tracking-widest text-gray-900 dark:text-white">Service Item</span>
+                                                    <p className="text-[10px] font-medium text-gray-500 uppercase tracking-widest mt-0.5">Does not track stock</p>
+                                                </div>
+                                            </label>
+                                        </div>
+                                    </div>
+                                </Section>
+
+                                <Section title="Organization" icon={FolderPlus}>
+                                    <div className="space-y-3">
+                                        <Field label="Product Group">
+                                            {isCreatingCategory ? (
+                                                <div className="flex gap-2">
+                                                    <input
+                                                        type="text"
+                                                        value={newCategoryName}
+                                                        onChange={e => setNewCategoryName(e.target.value.toUpperCase())}
+                                                        onKeyDown={e => {
+                                                            if (e.key === 'Enter' && newCategoryName.trim()) {
+                                                                setFormData({...formData, category: newCategoryName.trim()});
+                                                                setIsCreatingCategory(false);
+                                                                setNewCategoryName('');
+                                                            }
+                                                            if (e.key === 'Escape') { setIsCreatingCategory(false); setNewCategoryName(''); }
+                                                        }}
+                                                        autoFocus
+                                                        className="flex-1 min-w-0 bg-white dark:bg-[#0d1117] border border-black/5 dark:border-[#30363d] focus:border-[#0d3542] dark:focus:border-[#58a6ff] px-4 py-3 text-[13px] font-black uppercase outline-none transition-all text-gray-900 dark:text-white rounded-xl"
+                                                        placeholder="ENTER GROUP NAME..."
+                                                    />
+                                                    <button onClick={() => { if (newCategoryName.trim()) { setFormData({...formData, category: newCategoryName.trim()}); setIsCreatingCategory(false); setNewCategoryName(''); } }} className="px-3 py-3 bg-[#0d3542] dark:bg-[#58a6ff] text-white dark:text-black rounded-xl hover:opacity-90 transition-all"><Check size={16} /></button>
+                                                    <button onClick={() => { setIsCreatingCategory(false); setNewCategoryName(''); }} className="px-3 py-3 bg-black/5 dark:bg-white/5 text-gray-500 hover:bg-red-500/10 hover:text-red-500 rounded-xl transition-all"><X size={16} /></button>
+                                                </div>
+                                            ) : (
+                                                <BespokeSelect
+                                                    value={formData.category}
+                                                    options={[
+                                                        ...categories,
+                                                        { label: '+ Create New Group', value: 'NEW_GROUP', isAction: true }
+                                                    ]}
+                                                    onChange={val => setFormData({...formData, category: val})}
+                                                    onAction={() => setIsCreatingCategory(true)}
+                                                    placeholder="SELECT GROUP"
+                                                />
+                                            )}
+                                        </Field>
+                                    </div>
+                                </Section>
+                            </div>
+                        </div>
+                    </motion.div>
+                )}
+            </AnimatePresence>
 
             {/* --- Floating Command Bar --- */}
             <AnimatePresence>
-                {selectedCount > 0 && (
+                {selectedCount > 0 && view === 'list' && (
                     <motion.div initial={{ y: 50, opacity: 0 }} animate={{ y: 0, opacity: 1 }} exit={{ y: 50, opacity: 0 }} className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50">
                         <div className="bg-[#fdfdfc] dark:bg-[#111] rounded-xl px-6 h-14 flex items-center gap-4 shadow-xl border border-[#0d3542]/20 dark:border-[#58a6ff]/20 ring-1 ring-inset ring-white/10 dark:ring-black/10 transition-all duration-300">
                             <div className="flex items-center gap-2 pr-4 border-r border-black/10 dark:border-white/10">
@@ -2242,6 +2242,7 @@ export default function ShoeManager() {
                                     <th className="w-1/4 px-4 py-3 text-xs font-bold uppercase tracking-widest text-gray-500 dark:text-[#8b949e]/40">Shoe</th>
                                     <th className="w-1/6 px-4 py-3 text-xs font-bold uppercase tracking-widest text-gray-500 dark:text-[#8b949e]/40">SKU</th>
                                     <th className="w-1/6 px-4 py-3 text-xs font-bold uppercase tracking-widest text-gray-500 dark:text-[#8b949e]/40">Category</th>
+                                    <th className="w-1/4 px-4 py-3 text-xs font-bold uppercase tracking-widest text-gray-500 dark:text-[#8b949e]/40">Attributes</th>
                                     <th className="w-1/8 px-4 py-3 text-xs font-bold uppercase tracking-widest text-gray-500 dark:text-[#8b949e]/40 text-center">Stock</th>
                                     <th className="w-1/8 px-4 py-3 text-xs font-bold uppercase tracking-widest text-gray-500 dark:text-[#8b949e]/40 text-center">Price ($)</th>
                                     <th className="w-28 px-4 py-3 text-xs font-bold uppercase tracking-widest text-gray-500 dark:text-[#8b949e]/40 text-center">Service?</th>
@@ -2324,6 +2325,70 @@ export default function ShoeManager() {
                                                     ))}
                                                     <option value="NEW_CATEGORY">+ Create New...</option>
                                                 </select>
+                                            </td>
+
+                                            {/* Attributes */}
+                                            <td className="px-4 py-2">
+                                                <div className="flex flex-wrap gap-1 min-h-[28px]">
+                                                    {(p.attributes || []).map((attr, aIdx) => (
+                                                        <span
+                                                            key={aIdx}
+                                                            className="inline-flex items-center gap-0.5 px-1.5 py-0.5 bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 rounded text-[9px] font-bold uppercase tracking-wider text-gray-600 dark:text-[#8b949e]"
+                                                        >
+                                                            <span className="text-[8px] text-gray-400 dark:text-[#8b949e]/60">{attr.key}:</span>
+                                                            {attr.value}
+                                                            <button
+                                                                type="button"
+                                                                onClick={() => {
+                                                                    setBulkProducts((prev) =>
+                                                                        prev.map((item, i) =>
+                                                                            i === idx
+                                                                                ? { ...item, attributes: (item.attributes || []).filter((_, ai) => ai !== aIdx) }
+                                                                                : item
+                                                                        )
+                                                                    );
+                                                                }}
+                                                                className="ml-0.5 text-gray-400 hover:text-red-500 transition-colors"
+                                                            >
+                                                                <X size={8} />
+                                                            </button>
+                                                        </span>
+                                                    ))}
+                                                    <button
+                                                        type="button"
+                                                        onClick={async () => {
+                                                            const { value: attrKey } = await Swal.fire({
+                                                                title: 'Attribute Type',
+                                                                input: 'text',
+                                                                inputPlaceholder: 'e.g. COLOR, SIZE, MATERIAL...',
+                                                                showCancelButton: true,
+                                                                background: document.documentElement.classList.contains('dark') ? '#161b22' : '#fff',
+                                                                color: document.documentElement.classList.contains('dark') ? '#c9d1d9' : '#111',
+                                                            });
+                                                            if (!attrKey || !attrKey.trim()) return;
+                                                            const { value: attrVal } = await Swal.fire({
+                                                                title: `Value for ${attrKey.trim().toUpperCase()}`,
+                                                                input: 'text',
+                                                                inputPlaceholder: 'e.g. NAVY, 42, LEATHER...',
+                                                                showCancelButton: true,
+                                                                background: document.documentElement.classList.contains('dark') ? '#161b22' : '#fff',
+                                                                color: document.documentElement.classList.contains('dark') ? '#c9d1d9' : '#111',
+                                                            });
+                                                            if (!attrVal || !attrVal.trim()) return;
+                                                            setBulkProducts((prev) =>
+                                                                prev.map((item, i) =>
+                                                                    i === idx
+                                                                        ? { ...item, attributes: [...(item.attributes || []), { key: attrKey.trim().toUpperCase(), value: attrVal.trim().toUpperCase() }] }
+                                                                        : item
+                                                                )
+                                                            );
+                                                        }}
+                                                        className="inline-flex items-center justify-center w-5 h-5 rounded bg-black/5 dark:bg-white/5 border border-dashed border-black/15 dark:border-white/10 text-gray-400 hover:text-[#0d3542] dark:hover:text-[#58a6ff] hover:border-[#0d3542]/30 dark:hover:border-[#58a6ff]/30 transition-all"
+                                                        title="Add attribute"
+                                                    >
+                                                        <Plus size={10} />
+                                                    </button>
+                                                </div>
                                             </td>
 
                                             {/* Stock */}
@@ -2441,7 +2506,7 @@ export default function ShoeManager() {
                             <Command size={12} />
                             Default Values (Apply to All Rows)
                         </h4>
-                        <div className="grid grid-cols-1 md:grid-cols-5 gap-4 items-end">
+                        <div className="grid grid-cols-1 md:grid-cols-6 gap-4 items-end">
                             {/* Category Default */}
                             <div className="space-y-1 col-span-1 md:col-span-2">
                                 <label className="block text-[9px] font-bold text-gray-500 uppercase tracking-widest">
@@ -2485,6 +2550,20 @@ export default function ShoeManager() {
                                     value={bulkAddDefaultStock}
                                     onChange={(e) => setBulkAddDefaultStock(e.target.value)}
                                     className="w-full bg-white dark:bg-[#161b22] text-gray-900 dark:text-white px-3 py-2 rounded-xl border border-black/10 dark:border-[#30363d] text-xs font-bold outline-none focus:border-[#0d3542] dark:focus:border-[#58a6ff]"
+                                />
+                            </div>
+
+                            {/* Size Default */}
+                            <div className="space-y-1">
+                                <label className="block text-[9px] font-bold text-gray-500 uppercase tracking-widest">
+                                    Size
+                                </label>
+                                <input
+                                    type="text"
+                                    placeholder="38, 39, 40..."
+                                    value={bulkAddDefaultVariant}
+                                    onChange={(e) => setBulkAddDefaultVariant(e.target.value)}
+                                    className="w-full bg-white dark:bg-[#161b22] text-gray-900 dark:text-white px-3 py-2 rounded-xl border border-black/10 dark:border-[#30363d] text-xs font-bold uppercase outline-none focus:border-[#0d3542] dark:focus:border-[#58a6ff]"
                                 />
                             </div>
 
@@ -2538,6 +2617,7 @@ export default function ShoeManager() {
                                     <th className="w-1/4 px-4 py-3 text-xs font-bold uppercase tracking-widest text-gray-500 dark:text-[#8b949e]/40">Name</th>
                                     <th className="w-1/6 px-4 py-3 text-xs font-bold uppercase tracking-widest text-gray-500 dark:text-[#8b949e]/40">SKU</th>
                                     <th className="w-1/6 px-4 py-3 text-xs font-bold uppercase tracking-widest text-gray-500 dark:text-[#8b949e]/40">Category</th>
+                                    <th className="w-1/4 px-4 py-3 text-xs font-bold uppercase tracking-widest text-gray-500 dark:text-[#8b949e]/40">Attributes</th>
                                     <th className="w-20 px-4 py-3 text-xs font-bold uppercase tracking-widest text-gray-500 dark:text-[#8b949e]/40 text-center">Stock</th>
                                     <th className="w-24 px-4 py-3 text-xs font-bold uppercase tracking-widest text-gray-500 dark:text-[#8b949e]/40 text-center">Price ($)</th>
                                     <th className="w-20 px-4 py-3 text-xs font-bold uppercase tracking-widest text-gray-500 dark:text-[#8b949e]/40 text-center">Service</th>
@@ -2603,6 +2683,70 @@ export default function ShoeManager() {
                                                         <option key={cIdx} value={cat}>{cat}</option>
                                                     ))}
                                                 </select>
+                                            </td>
+
+                                            {/* Attributes */}
+                                            <td className="px-4 py-2">
+                                                <div className="flex flex-wrap gap-1 min-h-[28px]">
+                                                    {(p.attributes || []).map((attr, aIdx) => (
+                                                        <span
+                                                            key={aIdx}
+                                                            className="inline-flex items-center gap-0.5 px-1.5 py-0.5 bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 rounded text-[9px] font-bold uppercase tracking-wider text-gray-600 dark:text-[#8b949e]"
+                                                        >
+                                                            <span className="text-[8px] text-gray-400 dark:text-[#8b949e]/60">{attr.key}:</span>
+                                                            {attr.value}
+                                                            <button
+                                                                type="button"
+                                                                onClick={() => {
+                                                                    setBulkAddProducts((prev) =>
+                                                                        prev.map((item) =>
+                                                                            item.tempId === p.tempId
+                                                                                ? { ...item, attributes: (item.attributes || []).filter((_, ai) => ai !== aIdx) }
+                                                                                : item
+                                                                        )
+                                                                    );
+                                                                }}
+                                                                className="ml-0.5 text-gray-400 hover:text-red-500 transition-colors"
+                                                            >
+                                                                <X size={8} />
+                                                            </button>
+                                                        </span>
+                                                    ))}
+                                                    <button
+                                                        type="button"
+                                                        onClick={async () => {
+                                                            const { value: attrKey } = await Swal.fire({
+                                                                title: 'Attribute Type',
+                                                                input: 'text',
+                                                                inputPlaceholder: 'e.g. COLOR, SIZE, MATERIAL...',
+                                                                showCancelButton: true,
+                                                                background: document.documentElement.classList.contains('dark') ? '#161b22' : '#fff',
+                                                                color: document.documentElement.classList.contains('dark') ? '#c9d1d9' : '#111',
+                                                            });
+                                                            if (!attrKey || !attrKey.trim()) return;
+                                                            const { value: attrVal } = await Swal.fire({
+                                                                title: `Value for ${attrKey.trim().toUpperCase()}`,
+                                                                input: 'text',
+                                                                inputPlaceholder: 'e.g. NAVY, 42, LEATHER...',
+                                                                showCancelButton: true,
+                                                                background: document.documentElement.classList.contains('dark') ? '#161b22' : '#fff',
+                                                                color: document.documentElement.classList.contains('dark') ? '#c9d1d9' : '#111',
+                                                            });
+                                                            if (!attrVal || !attrVal.trim()) return;
+                                                            setBulkAddProducts((prev) =>
+                                                                prev.map((item) =>
+                                                                    item.tempId === p.tempId
+                                                                        ? { ...item, attributes: [...(item.attributes || []), { key: attrKey.trim().toUpperCase(), value: attrVal.trim().toUpperCase() }] }
+                                                                        : item
+                                                                )
+                                                            );
+                                                        }}
+                                                        className="inline-flex items-center justify-center w-5 h-5 rounded bg-black/5 dark:bg-white/5 border border-dashed border-black/15 dark:border-white/10 text-gray-400 hover:text-[#0d3542] dark:hover:text-[#58a6ff] hover:border-[#0d3542]/30 dark:hover:border-[#58a6ff]/30 transition-all"
+                                                        title="Add attribute"
+                                                    >
+                                                        <Plus size={10} />
+                                                    </button>
+                                                </div>
                                             </td>
 
                                             {/* Stock */}
