@@ -189,7 +189,7 @@ const ContactPage = () => {
     const [errors, setErrors] = useState({});
     const [generatedMessage, setGeneratedMessage] = useState('');
 
-    // Scroll to the content box when manifest is ready 💖
+    // Scroll to the content box when manifest is ready
     useEffect(() => {
         if (generatedMessage && contentRef.current) {
             const yOffset = -120;
