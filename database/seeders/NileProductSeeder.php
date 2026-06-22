@@ -38,7 +38,35 @@ class NileProductSeeder extends Seeder
                 default => 'Standard',
             };
 
+            // Extract color from name and clean it
+            $cleanName = $p['name'];
+            $color = null;
+
+            // Pattern 1: NAME (COLOR)
+            if (preg_match('/^(.+?)\s*\(([^)]+)\)\s*$/', $p['name'], $matches)) {
+                $cleanName = $matches[1];
+                $color = $matches[2];
+            }
+            // Pattern 2: NAME - COLOR
+            elseif (preg_match('/^(.+?)\s+-\s+(.+)$/', $p['name'], $matches)) {
+                $cleanName = $matches[1];
+                $color = $matches[2];
+            }
+
+            // Build proper variant string: -COLOR -SIZE
+            $size = $p['variant'] ?? '';
+            $variant = '';
+            if ($color && $size) {
+                $variant = '-' . $color . ' -' . $size;
+            } elseif ($color) {
+                $variant = '-' . $color;
+            } elseif ($size) {
+                $variant = '-' . $size;
+            }
+
             return array_merge($p, [
+                'name'       => $cleanName,
+                'variant'    => $variant,
                 'tier'       => $tier,
                 'min_stock'  => 0,
                 'image_path' => null,

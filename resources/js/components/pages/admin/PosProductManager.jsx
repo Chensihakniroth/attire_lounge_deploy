@@ -178,8 +178,8 @@ const ProductRow = React.memo(({
                 <td className="px-6 py-3 border-l-2 border-black/15 dark:border-[#30363d] overflow-hidden">
                     <div className="flex items-center gap-2 leading-tight truncate">
                         <span className="font-black text-gray-900 dark:text-[#c9d1d9] uppercase tracking-wider group-hover:text-[#0d3542] dark:group-hover:text-[#58a6ff] transition-colors text-[14px] truncate">{p.name}</span>
-                        {p.attributes && p.attributes.length > 0 ? (
-                            p.attributes.map((attr, idx) => {
+                        {Array.isArray(p.parsed_attributes) && p.parsed_attributes.length > 0 ? (
+                            p.parsed_attributes.map((attr, idx) => {
                                 const isSize = attr.key?.toUpperCase() === 'SIZE';
                                 return (
                                     <span 
@@ -301,9 +301,9 @@ const BarcodePrintModal = ({ products, onClose, formatPrice }) => {
                             <div key={p.id} className="bc-label bg-white border border-gray-200 rounded-lg p-3 flex flex-col items-center justify-between text-center" style={{ minHeight: '120px' }}>
                                 <div className="space-y-0.5 w-full">
                                     <div className="ln text-[10px] font-black text-gray-900 uppercase tracking-wide leading-tight line-clamp-1">{p.name}</div>
-                                    {(p.variant || (p.attributes && p.attributes.length > 0)) && (
+                                    {(p.variant || (Array.isArray(p.parsed_attributes) && p.parsed_attributes.length > 0)) && (
                                         <div className="lv text-[8px] font-bold text-gray-400 uppercase tracking-widest">
-                                            {p.attributes?.map(a => a.value).join(' · ') || p.variant}
+                                            {Array.isArray(p.parsed_attributes) ? p.parsed_attributes.map(a => a.value).join(' · ') : p.variant}
                                         </div>
                                     )}
                                 </div>
@@ -488,7 +488,7 @@ const ProductsPage = () => {
         // Pre-compute sort keys ONCE per item instead of inside the comparator (O(n log n) -> O(n))
         Object.values(groups).forEach(group => {
             const keyed = group.items.map(p => {
-                const attrs = p.attributes || [];
+                const attrs = Array.isArray(p.parsed_attributes) ? p.parsed_attributes : [];
                 const color = attrs.find(a => a.key?.toUpperCase() === 'COLOR')?.value?.toUpperCase() || '';
                 const size  = attrs.find(a => a.key?.toUpperCase() === 'SIZE')?.value?.toUpperCase() || '';
                 const sizeIdx = SIZE_ORDER.indexOf(size);
@@ -772,15 +772,15 @@ const ProductsPage = () => {
                 let primary = '';
                 let secondary = '';
                 
-                if (p.attributes && p.attributes.length > 0) {
+                if (Array.isArray(p.parsed_attributes) && p.parsed_attributes.length > 0) {
                     // Extract from explicit attributes if available
-                    if (p.attributes[0]) {
-                        primary = (p.attributes[0].value || '').trim().toUpperCase();
-                        if (!foundPrimaryKey && p.attributes[0].key) foundPrimaryKey = p.attributes[0].key.toUpperCase();
+                    if (p.parsed_attributes[0]) {
+                        primary = (p.parsed_attributes[0].value || '').trim().toUpperCase();
+                        if (!foundPrimaryKey && p.parsed_attributes[0].key) foundPrimaryKey = p.parsed_attributes[0].key.toUpperCase();
                     }
-                    if (p.attributes[1]) {
-                        secondary = (p.attributes[1].value || '').trim().toUpperCase();
-                        if (!foundSecondaryKey && p.attributes[1].key) foundSecondaryKey = p.attributes[1].key.toUpperCase();
+                    if (p.parsed_attributes[1]) {
+                        secondary = (p.parsed_attributes[1].value || '').trim().toUpperCase();
+                        if (!foundSecondaryKey && p.parsed_attributes[1].key) foundSecondaryKey = p.parsed_attributes[1].key.toUpperCase();
                     }
                 } else {
                     // Fallback: split variant string by '-' to keep phrases like 'ONE SIZE' or 'LIGHT BLUE' intact
@@ -875,7 +875,7 @@ const ProductsPage = () => {
             max_stock: product.max_stock || '99999',
             watch_threshold: product.watch_threshold || false,
             variant: product.variant || '',
-            attributes: product.attributes || []
+            attributes: Array.isArray(product.parsed_attributes) ? product.parsed_attributes : []
         });
         navigateToView('form');
     };
@@ -1741,6 +1741,29 @@ const ProductsPage = () => {
                                                     />
                                                 )}
                                             </Field>
+                                        </div>
+                                    </Section>
+
+                                    <Section title="Status & Visibility" icon={Eye}>
+                                        <div className="space-y-3">
+                                            <div className="p-4 bg-white dark:bg-[#161b22] border border-black/5 dark:border-[#30363d] rounded-xl shadow-sm">
+                                                <label className="flex items-center gap-3 cursor-pointer">
+                                                    <input type="checkbox" checked={formData.is_active} onChange={e => setFormData(f => ({ ...f, is_active: e.target.checked }))} className="w-4 h-4 text-[#0d3542] dark:text-[#58a6ff] bg-white border-gray-300 rounded focus:ring-[#0d3542] dark:focus:ring-[#58a6ff]" />
+                                                    <div>
+                                                        <span className="text-xs font-bold uppercase tracking-widest text-gray-900 dark:text-white">Active Product</span>
+                                                        <p className="text-[10px] font-medium text-gray-500 uppercase tracking-widest mt-0.5">Uncheck to archive</p>
+                                                    </div>
+                                                </label>
+                                            </div>
+                                            <div className="p-4 bg-white dark:bg-[#161b22] border border-black/5 dark:border-[#30363d] rounded-xl shadow-sm">
+                                                <label className="flex items-center gap-3 cursor-pointer">
+                                                    <input type="checkbox" checked={formData.is_service} onChange={e => setFormData(f => ({ ...f, is_service: e.target.checked, stock_qty: e.target.checked ? '' : f.stock_qty }))} className="w-4 h-4 text-[#0d3542] dark:text-[#58a6ff] bg-white border-gray-300 rounded focus:ring-[#0d3542] dark:focus:ring-[#58a6ff]" />
+                                                    <div>
+                                                        <span className="text-xs font-bold uppercase tracking-widest text-gray-900 dark:text-white">Service Item</span>
+                                                        <p className="text-[10px] font-medium text-gray-500 uppercase tracking-widest mt-0.5">Does not track stock</p>
+                                                    </div>
+                                                </label>
+                                            </div>
                                         </div>
                                     </Section>
 

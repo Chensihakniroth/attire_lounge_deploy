@@ -1,191 +1,81 @@
-import React, {
-    useState,
-    useMemo,
-    useCallback,
-    useEffect,
-    useRef,
-} from 'react';
-import {
-    useQuery,
-    useMutation,
-    useQueryClient,
-    keepPreviousData,
-} from '@tanstack/react-query';
+import React, { useState, useEffect, useMemo, useRef } from 'react';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import axios from 'axios';
 import { motion, AnimatePresence } from 'framer-motion';
-import {
-    X,
-    Plus,
-    Edit,
-    Trash2,
-    Hash,
-    DollarSign,
-    Layers,
-    Check,
-    CheckCircle,
-    ChevronDown,
-    Archive,
-    ChevronLeft,
-    ChevronRight,
-    Search,
-    Package,
-    Download,
-    Upload,
-    Tag,
-    Command,
-    AlertCircle,
-    ArrowUp,
-    ArrowDown,
-    Keyboard,
-    Save,
-    Box,
-    Eye,
-    FolderPlus,
-    Footprints,
-    GlassWater,
-    Droplets,
-    Flame,
-    IceCream2,
-    Wine,
-    Beer,
-    RefreshCw,
-    AlertTriangle,
-    Cookie,
-    Milk,
-    Star,
-    Award,
-    Zap,
-    Filter,
-    BarChart3,
-    TrendingUp,
-    Info,
-    MoreVertical,
-    Loader2,
-    Rows,
-    ClipboardList,
-    Printer,
+import { 
+    X, Plus, Edit, Trash2, 
+    Hash, DollarSign, Layers, Check, 
+    ChevronDown, Archive, ChevronLeft, ChevronRight, Search, Package,
+    Download, Upload, Tag, 
+    Command, AlertCircle,
+    ArrowUp, ArrowDown, Keyboard, Save, Box, Eye, FolderPlus, Loader2, Printer,
+    Footprints
 } from 'lucide-react';
 import { LumaSpin } from '@/components/ui/luma-spin';
+import Barcode from 'react-barcode';
 import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
 import { formatPrice } from '@/helpers/format';
 import { useAdmin } from './AdminContext';
 import { Section, Field, inputBase, SidebarSection } from './common/FormPrimitives';
-import Swal from 'sweetalert2';
-import ModernModal from '../../common/ModernModal';
 
 /* ─── Category Icons Map ──────────────────────────────────── */
 const CATEGORY_ICONS = {
-    Espresso: Flame,
-    Cold: IceCream2,
-    Tea: GlassWater,
-    Blend: Droplets,
-    Coffee: Footprints,
-    SIGNATURES: Star,
-    CLASSICS: Award,
-    Gin: Zap,
-    Whisky: Flame,
-    Rum: Wine,
-    Vodka: Droplets,
-    'Tequila & Mezcal': Zap,
-    SOFT_DRINKS: GlassWater,
-    BEER: Beer,
-    SNACKS: Cookie,
-    WINE: Wine,
-    GRAB: Milk,
+    Loafers: Footprints, Slippers: Footprints, Formal: Footprints,
+    Boots: Footprints, Sneakers: Footprints, Accessories: Footprints, 'Shoe Care': Footprints,
 };
 const getCatIcon = (cat) => CATEGORY_ICONS[cat] || Footprints;
 
 /* ─── Category Color Map ──────────────────────────────────── */
 const CATEGORY_COLORS = {
-    Loafers: {
-        bg: 'bg-amber-500/10',
-        border: 'border-amber-500/20',
-        text: 'text-amber-600 dark:text-amber-400',
-        fill: 'fill-amber-500',
-    },
-    Slippers: {
-        bg: 'bg-green-500/10',
-        border: 'border-green-500/20',
-        text: 'text-green-600 dark:text-green-400',
-        fill: 'fill-green-500',
-    },
-    Formal: {
-        bg: 'bg-purple-500/10',
-        border: 'border-purple-500/20',
-        text: 'text-purple-600 dark:text-purple-400',
-        fill: 'fill-purple-500',
-    },
-    Boots: {
-        bg: 'bg-orange-500/10',
-        border: 'border-orange-500/20',
-        text: 'text-orange-600 dark:text-orange-400',
-        fill: 'fill-orange-500',
-    },
-    Sneakers: {
-        bg: 'bg-cyan-500/10',
-        border: 'border-cyan-500/20',
-        text: 'text-cyan-600 dark:text-cyan-400',
-        fill: 'fill-cyan-500',
-    },
-    Accessories: {
-        bg: 'bg-rose-500/10',
-        border: 'border-rose-500/20',
-        text: 'text-rose-600 dark:text-rose-400',
-        fill: 'fill-rose-500',
-    },
-    'Shoe Care': {
-        bg: 'bg-blue-500/10',
-        border: 'border-blue-500/20',
-        text: 'text-blue-600 dark:text-blue-400',
-        fill: 'fill-blue-500',
-    },
-    default: {
-        bg: 'bg-gray-500/10',
-        border: 'border-gray-500/20',
-        text: 'text-gray-600 dark:text-gray-400',
-        fill: 'fill-gray-500',
-    },
+    Loafers: { bg: 'bg-amber-500/10', border: 'border-amber-500/20', text: 'text-amber-600 dark:text-amber-400', fill: 'fill-amber-500' },
+    Slippers: { bg: 'bg-green-500/10', border: 'border-green-500/20', text: 'text-green-600 dark:text-green-400', fill: 'fill-green-500' },
+    Formal: { bg: 'bg-purple-500/10', border: 'border-purple-500/20', text: 'text-purple-600 dark:text-purple-400', fill: 'fill-purple-500' },
+    Boots: { bg: 'bg-orange-500/10', border: 'border-orange-500/20', text: 'text-orange-600 dark:text-orange-400', fill: 'fill-orange-500' },
+    Sneakers: { bg: 'bg-cyan-500/10', border: 'border-cyan-500/20', text: 'text-cyan-600 dark:text-cyan-400', fill: 'fill-cyan-500' },
+    Accessories: { bg: 'bg-rose-500/10', border: 'border-rose-500/20', text: 'text-rose-600 dark:text-rose-400', fill: 'fill-rose-500' },
+    'Shoe Care': { bg: 'bg-blue-500/10', border: 'border-blue-500/20', text: 'text-blue-600 dark:text-blue-400', fill: 'fill-blue-500' },
+    default: { bg: 'bg-gray-500/10', border: 'border-gray-500/20', text: 'text-gray-600 dark:text-gray-400', fill: 'fill-gray-500' },
 };
-const getCategoryColor = (cat) =>
-    CATEGORY_COLORS[cat] || CATEGORY_COLORS.default;
+const getCategoryColor = (cat) => CATEGORY_COLORS[cat] || CATEGORY_COLORS.default;
 
-/* ─── Animations ──────────────────────────────────────────── */
-
-const BespokeSelect = ({
-    value,
-    options,
-    onChange,
-    onAction,
-    placeholder = 'Select...',
-    className = '',
-    direction = 'down',
-}) => {
+const BespokeSelect = ({ value, options, onChange, onAction, placeholder = "Select...", className = "", direction = "down" }) => {
     const [isOpen, setIsOpen] = useState(false);
     const [calculatedDirection, setCalculatedDirection] = useState(direction);
     const containerRef = useRef(null);
 
     useEffect(() => {
         const handleClickOutside = (event) => {
-            if (
-                containerRef.current &&
-                !containerRef.current.contains(event.target)
-            ) {
+            if (containerRef.current && !containerRef.current.contains(event.target)) {
                 setIsOpen(false);
             }
         };
         document.addEventListener('mousedown', handleClickOutside);
-        return () =>
-            document.removeEventListener('mousedown', handleClickOutside);
+        return () => document.removeEventListener('mousedown', handleClickOutside);
     }, []);
 
+    // Dynamic direction detection
     useEffect(() => {
         if (isOpen && containerRef.current) {
             const rect = containerRef.current.getBoundingClientRect();
             const spaceBelow = window.innerHeight - rect.bottom;
-            if (spaceBelow < 300) setCalculatedDirection('up');
-            else setCalculatedDirection('down');
+            // If space below is less than 300px, open upwards
+            if (spaceBelow < 300) {
+                setCalculatedDirection("up");
+            } else {
+                setCalculatedDirection("down");
+            }
         }
     }, [isOpen]);
+
+    const handleOptionClick = (val, isActionItem) => {
+        if (isActionItem && onAction) {
+            onAction(val);
+        } else {
+            onChange(val);
+            setIsOpen(false);
+        }
+    };
 
     return (
         <div ref={containerRef} className={`relative ${className}`}>
@@ -194,40 +84,22 @@ const BespokeSelect = ({
                 onClick={() => setIsOpen(!isOpen)}
                 className="w-full bg-black/5 dark:bg-white/5 p-4 text-[11px] font-black outline-none border border-black/15 dark:border-white/10 focus:border-[#0d3542] dark:focus:border-[#58a6ff] transition-all uppercase text-gray-900 dark:text-white flex items-center justify-between rounded-xl group"
             >
-                <span
-                    className={
-                        !value
-                            ? 'text-gray-400 dark:text-white/10 truncate'
-                            : 'truncate'
-                    }
-                >
+                <span className={!value ? 'text-gray-400 dark:text-white/10 truncate' : 'truncate'}>
                     {value || placeholder}
                 </span>
-                <ChevronDown
-                    size={14}
-                    className={`text-[#0d3542] dark:text-[#58a6ff] shrink-0 transition-transform duration-300 ${isOpen ? 'rotate-180' : ''}`}
-                />
+                <ChevronDown size={14} className={`text-[#0d3542] dark:text-[#58a6ff] shrink-0 transition-transform duration-300 ${isOpen ? 'rotate-180' : ''}`} />
             </button>
             <AnimatePresence>
                 {isOpen && (
                     <motion.div
-                        initial={{
-                            opacity: 0,
-                            y: calculatedDirection === 'up' ? 10 : -10,
-                            scale: 0.95,
-                        }}
+                        initial={{ opacity: 0, y: calculatedDirection === "up" ? 10 : -10, scale: 0.95 }}
                         animate={{ opacity: 1, y: 0, scale: 1 }}
-                        exit={{
-                            opacity: 0,
-                            y: calculatedDirection === 'up' ? 10 : -10,
-                            scale: 0.95,
-                        }}
-                        transition={{ duration: 0.2, ease: 'easeOut' }}
-                        className={`absolute z-100 min-w-full w-max max-w-[300px] mt-2 bg-white dark:bg-[#161b22] border-2 border-black/15 dark:border-[#30363d] shadow-2xl rounded-2xl overflow-hidden py-2 ${calculatedDirection === 'up' ? 'bottom-full mb-2' : ''}`}
+                        exit={{ opacity: 0, y: calculatedDirection === "up" ? 10 : -10, scale: 0.95 }}
+                        transition={{ duration: 0.2, ease: "easeOut" }}
+                        className={`absolute z-100 min-w-full w-max max-w-[300px] mt-2 bg-white dark:bg-[#161b22] border-2 border-black/15 dark:border-[#30363d] shadow-2xl rounded-2xl overflow-hidden py-2 ${calculatedDirection === "up" ? "bottom-full mb-2" : ""}`}
                     >
                         <div className="max-h-75 overflow-y-auto attire-scrollbar">
                             {options.map((option, i) => {
-                                if (!option) return null;
                                 const isString = typeof option === 'string';
                                 const label = isString ? option : option.label;
                                 const val = isString ? option : option.value;
@@ -237,21 +109,13 @@ const BespokeSelect = ({
                                     <button
                                         key={i}
                                         type="button"
-                                        onClick={() => {
-                                            if (isAction && onAction) {
-                                                onAction(val);
-                                            } else {
-                                                onChange(val);
-                                                setIsOpen(false);
-                                            }
-                                        }}
+                                        onClick={() => handleOptionClick(val, isAction)}
                                         className={`w-full px-5 py-4 text-left text-[11px] font-black uppercase tracking-widest transition-colors flex items-center justify-between group
-                                            ${
-                                                val === value
-                                                    ? 'bg-[#0d3542]/5 dark:bg-[#58a6ff]/10 text-[#0d3542] dark:text-[#58a6ff]'
-                                                    : isAction
-                                                      ? 'text-[#0d3542] dark:text-[#58a6ff] border-t-2 border-black/15 dark:border-[#30363d] mt-2'
-                                                      : 'text-gray-600 dark:text-[#8b949e] hover:bg-black/5 dark:hover:bg-white/5'
+                                            ${val === value 
+                                                ? 'bg-[#0d3542]/5 dark:bg-[#58a6ff]/10 text-[#0d3542] dark:text-[#58a6ff]' 
+                                                : isAction 
+                                                    ? 'text-[#0d3542] dark:text-[#58a6ff] border-t-2 border-black/15 dark:border-[#30363d] mt-2'
+                                                    : 'text-gray-600 dark:text-[#8b949e] hover:bg-black/5 dark:hover:bg-white/5'
                                             }`}
                                     >
                                         <span>{label}</span>
@@ -260,84 +124,6 @@ const BespokeSelect = ({
                                     </button>
                                 );
                             })}
-                        </div>
-                    </motion.div>
-                )}
-            </AnimatePresence>
-        </div>
-    );
-};
-
-const FilterDropdown = ({
-    label,
-    icon: Icon,
-    value,
-    options,
-    onChange,
-    className = "",
-}) => {
-    const [isOpen, setIsOpen] = useState(false);
-    const containerRef = useRef(null);
-
-    useEffect(() => {
-        const handleClickOutside = (event) => {
-            if (containerRef.current && !containerRef.current.contains(event.target)) {
-                setIsOpen(false);
-            }
-        };
-        document.addEventListener("mousedown", handleClickOutside);
-        return () => document.removeEventListener("mousedown", handleClickOutside);
-    }, []);
-
-    const selectedOption = options.find((opt) => opt.value === value);
-
-    return (
-        <div ref={containerRef} className={`relative ${className}`}>
-            <button
-                type="button"
-                onClick={() => setIsOpen(!isOpen)}
-                className={`flex items-center gap-2 px-4 py-2.5 rounded-xl border transition-all text-[11px] font-black uppercase tracking-widest whitespace-nowrap
-                    ${isOpen
-                        ? "bg-[#0d3542] dark:bg-[#58a6ff] text-white dark:text-black border-transparent shadow-lg scale-[1.02]"
-                        : "bg-black/[0.02] dark:bg-[#0d1117] border-black/5 dark:border-[#30363d] text-gray-500 dark:text-[#8b949e] hover:border-[#0d3542]/30 dark:hover:border-[#58a6ff]/30 hover:text-[#0d3542] dark:hover:text-[#58a6ff]"
-                    }`}
-            >
-                <Icon size={14} className={isOpen ? "text-white dark:text-black" : "text-gray-400"} />
-                <span>{selectedOption ? selectedOption.label : label}</span>
-                <ChevronDown
-                    size={14}
-                    className={`transition-transform duration-300 ${isOpen ? "rotate-180" : "opacity-40"}`}
-                />
-            </button>
-
-            <AnimatePresence>
-                {isOpen && (
-                    <motion.div
-                        initial={{ opacity: 0, y: -10, scale: 0.95 }}
-                        animate={{ opacity: 1, y: 0, scale: 1 }}
-                        exit={{ opacity: 0, y: -10, scale: 0.95 }}
-                        transition={{ duration: 0.15, ease: "easeOut" }}
-                        className="absolute right-0 md:left-0 z-[100] mt-2 min-w-[200px] bg-white dark:bg-[#161b22] border-2 border-black/15 dark:border-[#30363d] shadow-2xl rounded-2xl overflow-hidden py-2"
-                    >
-                        <div className="max-h-80 overflow-y-auto attire-scrollbar">
-                            {options.map((option, i) => (
-                                <button
-                                    key={i}
-                                    type="button"
-                                    onClick={() => {
-                                        onChange(option.value);
-                                        setIsOpen(false);
-                                    }}
-                                    className={`w-full px-5 py-3.5 text-left text-[10px] font-black uppercase tracking-widest transition-all flex items-center justify-between group
-                                        ${option.value === value
-                                            ? "bg-[#0d3542]/5 dark:bg-[#58a6ff]/10 text-[#0d3542] dark:text-[#58a6ff]"
-                                            : "text-gray-600 dark:text-[#8b949e] hover:bg-black/5 dark:hover:bg-white/5 hover:text-gray-900 dark:hover:text-white"
-                                        }`}
-                                >
-                                    <span>{option.label}</span>
-                                    {option.value === value && <Check size={14} />}
-                                </button>
-                            ))}
                         </div>
                     </motion.div>
                 )}
@@ -365,227 +151,205 @@ const QuickEditCell = ({ value, prefix, onSave, onClose }) => {
 
     return (
         <div className="absolute inset-0 z-50 bg-[#fdfdfc] dark:bg-[#111] flex items-center px-4 ring-2 ring-inset ring-[#0d3542] dark:ring-[#58a6ff] translate-y-0">
-            {prefix && (
-                <span className="text-[14px] font-black text-[#0d3542] dark:text-[#58a6ff] mr-2">
-                    {prefix}
-                </span>
-            )}
-            <input
+            {prefix && <span className="text-[14px] font-black text-[#0d3542] dark:text-[#58a6ff] mr-2">{prefix}</span>}
+            <input 
                 ref={inputRef}
                 value={val}
-                onChange={(e) => setVal(e.target.value)}
+                onChange={e => setVal(e.target.value)}
                 onKeyDown={handleKeyDown}
                 onBlur={onClose}
                 className="flex-1 bg-transparent border-none outline-none text-[15.5px] font-black text-gray-900 dark:text-white"
             />
             <div className="flex items-center gap-1 ml-2">
-                <div className="px-2 py-1 bg-black/5 dark:bg-white/5 border border-black/25 dark:border-white/10 rounded text-[10px] font-black uppercase text-[#0d3542] dark:text-[#58a6ff]">
-                    Enter: Save
-                </div>
+                <div className="px-2 py-1 bg-black/5 dark:bg-white/5 border border-black/25 dark:border-white/10 rounded text-[10px] font-black uppercase text-[#0d3542] dark:text-[#58a6ff]">Enter: Save</div>
             </div>
         </div>
     );
 };
 
-const ShoeRow = React.memo(
-    ({
-        shoe,
-        isSelected,
-        isFocused,
-        quickEditField,
-        onToggleSelect,
-        onFocus,
-        onEdit,
-        onQuickEdit,
-        onUpdateField,
-        performanceMode,
-    }) => {
-        const d = shoe;
-        const CatIcon = getCatIcon(d.category);
-        const colorScheme = getCategoryColor(d.category);
-        const isOut = d.stock_qty <= 0 && !d.is_service;
-
-        return (
-            <React.Fragment>
-                <tr
-                    id={`row-${d.id}`}
-                    onClick={(e) => {
-                        e.stopPropagation();
-                        onFocus(isFocused ? null : d.id);
-                    }}
-                    onDoubleClick={(e) => {
-                        e.stopPropagation();
-                        onEdit(d);
-                    }}
-                    className={`group cursor-pointer border-b border-black/15 dark:border-[#30363d] ${isSelected ? 'bg-[#0d3542]/5 dark:bg-[#58a6ff]/5' : performanceMode ? '' : 'hover:bg-black/[0.01] dark:hover:bg-white/[0.02]'} ${isFocused ? 'bg-black/[0.03] dark:bg-white/[0.04]' : ''}`}
-                >
-                    <td className="px-4 py-3 text-center relative">
-                        {isFocused && (
-                            <div className="absolute left-0 top-0 bottom-0 w-1 bg-[#0d3542] dark:bg-[#58a6ff]" />
-                        )}
-                        <button
-                            onClick={(e) => {
-                                e.stopPropagation();
-                                onToggleSelect(d.id);
-                            }}
-                            className={`w-5 h-5 rounded-md border-2 flex items-center justify-center ${performanceMode ? '' : 'transition-all'} mx-auto ${isSelected ? 'bg-[#0d3542] dark:bg-[#58a6ff] border-[#0d3542] dark:border-[#58a6ff]' : `border-black/25 dark:border-[#30363d] ${performanceMode ? '' : 'group-hover:border-[#0d3542]/40 dark:group-hover:border-[#58a6ff]/40'}`}`}
-                        >
-                            {isSelected && (
-                                <Check
-                                    size={12}
-                                    className="text-white dark:text-black"
-                                />
-                            )}
-                        </button>
-                    </td>
-                    <td className="px-4 py-3 text-center border-l-2 border-black/15 dark:border-[#30363d]">
-                        <div className="flex items-center justify-center gap-2">
-                            <div
-                                className={`w-2 h-2 rounded-full ring-2 ${!d.is_active ? 'bg-gray-500 ring-gray-500/30' : d.stock_qty > 0 || d.is_service ? 'bg-emerald-500 ring-emerald-500/30' : 'bg-red-500 ring-red-500/30'}`}
-                            />
-                        </div>
-                    </td>
-                    <td className="px-5 py-3 font-mono font-black tracking-tighter text-[#0d3542] dark:text-[#58a6ff] uppercase text-[12px] border-l-2 border-black/15 dark:border-[#30363d] text-center">
-                        {d.sku || '—'}
-                    </td>
-                    <td className="px-6 py-3 border-l-2 border-black/15 dark:border-[#30363d] overflow-hidden">
-                        <div className="flex items-center gap-3 leading-tight truncate">
-                            <div
-                                className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 ${colorScheme.bg} border ${colorScheme.border}`}
-                            >
-                                {d.image_path ? (
-                                    <img
-                                        src={d.image_path}
-                                        alt={d.name}
-                                        className="w-full h-full object-cover rounded-lg"
-                                    />
-                                ) : (
-                                    <CatIcon
-                                        size={14}
-                                        className={colorScheme.text}
-                                    />
-                                )}
-                            </div>
-                            <span
-                                className={`font-black uppercase tracking-wider ${performanceMode ? '' : 'group-hover:text-[#0d3542] dark:group-hover:text-[#58a6ff] transition-colors'} text-[14px] truncate flex items-center gap-2 ${!d.is_active ? 'text-gray-400 opacity-50 line-through' : 'text-gray-900 dark:text-[#c9d1d9]'}`}
-                            >
-                                {d.name}
-                                {!d.is_active && (
-                                    <span className="text-[9px] px-1.5 py-0.5 rounded-sm bg-gray-500/10 text-gray-500 uppercase tracking-widest no-underline">
-                                        Archived
-                                    </span>
-                                )}
-                            </span>
-                        </div>
-                    </td>
-                    <td className="px-5 py-3 border-l-2 border-black/15 dark:border-[#30363d] text-center">
-                        <span
-                            className={`inline-block max-w-[100px] truncate px-2 py-0.5 ${colorScheme.bg} text-[9px] font-black ${colorScheme.text} rounded-md uppercase tracking-[0.2em] border ${colorScheme.border} whitespace-nowrap`}
-                            title={d.category}
-                        >
-                            {d.category}
-                        </span>
-                    </td>
-                    <td className="px-5 py-3 border-l-2 border-black/15 dark:border-[#30363d] text-center">
-                        <span className="text-[11px] font-black text-gray-900 dark:text-white uppercase">
-                            {d.variant || '—'}
-                        </span>
-                    </td>
-                    <td
-                        className={`px-6 py-3 text-right font-mono font-black relative text-[20px] border-l-2 border-black/15 dark:border-[#30363d] ${isOut ? 'text-red-500' : 'text-emerald-600 dark:text-emerald-400'}`}
+const ProductRow = React.memo(({ 
+    product, isSelected, isFocused, quickEditField, 
+    onToggleSelect, onFocus, onEdit, onDelete, onQuickEdit, onUpdateField,
+    formatPrice, performanceMode
+}) => {
+    const p = product;
+    const CatIcon = getCatIcon(p.category);
+    const colorScheme = getCategoryColor(p.category);
+    return (
+        <React.Fragment>
+            <tr 
+                key={p.id} id={`row-${p.id}`}
+                onClick={(e) => { e.stopPropagation(); onFocus(isFocused ? null : p.id); }}
+                onDoubleClick={(e) => { e.stopPropagation(); onEdit(p); }}
+                className={`group cursor-pointer border-b border-black/15 dark:border-[#30363d] ${isSelected ? 'bg-[#0d3542]/5 dark:bg-[#58a6ff]/5' : 'hover:bg-black/[0.01] dark:hover:bg-white/[0.02]'} ${isFocused ? 'bg-black/[0.03] dark:bg-white/[0.04]' : ''}`}
+            >
+                <td className="px-4 py-3 text-center relative">
+                    {isFocused && <div className="absolute left-0 top-0 bottom-0 w-1 bg-[#0d3542] dark:bg-[#58a6ff]" />}
+                    <button 
+                        onClick={(e) => { e.stopPropagation(); onToggleSelect(p.id); }}
+                        className={`w-5 h-5 rounded-md border-2 flex items-center justify-center transition-all mx-auto ${isSelected ? 'bg-[#0d3542] dark:bg-[#58a6ff] border-[#0d3542] dark:border-[#58a6ff]' : 'border-black/25 dark:border-[#30363d] group-hover:border-[#0d3542]/40 dark:group-hover:border-[#58a6ff]/40'}`}
                     >
-                        {isFocused && quickEditField === 'stock' ? (
-                            <QuickEditCell
-                                value={d.stock_qty}
-                                onSave={(val) =>
-                                    onUpdateField(d.id, { stock_qty: val })
-                                }
-                                onClose={() => onQuickEdit(null)}
-                            />
-                        ) : (
-                            <div className="flex items-center justify-end gap-1">
-                                <span className="drop-shadow-sm">
-                                    {d.is_service ? '∞' : d.stock_qty}
-                                </span>
-                                {!d.is_service && (
-                                    <Box size={14} className="opacity-60" />
-                                )}
+                        {isSelected && <Check size={12} className="text-white dark:text-black" />}
+                    </button>
+                </td>
+                <td className="px-4 py-3 text-center border-l-2 border-black/15 dark:border-[#30363d]">
+                    <div className="flex items-center justify-center gap-2">
+                        <div className={`w-2 h-2 rounded-full ring-2 ${!p.is_active ? 'bg-gray-500 ring-gray-500/30' : p.stock_qty > 0 || p.is_service ? 'bg-emerald-500 ring-emerald-500/30' : 'bg-red-500 ring-red-500/30'}`} />
+                    </div>
+                </td>
+                <td className="px-5 py-3 font-mono font-black tracking-tighter text-[#0d3542] dark:text-[#58a6ff] uppercase text-[12px] border-l-2 border-black/15 dark:border-[#30363d] text-center">{p.sku || '—'}</td>
+                <td className="px-6 py-3 border-l-2 border-black/15 dark:border-[#30363d] overflow-hidden">
+                    <div className="flex items-center gap-2 leading-tight truncate">
+                        <span className="font-black text-gray-900 dark:text-[#c9d1d9] uppercase tracking-wider group-hover:text-[#0d3542] dark:group-hover:text-[#58a6ff] transition-colors text-[14px] truncate">{p.name}</span>
+                        {Array.isArray(p.parsed_attributes) && p.parsed_attributes.length > 0 ? (
+                            p.parsed_attributes.map((attr, idx) => {
+                                const isSize = attr.key?.toUpperCase() === 'SIZE';
+                                return (
+                                    <span 
+                                        key={idx}
+                                        className={`inline-flex items-center gap-1 px-2 py-0.5 rounded text-[10px] font-black uppercase tracking-widest ${isSize ? 'bg-red-500/10 text-red-500 border border-red-500/20' : attr.color ? '' : 'bg-black/5 dark:bg-white/5 text-gray-500 dark:text-white/60'}`}
+                                        style={attr.color ? { backgroundColor: attr.color + '20', borderColor: attr.color, color: attr.color } : {}}
+                                    >
+                                        {attr.color && <div className="w-2 h-2 rounded-full" style={{ backgroundColor: attr.color }} />}
+                                        {attr.value}
+                                    </span>
+                                );
+                            })
+                        ) : p.variant ? (
+                            <span className="inline-flex items-center px-2 py-0.5 bg-black/5 dark:bg-white/5 text-gray-400 dark:text-[#8b949e]/40 text-[9px] font-black uppercase tracking-widest rounded border border-black/5 dark:border-white/5">
+                                {p.variant}
+                            </span>
+                        ) : null}
+                    </div>
+                </td>
+                <td className="px-5 py-3 border-l-2 border-black/15 dark:border-[#30363d] text-center">
+                    <span className={`inline-block max-w-[100px] truncate px-2 py-0.5 ${colorScheme.bg} text-[9px] font-black ${colorScheme.text} rounded-md uppercase tracking-[0.2em] border ${colorScheme.border} whitespace-nowrap`} title={p.category}>
+                        {p.category}
+                    </span>
+                </td>
+                <td className={`px-6 py-3 text-right font-mono font-black relative text-[20px] border-l-2 border-black/15 dark:border-[#30363d] ${p.stock_qty <= (p.min_stock || 5) ? 'text-red-500' : 'text-emerald-600 dark:text-emerald-400'}`}>
+                    {isFocused && quickEditField === 'stock' ? (
+                        <QuickEditCell value={p.stock_qty} onSave={(val) => onUpdateField(p.id, { stock_qty: val })} onClose={() => onQuickEdit(null)} />
+                    ) : (
+                        <div className="flex items-center justify-end gap-1">
+                            <span className="drop-shadow-sm">{p.is_service ? '∞' : p.stock_qty}</span>
+                            {!p.is_service && <Box size={14} className="opacity-60" />}
+                        </div>
+                    )}
+                </td>
+                <td className="px-8 py-3 text-center font-mono font-black text-gray-900 dark:text-[#c9d1d9] text-[16px] relative border-l-2 border-black/15 dark:border-[#30363d]">
+                    {isFocused && quickEditField === 'price' ? (
+                        <QuickEditCell value={p.price} prefix="$" onSave={(val) => onUpdateField(p.id, { price: val })} onClose={() => onQuickEdit(null)} />
+                    ) : formatPrice(p.price)}
+                </td>
+            </tr>
+        </React.Fragment>
+    );
+});
+
+const BarcodePrintModal = ({ products, onClose, formatPrice }) => {
+    const labelsRef = useRef(null);
+
+    const handlePrint = () => {
+        if (!labelsRef.current) return;
+        const labelEls = labelsRef.current.querySelectorAll('.bc-label');
+        let labelsHtml = '';
+        for (let i = 0; i < labelEls.length; i += 2) {
+            const label1 = labelEls[i].outerHTML;
+            const label2 = labelEls[i + 1] ? labelEls[i + 1].outerHTML : '';
+            labelsHtml += `<div class="lg">${label1}${label2}</div>`;
+        }
+
+        const printWindow = window.open('', '_blank');
+        if (!printWindow) { alert('Please allow popups for barcode printing.'); return; }
+        printWindow.document.write(`<html><head><title>Barcode Labels</title>
+            <style>
+                *{margin:0;padding:0;box-sizing:border-box}
+                html,body{width:72mm;background:#fff;color:#000;font-family:'Arial Black',Arial,Helvetica,sans-serif;font-size:0;margin:0;padding:0}
+                @media print{@page{size:72mm 22mm;margin:0}html,body{width:72mm;-webkit-print-color-adjust:exact}}
+                .lg{display:grid !important;grid-template-columns:35mm 35mm !important;justify-content:space-between !important;width:72mm !important;height:21.5mm !important;max-height:21.5mm !important;overflow:hidden !important;align-items:center !important;page-break-inside:avoid !important;page-break-after:always !important;break-after:page !important}
+                .lg:last-child{page-break-after:avoid !important;break-after:avoid !important}
+                .bc-label{width:35mm !important;height:21.5mm !important;max-height:21.5mm !important;min-height:21.5mm !important;padding:0 !important;display:flex !important;flex-direction:column !important;align-items:center !important;justify-content:center !important;text-align:center !important;overflow:hidden !important;box-sizing:border-box !important;border:none !important;background:transparent !important;border-radius:0 !important;page-break-inside:avoid !important;page-break-after:avoid !important}
+                .bc-label > div { margin: 0 !important; padding: 0 !important; border: none !important; }
+                .ln{font-size:9pt !important;font-weight:900 !important;text-transform:uppercase !important;letter-spacing:.2px !important;line-height:1 !important;white-space:nowrap !important;overflow:hidden !important;text-overflow:ellipsis !important;max-width:100% !important;margin:0 0 1px 0 !important;padding:0 !important;color:#000 !important}
+                .lv{font-size:6.5pt !important;font-weight:900 !important;color:#000 !important;text-transform:uppercase !important;letter-spacing:.3px !important;line-height:1 !important;margin:1px 0 0 0 !important}
+                .lbc{margin:1px 0 !important;line-height:0 !important;width:100% !important;text-align:center !important}.lbc svg{max-width:33mm !important;height:auto !important;max-height:8mm !important;display:inline-block !important;shape-rendering:crispEdges !important}
+                .ls{font-size:5.5pt !important;font-weight:900 !important;font-family:'Courier New',monospace !important;letter-spacing:0.5px !important;color:#000 !important;line-height:1 !important;margin:0 0 1px 0 !important}
+                .lp{font-size:11pt !important;font-weight:900 !important;line-height:1 !important;margin:1px 0 0 0 !important;padding:0 !important;color:#000 !important;border:none !important}
+            </style></head><body>
+            ${labelsHtml}
+            <script>
+                window.onload = function() {
+                    setTimeout(function(){ window.print(); window.close(); }, 300);
+                }
+            </script>
+        </body></html>`);
+        printWindow.document.close();
+    };
+
+    if (!products || products.length === 0) return null;
+
+    return (
+        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 z-[200] flex items-center justify-center">
+            <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={onClose} />
+            <motion.div
+                initial={{ scale: 0.95, opacity: 0, y: 20 }}
+                animate={{ scale: 1, opacity: 1, y: 0 }}
+                exit={{ scale: 0.95, opacity: 0, y: 20 }}
+                transition={{ duration: 0.3, ease: 'easeOut' }}
+                className="relative bg-white dark:bg-[#111] rounded-3xl shadow-2xl border border-black/10 dark:border-white/10 w-[90vw] max-w-5xl max-h-[85vh] flex flex-col overflow-hidden"
+            >
+                <div className="px-8 py-5 border-b border-black/10 dark:border-white/10 flex items-center justify-between bg-[#fdfdfc] dark:bg-[#0d1117] shrink-0">
+                    <div className="flex items-center gap-4">
+                        <div className="h-10 w-10 rounded-xl bg-[#0d3542]/10 dark:bg-[#58a6ff]/10 flex items-center justify-center">
+                            <Printer size={20} className="text-[#0d3542] dark:text-[#58a6ff]" />
+                        </div>
+                        <div>
+                            <h2 className="text-lg font-black text-[#0d3542] dark:text-[#58a6ff] uppercase tracking-[0.3em]">Barcode Labels</h2>
+                            <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mt-0.5">{products.length} label{products.length > 1 ? 's' : ''} · 2-up 35×22mm</p>
+                        </div>
+                    </div>
+                    <div className="flex items-center gap-3">
+                        <Button onClick={handlePrint} className="h-11 px-8 bg-[#0d3542] dark:bg-[#58a6ff] text-white dark:text-black text-[10px] font-black uppercase tracking-[0.2em] rounded-xl hover:opacity-90 transition-all">
+                            <Printer size={14} className="mr-2" /> Print All
+                        </Button>
+                        <button onClick={onClose} className="h-11 w-11 rounded-xl bg-black/5 dark:bg-white/5 flex items-center justify-center text-gray-400 hover:text-gray-900 dark:hover:text-white transition-all">
+                            <X size={18} />
+                        </button>
+                    </div>
+                </div>
+
+                <div className="flex-1 overflow-y-auto p-8 bg-gray-50 dark:bg-[#0a0a0a] attire-scrollbar">
+                    {/* Preview mirrors the 2-up print layout */}
+                    <div ref={labelsRef} className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-6 gap-3">
+                        {products.map((p) => (
+                            <div key={p.id} className="bc-label bg-white border border-gray-200 rounded-lg p-3 flex flex-col items-center justify-between text-center" style={{ minHeight: '120px' }}>
+                                <div className="space-y-0.5 w-full">
+                                    <div className="ln text-[10px] font-black text-gray-900 uppercase tracking-wide leading-tight line-clamp-1">{p.name}</div>
+                                    {(p.variant || (Array.isArray(p.parsed_attributes) && p.parsed_attributes.length > 0)) && (
+                                        <div className="lv text-[8px] font-bold text-gray-400 uppercase tracking-widest">
+                                            {Array.isArray(p.parsed_attributes) ? p.parsed_attributes.map(a => a.value).join(' · ') : p.variant}
+                                        </div>
+                                    )}
+                                </div>
+                                <div className="lbc my-0.5">
+                                    <Barcode value={p.barcode || p.sku || 'N/A'} format="CODE128" width={1} height={35} displayValue={false} margin={0} background="transparent" />
+                                </div>
+                                <div className="ls text-[8px] font-mono font-bold text-gray-500 tracking-[0.1em] uppercase">{p.sku}</div>
+                                <div className="lp text-[12px] font-black text-gray-900 border-t border-gray-200 w-full pt-1 mt-1">{formatPrice(p.price)}</div>
                             </div>
-                        )}
-                    </td>
-                    <td className="px-8 py-3 text-center font-mono font-black text-gray-900 dark:text-[#c9d1d9] text-[16px] relative border-l-2 border-black/15 dark:border-[#30363d]">
-                        {isFocused && quickEditField === 'price' ? (
-                            <QuickEditCell
-                                value={d.price}
-                                prefix="$"
-                                onSave={(val) =>
-                                    onUpdateField(d.id, { price: val })
-                                }
-                                onClose={() => onQuickEdit(null)}
-                            />
-                        ) : (
-                            formatPrice(d.price)
-                        )}
-                    </td>
-                </tr>
-            </React.Fragment>
-        );
-    }
-);
+                        ))}
+                    </div>
+                </div>
+            </motion.div>
+        </motion.div>
+    );
+};
 
-/* ─── Main Component ──────────────────────────────────────── */
-export default function ShoeManager() {
+const ProductsPage = () => {
     const queryClient = useQueryClient();
-    const { activeOutlet, performanceMode, OUTLET_CONFIG, stats: apiStats } = useAdmin();
-
-    // State
+    const { performanceMode, activeOutlet, apiStats } = useAdmin();
     const [view, setView] = useState('list'); // 'list' | 'form'
-    const [isBulkEditOpen, setIsBulkEditOpen] = useState(false);
-    const [bulkProducts, setBulkProducts] = useState([]);
-    const [bulkBatchCategory, setBulkBatchCategory] = useState('');
-    const [bulkBatchPriceType, setBulkBatchPriceType] = useState('set'); // 'set', 'fixed_inc', 'fixed_dec', 'percent_inc', 'percent_dec'
-    const [bulkBatchPriceVal, setBulkBatchPriceVal] = useState('');
-    const [bulkBatchStockVal, setBulkBatchStockVal] = useState('');
-    const [editingShoe, setEditingShoe] = useState(null);
-    const [isSaving, setIsSaving] = useState(false);
-    const [page, setPage] = useState(1);
-    const [isCreatingCategory, setIsCreatingCategory] = useState(false);
-    const [newCategoryName, setNewCategoryName] = useState('');
-    const [filters, setFilters] = useState({
-        search: '',
-        category: '',
-        status: 'active',
-        stockStatus: '',
-    });
-
-    // High Performance Matrix State
-    const [selectedShoesMap, setSelectedShoesMap] = useState({});
-    const [focusedId, setFocusedId] = useState(null);
-    const [quickEditField, setQuickEditField] = useState(null);
-
-    const [formData, setFormData] = useState({
-        sku: '',
-        name: '',
-        variant: '',
-        price: '',
-        stock_qty: '',
-        category: '',
-        is_active: true,
-        is_service: false,
-        image_path: '',
-        attributes: [],
-    });
-    const [uploading, setUploading] = useState(false);
-    const [toast, setToast] = useState(null);
-
-    // --- Matrix Grid State (for bulk-create from form) ---
-    const [matrixConfig, setMatrixConfig] = useState({
-        primaryKey: 'COLOR',
-        primaryValues: '',
-        secondaryKey: 'SIZE',
-        secondaryValues: ''
-    });
-    const [matrixData, setMatrixData] = useState({});
 
     // Browser History Integration for Back Button
     useEffect(() => {
@@ -598,6 +362,7 @@ export default function ShoeManager() {
         };
 
         window.addEventListener('popstate', handlePopState);
+        // Push initial state
         if (!window.history.state || !window.history.state.view) {
             window.history.replaceState({ view: 'list' }, '');
         }
@@ -615,28 +380,57 @@ export default function ShoeManager() {
     const handleImageUpload = async (e) => {
         const file = e.target.files[0];
         if (!file) return;
-
         setUploading(true);
-        const formDataUpload = new FormData();
-        formDataUpload.append('image', file);
-
+        const fd = new FormData();
+        fd.append('image', file);
         try {
-            const response = await axios.post(
-                '/api/v1/admin/images/upload',
-                formDataUpload,
-                {
-                    headers: { 'Content-Type': 'multipart/form-data' },
-                }
-            );
+            const response = await axios.post('/api/v1/admin/images/upload', fd, { headers: { 'Content-Type': 'multipart/form-data' } });
             setFormData((prev) => ({ ...prev, image_path: response.data.url }));
         } catch (err) {
-            console.error('Upload Failed:', err);
             setToast({ type: 'error', message: 'Failed to upload image' });
-            setTimeout(() => setToast(null), 3000);
         } finally {
             setUploading(false);
         }
     };
+
+    const [selectedProductsMap, setSelectedProductsMap] = useState(new Map());
+    const selectedIds = useMemo(() => new Set(selectedProductsMap.keys()), [selectedProductsMap]);
+    const [focusedId, setFocusedId] = useState(null);
+    const [quickEditField, setQuickEditField] = useState(null); // 'price' | 'stock' | null
+    const [isSaving, setIsSaving] = useState(false);
+    const [barcodePrintProducts, setBarcodePrintProducts] = useState([]);
+    const [currentPage, setCurrentPage] = useState(1);
+    const [currentGroupPage, setCurrentGroupPage] = useState(1);
+    const pageSize = 200;
+    const itemsPerGroupPage = 20;
+
+    // Sidebar Filter States
+    const [filters, setFilters] = useState({
+        code: '',
+        nameBarcode: '',
+        attribute: '',
+        group: 'ALL GROUPS',
+        stockStatus: 'all' // 'all' | 'in' | 'out' | 'low'
+    });
+    
+    // Local State for text inputs (prevents rapid keystrokes from re-rendering the whole table)
+    const [localFilters, setLocalFilters] = useState({
+        code: '',
+        nameBarcode: '',
+        attribute: ''
+    });
+    
+    // Form State
+    const [editingProduct, setEditingProduct] = useState(null);
+    const [formData, setFormData] = useState({
+        sku: '', name: '', price: '', stock_qty: '', category: '', is_service: false,
+        barcode: '', status: 'available', min_stock: '0', max_stock: '99999',
+        watch_threshold: false, variant: '', attributes: [], image_path: ''
+    });
+    const [isCreatingGroup, setIsCreatingGroup] = useState(false);
+    const [newGroupName, setNewGroupName] = useState('');
+    const [uploading, setUploading] = useState(false);
+    const [toast, setToast] = useState(null);
 
     // Auto-dismiss toasts
     useEffect(() => {
@@ -645,2223 +439,1508 @@ export default function ShoeManager() {
         return () => clearTimeout(timer);
     }, [toast]);
 
-    // Centralized form close — always resets everything
-    const closeForm = useCallback(() => {
-        setView('list');
-        setIsSaving(false);
-        setTimeout(() => {
-            setEditingShoe(null);
-            setFormData({
-                sku: '',
-                name: '',
-                variant: '',
-                price: '',
-                stock_qty: '',
-                category: '',
-                is_active: true,
-                is_service: false,
-                image_path: '',
-                attributes: [],
-            });
-            setIsCreatingCategory(false);
-            setNewCategoryName('');
-        }, 200);
-    }, []);
-
-    // API Query
-     const { data, isLoading } = useQuery({
-         queryKey: ['admin-shoes', page, filters, activeOutlet],
-         queryFn: async () => {
-             const params = {
-                 page,
-                 status: filters.status,
-                 category: filters.category,
-                 search: filters.search,
-                 stock_status: filters.stockStatus,
-                 outlet: activeOutlet,
-             };
-             const res = await axios.get('/api/v1/admin/pos/products', {
-                 params,
-                 headers: { 'X-Active-Outlet': activeOutlet },
-             });
-             return res.data;
-         },
-         staleTime: 1000 * 15,
-         placeholderData: keepPreviousData,
-     });
-
-    // Reset page and filters when outlet changes to maintain consistency
-    useEffect(() => {
-        setPage(1);
-        setFilters(f => ({ ...f, category: '', stockStatus: '' }));
-        setSelectedShoesMap({});
-        setFocusedId(null);
-    }, [activeOutlet]);
-
-    // Prefetch for inactive outlets to make switching instant
-    useEffect(() => {
-        const otherOutlets = Object.keys(
-            OUTLET_CONFIG || { attire_lounge: 1, caffeine: 1, kravat: 1 }
-        ).filter((o) => o !== activeOutlet);
-        otherOutlets.forEach((outlet) => {
-            queryClient.prefetchQuery({
-                queryKey: [
-                    'admin-shoes',
-                    1,
-                    {
-                        status: 'active',
-                        category: '',
-                        search: '',
-                        stockStatus: '',
-                    },
-                    outlet,
-                ],
-                queryFn: async () => {
-                    const params = {
-                        page: 1,
-                        status: 'active',
-                        category: '',
-                        search: '',
-                        stockStatus: '',
-                        outlet,
-                    };
-                    const res = await axios.get('/api/v1/admin/pos/products', {
-                        params,
-                        headers: { 'X-Active-Outlet': outlet },
-                    });
-                    return res.data;
-                },
-                staleTime: 5 * 60 * 1000,
-            });
-        });
-    }, [activeOutlet, queryClient, OUTLET_CONFIG]);
-
-    // Independent category fetching to prevent filter list shrinking
-    const { data: categoryData } = useQuery({
-        queryKey: ['admin-shoe-categories', activeOutlet],
-        queryFn: async () => {
-            const res = await axios.get('/api/v1/admin/pos/products/categories', {
-                headers: { 'X-Active-Outlet': activeOutlet },
-            });
-            return res.data;
-        },
-        staleTime: 1000 * 60 * 5, // 5 minutes
+    // --- Bulk Matrix State ---
+    const [matrixConfig, setMatrixConfig] = useState({
+        primaryKey: 'COLOR',
+        primaryValues: '',
+        secondaryKey: 'SIZE',
+        secondaryValues: ''
     });
+    const [matrixData, setMatrixData] = useState({}); // { "COLOR_VAL-SIZE_VAL": qty }
+
+    // --- Debounced Filters for API ---
+    const [debouncedFilters, setDebouncedFilters] = useState(filters);
+    
+    // Sync local text inputs to main filters after user stops typing
+    useEffect(() => {
+        const timer = setTimeout(() => {
+            setFilters(prev => ({
+                ...prev,
+                code: localFilters.code,
+                nameBarcode: localFilters.nameBarcode,
+                attribute: localFilters.attribute
+            }));
+        }, 400); // 400ms debounce for typing
+        return () => clearTimeout(timer);
+    }, [localFilters]);
+
+    // When main filters change, trigger API fetch
+    useEffect(() => {
+        const timer = setTimeout(() => {
+            setDebouncedFilters(filters);
+            setCurrentPage(1);
+            setCurrentGroupPage(1);
+        }, 150); // Fast debounce for dropdown clicks
+        return () => clearTimeout(timer);
+    }, [filters]);
+
+
+    // --- Data Fetching ---
+    const { data: productsData, isLoading, isError, error } = useQuery({
+        queryKey: ['admin-shoes', activeOutlet, debouncedFilters.nameBarcode, debouncedFilters.code, debouncedFilters.attribute, debouncedFilters.group, currentPage],
+        retry: 1,
+        staleTime: 2 * 60 * 1000,
+        queryFn: async () => {
+            const { data } = await axios.get('/api/v1/admin/pos/products', {
+                params: { 
+                    type: 'all',
+                    name: debouncedFilters.nameBarcode,
+                    code: debouncedFilters.code,
+                    attribute: debouncedFilters.attribute,
+                    category: debouncedFilters.group !== 'ALL GROUPS' ? debouncedFilters.group : '',
+                    page: currentPage,
+                    per_page: pageSize 
+                }
+            });
+            return data;
+        }
+    });
+    
+    // --- Metric Calculations ---
+    const metrics = useMemo(() => {
+        const data = productsData?.data || [];
+        const totalValue = data.reduce((acc, p) => acc + (parseFloat(p.price || 0) * (p.stock_qty || 0)), 0);
+        const criticalCount = data.filter(p => p.stock_qty <= (p.min_stock || 5)).length;
+        return {
+            totalValue,
+            criticalCount,
+            totalSkus: apiStats?.pos_products ?? data.length
+        };
+    }, [productsData, apiStats]);
+
+    const products = useMemo(() => {
+        let list = productsData?.data || [];
+        
+        // Apply Stock Status Filter
+        if (filters.stockStatus === 'in') {
+            list = list.filter(p => (p.stock_qty || 0) > 0);
+        } else if (filters.stockStatus === 'out') {
+            list = list.filter(p => (p.stock_qty || 0) <= 0);
+        } else if (filters.stockStatus === 'low') {
+            list = list.filter(p => (p.stock_qty || 0) > 0 && (p.stock_qty || 0) <= (p.min_stock || 5));
+        }
+        
+        return list;
+    }, [productsData, filters.stockStatus]);
+
+    const groupedProducts = useMemo(() => {
+        const SIZE_ORDER = ['XXS', 'XS', 'S', 'M', 'L', 'XL', 'XXL', 'XXXL'];
+        const groups = {};
+
+        products.forEach(p => {
+            const baseName = (p.name || '').trim().toUpperCase();
+            if (!groups[baseName]) {
+                groups[baseName] = { name: baseName, items: [] };
+            }
+            groups[baseName].items.push(p);
+        });
+
+        // Pre-compute sort keys ONCE per item instead of inside the comparator (O(n log n) -> O(n))
+        Object.values(groups).forEach(group => {
+            const keyed = group.items.map(p => {
+                const attrs = Array.isArray(p.parsed_attributes) ? p.parsed_attributes : [];
+                const color = attrs.find(a => a.key?.toUpperCase() === 'COLOR')?.value?.toUpperCase() || '';
+                const size  = attrs.find(a => a.key?.toUpperCase() === 'SIZE')?.value?.toUpperCase() || '';
+                const sizeIdx = SIZE_ORDER.indexOf(size);
+                const sizeNum = parseInt(size);
+                return { p, color, size, sizeIdx, sizeNum };
+            });
+
+            keyed.sort((a, b) => {
+                if (a.color !== b.color) return a.color.localeCompare(b.color);
+                if (a.sizeIdx !== -1 && b.sizeIdx !== -1) return a.sizeIdx - b.sizeIdx;
+                if (a.sizeIdx !== -1) return -1;
+                if (b.sizeIdx !== -1) return 1;
+                if (!isNaN(a.sizeNum) && !isNaN(b.sizeNum)) return a.sizeNum - b.sizeNum;
+                return a.size.localeCompare(b.size);
+            });
+
+            group.items = keyed.map(k => k.p);
+        });
+
+        return Object.values(groups).sort((a, b) => a.name.localeCompare(b.name));
+    }, [products]);
+
+    const paginatedGroups = useMemo(() => {
+        const start = (currentGroupPage - 1) * itemsPerGroupPage;
+        return groupedProducts.slice(start, start + itemsPerGroupPage);
+    }, [groupedProducts, currentGroupPage]);
+
+    const totalGroupPages = Math.max(1, Math.ceil(groupedProducts.length / itemsPerGroupPage));
+
+    const groupPageRange = useMemo(() => {
+        const range = [];
+        const maxVisible = 5;
+        let start = Math.max(1, currentGroupPage - Math.floor(maxVisible / 2));
+        let end = Math.min(totalGroupPages, start + maxVisible - 1);
+        if (end - start + 1 < maxVisible) start = Math.max(1, end - maxVisible + 1);
+        for (let i = start; i <= end; i++) range.push(i);
+        return range;
+    }, [currentGroupPage, totalGroupPages]);
 
     const categories = useMemo(() => {
-        const remoteCats = categoryData || [];
-        let baseCategories = [];
-        if (activeOutlet === 'nile') {
-            baseCategories = ['Loafers', 'Slippers', 'Formal', 'Boots', 'Sneakers', 'Accessories'];
-        }
-        return [...baseCategories, ...remoteCats]
-            .filter((v, i, a) => a.indexOf(v) === i)
-            .sort();
-    }, [categoryData, activeOutlet]);
+        const unique = Array.from(new Set(products.map(p => p.category).filter(Boolean)));
+        const shoeCats = ['Loafers', 'Slippers', 'Formal', 'Boots', 'Sneakers', 'Accessories', 'Shoe Care'];
+        const all = [...shoeCats, ...unique];
+        return ['ALL GROUPS', ...all.filter((v, i, a) => a.indexOf(v) === i).sort()];
+    }, [products]);
 
-    const shoes = data?.data || [];
-    const meta = data?.meta || data || {};
+    const selectedProducts = useMemo(() => 
+        Array.from(selectedProductsMap.values()),
+    [selectedProductsMap]);
 
-    const stats = useMemo(
-        () => ({
-            total: apiStats?.pos_products ?? (meta.total || shoes.length),
-            active: apiStats?.pos_active_products ?? (meta.total || shoes.length),
-            lowStock: apiStats?.low_stock ?? shoes.filter(
-                (d) => d.stock_qty <= 5 && d.stock_qty > 0 && !d.is_service
-            ).length,
-            outOfStock: apiStats?.out_of_stock ?? shoes.filter((d) => d.stock_qty <= 0 && !d.is_service)
-                .length,
-            unlimited: shoes.filter((d) => d.is_service).length,
-        }),
-        [shoes, meta.total, apiStats]
-    );
-
-    // Grouping should happen on the API results directly to maintain pagination integrity
-    const groupedByCategory = useMemo(() => {
-        const groups = {};
-        shoes.forEach(d => {
-            const cat = d.category || 'Uncategorized';
-            if (!groups[cat]) groups[cat] = { name: cat, items: [] };
-            groups[cat].items.push(d);
-        });
-        return Object.values(groups).sort((a, b) => a.name.localeCompare(b.name));
-    }, [shoes]);
-
-    // Mutations
+    // --- Mutations ---
     const mutation = useMutation({
-        mutationFn: async (payload) => {
-            const data = { ...payload };
-
-            // Clean up fields that aren't in the backend validation schema
-            delete data.status; // Not a validated field
-            delete data.outlet; // Sent via header, not body
-
-            // Clean up empty optional fields to prevent Laravel validation 422s
-            if (!data.sku) delete data.sku;
-            if (data.image_path === '') data.image_path = null;
-            if (
-                data.price === '' ||
-                data.price === null ||
-                data.price === undefined
-            )
-                delete data.price;
-            if (
-                data.stock_qty === '' ||
-                data.stock_qty === null ||
-                data.stock_qty === undefined
-            )
-                data.stock_qty = 0;
-            if (data.category === '') delete data.category;
-
-
-
-            if (editingShoe) {
-                return axios.put(
-                    `/api/v1/admin/pos/products/${editingShoe.id}`,
-                    data
-                );
-            }
+        mutationFn: (data) => {
+            if (editingProduct) return axios.put(`/api/v1/admin/pos/products/${editingProduct.id}`, data);
             return axios.post('/api/v1/admin/pos/products', data);
         },
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ['admin-shoes'] });
-            queryClient.invalidateQueries({ queryKey: ['admin-stats'] });
-            closeModal();
-            setToast({ message: `Shoe saved successfully!`, type: 'success' });
+            setView('list');
+            setIsSaving(false);
+            setToast({ type: 'success', message: 'Shoe saved successfully!' });
         },
         onError: (err) => {
             setIsSaving(false);
             const errors = err.response?.data?.errors;
             let detail = '';
-            if (errors) {
-                detail =
-                    ': ' +
-                    Object.values(errors)
-                        .map((e) => e.join(', '))
-                        .join(' | ');
-            }
-            console.error('Validation Errors:', errors);
-            setToast({
-                message:
-                    (err.response?.data?.message || 'Failed to save shoe.') +
-                    detail,
-                type: 'error',
-            });
-        },
-    });
-
-    const deleteMutation = useMutation({
-        mutationFn: async (id) =>
-            axios.delete(`/api/v1/admin/pos/products/${id}`),
-        onSuccess: () => {
-            queryClient.invalidateQueries({ queryKey: ['admin-shoes'] });
-            queryClient.invalidateQueries({ queryKey: ['admin-stats'] });
-            setToast({
-                message: 'Shoe deleted successfully!',
-                type: 'success',
-            });
-            setSelectedShoesMap({});
-        },
-        onError: (err) => {
-            setToast({
-                message:
-                    err.response?.data?.message || 'Failed to delete shoe.',
-                type: 'error',
-            });
-        },
-    });
-
-    const bulkDeactivateMutation = useMutation({
-        mutationFn: (ids) =>
-            axios.post('/api/v1/admin/pos/products/bulk-deactivate', {
-                product_ids: ids,
-            }),
-        onSuccess: () => {
-            queryClient.invalidateQueries({ queryKey: ['admin-shoes'] });
-            queryClient.invalidateQueries({ queryKey: ['admin-stats'] });
-            setToast({
-                message: 'Selected shoes deactivated.',
-                type: 'success',
-            });
-            setSelectedShoesMap({});
-        },
-        onError: (err) => {
-            setToast({
-                message: err.response?.data?.message || 'Failed to deactivate.',
-                type: 'error',
-            });
-        },
-    });
-
-    const bulkRestoreMutation = useMutation({
-        mutationFn: (ids) =>
-            axios.post('/api/v1/admin/pos/products/bulk-restore', {
-                product_ids: ids,
-            }),
-        onSuccess: () => {
-            queryClient.invalidateQueries({ queryKey: ['admin-shoes'] });
-            queryClient.invalidateQueries({ queryKey: ['admin-stats'] });
-            setToast({ message: 'Selected shoes restored.', type: 'success' });
-            setSelectedShoesMap({});
-        },
-        onError: (err) => {
-            setToast({
-                message: err.response?.data?.message || 'Failed to restore.',
-                type: 'error',
-            });
-        },
-    });
-
-    const bulkDeleteMutation = useMutation({
-        mutationFn: (ids) =>
-            axios.post('/api/v1/admin/pos/products/bulk-delete', {
-                product_ids: ids,
-            }),
-        onSuccess: (_, ids) => {
-            queryClient.invalidateQueries({ queryKey: ['admin-shoes'] });
-            queryClient.invalidateQueries({ queryKey: ['admin-stats'] });
-            setToast({
-                message: `${ids.length} shoe(s) permanently deleted.`,
-                type: 'success',
-            });
-            setSelectedShoesMap({});
-        },
-        onError: (err) => {
-            setToast({
-                message: err.response?.data?.message || 'Failed to delete.',
-                type: 'error',
-            });
-        },
+            if (errors) detail = ': ' + Object.values(errors).map(e => e.join(', ')).join(' | ');
+            setToast({ type: 'error', message: (err.response?.data?.message || 'Failed to save shoe.') + detail });
+        }
     });
 
     const updateMutation = useMutation({
-        mutationFn: ({ id, data }) =>
-            axios.put(`/api/v1/admin/pos/products/${id}`, {
-                ...data,
-                outlet: activeOutlet,
-            }),
+        mutationFn: ({ id, data }) => axios.put(`/api/v1/admin/pos/products/${id}`, data),
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ['admin-shoes'] });
-            queryClient.invalidateQueries({ queryKey: ['admin-stats'] });
             setQuickEditField(null);
-        },
+        }
     });
 
-    // Handlers
-    // Selection state helpers
-    const selectedCount = useMemo(() => Object.keys(selectedShoesMap).length, [selectedShoesMap]);
-
-    const toggleSelect = useCallback((shoeOrId) => {
-        setSelectedShoesMap((prev) => {
-            const next = { ...prev };
-            const id = typeof shoeOrId === 'object' ? shoeOrId.id : shoeOrId;
-            if (next[id]) {
-                delete next[id];
-            } else {
-                const shoe = typeof shoeOrId === 'object' ? shoeOrId : shoes.find(d => d.id === id);
-                if (shoe) {
-                    next[id] = shoe;
-                }
-            }
-            return next;
-        });
-    }, [shoes]);
-
-    const handleSelectAll = () => {
-        const allOnPageSelected = shoes.length > 0 && shoes.every(d => !!selectedShoesMap[d.id]);
-        setSelectedShoesMap((prev) => {
-            const next = { ...prev };
-            shoes.forEach(d => {
-                if (allOnPageSelected) {
-                    delete next[d.id];
-                } else {
-                    next[d.id] = d;
-                }
-            });
-            return next;
-        });
-    };
-
-    const handleBulkDeactivate = () => {
-        const ids = Object.keys(selectedShoesMap).map(Number);
-        if (ids.length === 0) return;
-        if (!window.confirm(`Deactivate ${ids.length} selected shoes?`))
-            return;
-        bulkDeactivateMutation.mutate(ids);
-    };
-
-    const handleBulkRestore = () => {
-        const ids = Object.keys(selectedShoesMap).map(Number);
-        if (ids.length === 0) return;
-        if (!window.confirm(`Restore ${ids.length} selected shoes?`))
-            return;
-        bulkRestoreMutation.mutate(ids);
-    };
-
-    const handleBulkDelete = () => {
-        const ids = Object.keys(selectedShoesMap).map(Number);
-        if (ids.length === 0) return;
-        if (
-            !window.confirm(
-                `⚠️ PERMANENTLY DELETE ${ids.length} selected shoe(s)?\n\nThis action cannot be undone. The products will be removed from the database forever.`
-            )
-        )
-            return;
-        bulkDeleteMutation.mutate(ids);
-    };
-
-    const bulkUpdateProductsMutation = useMutation({
-        mutationFn: async (updatedProducts) => {
-            const payload = {
-                products: updatedProducts.map((p) => ({
-                    id: p.id,
-                    sku: p.sku || '',
-                    name: p.name || '',
-                    price: p.price !== '' ? parseFloat(p.price) : null,
-                    stock_qty: p.is_service ? 0 : (p.stock_qty !== '' ? parseInt(p.stock_qty, 10) : 0),
-                    category: p.category || '',
-                    variant: p.variant || '',
-                    attributes: p.attributes || [],
-                    is_active: p.is_active,
-                    is_service: p.is_service,
-                }))
-            };
-            return axios.post('/api/v1/admin/pos/products/bulk-update', payload, {
-                headers: { 'X-Active-Outlet': activeOutlet },
-            });
-        },
+    const bulkUpdateMutation = useMutation({
+        mutationFn: (data) => axios.post('/api/v1/admin/pos/products/bulk-update', data),
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ['admin-shoes'] });
-            queryClient.invalidateQueries({ queryKey: ['admin-stats'] });
-            setIsBulkEditOpen(false);
-            setSelectedShoesMap({});
-            setToast({ message: 'Shoes bulk updated successfully!', type: 'success' });
-        },
-        onError: (err) => {
-            const errors = err.response?.data?.errors;
-            let detail = '';
-            if (errors) {
-                detail = ': ' + Object.values(errors).map((e) => e.join(', ')).join(' | ');
-            }
-            setToast({
-                message: (err.response?.data?.message || 'Failed to update shoes.') + detail,
-                type: 'error',
-            });
+            setSelectedProductsMap(new Map());
+            setIsBulkDialogOpen(false);
+            setToast({ type: 'success', message: 'Bulk update completed.' });
         }
     });
 
-    // ─── Bulk Add state ───────────────────────────────────────────────────────
-    const [isBulkAddOpen, setIsBulkAddOpen] = useState(false);
-    const [bulkAddProducts, setBulkAddProducts] = useState([]);
-    const [bulkAddDefaultCategory, setBulkAddDefaultCategory] = useState('');
-    const [bulkAddDefaultPrice, setBulkAddDefaultPrice] = useState('');
-    const [bulkAddDefaultStock, setBulkAddDefaultStock] = useState('');
-    const [bulkAddDefaultVariant, setBulkAddDefaultVariant] = useState('');
-    const [bulkAddDefaultService, setBulkAddDefaultService] = useState(false);
-
-    const bulkAddProductsMutation = useMutation({
-        mutationFn: async (products) => {
-            const payload = {
-                products: products.map((p) => ({
-                    sku: p.sku || '',
-                    name: p.name || '',
-                    price: p.price !== '' && p.price !== null ? parseFloat(p.price) : null,
-                    stock_qty: p.is_service ? 00 : (p.stock_qty !== '' && p.stock_qty !== null ? parseInt(p.stock_qty, 10) : 0),
-                    category: p.category || '',
-                    variant: p.variant || '',
-                    attributes: p.attributes || [],
-                    is_active: true,
-                    is_service: p.is_service || false,
-                }))
-            };
-            return axios.post('/api/v1/admin/pos/products/bulk-create', payload, {
-                headers: { 'X-Active-Outlet': activeOutlet },
-            });
-        },
-        onSuccess: (res) => {
+    const bulkArchiveMutation = useMutation({
+        mutationFn: (data) => axios.post('/api/v1/admin/pos/products/bulk-deactivate', data),
+        onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ['admin-shoes'] });
-            queryClient.invalidateQueries({ queryKey: ['admin-stats'] });
-            setIsBulkAddOpen(false);
-            setBulkAddProducts([]);
-            setToast({ message: `Successfully created ${bulkAddProducts.length} products!`, type: 'success' });
-        },
-        onError: (err) => {
-            const errors = err.response?.data?.errors;
-            let detail = '';
-            if (errors) {
-                detail = ': ' + Object.values(errors).map((e) => e.join(', ')).join(' | ');
-            }
-            setToast({
-                message: (err.response?.data?.message || 'Failed to create products.') + detail,
-                type: 'error',
-            });
+            setSelectedProductsMap(new Map());
+            setIsBulkDialogOpen(false);
+            setToast({ type: 'success', message: 'Products archived.' });
         }
     });
 
-    const openBulkAdd = () => {
-        setBulkAddDefaultCategory('');
-        setBulkAddDefaultPrice('');
-        setBulkAddDefaultStock('');
-        setBulkAddDefaultVariant('');
-        setBulkAddDefaultService(false);
-        setBulkAddProducts([
-            { tempId: 1, sku: '', name: '', price: '', stock_qty: '', category: '', variant: '', attributes: [], is_service: false },
-        ]);
-        setIsBulkAddOpen(true);
-    };
+    const deleteMutation = useMutation({
+        mutationFn: (id) => axios.delete(`/api/v1/admin/pos/products/${id}`),
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ['admin-shoes'] });
+            setToast({ type: 'success', message: 'Shoe deleted successfully!' });
+            if (view === 'form') navigateToView('list');
+        },
+        onError: (err) => {
+            setToast({ type: 'error', message: err.response?.data?.message || 'Failed to delete shoe.' });
+        }
+    });
 
-    const addBulkAddRow = () => {
-        const maxId = bulkAddProducts.reduce((max, p) => Math.max(max, p.tempId), 0);
-        setBulkAddProducts((prev) => [
-            ...prev,
-            { tempId: maxId + 1, sku: '', name: '', price: '', stock_qty: '', category: '', variant: '', attributes: [], is_service: false },
-        ]);
-    };
+    const bulkStoreMutation = useMutation({
+        mutationFn: (data) => axios.post('/api/v1/admin/pos/products/bulk', data),
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ['admin-shoes'] });
+            setView('list');
+            setIsSaving(false);
+            setToast({ type: 'success', message: 'Products created successfully!' });
+        },
+        onError: (err) => {
+            setIsSaving(false);
+            setToast({ type: 'error', message: err.response?.data?.message || 'Failed to save bulk products.' });
+        }
+    });
 
-    const removeBulkAddRow = (tempId) => {
-        setBulkAddProducts((prev) => prev.filter((p) => p.tempId !== tempId));
-    };
-
-    const applyBulkAddDefaults = () => {
-        setBulkAddProducts((prev) =>
-            prev.map((p) => ({
-                ...p,
-                category: bulkAddDefaultCategory || p.category,
-                variant: bulkAddDefaultVariant !== '' ? bulkAddDefaultVariant : p.variant,
-                price: bulkAddDefaultPrice !== '' ? bulkAddDefaultPrice : p.price,
-                stock_qty: bulkAddDefaultStock !== '' ? bulkAddDefaultStock : p.stock_qty,
-                is_service: bulkAddDefaultService,
-            }))
-        );
-        setToast({ message: 'Defaults applied to all rows.', type: 'success' });
-    };
-
-    const handleBulkEditOpen = () => {
-        const stored = Object.values(selectedShoesMap);
-        if (stored.length === 0) return;
-        const selectedShoes = stored.map((d) => ({
-            id: d.id,
-            sku: d.sku || '',
-            name: d.name || '',
-            price: d.price ?? '',
-            stock_qty: d.stock_qty ?? 0,
-            category: d.category || '',
-            variant: d.variant || '',
-            attributes: d.attributes || [],
-            is_active: d.is_active ?? true,
-            is_service: d.is_service ?? false,
-            image_path: d.image_path || '',
-        }));
-        setBulkProducts(selectedShoes);
-        setBulkBatchCategory('');
-        setBulkBatchPriceType('set');
-        setBulkBatchPriceVal('');
-        setBulkBatchStockVal('');
-        setIsBulkEditOpen(true);
-    };
-
-    const applyCategoryToAll = () => {
-        if (!bulkBatchCategory) return;
-        setBulkProducts((prev) =>
-            prev.map((p) => ({ ...p, category: bulkBatchCategory }))
-        );
-        setToast({ message: `Applied category "${bulkBatchCategory}" to all rows.`, type: 'success' });
-    };
-
-    const applyPriceToAll = () => {
-        const val = parseFloat(bulkBatchPriceVal);
-        if (isNaN(val)) return;
-
-        setBulkProducts((prev) =>
-            prev.map((p) => {
-                let newPrice = parseFloat(p.price);
-                if (isNaN(newPrice)) newPrice = 0;
-
-                switch (bulkBatchPriceType) {
-                    case 'set':
-                        newPrice = val;
-                        break;
-                    case 'fixed_inc':
-                        newPrice = newPrice + val;
-                        break;
-                    case 'fixed_dec':
-                        newPrice = Math.max(0, newPrice - val);
-                        break;
-                    case 'percent_inc':
-                        newPrice = newPrice * (1 + val / 100);
-                        break;
-                    case 'percent_dec':
-                        newPrice = Math.max(0, newPrice * (1 - val / 100));
-                        break;
-                }
-                return { ...p, price: parseFloat(newPrice.toFixed(2)) };
-            })
-        );
-        setToast({ message: 'Applied price updates to all rows.', type: 'success' });
-    };
-
-    const applyStockToAll = () => {
-        const val = parseInt(bulkBatchStockVal, 10);
-        if (isNaN(val)) return;
-
-        setBulkProducts((prev) =>
-            prev.map((p) => {
-                if (p.is_service) return p;
-                return { ...p, stock_qty: Math.max(0, val) };
-            })
-        );
-        setToast({ message: `Set stock quantity to ${val} for all products.`, type: 'success' });
-    };
-
-    const applyServiceStateToAll = (val) => {
-        setBulkProducts((prev) =>
-            prev.map((p) => ({
-                ...p,
-                is_service: val,
-                stock_qty: val ? '' : (p.stock_qty || 0),
-            }))
-        );
-        setToast({ message: `Marked all selected items as ${val ? 'Services' : 'Products'}.`, type: 'success' });
-    };
-
-    const applyActiveStateToAll = (val) => {
-        setBulkProducts((prev) =>
-            prev.map((p) => ({ ...p, is_active: val }))
-        );
-        setToast({ message: `Marked all selected items as ${val ? 'Active' : 'Archived'}.`, type: 'success' });
-    };
-
-    // Keyboard Navigation
+    // --- Keyboard Navigation ---
     useEffect(() => {
         const handleKeyDown = (e) => {
+            // Focus Name/Barcode filter with '/'
             if (e.key === '/' && document.activeElement.tagName !== 'INPUT') {
                 e.preventDefault();
-                document.getElementById('search-shoes')?.focus();
+                document.getElementById('filter-name')?.focus();
             }
 
-            if (shoes.length === 0) return;
+            // Command Palette / Bulk Action
+            if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
+                e.preventDefault();
+                if (selectedIds.size > 0) handleBulkEditClick();
+            }
 
-            if (e.key === 'ArrowDown') {
-                if (
-                    document.activeElement.tagName === 'INPUT' ||
-                    document.activeElement.tagName === 'TEXTAREA'
-                )
-                    return;
-                e.preventDefault();
-                setFocusedId((prev) => {
-                    const idx = shoes.findIndex((d) => d.id === prev);
-                    if (idx === -1) return shoes[0]?.id;
-                    return shoes[
-                        Math.min(idx + 1, shoes.length - 1)
-                    ]?.id;
-                });
-            }
-            if (e.key === 'ArrowUp') {
-                if (
-                    document.activeElement.tagName === 'INPUT' ||
-                    document.activeElement.tagName === 'TEXTAREA'
-                )
-                    return;
-                e.preventDefault();
-                setFocusedId((prev) => {
-                    const idx = shoes.findIndex((d) => d.id === prev);
-                    if (idx <= 0) return shoes[0]?.id;
-                    return shoes[idx - 1]?.id;
-                });
-            }
-            if (e.key === ' ') {
-                if (document.activeElement.tagName !== 'INPUT') {
+            // Selection & Navigation (List View Only)
+            if (view === 'list') {
+                if (e.key === 'ArrowDown') {
+                    // Only navigate if not typing in an input
+                    if (document.activeElement.tagName === 'INPUT' || document.activeElement.tagName === 'TEXTAREA') return;
                     e.preventDefault();
-                    if (focusedId) toggleSelect(focusedId);
+                    setFocusedId(prev => {
+                        const idx = products.findIndex(p => p.id === prev);
+                        if (idx === -1) return products[0]?.id;
+                        return products[Math.min(idx + 1, products.length - 1)]?.id;
+                    });
                 }
-            }
-            if (e.key.toLowerCase() === 'e') {
-                if (focusedId && document.activeElement.tagName !== 'INPUT') {
+                if (e.key === 'ArrowUp') {
+                    // Only navigate if not typing in an input
+                    if (document.activeElement.tagName === 'INPUT' || document.activeElement.tagName === 'TEXTAREA') return;
                     e.preventDefault();
-                    setQuickEditField('price');
+                    setFocusedId(prev => {
+                        const idx = products.findIndex(p => p.id === prev);
+                        if (idx <= 0) return products[0]?.id;
+                        return products[idx - 1]?.id;
+                    });
                 }
-            }
-            if (e.key.toLowerCase() === 's') {
-                if (focusedId && document.activeElement.tagName !== 'INPUT') {
-                    e.preventDefault();
-                    setQuickEditField('stock');
-                }
-            }
-            if (e.key === 'Enter') {
-                if (
-                    focusedId &&
-                    document.activeElement.tagName !== 'INPUT' &&
-                    !quickEditField
-                ) {
-                    e.preventDefault();
-                    const shoe = shoes.find(
-                        (d) => d.id === focusedId
-                    );
-                    if (shoe) {
-                        setEditingShoe(shoe);
-                        setFormData({
-                            sku: shoe.sku || '',
-                            name: shoe.name || '',
-                            variant: shoe.variant || '',
-                            price: shoe.price || '',
-                            stock_qty: shoe.stock_qty || '',
-                            category: shoe.category || '',
-                            is_active: shoe.is_active ?? true,
-                            is_service: shoe.is_service || false,
-                            image_path: shoe.image_path || '',
-                            attributes: shoe.attributes || [],
-                        });
-                        navigateToView('form');
+                if (e.key === ' ') {
+                    if (document.activeElement.tagName !== 'INPUT') {
+                        e.preventDefault();
+                        if (focusedId) toggleSelect(focusedId);
                     }
                 }
-            }
-            if (e.key === 'Escape') {
-                if (view === 'form') {
-                    closeForm();
-                    return;
+                if (e.key.toLowerCase() === 'e') {
+                    if (focusedId && document.activeElement.tagName !== 'INPUT') {
+                        e.preventDefault();
+                        setQuickEditField('price');
+                    }
                 }
-                if (quickEditField) {
-                    setQuickEditField(null);
-                    return;
+                if (e.key.toLowerCase() === 's') {
+                    if (focusedId && document.activeElement.tagName !== 'INPUT') {
+                        e.preventDefault();
+                        setQuickEditField('stock');
+                    }
                 }
-                if (selectedCount > 0) {
-                    setSelectedShoesMap({});
-                    return;
+                if (e.key === 'Enter') {
+                    if (focusedId && document.activeElement.tagName !== 'INPUT') {
+                        const p = products.find(p => p.id === focusedId);
+                        if (p) handleEditClick(p);
+                    }
                 }
-                if (focusedId) {
-                    setFocusedId(null);
-                    return;
+                if (e.key === 'Escape') {
+                    if (document.activeElement.tagName === 'INPUT') {
+                        document.activeElement.blur();
+                    } else {
+                        setSelectedProductsMap(new Map());
+                        // Clear both local (visual) and debounced filters
+                        setLocalFilters({ code: '', nameBarcode: '', attribute: '' });
+                        setFilters(prev => ({ ...prev, nameBarcode: '', code: '', attribute: '' }));
+                    }
                 }
             }
         };
 
         window.addEventListener('keydown', handleKeyDown);
         return () => window.removeEventListener('keydown', handleKeyDown);
-    }, [
-        shoes,
-        focusedId,
-        quickEditField,
-        toggleSelect,
-        view,
-        closeForm,
-        selectedShoesMap,
-        selectedCount,
-    ]);
+    }, [view, focusedId, selectedIds, products, filters]);
 
-    // UI Render Matrix
-    return (
-        <div className="p-8 space-y-8 font-sans bg-[#fdfdfc] dark:bg-[#010409] min-h-screen text-gray-900 dark:text-[#c9d1d9]">
-            {toast && (
-                <div className="fixed top-6 right-6 z-50 animate-in slide-in-from-top-4 fade-in">
-                    <div
-                        className={`px-6 py-4 rounded-xl border flex items-center gap-3 font-bold text-[11px] uppercase tracking-widest shadow-2xl ${toast.type === 'error' ? 'bg-red-50 dark:bg-red-900/20 border-red-200 dark:border-red-900/50 text-red-600 dark:text-red-400' : 'bg-emerald-50 dark:bg-emerald-900/20 border-emerald-200 dark:border-emerald-900/50 text-emerald-600 dark:text-emerald-400'}`}
-                    >
-                        {toast.type === 'error' ? (
-                            <AlertCircle size={16} />
-                        ) : (
-                            <Check size={16} />
-                        )}
-                        {toast.message}
+    // Scroll focused row into view
+    useEffect(() => {
+        if (focusedId) {
+            const el = document.getElementById(`row-${focusedId}`);
+            el?.scrollIntoView({ behavior: performanceMode ? 'auto' : 'smooth', block: 'nearest' });
+        }
+    }, [focusedId]);
+
+    // --- Handlers ---
+    const toggleSelect = (id) => {
+        setSelectedProductsMap(prev => {
+            const next = new Map(prev);
+            if (next.has(id)) {
+                next.delete(id);
+            } else {
+                const product = products.find(p => p.id === id);
+                if (product) next.set(id, product);
+            }
+            return next;
+        });
+    };
+
+    const handleSelectAll = (e) => {
+        const allCurrentSelected = products.length > 0 && products.every(p => selectedProductsMap.has(p.id));
+        setSelectedProductsMap(prev => {
+            const next = new Map(prev);
+            if (allCurrentSelected) {
+                products.forEach(p => next.delete(p.id));
+            } else {
+                products.forEach(p => next.set(p.id, p));
+            }
+            return next;
+        });
+    };
+
+    const handleBulkApply = (action, config) => {
+        const product_ids = Array.from(selectedIds);
+        if (action === 'archive') {
+            bulkArchiveMutation.mutate({ product_ids });
+        } else {
+            bulkUpdateMutation.mutate({
+                product_ids,
+                category: action === 'category' ? config.category : undefined,
+                price_change_type: action === 'price' ? config.priceType : undefined,
+                price_change_value: action === 'price' ? config.priceValue : undefined,
+                stock_reset_value: action === 'stock' ? config.stockValue : undefined,
+            });
+        }
+    };
+
+    const handleBulkEditClick = () => {
+        if (selectedIds.size === 0) return;
+        
+        const selectedProds = products.filter(p => selectedIds.has(p.id));
+        if (selectedProds.length === 0) return;
+        
+        const firstProductName = (selectedProds[0].name || '').trim().toUpperCase();
+        const allSameGroup = selectedProds.every(p => (p.name || '').trim().toUpperCase() === firstProductName);
+        
+        if (allSameGroup && selectedProds.length > 1) {
+            // Use the existing Add Shoe form with pre-loaded data
+            setEditingProduct(null);
+            setFormData({
+                sku: selectedProds[0].sku?.substring(0, 5) || '',
+                name: firstProductName,
+                price: '',
+                stock_qty: '',
+                category: selectedProds[0].category || '',
+                is_service: false,
+                barcode: '',
+                status: 'available',
+                min_stock: '0',
+                max_stock: '99999',
+                watch_threshold: false,
+                variant: '',
+                attributes: []
+            });
+            
+            // Extract attribute dimensions from selected products
+            const primaryAttrs = new Set();
+            const secondaryAttrs = new Set();
+            const editData = {};
+            
+            let foundPrimaryKey = null;
+            let foundSecondaryKey = null;
+
+            selectedProds.forEach(p => {
+                let primary = '';
+                let secondary = '';
+                
+                if (Array.isArray(p.parsed_attributes) && p.parsed_attributes.length > 0) {
+                    // Extract from explicit attributes if available
+                    if (p.parsed_attributes[0]) {
+                        primary = (p.parsed_attributes[0].value || '').trim().toUpperCase();
+                        if (!foundPrimaryKey && p.parsed_attributes[0].key) foundPrimaryKey = p.parsed_attributes[0].key.toUpperCase();
+                    }
+                    if (p.parsed_attributes[1]) {
+                        secondary = (p.parsed_attributes[1].value || '').trim().toUpperCase();
+                        if (!foundSecondaryKey && p.parsed_attributes[1].key) foundSecondaryKey = p.parsed_attributes[1].key.toUpperCase();
+                    }
+                } else {
+                    // Fallback: split variant string by '-' to keep phrases like 'ONE SIZE' or 'LIGHT BLUE' intact
+                    const variant = (p.variant || '').trim();
+                    const parts = variant.split('-')
+                        .map(v => v.trim().toUpperCase())
+                        .filter(Boolean);
+                    
+                    if (parts.length >= 2) {
+                        primary = parts[0];
+                        secondary = parts[1];
+                    } else if (parts.length === 1) {
+                        primary = parts[0];
+                    }
+                }
+                
+                if (primary) primaryAttrs.add(primary);
+                if (secondary) secondaryAttrs.add(secondary);
+                
+                // Build key for matrix data
+                if (primary && secondary) {
+                    editData[`${primary}-${secondary}`] = parseInt(p.stock_qty || p.stock || 0);
+                } else if (primary) {
+                    // Single attribute — key format: "VALUE-QTY" (no secondary column)
+                    editData[`${primary}-QTY`] = parseInt(p.stock_qty || p.stock || 0);
+                }
+            });
+            
+            // Determine attribute labels
+            const primaryVals = Array.from(primaryAttrs);
+            const secondaryVals = Array.from(secondaryAttrs);
+            
+            let primaryKey = foundPrimaryKey || 'ATTRIBUTE';
+            let secondaryKey = foundSecondaryKey || '';
+            
+            const sizeOrder = ['XXS', 'XS', 'S', 'M', 'L', 'XL', 'XXL', 'XXXL', '3XL', '4XL', '5XL', 'ONE SIZE', 'OS'];
+            const looksLikeSize = (vals) => vals.some(v => sizeOrder.includes(v) || !isNaN(parseInt(v)));
+            
+            if (!foundPrimaryKey && secondaryVals.length > 0) {
+                // Two dimensions — guess labels if not found in attributes
+                primaryKey = looksLikeSize(primaryVals) ? 'SIZE' : 'COLOR';
+                secondaryKey = looksLikeSize(secondaryVals) ? 'SIZE' : 'COLOR';
+                if (primaryKey === secondaryKey) secondaryKey = 'VARIANT';
+            } else if (!foundPrimaryKey && primaryVals.length > 0) {
+                // Single dimension guess
+                primaryKey = looksLikeSize(primaryVals) ? 'SIZE' : 'ATTRIBUTE';
+            }
+            
+            const sortAttrValues = (vals) => vals.sort((a, b) => {
+                const aIdx = sizeOrder.indexOf(a);
+                const bIdx = sizeOrder.indexOf(b);
+                if (aIdx !== -1 && bIdx !== -1) return aIdx - bIdx;
+                if (aIdx !== -1) return -1;
+                if (bIdx !== -1) return 1;
+                const aNum = parseInt(a);
+                const bNum = parseInt(b);
+                if (!isNaN(aNum) && !isNaN(bNum)) return aNum - bNum;
+                return a.localeCompare(b);
+            });
+            
+            setMatrixConfig({
+                primaryKey: primaryKey,
+                primaryValues: sortAttrValues(primaryVals).join(', '),
+                secondaryKey: secondaryKey || 'SIZE',
+                secondaryValues: secondaryVals.length > 0 ? sortAttrValues(secondaryVals).join(', ') : ''
+            });
+            setMatrixData(editData);
+            
+            navigateToView('form');
+        } else {
+            alert('Cannot bulk edit shoes from different groups in the matrix grid.');
+        }
+    };
+
+    const handleDeleteClick = (product) => {
+        if (!window.confirm(`Delete "${product.name}${product.variant ? ' ' + product.variant : ''}"?\n\nThis action cannot be undone.`)) return;
+        deleteMutation.mutate(product.id);
+    };
+
+    const handleEditClick = (product) => {
+        setEditingProduct(product);
+
+        // Ensure attributes is always an array
+        let attrs = Array.isArray(product.parsed_attributes) ? product.parsed_attributes : [];
+
+        // If attributes is empty but variant exists, parse variant into attributes
+        if (attrs.length === 0 && product.variant) {
+            const parts = product.variant.split('-').map(v => v.trim()).filter(Boolean);
+            attrs = parts.map(val => ({ key: 'GENERAL', value: val }));
+        }
+
+        // If attributes still empty, try to extract color/size from name pattern "NAME (COLOR)"
+        let cleanName = product.name || '';
+        if (attrs.length === 0) {
+            const nameMatch = cleanName.match(/^(.+?)\s*\(([^)]+)\)\s*$/);
+            if (nameMatch) {
+                cleanName = nameMatch[1].trim();
+                const extractedValue = nameMatch[2].trim();
+                // Determine if it's a color or size (numeric = size)
+                if (!isNaN(parseInt(extractedValue))) {
+                    attrs = [{ key: 'SIZE', value: extractedValue }];
+                } else {
+                    attrs = [{ key: 'COLOR', value: extractedValue }];
+                }
+            }
+        }
+
+        setFormData({
+            sku: product.sku || '',
+            name: cleanName,
+            price: product.price || '',
+            stock_qty: product.stock_qty || '',
+            category: product.category || '',
+            is_service: product.is_service || false,
+            barcode: product.barcode || '',
+            status: product.status || 'available',
+            min_stock: product.min_stock || '0',
+            max_stock: product.max_stock || '99999',
+            watch_threshold: product.watch_threshold || false,
+            variant: product.variant || '',
+            attributes: attrs,
+            image_path: product.image_path || ''
+        });
+        navigateToView('form');
+    };
+
+    const handleAddClick = () => {
+        setEditingProduct(null);
+        setFormData({
+            sku: '', name: '', price: '', stock_qty: '', category: '', is_service: false,
+            barcode: '', status: 'available', min_stock: '0', max_stock: '99999',
+            watch_threshold: false, variant: '', attributes: [], image_path: ''
+        });
+        setMatrixConfig({
+            primaryKey: 'COLOR',
+            primaryValues: '',
+            secondaryKey: 'SIZE',
+            secondaryValues: ''
+        });
+        setMatrixData({});
+        navigateToView('form');
+    };
+
+    const fileInputRef = useRef(null);
+
+    const handleExport = async () => {
+        try {
+            const res = await axios.get('/api/v1/admin/pos/products/export', {
+                responseType: 'blob'
+            });
+            const url = window.URL.createObjectURL(new Blob([res.data]));
+            const link = document.createElement('a');
+            link.href = url;
+            link.setAttribute('download', `shoe_products_${new Date().toISOString().split('T')[0]}.csv`);
+            document.body.appendChild(link);
+            link.click();
+            link.remove();
+        } catch (err) {
+            console.error('Export failed:', err);
+            setToast({ type: 'error', message: 'Export failed.' });
+        }
+    };
+
+    const handleImport = async (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+
+        const formData = new FormData();
+        formData.append('file', file);
+
+        try {
+            const res = await axios.post('/api/v1/admin/pos/products/import', formData, {
+                headers: { 'Content-Type': 'multipart/form-data' }
+            });
+            setToast({ type: 'success', message: `Import completed! ${res.data.imported} products processed.` });
+            queryClient.invalidateQueries(['admin-shoes']);
+        } catch (err) {
+            console.error('Import failed:', err);
+            setToast({ type: 'error', message: err.response?.data?.message || 'Import failed.' });
+        } finally {
+            if (fileInputRef.current) fileInputRef.current.value = '';
+        }
+    };
+    const handlePrintLabels = (productList) => {
+        if (!productList || productList.length === 0) return;
+        setBarcodePrintProducts(productList);
+    };
+
+    const handleAddSimilar = (group) => {
+        const firstItem = group.items[0];
+        setEditingProduct(null);
+        setFormData({
+            sku: '',
+            name: group.name,
+            price: firstItem?.price || '',
+            stock_qty: '',
+            category: firstItem?.category || '',
+            is_service: false,
+            barcode: '',
+            status: 'available',
+            min_stock: firstItem?.min_stock || '0',
+            max_stock: firstItem?.max_stock || '99999',
+            watch_threshold: firstItem?.watch_threshold || false,
+            variant: '',
+            attributes: [],
+            image_path: ''
+        });
+        setMatrixConfig({
+            primaryKey: 'COLOR',
+            primaryValues: '',
+            secondaryKey: 'SIZE',
+            secondaryValues: ''
+        });
+        setMatrixData({});
+        navigateToView('form');
+    };
+
+    const handleSubmit = (e) => {
+        if (e) e.preventDefault();
+        setIsSaving(true);
+
+        // --- Check if Matrix Grid has data (works regardless of activeTab) ---
+        const pVals = (matrixConfig.primaryValues || '').split(',').map(v => v.trim()).filter(Boolean);
+        const sVals = (matrixConfig.secondaryValues || '').split(',').map(v => v.trim()).filter(Boolean);
+        const hasMatrixEntries = Object.values(matrixData).some(v => parseInt(v) > 0);
+
+        if (hasMatrixEntries && pVals.length > 0 && !editingProduct) {
+            // --- Matrix Grid submission (1D or 2D) ---
+            const products = [];
+            const baseSku = formData.sku || formData.name.substring(0, 5).replace(/\s+/g, '').toUpperCase();
+
+            if (sVals.length > 0) {
+                // 2D grid: primary × secondary
+                pVals.forEach(p => {
+                    sVals.forEach(s => {
+                        const qty = parseInt(matrixData[`${p}-${s}`] || 0);
+                        if (qty > 0) {
+                            products.push({
+                                sku: `${baseSku}-${p.toUpperCase()}-${s.toUpperCase()}`,
+                                name: formData.name,
+                                price: formData.price,
+                                stock_qty: qty,
+                                category: formData.category,
+                                is_service: formData.is_service || false,
+                                variant: `-${p.toUpperCase()} -${s.toUpperCase()}`,
+                            });
+                        }
+                    });
+                });
+            } else {
+                // 1D grid: primary only (single attribute products)
+                pVals.forEach(p => {
+                    const qty = parseInt(matrixData[`${p}-QTY`] || 0);
+                    if (qty > 0) {
+                        products.push({
+                            sku: `${baseSku}-${p.toUpperCase()}`,
+                            name: formData.name,
+                            price: formData.price,
+                            stock_qty: qty,
+                            category: formData.category,
+                            is_service: formData.is_service || false,
+                            variant: `-${p.toUpperCase()}`,
+                        });
+                    }
+                });
+            }
+
+            if (products.length === 0) {
+                alert('Please enter quantities in the matrix.');
+                setIsSaving(false);
+                return;
+            }
+
+            bulkStoreMutation.mutate({ products });
+            return;
+        }
+
+        // --- Single product submission ---
+        // Compiles attributes into a standardized string: "-VAL1 -VAL2 ..."
+        const attributeString = (formData.attributes || [])
+            .filter(attr => attr.value?.trim())
+            .map(attr => `-${attr.value.trim().toUpperCase()}`)
+            .join(' ');
+
+        const finalData = {
+            sku: formData.sku || undefined,
+            name: formData.name,
+            price: formData.price,
+            stock_qty: formData.stock_qty || 0,
+            category: formData.category,
+            is_service: formData.is_service || false,
+            variant: attributeString || undefined,
+            image_path: formData.image_path || undefined,
+        };
+
+        mutation.mutate(finalData);
+    };
+
+    // (isLoading removed for full-page, moved inside table)
+
+    // --- Matrix Grid (render function, NOT a component — prevents focus loss) ---
+    const matrixPresets = {
+        sizes: 'S, M, L, XL, XXL',
+        numbers: '28, 30, 32, 34, 36, 38',
+        colors: 'BLACK, WHITE, NAVY, GREY, BEIGE'
+    };
+
+    const applyMatrixPreset = (key, val) => {
+        setMatrixConfig(prev => ({ ...prev, [key]: val }));
+    };
+
+    const updateMatrixQty = (p, s, qty) => {
+        setMatrixData(prev => ({ ...prev, [`${p}-${s}`]: qty }));
+    };
+
+    const handleGridKeyDown = (e, rIdx, cIdx) => {
+        let nextR = rIdx;
+        let nextC = cIdx;
+
+        if (e.key === 'ArrowDown') nextR++;
+        else if (e.key === 'ArrowUp') nextR--;
+        else if (e.key === 'ArrowRight') nextC++;
+        else if (e.key === 'ArrowLeft') nextC--;
+        else return;
+
+        const nextEl = document.querySelector(`input[data-pos="${nextR}-${nextC}"]`);
+        if (nextEl) {
+            e.preventDefault();
+            nextEl.focus();
+            nextEl.select();
+        }
+    };
+
+    const renderMatrixGrid = () => {
+        const pVals = (matrixConfig.primaryValues || '').split(',').map(v => v.trim()).filter(Boolean);
+        const sVals = (matrixConfig.secondaryValues || '').split(',').map(v => v.trim()).filter(Boolean);
+        const is1D = pVals.length > 0 && sVals.length === 0;
+        const is2D = pVals.length > 0 && sVals.length > 0;
+
+        const totalToCreate = Object.values(matrixData).filter(v => parseInt(v) > 0).length;
+
+        return (
+            <div className="space-y-16 animate-in fade-in slide-in-from-bottom-4 duration-500">
+                {/* Configuration Area */}
+                <div className="grid grid-cols-2 gap-16">
+                    {/* Primary Attribute */}
+                    <div className="space-y-6">
+                        <div className="flex items-center justify-between px-1">
+                            <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Primary (e.g. SIZE)</label>
+                            <div className="flex gap-2">
+                                <button type="button" onClick={() => applyMatrixPreset('primaryValues', matrixPresets.colors)} className="text-[9px] font-black text-[#0d3542] dark:text-[#58a6ff] hover:underline uppercase tracking-tighter">Colors</button>
+                                <span className="text-gray-300">|</span>
+                                <button type="button" onClick={() => applyMatrixPreset('primaryValues', matrixPresets.sizes)} className="text-[9px] font-black text-[#0d3542] dark:text-[#58a6ff] hover:underline uppercase tracking-tighter">Sizes</button>
+                            </div>
+                        </div>
+                        <input 
+                            value={matrixConfig.primaryKey} 
+                            onChange={e => setMatrixConfig(prev => ({...prev, primaryKey: e.target.value.toUpperCase()}))} 
+                            className="w-full bg-black/5 dark:bg-white/5 p-5 text-[13px] font-black outline-none border border-black/15 dark:border-white/10 focus:border-[#0d3542] dark:focus:border-[#58a6ff] rounded-2xl transition-all" 
+                            placeholder="ATTRIBUTE NAME"
+                        />
+                        <textarea 
+                            placeholder="Enter values separated by commas..." 
+                            value={matrixConfig.primaryValues} 
+                            onChange={e => setMatrixConfig(prev => ({...prev, primaryValues: e.target.value}))} 
+                            className="w-full bg-black/5 dark:bg-white/5 p-5 text-[13px] font-bold outline-none border border-black/15 dark:border-white/10 focus:border-[#0d3542] dark:focus:border-[#58a6ff] rounded-2xl min-h-24 attire-scrollbar uppercase" 
+                        />
+                    </div>
+
+                    {/* Secondary Attribute (Optional) */}
+                    <div className="space-y-6">
+                        <div className="flex items-center justify-between px-1">
+                            <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Secondary — Optional (e.g. COLOR)</label>
+                            <div className="flex gap-2">
+                                <button type="button" onClick={() => applyMatrixPreset('secondaryValues', matrixPresets.sizes)} className="text-[9px] font-black text-[#0d3542] dark:text-[#58a6ff] hover:underline uppercase tracking-tighter">Sizes</button>
+                                <span className="text-gray-300">|</span>
+                                <button type="button" onClick={() => applyMatrixPreset('secondaryValues', matrixPresets.numbers)} className="text-[9px] font-black text-[#0d3542] dark:text-[#58a6ff] hover:underline uppercase tracking-tighter">Numbers</button>
+                            </div>
+                        </div>
+                        <input 
+                            value={matrixConfig.secondaryKey} 
+                            onChange={e => setMatrixConfig(prev => ({...prev, secondaryKey: e.target.value.toUpperCase()}))} 
+                            className="w-full bg-black/5 dark:bg-white/5 p-5 text-[13px] font-black outline-none border border-black/15 dark:border-white/10 focus:border-[#0d3542] dark:focus:border-[#58a6ff] rounded-2xl transition-all" 
+                            placeholder="ATTRIBUTE NAME"
+                        />
+                        <textarea 
+                            placeholder="Leave empty for single-attribute grid..." 
+                            value={matrixConfig.secondaryValues} 
+                            onChange={e => setMatrixConfig(prev => ({...prev, secondaryValues: e.target.value}))} 
+                            className="w-full bg-black/5 dark:bg-white/5 p-5 text-[13px] font-bold outline-none border border-black/15 dark:border-white/10 focus:border-[#0d3542] dark:focus:border-[#58a6ff] rounded-2xl min-h-24 attire-scrollbar uppercase" 
+                        />
                     </div>
                 </div>
-            )}
 
-            <AnimatePresence mode="wait">
-                {view === 'list' ? (
-                    <motion.div
-                        key="list"
-                        initial={performanceMode ? { opacity: 0 } : { opacity: 0, x: -20 }}
-                        animate={{ opacity: 1, x: 0 }}
-                        exit={performanceMode ? { opacity: 0 } : { opacity: 0, x: 20 }}
-                        transition={performanceMode ? { duration: 0 } : { duration: 0.3 }}
-                        className="space-y-8"
-                    >
-            <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
-                <div>
-                    <h1 className="text-2xl font-serif text-gray-900 dark:text-[#c9d1d9] uppercase tracking-[0.2em]">
-                        {activeOutlet === 'attire_lounge'
-                            ? 'Lounge'
-                            : activeOutlet}{' '}
-                        Collection
-                    </h1>
-                    <p className="text-sm text-gray-500 dark:text-[#8b949e]/60 mt-1 uppercase tracking-widest font-medium">
-                        Manage shoe inventory, prices, and categories
+                {/* SKU Template Preview */}
+                <div className="p-6 bg-[#0d3542]/5 dark:bg-[#58a6ff]/5 rounded-3xl border border-[#0d3542]/10 dark:border-[#58a6ff]/10">
+                    <div className="flex items-center justify-between mb-4">
+                        <span className="text-[10px] font-black text-[#0d3542] dark:text-[#58a6ff] uppercase tracking-[0.2em]">SKU Template Preview</span>
+                        {totalToCreate > 0 && (
+                            <div className="flex items-center gap-2">
+                                <Badge variant="outline" className="bg-emerald-500/10 text-emerald-600 border-emerald-500/20 px-3 py-1">
+                                    {totalToCreate} Products to Create
+                                </Badge>
+                            </div>
+                        )}
+                    </div>
+                    <p className="font-mono text-[12px] text-gray-500 dark:text-white/40">
+                        {formData.name || 'PRODUCT'} {is2D ? `- [${matrixConfig.primaryKey}] - [${matrixConfig.secondaryKey}]` : is1D ? `- [${matrixConfig.primaryKey}]` : '- [VALUE1] - [VALUE2]'} → <span className="text-[#0d3542] dark:text-[#58a6ff] font-bold">
+                            {(formData.sku || (formData.name || 'PROD').substring(0, 5)).toUpperCase()}-{pVals[0] || 'VAL1'}{is2D ? `-${sVals[0] || 'VAL2'}` : ''}
+                        </span>
                     </p>
                 </div>
 
-                <div className="flex items-center gap-3">
-                    <button
-                        onClick={() => {
-                            setEditingShoe(null);
-                            setFormData({
-                                sku: '',
-                                name: '',
-                                variant: '',
-                                price: '',
-                                stock_qty: '',
-                                category: '',
-                                is_active: true,
-                                is_service: false,
-                                image_path: '',
-                                attributes: [],
-                            });
-                            navigateToView('form');
-                        }}
-                        className="flex items-center gap-2 px-4 py-2 bg-[#0d3542] dark:bg-[#58a6ff] text-white dark:text-black rounded-xl text-xs font-bold uppercase tracking-widest hover:scale-105 transition-all shadow-none border border-transparent"
-                    >
-                        <Plus size={14} /> New Shoe
-                    </button>
-                    <button
-                        onClick={openBulkAdd}
-                        className="flex items-center gap-2 px-4 py-2 bg-white dark:bg-[#161b22] border border-black/10 dark:border-[#30363d] text-gray-700 dark:text-[#c9d1d9] rounded-xl text-xs font-bold uppercase tracking-widest hover:border-[#0d3542]/40 dark:hover:border-[#58a6ff]/40 hover:text-[#0d3542] dark:hover:text-[#58a6ff] transition-all"
-                    >
-                        <ClipboardList size={14} /> Bulk Add
-                    </button>
-                </div>
-            </div>
-
-            {/* Quick Stats */}
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-                {[
-                    {
-                        label: 'ALL SHOES',
-                        value: stats.total,
-                        icon: <Footprints size={20} />,
-                        color: 'text-[#0d3542] dark:text-[#58a6ff]',
-                    },
-                    {
-                        label: 'Active Shoes',
-                        value: stats.active,
-                        icon: <CheckCircle size={20} />,
-                        color: 'text-green-500',
-                    },
-                    {
-                        label: 'Low Stock',
-                        value: stats.lowStock,
-                        icon: <AlertCircle size={20} />,
-                        color: 'text-amber-500',
-                    },
-                    {
-                        label: 'Out of Stock',
-                        value: stats.outOfStock,
-                        icon: <AlertCircle size={20} />,
-                        color: 'text-red-500',
-                    },
-                ].map((stat, idx) => (
-                    <div
-                        key={idx}
-                        className="p-6 bg-white dark:bg-[#161b22] border border-black/5 dark:border-[#30363d] rounded-xl shadow-none relative overflow-hidden group"
-                    >
-                        <div className="flex items-center justify-between relative z-10">
-                            <div className="space-y-1">
-                                <p className="text-xs font-bold text-gray-500 dark:text-[#8b949e]/40 uppercase tracking-widest">
-                                    {stat.label}
-                                </p>
-                                <p
-                                    className={`text-2xl font-bold tracking-tighter ${stat.color}`}
-                                >
-                                    {stat.value}
-                                </p>
+                {/* The Matrix Grid — 2D (rows × columns) */}
+                {is2D ? (
+                    <div className="space-y-6 animate-in zoom-in-95 duration-500">
+                        <div className="flex items-center gap-4">
+                            <div className="h-1 w-10 bg-[#0d3542] dark:bg-[#58a6ff] rounded-full" />
+                            <h3 className="text-xs font-black uppercase tracking-[0.4em] text-[#0d3542] dark:bg-[#58a6ff]">Stock Grid</h3>
+                        </div>
+                        
+                        <div className="overflow-x-auto border-2 border-black/15 dark:border-white/5 rounded-[2rem] bg-white dark:bg-[#0d1117] shadow-xl">
+                            <table className="w-full border-collapse">
+                                <thead>
+                                    <tr>
+                                        <th className="p-6 border-b-2 border-r-2 border-black/15 dark:border-white/10 text-[9px] font-black uppercase tracking-[0.2em] text-gray-400 bg-black/[0.02] dark:bg-white/[0.02] sticky left-0 z-10 min-w-40">
+                                            {matrixConfig.primaryKey} \ {matrixConfig.secondaryKey}
+                                        </th>
+                                        {sVals.map(s => (
+                                            <th key={s} className="p-6 border-b-2 border-black/15 dark:border-white/10 text-[11px] font-black uppercase tracking-[0.1em] text-[#0d3542] dark:text-[#58a6ff] min-w-28">
+                                                {s}
+                                            </th>
+                                        ))}
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {pVals.map((p, rIdx) => (
+                                        <tr key={p} className="group">
+                                            <td className="p-6 border-r-2 border-black/15 dark:border-white/10 text-[11px] font-black uppercase tracking-wider text-[#0d3542] dark:text-[#58a6ff] bg-black/[0.01] dark:bg-white/[0.01] group-hover:bg-black/[0.03] dark:group-hover:bg-white/[0.03] transition-colors sticky left-0 z-10">
+                                                {p}
+                                            </td>
+                                            {sVals.map((s, cIdx) => (
+                                                <td key={s} className="p-2 border-b border-black/15 dark:border-white/5 group-hover:bg-black/[0.01] dark:group-hover:bg-white/[0.01] transition-colors">
+                                                    <input 
+                                                        type="number" 
+                                                        data-pos={`${rIdx}-${cIdx}`}
+                                                        value={matrixData[`${p}-${s}`] || ''} 
+                                                        onChange={e => updateMatrixQty(p, s, e.target.value)}
+                                                        onKeyDown={e => handleGridKeyDown(e, rIdx, cIdx)}
+                                                        className="w-full bg-black/5 dark:bg-white/5 border-2 border-transparent p-4 text-center font-mono font-black text-lg rounded-xl focus:border-[#0d3542] dark:focus:border-[#58a6ff] focus:bg-white dark:focus:bg-[#161b22] outline-none transition-all placeholder:text-gray-300 dark:placeholder:text-white/5 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                                                        placeholder="0"
+                                                    />
+                                                </td>
+                                            ))}
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
+                        </div>
+                        <div className="flex items-center justify-center gap-6">
+                            <div className="flex items-center gap-2">
+                                <Keyboard size={14} className="text-gray-400" />
+                                <span className="text-[9px] font-bold text-gray-400 uppercase tracking-widest">Use arrow keys to navigate grid</span>
                             </div>
-                            <div
-                                className={`p-4 rounded-lg bg-black/[0.03] dark:bg-[#0d1117] ${stat.color} group-hover:scale-110 transition-transform border border-black/5 dark:border-[#30363d]`}
-                            >
-                                {stat.icon}
-                            </div>
+                            <div className="w-1.5 h-1.5 rounded-full bg-gray-200" />
+                            <span className="text-[9px] font-bold text-gray-400 uppercase tracking-widest">Only entries with stock will be created</span>
                         </div>
                     </div>
-                ))}
-            </div>
-
-            {/* Filter Bar */}
-            <div className="relative z-20 flex flex-col md:flex-row gap-4 items-center bg-white dark:bg-[#161b22] p-4 rounded-xl border border-black/5 dark:border-[#30363d] shadow-none">
-                <div className="relative flex-1 w-full group">
-                    <Search
-                        size={18}
-                        className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-[#0d3542] dark:group-focus-within:text-[#58a6ff] transition-colors"
-                    />
-                    <input
-                        id="search-shoes"
-                        type="text"
-                        placeholder="Search shoes... (/)"
-                        value={filters.search}
-                        onChange={(e) => {
-                            setFilters((f) => ({
-                                ...f,
-                                search: e.target.value,
-                            }));
-                            setPage(1);
-                        }}
-                        className="w-full bg-black/[0.02] dark:bg-[#0d1117] border border-black/5 dark:border-[#30363d] rounded-lg py-3 pl-12 pr-4 text-sm font-bold uppercase tracking-widest outline-none focus:border-[#0d3542]/50 dark:focus:border-[#58a6ff]/50 transition-all placeholder:text-gray-400 dark:placeholder:text-[#8b949e]/20"
-                    />
-                </div>
-                <div className="flex flex-wrap gap-2 w-full md:w-auto pb-1 md:pb-0">
-                    <FilterDropdown
-                        label="All Categories"
-                        icon={Layers}
-                        value={filters.category}
-                        options={['', ...categories].map(cat => ({
-                            label: cat || 'All Categories',
-                            value: cat
-                        }))}
-                        onChange={(val) => {
-                            setFilters(f => ({ ...f, category: val }));
-                            setPage(1);
-                        }}
-                    />
-
-                    <FilterDropdown
-                        label="All Stock"
-                        icon={Package}
-                        value={filters.stockStatus}
-                        options={[
-                            { label: 'All Stock', value: '' },
-                            { label: 'Low Stock', value: 'low' },
-                            { label: 'Out of Stock', value: 'out' }
-                        ]}
-                        onChange={(val) => {
-                            setFilters(f => ({ ...f, stockStatus: val }));
-                            setPage(1);
-                        }}
-                    />
-
-                    <FilterDropdown
-                        label="Active Status"
-                        icon={CheckCircle}
-                        value={filters.status}
-                        options={[
-                            { label: 'Active', value: 'active' },
-                            { label: 'Archived', value: 'inactive' },
-                            { label: 'All Status', value: 'all' }
-                        ]}
-                        onChange={(val) => {
-                            setFilters(f => ({ ...f, status: val }));
-                            setPage(1);
-                        }}
-                    />
-                </div>
-            </div>
-
-            {/* Table Area */}
-            <div className="bg-white dark:bg-[#161b22] border border-black/5 dark:border-[#30363d] rounded-xl shadow-none overflow-hidden min-h-[400px]">
-                <table className="w-full text-left border-collapse table-fixed">
-                    <thead>
-                        <tr className="bg-black/[0.02] dark:bg-[#0d1117] border-b border-black/5 dark:border-[#30363d]">
-                            <th className="w-16 px-6 py-5 text-center">
-                                <button
-                                    onClick={handleSelectAll}
-                                    className={`w-5 h-5 rounded-md border flex items-center justify-center transition-all mx-auto ${shoes.length > 0 && shoes.every(d => !!selectedShoesMap[d.id]) ? 'bg-[#0d3542] dark:bg-[#58a6ff] border-[#0d3542] dark:border-[#58a6ff]' : 'bg-black/5 dark:bg-[#0d1117] border-black/10 dark:border-[#30363d] hover:border-[#0d3542]/40'}`}
-                                >
-                                    {shoes.length > 0 &&
-                                        shoes.every(d => !!selectedShoesMap[d.id]) && (
-                                            <Check
-                                                size={12}
-                                                className="text-white dark:text-black"
-                                            />
-                                        )}
-                                </button>
-                            </th>
-                            <th className="w-16 px-6 py-5 text-center text-xs font-bold uppercase tracking-[0.2em] text-gray-500 dark:text-[#8b949e]/40 whitespace-nowrap">
-                                STS
-                            </th>
-                            <th className="w-32 px-6 py-5 text-center text-xs font-bold uppercase tracking-[0.2em] text-gray-500 dark:text-[#8b949e]/40 whitespace-nowrap">
-                                SKU
-                            </th>
-                            <th className="w-auto px-6 py-5 text-left text-xs font-bold uppercase tracking-[0.2em] text-gray-500 dark:text-[#8b949e]/40 whitespace-nowrap">
-                                Shoe
-                            </th>
-                            <th className="w-40 px-6 py-5 text-center text-xs font-bold uppercase tracking-[0.2em] text-gray-500 dark:text-[#8b949e]/40 whitespace-nowrap">
-                                Category
-                            </th>
-                            <th className="w-24 px-6 py-5 text-center text-xs font-bold uppercase tracking-[0.2em] text-gray-500 dark:text-[#8b949e]/40 whitespace-nowrap">
-                                Size
-                            </th>
-                            <th className="w-32 px-6 py-5 text-right text-xs font-bold uppercase tracking-[0.2em] text-gray-500 dark:text-[#8b949e]/40 whitespace-nowrap">
-                                Stock
-                            </th>
-                            <th className="w-32 px-6 py-5 text-center text-xs font-bold uppercase tracking-[0.2em] text-gray-500 dark:text-[#8b949e]/40 whitespace-nowrap">
-                                Price
-                            </th>
-                        </tr>
-                    </thead>
-                    <tbody className="divide-y divide-black/5 dark:divide-[#30363d]">
-                        {isLoading && shoes.length === 0 ? (
-                            Array.from({ length: 8 }).map((_, i) => (
-                                <tr key={i} className="animate-pulse">
-                                    <td className="px-6 py-4 text-center">
-                                        <div className="w-5 h-5 rounded bg-gray-200 dark:bg-white/5 mx-auto" />
-                                    </td>
-                                    <td className="px-6 py-4 text-center">
-                                        <div className="w-2 h-2 rounded-full bg-gray-200 dark:bg-white/5 mx-auto" />
-                                    </td>
-                                    <td className="px-6 py-4 text-center">
-                                        <div
-                                            className="h-4 w-16 mx-auto rounded bg-gray-200 dark:bg-white/5"
-                                            style={{
-                                                animationDelay: `${i * 80}ms`,
-                                            }}
-                                        />
-                                    </td>
-                                    <td className="px-6 py-4">
-                                        <div className="flex items-center gap-3">
-                                            <div className="w-10 h-10 rounded-lg bg-gray-200 dark:bg-white/5" />
-                                            <div
-                                                className={`h-4 rounded bg-gray-200 dark:bg-white/5`}
-                                                style={{
-                                                    width: `${100 + Math.random() * 120}px`,
-                                                    animationDelay: `${i * 80 + 20}ms`,
-                                                }}
-                                            />
-                                        </div>
-                                    </td>
-                                    <td className="px-6 py-4 text-center">
-                                        <div
-                                            className="h-5 w-20 mx-auto rounded-lg bg-gray-200 dark:bg-white/5"
-                                            style={{
-                                                animationDelay: `${i * 80 + 40}ms`,
-                                            }}
-                                        />
-                                    </td>
-                                    <td className="px-6 py-4 text-right">
-                                        <div
-                                            className="h-4 w-10 ml-auto rounded bg-gray-200 dark:bg-white/5"
-                                            style={{
-                                                animationDelay: `${i * 80 + 60}ms`,
-                                            }}
-                                        />
-                                    </td>
-                                    <td className="px-6 py-4 text-center">
-                                        <div
-                                            className="h-4 w-14 mx-auto rounded bg-gray-200 dark:bg-white/5"
-                                            style={{
-                                                animationDelay: `${i * 80 + 80}ms`,
-                                            }}
-                                        />
-                                    </td>
-                                </tr>
-                            ))
-                        ) : shoes.length === 0 ? (
-                            <tr>
-                                <td
-                                    colSpan="7"
-                                    className="px-6 py-20 text-center opacity-40"
-                                >
-                                    <Footprints
-                                        size={48}
-                                        className="mx-auto mb-4 text-gray-400"
-                                    />
-                                    <h3 className="text-sm font-bold uppercase tracking-widest text-gray-900 dark:text-white mb-1">
-                                        No Shoes Found
-                                    </h3>
-                                    <p className="text-xs text-gray-500 uppercase tracking-widest">
-                                        Try adjusting your search or filters.
-                                    </p>
-                                </td>
-                            </tr>
-                        ) : (
-                            groupedByCategory.map((group) => (
-                                <React.Fragment key={group.name}>
-                                    <tr className="bg-[#0d3542]/5 dark:bg-[#58a6ff]/5 border-b border-[#0d3542]/20 dark:border-[#58a6ff]/20">
-                                        <td colSpan="7" className="px-6 py-3.5">
-                                            <div className="flex items-center gap-3">
-                                                <button
-                                                    onClick={() => {
-                                                        setSelectedShoesMap((prev) => {
-                                                            const next = { ...prev };
-                                                            const allSelected = group.items.every(d => !!next[d.id]);
-                                                            group.items.forEach(d => {
-                                                                if (allSelected) delete next[d.id];
-                                                                else next[d.id] = d;
-                                                            });
-                                                            return next;
-                                                        });
-                                                    }}
-                                                    className={`w-5 h-5 rounded-md border-2 flex items-center justify-center transition-all shrink-0 ${
-                                                        group.items.every(d => !!selectedShoesMap[d.id])
-                                                            ? 'bg-[#0d3542] dark:bg-[#58a6ff] border-[#0d3542] dark:border-[#58a6ff]'
-                                                            : 'border-black/25 dark:border-[#30363d]'
-                                                    }`}
-                                                >
-                                                     {group.items.every(d => !!selectedShoesMap[d.id]) && <Check size={12} className="text-white dark:text-black" />}
-                                                </button>
-                                                <div className="h-1 w-8 bg-[#0d3542] dark:bg-[#58a6ff] rounded-full" />
-                                                <span className="text-[11px] font-black uppercase tracking-[0.25em] text-[#0d3542] dark:text-[#58a6ff]">{group.name}</span>
-                                                <span className="px-2 py-0.5 bg-black/10 dark:bg-white/10 text-[9px] font-black text-gray-500 dark:text-white/40 uppercase tracking-widest rounded">{group.items.length} items</span>
-                                            </div>
-                                        </td>
+                ) : is1D ? (
+                    /* The Matrix Grid — 1D (single attribute, flat list) */
+                    <div className="space-y-6 animate-in zoom-in-95 duration-500">
+                        <div className="flex items-center gap-4">
+                            <div className="h-1 w-10 bg-[#0d3542] dark:bg-[#58a6ff] rounded-full" />
+                            <h3 className="text-xs font-black uppercase tracking-[0.4em] text-[#0d3542] dark:text-[#58a6ff]">Stock List</h3>
+                            <span className="text-[9px] font-bold text-gray-400 uppercase tracking-widest ml-2">Single attribute mode</span>
+                        </div>
+                        
+                        <div className="overflow-x-auto border-2 border-black/15 dark:border-white/5 rounded-[2rem] bg-white dark:bg-[#0d1117] shadow-xl">
+                            <table className="w-full border-collapse">
+                                <thead>
+                                    <tr>
+                                        <th className="p-6 border-b-2 border-r-2 border-black/15 dark:border-white/10 text-[9px] font-black uppercase tracking-[0.2em] text-gray-400 bg-black/[0.02] dark:bg-white/[0.02] sticky left-0 z-10 min-w-40">
+                                            {matrixConfig.primaryKey}
+                                        </th>
+                                        <th className="p-6 border-b-2 border-black/15 dark:border-white/10 text-[11px] font-black uppercase tracking-[0.1em] text-[#0d3542] dark:text-[#58a6ff] min-w-36">
+                                            QTY
+                                        </th>
                                     </tr>
-                                    {group.items.map((d) => (
-                                        <ShoeRow
-                                            key={d.id}
-                                            shoe={d}
-                                            isSelected={!!selectedShoesMap[d.id]}
-                                            isFocused={focusedId === d.id}
-                                            quickEditField={quickEditField}
-                                            onToggleSelect={toggleSelect}
-                                            onFocus={setFocusedId}
-                                            onEdit={(shoe) => {
-                                                setEditingShoe(shoe);
-                                                setFormData({
-                                                    sku: shoe.sku || '',
-                                                    name: shoe.name || '',
-                                                    price: shoe.price || '',
-                                                    stock_qty: shoe.stock_qty || '',
-                                                    category: shoe.category || '',
-                                                    is_active: shoe.is_active ?? true,
-                                                    is_service: shoe.is_service || false,
-                                                    image_path: shoe.image_path || '',
-                                                    attributes: shoe.attributes || [],
-                                                });
-                                                navigateToView('form');
-                                            }}
-                                            onQuickEdit={setQuickEditField}
-                                            onUpdateField={(id, data) =>
-                                                updateMutation.mutate({ id, data })
-                                            }
-                                            performanceMode={performanceMode}
-                                        />
+                                </thead>
+                                <tbody>
+                                    {pVals.map((p, rIdx) => (
+                                        <tr key={p} className="group">
+                                            <td className="p-6 border-r-2 border-black/15 dark:border-white/10 text-[11px] font-black uppercase tracking-wider text-[#0d3542] dark:text-[#58a6ff] bg-black/[0.01] dark:bg-white/[0.01] group-hover:bg-black/[0.03] dark:group-hover:bg-white/[0.03] transition-colors sticky left-0 z-10">
+                                                {p}
+                                            </td>
+                                            <td className="p-2 border-b border-black/15 dark:border-white/5 group-hover:bg-black/[0.01] dark:group-hover:bg-white/[0.01] transition-colors">
+                                                <input 
+                                                    type="number" 
+                                                    data-pos={`${rIdx}-0`}
+                                                    value={matrixData[`${p}-QTY`] || ''} 
+                                                    onChange={e => updateMatrixQty(p, 'QTY', e.target.value)}
+                                                    onKeyDown={e => handleGridKeyDown(e, rIdx, 0)}
+                                                    className="w-full bg-black/5 dark:bg-white/5 border-2 border-transparent p-4 text-center font-mono font-black text-lg rounded-xl focus:border-[#0d3542] dark:focus:border-[#58a6ff] focus:bg-white dark:focus:bg-[#161b22] outline-none transition-all placeholder:text-gray-300 dark:placeholder:text-white/5 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                                                    placeholder="0"
+                                                />
+                                            </td>
+                                        </tr>
                                     ))}
-                                </React.Fragment>
-                            ))
-                        )}
-                    </tbody>
-                </table>
-            </div>
-
-            {/* Pagination Controls */}
-            <div className="flex items-center justify-between pb-10">
-                <p className="text-xs font-bold text-gray-500 dark:text-[#8b949e]/40 uppercase tracking-widest">
-                    Showing {shoes.length} of{' '}
-                    {meta.total || shoes.length} shoes
-                </p>
-                <div className="flex items-center gap-2">
-                    <button
-                        disabled={page === 1}
-                        onClick={() => setPage((p) => Math.max(1, p - 1))}
-                        className="p-2 rounded-xl border border-black/5 dark:border-[#30363d] text-gray-400 hover:text-[#0d3542] dark:hover:text-[#58a6ff] transition-all disabled:opacity-30"
-                    >
-                        <ChevronLeft size={16} />
-                    </button>
-                    <button
-                        disabled={!meta.last_page || page >= meta.last_page}
-                        onClick={() => setPage((p) => p + 1)}
-                        className="p-2 rounded-xl border border-black/5 dark:border-[#30363d] text-gray-400 hover:text-[#0d3542] dark:hover:text-[#58a6ff] transition-all disabled:opacity-30"
-                    >
-                        <ChevronRight size={16} />
-                    </button>
-                </div>
-            </div>
-
-            </motion.div>
-                ) : null}
-            </AnimatePresence>
-
-            {/* --- Full Page Edit/Create Form --- */}
-            <AnimatePresence>
-                {view === 'form' && (
-                    <motion.div
-                        key="form"
-                        initial={performanceMode ? { opacity: 0 } : { opacity: 0, x: 20 }}
-                        animate={{ opacity: 1, x: 0 }}
-                        exit={performanceMode ? { opacity: 0 } : { opacity: 0, x: -20 }}
-                        transition={performanceMode ? { duration: 0 } : { duration: 0.3 }}
-                        className="flex-1 flex flex-col overflow-hidden bg-[#fcfcfa] dark:bg-[#0f0f0f]"
-                    >
-                        {/* Form Header */}
-                        <div className="h-20 shrink-0 border-b border-black/15 dark:border-white/5 flex items-center justify-between px-8 bg-white dark:bg-[#111]">
-                            <div className="flex items-center gap-4">
-                                <button
-                                    onClick={() => window.history.back()}
-                                    className="h-10 w-10 rounded-xl bg-black/5 dark:bg-white/5 flex items-center justify-center text-gray-500 hover:text-[#0d3542] dark:hover:text-[#58a6ff] transition-all hover:bg-[#0d3542]/10 dark:hover:bg-[#58a6ff]/10"
-                                >
-                                    <ChevronLeft size={18} />
-                                </button>
-                                <div>
-                                    <h2 className="text-lg font-black text-[#0d3542] dark:text-[#58a6ff] tracking-[0.3em] uppercase">
-                                        {editingShoe ? 'Edit Shoe' : 'New Shoe'}
-                                    </h2>
-                                    <p className="text-[9px] font-bold text-gray-400 dark:text-white/30 uppercase tracking-widest mt-0.5">Shoe Settings</p>
-                                </div>
+                                </tbody>
+                            </table>
+                        </div>
+                        <div className="flex items-center justify-center gap-6">
+                            <div className="flex items-center gap-2">
+                                <Keyboard size={14} className="text-gray-400" />
+                                <span className="text-[9px] font-bold text-gray-400 uppercase tracking-widest">Use arrow keys to navigate</span>
                             </div>
-                            <div className="flex items-center gap-3">
-                                <Button variant="outline" onClick={closeForm} className="h-10 px-6 text-[10px] font-black uppercase tracking-[0.2em] border-black/25 dark:border-white/10 text-gray-400 rounded-xl hover:bg-black/5 dark:hover:bg-white/5">
-                                    CANCEL
-                                </Button>
-                                {editingShoe && (
-                                    <Button
-                                        variant="outline"
-                                        onClick={() => {
-                                            Swal.fire({
-                                                title: 'Delete this shoe?',
-                                                text: 'This action cannot be undone.',
-                                                icon: 'warning',
-                                                showCancelButton: true,
-                                                confirmButtonColor: '#ef4444',
-                                                cancelButtonColor: '#6b7280',
-                                                confirmButtonText: 'Yes, delete it',
-                                                background: document.documentElement.classList.contains('dark') ? '#161b22' : '#fff',
-                                                color: document.documentElement.classList.contains('dark') ? '#c9d1d9' : '#111',
-                                            }).then((result) => {
-                                                if (result.isConfirmed) {
-                                                    deleteMutation.mutate(editingShoe.id);
-                                                    closeForm();
-                                                }
-                                            });
-                                        }}
-                                        disabled={deleteMutation.isPending}
-                                        className="h-10 px-5 text-[10px] font-black uppercase tracking-[0.2em] border-red-500/30 text-red-500 hover:bg-red-500 hover:text-white hover:border-red-500 rounded-xl transition-all"
-                                    >
-                                        <Trash2 size={14} className="mr-1.5" />
-                                        DELETE
-                                    </Button>
-                                )}
-                                <Button onClick={(e) => { e.preventDefault(); setIsSaving(true); mutation.mutate(formData); }} disabled={isSaving} className="h-10 px-8 bg-[#0d3542] dark:bg-[#58a6ff] text-white dark:text-black text-[10px] font-black uppercase tracking-[0.2em] hover:opacity-90 transition-all rounded-xl">
-                                    {isSaving ? <Loader2 className="animate-spin mr-1.5" size={14} /> : <Save size={14} className="mr-1.5" />}
-                                    {editingShoe ? 'SAVE CHANGES' : 'CREATE SHOE'}
-                                </Button>
+                            <div className="w-1.5 h-1.5 rounded-full bg-gray-200" />
+                            <span className="text-[9px] font-bold text-gray-400 uppercase tracking-widest">Only entries with stock will be created</span>
+                        </div>
+                    </div>
+                ) : (
+                    <div className="py-20 text-center border-2 border-dashed border-black/15 dark:border-white/5 rounded-[3rem] bg-black/[0.01] dark:bg-white/[0.01]">
+                        <Layers size={40} className="mx-auto text-gray-300 mb-4 opacity-20" />
+                        <p className="text-[11px] font-black text-gray-400 uppercase tracking-[0.3em]">Enter primary attribute values to unlock the grid</p>
+                    </div>
+                )}
+            </div>
+        );
+    };
+
+    return (
+        <div className="flex flex-row w-full h-full bg-background dark:bg-[#111111] font-sans selection:bg-[#0d3542]/20 relative text-gray-900 dark:text-white transition-colors duration-300">
+            
+            {/* --- Persistent Sidebar Filter Hub --- */}
+            <div className="w-[280px] shrink-0 flex flex-col p-0 border-r-2 border-black/15 dark:border-[#30363d] bg-[#fdfdfc] dark:bg-[#0d1117] transition-colors sticky top-0 h-screen z-50 overflow-hidden">
+                <div className="p-5 border-b-2 border-black/15 dark:border-[#30363d] bg-[#fdfdfc] dark:bg-[#0d1117]">
+                    <div className="space-y-3">
+                        <Button 
+                            onClick={handleAddClick}
+                            className="w-full bg-[#0d3542] dark:bg-[#58a6ff] text-white dark:text-black hover:opacity-90 text-[10px] font-black uppercase tracking-[0.2em] h-11 shadow-none rounded-xl"
+                        >
+                            <Plus size={14} className="mr-2" /> Add Shoe
+                        </Button>
+                        <div className="flex gap-2">
+                            <input 
+                                type="file" 
+                                ref={fileInputRef} 
+                                onChange={handleImport} 
+                                accept=".csv" 
+                                className="hidden" 
+                            />
+                            <Button 
+                                onClick={handleExport}
+                                variant="outline" 
+                                className="flex-1 h-10 border border-black/15 dark:border-[#30363d] text-[9px] font-black uppercase tracking-widest text-gray-400 dark:text-[#8b949e] hover:bg-black/5 dark:hover:bg-white/5 rounded-xl transition-all"
+                            >
+                                <Download size={12} className="mr-1.5" /> Export
+                            </Button>
+                            <Button 
+                                onClick={() => fileInputRef.current?.click()}
+                                variant="outline" 
+                                className="flex-1 h-10 border border-black/15 dark:border-[#30363d] text-[9px] font-black uppercase tracking-widest text-gray-400 dark:text-[#8b949e] hover:bg-black/5 dark:hover:bg-white/5 rounded-xl transition-all"
+                            >
+                                <Upload size={12} className="mr-1.5" /> Import
+                            </Button>
+                        </div>
+                    </div>
+                </div>
+
+                <div className="flex-1 overflow-y-hidden">
+                    <SidebarSection title="Search" icon={Search}>
+                        <div className="space-y-3">
+                            <div className="group relative">
+                                <input 
+                                    type="text"
+                                    value={localFilters.code}
+                                    onChange={e => setLocalFilters({...localFilters, code: e.target.value.toUpperCase()})}
+                                    className="w-full bg-white dark:bg-[#161b22] border-2 border-black/15 dark:border-[#30363d] focus:border-[#0d3542] dark:focus:border-[#58a6ff] pl-10 pr-4 py-3 text-[12px] font-bold tracking-widest outline-none transition-all uppercase text-gray-900 dark:text-white placeholder:text-gray-300 dark:placeholder:text-[#8b949e]/10 rounded-xl"
+                                    placeholder="CODE..."
+                                />
+                                <Hash size={12} className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" />
+                            </div>
+                            <div className="group relative">
+                                <input 
+                                    id="filter-name"
+                                    type="text"
+                                    value={localFilters.nameBarcode}
+                                    onChange={e => setLocalFilters({...localFilters, nameBarcode: e.target.value})}
+                                    className="w-full bg-white dark:bg-[#161b22] border-2 border-black/15 dark:border-[#30363d] focus:border-[#0d3542] dark:focus:border-[#58a6ff] pl-10 pr-4 py-3 text-[12px] font-bold outline-none transition-all uppercase text-gray-900 dark:text-white placeholder:text-gray-300 dark:placeholder:text-[#8b949e]/10 rounded-xl"
+                                    placeholder="NAME..."
+                                />
+                                <Tag size={12} className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" />
+                            </div>
+                            <div className="group relative">
+                                <input 
+                                    type="text"
+                                    value={localFilters.attribute}
+                                    onChange={e => setLocalFilters({...localFilters, attribute: e.target.value.toUpperCase()})}
+                                    className="w-full bg-white dark:bg-[#161b22] border-2 border-black/15 dark:border-[#30363d] focus:border-[#0d3542] dark:focus:border-[#58a6ff] pl-10 pr-4 py-3 text-[12px] font-bold outline-none transition-all uppercase text-gray-900 dark:text-white placeholder:text-gray-300 dark:placeholder:text-[#8b949e]/10 rounded-xl"
+                                    placeholder="ATTR..."
+                                />
+                                <Layers size={12} className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" />
                             </div>
                         </div>
+                    </SidebarSection>
 
-                        {/* 2-Panel Form Layout */}
-                        <div className="flex-1 flex overflow-hidden bg-[#fdfdfc] dark:bg-[#0d1117]">
-                            {/* Main Content Area (Left) */}
-                            <div className="flex-[2.5] overflow-y-auto p-6 attire-scrollbar space-y-5">
-                                {/* Image + General Info Row */}
-                                <div className="grid xl:grid-cols-3 gap-5">
-                                    {/* Image Uploader Card */}
-                                    <div className="xl:col-span-1">
-                                        <div className="p-4 bg-white dark:bg-[#161b22] border border-black/5 dark:border-[#30363d] rounded-xl shadow-sm space-y-3">
-                                            <label className="text-[9px] font-black text-gray-400 uppercase tracking-[0.2em] block">Shoe Image</label>
-                                            <label
-                                                className={`w-full aspect-square shrink-0 rounded-xl border border-dashed border-black/10 dark:border-[#30363d] bg-black/[0.02] dark:bg-[#0d1117] flex flex-col items-center justify-center cursor-pointer hover:border-[#0d3542]/50 dark:hover:border-[#58a6ff]/50 transition-all group overflow-hidden relative ${uploading ? 'pointer-events-none opacity-50' : ''}`}
-                                            >
-                                                <input type="file" className="hidden" accept="image/*" onChange={handleImageUpload} />
-                                                {formData.image_path ? (
-                                                    <img src={formData.image_path} alt="Preview" className="w-full h-full object-cover" />
-                                                ) : uploading ? (
-                                                    <Loader2 size={24} className="animate-spin text-[#0d3542] dark:text-[#58a6ff]" />
-                                                ) : (
-                                                    <div className="flex flex-col items-center gap-1">
-                                                        <Upload size={24} className="text-gray-400 dark:text-[#8b949e] group-hover:text-[#0d3542] dark:group-hover:text-[#58a6ff] transition-colors" />
-                                                        <span className="text-[8px] font-bold text-gray-400 uppercase tracking-widest">Upload</span>
-                                                    </div>
-                                                )}
-                                            </label>
-                                            {formData.image_path && (
-                                                <button
-                                                    type="button"
-                                                    onClick={() => setFormData(f => ({ ...f, image_path: '' }))}
-                                                    className="w-full text-[9px] font-bold uppercase tracking-widest text-red-500 hover:text-red-600 transition-colors py-1"
-                                                >
-                                                    Remove Image
-                                                </button>
-                                            )}
-                                        </div>
+                    <SidebarSection title="Group" icon={Layers}>
+                        <BespokeSelect 
+                            value={filters.group}
+                            options={categories}
+                            onChange={val => setFilters({...filters, group: val})}
+                            direction="up"
+                        />
+                    </SidebarSection>
+
+                    <SidebarSection title="Stock Status" icon={Package}>
+                        <BespokeSelect 
+                            value={filters.stockStatus === 'all' ? 'ALL STOCK' : 
+                                   filters.stockStatus === 'in' ? 'IN STOCK' : 
+                                   filters.stockStatus === 'out' ? 'OUT OF STOCK' : 'LOW STOCK'}
+                            options={[
+                                { label: 'ALL STOCK', value: 'all' },
+                                { label: 'IN STOCK', value: 'in' },
+                                { label: 'OUT OF STOCK', value: 'out' },
+                                { label: 'LOW STOCK', value: 'low' }
+                            ]}
+                            onChange={val => setFilters({...filters, stockStatus: val})}
+                            direction="up"
+                        />
+                    </SidebarSection>
+                </div>
+            </div>
+
+            {/* --- Content Area --- */}
+            <div className="flex-1 flex flex-col overflow-hidden bg-background dark:bg-[#111111] transition-colors duration-300">
+                <AnimatePresence mode="wait">
+                    {view === 'list' ? (
+                        <motion.div 
+                            key="list" 
+                            initial={performanceMode ? { opacity: 0 } : { opacity: 0, x: -20 }} 
+                            animate={{ opacity: 1, x: 0 }} 
+                            exit={performanceMode ? { opacity: 0 } : { opacity: 0, x: 20 }} 
+                            transition={performanceMode ? { duration: 0 } : { duration: 0.3 }}
+                            className="flex-1 flex flex-col overflow-hidden"
+                        >
+
+                            <div className="grid grid-cols-3 gap-4 p-6 border-b border-black/20 dark:border-white/5 bg-background dark:bg-[#111] transition-colors duration-300">
+                                <div className="flex items-center gap-4 px-4 py-3 rounded-2xl bg-emerald-500/5 border border-emerald-500/10">
+                                    <div className="w-10 h-10 rounded-xl bg-emerald-500/10 flex items-center justify-center">
+                                        <DollarSign size={20} className="text-emerald-500" />
                                     </div>
+                                    <div>
+                                        <p className="text-2xl font-mono font-black text-[#0d3542] dark:text-white">{formatPrice(metrics.totalValue)}</p>
+                                        <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Stock Value</p>
+                                    </div>
+                                </div>
+                                <div className="flex items-center gap-4 px-4 py-3 rounded-2xl bg-black/5 dark:bg-white/5 border border-black/15 dark:border-white/5">
+                                    <div className="w-10 h-10 rounded-xl bg-black/5 dark:bg-white/5 flex items-center justify-center">
+                                        <Package size={20} className="text-gray-500 dark:text-white/60" />
+                                    </div>
+                                    <div>
+                                        <p className="text-2xl font-mono font-black text-gray-900 dark:text-white">{metrics.totalSkus}</p>
+                                        <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Shoes</p>
+                                    </div>
+                                </div>
+                                <div className="flex items-center gap-4 px-4 py-3 rounded-2xl bg-rose-500/5 border border-rose-500/10">
+                                    <div className="w-10 h-10 rounded-xl bg-rose-500/10 flex items-center justify-center">
+                                        <AlertCircle size={20} className="text-rose-500" />
+                                    </div>
+                                    <div>
+                                        <p className="text-2xl font-mono font-black text-rose-500">{metrics.criticalCount}</p>
+                                        <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Low Stock</p>
+                                    </div>
+                                </div>
+                            </div>
 
-                                    {/* General Information */}
-                                    <div className="xl:col-span-2">
+
+                             <div className={`flex-1 overflow-auto attire-scrollbar relative min-h-0 bg-background dark:bg-[#0f0f0f] border-t border-black/20 dark:border-white/5`}>
+                                        {(isLoading && !productsData) && (
+                                            <div className="absolute inset-0 z-50 flex items-center justify-center bg-white/50 dark:bg-black/80">
+                                                <LumaSpin size="lg" />
+                                            </div>
+                                        )}
+                                        <table className="w-full text-left border-separate border-spacing-0 min-w-200 bg-transparent">
+                                            <thead className="sticky top-0 z-40 bg-[#fdfdfc] dark:bg-[#0d1117]">
+                                                <tr className="bg-black/2 dark:bg-[#161b22] text-gray-400 dark:text-[#8b949e]/40 uppercase text-[10px] tracking-[0.3em] font-black transition-colors border-b-2 border-black/15 dark:border-[#30363d]">
+                                                    <th className="px-4 py-4 w-14 text-center">
+                                                        <button 
+                                                            onClick={handleSelectAll}
+                                                            className={`w-5 h-5 rounded-md border-2 flex items-center justify-center transition-all mx-auto ${selectedIds.size === products.length && products.length > 0 ? 'bg-[#0d3542] dark:bg-[#58a6ff] border-[#0d3542] dark:border-[#58a6ff]' : 'border-black/25 dark:border-[#30363d]'}`}
+                                                        >
+                                                            {selectedIds.size === products.length && products.length > 0 && <Check size={12} className="text-white dark:text-black" />}
+                                                        </button>
+                                                    </th>
+                                                    <th className="px-4 py-4 w-28 border-l-2 border-black/15 dark:border-[#30363d] text-center">Status</th>
+                                                    <th className="px-5 py-4 w-36 border-l-2 border-black/15 dark:border-[#30363d] text-center">SKU</th>
+                                                    <th className="px-6 py-4 border-l-2 border-black/15 dark:border-[#30363d]">Shoe Name</th>
+                                                    <th className="px-5 py-4 w-32 border-l-2 border-black/15 dark:border-[#30363d]">Category</th>
+                                                    <th className="px-6 py-4 w-28 border-l-2 border-black/15 dark:border-[#30363d] text-right">In Stock</th>
+                                                    <th className="px-8 py-4 w-36 border-l-2 border-black/15 dark:border-[#30363d] text-center">Price</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody className="divide-y-2 divide-black/5 dark:divide-[#30363d]/30">
+                                                {isError ? (
+                                                    <tr><td colSpan="7" className="py-32 text-center px-8">
+                                                        <div className="text-rose-500 font-black uppercase tracking-widest mb-2">Error Loading Shoes</div>
+                                                        <div className="text-gray-400 text-xs font-mono">{error?.message || 'Please login to access admin features'}</div>
+                                                    </td></tr>
+                                                ) : products.length === 0 ? (
+                                                    <tr><td colSpan="7" className="py-32 text-center opacity-30 italic uppercase tracking-[0.4em] font-black text-gray-400 dark:text-[#8b949e] transition-colors">No shoes found</td></tr>
+                                                ) : (
+                                                    <React.Fragment>
+                                                        {paginatedGroups.map((group) => (
+                                                            <React.Fragment key={group.name}>
+                                                                <tr className="bg-[#0d3542]/5 dark:bg-[#58a6ff]/5 border-b-2 border-[#0d3542]/20 dark:border-[#58a6ff]/20">
+                                                                    <td colSpan="7" className="px-6 py-4">
+                                                                        <div className="flex items-center justify-between gap-3">
+                                                                            <div className="flex items-center gap-3">
+                                                                                <button
+                                                                                    onClick={() => {
+                                                                                        const isGroupSelected = group.items.every(p => selectedProductsMap.has(p.id));
+                                                                                        setSelectedProductsMap(prev => {
+                                                                                            const next = new Map(prev);
+                                                                                            group.items.forEach(p => {
+                                                                                                if (isGroupSelected) next.delete(p.id);
+                                                                                                else next.set(p.id, p);
+                                                                                            });
+                                                                                            return next;
+                                                                                        });
+                                                                                    }}
+                                                                                    className={`w-5 h-5 rounded-md border-2 flex items-center justify-center transition-all ${group.items.every(p => selectedIds.has(p.id)) ? 'bg-[#0d3542] dark:bg-[#58a6ff] border-[#0d3542] dark:border-[#58a6ff]' : 'border-black/25 dark:border-[#30363d]'}`}
+                                                                                >
+                                                                                    {group.items.every(p => selectedIds.has(p.id)) && <Check size={12} className="text-white dark:text-black" />}
+                                                                                </button>
+                                                                                <div className="h-1 w-8 bg-[#0d3542] dark:bg-[#58a6ff] rounded-full" />
+                                                                                <span className="text-[12px] font-black uppercase tracking-[0.3em] text-[#0d3542] dark:text-[#58a6ff]">{group.name}</span>
+                                                                                <span className="px-2 py-0.5 bg-black/10 dark:bg-white/10 text-[9px] font-black text-gray-500 dark:text-white/40 uppercase tracking-widest rounded">{group.items.length} variants</span>
+                                                                            </div>
+                                                                            <div className="flex items-center gap-2">
+                                                                                <button 
+                                                                                    onClick={() => handlePrintLabels(group.items)}
+                                                                                    className="flex items-center gap-2 px-3 py-1.5 bg-black/5 dark:bg-white/5 text-gray-500 dark:text-white/40 hover:text-[#0d3542] dark:hover:text-[#58a6ff] text-[9px] font-black uppercase tracking-widest rounded-lg hover:bg-[#0d3542]/10 dark:hover:bg-[#58a6ff]/10 transition-all border border-black/10 dark:border-white/10"
+                                                                                    title="Print barcode labels for this group"
+                                                                                >
+                                                                                    <Printer size={12} /> Print Labels
+                                                                                </button>
+                                                                                <button 
+                                                                                    onClick={() => handleAddSimilar(group)}
+                                                                                    className="flex items-center gap-2 px-3 py-1.5 bg-[#0d3542] dark:bg-[#58a6ff] text-white dark:text-black text-[9px] font-black uppercase tracking-widest rounded-lg hover:opacity-90 transition-all"
+                                                                                >
+                                                                                    <Plus size={12} /> Add Similar
+                                                                                </button>
+                                                                            </div>
+                                                                        </div>
+                                                                    </td>
+                                                                </tr>
+                                                                {group.items.map((p) => (
+                                                                    <ProductRow 
+                                                                        key={p.id}
+                                                                        product={p}
+                                                                        isSelected={selectedIds.has(p.id)}
+                                                                        isFocused={focusedId === p.id}
+                                                                        quickEditField={quickEditField}
+                                                                        onToggleSelect={toggleSelect}
+                                                                        onFocus={setFocusedId}
+                                                                        onEdit={handleEditClick}
+                                                                        onDelete={handleDeleteClick}
+                                                                        onQuickEdit={setQuickEditField}
+                                                                        onUpdateField={(id, data) => updateMutation.mutate({ id, data })}
+                                                                        formatPrice={formatPrice}
+                                                                        performanceMode={performanceMode}
+                                                                    />
+                                                                ))}
+                                                            </React.Fragment>
+                                                        ))}
+                                                        {totalGroupPages > 1 && (
+                                                            <tr>
+                                                                <td colSpan="7" className="py-6 px-6 relative border-t-2 border-black/5 dark:border-[#30363d]">
+                                                                    <div className="flex items-center justify-between">
+                                                                        <p className="text-[10px] font-bold uppercase tracking-widest text-gray-400 dark:text-[#8b949e]/50 tabular-nums">
+                                                                            {((currentGroupPage - 1) * itemsPerGroupPage) + 1}–{Math.min(currentGroupPage * itemsPerGroupPage, groupedProducts.length)} of {groupedProducts.length}
+                                                                        </p>
+                                                                        <div className="flex items-center gap-1">
+                                                                            <button
+                                                                                onClick={() => setCurrentGroupPage(p => Math.max(1, p - 1))}
+                                                                                disabled={currentGroupPage === 1}
+                                                                                className="p-2 rounded-lg text-gray-400 dark:text-[#8b949e] hover:bg-black/5 dark:hover:bg-[#1c2128] hover:text-gray-900 dark:hover:text-white disabled:opacity-30 disabled:pointer-events-none transition-all"
+                                                                            >
+                                                                                <ChevronLeft size={16} />
+                                                                            </button>
+                                                                            {groupPageRange[0] > 1 && (
+                                                                                <>
+                                                                                    <button onClick={() => setCurrentGroupPage(1)} className="w-8 h-8 rounded-lg text-[10px] font-bold text-gray-500 dark:text-[#8b949e] hover:bg-black/5 dark:hover:bg-[#1c2128] transition-all">1</button>
+                                                                                    {groupPageRange[0] > 2 && <span className="text-[10px] text-gray-300 dark:text-[#8b949e]/30 px-0.5">…</span>}
+                                                                                </>
+                                                                            )}
+                                                                            {groupPageRange.map(p => (
+                                                                                <button
+                                                                                    key={p}
+                                                                                    onClick={() => setCurrentGroupPage(p)}
+                                                                                    className={`w-8 h-8 rounded-lg text-[10px] font-bold transition-all ${
+                                                                                        p === currentGroupPage
+                                                                                            ? 'bg-[#0d3542] dark:bg-[#58a6ff] text-white dark:text-black'
+                                                                                            : 'text-gray-500 dark:text-[#8b949e] hover:bg-black/5 dark:hover:bg-[#1c2128]'
+                                                                                    }`}
+                                                                                >
+                                                                                    {p}
+                                                                                </button>
+                                                                            ))}
+                                                                            {groupPageRange[groupPageRange.length - 1] < totalGroupPages && (
+                                                                                <>
+                                                                                    {groupPageRange[groupPageRange.length - 1] < totalGroupPages - 1 && <span className="text-[10px] text-gray-300 dark:text-[#8b949e]/30 px-0.5">…</span>}
+                                                                                    <button onClick={() => setCurrentGroupPage(totalGroupPages)} className="w-8 h-8 rounded-lg text-[10px] font-bold text-gray-500 dark:text-[#8b949e] hover:bg-black/5 dark:hover:bg-[#1c2128] transition-all">{totalGroupPages}</button>
+                                                                                </>
+                                                                            )}
+                                                                            <button
+                                                                                onClick={() => setCurrentGroupPage(p => Math.min(totalGroupPages, p + 1))}
+                                                                                disabled={currentGroupPage === totalGroupPages}
+                                                                                className="p-2 rounded-lg text-gray-400 dark:text-[#8b949e] hover:bg-black/5 dark:hover:bg-[#1c2128] hover:text-gray-900 dark:hover:text-white disabled:opacity-30 disabled:pointer-events-none transition-all"
+                                                                            >
+                                                                                <ChevronRight size={16} />
+                                                                            </button>
+                                                                        </div>
+                                                                    </div>
+                                                                </td>
+                                                            </tr>
+                                                        )}
+
+                                                    </React.Fragment>
+                                                )}
+                                            </tbody>
+                                        </table>
+                                    </div>
+                        </motion.div>
+                    ) : (
+                        <motion.div key="form" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} className="flex-1 flex flex-col overflow-hidden bg-[#fcfcfa] dark:bg-[#0f0f0f]">
+                            {/* --- Form Header --- */}
+                            <div className="h-24 shrink-0 border-b border-black/15 dark:border-white/5 flex items-center justify-between px-12 bg-white dark:bg-[#111]">
+                                <div className="flex items-center gap-6">
+                                    <button 
+                                        onClick={() => window.history.back()}
+                                        className="h-12 w-12 rounded-2xl bg-black/5 dark:bg-white/5 flex items-center justify-center text-gray-500 hover:text-[#0d3542] dark:hover:text-[#58a6ff] transition-all hover:bg-[#0d3542]/10 dark:hover:bg-[#58a6ff]/10"
+                                    >
+                                        <ChevronLeft size={20} />
+                                    </button>
+                                    <div>
+                                        <h2 className="text-xl font-black text-[#0d3542] dark:text-[#58a6ff] tracking-[0.4em] uppercase">{editingProduct ? 'Edit Shoe' : 'Add New Shoe'}</h2>
+                                        <p className="text-[10px] font-bold text-gray-400 dark:text-white/30 uppercase tracking-widest mt-1">Shoe Settings</p>
+                                    </div>
+                                </div>
+                                <div className="flex items-center gap-4">
+                                    <Button variant="outline" onClick={() => setView('list')} className="h-12 px-8 text-[11px] font-black uppercase tracking-[0.2em] border-black/25 dark:border-white/10 text-gray-400 rounded-xl hover:bg-black/5 dark:hover:bg-white/5">CANCEL</Button>
+                                    {editingProduct && (
+                                        <Button
+                                            variant="outline"
+                                            onClick={() => handleDeleteClick(editingProduct)}
+                                            disabled={deleteMutation.isPending}
+                                            className="h-12 px-6 text-[11px] font-black uppercase tracking-[0.2em] border-red-500/30 text-red-500 hover:bg-red-500 hover:text-white hover:border-red-500 rounded-xl transition-all"
+                                        >
+                                            <Trash2 size={14} className="mr-2" />
+                                            DELETE
+                                        </Button>
+                                    )}
+                                    <Button onClick={handleSubmit} disabled={isSaving} className="h-12 px-10 bg-[#0d3542] dark:bg-[#58a6ff] text-white dark:text-black text-[11px] font-black uppercase tracking-[0.2em] shadow-lg ring-1 ring-inset ring-white/10 dark:ring-black/10 hover:opacity-90 transition-all rounded-xl">
+                                        {isSaving ? <Loader2 className="animate-spin mr-2" size={16} /> : <Save size={14} className="mr-2" />}
+                                        SAVE SHOE
+                                    </Button>
+                                </div>
+                            </div>
+
+                            {/* --- 2-Panel Form Layout --- */}
+                            <div className="flex-1 flex overflow-hidden bg-[#fdfdfc] dark:bg-[#0d1117]">
+                                {/* Main Content Area (Left) */}
+                                <div className="flex-[2.5] overflow-y-auto p-8 attire-scrollbar space-y-6">
+                                    <div className="grid xl:grid-cols-2 gap-6">
                                         <Section title="General Information" icon={Package}>
                                             <div className="space-y-4">
-                                                <div className="grid grid-cols-2 gap-4">
-                                                    <Field label="SKU Code" hint="AUTO-GENERATE IF LEFT EMPTY">
-                                                        <input value={formData.sku} onChange={e => setFormData({...formData, sku: e.target.value.toUpperCase()})} className={`${inputBase} uppercase font-mono tracking-widest`} placeholder="AUTO-GENERATE" />
-                                                    </Field>
-                                                    <Field label="Product Group">
-                                                        {isCreatingCategory ? (
-                                                            <div className="flex gap-2">
-                                                                <input
-                                                                    type="text"
-                                                                    value={newCategoryName}
-                                                                    onChange={e => setNewCategoryName(e.target.value.toUpperCase())}
-                                                                    onKeyDown={e => {
-                                                                        if (e.key === 'Enter' && newCategoryName.trim()) {
-                                                                            setFormData({...formData, category: newCategoryName.trim()});
-                                                                            setIsCreatingCategory(false);
-                                                                            setNewCategoryName('');
-                                                                        }
-                                                                        if (e.key === 'Escape') { setIsCreatingCategory(false); setNewCategoryName(''); }
-                                                                    }}
-                                                                    autoFocus
-                                                                    className="flex-1 min-w-0 bg-white dark:bg-[#0d1117] border border-black/5 dark:border-[#30363d] focus:border-[#0d3542] dark:focus:border-[#58a6ff] px-4 py-3 text-[13px] font-black uppercase outline-none transition-all text-gray-900 dark:text-white rounded-xl"
-                                                                    placeholder="ENTER GROUP NAME..."
-                                                                />
-                                                                <button onClick={() => { if (newCategoryName.trim()) { setFormData({...formData, category: newCategoryName.trim()}); setIsCreatingCategory(false); setNewCategoryName(''); } }} className="px-3 py-3 bg-[#0d3542] dark:bg-[#58a6ff] text-white dark:text-black rounded-xl hover:opacity-90 transition-all"><Check size={16} /></button>
-                                                                <button onClick={() => { setIsCreatingCategory(false); setNewCategoryName(''); }} className="px-3 py-3 bg-black/5 dark:bg-white/5 text-gray-500 hover:bg-red-500/10 hover:text-red-500 rounded-xl transition-all"><X size={16} /></button>
-                                                            </div>
-                                                        ) : (
-                                                            <BespokeSelect
-                                                                value={formData.category}
-                                                                options={[
-                                                                    ...categories,
-                                                                    { label: '+ Create New Group', value: 'NEW_GROUP', isAction: true }
-                                                                ]}
-                                                                onChange={val => setFormData({...formData, category: val})}
-                                                                onAction={() => setIsCreatingCategory(true)}
-                                                                placeholder="SELECT GROUP"
-                                                            />
-                                                        )}
-                                                    </Field>
-                                                </div>
-                                                <Field label="Product Name" hint="* Required">
+                                                <Field label="SKU Code" hint="AUTO-GENERATE IF LEFT EMPTY">
+                                                    <input value={formData.sku} onChange={e => setFormData({...formData, sku: e.target.value.toUpperCase()})} className={`${inputBase} uppercase font-mono tracking-widest`} placeholder="AUTO-GENERATE" />
+                                                </Field>
+                                                <Field label="Shoe Name" hint="* Required">
                                                     <input required value={formData.name} onChange={e => setFormData({...formData, name: e.target.value})} className={`${inputBase} uppercase font-black`} placeholder="ENTER SHOE NAME..." />
                                                 </Field>
-                                                <div className="grid grid-cols-3 gap-4">
-                                                    <Field label="Product Price" hint="Base price">
-                                                        <div className="relative">
-                                                            <input type="number" step="0.01" value={formData.price} onChange={e => setFormData({...formData, price: e.target.value})} className={`${inputBase} pl-8 text-lg font-mono tracking-tight`} placeholder="0.00" />
-                                                            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-[#0d3542] dark:text-[#58a6ff] font-black text-lg">$</span>
-                                                        </div>
-                                                    </Field>
-                                                    <Field label="Stock Qty" hint="Quantity in stock">
-                                                        <input type="number" disabled={formData.is_service} value={formData.stock_qty} onChange={e => setFormData({...formData, stock_qty: e.target.value})} className={`${inputBase} text-center font-mono`} placeholder={formData.is_service ? '∞' : '0'} />
-                                                    </Field>
-                                                    <Field label="Size" hint="Shoe size">
-                                                        <input value={formData.variant} onChange={e => setFormData({...formData, variant: e.target.value})} className={`${inputBase} uppercase text-center`} placeholder="38, 39, 40..." />
-                                                    </Field>
+                                                <Field label="Shoe Price" hint="Base shoe price">
+                                                    <div className="relative">
+                                                        <input type="number" value={formData.price} onChange={e => setFormData({...formData, price: e.target.value})} className={`${inputBase} pl-10 text-lg font-mono tracking-tight`} />
+                                                        <span className="absolute left-4 top-1/2 -translate-y-1/2 text-[#0d3542] dark:text-[#58a6ff] font-black text-lg">$</span>
+                                                    </div>
+                                                </Field>
+                                            </div>
+                                        </Section>
+                                        
+                                        <Section title="Name Preview" icon={Eye}>
+                                            <div className="p-6 bg-black/3 dark:bg-white/3 rounded-xl border border-dashed border-black/25 dark:border-white/10 h-full min-h-32 flex flex-col justify-center text-center space-y-2">
+                                                <div className="text-[10px] font-black text-[#0d3542]/50 dark:text-[#58a6ff]/50 uppercase tracking-widest mb-2">Generated Display Name</div>
+                                                <div className="text-xl font-mono font-black text-gray-900 dark:text-white uppercase leading-snug">
+                                                    {formData.name || 'PRODUCT NAME'} 
+                                                    <br/>
+                                                    <span className="text-[#0d3542] dark:text-[#58a6ff] text-base mt-1">{(formData.attributes || []).filter(a => a.value).map(a => `-${a.value.toUpperCase()}`).join(' ')}</span>
                                                 </div>
                                             </div>
                                         </Section>
                                     </div>
+
+                                    <Section title="Variants & Details" icon={Layers}>
+                                        <div className="space-y-4">
+                                            {(formData.attributes || []).map((attr, idx) => (
+                                                <div key={idx} className="flex gap-4 items-end animate-in fade-in slide-in-from-left-2 transition-all">
+                                                    <div className="flex-1">
+                                                        <Field label="Variant Type">
+                                                            <input value={attr.key} onChange={e => {
+                                                                const newAttrs = [...formData.attributes];
+                                                                newAttrs[idx].key = e.target.value.toUpperCase();
+                                                                setFormData({...formData, attributes: newAttrs});
+                                                            }} className={`${inputBase} font-bold uppercase text-xs`} placeholder="E.G. FABRIC" />
+                                                        </Field>
+                                                    </div>
+                                                    <div className="flex-2">
+                                                        <Field label="Variant Option">
+                                                            <input value={attr.value} onChange={e => {
+                                                                const newAttrs = [...formData.attributes];
+                                                                newAttrs[idx].value = e.target.value.toUpperCase();
+                                                                setFormData({...formData, attributes: newAttrs});
+                                                            }} className={`${inputBase} font-bold uppercase text-xs`} placeholder="E.G. SCABAL DIAMOND CHIP" />
+                                                        </Field>
+                                                    </div>
+                                                    <button onClick={() => setFormData({...formData, attributes: formData.attributes.filter((_, i) => i !== idx)})} className="h-[48px] w-[48px] flex items-center justify-center text-gray-400 hover:text-white transition-all bg-black/5 dark:bg-white/5 rounded-xl border border-black/15 dark:border-white/5 hover:bg-rose-500 hover:border-rose-500 shrink-0">
+                                                        <Trash2 size={16} />
+                                                    </button>
+                                                </div>
+                                            ))}
+                                            <button 
+                                                onClick={() => setFormData({...formData, attributes: [...(formData.attributes || []), { key: '', value: '' }]})}
+                                                className="w-full flex items-center justify-center gap-2 bg-black/5 dark:bg-white/5 hover:bg-black/10 dark:hover:bg-white/10 text-gray-500 hover:text-gray-900 dark:hover:text-white py-4 rounded-xl text-xs font-black uppercase tracking-widest transition-all border border-dashed border-black/20 dark:border-white/10"
+                                            >
+                                                <Plus size={14} /> Add Detail
+                                            </button>
+                                        </div>
+                                    </Section>
+
+                                    {!editingProduct && (
+                                        <div className="pt-2">
+                                            {renderMatrixGrid()}
+                                        </div>
+                                    )}
                                 </div>
 
-                                {/* Name Preview */}
-                                <Section title="Name Preview" icon={Eye}>
-                                    <div className="p-5 bg-black/3 dark:bg-white/3 rounded-xl border border-dashed border-black/25 dark:border-white/10 min-h-24 flex flex-col justify-center text-center space-y-2">
-                                        <div className="text-[9px] font-black text-[#0d3542]/50 dark:text-[#58a6ff]/50 uppercase tracking-widest mb-1">Generated Display Name</div>
-                                        <div className="text-xl font-mono font-black text-gray-900 dark:text-white uppercase leading-snug">
-                                            {formData.name || 'SHOE NAME'}
-                                            <br/>
-                                            <span className="text-[#0d3542] dark:text-[#58a6ff] text-base mt-1">
-                                                {(formData.attributes || []).filter(a => a.value).map(a => `-${a.value.toUpperCase()}`).join(' ')}
-                                            </span>
-                                        </div>
-                                    </div>
-                                </Section>
-
-                                {/* Variants & Details */}
-                                <Section title="Variants & Details" icon={Layers}>
-                                    <div className="space-y-4">
-                                        {(formData.attributes || []).map((attr, idx) => (
-                                            <div key={idx} className="flex gap-4 items-end animate-in fade-in slide-in-from-left-2 transition-all">
-                                                <div className="flex-1">
-                                                    <Field label="Variant Type">
-                                                        <input value={attr.key} onChange={e => {
-                                                            const newAttrs = [...formData.attributes];
-                                                            newAttrs[idx].key = e.target.value.toUpperCase();
-                                                            setFormData({...formData, attributes: newAttrs});
-                                                        }} className={`${inputBase} font-bold uppercase text-xs`} placeholder="E.G. COLOR" />
-                                                    </Field>
-                                                </div>
-                                                <div className="flex-2">
-                                                    <Field label="Variant Option">
-                                                        <input value={attr.value} onChange={e => {
-                                                            const newAttrs = [...formData.attributes];
-                                                            newAttrs[idx].value = e.target.value.toUpperCase();
-                                                            setFormData({...formData, attributes: newAttrs});
-                                                        }} className={`${inputBase} font-bold uppercase text-xs`} placeholder="E.G. NAVY BLUE" />
-                                                    </Field>
-                                                </div>
-                                                <button onClick={() => setFormData({...formData, attributes: formData.attributes.filter((_, i) => i !== idx)})} className="h-[48px] w-[48px] flex items-center justify-center text-gray-400 hover:text-white transition-all bg-black/5 dark:bg-white/5 rounded-xl border border-black/15 dark:border-white/5 hover:bg-rose-500 hover:border-rose-500 shrink-0">
-                                                    <Trash2 size={16} />
-                                                </button>
+                                {/* Sidebar Config Area (Right) */}
+                                <div className="w-[340px] shrink-0 border-l border-black/5 dark:border-[#30363d]/50 bg-white/30 dark:bg-[#161b22]/30 overflow-y-auto attire-scrollbar p-6 space-y-6">
+                                    <Section title="Status & Visibility" icon={Eye}>
+                                        <div className="space-y-3">
+                                            <div className="p-4 bg-white dark:bg-[#161b22] border border-black/5 dark:border-[#30363d] rounded-xl shadow-sm">
+                                                <label className="flex items-center gap-3 cursor-pointer">
+                                                    <input type="checkbox" checked={formData.is_active} onChange={e => setFormData(f => ({ ...f, is_active: e.target.checked }))} className="w-4 h-4 text-[#0d3542] dark:text-[#58a6ff] bg-white border-gray-300 rounded focus:ring-[#0d3542] dark:focus:ring-[#58a6ff]" />
+                                                    <div>
+                                                        <span className="text-xs font-bold uppercase tracking-widest text-gray-900 dark:text-white">Active Product</span>
+                                                        <p className="text-[10px] font-medium text-gray-500 uppercase tracking-widest mt-0.5">Uncheck to archive</p>
+                                                    </div>
+                                                </label>
                                             </div>
-                                        ))}
-                                        <button
-                                            onClick={() => setFormData({...formData, attributes: [...(formData.attributes || []), { key: '', value: '' }]})}
-                                            className="w-full flex items-center justify-center gap-2 bg-black/5 dark:bg-white/5 hover:bg-black/10 dark:hover:bg-white/10 text-gray-500 hover:text-gray-900 dark:hover:text-white py-4 rounded-xl text-xs font-black uppercase tracking-widest transition-all border border-dashed border-black/20 dark:border-white/10"
-                                        >
-                                            <Plus size={14} /> Add Detail
-                                        </button>
-                                    </div>
-                                </Section>
-                            </div>
-
-                            {/* Sidebar Config Area (Right) */}
-                            <div className="w-[300px] shrink-0 border-l border-black/5 dark:border-[#30363d]/50 bg-white/30 dark:bg-[#161b22]/30 overflow-y-auto attire-scrollbar p-5 space-y-5">
-                                <Section title="Status & Visibility" icon={Eye}>
-                                    <div className="space-y-3">
-                                        <div className="p-4 bg-white dark:bg-[#161b22] border border-black/5 dark:border-[#30363d] rounded-xl shadow-sm">
-                                            <label className="flex items-center gap-3 cursor-pointer">
-                                                <input
-                                                    type="checkbox"
-                                                    checked={formData.is_active}
-                                                    onChange={e => setFormData(f => ({ ...f, is_active: e.target.checked }))}
-                                                    className="w-4 h-4 text-[#0d3542] dark:text-[#58a6ff] bg-white border-gray-300 rounded focus:ring-[#0d3542] dark:focus:ring-[#58a6ff]"
-                                                />
-                                                <div>
-                                                    <span className="text-xs font-bold uppercase tracking-widest text-gray-900 dark:text-white">Active Product</span>
-                                                    <p className="text-[10px] font-medium text-gray-500 uppercase tracking-widest mt-0.5">Uncheck to archive</p>
-                                                </div>
-                                            </label>
+                                            <div className="p-4 bg-white dark:bg-[#161b22] border border-black/5 dark:border-[#30363d] rounded-xl shadow-sm">
+                                                <label className="flex items-center gap-3 cursor-pointer">
+                                                    <input type="checkbox" checked={formData.is_service} onChange={e => setFormData(f => ({ ...f, is_service: e.target.checked, stock_qty: e.target.checked ? '' : f.stock_qty }))} className="w-4 h-4 text-[#0d3542] dark:text-[#58a6ff] bg-white border-gray-300 rounded focus:ring-[#0d3542] dark:focus:ring-[#58a6ff]" />
+                                                    <div>
+                                                        <span className="text-xs font-bold uppercase tracking-widest text-gray-900 dark:text-white">Service Item</span>
+                                                        <p className="text-[10px] font-medium text-gray-500 uppercase tracking-widest mt-0.5">Does not track stock</p>
+                                                    </div>
+                                                </label>
+                                            </div>
                                         </div>
-                                        <div className="p-4 bg-white dark:bg-[#161b22] border border-black/5 dark:border-[#30363d] rounded-xl shadow-sm">
-                                            <label className="flex items-center gap-3 cursor-pointer">
-                                                <input
-                                                    type="checkbox"
-                                                    checked={formData.is_service}
-                                                    onChange={e => setFormData(f => ({ ...f, is_service: e.target.checked, stock_qty: e.target.checked ? '' : f.stock_qty }))}
-                                                    className="w-4 h-4 text-[#0d3542] dark:text-[#58a6ff] bg-white border-gray-300 rounded focus:ring-[#0d3542] dark:focus:ring-[#58a6ff]"
-                                                />
-                                                <div>
-                                                    <span className="text-xs font-bold uppercase tracking-widest text-gray-900 dark:text-white">Service Item</span>
-                                                    <p className="text-[10px] font-medium text-gray-500 uppercase tracking-widest mt-0.5">Does not track stock</p>
-                                                </div>
-                                            </label>
-                                        </div>
-                                    </div>
-                                </Section>
+                                    </Section>
 
-                                <Section title="Organization" icon={FolderPlus}>
-                                    <div className="space-y-3">
-                                        <Field label="Product Group">
-                                            {isCreatingCategory ? (
-                                                <div className="flex gap-2">
-                                                    <input
-                                                        type="text"
-                                                        value={newCategoryName}
-                                                        onChange={e => setNewCategoryName(e.target.value.toUpperCase())}
-                                                        onKeyDown={e => {
-                                                            if (e.key === 'Enter' && newCategoryName.trim()) {
-                                                                setFormData({...formData, category: newCategoryName.trim()});
-                                                                setIsCreatingCategory(false);
-                                                                setNewCategoryName('');
-                                                            }
-                                                            if (e.key === 'Escape') { setIsCreatingCategory(false); setNewCategoryName(''); }
-                                                        }}
-                                                        autoFocus
-                                                        className="flex-1 min-w-0 bg-white dark:bg-[#0d1117] border border-black/5 dark:border-[#30363d] focus:border-[#0d3542] dark:focus:border-[#58a6ff] px-4 py-3 text-[13px] font-black uppercase outline-none transition-all text-gray-900 dark:text-white rounded-xl"
-                                                        placeholder="ENTER GROUP NAME..."
+                                    <Section title="Organization" icon={FolderPlus}>
+                                        <div className="space-y-4">
+                                            <Field label="Product Group">
+                                                {isCreatingGroup ? (
+                                                    <div className="flex gap-2">
+                                                        <input
+                                                            type="text"
+                                                            value={newGroupName}
+                                                            onChange={e => setNewGroupName(e.target.value.toUpperCase())}
+                                                            onKeyDown={e => {
+                                                                if (e.key === 'Enter' && newGroupName.trim()) {
+                                                                    setFormData({...formData, category: newGroupName.trim()});
+                                                                    setIsCreatingGroup(false);
+                                                                    setNewGroupName('');
+                                                                }
+                                                                if (e.key === 'Escape') {
+                                                                    setIsCreatingGroup(false);
+                                                                    setNewGroupName('');
+                                                                }
+                                                            }}
+                                                            autoFocus
+                                                            className="flex-1 min-w-0 bg-white dark:bg-[#0d1117] border border-black/5 dark:border-[#30363d] focus:border-[#0d3542] dark:focus:border-[#58a6ff] px-4 py-3 text-[13px] font-black uppercase outline-none transition-all text-gray-900 dark:text-white rounded-xl"
+                                                            placeholder="ENTER GROUP NAME..."
+                                                        />
+                                                        <button onClick={() => { if (newGroupName.trim()) { setFormData({...formData, category: newGroupName.trim()}); setIsCreatingGroup(false); setNewGroupName(''); } }} className="px-3 py-3 bg-[#0d3542] dark:bg-[#58a6ff] text-white dark:text-black rounded-xl hover:opacity-90 transition-all"><Check size={16} /></button>
+                                                        <button onClick={() => { setIsCreatingGroup(false); setNewGroupName(''); }} className="px-3 py-3 bg-black/5 dark:bg-white/5 text-gray-500 hover:bg-red-500/10 hover:text-red-500 rounded-xl transition-all"><X size={16} /></button>
+                                                    </div>
+                                                ) : (
+                                                    <BespokeSelect 
+                                                        value={formData.category}
+                                                        options={[
+                                                            ...categories.filter(c => c !== 'ALL GROUPS'),
+                                                            { label: '+ Create New Group', value: 'NEW_GROUP', isAction: true }
+                                                        ]}
+                                                        onChange={val => setFormData({...formData, category: val})}
+                                                        onAction={() => setIsCreatingGroup(true)}
+                                                        placeholder="SELECT GROUP"
                                                     />
-                                                    <button onClick={() => { if (newCategoryName.trim()) { setFormData({...formData, category: newCategoryName.trim()}); setIsCreatingCategory(false); setNewCategoryName(''); } }} className="px-3 py-3 bg-[#0d3542] dark:bg-[#58a6ff] text-white dark:text-black rounded-xl hover:opacity-90 transition-all"><Check size={16} /></button>
-                                                    <button onClick={() => { setIsCreatingCategory(false); setNewCategoryName(''); }} className="px-3 py-3 bg-black/5 dark:bg-white/5 text-gray-500 hover:bg-red-500/10 hover:text-red-500 rounded-xl transition-all"><X size={16} /></button>
-                                                </div>
-                                            ) : (
-                                                <BespokeSelect
-                                                    value={formData.category}
-                                                    options={[
-                                                        ...categories,
-                                                        { label: '+ Create New Group', value: 'NEW_GROUP', isAction: true }
-                                                    ]}
-                                                    onChange={val => setFormData({...formData, category: val})}
-                                                    onAction={() => setIsCreatingCategory(true)}
-                                                    placeholder="SELECT GROUP"
-                                                />
-                                            )}
-                                        </Field>
-                                    </div>
-                                </Section>
-                            </div>
-                        </div>
-                    </motion.div>
-                )}
-            </AnimatePresence>
+                                                )}
+                                            </Field>
+                                        </div>
+                                    </Section>
 
-            {/* --- Floating Command Bar --- */}
-            <AnimatePresence>
-                {selectedCount > 0 && view === 'list' && (
-                    <motion.div initial={{ y: 50, opacity: 0 }} animate={{ y: 0, opacity: 1 }} exit={{ y: 50, opacity: 0 }} className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50">
-                        <div className="bg-[#fdfdfc] dark:bg-[#111] rounded-xl px-6 h-14 flex items-center gap-4 shadow-xl border border-[#0d3542]/20 dark:border-[#58a6ff]/20 ring-1 ring-inset ring-white/10 dark:ring-black/10 transition-all duration-300">
-                            <div className="flex items-center gap-2 pr-4 border-r border-black/10 dark:border-white/10">
-                                <div className="bg-[#0d3542] dark:bg-[#58a6ff] text-white dark:text-black text-[10px] font-black h-6 w-6 rounded-md flex items-center justify-center shadow-lg">{selectedCount}</div>
-                                <span className="text-[#0d3542] dark:text-[#58a6ff] text-[10px] font-black uppercase tracking-[0.2em] whitespace-nowrap hidden sm:inline">Selected</span>
+                                </div>
                             </div>
-                            <div className="flex items-center gap-4">
-                                <button onClick={handleBulkEditOpen} className="flex items-center gap-1.5 text-gray-500 dark:text-white/40 hover:text-[#0d3542] dark:hover:text-[#58a6ff] transition-colors group">
-                                    <Edit size={12} className="group-hover:scale-110 transition-transform" />
+
+                        </motion.div>
+                    )}
+                </AnimatePresence>
+            </div>
+
+             {/* --- Floating Command Bar --- */}
+            <AnimatePresence>
+                {selectedIds.size > 0 && view === 'list' && (
+                    <motion.div initial={{ y: 50, opacity: 0 }} animate={{ y: 0, opacity: 1 }} exit={{ y: 50, opacity: 0 }} className="fixed bottom-6 left-1/2 -translate-x-1/2 z-80">
+                        <div className="bg-[#fdfdfc] dark:bg-[#111] rounded-xl px-6 h-14 flex items-center gap-6 shadow-xl border border-[#0d3542]/20 dark:border-[#58a6ff]/20 ring-1 ring-inset ring-white/10 dark:ring-black/10 transition-all duration-300">
+                            <div className="flex items-center gap-3 pr-6 border-r border-black/10 dark:border-white/10">
+                                <div className="bg-[#0d3542] dark:bg-[#58a6ff] text-white dark:text-black text-[10px] font-black h-6 w-6 rounded-md flex items-center justify-center shadow-lg">{selectedIds.size}</div>
+                                <span className="text-[#0d3542] dark:text-[#58a6ff] text-[10px] font-black uppercase tracking-[0.2em] whitespace-nowrap">Selected</span>
+                            </div>
+                            <div className="flex items-center gap-6">
+                                <button onClick={handleBulkEditClick} className="flex items-center gap-2 text-gray-500 dark:text-white/40 hover:text-[#0d3542] dark:hover:text-[#58a6ff] transition-colors group">
+                                    <Command size={12} className="group-hover:scale-110 transition-transform" />
                                     <span className="text-[9px] font-black uppercase tracking-[0.2em]">Bulk Edit</span>
                                 </button>
                                 <div className="w-px h-4 bg-black/10 dark:bg-white/10" />
-                                <button onClick={handleBulkDeactivate} className="flex items-center gap-1.5 text-gray-500 dark:text-white/40 hover:text-amber-500 transition-colors group">
-                                    <Archive size={12} className="group-hover:scale-110 transition-transform" />
-                                    <span className="text-[9px] font-black uppercase tracking-[0.2em]">Deactivate</span>
+                                <button onClick={() => handlePrintLabels(selectedProducts)} className="flex items-center gap-2 text-gray-500 dark:text-white/40 hover:text-[#0d3542] dark:hover:text-[#58a6ff] transition-colors group">
+                                    <Printer size={12} className="group-hover:scale-110 transition-transform" />
+                                    <span className="text-[9px] font-black uppercase tracking-[0.2em]">Print Labels</span>
                                 </button>
                                 <div className="w-px h-4 bg-black/10 dark:bg-white/10" />
-                                <button onClick={handleBulkRestore} className="flex items-center gap-1.5 text-gray-500 dark:text-white/40 hover:text-emerald-500 transition-colors group">
-                                    <RefreshCw size={12} className="group-hover:scale-110 transition-transform" />
-                                    <span className="text-[9px] font-black uppercase tracking-[0.2em]">Restore</span>
-                                </button>
-                                <div className="w-px h-4 bg-black/10 dark:bg-white/10" />
-                                <button onClick={handleBulkDelete} className="flex items-center gap-1.5 text-gray-500 dark:text-white/40 hover:text-red-500 transition-colors group">
+                                <button
+                                    onClick={() => {
+                                        const count = selectedIds.size;
+                                        if (!window.confirm(`Delete ${count} selected shoe${count > 1 ? 's' : ''}?\n\nThis action cannot be undone.`)) return;
+                                        Promise.all(
+                                            Array.from(selectedIds).map(id => axios.delete(`/api/v1/admin/pos/products/${id}`))
+                                        ).then(() => {
+                                            queryClient.invalidateQueries({ queryKey: ['admin-shoes'] });
+                                            setSelectedProductsMap(new Map());
+                                            setToast({ type: 'success', message: 'Shoes deleted.' });
+                                        }).catch(err => setToast({ type: 'error', message: 'Delete failed.' }));
+                                    }}
+                                    className="flex items-center gap-2 text-red-400 hover:text-red-500 transition-colors group"
+                                >
                                     <Trash2 size={12} className="group-hover:scale-110 transition-transform" />
                                     <span className="text-[9px] font-black uppercase tracking-[0.2em]">Delete</span>
                                 </button>
                                 <div className="w-px h-4 bg-black/10 dark:bg-white/10" />
-                                <button onClick={() => setSelectedShoesMap({})} className="text-gray-400 dark:text-white/20 hover:text-gray-900 dark:hover:text-white text-[9px] font-black uppercase tracking-[0.2em]">Clear</button>
+                                <button onClick={() => setSelectedProductsMap(new Map())} className="text-gray-400 dark:text-white/20 hover:text-[#0d3542] dark:hover:text-[#58a6ff] text-[9px] font-black uppercase tracking-[0.2em]">Clear</button>
                             </div>
                         </div>
                     </motion.div>
                 )}
             </AnimatePresence>
 
-            {/* --- Bulk Edit Spreadsheet Modal --- */}
-            <ModernModal
-                isOpen={isBulkEditOpen}
-                onClose={() => setIsBulkEditOpen(false)}
-                title={`Bulk Edit ${bulkProducts.length} Shoes`}
-                maxWidth="max-w-7xl"
-                overflowVisible={true}
-            >
-                <div className="p-6 space-y-6 max-h-[85vh] flex flex-col font-sans">
-                    {/* --- Batch Apply Card (Top) --- */}
-                    <div className="bg-black/[0.02] dark:bg-[#0d1117] border border-black/5 dark:border-[#30363d] rounded-xl p-4 shrink-0">
-                        <h4 className="text-[10px] font-black uppercase tracking-[0.2em] text-[#0d3542] dark:text-[#58a6ff] mb-3 flex items-center gap-2">
-                            <Command size={12} />
-                            Quick-Apply to All Rows
-                        </h4>
-                        <div className="grid grid-cols-1 md:grid-cols-5 gap-4 items-end">
-                            {/* Category Batch */}
-                            <div className="space-y-1 col-span-1 md:col-span-2">
-                                <label className="block text-[9px] font-bold text-gray-500 uppercase tracking-widest">
-                                    Category
-                                </label>
-                                <div className="flex items-center bg-white dark:bg-[#161b22] rounded-xl border border-black/10 dark:border-[#30363d] focus-within:border-[#0d3542] dark:focus-within:border-[#58a6ff] overflow-hidden">
-                                    <select
-                                        value={bulkBatchCategory}
-                                        onChange={(e) => setBulkBatchCategory(e.target.value)}
-                                        className="flex-1 min-w-0 bg-transparent text-gray-900 dark:text-white px-3 py-2 text-xs font-bold uppercase tracking-wider outline-none border-none cursor-pointer focus:ring-0 focus:outline-none"
-                                    >
-                                        <option value="">Select Category...</option>
-                                        {categories.map((cat, idx) => (
-                                            <option key={idx} value={cat}>
-                                                {cat}
-                                            </option>
-                                        ))}
-                                    </select>
-                                    <button
-                                        type="button"
-                                        onClick={applyCategoryToAll}
-                                        className="px-3 py-2 bg-[#0d3542] dark:bg-[#58a6ff] text-white dark:text-black hover:opacity-90 shrink-0 h-full border-l border-black/10 dark:border-[#30363d] transition-all cursor-pointer flex items-center justify-center"
-                                        title="Apply Category to All"
-                                    >
-                                        <Check size={16} strokeWidth={3} />
-                                    </button>
-                                </div>
-                            </div>
+            <AnimatePresence>
+                {barcodePrintProducts.length > 0 && (
+                    <BarcodePrintModal 
+                        products={barcodePrintProducts} 
+                        onClose={() => setBarcodePrintProducts([])} 
+                        formatPrice={formatPrice} 
+                    />
+                )}
+            </AnimatePresence>
 
-                            {/* Price Batch */}
-                            <div className="space-y-1 col-span-1 md:col-span-2">
-                                <label className="block text-[9px] font-bold text-gray-500 uppercase tracking-widest">
-                                    Price Change
-                                </label>
-                                <div className="flex items-center bg-white dark:bg-[#161b22] rounded-xl border border-black/10 dark:border-[#30363d] focus-within:border-[#0d3542] dark:focus-within:border-[#58a6ff] overflow-hidden">
-                                    <select
-                                        value={bulkBatchPriceType}
-                                        onChange={(e) => setBulkBatchPriceType(e.target.value)}
-                                        className="w-1/3 min-w-[100px] bg-transparent text-gray-900 dark:text-white px-3 py-2 text-xs font-bold uppercase tracking-wider outline-none border-none border-r border-black/10 dark:border-[#30363d] cursor-pointer focus:ring-0 focus:outline-none"
-                                    >
-                                        <option value="set">Set to $</option>
-                                        <option value="fixed_inc">Increase by $</option>
-                                        <option value="fixed_dec">Decrease by $</option>
-                                        <option value="percent_inc">Increase by %</option>
-                                        <option value="percent_dec">Decrease by %</option>
-                                    </select>
-                                    <input
-                                        type="number"
-                                        step="0.01"
-                                        placeholder="0.00"
-                                        value={bulkBatchPriceVal}
-                                        onChange={(e) => setBulkBatchPriceVal(e.target.value)}
-                                        className="flex-1 bg-transparent text-gray-900 dark:text-white px-3 py-2 text-xs font-bold outline-none border-none focus:ring-0 focus:outline-none"
-                                    />
-                                    <button
-                                        type="button"
-                                        onClick={applyPriceToAll}
-                                        className="px-3 py-2 bg-[#0d3542] dark:bg-[#58a6ff] text-white dark:text-black hover:opacity-90 shrink-0 h-full border-l border-black/10 dark:border-[#30363d] transition-all cursor-pointer flex items-center justify-center"
-                                        title="Apply Price to All"
-                                    >
-                                        <Check size={16} strokeWidth={3} />
-                                    </button>
-                                </div>
-                            </div>
+            {/* --- Toast Notification --- */}
+            <AnimatePresence>
+                {toast && (
+                    <motion.div
+                        initial={{ opacity: 0, y: 50, scale: 0.95 }}
+                        animate={{ opacity: 1, y: 0, scale: 1 }}
+                        exit={{ opacity: 0, y: 20, scale: 0.95 }}
+                        transition={{ duration: 0.2, ease: 'easeOut' }}
+                        className={`fixed bottom-8 right-8 z-[9999] px-6 py-4 rounded-2xl shadow-2xl border backdrop-blur-md ${
+                            toast.type === 'success'
+                                ? 'bg-emerald-500/90 border-emerald-400/30 text-white'
+                                : 'bg-rose-500/90 border-rose-400/30 text-white'
+                        }`}
+                    >
+                        <span className="text-sm font-black uppercase tracking-widest">{toast.message}</span>
+                    </motion.div>
+                )}
+            </AnimatePresence>
 
-                            {/* Stock Batch */}
-                            <div className="space-y-1">
-                                <label className="block text-[9px] font-bold text-gray-500 uppercase tracking-widest">
-                                    Stock Level
-                                </label>
-                                <div className="flex items-center bg-white dark:bg-[#161b22] rounded-xl border border-black/10 dark:border-[#30363d] focus-within:border-[#0d3542] dark:focus-within:border-[#58a6ff] overflow-hidden">
-                                    <input
-                                        type="number"
-                                        placeholder="Reset Qty"
-                                        value={bulkBatchStockVal}
-                                        onChange={(e) => setBulkBatchStockVal(e.target.value)}
-                                        className="flex-1 bg-transparent text-gray-900 dark:text-white px-3 py-2 text-xs font-bold outline-none border-none focus:ring-0 focus:outline-none"
-                                    />
-                                    <button
-                                        type="button"
-                                        onClick={applyStockToAll}
-                                        className="px-3 py-2 bg-[#0d3542] dark:bg-[#58a6ff] text-white dark:text-black hover:opacity-90 shrink-0 h-full border-l border-black/10 dark:border-[#30363d] transition-all cursor-pointer flex items-center justify-center"
-                                        title="Apply Stock to All"
-                                    >
-                                        <Check size={16} strokeWidth={3} />
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-
-                        {/* Additional Quick Status Toggles */}
-                        <div className="flex flex-wrap gap-3 mt-4 pt-3 border-t border-black/5 dark:border-[#30363d]/40">
-                            <span className="text-[9px] font-bold text-gray-500 uppercase tracking-widest mr-2 flex items-center">Status Shortcuts:</span>
-                            <button
-                                type="button"
-                                onClick={() => applyActiveStateToAll(true)}
-                                className="px-3 py-1.5 bg-green-500/10 hover:bg-green-500/20 text-green-600 dark:text-green-400 border border-green-500/20 rounded-lg text-[10px] font-bold uppercase tracking-wider"
-                            >
-                                Activate All
-                            </button>
-                            <button
-                                type="button"
-                                onClick={() => applyActiveStateToAll(false)}
-                                className="px-3 py-1.5 bg-gray-500/10 hover:bg-gray-500/20 text-gray-600 dark:text-gray-400 border border-gray-500/20 rounded-lg text-[10px] font-bold uppercase tracking-wider"
-                            >
-                                Archive All
-                            </button>
-                            <button
-                                type="button"
-                                onClick={() => applyServiceStateToAll(true)}
-                                className="px-3 py-1.5 bg-blue-500/10 hover:bg-blue-500/20 text-blue-600 dark:text-blue-400 border border-blue-500/20 rounded-lg text-[10px] font-bold uppercase tracking-wider"
-                            >
-                                Set All as Service (No Stock)
-                            </button>
-                            <button
-                                type="button"
-                                onClick={() => applyServiceStateToAll(false)}
-                                className="px-3 py-1.5 bg-amber-500/10 hover:bg-amber-500/20 text-amber-600 dark:text-amber-400 border border-amber-500/20 rounded-lg text-[10px] font-bold uppercase tracking-wider"
-                            >
-                                Set All as Product (Stock Enabled)
-                            </button>
-                        </div>
-                    </div>
-
-                    {/* --- Spreadsheet Table (Middle) --- */}
-                    <div className="flex-1 overflow-auto border border-black/5 dark:border-[#30363d] rounded-xl attire-scrollbar">
-                        <table className="w-full text-left border-collapse table-fixed">
-                            <thead className="sticky top-0 z-30 bg-gray-50 dark:bg-[#0d1117] border-b border-black/10 dark:border-[#30363d]">
-                                <tr>
-                                    <th className="w-1/4 px-4 py-3 text-xs font-bold uppercase tracking-widest text-gray-500 dark:text-[#8b949e]/40">Shoe</th>
-                                    <th className="w-1/6 px-4 py-3 text-xs font-bold uppercase tracking-widest text-gray-500 dark:text-[#8b949e]/40">SKU</th>
-                                    <th className="w-1/6 px-4 py-3 text-xs font-bold uppercase tracking-widest text-gray-500 dark:text-[#8b949e]/40">Category</th>
-                                    <th className="w-1/4 px-4 py-3 text-xs font-bold uppercase tracking-widest text-gray-500 dark:text-[#8b949e]/40">Attributes</th>
-                                    <th className="w-1/8 px-4 py-3 text-xs font-bold uppercase tracking-widest text-gray-500 dark:text-[#8b949e]/40 text-center">Stock</th>
-                                    <th className="w-1/8 px-4 py-3 text-xs font-bold uppercase tracking-widest text-gray-500 dark:text-[#8b949e]/40 text-center">Price ($)</th>
-                                    <th className="w-28 px-4 py-3 text-xs font-bold uppercase tracking-widest text-gray-500 dark:text-[#8b949e]/40 text-center">Service?</th>
-                                    <th className="w-24 px-4 py-3 text-xs font-bold uppercase tracking-widest text-gray-500 dark:text-[#8b949e]/40 text-center">Active?</th>
-                                </tr>
-                            </thead>
-                            <tbody className="divide-y divide-black/5 dark:divide-[#30363d]">
-                                {bulkProducts.map((p, idx) => {
-                                    const colorScheme = getCategoryColor(p.category);
-                                    return (
-                                        <tr key={p.id} className="hover:bg-black/[0.01] dark:hover:bg-white/[0.02]">
-                                            {/* Name & Icon */}
-                                            <td className="px-4 py-2">
-                                                <div className="flex items-center gap-2 truncate">
-                                                    <div className={`w-6 h-6 rounded flex items-center justify-center shrink-0 ${colorScheme.bg} border ${colorScheme.border}`}>
-                                                        {p.image_path ? (
-                                                            <img src={p.image_path} alt={p.name} className="w-full h-full object-cover rounded" />
-                                                        ) : (
-                                                            React.createElement(getCatIcon(p.category), { size: 12, className: colorScheme.text })
-                                                        )}
-                                                    </div>
-                                                    <span className="font-bold text-xs uppercase tracking-wider text-gray-900 dark:text-[#c9d1d9] truncate">
-                                                        {p.name}
-                                                    </span>
-                                                </div>
-                                            </td>
-
-                                            {/* SKU */}
-                                            <td className="px-4 py-2">
-                                                <input
-                                                    type="text"
-                                                    value={p.sku}
-                                                    onChange={(e) => {
-                                                        const val = e.target.value;
-                                                        setBulkProducts((prev) =>
-                                                            prev.map((item, i) => (i === idx ? { ...item, sku: val } : item))
-                                                        );
-                                                    }}
-                                                    className="w-full bg-white dark:bg-[#161b22] text-gray-900 dark:text-white px-2 py-1 rounded-lg border border-black/10 dark:border-[#30363d] text-xs font-semibold focus:border-[#0d3542] dark:focus:border-[#58a6ff] outline-none"
-                                                />
-                                            </td>
-
-                                            {/* Category */}
-                                            <td className="px-4 py-2">
-                                                <select
-                                                    value={p.category}
-                                                    onChange={async (e) => {
-                                                        const val = e.target.value;
-                                                        if (val === 'NEW_CATEGORY') {
-                                                            const { value: newCat } = await Swal.fire({
-                                                                title: 'Create New Category',
-                                                                input: 'text',
-                                                                inputPlaceholder: 'Enter category name...',
-                                                                showCancelButton: true,
-                                                                background: document.documentElement.classList.contains('dark') ? '#161b22' : '#fff',
-                                                                color: document.documentElement.classList.contains('dark') ? '#c9d1d9' : '#111',
-                                                                inputValidator: (value) => {
-                                                                    if (!value) return 'You need to write something!';
-                                                                }
-                                                            });
-                                                            if (newCat) {
-                                                                const formattedNewCat = newCat.trim().toUpperCase();
-                                                                // Dynamically add to products
-                                                                setBulkProducts((prev) =>
-                                                                    prev.map((item, i) => (i === idx ? { ...item, category: formattedNewCat } : item))
-                                                                );
-                                                            }
-                                                        } else {
-                                                            setBulkProducts((prev) =>
-                                                                    prev.map((item, i) => (i === idx ? { ...item, category: val } : item))
-                                                            );
-                                                        }
-                                                    }}
-                                                    className="w-full bg-white dark:bg-[#161b22] text-gray-900 dark:text-white px-2 py-1 rounded-lg border border-black/10 dark:border-[#30363d] text-xs font-semibold uppercase tracking-wider outline-none"
-                                                >
-                                                    {categories.map((cat, cIdx) => (
-                                                        <option key={cIdx} value={cat}>
-                                                            {cat}
-                                                        </option>
-                                                    ))}
-                                                    <option value="NEW_CATEGORY">+ Create New...</option>
-                                                </select>
-                                            </td>
-
-                                            {/* Attributes */}
-                                            <td className="px-4 py-2">
-                                                <div className="flex flex-wrap gap-1 min-h-[28px]">
-                                                    {(p.attributes || []).map((attr, aIdx) => (
-                                                        <span
-                                                            key={aIdx}
-                                                            className="inline-flex items-center gap-0.5 px-1.5 py-0.5 bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 rounded text-[9px] font-bold uppercase tracking-wider text-gray-600 dark:text-[#8b949e]"
-                                                        >
-                                                            <span className="text-[8px] text-gray-400 dark:text-[#8b949e]/60">{attr.key}:</span>
-                                                            {attr.value}
-                                                            <button
-                                                                type="button"
-                                                                onClick={() => {
-                                                                    setBulkProducts((prev) =>
-                                                                        prev.map((item, i) =>
-                                                                            i === idx
-                                                                                ? { ...item, attributes: (item.attributes || []).filter((_, ai) => ai !== aIdx) }
-                                                                                : item
-                                                                        )
-                                                                    );
-                                                                }}
-                                                                className="ml-0.5 text-gray-400 hover:text-red-500 transition-colors"
-                                                            >
-                                                                <X size={8} />
-                                                            </button>
-                                                        </span>
-                                                    ))}
-                                                    <button
-                                                        type="button"
-                                                        onClick={async () => {
-                                                            const { value: attrKey } = await Swal.fire({
-                                                                title: 'Attribute Type',
-                                                                input: 'text',
-                                                                inputPlaceholder: 'e.g. COLOR, SIZE, MATERIAL...',
-                                                                showCancelButton: true,
-                                                                background: document.documentElement.classList.contains('dark') ? '#161b22' : '#fff',
-                                                                color: document.documentElement.classList.contains('dark') ? '#c9d1d9' : '#111',
-                                                            });
-                                                            if (!attrKey || !attrKey.trim()) return;
-                                                            const { value: attrVal } = await Swal.fire({
-                                                                title: `Value for ${attrKey.trim().toUpperCase()}`,
-                                                                input: 'text',
-                                                                inputPlaceholder: 'e.g. NAVY, 42, LEATHER...',
-                                                                showCancelButton: true,
-                                                                background: document.documentElement.classList.contains('dark') ? '#161b22' : '#fff',
-                                                                color: document.documentElement.classList.contains('dark') ? '#c9d1d9' : '#111',
-                                                            });
-                                                            if (!attrVal || !attrVal.trim()) return;
-                                                            setBulkProducts((prev) =>
-                                                                prev.map((item, i) =>
-                                                                    i === idx
-                                                                        ? { ...item, attributes: [...(item.attributes || []), { key: attrKey.trim().toUpperCase(), value: attrVal.trim().toUpperCase() }] }
-                                                                        : item
-                                                                )
-                                                            );
-                                                        }}
-                                                        className="inline-flex items-center justify-center w-5 h-5 rounded bg-black/5 dark:bg-white/5 border border-dashed border-black/15 dark:border-white/10 text-gray-400 hover:text-[#0d3542] dark:hover:text-[#58a6ff] hover:border-[#0d3542]/30 dark:hover:border-[#58a6ff]/30 transition-all"
-                                                        title="Add attribute"
-                                                    >
-                                                        <Plus size={10} />
-                                                    </button>
-                                                </div>
-                                            </td>
-
-                                            {/* Stock */}
-                                            <td className="px-4 py-2">
-                                                <input
-                                                    type="number"
-                                                    disabled={p.is_service}
-                                                    value={p.is_service ? '' : p.stock_qty}
-                                                    placeholder={p.is_service ? '∞' : '0'}
-                                                    onChange={(e) => {
-                                                        const val = e.target.value;
-                                                        setBulkProducts((prev) =>
-                                                            prev.map((item, i) => (i === idx ? { ...item, stock_qty: val } : item))
-                                                        );
-                                                    }}
-                                                    className="w-full bg-white dark:bg-[#161b22] text-gray-900 dark:text-white px-2 py-1 rounded-lg border border-black/10 dark:border-[#30363d] text-xs text-center font-bold outline-none disabled:opacity-40"
-                                                />
-                                            </td>
-
-                                            {/* Price */}
-                                            <td className="px-4 py-2">
-                                                <input
-                                                    type="number"
-                                                    step="0.01"
-                                                    value={p.price}
-                                                    onChange={(e) => {
-                                                        const val = e.target.value;
-                                                        setBulkProducts((prev) =>
-                                                            prev.map((item, i) => (i === idx ? { ...item, price: val } : item))
-                                                        );
-                                                    }}
-                                                    className="w-full bg-white dark:bg-[#161b22] text-gray-900 dark:text-white px-2 py-1 rounded-lg border border-black/10 dark:border-[#30363d] text-xs text-center font-bold outline-none"
-                                                />
-                                            </td>
-
-                                            {/* Service */}
-                                            <td className="px-4 py-2 text-center">
-                                                <input
-                                                    type="checkbox"
-                                                    checked={p.is_service}
-                                                    onChange={(e) => {
-                                                        const checked = e.target.checked;
-                                                        setBulkProducts((prev) =>
-                                                            prev.map((item, i) =>
-                                                                i === idx
-                                                                    ? { ...item, is_service: checked, stock_qty: checked ? '' : (item.stock_qty || 0) }
-                                                                    : item
-                                                            )
-                                                        );
-                                                    }}
-                                                    className="w-4 h-4 text-[#0d3542] dark:text-[#58a6ff] bg-white border-gray-300 rounded focus:ring-[#0d3542] dark:focus:ring-[#58a6ff]"
-                                                />
-                                            </td>
-
-                                            {/* Active */}
-                                            <td className="px-4 py-2 text-center">
-                                                <input
-                                                    type="checkbox"
-                                                    checked={p.is_active}
-                                                    onChange={(e) => {
-                                                        const checked = e.target.checked;
-                                                        setBulkProducts((prev) =>
-                                                            prev.map((item, i) => (i === idx ? { ...item, is_active: checked } : item))
-                                                        );
-                                                    }}
-                                                    className="w-4 h-4 text-[#0d3542] dark:text-[#58a6ff] bg-white border-gray-300 rounded focus:ring-[#0d3542] dark:focus:ring-[#58a6ff]"
-                                                />
-                                            </td>
-                                        </tr>
-                                    );
-                                })}
-                            </tbody>
-                        </table>
-                    </div>
-
-                    {/* --- Footer Buttons (Bottom) --- */}
-                    <div className="flex justify-end gap-3 pt-4 border-t border-black/5 dark:border-[#30363d] shrink-0">
-                        <button
-                            type="button"
-                            onClick={() => setIsBulkEditOpen(false)}
-                            className="px-5 py-2.5 rounded-xl text-xs font-bold uppercase tracking-widest border border-black/10 dark:border-[#30363d] hover:bg-black/5 dark:hover:bg-white/5 transition-colors"
-                        >
-                            Cancel
-                        </button>
-                        <button
-                            type="button"
-                            disabled={bulkUpdateProductsMutation.isPending}
-                            onClick={() => bulkUpdateProductsMutation.mutate(bulkProducts)}
-                            className="px-6 py-2.5 bg-[#0d3542] dark:bg-[#58a6ff] text-white dark:text-black rounded-xl text-xs font-bold uppercase tracking-widest hover:opacity-90 disabled:opacity-50 flex items-center gap-2 shadow-none"
-                        >
-                            {bulkUpdateProductsMutation.isPending ? (
-                                <Loader2 size={14} className="animate-spin" />
-                            ) : (
-                                <Save size={14} />
-                            )}
-                            Save Changes ({bulkProducts.length} items)
-                        </button>
-                    </div>
-                </div>
-            </ModernModal>
-
-            {/* --- Bulk Add Spreadsheet Modal --- */}
-            <ModernModal
-                isOpen={isBulkAddOpen}
-                onClose={() => { setIsBulkAddOpen(false); setBulkAddProducts([]); }}
-                title={`Bulk Add Products`}
-                icon={ClipboardList}
-                maxWidth="max-w-7xl"
-                overflowVisible={true}
-            >
-                <div className="p-6 space-y-6 max-h-[85vh] flex flex-col font-sans">
-                    {/* --- Defaults Card (Top) --- */}
-                    <div className="bg-black/[0.02] dark:bg-[#0d1117] border border-black/5 dark:border-[#30363d] rounded-xl p-4 shrink-0">
-                        <h4 className="text-[10px] font-black uppercase tracking-[0.2em] text-[#0d3542] dark:text-[#58a6ff] mb-3 flex items-center gap-2">
-                            <Command size={12} />
-                            Default Values (Apply to All Rows)
-                        </h4>
-                        <div className="grid grid-cols-1 md:grid-cols-6 gap-4 items-end">
-                            {/* Category Default */}
-                            <div className="space-y-1 col-span-1 md:col-span-2">
-                                <label className="block text-[9px] font-bold text-gray-500 uppercase tracking-widest">
-                                    Category
-                                </label>
-                                <select
-                                    value={bulkAddDefaultCategory}
-                                    onChange={(e) => setBulkAddDefaultCategory(e.target.value)}
-                                    className="w-full bg-white dark:bg-[#161b22] text-gray-900 dark:text-white px-3 py-2 rounded-xl border border-black/10 dark:border-[#30363d] text-xs font-bold uppercase tracking-wider outline-none cursor-pointer focus:border-[#0d3542] dark:focus:border-[#58a6ff]"
-                                >
-                                    <option value="">Select Category...</option>
-                                    {categories.map((cat, idx) => (
-                                        <option key={idx} value={cat}>{cat}</option>
-                                    ))}
-                                </select>
-                            </div>
-
-                            {/* Price Default */}
-                            <div className="space-y-1">
-                                <label className="block text-[9px] font-bold text-gray-500 uppercase tracking-widest">
-                                    Price ($)
-                                </label>
-                                <input
-                                    type="number"
-                                    step="0.01"
-                                    placeholder="0.00"
-                                    value={bulkAddDefaultPrice}
-                                    onChange={(e) => setBulkAddDefaultPrice(e.target.value)}
-                                    className="w-full bg-white dark:bg-[#161b22] text-gray-900 dark:text-white px-3 py-2 rounded-xl border border-black/10 dark:border-[#30363d] text-xs font-bold outline-none focus:border-[#0d3542] dark:focus:border-[#58a6ff]"
-                                />
-                            </div>
-
-                            {/* Stock Default */}
-                            <div className="space-y-1">
-                                <label className="block text-[9px] font-bold text-gray-500 uppercase tracking-widest">
-                                    Stock Qty
-                                </label>
-                                <input
-                                    type="number"
-                                    placeholder="0"
-                                    value={bulkAddDefaultStock}
-                                    onChange={(e) => setBulkAddDefaultStock(e.target.value)}
-                                    className="w-full bg-white dark:bg-[#161b22] text-gray-900 dark:text-white px-3 py-2 rounded-xl border border-black/10 dark:border-[#30363d] text-xs font-bold outline-none focus:border-[#0d3542] dark:focus:border-[#58a6ff]"
-                                />
-                            </div>
-
-                            {/* Size Default */}
-                            <div className="space-y-1">
-                                <label className="block text-[9px] font-bold text-gray-500 uppercase tracking-widest">
-                                    Size
-                                </label>
-                                <input
-                                    type="text"
-                                    placeholder="38, 39, 40..."
-                                    value={bulkAddDefaultVariant}
-                                    onChange={(e) => setBulkAddDefaultVariant(e.target.value)}
-                                    className="w-full bg-white dark:bg-[#161b22] text-gray-900 dark:text-white px-3 py-2 rounded-xl border border-black/10 dark:border-[#30363d] text-xs font-bold uppercase outline-none focus:border-[#0d3542] dark:focus:border-[#58a6ff]"
-                                />
-                            </div>
-
-                            {/* Apply Button */}
-                            <div className="space-y-1">
-                                <label className="block text-[9px] font-bold text-transparent uppercase tracking-widest">
-                                    Apply
-                                </label>
-                                <button
-                                    type="button"
-                                    onClick={applyBulkAddDefaults}
-                                    className="w-full px-3 py-2 bg-[#0d3542] dark:bg-[#58a6ff] text-white dark:text-black rounded-xl text-xs font-bold uppercase tracking-widest hover:opacity-90 transition-all flex items-center justify-center gap-1.5"
-                                >
-                                    <Check size={14} strokeWidth={3} /> Apply to All
-                                </button>
-                            </div>
-                        </div>
-
-                        {/* Service Toggle */}
-                        <div className="flex flex-wrap gap-3 mt-4 pt-3 border-t border-black/5 dark:border-[#30363d]/40">
-                            <span className="text-[9px] font-bold text-gray-500 uppercase tracking-widest mr-2 flex items-center">Quick Set:</span>
-                            <button
-                                type="button"
-                                onClick={() => {
-                                    setBulkAddDefaultService(false);
-                                    setBulkAddProducts((prev) => prev.map((p) => ({ ...p, is_service: false })));
-                                }}
-                                className="px-3 py-1.5 bg-amber-500/10 hover:bg-amber-500/20 text-amber-600 dark:text-amber-400 border border-amber-500/20 rounded-lg text-[10px] font-bold uppercase tracking-wider"
-                            >
-                                All Products (Stock Enabled)
-                            </button>
-                            <button
-                                type="button"
-                                onClick={() => {
-                                    setBulkAddDefaultService(true);
-                                    setBulkAddProducts((prev) => prev.map((p) => ({ ...p, is_service: true, stock_qty: '' })));
-                                }}
-                                className="px-3 py-1.5 bg-blue-500/10 hover:bg-blue-500/20 text-blue-600 dark:text-blue-400 border border-blue-500/20 rounded-lg text-[10px] font-bold uppercase tracking-wider"
-                            >
-                                All Services (No Stock)
-                            </button>
-                        </div>
-                    </div>
-
-                    {/* --- Spreadsheet Table (Middle) --- */}
-                    <div className="flex-1 overflow-auto border border-black/5 dark:border-[#30363d] rounded-xl attire-scrollbar">
-                        <table className="w-full text-left border-collapse table-fixed">
-                            <thead className="sticky top-0 z-30 bg-gray-50 dark:bg-[#0d1117] border-b border-black/10 dark:border-[#30363d]">
-                                <tr>
-                                    <th className="w-8 px-3 py-3 text-xs font-bold uppercase tracking-widest text-gray-500 dark:text-[#8b949e]/40 text-center">#</th>
-                                    <th className="w-1/4 px-4 py-3 text-xs font-bold uppercase tracking-widest text-gray-500 dark:text-[#8b949e]/40">Name</th>
-                                    <th className="w-1/6 px-4 py-3 text-xs font-bold uppercase tracking-widest text-gray-500 dark:text-[#8b949e]/40">SKU</th>
-                                    <th className="w-1/6 px-4 py-3 text-xs font-bold uppercase tracking-widest text-gray-500 dark:text-[#8b949e]/40">Category</th>
-                                    <th className="w-1/4 px-4 py-3 text-xs font-bold uppercase tracking-widest text-gray-500 dark:text-[#8b949e]/40">Attributes</th>
-                                    <th className="w-20 px-4 py-3 text-xs font-bold uppercase tracking-widest text-gray-500 dark:text-[#8b949e]/40 text-center">Stock</th>
-                                    <th className="w-24 px-4 py-3 text-xs font-bold uppercase tracking-widest text-gray-500 dark:text-[#8b949e]/40 text-center">Price ($)</th>
-                                    <th className="w-20 px-4 py-3 text-xs font-bold uppercase tracking-widest text-gray-500 dark:text-[#8b949e]/40 text-center">Service</th>
-                                    <th className="w-12 px-2 py-3"></th>
-                                </tr>
-                            </thead>
-                            <tbody className="divide-y divide-black/5 dark:divide-[#30363d]">
-                                {bulkAddProducts.map((p, idx) => {
-                                    const colorScheme = getCategoryColor(p.category);
-                                    return (
-                                        <tr key={p.tempId} className="hover:bg-black/[0.01] dark:hover:bg-white/[0.02]">
-                                            {/* Row Number */}
-                                            <td className="px-3 py-2 text-center">
-                                                <span className="text-[10px] font-black text-gray-400 dark:text-[#8b949e]/40">{idx + 1}</span>
-                                            </td>
-
-                                            {/* Name */}
-                                            <td className="px-4 py-2">
-                                                <input
-                                                    type="text"
-                                                    value={p.name}
-                                                    onChange={(e) => {
-                                                        const val = e.target.value;
-                                                        setBulkAddProducts((prev) =>
-                                                            prev.map((item) => (item.tempId === p.tempId ? { ...item, name: val } : item))
-                                                        );
-                                                    }}
-                                                    placeholder="Product name..."
-                                                    className="w-full bg-white dark:bg-[#161b22] text-gray-900 dark:text-white px-2 py-1 rounded-lg border border-black/10 dark:border-[#30363d] text-xs font-bold outline-none focus:border-[#0d3542] dark:focus:border-[#58a6ff] placeholder:text-gray-400 placeholder:font-medium placeholder:normal-case"
-                                                />
-                                            </td>
-
-                                            {/* SKU */}
-                                            <td className="px-4 py-2">
-                                                <input
-                                                    type="text"
-                                                    value={p.sku}
-                                                    onChange={(e) => {
-                                                        const val = e.target.value;
-                                                        setBulkAddProducts((prev) =>
-                                                            prev.map((item) => (item.tempId === p.tempId ? { ...item, sku: val } : item))
-                                                        );
-                                                    }}
-                                                    placeholder="SKU"
-                                                    className="w-full bg-white dark:bg-[#161b22] text-gray-900 dark:text-white px-2 py-1 rounded-lg border border-black/10 dark:border-[#30363d] text-xs font-semibold outline-none focus:border-[#0d3542] dark:focus:border-[#58a6ff] placeholder:text-gray-400 placeholder:font-medium placeholder:normal-case"
-                                                />
-                                            </td>
-
-                                            {/* Category */}
-                                            <td className="px-4 py-2">
-                                                <select
-                                                    value={p.category}
-                                                    onChange={(e) => {
-                                                        const val = e.target.value;
-                                                        setBulkAddProducts((prev) =>
-                                                            prev.map((item) => (item.tempId === p.tempId ? { ...item, category: val } : item))
-                                                        );
-                                                    }}
-                                                    className="w-full bg-white dark:bg-[#161b22] text-gray-900 dark:text-white px-2 py-1 rounded-lg border border-black/10 dark:border-[#30363d] text-xs font-semibold uppercase tracking-wider outline-none focus:border-[#0d3542] dark:focus:border-[#58a6ff]"
-                                                >
-                                                    <option value="">—</option>
-                                                    {categories.map((cat, cIdx) => (
-                                                        <option key={cIdx} value={cat}>{cat}</option>
-                                                    ))}
-                                                </select>
-                                            </td>
-
-                                            {/* Attributes */}
-                                            <td className="px-4 py-2">
-                                                <div className="flex flex-wrap gap-1 min-h-[28px]">
-                                                    {(p.attributes || []).map((attr, aIdx) => (
-                                                        <span
-                                                            key={aIdx}
-                                                            className="inline-flex items-center gap-0.5 px-1.5 py-0.5 bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 rounded text-[9px] font-bold uppercase tracking-wider text-gray-600 dark:text-[#8b949e]"
-                                                        >
-                                                            <span className="text-[8px] text-gray-400 dark:text-[#8b949e]/60">{attr.key}:</span>
-                                                            {attr.value}
-                                                            <button
-                                                                type="button"
-                                                                onClick={() => {
-                                                                    setBulkAddProducts((prev) =>
-                                                                        prev.map((item) =>
-                                                                            item.tempId === p.tempId
-                                                                                ? { ...item, attributes: (item.attributes || []).filter((_, ai) => ai !== aIdx) }
-                                                                                : item
-                                                                        )
-                                                                    );
-                                                                }}
-                                                                className="ml-0.5 text-gray-400 hover:text-red-500 transition-colors"
-                                                            >
-                                                                <X size={8} />
-                                                            </button>
-                                                        </span>
-                                                    ))}
-                                                    <button
-                                                        type="button"
-                                                        onClick={async () => {
-                                                            const { value: attrKey } = await Swal.fire({
-                                                                title: 'Attribute Type',
-                                                                input: 'text',
-                                                                inputPlaceholder: 'e.g. COLOR, SIZE, MATERIAL...',
-                                                                showCancelButton: true,
-                                                                background: document.documentElement.classList.contains('dark') ? '#161b22' : '#fff',
-                                                                color: document.documentElement.classList.contains('dark') ? '#c9d1d9' : '#111',
-                                                            });
-                                                            if (!attrKey || !attrKey.trim()) return;
-                                                            const { value: attrVal } = await Swal.fire({
-                                                                title: `Value for ${attrKey.trim().toUpperCase()}`,
-                                                                input: 'text',
-                                                                inputPlaceholder: 'e.g. NAVY, 42, LEATHER...',
-                                                                showCancelButton: true,
-                                                                background: document.documentElement.classList.contains('dark') ? '#161b22' : '#fff',
-                                                                color: document.documentElement.classList.contains('dark') ? '#c9d1d9' : '#111',
-                                                            });
-                                                            if (!attrVal || !attrVal.trim()) return;
-                                                            setBulkAddProducts((prev) =>
-                                                                prev.map((item) =>
-                                                                    item.tempId === p.tempId
-                                                                        ? { ...item, attributes: [...(item.attributes || []), { key: attrKey.trim().toUpperCase(), value: attrVal.trim().toUpperCase() }] }
-                                                                        : item
-                                                                )
-                                                            );
-                                                        }}
-                                                        className="inline-flex items-center justify-center w-5 h-5 rounded bg-black/5 dark:bg-white/5 border border-dashed border-black/15 dark:border-white/10 text-gray-400 hover:text-[#0d3542] dark:hover:text-[#58a6ff] hover:border-[#0d3542]/30 dark:hover:border-[#58a6ff]/30 transition-all"
-                                                        title="Add attribute"
-                                                    >
-                                                        <Plus size={10} />
-                                                    </button>
-                                                </div>
-                                            </td>
-
-                                            {/* Stock */}
-                                            <td className="px-4 py-2">
-                                                <input
-                                                    type="number"
-                                                    disabled={p.is_service}
-                                                    value={p.is_service ? '' : p.stock_qty}
-                                                    placeholder={p.is_service ? '∞' : '0'}
-                                                    onChange={(e) => {
-                                                        const val = e.target.value;
-                                                        setBulkAddProducts((prev) =>
-                                                            prev.map((item) => (item.tempId === p.tempId ? { ...item, stock_qty: val } : item))
-                                                        );
-                                                    }}
-                                                    className="w-full bg-white dark:bg-[#161b22] text-gray-900 dark:text-white px-2 py-1 rounded-lg border border-black/10 dark:border-[#30363d] text-xs text-center font-bold outline-none focus:border-[#0d3542] dark:focus:border-[#58a6ff] disabled:opacity-40"
-                                                />
-                                            </td>
-
-                                            {/* Price */}
-                                            <td className="px-4 py-2">
-                                                <input
-                                                    type="number"
-                                                    step="0.01"
-                                                    value={p.price}
-                                                    onChange={(e) => {
-                                                        const val = e.target.value;
-                                                        setBulkAddProducts((prev) =>
-                                                            prev.map((item) => (item.tempId === p.tempId ? { ...item, price: val } : item))
-                                                        );
-                                                    }}
-                                                    placeholder="0.00"
-                                                    className="w-full bg-white dark:bg-[#161b22] text-gray-900 dark:text-white px-2 py-1 rounded-lg border border-black/10 dark:border-[#30363d] text-xs text-center font-bold outline-none focus:border-[#0d3542] dark:focus:border-[#58a6ff] placeholder:text-gray-400 placeholder:font-medium"
-                                                />
-                                            </td>
-
-                                            {/* Service */}
-                                            <td className="px-4 py-2 text-center">
-                                                <input
-                                                    type="checkbox"
-                                                    checked={p.is_service}
-                                                    onChange={(e) => {
-                                                        const checked = e.target.checked;
-                                                        setBulkAddProducts((prev) =>
-                                                            prev.map((item) =>
-                                                                item.tempId === p.tempId
-                                                                    ? { ...item, is_service: checked, stock_qty: checked ? '' : (item.stock_qty || 0) }
-                                                                    : item
-                                                            )
-                                                        );
-                                                    }}
-                                                    className="w-4 h-4 text-[#0d3542] dark:text-[#58a6ff] bg-white border-gray-300 rounded focus:ring-[#0d3542] dark:focus:ring-[#58a6ff]"
-                                                />
-                                            </td>
-
-                                            {/* Remove Row */}
-                                            <td className="px-2 py-2 text-center">
-                                                <button
-                                                    type="button"
-                                                    onClick={() => removeBulkAddRow(p.tempId)}
-                                                    className="p-1 rounded-lg text-gray-300 dark:text-white/20 hover:text-red-500 hover:bg-red-500/10 transition-all"
-                                                    title="Remove row"
-                                                >
-                                                    <X size={14} />
-                                                </button>
-                                            </td>
-                                        </tr>
-                                    );
-                                })}
-                            </tbody>
-                        </table>
-                    </div>
-
-                    {/* --- Add Row + Footer Buttons --- */}
-                    <div className="flex items-center justify-between pt-4 border-t border-black/5 dark:border-[#30363d] shrink-0">
-                        <button
-                            type="button"
-                            onClick={addBulkAddRow}
-                            className="flex items-center gap-2 px-4 py-2.5 bg-black/[0.03] dark:bg-white/[0.03] border border-black/10 dark:border-[#30363d] rounded-xl text-xs font-bold uppercase tracking-widest text-gray-600 dark:text-[#8b949e] hover:border-[#0d3542]/40 dark:hover:border-[#58a6ff]/40 hover:text-[#0d3542] dark:hover:text-[#58a6ff] transition-all"
-                        >
-                            <Plus size={14} /> Add Row
-                        </button>
-                        <div className="flex gap-3">
-                            <button
-                                type="button"
-                                onClick={() => { setIsBulkAddOpen(false); setBulkAddProducts([]); }}
-                                className="px-5 py-2.5 rounded-xl text-xs font-bold uppercase tracking-widest border border-black/10 dark:border-[#30363d] hover:bg-black/5 dark:hover:bg-white/5 transition-colors"
-                            >
-                                Cancel
-                            </button>
-                            <button
-                                type="button"
-                                disabled={bulkAddProductsMutation.isPending || bulkAddProducts.length === 0}
-                                onClick={() => {
-                                    const hasNames = bulkAddProducts.some((p) => p.name.trim());
-                                    if (!hasNames) {
-                                        setToast({ message: 'At least one product must have a name.', type: 'error' });
-                                        return;
-                                    }
-                                    const productsToSend = bulkAddProducts.filter((p) => p.name.trim());
-                                    bulkAddProductsMutation.mutate(productsToSend);
-                                }}
-                                className="px-6 py-2.5 bg-[#0d3542] dark:bg-[#58a6ff] text-white dark:text-black rounded-xl text-xs font-bold uppercase tracking-widest hover:opacity-90 disabled:opacity-50 flex items-center gap-2 shadow-none"
-                            >
-                                {bulkAddProductsMutation.isPending ? (
-                                    <Loader2 size={14} className="animate-spin" />
-                                ) : (
-                                    <Save size={14} />
-                                )}
-                                Create {bulkAddProducts.filter((p) => p.name.trim()).length} Products
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            </ModernModal>
         </div>
     );
-}
+};
+
+export default ProductsPage;
+

@@ -83,6 +83,10 @@ class PosProductController extends Controller
             'products.*.is_service' => 'boolean',
             'products.*.stock_qty' => 'integer|min:0',
             'products.*.tier' => 'nullable|string',
+            'products.*.max_stock' => 'nullable|integer|min:0',
+            'products.*.status' => 'nullable|string|in:available,unavailable,discontinued',
+            'products.*.watch_threshold' => 'boolean',
+            'products.*.barcode' => 'nullable|string',
         ]);
 
         $outlet = $request->header('X-Active-Outlet', 'attire_lounge');
@@ -124,9 +128,14 @@ class PosProductController extends Controller
             'stock_qty' => 'integer|min:0',
             'tier' => 'nullable|string',
             'image_path' => 'nullable|string',
+            'max_stock' => 'nullable|integer|min:0',
+            'status' => 'nullable|string|in:available,unavailable,discontinued',
+            'watch_threshold' => 'boolean',
+            'barcode' => 'nullable|string',
         ]);
 
         $validated['outlet'] = $request->header('X-Active-Outlet', 'attire_lounge');
+
         $product = PosProduct::create($validated);
         return response()->json($product, 201);
     }
@@ -154,10 +163,19 @@ class PosProductController extends Controller
             'is_active' => 'nullable|boolean',
             'image_path' => 'nullable|string',
             'outlet' => 'nullable|string',
+            'max_stock' => 'nullable|integer|min:0',
+            'status' => 'nullable|string|in:available,unavailable,discontinued',
+            'watch_threshold' => 'nullable|boolean',
+            'barcode' => 'nullable|string',
         ]);
 
         // Remove null values so we don't overwrite existing data with nulls during partial updates
         $validated = array_filter($validated, fn($v) => !is_null($v));
+
+        // If attributes is being set, let the model mutator handle variant sync
+        if (isset($validated['attributes'])) {
+            unset($validated['variant']);
+        }
 
         $product->update($validated);
         return response()->json($product);
@@ -268,9 +286,12 @@ class PosProductController extends Controller
                 'products.*.min_stock' => 'nullable|integer|min:0',
                 'products.*.max_stock' => 'nullable|integer|min:0',
                 'products.*.status' => 'nullable|string|in:available,unavailable,discontinued',
+                'products.*.watch_threshold' => 'nullable|boolean',
+                'products.*.attributes' => 'nullable|array',
                 'products.*.barcode' => 'nullable|string',
                 'products.*.is_active' => 'nullable|boolean',
                 'products.*.is_service' => 'nullable|boolean',
+                'products.*.tier' => 'nullable|string',
             ]);
 
             $count = 0;
@@ -287,9 +308,12 @@ class PosProductController extends Controller
                         'min_stock' => isset($productData['min_stock']) ? $productData['min_stock'] : null,
                         'max_stock' => isset($productData['max_stock']) ? $productData['max_stock'] : null,
                         'status' => $productData['status'] ?? null,
+                        'watch_threshold' => isset($productData['watch_threshold']) ? $productData['watch_threshold'] : null,
+                        'attributes' => $productData['attributes'] ?? null,
                         'barcode' => $productData['barcode'] ?? null,
                         'is_active' => isset($productData['is_active']) ? $productData['is_active'] : null,
                         'is_service' => isset($productData['is_service']) ? $productData['is_service'] : null,
+                        'tier' => $productData['tier'] ?? null,
                     ], function($value) {
                         return $value !== null;
                     });
@@ -400,17 +424,17 @@ class PosProductController extends Controller
     {
         $products = PosProduct::active()->get([
             'sku', 'barcode', 'name', 'variant', 'price', 
-            'stock_qty', 'min_stock', 'category', 'tier', 'is_service'
+            'stock_qty', 'min_stock', 'max_stock', 'category', 'tier', 'is_service', 'status'
         ]);
 
         $callback = function() use ($products) {
             $file = fopen('php://output', 'w');
-            fputcsv($file, ['SKU', 'Barcode', 'Name', 'Variant', 'Price', 'Stock Qty', 'Min Stock', 'Category', 'Tier', 'Is Service']);
+            fputcsv($file, ['SKU', 'Barcode', 'Name', 'Variant', 'Price', 'Stock Qty', 'Min Stock', 'Max Stock', 'Category', 'Tier', 'Is Service', 'Status']);
 
             foreach ($products as $p) {
                 fputcsv($file, [
                     $p->sku, $p->barcode, $p->name, $p->variant, $p->price,
-                    $p->stock_qty, $p->min_stock, $p->category, $p->tier, $p->is_service ? '1' : '0'
+                    $p->stock_qty, $p->min_stock, $p->max_stock, $p->category, $p->tier, $p->is_service ? '1' : '0', $p->status
                 ]);
             }
             fclose($file);

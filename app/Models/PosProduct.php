@@ -20,24 +20,29 @@ class PosProduct extends Model
         'price',
         'stock_qty',
         'min_stock',
+        'max_stock',
         'category',
         'tier',
         'is_service',
         'is_accessory',
         'is_active',
+        'status',
+        'watch_threshold',
         'image_path',
     ];
 
     protected $casts = [
-        'price'        => 'float',
-        'stock_qty'    => 'integer',
-        'min_stock'    => 'integer',
-        'is_service'   => 'boolean',
-        'is_accessory' => 'boolean',
-        'is_active'    => 'boolean',
+        'price'           => 'float',
+        'stock_qty'       => 'integer',
+        'min_stock'       => 'integer',
+        'max_stock'       => 'integer',
+        'is_service'      => 'boolean',
+        'is_accessory'    => 'boolean',
+        'is_active'       => 'boolean',
+        'watch_threshold' => 'boolean',
     ];
 
-    protected $appends = ['display_name', 'attributes'];
+    protected $appends = ['display_name', 'parsed_attributes'];
 
     // Scopes
     public function scopeActive($query)
@@ -94,23 +99,25 @@ class PosProduct extends Model
     }
 
     /**
-     * Virtual field: attributes
-     * Parses the variant string (e.g., "-L -FINE STRIPE") back into an array of objects.
-     * [{key: 'GENERAL', value: 'L'}, {key: 'GENERAL', value: 'FINE STRIPE'}]
+     * Virtual field: parsed_attributes
+     * Parses the variant string into an array of attribute objects.
+     * Detects color vs size based on whether the value is numeric.
+     * Example: "-Black -38" → [{key:"COLOR",value:"Black"},{key:"SIZE",value:"38"}]
      */
-    public function getAttributesAttribute(): array
+    public function getParsedAttributesAttribute(): array
     {
         if (!$this->variant) return [];
 
-        // Split by '-' and clean up
         $parts = array_filter(explode('-', $this->variant));
         $attributes = [];
 
         foreach ($parts as $part) {
             $val = trim($part);
             if ($val) {
+                // Detect type: numeric = size, otherwise = color
+                $key = is_numeric($val) ? 'SIZE' : 'COLOR';
                 $attributes[] = [
-                    'key'   => 'GENERAL', // unknown key, but value is what works!
+                    'key'   => $key,
                     'value' => $val
                 ];
             }
