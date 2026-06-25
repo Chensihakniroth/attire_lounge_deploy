@@ -42,30 +42,45 @@ const OptimizedImage: React.FC<OptimizedImageProps> = ({
         setError(false);
     }, [src]);
 
+    const [currentSrc, setCurrentSrc] = useState<string | undefined>(undefined);
+
+    useEffect(() => {
+        // Reset state when src changes
+        setCurrentSrc(src && typeof src === 'string' && src.trim() !== '' ? src : undefined);
+        setIsLoaded(false);
+        setError(false);
+    }, [src]);
+
     const handleError = () => {
         if (fallback && !error) {
             // Try fallback once
+            setCurrentSrc(fallback as string);
             setError(true);
         } else {
+            // No fallback or already tried — show error state
             setError(true);
             setIsLoaded(true);
         }
     };
+
+    // Guard: if no valid src, show placeholder immediately
+    const hasValidSrc = currentSrc && typeof currentSrc === 'string' && currentSrc.trim() !== '';
 
     return (
         <div
             className={`relative ${containerClassName} ${objectFit === 'contain' ? 'flex items-center justify-center' : 'overflow-hidden'} ${bgClassName}`}
             style={style}
         >
-            {!isLoaded && (!error || (error && fallback)) && (
+            {hasValidSrc && !isLoaded && (!error || (error && fallback)) && (
                 <Skeleton
                     className={`absolute inset-0 z-10 w-full h-full rounded-none ${skeletonClassName}`}
                 />
             )}
 
+            {hasValidSrc ? (
             <img
                 ref={imgRef}
-                src={error && fallback ? (fallback as string) : src}
+                src={currentSrc}
                 alt={alt}
                 onLoad={() => setIsLoaded(true)}
                 onError={handleError}
@@ -89,8 +104,15 @@ const OptimizedImage: React.FC<OptimizedImageProps> = ({
                 }}
                 {...props}
             />
+            ) : (
+                <div className="absolute inset-0 flex items-center justify-center bg-white/5 text-attire-silver/20">
+                    <span className="text-[10px] uppercase tracking-widest">
+                        No Image
+                    </span>
+                </div>
+            )}
 
-            {error && (
+            {hasValidSrc && error && (
                 <div className="absolute inset-0 flex items-center justify-center bg-white/5 text-attire-silver/20">
                     <span className="text-[10px] uppercase tracking-widest">
                         Image not available

@@ -189,6 +189,15 @@
         display: none;
     }
 
+    /* No scrollbar utility (alias) */
+    .no-scrollbar {
+        -ms-overflow-style: none;
+        scrollbar-width: none;
+    }
+    .no-scrollbar::-webkit-scrollbar {
+        display: none;
+    }
+
     /* Custom thin scrollbar for dropdowns and small areas */
     .attire-scrollbar::-webkit-scrollbar {
         width: 4px;

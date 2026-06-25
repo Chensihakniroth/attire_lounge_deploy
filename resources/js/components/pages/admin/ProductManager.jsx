@@ -427,12 +427,18 @@ const ProductCard = memo(React.forwardRef(({ product, onEdit, onDelete, onToggle
             <div className="flex items-center gap-3 md:contents">
                 {/* THUMBNAIL */}
                 <div className={`relative shrink-0 w-12 h-12 overflow-hidden rounded-xl border border-black/5 dark:border-[#30363d] bg-black/5 dark:bg-white/5 transition-all duration-500`}>
-                    <OptimizedImage 
-                        src={product.images[0]} 
-                        alt={product.name} 
-                        containerClassName="w-full h-full"
-                        className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
-                    />
+                    {product.images && product.images.length > 0 ? (
+                        <OptimizedImage 
+                            src={product.images[0]} 
+                            alt={product.name} 
+                            containerClassName="w-full h-full"
+                            className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                        />
+                    ) : (
+                        <div className="w-full h-full flex items-center justify-center text-gray-300 dark:text-[#8b949e]/30">
+                            <ShoppingBag size={18} />
+                        </div>
+                    )}
                 </div>
 
                 {/* DESIGNATION */}

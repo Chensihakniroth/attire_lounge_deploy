@@ -28,10 +28,10 @@ class ProductRepository implements ProductRepositoryInterface
         $query = $this->model->query()
             ->with(['category', 'collection']) // Eager load relationships ✨
             ->select([ // Only select necessary columns
-                'id', 'name', 'slug', 'description', 'price', 
-                'images', 'category_id', 'collection_id', 'is_featured', 
+                'id', 'name', 'slug', 'description', 'price',
+                'images', 'category_id', 'collection_id', 'is_featured',
                 'is_new', 'is_visible', 'availability',
-                'fabric', 'silhouette', 'details', 'sizing'
+                'fabric', 'silhouette', 'details', 'sizing', 'created_at', 'updated_at'
             ]);
 
         // Apply visibility filter

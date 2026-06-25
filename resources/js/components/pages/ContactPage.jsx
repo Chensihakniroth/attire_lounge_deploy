@@ -142,7 +142,7 @@ const FavoritesSelector = ({ favoriteProducts, selectedFavorites, onSelectionCha
                         }}
                     >
                         <OptimizedImage
-                            src={product.images[0]}
+                            src={product.images?.[0] || ''}
                             alt={product.name}
                             containerClassName="w-full aspect-[3/4]"
                             className={`w-full h-full transition-all duration-1000 ${selectedFavorites.includes(product.id) ? 'scale-110 opacity-100' : 'opacity-70 group-hover:opacity-100'}`}
