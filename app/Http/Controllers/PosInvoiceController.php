@@ -28,7 +28,7 @@ class PosInvoiceController extends Controller
      */
     public function index(Request $request): JsonResponse
     {
-        $query = PosInvoice::with(['customer', 'cashier', 'items', 'payments', 'refunds']);
+        $query = PosInvoice::with(['customer', 'cashier']);
 
         if ($date = $request->get('date')) {
             $query->whereDate('date', $date);

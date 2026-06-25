@@ -422,21 +422,18 @@ class PosProductController extends Controller
      */
     public function export()
     {
-        $products = PosProduct::active()->get([
-            'sku', 'barcode', 'name', 'variant', 'price', 
-            'stock_qty', 'min_stock', 'max_stock', 'category', 'tier', 'is_service', 'status'
-        ]);
-
-        $callback = function() use ($products) {
+        $callback = function() {
             $file = fopen('php://output', 'w');
             fputcsv($file, ['SKU', 'Barcode', 'Name', 'Variant', 'Price', 'Stock Qty', 'Min Stock', 'Max Stock', 'Category', 'Tier', 'Is Service', 'Status']);
 
-            foreach ($products as $p) {
-                fputcsv($file, [
-                    $p->sku, $p->barcode, $p->name, $p->variant, $p->price,
-                    $p->stock_qty, $p->min_stock, $p->max_stock, $p->category, $p->tier, $p->is_service ? '1' : '0', $p->status
-                ]);
-            }
+            PosProduct::active()->chunk(500, function ($products) use ($file) {
+                foreach ($products as $p) {
+                    fputcsv($file, [
+                        $p->sku, $p->barcode, $p->name, $p->variant, $p->price,
+                        $p->stock_qty, $p->min_stock, $p->max_stock, $p->category, $p->tier, $p->is_service ? '1' : '0', $p->status
+                    ]);
+                }
+            });
             fclose($file);
         };
 

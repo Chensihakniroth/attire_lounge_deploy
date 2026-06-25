@@ -176,6 +176,7 @@ Route::prefix('v1')->group(function () {
 
             // Refunds
             Route::post('/pos/invoices/{id}/refund', [PosRefundController::class, 'store']);
+            Route::post('/pos/invoices/{id}/void', [PosRefundController::class, 'void']);
 
             // Notifications
             Route::get('/notifications', [\App\Http\Controllers\Api\NotificationController::class, 'index']);

@@ -30,7 +30,7 @@ class AdminController extends Controller
             ? \Illuminate\Support\Facades\Cache::tags(['admin-stats']) 
             : \Illuminate\Support\Facades\Cache::getFacadeRoot();
 
-        $stats = $cache->remember('admin_dashboard_stats_' . $outlet, 86400, function () use ($outlet) {
+        $stats = $cache->remember('admin_dashboard_stats_' . $outlet, 300, function () use ($outlet) {
             // ── Trend Data (Index-friendly: fetch raw rows, group in-memory) ──
             $monthlyStart = Carbon::now()->subMonths(5)->startOfMonth();
             $weeklyStart  = Carbon::now()->subWeeks(3)->startOfWeek();
@@ -111,6 +111,13 @@ class AdminController extends Controller
                 'sales' => (int) PosInvoice::where('status', 'completed')->count(),
                 'low_stock' => PosProduct::where('is_active', true)->where('stock_qty', '<=', 5)->where('stock_qty', '>', 0)->count(),
                 'out_of_stock' => PosProduct::where('is_active', true)->where('stock_qty', '<=', 0)->count(),
+                'low_stock_products' => PosProduct::where('is_active', true)
+                    ->where('stock_qty', '<=', 5)
+                    ->where('stock_qty', '>', 0)
+                    ->orderBy('stock_qty', 'asc')
+                    ->limit(10)
+                    ->get(['id', 'sku', 'name', 'variant', 'stock_qty', 'min_stock', 'category'])
+                    ->toArray(),
                 'pos_summary' => [
                     'total_revenue' => (float) PosInvoice::whereDate('date', Carbon::now()->toDateString())->where('status', 'completed')->sum('grand_total'),
                     'invoice_count' => (int) PosInvoice::whereDate('date', Carbon::now()->toDateString())->where('status', 'completed')->count(),

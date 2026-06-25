@@ -128,9 +128,9 @@ const HeroSection = memo(forwardRef<HTMLElement, HeroSectionProps>(({ scrollToSe
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 0.8, duration: 1 }}
-          className="text-white/70 text-xs md:text-sm font-light tracking-wide text-center max-w-lg leading-snug whitespace-nowrap"
+          className="text-white/70 text-sm md:text-base font-light tracking-wide text-center max-w-xl leading-snug whitespace-nowrap"
         >
-          "We help you create the right outfit for any special occasion and daily-wear."
+          We help you create the right outfit for any special occasion and daily-wear.
         </motion.p>
         <span className="text-xs md:text-sm tracking-[0.5em] text-white/80 uppercase group-hover:text-white transition-colors duration-500">Discover</span>
         <div className="flex flex-col items-center gap-1">
@@ -733,7 +733,7 @@ const HomePage: React.FC = () => {
         window.clearTimeout(snapTimeout);
 
         // Standardized delay for a more natural snap feel across browsers
-        const delay = 250; 
+        const delay = 250;
 
         snapTimeout = window.setTimeout(() => {
             if (!window.lenis || isMenuOpen || window.innerWidth < 1024) return;
@@ -756,8 +756,8 @@ const HomePage: React.FC = () => {
             if (distance < snapThreshold) {
                 window.lenis.scrollTo(targetSection, {
                     duration: 1.2,
-                    easing: (t: number) => 1 - Math.pow(1 - t, 4), 
-                    lock: true 
+                    easing: (t: number) => 1 - Math.pow(1 - t, 4),
+                    lock: true
                 });
             }
         }, delay);

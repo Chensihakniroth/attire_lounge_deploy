@@ -25,6 +25,7 @@ import axios from 'axios';
 
 import DailySummaryWidget from './DailySummaryWidget';
 import RecentActivityWidget from './RecentActivityWidget';
+import LowStockWidget from './LowStockWidget';
 
 // Recharts
 import {
@@ -935,7 +936,7 @@ const AdminDashboard = () => {
                     </div>
                 </motion.div>
 
-                <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
                     <motion.div
                         variants={cardVariants}
                         className="bg-[#fdfdfc] dark:bg-[#161b22] p-8 rounded-[2.5rem] border border-black/5 dark:border-[#30363d] shadow-md hover:shadow-lg dark:shadow-black/30"
@@ -1061,6 +1062,15 @@ const AdminDashboard = () => {
                             )}
                         </div>
                     </motion.div>
+
+                    {activeOutlet !== 'attire_lounge' && (
+                        <motion.div
+                            variants={cardVariants}
+                            className="bg-[#fdfdfc] dark:bg-[#161b22] p-8 rounded-[2.5rem] border border-black/5 dark:border-[#30363d] shadow-md hover:shadow-lg dark:shadow-black/30"
+                        >
+                            <LowStockWidget stats={stats} />
+                        </motion.div>
+                    )}
                 </div>
             </motion.div>
         </ErrorBoundary>

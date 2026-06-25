@@ -262,7 +262,10 @@ const SalesHistoryManager = () => {
                                     </td>
                                     <td className="px-6 py-6">
                                         <span className={`px-2 py-1 rounded-lg text-xs font-bold uppercase tracking-widest ${
-                                            inv.status === 'completed' ? 'bg-green-500/10 text-green-500 border border-green-500/20' : 'bg-red-500/10 text-red-500 border border-red-500/20'
+                                            inv.status === 'completed' ? 'bg-green-500/10 text-green-500 border border-green-500/20' :
+                                            inv.status === 'void' ? 'bg-gray-500/10 text-gray-500 border border-gray-500/20' :
+                                            inv.status === 'refunded' ? 'bg-orange-500/10 text-orange-500 border border-orange-500/20' :
+                                            'bg-red-500/10 text-red-500 border border-red-500/20'
                                         }`}>
                                             {inv.status}
                                         </span>
@@ -283,6 +286,23 @@ const SalesHistoryManager = () => {
                                             >
                                                 <Undo2 size={14} />
                                             </button>
+                                            {!['void', 'refunded'].includes(inv.status) && (
+                                                <button 
+                                                    title="Void Invoice"
+                                                    onClick={async () => {
+                                                        if (!window.confirm('Void this invoice? Stock will be restored and the invoice will be marked as voided.')) return;
+                                                        try {
+                                                            await axios.post(`/api/v1/admin/pos/invoices/${inv.id}/void`, { reason: 'Voided from admin' });
+                                                            handleRefresh();
+                                                        } catch (err) {
+                                                            alert(err.response?.data?.message || 'Failed to void invoice');
+                                                        }
+                                                    }}
+                                                    className="p-2.5 rounded-lg bg-black/5 dark:bg-[#0d1117] text-gray-400 hover:text-orange-500 hover:bg-orange-500/10 transition-all border border-transparent dark:border-[#30363d]"
+                                                >
+                                                    <X size={14} />
+                                                </button>
+                                            )}
                                         </div>
                                     </td>
                                 </tr>

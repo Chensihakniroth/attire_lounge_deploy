@@ -164,4 +164,68 @@ class PosRefundController extends Controller
             return response()->json(['message' => 'Refund failed: ' . $e->getMessage()], 500);
         }
     }
+
+    /**
+     * Void an invoice — cancels it and restores stock without a refund transaction.
+     * POST /api/v1/admin/pos/invoices/{id}/void
+     */
+    public function void(Request $request, int $invoiceId): JsonResponse
+    {
+        $invoice = PosInvoice::with('items')->findOrFail($invoiceId);
+
+        if (!in_array($invoice->status, ['completed', 'partial', 'held', 'active'])) {
+            return response()->json(['message' => 'Only completed, partial, held, or active invoices can be voided.'], 422);
+        }
+
+        $validated = $request->validate([
+            'reason' => 'nullable|string|max:500',
+        ]);
+
+        $processedBy = $request->user()?->id ?? $invoice->cashier_id;
+
+        DB::beginTransaction();
+        try {
+            // Restore stock for all physical (non-service) items
+            foreach ($invoice->items as $item) {
+                if (!$item->is_service && $item->product_id) {
+                    $posProduct = PosProduct::find($item->product_id);
+                    if ($posProduct) {
+                        $posProduct->increment('stock_qty', $item->quantity);
+                    }
+                }
+            }
+
+            // Create a void record as a refund entry for audit trail
+            PosRefund::create([
+                'invoice_id'   => $invoiceId,
+                'type'         => 'void',
+                'amount'       => 0,
+                'reason'       => $validated['reason'] ?? 'Invoice voided',
+                'processed_by' => $processedBy,
+            ]);
+
+            $invoice->update(['status' => 'void']);
+
+            DB::commit();
+
+            // Clear report caches
+            $date   = $invoice->date;
+            $outlet = $invoice->outlet;
+            $dateStr = $date instanceof \Carbon\Carbon ? $date->toDateString() : \Carbon\Carbon::parse($date)->toDateString();
+            $year   = \Carbon\Carbon::parse($date)->year;
+            $month  = \Carbon\Carbon::parse($date)->month;
+
+            \Illuminate\Support\Facades\Cache::forget("sales_daily_{$outlet}_{$dateStr}");
+            \Illuminate\Support\Facades\Cache::forget("sales_monthly_{$outlet}_{$year}_{$month}");
+
+            return response()->json([
+                'message' => 'Invoice voided successfully',
+                'invoice' => $invoice->fresh(['items', 'payments', 'refunds']),
+            ]);
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response()->json(['message' => 'Void failed: ' . $e->getMessage()], 500);
+        }
+    }
 }
