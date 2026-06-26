@@ -22,6 +22,7 @@ class ProductResource extends JsonResource
             'collection' => $this->collection ? $this->collection->name : 'General',
             'collection_slug' => $this->collection ? $this->collection->slug : null,
             'is_new' => $this->is_new,
+            'is_visible' => $this->is_visible,
             'in_stock' => $this->availability === 'In Stock',
             'availability' => $this->availability,
             'fabric' => $this->fabric,
