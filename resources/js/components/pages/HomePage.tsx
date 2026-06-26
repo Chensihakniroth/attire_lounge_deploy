@@ -106,8 +106,8 @@ const HeroSection = memo(forwardRef<HTMLElement, HeroSectionProps>(({ scrollToSe
         <OptimizedImage
           src={`${minioBaseUrl}/uploads/asset/AL_logo.png`}
           alt="Attire Lounge Official"
-          containerClassName="h-auto w-full max-w-[240px] md:max-w-md"
-          className="drop-shadow-2xl mb-6"
+          containerClassName="h-auto w-full max-w-[240px] md:max-w-md drop-shadow-[0_10px_40px_rgba(0,0,0,0.7)]"
+          className="mb-6"
           bgClassName="bg-transparent"
           priority={true}
           loading="eager"
@@ -586,93 +586,82 @@ interface TipsAndTricksSectionProps {
 }
 
 const TipsAndTricksSection = memo(forwardRef<HTMLElement, TipsAndTricksSectionProps>(({ tipsAndTricks }, ref) => {
-  const [hoveredIndex, setHoveredIndex] = useState(1); // Center card active by default
-
   return (
-    <section className="relative snap-section bg-[#0d3542] min-h-screen h-screen overflow-hidden flex flex-col justify-center" ref={ref}>
-      <div className="relative z-10 w-full h-full flex flex-col px-6 md:px-16 lg:px-24 py-16 md:py-20 lg:py-24">
-        {/* Header Area */}
+    <section className="relative snap-section bg-[#0d3542] py-20 md:py-28" ref={ref}>
+      <div className="relative z-10 w-full max-w-[1400px] mx-auto px-6 md:px-12 lg:px-16">
+        {/* Header */}
         <motion.div
           variants={containerVariants}
           initial="hidden"
           whileInView="visible"
           viewport={{ once: true, amount: 0.2 }}
-          className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-12 shrink-0"
+          className="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-16"
         >
-            <div>
-                 <div className="flex items-center gap-3 mb-3">
-                     <span className="text-[#f5a81c] font-serif italic text-xl">04</span>
-                     <div className="h-px w-12 bg-[#f5a81c]/50" />
-                 </div>
-                <h2 className="font-serif text-4xl md:text-5xl text-white mb-6 leading-tight">
-                    3 Ways to <br/><span className="italic text-[#E5E7EB]">Style the Jacket</span>
-                </h2>
+          <div>
+            <div className="flex items-center gap-3 mb-2">
+              <span className="text-[#f5a81c] font-serif italic text-lg">04</span>
+              <div className="h-px w-10 bg-[#f5a81c]/50" />
             </div>
-            <p className="text-[#E5E7EB]/60 text-sm md:text-base font-light max-w-sm text-left md:text-right hidden md:block">
-                Master the art of jacket styling with our expert guide, featuring versatile looks for the modern gentleman.
-            </p>
+            <h2 className="font-serif text-3xl md:text-4xl text-white leading-tight">
+              3 Ways to <span className="italic text-[#E5E7EB]">Style the Jacket</span>
+            </h2>
+          </div>
+          <p className="text-[#E5E7EB]/50 text-sm font-light max-w-xs text-left md:text-right">
+            Master the art of jacket styling with our expert guide.
+          </p>
         </motion.div>
 
-        {/* Accordion Gallery */}
-        <div className="flex-1 flex flex-col md:flex-row gap-4 h-full min-h-0 w-full">
-          {tipsAndTricks.map((tip, i) => {
-            const isHovered = hoveredIndex === i;
-            return (
-                <motion.div
-                  key={i}
-                  initial={{ opacity: 0, y: 20 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true }}
-                  transition={{ delay: i * 0.1, duration: 0.5 }}
-                  onMouseEnter={() => setHoveredIndex(i)}
-                  onClick={() => setHoveredIndex(i)} // For mobile tap
-                  className={`relative overflow-hidden rounded-2xl cursor-pointer transition-all duration-700 ease-[cubic-bezier(0.25,1,0.5,1)] ${isHovered ? 'flex-[3] md:flex-[4]' : 'flex-[1]'} group`}
-                >
-                    {/* Background Image */}
-                    <OptimizedImage
-                        src={tip.image}
-                        alt={tip.title}
-                        containerClassName="absolute inset-0 w-full h-full"
-                        className={`w-full h-full transition-transform duration-1000 ease-out ${isHovered ? 'scale-110' : 'scale-100'}`}
-                        style={{ objectPosition: 'center 20%' }}
-                        loading="lazy"
-                    />
-                    <div className={`absolute inset-0 bg-gradient-to-b from-black/10 via-transparent to-black/90 transition-opacity duration-500 ${isHovered ? 'opacity-90' : 'opacity-20'}`} />
+        {/* Grid - Clean 3-column layout */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8">
+          {tipsAndTricks.map((tip, i) => (
+            <motion.a
+              key={i}
+              href={tip.link}
+              target="_blank"
+              rel="noreferrer"
+              initial={{ opacity: 0, y: 30 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ delay: i * 0.15, duration: 0.6 }}
+              className="group relative overflow-hidden rounded-lg aspect-[3/4] block"
+            >
+              {/* Image */}
+              <OptimizedImage
+                src={tip.image}
+                alt={tip.title}
+                containerClassName="absolute inset-0 w-full h-full"
+                className="w-full h-full transition-transform duration-700 ease-out group-hover:scale-105"
+                style={{ objectPosition: 'center 20%' }}
+                loading="lazy"
+              />
 
-                    {/* Content Container */}
-                    <div className="absolute inset-0 p-6 md:p-8 flex flex-col justify-end">
+              {/* Overlay */}
+              <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
 
-                        <div className="relative z-10 flex justify-between items-end">
-                            {/* Main Content */}
-                            <div className={`transition-all duration-500 ${isHovered ? 'w-full md:w-3/4 translate-y-0 opacity-100' : 'translate-y-4 opacity-100 md:opacity-0'}`}>
-                                <div className="flex items-center gap-4 mb-3">
-                                    <span className={`font-serif text-3xl md:text-5xl transition-colors duration-300 ${isHovered ? 'text-[#f5a81c]' : 'text-white/40'}`}>
-                                        0{i + 1}
-                                    </span>
-                                </div>
+              {/* Number Badge */}
+              <div className="absolute top-4 left-4">
+                <span className="text-[#f5a81c] font-serif text-2xl md:text-3xl">
+                  0{i + 1}
+                </span>
+              </div>
 
-                                <h3 className={`font-serif text-xl md:text-3xl text-white mb-3 leading-tight`}>
-                                    {tip.title}
-                                </h3>
-
-                                <div className={`overflow-hidden transition-all duration-500 ${isHovered ? 'max-h-40 opacity-100 mt-2' : 'max-h-0 opacity-0'}`}>
-                                    <p className="text-[#E5E7EB]/80 text-sm md:text-base font-light mb-6 line-clamp-2 md:line-clamp-none">
-                                        {tip.description}
-                                    </p>
-
-                                    <a href={tip.link} target="_blank" rel="noreferrer" className="inline-flex items-center gap-3 text-white uppercase tracking-widest text-[10px] md:text-xs font-semibold group/btn hover:text-[#f5a81c] transition-colors">
-                                        <div className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center border border-white/10 group-hover/btn:bg-[#f5a81c] group-hover/btn:border-[#f5a81c] group-hover/btn:text-white transition-all">
-                                            <Play size={14} fill="currentColor" className="ml-0.5" />
-                                        </div>
-                                        <span>Watch Tutorial</span>
-                                    </a>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </motion.div>
-            );
-          })}
+              {/* Content */}
+              <div className="absolute bottom-0 left-0 right-0 p-5 md:p-6">
+                <h3 className="font-serif text-lg md:text-xl text-white mb-2 leading-tight group-hover:text-[#f5a81c] transition-colors duration-300">
+                  {tip.title}
+                </h3>
+                <p className="text-[#E5E7EB]/60 text-xs md:text-sm font-light mb-4 line-clamp-2">
+                  {tip.description}
+                </p>
+                <div className="flex items-center gap-2 text-white/50 group-hover:text-[#f5a81c] transition-colors duration-300">
+                  <div className="w-7 h-7 rounded-full border border-white/20 group-hover:border-[#f5a81c] flex items-center justify-center transition-colors duration-300">
+                    <Play size={10} fill="currentColor" className="ml-0.5" />
+                  </div>
+                  <span className="text-[10px] uppercase tracking-[0.2em] font-medium">Watch Tutorial</span>
+                </div>
+              </div>
+            </motion.a>
+          ))}
         </div>
       </div>
     </section>

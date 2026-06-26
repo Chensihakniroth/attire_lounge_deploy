@@ -19,7 +19,7 @@ const LookbookPage = () => {
     const [searchParams, setSearchParams] = useSearchParams();
     const filter = searchParams.get('filter') || 'all';
     const sort = searchParams.get('sort') || 'newest';
-    const grid = searchParams.get('grid') || 'medium';
+    const grid = searchParams.get('grid') || 'small';
 
     const [currentPage, setCurrentPage] = useState(1);
     const [isInitialLoading, setIsInitialLoading] = useState(true);
@@ -113,7 +113,7 @@ const LookbookPage = () => {
                     onGridChange={(v) => updateParams('grid', v)}
                 />
 
-                <main className="max-w-[1800px] mx-auto px-6 sm:px-12 lg:px-20 pb-48">
+                <main className="max-w-[1600px] mx-auto px-6 sm:px-10 lg:px-16 pb-24">
                     <AnimatePresence mode="wait">
                         {isInitialLoading ? (
                             <motion.div
@@ -170,7 +170,7 @@ const LookbookPage = () => {
                                         initial={{ opacity: 0 }}
                                         whileInView={{ opacity: 1 }}
                                         viewport={{ once: true }}
-                                        className="flex flex-col items-center mt-32 space-y-6"
+                                        className="flex flex-col items-center mt-16 space-y-6"
                                     >
                                         <div className="flex items-center gap-6">
                                             <div className="h-px w-16 bg-white/10" />
@@ -193,7 +193,7 @@ const LookbookPage = () => {
 
                                 {!hasMore &&
                                     filteredAndSortedImages.length > 0 && (
-                                        <div className="flex flex-col items-center mt-32 space-y-6 opacity-30">
+                                        <div className="flex flex-col items-center mt-16 space-y-6 opacity-30">
                                             <div className="h-px w-24 bg-attire-accent/30 mb-2" />
                                             <p className="text-[10px] font-black uppercase tracking-[0.4em]">
                                                 End of Collection

@@ -1,170 +1,133 @@
-// resources/js/components/pages/lookbook/LookbookFilter.jsx - ATELIER SOLID UTILITY BAR (FIXED TRAILING DROPLET ANIMATION)
-import React, { memo, Fragment, useState } from 'react';
-import { Menu, Transition } from '@headlessui/react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { 
-    ChevronDown, Check, LayoutGrid, Grid, Square, 
-    ArrowDownAZ, ArrowUpAZ, Clock, ListFilter,
-} from 'lucide-react';
+// resources/js/components/pages/lookbook/LookbookFilter.jsx - MOBILE-FRIENDLY FILTERS WITH CUSTOM DROPDOWN
+import React, { memo, useState, useRef, useEffect } from 'react';
+import { motion } from 'framer-motion';
+import { ChevronDown } from 'lucide-react';
 import { LOOKBOOK_CATEGORIES } from '../../../data/lookbook.js';
 
-const LookbookFilter = memo(({ 
-    currentFilter, onFilterChange, 
-    currentSort, onSortChange,
-    currentGrid, onGridChange 
-}) => {
-    const activeCategory = LOOKBOOK_CATEGORIES.find(c => c.id === currentFilter) || LOOKBOOK_CATEGORIES[0];
+const CustomDropdown = memo(({ options, current, onChange, label }) => {
+    const [isOpen, setIsOpen] = useState(false);
+    const ref = useRef(null);
 
-    const sortOptions = [
-        { id: 'newest', name: 'Newest First', icon: Clock },
-        { id: 'oldest', name: 'Oldest First', icon: Clock },
-        { id: 'a-z', name: 'Alphabetical A-Z', icon: ArrowDownAZ },
-        { id: 'z-a', name: 'Alphabetical Z-A', icon: ArrowUpAZ },
-    ];
-    const activeSort = sortOptions.find(s => s.id === currentSort) || sortOptions[0];
+    useEffect(() => {
+        const handleClickOutside = (e) => {
+            if (ref.current && !ref.current.contains(e.target)) {
+                setIsOpen(false);
+            }
+        };
+        document.addEventListener('mousedown', handleClickOutside);
+        return () => document.removeEventListener('mousedown', handleClickOutside);
+    }, []);
 
-    const gridOptions = [
-        { id: 'large', icon: Square, label: 'Showcase' },
-        { id: 'medium', icon: LayoutGrid, label: 'Standard' },
-        { id: 'small', icon: Grid, label: 'Archive' },
-    ];
-
-    const [leavingDroplets, setLeavingDroplets] = useState([]);
-
-    const handleGridChange = (newGridId) => {
-        if (newGridId !== currentGrid) {
-            setLeavingDroplets(prev => [...prev, { id: Date.now(), gridId: currentGrid }]);
-            onGridChange(newGridId);
-        }
-    };
-    
-    const removeDroplet = (dropletId) => {
-        setLeavingDroplets(prev => prev.filter(d => d.id !== dropletId));
-    };
+    const active = options.find(o => o.id === current) || options[0];
 
     return (
-        <div className="relative z-40 sticky top-24 max-w-[1400px] mx-auto px-6 mb-32 pointer-events-auto">
-            <motion.div 
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                className="relative group"
+        <div ref={ref} className="relative">
+            <button
+                onClick={() => setIsOpen(!isOpen)}
+                className="flex items-center gap-2 text-xs uppercase tracking-[0.2em] text-white/50 hover:text-white transition-colors py-2"
             >
-                <div className="relative flex flex-col md:flex-row items-stretch md:items-center bg-[#0a0f1a] border border-white/10 rounded-[2.5rem] md:rounded-full shadow-[0_30px_60px_-15px_rgba(0,0,0,0.9)]">
-                    
-                    {/* 1. COLLECTION SELECTOR (Unchanged) */}
-                    <div className="flex-1 border-b md:border-b-0 md:border-r border-white/5 relative">
-                        <Menu as="div" className="h-full w-full">
-                            <Menu.Button as={motion.button}
-                                whileHover={{ backgroundColor: 'rgba(255,255,255,0.03)' }}
-                                className="w-full h-full flex items-center gap-5 px-10 py-6 text-left group/btn transition-colors duration-500 rounded-t-[2.5rem] md:rounded-l-full md:rounded-tr-none"
-                            >
-                                <div className="w-10 h-10 rounded-full bg-white/5 border border-white/5 flex items-center justify-center group-hover/btn:border-attire-accent/40 transition-colors">
-                                    <ListFilter size={16} className="text-attire-accent" />
-                                </div>
-                                <div className="flex flex-col">
-                                    <span className="text-[8px] font-black uppercase tracking-[0.4em] text-white/40">Archive</span>
-                                    <span className="text-sm font-serif text-white tracking-wide">{activeCategory.name}</span>
-                                </div>
-                                <ChevronDown size={14} className="ml-auto text-white/20 group-hover/btn:text-white transition-colors" />
-                            </Menu.Button>
+                <span>{label}: <span className="text-white">{active.name}</span></span>
+                <ChevronDown size={12} className={`transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`} />
+            </button>
 
-                            <Transition as={Fragment} enter="transition duration-300 ease-out" enterFrom="opacity-0 translate-y-2" enterTo="opacity-100 translate-y-0" leave="transition duration-200 ease-in" leaveFrom="opacity-100 translate-y-0" leaveTo="opacity-0 translate-y-2">
-                                <Menu.Items className="absolute left-0 right-0 mt-4 origin-top rounded-xl bg-[#0a0f1a] border border-white/10 shadow-[0_40px_80px_rgba(0,0,0,0.9)] overflow-hidden py-4 p-2 z-[100]">
-                                    {LOOKBOOK_CATEGORIES.map((c) => (
-                                        <Menu.Item key={c.id}>
-                                            {({ active }) => (
-                                                <button onClick={() => onFilterChange(c.id)} className={`flex items-center justify-between w-full px-8 py-4 rounded-2xl text-[10px] font-bold uppercase tracking-[0.3em] transition-all duration-500 ${currentFilter === c.id ? 'bg-white text-black' : active ? 'bg-white/5 text-white' : 'text-white/50'}`}>
-                                                    {c.name}
-                                                    {currentFilter === c.id && <Check size={14} strokeWidth={4} />}
-                                                </button>
-                                            )}
-                                        </Menu.Item>
-                                    ))}
-                                </Menu.Items>
-                            </Transition>
-                        </Menu>
-                    </div>
+            {isOpen && (
+                <motion.div
+                    initial={{ opacity: 0, y: -4 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="absolute top-full right-0 mt-2 min-w-[160px] bg-[#1a1a1a] border border-white/10 rounded-lg overflow-hidden z-50"
+                >
+                    {options.map((opt) => (
+                        <button
+                            key={opt.id}
+                            onClick={() => { onChange(opt.id); setIsOpen(false); }}
+                            className={`w-full text-left px-4 py-2.5 text-xs tracking-[0.15em] transition-colors ${
+                                current === opt.id
+                                    ? 'text-[#f5a81c] bg-white/5'
+                                    : 'text-white/50 hover:text-white hover:bg-white/5'
+                            }`}
+                        >
+                            {opt.name}
+                        </button>
+                    ))}
+                </motion.div>
+            )}
+        </div>
+    );
+});
 
-                    {/* 2. GRID SWITCHER (Corrected Trail Animation) */}
-                    <div className="flex-none flex items-center justify-center px-10 py-6 md:py-0">
-                        <div className="flex items-center gap-1 bg-white/5 p-1.5 rounded-full border border-white/10">
-                            {gridOptions.map((opt) => (
-                                <button
-                                    key={opt.id}
-                                    onClick={() => handleGridChange(opt.id)}
-                                    className={`relative p-3.5 rounded-full group/grid ${currentGrid === opt.id ? 'text-black' : 'text-white/30 hover:text-white'}`}
-                                    title={`${opt.label} View`}
-                                >
-                                    {/* Background animations MUST come before the icon now */}
-                                    {leavingDroplets.map(droplet => 
-                                        droplet.gridId === opt.id && (
-                                            <motion.div
-                                                key={droplet.id}
-                                                className="absolute inset-0 bg-white rounded-full"
-                                                initial={{ scale: 1, opacity: 0.6 }}
-                                                animate={{ scale: [1, 1.3, 0], opacity: [0.6, 0.4, 0] }}
-                                                transition={{ duration: 0.4, ease: "circOut" }}
-                                                onAnimationComplete={() => removeDroplet(droplet.id)}
-                                            />
-                                        )
-                                    )}
+CustomDropdown.displayName = 'CustomDropdown';
 
-                                    {currentGrid === opt.id && (
-                                        <motion.div 
-                                            layoutId="activeGrid" 
-                                            className="absolute inset-0 bg-white rounded-full"
-                                            transition={{ type: 'spring', stiffness: 380, damping: 35 }}
-                                        />
-                                    )}
+const LookbookFilter = memo(({
+    currentFilter, onFilterChange,
+    currentSort, onSortChange,
+    currentGrid, onGridChange
+}) => {
+    const sortOptions = [
+        { id: 'newest', name: 'Newest' },
+        { id: 'oldest', name: 'Oldest' },
+        { id: 'a-z', name: 'A-Z' },
+        { id: 'z-a', name: 'Z-A' },
+    ];
 
-                                    {/* Icon is now wrapped in a relative div to ensure it's on top */}
-                                    <div className="relative">
-                                        <opt.icon size={16} />
-                                    </div>
-                                </button>
-                            ))}
-                        </div>
-                    </div>
-
-                    {/* 3. SORT SELECTOR (Unchanged) */}
-                    <div className="flex-1 border-t md:border-t-0 md:border-l border-white/5 relative">
-                        <Menu as="div" className="h-full w-full">
-                            <Menu.Button as={motion.button}
-                                whileHover={{ backgroundColor: 'rgba(255,255,255,0.03)' }}
-                                className="w-full h-full flex items-center gap-5 px-10 py-6 text-right group/sort transition-colors duration-500 rounded-b-[2.5rem] md:rounded-r-full md:rounded-bl-none"
-                            >
-                                <ChevronDown size={14} className="mr-auto text-white/20 group-hover/sort:text-white transition-colors" />
-                                <div className="flex flex-col items-end">
-                                    <span className="text-[8px] font-black uppercase tracking-[0.4em] text-white/40">Order</span>
-                                    <span className="text-sm font-serif text-white tracking-wide">{activeSort.name}</span>
-                                </div>
-                                <div className="w-10 h-10 rounded-full bg-white/5 border border-white/10 flex items-center justify-center group-hover/sort:border-attire-accent/40 transition-colors">
-                                    <activeSort.icon size={16} className="text-attire-accent" />
-                                </div>
-                            </Menu.Button>
-
-                            <Transition as={Fragment} enter="transition duration-300 ease-out" enterFrom="opacity-0 translate-y-2" enterTo="opacity-100 translate-y-0" leave="transition duration-200 ease-in" leaveFrom="opacity-100 translate-y-0" leaveTo="opacity-0 translate-y-2">
-                                <Menu.Items className="absolute left-0 right-0 mt-4 origin-top rounded-xl bg-[#0a0f1a] border border-white/10 shadow-[0_40px_80px_rgba(0,0,0,0.9)] overflow-hidden py-4 p-2 z-[100]">
-                                    {sortOptions.map((s) => (
-                                        <Menu.Item key={s.id}>
-                                            {({ active }) => (
-                                                <button onClick={() => onSortChange(s.id)} className={`flex items-center justify-between w-full px-8 py-4 rounded-2xl text-[10px] font-bold uppercase tracking-[0.3em] transition-all duration-500 ${currentSort === s.id ? 'bg-white text-black' : active ? 'bg-white/5 text-white' : 'text-white/50'}`}>
-                                                    <div className="flex items-center gap-4">
-                                                        <s.icon size={14} className={currentSort === s.id ? 'text-black' : 'text-attire-accent/60'} />
-                                                        {s.name}
-                                                    </div>
-                                                    {currentSort === s.id && <Check size={14} strokeWidth={4} />}
-                                                </button>
-                                            )}
-                                        </Menu.Item>
-                                    ))}
-                                </Menu.Items>
-                            </Transition>
-                        </Menu>
-                    </div>
-
+    return (
+        <div className="relative z-40 max-w-[1600px] mx-auto px-6 mb-10 md:mb-14">
+            {/* Category Filters - horizontal scroll on mobile, spread on desktop */}
+            <div className="flex md:block overflow-x-auto scrollbar-hide pb-2">
+                <div className="flex items-center gap-5 md:gap-6 min-w-max">
+                    {LOOKBOOK_CATEGORIES.map((c) => (
+                        <button
+                            key={c.id}
+                            onClick={() => onFilterChange(c.id)}
+                            className={`text-xs uppercase tracking-[0.2em] pb-1 transition-colors duration-300 whitespace-nowrap flex-shrink-0 ${
+                                currentFilter === c.id
+                                    ? 'text-white border-b border-white'
+                                    : 'text-white/40 hover:text-white/70'
+                            }`}
+                        >
+                            {c.name}
+                        </button>
+                    ))}
                 </div>
-            </motion.div>
+            </div>
+
+            {/* Divider */}
+            <div className="h-px bg-white/10 my-5" />
+
+            {/* Grid + Sort controls */}
+            <div className="flex items-center justify-between">
+                {/* Grid Switcher */}
+                <div className="flex items-center gap-1">
+                    <button
+                        onClick={() => onGridChange('large')}
+                        className={`p-2 rounded transition-colors ${currentGrid === 'large' ? 'text-white' : 'text-white/30 hover:text-white/60'}`}
+                        title="2 Columns"
+                    >
+                        <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><rect x="1" y="1" width="6" height="14" stroke="currentColor" strokeWidth="1.2"/><rect x="9" y="1" width="6" height="14" stroke="currentColor" strokeWidth="1.2"/></svg>
+                    </button>
+                    <button
+                        onClick={() => onGridChange('medium')}
+                        className={`p-2 rounded transition-colors ${currentGrid === 'medium' ? 'text-white' : 'text-white/30 hover:text-white/60'}`}
+                        title="3 Columns"
+                    >
+                        <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><rect x="1" y="1" width="4" height="6" stroke="currentColor" strokeWidth="1.2"/><rect x="6" y="1" width="4" height="6" stroke="currentColor" strokeWidth="1.2"/><rect x="11" y="1" width="4" height="6" stroke="currentColor" strokeWidth="1.2"/><rect x="1" y="9" width="4" height="6" stroke="currentColor" strokeWidth="1.2"/><rect x="6" y="9" width="4" height="6" stroke="currentColor" strokeWidth="1.2"/><rect x="11" y="9" width="4" height="6" stroke="currentColor" strokeWidth="1.2"/></svg>
+                    </button>
+                    <button
+                        onClick={() => onGridChange('small')}
+                        className={`p-2 rounded transition-colors ${currentGrid === 'small' ? 'text-white' : 'text-white/30 hover:text-white/60'}`}
+                        title="4 Columns"
+                    >
+                        <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><rect x="1" y="1" width="3" height="3" stroke="currentColor" strokeWidth="1.2"/><rect x="5" y="1" width="3" height="3" stroke="currentColor" strokeWidth="1.2"/><rect x="9" y="1" width="3" height="3" stroke="currentColor" strokeWidth="1.2"/><rect x="13" y="1" width="3" height="3" stroke="currentColor" strokeWidth="1.2"/><rect x="1" y="5" width="3" height="3" stroke="currentColor" strokeWidth="1.2"/><rect x="5" y="5" width="3" height="3" stroke="currentColor" strokeWidth="1.2"/><rect x="9" y="5" width="3" height="3" stroke="currentColor" strokeWidth="1.2"/><rect x="13" y="5" width="3" height="3" stroke="currentColor" strokeWidth="1.2"/><rect x="1" y="9" width="3" height="3" stroke="currentColor" strokeWidth="1.2"/><rect x="5" y="9" width="3" height="3" stroke="currentColor" strokeWidth="1.2"/><rect x="9" y="9" width="3" height="3" stroke="currentColor" strokeWidth="1.2"/><rect x="13" y="9" width="3" height="3" stroke="currentColor" strokeWidth="1.2"/><rect x="1" y="13" width="3" height="3" stroke="currentColor" strokeWidth="1.2"/><rect x="5" y="13" width="3" height="3" stroke="currentColor" strokeWidth="1.2"/><rect x="9" y="13" width="3" height="3" stroke="currentColor" strokeWidth="1.2"/><rect x="13" y="13" width="3" height="3" stroke="currentColor" strokeWidth="1.2"/></svg>
+                    </button>
+                </div>
+
+                {/* Custom Sort Dropdown */}
+                <CustomDropdown
+                    options={sortOptions}
+                    current={currentSort}
+                    onChange={onSortChange}
+                    label="Sort"
+                />
+            </div>
         </div>
     );
 });

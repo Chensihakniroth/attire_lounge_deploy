@@ -1,12 +1,10 @@
-// resources/js/components/pages/ContactPage.jsx - ATELIER OVERHAUL (FIXED CONTRAST & INTERACTIVE CARDS)
-import React, { useState, useEffect, Fragment } from 'react';
-import { Listbox, Transition } from '@headlessui/react';
+// resources/js/components/pages/ContactPage.jsx - CLEAN EDITORIAL REVAMP
+import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
     Mail, Phone, MapPin, Clock, Send, CheckCircle,
     Instagram, Facebook, ChevronDown, Check, User,
-    Calendar, Sparkles, ArrowRight,
-    MessageSquare, Heart, Loader
+    Calendar, ArrowRight, MessageSquare, Heart, Loader
 } from 'lucide-react';
 import { useFavorites } from '../../context/FavoritesContext';
 import API from '../../api';
@@ -17,14 +15,10 @@ import DatePicker from '@/components/ui/DatePicker';
 import { TimePicker } from '@/components/ui/time-picker';
 import { format, parse } from 'date-fns';
 
-
-// --- Premium Animation Constants ---
 const fadeUp = {
     hidden: { opacity: 0, y: 30 },
     visible: { opacity: 1, y: 0, transition: { duration: 0.8, ease: [0.22, 1, 0.36, 1] } }
 };
-
-// --- Refined Components ---
 
 const InfoCard = ({ icon: Icon, title, details, action }) => {
     const Component = action ? motion.a : motion.div;
@@ -33,15 +27,15 @@ const InfoCard = ({ icon: Icon, title, details, action }) => {
             href={action}
             target={action?.startsWith('http') ? "_blank" : undefined}
             rel={action?.startsWith('http') ? "noopener noreferrer" : undefined}
-            whileHover={{ y: -5 }}
-            className="flex items-start gap-6 group p-6 rounded-[2rem] bg-white/[0.02] border border-white/10 hover:border-attire-accent/30 transition-all duration-500 w-full text-left"
+            whileHover={{ y: -4 }}
+            className="flex items-start gap-4 group p-4 rounded-xl bg-white/[0.02] border border-white/10 hover:border-[#f5a81c]/30 transition-all duration-300 w-full text-left"
         >
-            <div className="mt-1 flex-shrink-0 w-12 h-12 rounded-2xl bg-attire-accent/10 border border-attire-accent/20 flex items-center justify-center group-hover:bg-attire-accent group-hover:text-black transition-all duration-500">
-                <Icon size={20} className="text-attire-accent group-hover:text-black transition-colors" />
+            <div className="mt-0.5 flex-shrink-0 w-10 h-10 rounded-lg bg-[#f5a81c]/10 border border-[#f5a81c]/20 flex items-center justify-center group-hover:bg-[#f5a81c] group-hover:text-black transition-all duration-300">
+                <Icon size={16} className="text-[#f5a81c] group-hover:text-black transition-colors" />
             </div>
             <div>
-                <h4 className="text-[10px] font-black text-white/80 uppercase tracking-[0.3em] mb-2">{title}</h4>
-                <div className="text-sm text-attire-silver group-hover:text-white transition-colors leading-relaxed font-semibold">
+                <h4 className="text-[10px] font-bold text-white/60 uppercase tracking-[0.2em] mb-1">{title}</h4>
+                <div className="text-sm text-white/50 group-hover:text-white/80 transition-colors leading-relaxed">
                     {details.map((line, i) => <p key={i}>{line}</p>)}
                 </div>
             </div>
@@ -52,28 +46,28 @@ const InfoCard = ({ icon: Icon, title, details, action }) => {
 const InputField = ({ label, icon: Icon, error, ...props }) => (
     <div className="space-y-2">
         {label && (
-            <label className="block text-[10px] font-black text-white/80 uppercase tracking-[0.3em] ml-1">
+            <label className="block text-[10px] font-bold text-white/60 uppercase tracking-[0.2em] ml-1">
                 {label}
             </label>
         )}
         <div className="relative group">
             {Icon && (
-                <div className="absolute inset-y-0 left-0 pl-6 flex items-center pointer-events-none text-white/40 group-focus-within:text-attire-accent transition-colors duration-500">
-                    <Icon size={16} />
+                <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-white/30 group-focus-within:text-[#f5a81c] transition-colors duration-300">
+                    <Icon size={14} />
                 </div>
             )}
             <input
                 {...props}
-                className={`w-full ${Icon ? 'pl-14' : 'px-6'} pr-6 py-5 rounded-2xl border bg-white/[0.02] text-white placeholder-white/10 transition-all duration-500
+                className={`w-full ${Icon ? 'pl-11' : 'px-4'} pr-4 py-3.5 rounded-lg border bg-white/[0.02] text-white placeholder-white/20 transition-all duration-300
                 ${error
-                    ? 'border-red-500/30 bg-red-500/5 focus:border-red-500'
-                    : 'border-white/10 hover:border-white/20 focus:border-attire-accent/50 focus:bg-white/[0.05]'
+                    ? 'border-red-500/30 focus:border-red-500'
+                    : 'border-white/10 hover:border-white/20 focus:border-[#f5a81c]/50 focus:bg-white/[0.04]'
                 } outline-none text-sm [color-scheme:dark]`}
             />
         </div>
         <AnimatePresence>
             {error && (
-                <motion.p initial={{ opacity: 0, x: -5 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0 }} className="text-red-400 text-[10px] font-bold uppercase tracking-widest ml-1">
+                <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="text-red-400 text-[10px] font-bold uppercase tracking-widest ml-1">
                     {error}
                 </motion.p>
             )}
@@ -82,38 +76,46 @@ const InputField = ({ label, icon: Icon, error, ...props }) => (
 );
 
 const SelectField = ({ label, options, value, onChange, name }) => {
+    const [isOpen, setIsOpen] = useState(false);
     const selected = options.find(o => o.value === value);
+
     return (
         <div className="space-y-2">
-            <label className="block text-[10px] font-black text-white/60 uppercase tracking-[0.3em] ml-1">{label}</label>
-            <Listbox value={value} onChange={val => onChange({ target: { name, value: val } })}>
-                <div className="relative">
-                    <Listbox.Button className="relative w-full cursor-default rounded-2xl border border-white/10 bg-white/[0.02] py-5 pl-6 pr-12 text-left text-white text-sm hover:border-white/20 focus:border-attire-accent/50 transition-all duration-500">
-                        <span className="block truncate font-medium">{selected?.label}</span>
-                        <span className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-4">
-                            <ChevronDown className="h-4 w-4 text-white/40" aria-hidden="true" />
-                        </span>
-                    </Listbox.Button>
-                    <Transition as={Fragment} leave="transition ease-in duration-100" leaveFrom="opacity-100" leaveTo="opacity-0">
-                        <Listbox.Options className="absolute z-[300] mt-3 max-h-80 w-full overflow-auto rounded-[2rem] bg-[#0a0f1a] border border-white/10 py-2 shadow-2xl">
-                            {options.map((option, idx) => (
-                                <Listbox.Option
-                                    key={idx}
-                                    className={({ active }) => `relative cursor-pointer select-none py-4 px-6 text-[11px] font-bold uppercase tracking-widest transition-all ${active ? 'bg-attire-accent text-black' : 'text-attire-silver hover:text-white'}`}
-                                    value={option.value}
-                                >
-                                    {({ selected }) => (
-                                        <div className="flex items-center justify-between">
-                                            <span className={selected ? 'font-black' : ''}>{option.label}</span>
-                                            {selected && <Check size={14} strokeWidth={4} />}
-                                        </div>
-                                    )}
-                                </Listbox.Option>
-                            ))}
-                        </Listbox.Options>
-                    </Transition>
-                </div>
-            </Listbox>
+            <label className="block text-[10px] font-bold text-white/60 uppercase tracking-[0.2em] ml-1">{label}</label>
+            <div className="relative">
+                <button
+                    type="button"
+                    onClick={() => setIsOpen(!isOpen)}
+                    className="relative w-full cursor-default rounded-lg border border-white/10 bg-white/[0.02] py-3.5 pl-4 pr-10 text-left text-white text-sm hover:border-white/20 focus:border-[#f5a81c]/50 transition-all duration-300"
+                >
+                    <span className="block truncate">{selected?.label}</span>
+                    <span className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3">
+                        <ChevronDown className={`h-4 w-4 text-white/30 transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`} />
+                    </span>
+                </button>
+                {isOpen && (
+                    <motion.div
+                        initial={{ opacity: 0, y: -4 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        className="absolute z-50 mt-2 w-full rounded-lg bg-[#1a1a1a] border border-white/10 overflow-hidden"
+                    >
+                        {options.map((opt) => (
+                            <button
+                                key={opt.value}
+                                type="button"
+                                onClick={() => { onChange({ target: { name, value: opt.value } }); setIsOpen(false); }}
+                                className={`w-full text-left px-4 py-2.5 text-sm transition-colors ${
+                                    value === opt.value
+                                        ? 'text-[#f5a81c] bg-white/5'
+                                        : 'text-white/50 hover:text-white hover:bg-white/5'
+                                }`}
+                            >
+                                {opt.label}
+                            </button>
+                        ))}
+                    </motion.div>
+                )}
+            </div>
         </div>
     );
 };
@@ -122,18 +124,18 @@ const FavoritesSelector = ({ favoriteProducts, selectedFavorites, onSelectionCha
     if (favoriteProducts.length === 0) return null;
 
     return (
-        <div className="space-y-4">
-            <div className="flex items-center gap-3 ml-1">
-                <Heart size={14} className="text-attire-accent" />
-                <label className="text-[10px] font-black text-white/60 uppercase tracking-[0.3em]">Include Favorite Items</label>
+        <div className="space-y-3">
+            <div className="flex items-center gap-2 ml-1">
+                <Heart size={12} className="text-[#f5a81c]" />
+                <label className="text-[10px] font-bold text-white/60 uppercase tracking-[0.2em]">Include Favorite Items</label>
             </div>
-            <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-4 p-6 rounded-3xl border border-white/10 bg-white/[0.01]">
+            <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-3 p-4 rounded-xl border border-white/10 bg-white/[0.01]">
                 {favoriteProducts.map(product => (
                     <motion.div
                         key={product.id}
                         whileTap={{ scale: 0.95 }}
-                        className={`relative cursor-pointer rounded-xl overflow-hidden border-2 transition-all duration-500 ${
-                            selectedFavorites.includes(product.id) ? 'border-attire-accent shadow-[0_0_20px_rgba(212,168,76,0.15)]' : 'border-white/10 hover:border-white/30'
+                        className={`relative cursor-pointer rounded-lg overflow-hidden border-2 transition-all duration-300 ${
+                            selectedFavorites.includes(product.id) ? 'border-[#f5a81c]' : 'border-white/10 hover:border-white/30'
                         }`}
                         onClick={() => {
                             onSelectionChange(selectedFavorites.includes(product.id)
@@ -145,15 +147,15 @@ const FavoritesSelector = ({ favoriteProducts, selectedFavorites, onSelectionCha
                             src={product.images?.[0] || ''}
                             alt={product.name}
                             containerClassName="w-full aspect-[3/4]"
-                            className={`w-full h-full transition-all duration-1000 ${selectedFavorites.includes(product.id) ? 'scale-110 opacity-100' : 'opacity-70 group-hover:opacity-100'}`}
+                            className="w-full h-full object-cover"
                         />
                         {selectedFavorites.includes(product.id) && (
-                            <div className="absolute top-2 right-2 bg-attire-accent text-black rounded-full p-1 shadow-xl z-20">
-                                <Check size={10} strokeWidth={4} />
+                            <div className="absolute top-1.5 right-1.5 bg-[#f5a81c] text-black rounded-full p-0.5 z-20">
+                                <Check size={8} strokeWidth={4} />
                             </div>
                         )}
-                        <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/90 p-2">
-                            <p className="text-[8px] text-white text-center truncate font-black tracking-widest uppercase">{product.name}</p>
+                        <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 p-1.5">
+                            <p className="text-[8px] text-white text-center truncate font-medium">{product.name}</p>
                         </div>
                     </motion.div>
                 ))}
@@ -161,8 +163,6 @@ const FavoritesSelector = ({ favoriteProducts, selectedFavorites, onSelectionCha
         </div>
     );
 };
-
-// --- Main Page Component ---
 
 const ContactPage = () => {
     const contentRef = React.useRef(null);
@@ -189,7 +189,6 @@ const ContactPage = () => {
     const [errors, setErrors] = useState({});
     const [generatedMessage, setGeneratedMessage] = useState('');
 
-    // Scroll to the content box when manifest is ready
     useEffect(() => {
         if (generatedMessage && contentRef.current) {
             const yOffset = -120;
@@ -202,9 +201,8 @@ const ContactPage = () => {
         { value: 'sartorial', label: 'Sartorial Consultation' },
         { value: 'groom', label: 'Groom Consultation' },
         { value: 'office', label: 'Office Consultation' },
-        { value: 'accessories', label: 'Accessorized' }
+        { value: 'accessories', label: 'Accessories' }
     ];
-
 
     const validateForm = () => {
         const newErrors = {};
@@ -234,7 +232,6 @@ const ContactPage = () => {
                 favorite_item_image_url: favoriteItems,
             };
             await API.bookAppointment(submissionData);
-
             setGeneratedMessage('success');
         } catch (error) {
             console.error(error);
@@ -245,115 +242,103 @@ const ContactPage = () => {
     };
 
     return (
-        <div className="bg-attire-navy relative selection:bg-attire-accent selection:text-black min-h-screen">
-            <div className="relative z-10 max-w-[1400px] mx-auto px-6 pt-28 sm:pt-40 pb-24 md:pb-40">
-                {/* Atelier Header */}
-                <header className="max-w-3xl mx-auto text-center mb-24">
-                    <motion.div initial="hidden" animate="visible" variants={fadeUp} className="space-y-8">
-                        <div className="inline-flex items-center gap-4 px-6 py-2 rounded-full border border-white/10 bg-white/[0.02]">
-                            <Sparkles size={14} className="text-attire-accent" />
-                            <span className="text-[10px] font-black uppercase tracking-[0.4em] text-white/80">STYLING CONSULTANTS</span>
-                        </div>
-                        <h1 className="text-6xl md:text-8xl font-serif font-light text-white leading-tight drop-shadow-lg">
-                            styling <br/> Appointment
+        <div className="bg-[#0d3542] relative min-h-screen">
+            <div className="relative z-10 max-w-[1400px] mx-auto px-6 pt-24 md:pt-32 pb-24 md:pb-32">
+                {/* Header */}
+                <header className="max-w-3xl mx-auto text-center mb-16 md:mb-20">
+                    <motion.div initial="hidden" animate="visible" variants={fadeUp}>
+                        <h1 className="font-serif text-4xl md:text-6xl leading-tight text-white mb-4">
+                            Book an Appointment
                         </h1>
-                        <p className="text-white/95 font-medium tracking-wide text-lg max-w-xl mx-auto drop-shadow-md">
-                            Step into our private styling house in Phnom Penh. Let our certified-sytlist specialists refine your signature silhouette.
+                        <p className="text-white/50 text-sm md:text-base font-light max-w-md mx-auto leading-relaxed">
+                            Visit our styling house in Phnom Penh. Book a free consultation with our expert team.
                         </p>
                     </motion.div>
                 </header>
 
-                <div ref={contentRef} className="grid grid-cols-1 lg:grid-cols-12 gap-16 items-start">
+                <div ref={contentRef} className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16 items-start">
 
-                    {/* Information Sidebar */}
-                    <div className="lg:col-span-4 space-y-12 order-2 lg:order-1">
-                        <section className="space-y-10">
-                            <h3 className="text-[11px] font-black text-attire-accent uppercase tracking-[0.4em] ml-1">Our store</h3>
-                            <div className="space-y-6">
-                                <InfoCard icon={Phone} title="Direct Line" details={["(+855) 69-25-63-69"]} action="tel:+85569256369" />
+                    {/* Sidebar */}
+                    <div className="lg:col-span-4 space-y-10 order-2 lg:order-1">
+                        <section className="space-y-6">
+                            <h3 className="text-[10px] font-bold text-[#f5a81c] uppercase tracking-[0.3em] ml-1">Visit Us</h3>
+                            <div className="space-y-3">
+                                <InfoCard icon={Phone} title="Phone" details={["(+855) 69 25 63 69"]} action="tel:+85569256369" />
                                 <InfoCard icon={Mail} title="Email" details={["attireloungekh@gmail.com"]} action="mailto:attireloungekh@gmail.com" />
-                                <InfoCard icon={MapPin} title="Location" details={["10 E0, Street 03, Phnom Penh"]} action="https://maps.app.goo.gl/vZbPnCNMmmiKcR9g7" />
-                                <InfoCard icon={Clock} title="Availability" details={["Monday — Sunday", "10:00 AM — 07:00 PM"]} />
+                                <InfoCard icon={MapPin} title="Address" details={["10 E0, Street 03, Phnom Penh"]} action="https://maps.app.goo.gl/vZbPnCNMmmiKcR9g7" />
+                                <InfoCard icon={Clock} title="Hours" details={["Monday — Sunday", "10:00 AM — 07:00 PM"]} />
                             </div>
                         </section>
 
-                        <section className="space-y-8">
-                            <h3 className="text-[11px] font-black text-white/60 uppercase tracking-[0.4em] ml-1">Connect</h3>
-                            <div className="flex gap-4">
+                        <section className="space-y-6">
+                            <h3 className="text-[10px] font-bold text-white/40 uppercase tracking-[0.3em] ml-1">Follow</h3>
+                            <div className="flex gap-3">
                                 {[
                                     { icon: <Instagram />, href: "https://instagram.com/attireloungeofficial" },
                                     { icon: <Facebook />, href: "https://facebook.com/attireloungeofficial" },
                                     { icon: <Send />, href: "https://t.me/attireloungeofficial" }
                                 ].map((s, i) => (
-                                    <motion.a key={i} href={s.href} target="_blank" whileHover={{ y: -5, scale: 1.05 }} className="w-14 h-14 bg-white/[0.02] rounded-2xl border border-white/10 flex items-center justify-center text-white/60 hover:text-attire-accent transition-colors duration-500">
-                                        {React.cloneElement(s.icon, { size: 20 })}
+                                    <motion.a key={i} href={s.href} target="_blank" whileHover={{ y: -3 }} className="w-11 h-11 bg-white/[0.02] rounded-lg border border-white/10 flex items-center justify-center text-white/50 hover:text-[#f5a81c] transition-colors duration-300">
+                                        {React.cloneElement(s.icon, { size: 16 })}
                                     </motion.a>
                                 ))}
                             </div>
                         </section>
-
-                        <div className="pt-12 border-t border-white/10">
-                            <p className="text-[9px] font-black text-white/40 uppercase tracking-[0.3em] leading-loose">
-                                Attire Lounge Official<br/>
-                                Sartorial Excellence Cambodia
-                            </p>
-                        </div>
                     </div>
 
-                    {/* Interaction Main Area */}
+                    {/* Form */}
                     <div className="lg:col-span-8 order-1 lg:order-2">
                         <AnimatePresence mode="wait">
                             {generatedMessage ? (
-                                <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} className="bg-white/[0.02] border border-white/10 p-12 md:p-20 rounded-[3rem] text-center">
-                                    <div className="w-24 h-24 bg-green-500/10 rounded-full flex items-center justify-center mx-auto mb-10 border border-green-500/20">
-                                        <CheckCircle size={48} className="text-green-400" />
+                                <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} className="bg-white/[0.02] border border-white/10 p-12 md:p-16 rounded-xl text-center">
+                                    <div className="w-20 h-20 bg-green-500/10 rounded-full flex items-center justify-center mx-auto mb-8 border border-green-500/20">
+                                        <CheckCircle size={40} className="text-green-400" />
                                     </div>
-                                    <h2 className="text-4xl font-serif text-white mb-6">Request Confirmed</h2>
-                                    <p className="text-white/80 mb-12 font-light leading-relaxed">Your styling appointment request has been successfully submitted. We will be in touch shortly.</p>
-                                    <button onClick={() => setGeneratedMessage('')} className="px-12 py-5 rounded-full bg-white text-black font-black text-[10px] uppercase tracking-[0.4em] hover:bg-attire-accent transition-all duration-700 shadow-2xl">
+                                    <h2 className="text-3xl font-serif text-white mb-4">Request Confirmed</h2>
+                                    <p className="text-white/60 mb-10 font-light leading-relaxed">Your appointment request has been submitted. We will contact you shortly.</p>
+                                    <button onClick={() => setGeneratedMessage('')} className="px-10 py-4 rounded-lg bg-white text-black font-bold text-[10px] uppercase tracking-[0.3em] hover:bg-[#f5a81c] transition-all duration-300">
                                         New Request
                                     </button>
                                 </motion.div>
                             ) : (
-                                <div className="bg-white/[0.02] border border-white/10 p-8 md:p-16 rounded-[3rem] relative overflow-hidden">
-
-                                    <div className="flex items-center gap-6 mb-16">
-                                        <div className="w-14 h-14 rounded-2xl bg-attire-accent/10 flex items-center justify-center border border-attire-accent/20">
-                                            <Calendar className="text-attire-accent" size={24} />
+                                <div className="bg-white/[0.02] border border-white/10 p-6 md:p-12 rounded-xl">
+                                    <div className="flex items-center gap-4 mb-10">
+                                        <div className="w-11 h-11 rounded-lg bg-[#f5a81c]/10 flex items-center justify-center border border-[#f5a81c]/20">
+                                            <Calendar className="text-[#f5a81c]" size={20} />
                                         </div>
                                         <div>
-                                            <h2 className="text-3xl font-serif text-white">Styling Inquiry</h2>
-                                            <p className="text-[10px] font-black uppercase tracking-[0.4em] text-white/60 mt-1">Book your private session</p>
+                                            <h2 className="text-2xl font-serif text-white">Styling Inquiry</h2>
+                                            <p className="text-[10px] font-bold uppercase tracking-[0.3em] text-white/40 mt-0.5">Book your session</p>
                                         </div>
                                     </div>
 
-                                    <form onSubmit={handleSubmit} className="space-y-12">
-                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                                            <InputField name="name" label="Guest Name" icon={User} value={formData.name} onChange={e => setFormData({...formData, name: e.target.value})} error={errors.name} placeholder="Christian Bale" />
-                                            <InputField name="phone" label="Contact Number" icon={Phone} value={formData.phone} onChange={e => setFormData({...formData, phone: e.target.value})} error={errors.phone} placeholder="+855..." />
+                                    <form onSubmit={handleSubmit} className="space-y-8">
+                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                            <InputField name="name" label="Name" icon={User} value={formData.name} onChange={e => setFormData({...formData, name: e.target.value})} error={errors.name} placeholder="Your name" />
+                                            <InputField name="phone" label="Phone" icon={Phone} value={formData.phone} onChange={e => setFormData({...formData, phone: e.target.value})} error={errors.phone} placeholder="+855..." />
                                         </div>
 
-                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                                            <SelectField name="service" label="Service Type" value={formData.service} onChange={e => setFormData({...formData, service: e.target.value})} options={appointmentTypes} />
-                                            <div className="grid grid-cols-2 gap-6">
+                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                            <SelectField name="service" label="Service" value={formData.service} onChange={e => setFormData({...formData, service: e.target.value})} options={appointmentTypes} />
+                                            <div className="grid grid-cols-2 gap-4">
                                                 <div className="space-y-2">
-                                                    <label className="block text-[10px] font-black text-white/80 uppercase tracking-[0.3em] ml-1">Preferred Date</label>
+                                                    <label className="block text-[10px] font-bold text-white/60 uppercase tracking-[0.2em] ml-1">Date</label>
                                                     <DatePicker
                                                         name="date"
                                                         value={formData.date}
                                                         onChange={(e) => setFormData({...formData, date: e.target.value})}
                                                         error={errors.date}
                                                         minDate={new Date().toISOString().split('T')[0]}
-                                                        inputClassName="py-4 rounded-2xl border-white/10 bg-white/[0.02] text-sm text-white pl-14 h-[60px]"
+                                                        inputClassName="py-3.5 rounded-lg border-white/10 bg-white/[0.02] text-sm text-white pl-11 h-[50px]"
                                                     />
                                                 </div>
-                                                 <div className="space-y-2">
-                                                    <label className="block text-[10px] font-black text-white/80 uppercase tracking-[0.3em] ml-1">Time</label>
+                                                <div className="space-y-2">
+                                                    <label className="block text-[10px] font-bold text-white/60 uppercase tracking-[0.2em] ml-1">Time</label>
                                                     <TimePicker
                                                         use12HourFormat={true}
                                                         value={formData.time ? parse(formData.time, 'HH:mm', new Date()) : new Date()}
                                                         onChange={(date) => setFormData({...formData, time: format(date, 'HH:mm')})}
-                                                        className="py-5 rounded-2xl border-white/10 bg-white/[0.02] text-sm text-white pl-14"
+                                                        className="py-3.5 rounded-lg border-white/10 bg-white/[0.02] text-sm text-white pl-11"
                                                     />
                                                 </div>
                                             </div>
@@ -361,18 +346,18 @@ const ContactPage = () => {
 
                                         <FavoritesSelector favoriteProducts={favoriteProducts} selectedFavorites={selectedFavorites} onSelectionChange={setSelectedFavorites} />
 
-                                        <div className="space-y-4">
-                                            <div className="flex items-center gap-3 ml-1">
-                                                <MessageSquare size={14} className="text-white/60" />
-                                                <label className="text-[10px] font-black text-white/60 uppercase tracking-[0.3em]">Requirements & Notes</label>
+                                        <div className="space-y-3">
+                                            <div className="flex items-center gap-2 ml-1">
+                                                <MessageSquare size={12} className="text-white/40" />
+                                                <label className="text-[10px] font-bold text-white/60 uppercase tracking-[0.2em]">Notes</label>
                                             </div>
                                             <textarea
                                                 name="message"
                                                 rows={4}
                                                 value={formData.message}
                                                 onChange={e => setFormData({...formData, message: e.target.value})}
-                                                placeholder="Specific styling needs, event details, or fitting preferences..."
-                                                className={`w-full p-8 rounded-[2rem] border border-white/10 bg-white/[0.02] text-white placeholder-white/20 transition-all duration-700 ${errors.message ? 'border-red-500/30' : 'border-white/10 focus:border-attire-accent/30'} outline-none text-sm resize-none italic font-light leading-relaxed`}
+                                                placeholder="Styling needs, event details, or preferences..."
+                                                className={`w-full p-5 rounded-lg border border-white/10 bg-white/[0.02] text-white placeholder-white/20 transition-all duration-300 ${errors.message ? 'border-red-500/30' : 'border-white/10 focus:border-[#f5a81c]/30'} outline-none text-sm resize-none leading-relaxed`}
                                             />
                                         </div>
 
@@ -381,12 +366,12 @@ const ContactPage = () => {
                                             whileTap={{ scale: 0.98 }}
                                             type="submit"
                                             disabled={isSubmitting}
-                                            className="w-full py-6 rounded-2xl bg-white text-black font-black text-[11px] uppercase tracking-[0.6em] transition-all duration-700 flex items-center justify-center gap-4 hover:bg-attire-accent group shadow-2xl"
+                                            className="w-full py-4 rounded-lg bg-white text-black font-bold text-[10px] uppercase tracking-[0.3em] transition-all duration-300 flex items-center justify-center gap-3 hover:bg-[#f5a81c]"
                                         >
-                                            {isSubmitting ? <Loader className="animate-spin" size={20} /> : (
+                                            {isSubmitting ? <Loader className="animate-spin" size={16} /> : (
                                                 <>
-                                                    Dispatch Manifest
-                                                    <ArrowRight size={16} className="group-hover:translate-x-2 transition-transform duration-500" />
+                                                    Submit Request
+                                                    <ArrowRight size={14} className="group-hover:translate-x-1 transition-transform duration-300" />
                                                 </>
                                             )}
                                         </motion.button>

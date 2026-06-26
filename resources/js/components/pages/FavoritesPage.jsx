@@ -1,12 +1,12 @@
+// resources/js/components/pages/FavoritesPage.jsx - CLEAN FAVORITES
 import React, { useMemo, useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import { useFavorites } from '../../context/FavoritesContext.jsx';
 import ItemCard from './collections/ItemCard.jsx';
-import { ChevronLeft, Heart, ArrowRight, Loader2, Trash2 } from 'lucide-react';
+import { Heart, ArrowRight, Loader2, Trash2 } from 'lucide-react';
 import { useProducts } from '../../hooks/useProducts';
 import SEO from '../common/SEO';
-import GrainOverlay from '../common/GrainOverlay.jsx';
 import { isSafari } from '../../helpers/browserUtils.js';
 
 const FavoritesPage = () => {
@@ -17,89 +17,52 @@ const FavoritesPage = () => {
         setIsSafariBrowser(isSafari());
     }, []);
     
-    // Fetch real data from DB for these slugs
     const { data, isLoading } = useProducts({
         slugs: favorites.join(','),
-        per_page: 100 // Load all favorites at once
+        per_page: 100
     });
 
     const favoriteProducts = useMemo(() => {
         if (favorites.length === 0) return [];
         if (!data?.data) return [];
-        // Keep the order the user added them if possible
         return data.data;
     }, [data, favorites]);
-    
-    const containerVariants = {
-        hidden: { opacity: 0 },
-        visible: { 
-            opacity: 1, 
-            transition: { 
-                staggerChildren: 0.1,
-                delayChildren: 0.3
-            } 
-        }
-    };
-
-    const itemVariants = {
-        hidden: { opacity: 0, y: 30 },
-        visible: { 
-            opacity: 1, 
-            y: 0, 
-            transition: { 
-                duration: 0.8, 
-                ease: [0.22, 1, 0.36, 1] 
-            } 
-        }
-    };
 
     const handleClearAll = () => {
-        if (window.confirm("Are you sure you want to clear your collection?")) {
+        if (window.confirm("Clear all favorites?")) {
             clearFavorites();
         }
     };
 
     return (
-        <div className="min-h-screen bg-attire-navy relative selection:bg-attire-accent selection:text-white">
+        <div className="min-h-screen bg-[#0d3542] relative">
             <SEO 
-                title="Your Favorites | Gentleman Styling House"
-                description="Your private collection of preferred pieces, selected for your next sartorial chapter."
+                title="Favorites | Attire Lounge"
+                description="Your saved items and preferred pieces."
             />
-            <GrainOverlay />
             
-            {/* Header Section */}
-            <header className="relative z-10 pt-32 pb-16 sm:pt-48 sm:pb-24 px-6 text-center">
-                <div className="max-w-4xl mx-auto">
+            {/* Header */}
+            <header className="relative z-10 pt-28 pb-16 md:pt-36 md:pb-20 px-6 text-center">
+                <div className="max-w-3xl mx-auto">
                     <motion.div
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
-                        transition={{ duration: 1 }}
-                        className="flex flex-col items-center"
                     >
-                        <div className="flex items-center gap-4 mb-8">
-                            <div className="h-px w-8 bg-attire-accent/30" />
-                            <span className="text-attire-accent text-[10px] tracking-[0.6em] uppercase font-bold">Curated Gallery</span>
-                            <div className="h-px w-8 bg-attire-accent/30" />
-                        </div>
-
-                        <h1 className="font-serif text-6xl md:text-8xl lg:text-[7rem] font-light text-white mb-10 leading-[0.85] tracking-tighter italic">
-                            Your <br /> 
-                            <span className="text-attire-silver/40">Favorites</span>
+                        <h1 className="font-serif text-4xl md:text-6xl leading-tight text-white mb-4">
+                            Favorites
                         </h1>
+                        <p className="text-white/50 text-sm md:text-base font-light max-w-md mx-auto leading-relaxed">
+                            Your saved items. Manage your selection before your next appointment.
+                        </p>
 
-                        <div className="flex flex-col sm:flex-row items-center justify-center gap-8">
-                            <Link to="/products" className="group flex items-center gap-3 text-[10px] uppercase tracking-[0.3em] font-bold text-white/40 hover:text-attire-accent transition-colors duration-500">
-                                <ChevronLeft size={14} className="group-hover:-translate-x-2 transition-transform duration-500" />
-                                Continue Exploring
-                            </Link>
-
+                        <div className="flex items-center justify-center gap-6 mt-8">
                             {favorites.length > 0 && (
                                 <button 
                                     onClick={handleClearAll}
-                                    className="group flex items-center gap-3 text-[10px] uppercase tracking-[0.3em] font-bold text-white/20 hover:text-red-400 transition-colors duration-500"
+                                    className="group flex items-center gap-2 text-[10px] uppercase tracking-[0.2em] font-bold text-white/30 hover:text-red-400 transition-colors duration-300"
                                 >
-                                    <Trash2 size={12} className="group-hover:rotate-12 transition-transform duration-500" />
-                                    Clear Collection
+                                    <Trash2 size={12} />
+                                    Clear All
                                 </button>
                             )}
                         </div>
@@ -108,7 +71,7 @@ const FavoritesPage = () => {
             </header>
 
             {/* Main Content */}
-            <main className="relative z-10 max-w-screen-2xl mx-auto px-6 sm:px-12 lg:px-24 pb-32">
+            <main className="relative z-10 max-w-[1600px] mx-auto px-6 sm:px-10 lg:px-16 pb-24">
                 <AnimatePresence mode="wait">
                     {isLoading && favorites.length > 0 ? (
                         <motion.div 
@@ -116,38 +79,32 @@ const FavoritesPage = () => {
                             initial={{ opacity: 0 }}
                             animate={{ opacity: 1 }}
                             exit={{ opacity: 0 }}
-                            className="flex flex-col items-center justify-center py-32"
+                            className="flex flex-col items-center justify-center py-24"
                         >
-                            <Loader2 className="w-12 h-12 text-attire-accent animate-spin mb-4" />
-                            <p className="text-attire-silver/60 text-xs uppercase tracking-widest font-bold">Recalling Your Choices...</p>
+                            <Loader2 className="w-8 h-8 text-[#f5a81c] animate-spin mb-3" />
+                            <p className="text-white/40 text-[10px] uppercase tracking-[0.2em] font-bold">Loading...</p>
                         </motion.div>
                     ) : favoriteProducts.length > 0 ? (
                         <motion.div
                             key="grid"
-                            className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-8 lg:gap-12"
-                            variants={containerVariants}
-                            initial="hidden"
-                            animate="visible"
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6"
                         >
                             {favoriteProducts.map((item) => (
-                                <motion.div 
-                                    key={item.id} 
-                                    variants={itemVariants}
-                                    className="relative group"
-                                >
+                                <div key={item.id} className="relative group">
                                     <ItemCard product={item} />
-                                    
                                     <button 
                                         onClick={(e) => {
                                             e.preventDefault();
                                             toggleFavorite(item.slug);
                                         }}
-                                        className="absolute top-4 right-4 z-20 w-10 h-10 flex items-center justify-center bg-black/40 backdrop-blur-md border border-white/10 text-attire-accent rounded-full opacity-0 translate-y-2 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-500 hover:bg-white hover:text-black"
+                                        className="absolute top-3 right-3 z-20 w-8 h-8 flex items-center justify-center bg-black/40 backdrop-blur border border-white/10 text-white/70 rounded-full opacity-0 group-hover:opacity-100 transition-all duration-300 hover:bg-red-500 hover:text-white hover:border-red-500"
                                         title="Remove from favorites"
                                     >
-                                        <Heart size={16} fill="currentColor" />
+                                        <Heart size={12} fill="currentColor" />
                                     </button>
-                                </motion.div>
+                                </div>
                             ))}
                         </motion.div>
                     ) : (
@@ -155,25 +112,20 @@ const FavoritesPage = () => {
                             key="empty"
                             initial={{ opacity: 0, y: 20 }} 
                             animate={{ opacity: 1, y: 0 }} 
-                            className="flex flex-col items-center justify-center py-32 text-center"
+                            className="flex flex-col items-center justify-center py-24 text-center"
                         >
-                            <div className="relative mb-12">
-                                <div className="relative w-32 h-32 bg-white/[0.03] rounded-full flex items-center justify-center border border-white/10 shadow-2xl">
-                                    <Heart size={48} className="text-white/10" strokeWidth={1} />
-                                </div>
+                            <div className="w-16 h-16 bg-white/[0.03] rounded-full flex items-center justify-center border border-white/10 mb-8">
+                                <Heart size={24} className="text-white/20" strokeWidth={1} />
                             </div>
                             
-                            <h2 className="font-serif text-4xl md:text-5xl text-white mb-6 tracking-tighter italic"><span className="text-attire-silver/40">Empty Gallery</span></h2>
-                            <p className="text-attire-silver/50 text-xs uppercase tracking-[0.4em] font-bold max-w-md mx-auto mb-12 leading-relaxed">
-                                No items selected.
+                            <h2 className="text-2xl font-serif text-white mb-3">No favorites yet</h2>
+                            <p className="text-white/40 text-sm font-light max-w-sm mb-8">
+                                Browse our collections and save items you like.
                             </p>
                             
-                            <Link to="/products" className="group flex flex-col items-center gap-6">
-                                <div className="w-20 h-20 rounded-full border border-white/10 flex items-center justify-center group-hover:bg-white group-hover:border-white transition-all duration-700 shadow-2xl shadow-white/5 relative overflow-hidden">
-                                    <ArrowRight className="text-white group-hover:text-black transition-colors duration-500 relative z-10" size={28} />
-                                    <div className="absolute inset-0 bg-white translate-y-full group-hover:translate-y-0 transition-transform duration-700" />
-                                </div>
-                                <span className="text-[10px] tracking-[0.5em] text-white/30 uppercase font-bold group-hover:text-attire-accent transition-colors duration-500">Start Curating</span>
+                            <Link to="/products" className="group flex items-center gap-3">
+                                <ArrowRight className="text-white/40 group-hover:text-[#f5a81c] transition-colors duration-300" size={14} />
+                                <span className="text-[10px] tracking-[0.3em] text-white/40 uppercase font-bold group-hover:text-[#f5a81c] transition-colors duration-300">Browse Products</span>
                             </Link>
                         </motion.div>
                     )}
