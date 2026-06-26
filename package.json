@@ -3,10 +3,10 @@
     "scripts": {
         "dev": "concurrently \"npm run dev:css\" \"npm run dev:js\"",
         "dev:css": "tailwindcss --input ./resources/css/app.css --output ./public/css/app.css --watch",
-        "dev:js": "esbuild resources/js/app.jsx resources/js/admin.tsx --bundle --splitting --outdir=public/js --format=esm --watch --sourcemap --loader:.js=jsx --loader:.jsx=jsx --loader:.ts=tsx --loader:.tsx=tsx --public-path=./",
+        "dev:js": "esbuild resources/js/app.jsx resources/js/admin.tsx --bundle --outdir=public/js --format=esm --watch --sourcemap --loader:.js=jsx --loader:.jsx=jsx --loader:.ts=tsx --loader:.tsx=tsx --public-path=./",
         "build": "npm run build:css && npm run build:js",
         "build:css": "tailwindcss --input ./resources/css/app.css --output ./public/css/app.css --minify",
-        "build:js": "esbuild resources/js/app.jsx resources/js/admin.tsx --bundle --splitting --minify --outdir=public/js --format=esm --loader:.js=jsx --loader:.jsx=jsx --loader:.ts=tsx --loader:.tsx=tsx --public-path=./"
+        "build:js": "esbuild resources/js/app.jsx resources/js/admin.tsx --bundle --minify --outdir=public/js --format=esm --loader:.js=jsx --loader:.jsx=jsx --loader:.ts=tsx --loader:.tsx=tsx --public-path=./"
     },
     "dependencies": {
         "@radix-ui/react-dropdown-menu": "^2.1.16",

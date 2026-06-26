@@ -101,37 +101,37 @@ const HeroSection = memo(forwardRef<HTMLElement, HeroSectionProps>(({ scrollToSe
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 1.2, ease: "easeOut" }}
-      className="relative z-10 h-full flex flex-col items-center justify-center px-4"
+      className="relative z-10 h-full flex flex-col items-center justify-center px-4 w-full"
     >
-      {/* Logo */}
-      <OptimizedImage
-        src={`${minioBaseUrl}/uploads/asset/AL_logo.png`}
-        alt="Attire Lounge Official"
-        containerClassName="h-auto w-full max-w-[240px] md:max-w-md"
-        className="drop-shadow-2xl mb-6"
-        bgClassName="bg-transparent"
-        priority={true}
-        loading="eager"
-        objectFit="contain"
-      />
+        {/* Logo */}
+        <OptimizedImage
+          src={`${minioBaseUrl}/uploads/asset/AL_logo.png`}
+          alt="Attire Lounge Official"
+          containerClassName="h-auto w-full max-w-[240px] md:max-w-md"
+          className="drop-shadow-2xl mb-6"
+          bgClassName="bg-transparent"
+          priority={true}
+          loading="eager"
+          objectFit="contain"
+        />
 
-      {/* Simplified Scroll Indicator */}
-      <motion.div
-        className="absolute bottom-12 flex flex-col items-center gap-4 cursor-pointer group mix-blend-screen"
-        onClick={() => scrollToSection(1)}
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay: 1.5, duration: 1 }}
-      >
-        {/* Tagline */}
-        <motion.p
+        {/* Simplified Scroll Indicator */}
+        <motion.div
+          className="absolute bottom-12 flex flex-col items-center gap-4 cursor-pointer group mix-blend-screen w-full"
+          onClick={() => scrollToSection(1)}
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          transition={{ delay: 0.8, duration: 1 }}
-          className="text-white/70 text-sm md:text-base font-light tracking-wide text-center max-w-xl leading-snug whitespace-nowrap"
+          transition={{ delay: 1.5, duration: 1 }}
         >
-          We help you create the right outfit for any special occasion and daily-wear.
-        </motion.p>
+          {/* Tagline */}
+          <motion.p
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.8, duration: 1 }}
+            className="text-white/70 text-base md:text-2xl font-light tracking-wide text-center leading-snug w-full"
+          >
+            We help you create the right outfit for any special occasion and daily-wear.
+          </motion.p>
         <span className="text-xs md:text-sm tracking-[0.5em] text-white/80 uppercase group-hover:text-white transition-colors duration-500">Discover</span>
         <div className="flex flex-col items-center gap-1">
           <div className="w-[1px] h-8 bg-white/20 rounded-full overflow-hidden">
