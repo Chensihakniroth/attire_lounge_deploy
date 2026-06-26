@@ -88,7 +88,7 @@ const HeroSection = memo(forwardRef<HTMLElement, HeroSectionProps>(({ scrollToSe
         playsInline
         preload="none"
         className="absolute w-full h-full object-cover"
-        style={{ objectPosition: 'center 20%' }}
+        style={{ objectPosition: 'center 60%' }}
       >
         <source src="https://bucket-production-4ca0.up.railway.app/product-assets/uploads/asset/ALII.webm" type="video/webm" />
       </video>
