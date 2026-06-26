@@ -86,12 +86,11 @@ const HeroSection = memo(forwardRef<HTMLElement, HeroSectionProps>(({ scrollToSe
         muted
         loop
         playsInline
-        preload="metadata"
-        poster={`${minioBaseUrl}/uploads/asset/hero-background1.jpg`}
+        preload="none"
         className="absolute w-full h-full object-cover"
         style={{ objectPosition: 'center 20%' }}
       >
-        <source src={`${minioBaseUrl}/uploads/asset/hero-background1.mp4`} type="video/mp4" />
+        <source src="https://bucket-production-4ca0.up.railway.app/product-assets/uploads/asset/ALII.webm" type="video/webm" />
       </video>
       {/* Cleaner Gradient Overlay: Clearer center, darkened edges for focus */}
       <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-transparent to-black/80" />
