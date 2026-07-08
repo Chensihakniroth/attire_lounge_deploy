@@ -24,6 +24,29 @@ const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', '
 const MONTH_NAMES = ['January', 'February', 'March', 'April', 'May', 'June',
     'July', 'August', 'September', 'October', 'November', 'December'];
 
+// ─── week helpers ────────────────────────────────────────────────────────────
+const getWeekStart = (dateStr) => {
+    const d = new Date(dateStr + 'T00:00:00');
+    const day = d.getDay();
+    const diff = d.getDate() - day + (day === 0 ? -6 : 1);
+    d.setDate(diff);
+    return d.toISOString().split('T')[0];
+};
+const getWeekEnd = (dateStr) => {
+    const start = new Date(getWeekStart(dateStr) + 'T00:00:00');
+    start.setDate(start.getDate() + 6);
+    return start.toISOString().split('T')[0];
+};
+const formatWeekRange = (startStr) => {
+    const start = new Date(startStr + 'T00:00:00');
+    const end = new Date(start);
+    end.setDate(end.getDate() + 6);
+    if (start.getMonth() === end.getMonth() && start.getFullYear() === end.getFullYear()) {
+        return `${start.toLocaleDateString('en-US', { month: 'short' })} ${start.getDate()} - ${end.getDate()}, ${end.getFullYear()}`;
+    }
+    return `${start.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })} - ${end.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}`;
+};
+
 // ─── outlet-aware unit label ────────────────────────────────────────────────
 const useUnitLabel = (outlet) => {
     if (outlet === 'kravat' || outlet === 'caffeine') return { sold: 'Cups Sold', unit: 'cups', shortUnit: 'cups' };
@@ -259,17 +282,75 @@ const exportMonthlyCSV = (monthly, selectedYear, selectedMonth, outlet, targetRe
     downloadCSV(rows, `attire-lounge-monthly-${selectedYear}-${String(selectedMonth).padStart(2, '0')}.csv`);
 };
 
+const exportWeeklyCSV = (weekly, weekStart, outlet) => {
+    const unitLabel = useUnitLabel(outlet);
+    const rows = [];
+    const range = formatWeekRange(weekStart);
+
+    // ── Title ──
+    rows.push(['ATTIRE LOUNGE — WEEKLY REPORT', range]);
+    rows.push([]);
+
+    // ── Summary ──
+    rows.push(['SUMMARY']);
+    rows.push(['Metric', 'Value']);
+    rows.push(['Week', range]);
+    rows.push(['Total Revenue', weekly?.total_revenue ?? '']);
+    rows.push(['Net Revenue', weekly?.net_revenue ?? '']);
+    rows.push(['Total Refunds', weekly?.total_refunds ?? '']);
+    rows.push([unitLabel.sold, weekly?.total_items ?? '']);
+    rows.push(['Invoice Count', weekly?.invoice_count ?? '']);
+    rows.push([]);
+
+    // ── Daily Breakdown ──
+    rows.push(['DAILY BREAKDOWN']);
+    rows.push(['Date', 'Revenue', 'Invoices']);
+    (weekly?.daily_breakdown ?? []).forEach(d => {
+        rows.push([d.day, d.revenue, d.invoices]);
+    });
+    rows.push([]);
+
+    // ── Top Sellers ──
+    rows.push(['TOP SELLERS']);
+    rows.push(['Product', 'SKU', 'Qty Sold', 'Revenue']);
+    (weekly?.top_sellers ?? []).forEach(p => {
+        rows.push([`${p.product_name} ${p.product_variant ?? ''}`.trim(), p.product_sku ?? '', p.total_qty, p.total_revenue]);
+    });
+    rows.push([]);
+
+    // ── Category Breakdown ──
+    rows.push(['CATEGORY BREAKDOWN']);
+    rows.push(['Category', 'Qty Sold', 'Revenue']);
+    (weekly?.category_breakdown ?? []).forEach(c => {
+        rows.push([c.category, c.total_qty, c.total_revenue]);
+    });
+    rows.push([]);
+
+    // ── Payment Breakdown ──
+    rows.push(['PAYMENT BREAKDOWN']);
+    rows.push(['Method', 'Total']);
+    (weekly?.payment_breakdown ?? []).forEach(p => {
+        rows.push([p.method.toUpperCase(), p.total]);
+    });
+
+    const weekEnd = getWeekEnd(weekStart);
+    downloadCSV(rows, `attire-lounge-weekly-${weekStart}-to-${weekEnd}.csv`);
+};
+
 // ─── Main Component ──────────────────────────────────────────────────────────
 const DailyReportManager = () => {
     const { activeOutlet } = useAdmin();
     const today = new Date().toISOString().split('T')[0];
-    const [view, setView] = useState('daily'); // 'daily' | 'monthly'
+    const [view, setView] = useState('daily'); // 'daily' | 'weekly' | 'monthly'
     const [selectedDate, setSelectedDate] = useState(today);
     const [selectedYear, setSelectedYear] = useState(new Date().getFullYear());
     const [selectedMonth, setSelectedMonth] = useState(new Date().getMonth() + 1);
 
+    const [selectedWeekStart, setSelectedWeekStart] = useState(getWeekStart(today));
+
     const [dailyData, setDailyData] = useState(null);
     const [monthlyData, setMonthlyData] = useState(null);
+    const [weeklyData, setWeeklyData] = useState(null);
     const [targets, setTargets] = useState([]);
     const [loading, setLoading] = useState(false);
 
@@ -306,6 +387,19 @@ const DailyReportManager = () => {
         } finally { setLoading(false); }
     }, [selectedYear, selectedMonth, activeOutlet]);
 
+    const fetchWeekly = useCallback(async () => {
+        setLoading(true);
+        try {
+            const res = await axios.get('/api/v1/admin/sales-report/weekly', {
+                params: { date: selectedWeekStart },
+                headers: { ...authHeaders(), 'X-Active-Outlet': activeOutlet },
+            });
+            setWeeklyData(res.data);
+        } catch (e) {
+            console.error(e);
+        } finally { setLoading(false); }
+    }, [selectedWeekStart, activeOutlet]);
+
     const fetchTargets = useCallback(async () => {
         try {
             const res = await axios.get('/api/v1/admin/sales-report/targets', {
@@ -316,6 +410,7 @@ const DailyReportManager = () => {
     }, [activeOutlet]);
 
     useEffect(() => { if (view === 'daily') fetchDaily(); }, [view, fetchDaily]);
+    useEffect(() => { if (view === 'weekly') fetchWeekly(); }, [view, fetchWeekly]);
     useEffect(() => { if (view === 'monthly') { fetchMonthly(); fetchTargets(); } }, [view, fetchMonthly, fetchTargets]);
 
     // ── target for current month ─────────────────────────────────────────────
@@ -369,7 +464,21 @@ const DailyReportManager = () => {
         if (d.toISOString().split('T')[0] <= today) setSelectedDate(d.toISOString().split('T')[0]);
     };
 
-    const data = view === 'daily' ? dailyData : monthlyData;
+    // ── week nav ──────────────────────────────────────────────────────────────
+    const prevWeek = () => {
+        const d = new Date(selectedWeekStart + 'T00:00:00');
+        d.setDate(d.getDate() - 7);
+        setSelectedWeekStart(d.toISOString().split('T')[0]);
+    };
+    const nextWeek = () => {
+        const d = new Date(selectedWeekStart + 'T00:00:00');
+        d.setDate(d.getDate() + 7);
+        const nextEnd = new Date(d);
+        nextEnd.setDate(nextEnd.getDate() + 6);
+        if (nextEnd.toISOString().split('T')[0] <= today) setSelectedWeekStart(d.toISOString().split('T')[0]);
+    };
+
+    const data = view === 'daily' ? dailyData : view === 'weekly' ? weeklyData : monthlyData;
     const unitLabel = useUnitLabel(activeOutlet);
 
     return (
@@ -378,7 +487,7 @@ const DailyReportManager = () => {
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                 <div>
                     <h1 className="text-2xl font-serif text-gray-900 dark:text-[#c9d1d9] uppercase tracking-[0.2em]">
-                        Daily Report
+                        {view === 'weekly' ? 'Weekly Report' : 'Daily Report'}
                     </h1>
                     <p className="text-xs text-gray-400 dark:text-[#8b949e]/50 mt-1 uppercase tracking-widest">
                         Revenue insights, goals & top performers
@@ -387,14 +496,14 @@ const DailyReportManager = () => {
                 <div className="flex items-center gap-2">
                     {/* View toggle */}
                     <div className="flex bg-black/[0.03] dark:bg-[#0d1117] border border-black/5 dark:border-[#30363d] rounded-xl p-1">
-                        {['daily', 'monthly'].map(v => (
+                        {['daily', 'weekly', 'monthly'].map(v => (
                             <button key={v} onClick={() => setView(v)}
                                 className={`px-4 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all ${view === v ? 'bg-[#0d3542] dark:bg-[#58a6ff] text-white dark:text-black' : 'text-gray-400 dark:text-[#8b949e]/50 hover:text-[#0d3542] dark:hover:text-[#58a6ff]'}`}>
                                 {v}
                             </button>
                         ))}
                     </div>
-                    <button onClick={() => view === 'daily' ? fetchDaily() : fetchMonthly()}
+                    <button onClick={() => view === 'daily' ? fetchDaily() : view === 'weekly' ? fetchWeekly() : fetchMonthly()}
                         className="p-2.5 bg-white dark:bg-[#161b22] border border-black/5 dark:border-[#30363d] rounded-xl text-gray-400 hover:text-[#0d3542] dark:hover:text-[#58a6ff] transition-all">
                         <RefreshCw size={14} className={loading ? 'animate-spin' : ''} />
                     </button>
@@ -410,12 +519,18 @@ const DailyReportManager = () => {
                             <Download size={13} /> Export CSV
                         </button>
                     )}
+                    {view === 'weekly' && (
+                        <button onClick={() => exportWeeklyCSV(weeklyData, selectedWeekStart, activeOutlet)}
+                            className="flex items-center gap-2 px-4 py-2 bg-[#0d3542] dark:bg-[#58a6ff] text-white dark:text-black rounded-xl text-[10px] font-black uppercase tracking-widest hover:opacity-90 transition-all">
+                            <Download size={13} /> Export CSV
+                        </button>
+                    )}
                 </div>
             </div>
 
             {/* ── Date / Month Navigator ── */}
             <div className="flex items-center gap-3 bg-white dark:bg-[#161b22] border border-black/5 dark:border-[#30363d] rounded-2xl p-4">
-                <button onClick={view === 'daily' ? prevDay : prevMonth}
+                <button onClick={view === 'daily' ? prevDay : view === 'weekly' ? prevWeek : prevMonth}
                     className="p-2 rounded-lg hover:bg-black/5 dark:hover:bg-white/5 text-gray-400 hover:text-[#0d3542] dark:hover:text-[#58a6ff] transition-all">
                     <ChevronLeft size={16} />
                 </button>
@@ -433,6 +548,19 @@ const DailyReportManager = () => {
                             {new Date(selectedDate + 'T00:00:00').toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
                         </p>
                     </div>
+                ) : view === 'weekly' ? (
+                    <div className="flex-1 flex flex-col items-center justify-center relative">
+                        <DatePicker 
+                            value={selectedWeekStart}
+                            onChange={(e) => setSelectedWeekStart(getWeekStart(e.target.value))}
+                            className="w-56 mx-auto -mt-2"
+                            inputClassName="bg-transparent border-none outline-none text-center text-sm font-black uppercase tracking-widest text-gray-900 dark:text-[#c9d1d9] shadow-none !py-0 !px-0 hover:bg-black/5 dark:hover:bg-white/5 transition-colors focus:ring-0"
+                            placeholder="SELECT WEEK"
+                        />
+                        <p className="text-[10px] text-gray-400 dark:text-[#8b949e]/40 uppercase tracking-widest mt-1">
+                            {formatWeekRange(selectedWeekStart)} — {getWeekStart(selectedWeekStart)} to {getWeekEnd(selectedWeekStart)}
+                        </p>
+                    </div>
                 ) : (
                     <div className="flex-1 text-center">
                         <p className="text-sm font-black uppercase tracking-widest text-gray-900 dark:text-[#c9d1d9]">
@@ -442,7 +570,7 @@ const DailyReportManager = () => {
                     </div>
                 )}
 
-                <button onClick={view === 'daily' ? nextDay : nextMonth}
+                <button onClick={view === 'daily' ? nextDay : view === 'weekly' ? nextWeek : nextMonth}
                     className="p-2 rounded-lg hover:bg-black/5 dark:hover:bg-white/5 text-gray-400 hover:text-[#0d3542] dark:hover:text-[#58a6ff] transition-all">
                     <ChevronRight size={16} />
                 </button>
@@ -618,6 +746,91 @@ const DailyReportManager = () => {
                             </div>
                         )}
 
+                        {/* ── Weekly Insights ── */}
+                        {view === 'weekly' && (
+                            <div className="grid md:grid-cols-3 gap-6">
+                                {/* Week Mini Bar */}
+                                <div className="bg-white dark:bg-[#161b22] border border-black/5 dark:border-[#30363d] rounded-2xl p-6">
+                                    <div className="flex items-center gap-2 mb-4">
+                                        <BarChart2 size={14} className="text-[#0d3542] dark:text-[#58a6ff]" />
+                                        <p className="text-[10px] font-black uppercase tracking-[0.2em] text-gray-900 dark:text-[#c9d1d9]">7-Day Trend</p>
+                                    </div>
+                                    <MiniBar data={data?.daily_breakdown ?? []} />
+                                </div>
+
+                                {/* Week Insights */}
+                                <div className="md:col-span-2 bg-white dark:bg-[#161b22] border border-black/5 dark:border-[#30363d] rounded-2xl p-6">
+                                    <div className="flex items-center gap-2 mb-5">
+                                        <BarChart2 size={14} className="text-[#0d3542] dark:text-[#58a6ff]" />
+                                        <p className="text-[10px] font-black uppercase tracking-[0.2em] text-gray-900 dark:text-[#c9d1d9]">Weekly Insights</p>
+                                    </div>
+
+                                    {(() => {
+                                        const breakdown = data?.daily_breakdown ?? [];
+                                        const daysWithSales = breakdown.filter(d => parseFloat(d.revenue) > 0);
+                                        const totalItems = parseInt(data?.total_items ?? 0);
+                                        const avgDaily = 7 > 0 ? totalItems / 7 : 0;
+                                        const bestDay = daysWithSales.length > 0
+                                            ? daysWithSales.reduce((a, b) => parseFloat(a.revenue) >= parseFloat(b.revenue) ? a : b)
+                                            : null;
+                                        const totalInvoices = breakdown.reduce((a, d) => a + (d.invoices || 0), 0);
+
+                                        const insights = [
+                                            {
+                                                label: 'Best Day',
+                                                value: bestDay ? new Date(bestDay.day + 'T00:00:00').toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' }) : '—',
+                                                sub: bestDay ? `${fmt(bestDay.revenue)} (${fmtNum(bestDay.invoices)} invoices)` : 'No sales yet',
+                                                icon: <Award size={16} />,
+                                                accent: 'text-amber-500',
+                                            },
+                                            {
+                                                label: 'Avg / Day',
+                                                value: fmtNum(Math.round(avgDaily)),
+                                                sub: `${unitLabel.unit} per day this week`,
+                                                icon: <TrendingUp size={16} />,
+                                                accent: 'text-emerald-500',
+                                            },
+                                            {
+                                                label: 'Selling Days',
+                                                value: `${daysWithSales.length} / 7`,
+                                                sub: `${totalInvoices} total invoices`,
+                                                icon: <Calendar size={16} />,
+                                                accent: 'text-[#0d3542] dark:text-[#58a6ff]',
+                                            },
+                                            {
+                                                label: 'Total Revenue',
+                                                value: fmt(data?.total_revenue),
+                                                sub: fmt(data?.net_revenue) + ' net',
+                                                icon: <TrendingDown size={16} />,
+                                                accent: 'text-purple-500',
+                                            },
+                                        ];
+
+                                        return (
+                                            <div className="grid grid-cols-2 gap-4">
+                                                {insights.map((item, i) => (
+                                                    <motion.div
+                                                        key={i}
+                                                        initial={{ opacity: 0, y: 8 }}
+                                                        animate={{ opacity: 1, y: 0 }}
+                                                        transition={{ delay: i * 0.06 }}
+                                                        className="bg-black/[0.02] dark:bg-white/[0.02] border border-black/[0.04] dark:border-white/[0.04] rounded-xl p-4 flex items-start gap-3"
+                                                    >
+                                                        <div className={`mt-0.5 ${item.accent}`}>{item.icon}</div>
+                                                        <div className="flex-1 min-w-0">
+                                                            <p className="text-[9px] font-black uppercase tracking-[0.2em] text-gray-400 dark:text-[#8b949e]/50 mb-1">{item.label}</p>
+                                                            <p className="text-lg font-black tracking-tight text-gray-900 dark:text-[#c9d1d9] leading-none">{item.value}</p>
+                                                            <p className="text-[10px] text-gray-400 dark:text-[#8b949e]/40 mt-1 uppercase tracking-widest">{item.sub}</p>
+                                                        </div>
+                                                    </motion.div>
+                                                ))}
+                                            </div>
+                                        );
+                                    })()}
+                                </div>
+                            </div>
+                        )}
+
                         {/* ── Top Sellers ── */}
                         <div className="bg-white dark:bg-[#161b22] border border-black/5 dark:border-[#30363d] rounded-2xl overflow-hidden">
                             <div className="px-6 py-4 border-b border-black/5 dark:border-[#30363d] flex items-center justify-between">
@@ -730,11 +943,11 @@ const DailyReportManager = () => {
                         </div>
 
                         {/* ── Daily Transactions ── */}
-                        {view === 'daily' && (data?.invoices ?? []).length > 0 && (
+                        {(view === 'daily' || view === 'weekly') && (data?.invoices ?? []).length > 0 && (
                             <div className="bg-white dark:bg-[#161b22] border border-black/5 dark:border-[#30363d] rounded-2xl overflow-hidden mt-6">
                                 <div className="px-6 py-4 border-b border-black/5 dark:border-[#30363d] flex items-center gap-2">
                                     <Clock size={14} className="text-[#0d3542] dark:text-[#58a6ff]" />
-                                    <p className="text-[10px] font-black uppercase tracking-[0.2em] text-gray-900 dark:text-[#c9d1d9]">Daily Transactions</p>
+                                    <p className="text-[10px] font-black uppercase tracking-[0.2em] text-gray-900 dark:text-[#c9d1d9]">{view === 'weekly' ? 'Weekly Transactions' : 'Daily Transactions'}</p>
                                 </div>
                                 <div className="overflow-x-auto">
                                     <table className="w-full text-left">

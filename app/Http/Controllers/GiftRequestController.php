@@ -62,6 +62,59 @@ class GiftRequestController extends Controller
     }
 
     /**
+     * Add a product item to an existing gift request.
+     */
+    public function addItem(Request $request, $id)
+    {
+        $giftRequest = GiftRequest::findOrFail($id);
+        $validated = $request->validate([
+            'product_id' => 'required|exists:products,id',
+        ]);
+
+        $product = \App\Models\Product::findOrFail($validated['product_id']);
+
+        $items = $giftRequest->selected_items ?? [];
+
+        // Prevent duplicates
+        foreach ($items as $item) {
+            if (isset($item['id']) && $item['id'] == $product->id) {
+                return response()->json(['message' => 'Item already in request.'], 422);
+            }
+        }
+
+        $items[] = [
+            'id' => $product->id,
+            'name' => $product->name,
+            'image' => $product->images[0] ?? null,
+            'price' => $product->price,
+        ];
+
+        $giftRequest->selected_items = $items;
+        $giftRequest->save();
+
+        return response()->json($giftRequest);
+    }
+
+    /**
+     * Remove a product item from a gift request.
+     */
+    public function removeItem(Request $request, $id)
+    {
+        $giftRequest = GiftRequest::findOrFail($id);
+        $validated = $request->validate([
+            'product_id' => 'required|integer',
+        ]);
+
+        $items = $giftRequest->selected_items ?? [];
+        $items = array_values(array_filter($items, fn($item) => ($item['id'] ?? null) != $validated['product_id']));
+
+        $giftRequest->selected_items = $items;
+        $giftRequest->save();
+
+        return response()->json($giftRequest);
+    }
+
+    /**
      * Remove the specified resource from storage.
      */
     public function destroy($id)

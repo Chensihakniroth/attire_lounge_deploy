@@ -27,6 +27,7 @@ class Product extends Model
         'is_featured',
         'is_new',
         'is_visible',
+        'show_in_lookbook',
         'availability',
         'sizing',
         'fabric',
@@ -40,6 +41,7 @@ class Product extends Model
         'is_featured' => 'boolean',
         'is_new' => 'boolean',
         'is_visible' => 'boolean',
+        'show_in_lookbook' => 'boolean',
         'price' => 'decimal:2',
     ];
 

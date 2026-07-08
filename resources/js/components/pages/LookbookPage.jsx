@@ -1,11 +1,11 @@
-// resources/js/components/pages/LookbookPage.jsx - CINEMATIC ATELIER UTILITY OVERHAUL (SOLID VERSION)
+// resources/js/components/pages/LookbookPage.jsx - DYNAMIC LOOKBOOK FROM API
 import React, { useState, useEffect, useMemo, memo, useCallback } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useInView } from 'react-intersection-observer';
 import { Loader2, Camera } from 'lucide-react';
-import { LOOKBOOK_IMAGES } from '../../data/lookbook.js';
-
+import { LOOKBOOK_CATEGORIES } from '../../data/lookbook.js';
+import axios from 'axios';
 // Sub-components
 import LookbookHeader from './lookbook/LookbookHeader.jsx';
 import LookbookFilter from './lookbook/LookbookFilter.jsx';
@@ -23,6 +23,23 @@ const LookbookPage = () => {
 
     const [currentPage, setCurrentPage] = useState(1);
     const [isInitialLoading, setIsInitialLoading] = useState(true);
+    const [lookbookProducts, setLookbookProducts] = useState([]);
+
+    // Fetch lookbook products from API
+    useEffect(() => {
+        const fetchLookbookProducts = async () => {
+            try {
+                setIsInitialLoading(true);
+                const response = await axios.get('/api/v1/products/lookbook');
+                setLookbookProducts(response.data.data);
+            } catch (error) {
+                console.error('Failed to fetch lookbook products:', error);
+            } finally {
+                setIsInitialLoading(false);
+            }
+        };
+        fetchLookbookProducts();
+    }, []);
 
     useEffect(() => {
         window.scrollTo({ top: 0, behavior: 'instant' });
@@ -35,16 +52,16 @@ const LookbookPage = () => {
     }, [filter, sort]);
 
     const filteredAndSortedImages = useMemo(() => {
-        let result = LOOKBOOK_IMAGES.filter(
-            (img) => filter === 'all' || img.category.includes(filter)
+        let result = lookbookProducts.filter(
+            (img) => filter === 'all' || (img.category_slug && img.category_slug === filter)
         );
 
         switch (sort) {
             case 'a-z':
-                result.sort((a, b) => a.title.localeCompare(b.title));
+                result.sort((a, b) => (a.title || a.name || '').localeCompare(b.title || b.name || ''));
                 break;
             case 'z-a':
-                result.sort((a, b) => b.title.localeCompare(a.title));
+                result.sort((a, b) => (b.title || b.name || '').localeCompare(a.title || a.name || ''));
                 break;
             case 'oldest':
                 result.reverse();
@@ -54,7 +71,7 @@ const LookbookPage = () => {
                 break;
         }
         return result;
-    }, [filter, sort]);
+    }, [lookbookProducts, filter, sort]);
 
     const totalPages = Math.ceil(
         filteredAndSortedImages.length / ITEMS_PER_PAGE

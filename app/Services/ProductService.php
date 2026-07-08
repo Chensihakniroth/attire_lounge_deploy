@@ -105,6 +105,14 @@ class ProductService
     }
 
     /**
+     * Get products marked for lookbook.
+     */
+    public function getLookbookProducts()
+    {
+        return $this->productRepository->getLookbookProducts();
+    }
+
+    /**
      * Update an existing product and clear cache.
      */
     public function updateProduct(int $id, array $data)

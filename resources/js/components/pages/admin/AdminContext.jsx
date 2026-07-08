@@ -247,7 +247,7 @@ export const AdminProvider = ({ children }) => {
     }, [queryClient]);
 
     const clearClosedAppointments = useCallback(async () => {
-        const response = await axios.delete('/api/v1/admin/appointments/clear-closed');
+        const response = await axios.delete('/api/v1/admin/appointments/completed');
         queryClient.invalidateQueries({ queryKey: ['admin-appointments'] });
         return response.data;
     }, [queryClient]);

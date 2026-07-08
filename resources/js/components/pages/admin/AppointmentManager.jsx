@@ -1,11 +1,10 @@
-import React, { useState, useEffect, useCallback, useMemo, memo } from 'react';
-import { 
-    User, Mail, Phone, Calendar, Clock, MessageSquare, 
-    AlertTriangle, Check, X, Trash2, ChevronDown, Plus, 
-    Filter, ArrowUpRight, History, Tag as TagIcon, Loader2
+import React, { useState, useCallback, useMemo, memo } from 'react';
+import {
+    User, Mail, Phone, Calendar, Clock, MessageSquare,
+    AlertTriangle, Check, X, Trash2, Plus, Filter, History,
+    Loader2, ChevronRight, Sparkles
 } from 'lucide-react';
 import { LumaSpin } from '@/components/ui/luma-spin';
-import { Button } from '@/components/ui/button';
 import { useAdmin } from './AdminContext';
 import OptimizedImage from '../../common/OptimizedImage.jsx';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -13,279 +12,366 @@ import ModernModal from '../../common/ModernModal';
 import { formatTime } from '@/helpers/format';
 import DatePicker from '@/components/ui/DatePicker';
 import { TimePicker } from '@/components/ui/time-picker';
-import { 
-    Select,
-    SelectContent,
-    SelectItem,
-    SelectTrigger,
-    SelectValue,
-} from "@/components/ui/select";
+import {
+    Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
+} from '@/components/ui/select';
 import { format, parse } from 'date-fns';
 
-/**
- * --- Status Labels ---
- * Using theme-aligned subtle accents.
- */
+/* ------------------------------------------------------------------ */
+/*  Status Config                                                      */
+/* ------------------------------------------------------------------ */
 const STATUS_DATA = {
-    pending: { label: 'Active', color: 'text-amber-600 dark:text-amber-400', bg: 'bg-amber-400/5', border: 'border-amber-400/10' },
-    done: { label: 'Closed', color: 'text-emerald-600 dark:text-emerald-400', bg: 'bg-emerald-400/5', border: 'border-emerald-400/10' },
-    cancelled: { label: 'Void', color: 'text-rose-600 dark:text-rose-400', bg: 'bg-rose-400/5', border: 'border-rose-400/10' },
+    pending: {
+        label: 'Active',
+        color: 'text-amber-600 dark:text-amber-400',
+        dot: 'bg-amber-400',
+        bg: 'bg-amber-500/5',
+        border: 'border-amber-500/20',
+        ring: 'ring-amber-400/20',
+    },
+    done: {
+        label: 'Closed',
+        color: 'text-emerald-600 dark:text-emerald-400',
+        dot: 'bg-emerald-400',
+        bg: 'bg-emerald-500/5',
+        border: 'border-emerald-500/20',
+        ring: 'ring-emerald-400/20',
+    },
+    cancelled: {
+        label: 'Void',
+        color: 'text-rose-600 dark:text-rose-400',
+        dot: 'bg-rose-400',
+        bg: 'bg-rose-500/5',
+        border: 'border-rose-500/20',
+        ring: 'ring-rose-400/20',
+    },
 };
 
-/**
- * --- History Row ---
- */
+/* ------------------------------------------------------------------ */
+/*  Tab Button                                                          */
+/* ------------------------------------------------------------------ */
+const TabButton = memo(({ active, label, count, onClick, dot }) => (
+    <button
+        onClick={onClick}
+        className={`relative flex items-center gap-2 px-3 py-2 sm:px-4 sm:py-2.5 rounded-lg transition-all duration-200 ${
+            active
+                ? 'bg-[#0d3542] dark:bg-[#58a6ff] text-white dark:text-black shadow-sm'
+                : 'text-gray-500 dark:text-[#8b949e] hover:bg-black/5 dark:hover:bg-white/5'
+        }`}
+    >
+        {dot && (
+            <span className={`w-1.5 h-1.5 rounded-full ${active ? 'bg-white/60' : dot}`} />
+        )}
+        <span className="text-[10px] font-bold uppercase tracking-widest">{label}</span>
+        {count > 0 && (
+            <span className={`px-1.5 py-0.5 rounded text-[9px] font-bold ${
+                active
+                    ? 'bg-white/20 dark:bg-black/20'
+                    : 'bg-black/5 dark:bg-white/10'
+            }`}>
+                {count}
+            </span>
+        )}
+    </button>
+));
+
+/* ------------------------------------------------------------------ */
+/*  Empty State                                                         */
+/* ------------------------------------------------------------------ */
+const EmptyState = memo(({ tab }) => (
+    <div className="flex flex-col items-center justify-center py-20 text-center">
+        <div className="w-16 h-16 rounded-2xl bg-black/[0.02] dark:bg-white/[0.02] flex items-center justify-center mb-4">
+            <Filter size={24} className="text-gray-300 dark:text-[#8b949e]/30" />
+        </div>
+        <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-gray-400 dark:text-[#8b949e]/40">
+            No {activeTabLabel(tab)} records
+        </p>
+    </div>
+));
+
+const activeTabLabel = (tab) => {
+    const labels = { pending: 'active', done: 'closed', cancelled: 'void' };
+    return labels[tab] || tab;
+};
+
+/* ------------------------------------------------------------------ */
+/*  Appointment Card (Pending — large card view)                       */
+/* ------------------------------------------------------------------ */
+const AppointmentCard = memo(({ appointment, onUpdateStatus, closingId }) => {
+    const status = STATUS_DATA[appointment.status] || STATUS_DATA.pending;
+    const isClosing = closingId === appointment.id;
+
+    return (
+        <motion.div
+            layout="position"
+            initial={{ opacity: 0, y: 8 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, scale: 0.97 }}
+            transition={{ duration: 0.25 }}
+            className="group bg-white dark:bg-[#161b22] border border-black/[0.06] dark:border-[#30363d] rounded-2xl overflow-hidden hover:border-[#0d3542]/15 dark:hover:border-[#58a6ff]/15 transition-all duration-300"
+        >
+            {/* Top accent bar */}
+            <div className={`h-1 ${status.bg}`} style={{ background: `linear-gradient(90deg, var(--tw-gradient-stops))` }}>
+                <div className={`h-full w-1/3 ${status.dot.replace('bg-', 'bg-')}`} style={{ opacity: 0.6 }} />
+            </div>
+
+            <div className="p-5 sm:p-6">
+                {/* Header */}
+                <div className="flex items-start gap-3 mb-5">
+                    <div className="w-11 h-11 rounded-xl bg-black/[0.03] dark:bg-white/[0.03] flex items-center justify-center shrink-0 border border-black/5 dark:border-white/5">
+                        <User size={18} className="text-gray-400 dark:text-[#8b949e]/40" />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                        <h3 className="text-base font-bold text-gray-900 dark:text-[#c9d1d9] truncate leading-tight">
+                            {appointment.name}
+                        </h3>
+                        <div className="flex items-center gap-2 mt-1 flex-wrap">
+                            <span className="text-[9px] font-bold uppercase tracking-widest text-[#0d3542] dark:text-[#58a6ff] bg-[#0d3542]/5 dark:bg-[#58a6ff]/10 px-2 py-0.5 rounded">
+                                {appointment.service}
+                            </span>
+                            <span className="text-[9px] text-gray-400 dark:text-[#8b949e]/40 font-mono">
+                                #{appointment.id}
+                            </span>
+                        </div>
+                    </div>
+                    <div className={`w-2 h-2 rounded-full shrink-0 mt-1.5 ${status.dot}`} />
+                </div>
+
+                {/* Info grid */}
+                <div className="grid grid-cols-2 gap-x-4 gap-y-3 mb-5">
+                    <InfoCell icon={<Calendar size={12} />} label="Date" value={new Date(appointment.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })} />
+                    <InfoCell icon={<Clock size={12} />} label="Time" value={formatTime(appointment.time)} />
+                    <InfoCell icon={<Phone size={12} />} label="Phone" value={appointment.phone} />
+                    <InfoCell icon={<Mail size={12} />} label="Email" value={appointment.email} truncate />
+                </div>
+
+                {/* Message */}
+                {appointment.message && (
+                    <div className="bg-black/[0.02] dark:bg-white/[0.02] rounded-xl p-3.5 border border-black/[0.04] dark:border-white/[0.04] mb-5">
+                        <p className="text-[12px] text-gray-600 dark:text-[#8b949e] leading-relaxed italic line-clamp-3">
+                            "{appointment.message}"
+                        </p>
+                    </div>
+                )}
+
+                {/* Reference images */}
+                {appointment.favorite_item_image_url?.length > 0 && (
+                    <div className="mb-5">
+                        <span className="text-[9px] font-bold text-gray-400 uppercase tracking-widest mb-2 block">
+                            Reference
+                        </span>
+                        <div className="flex gap-2 overflow-x-auto no-scrollbar pb-1">
+                            {appointment.favorite_item_image_url.map((item, idx) => {
+                                const imageUrl = typeof item === 'object' ? item.image : item;
+                                return (
+                                    <div key={idx} className="shrink-0 w-12 h-12 rounded-lg border border-black/5 dark:border-white/5 overflow-hidden">
+                                        <OptimizedImage src={imageUrl} alt={`Ref ${idx}`} containerClassName="w-full h-full" className="w-full h-full object-cover" />
+                                    </div>
+                                );
+                            })}
+                        </div>
+                    </div>
+                )}
+
+                {/* Actions */}
+                <div className="flex items-center gap-2 pt-4 border-t border-black/[0.04] dark:border-white/[0.04]">
+                    <button
+                        onClick={() => onUpdateStatus(appointment.id, 'cancelled')}
+                        className="flex-1 px-3 py-2.5 text-[10px] font-bold uppercase tracking-widest text-gray-400 hover:text-rose-500 hover:bg-rose-500/5 rounded-lg transition-all"
+                    >
+                        Void
+                    </button>
+                    <button
+                        onClick={() => onUpdateStatus(appointment.id, 'done')}
+                        disabled={isClosing}
+                        className="flex-1 px-3 py-2.5 bg-[#0d3542] dark:bg-[#58a6ff] text-white dark:text-black rounded-lg text-[10px] font-bold uppercase tracking-widest hover:opacity-90 active:scale-[0.98] transition-all disabled:opacity-50 flex items-center justify-center gap-2"
+                    >
+                        {isClosing ? (
+                            <><Loader2 className="animate-spin" size={12} /> <span className="hidden sm:inline">Closing…</span></>
+                        ) : (
+                            <><Check size={12} /> <span className="hidden sm:inline">Close</span></>
+                        )}
+                    </button>
+                </div>
+            </div>
+        </motion.div>
+    );
+});
+
+/* ------------------------------------------------------------------ */
+/*  Info Cell                                                           */
+/* ------------------------------------------------------------------ */
+const InfoCell = memo(({ icon, label, value, truncate }) => (
+    <div className="flex items-start gap-2.5 min-w-0">
+        <div className="w-6 h-6 rounded-md bg-black/[0.03] dark:bg-white/[0.03] flex items-center justify-center shrink-0 text-gray-400 dark:text-[#8b949e]/40 mt-0.5">
+            {icon}
+        </div>
+        <div className="min-w-0 flex-1">
+            <span className="text-[9px] font-bold text-gray-400 dark:text-[#8b949e]/40 uppercase tracking-widest block leading-none mb-1">
+                {label}
+            </span>
+            <span className={`text-[12px] font-medium text-gray-900 dark:text-[#c9d1d9] leading-tight block ${truncate ? 'truncate' : ''}`}>
+                {value || <span className="text-gray-300 dark:text-[#8b949e]/20">—</span>}
+            </span>
+        </div>
+    </div>
+));
+
+/* ------------------------------------------------------------------ */
+/*  History / Void Row (compact list view)                              */
+/* ------------------------------------------------------------------ */
 const AppointmentHistoryRow = memo(({ appointment }) => {
     const status = STATUS_DATA[appointment.status] || STATUS_DATA.pending;
 
     return (
-        <motion.div 
-            initial={{ opacity: 0, y: 3 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="group flex items-center gap-4 px-6 py-4 border-b border-black/5 dark:border-white/5 hover:bg-black/[0.01] dark:hover:bg-white/[0.01] transition-all"
+        <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            className="group flex items-center gap-3 sm:gap-4 px-4 sm:px-5 py-3.5 border-b border-black/[0.04] dark:border-white/[0.04] hover:bg-black/[0.015] dark:hover:bg-white/[0.015] transition-colors"
         >
-            <div className="w-10 h-10 rounded-full bg-black/[0.03] dark:bg-black flex items-center justify-center shrink-0 border border-black/5 dark:border-white/5">
-                <User size={16} className="text-gray-400 dark:text-[#8b949e]/40" />
+            {/* Avatar */}
+            <div className="w-9 h-9 rounded-lg bg-black/[0.03] dark:bg-white/[0.03] flex items-center justify-center shrink-0 border border-black/5 dark:border-white/5">
+                <User size={14} className="text-gray-400 dark:text-[#8b949e]/40" />
             </div>
-            
+
+            {/* Name + Service */}
             <div className="flex-1 min-w-0">
-                <div className="flex items-center gap-2 mb-0.5">
-                    <h4 className="text-[14px] font-bold text-gray-900 dark:text-[#c9d1d9] truncate">
+                <div className="flex items-center gap-2">
+                    <h4 className="text-[13px] font-bold text-gray-900 dark:text-[#c9d1d9] truncate">
                         {appointment.name}
                     </h4>
-                    <span className="text-[9px] font-black uppercase tracking-widest text-[#0d3542] dark:text-[#58a6ff] bg-[#0d3542]/5 dark:bg-[#58a6ff]/10 px-2 py-0.5 rounded">
+                    <span className="hidden sm:inline text-[9px] font-bold uppercase tracking-widest text-[#0d3542] dark:text-[#58a6ff] bg-[#0d3542]/5 dark:bg-[#58a6ff]/10 px-1.5 py-0.5 rounded shrink-0">
                         {appointment.service}
                     </span>
                 </div>
-                <div className="flex items-center gap-4 text-[11px] text-gray-500 dark:text-[#8b949e]/60 font-medium">
-                    <span className="flex items-center gap-1.5"><Calendar size={12} className="opacity-40" /> {new Date(appointment.date).toLocaleDateString()}</span>
-                    <span className="flex items-center gap-1.5"><Clock size={12} className="opacity-40" /> {formatTime(appointment.time)}</span>
+                <div className="flex items-center gap-3 text-[10px] text-gray-400 dark:text-[#8b949e]/50 mt-0.5">
+                    <span className="flex items-center gap-1">
+                        <Calendar size={10} className="opacity-40" />
+                        {new Date(appointment.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
+                    </span>
+                    <span className="flex items-center gap-1">
+                        <Clock size={10} className="opacity-40" />
+                        {formatTime(appointment.time)}
+                    </span>
                 </div>
             </div>
 
-            <div className="hidden lg:flex flex-col text-right px-6">
-                <p className="text-[10px] text-gray-400 dark:text-[#8b949e]/40 truncate">{appointment.email}</p>
-                <p className="text-[10px] text-gray-500 font-bold tracking-widest">{appointment.phone}</p>
-            </div>
-
-            <div className={`px-4 py-1.5 rounded-full text-[9px] font-black uppercase tracking-widest border ${status.color} ${status.bg} ${status.border} min-w-[100px] text-center`}>
-                {status.label}
-            </div>
-            
-            <div className="w-10 flex justify-end">
-                <ArrowUpRight size={14} className="text-gray-300 dark:text-[#8b949e]/20 opacity-0 group-hover:opacity-100 transition-opacity" />
-            </div>
-        </motion.div>
-    );
-});
-
-/**
- * --- Active Record Card ---
- */
-const AppointmentCard = memo(({ appointment, onUpdateStatus, closingId }) => {
-    return (
-        <motion.div 
-            layout="position"
-            initial={{ opacity: 0, scale: 0.99 }}
-            animate={{ opacity: 1, scale: 1 }}
-            exit={{ opacity: 0, scale: 0.98 }}
-            className="group flex flex-col h-full relative bg-[#fdfdfc] dark:bg-[#161b22] border border-black/10 dark:border-[#30363d] rounded-[2rem] overflow-hidden transition-all duration-300 hover:border-[#0d3542]/20 dark:hover:border-[#58a6ff]/20 shadow-none"
-        >
-            <div className="p-8 flex-grow">
-                {/* Header Context */}
-                <div className="flex items-start justify-between mb-8">
-                    <div className="flex items-center gap-6">
-                        <div className="w-14 h-14 rounded-2xl bg-black/[0.02] dark:bg-[#0d1117] flex items-center justify-center border border-black/5 dark:border-[#30363d]">
-                            <User size={24} className="text-gray-300 dark:text-[#8b949e]/20" />
-                        </div>
-                        <div>
-                            <h3 className="text-2xl font-serif text-gray-900 dark:text-[#c9d1d9] leading-tight">{appointment.name}</h3>
-                            <div className="flex items-center gap-3 mt-1">
-                                <span className="text-[10px] font-black uppercase tracking-widest text-[#0d3542] dark:text-[#58a6ff] bg-[#0d3542]/5 dark:bg-[#58a6ff]/10 px-2.5 py-0.5 rounded-full">
-                                    {appointment.service}
-                                </span>
-                                <div className="h-1 w-1 rounded-full bg-gray-200 dark:bg-[#30363d]" />
-                                <span className="text-[10px] text-gray-400 font-bold uppercase tracking-widest">ID: {appointment.id}</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                {/* Info Grid */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-8 mb-8">
-                    <div className="space-y-5">
-                        <div className="flex items-center gap-4">
-                            <div className="w-8 h-8 rounded-lg bg-black/[0.02] dark:bg-white/[0.02] flex items-center justify-center text-gray-400">
-                                <Calendar size={14} />
-                            </div>
-                            <div className="flex flex-col">
-                                <span className="text-[9px] font-black text-gray-400 uppercase tracking-widest mb-0.5">Date</span>
-                                <span className="text-[14px] font-bold text-gray-900 dark:text-[#c9d1d9]">
-                                    {new Date(appointment.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
-                                </span>
-                            </div>
-                        </div>
-
-                        <div className="flex items-center gap-4">
-                            <div className="w-8 h-8 rounded-lg bg-black/[0.02] dark:bg-white/[0.02] flex items-center justify-center text-gray-400">
-                                <Clock size={14} />
-                            </div>
-                            <div className="flex flex-col">
-                                <span className="text-[9px] font-black text-gray-400 uppercase tracking-widest mb-0.5">Time</span>
-                                <span className="text-[14px] font-bold text-gray-900 dark:text-[#c9d1d9]">{formatTime(appointment.time)}</span>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div className="space-y-5">
-                        <div className="flex items-center gap-4">
-                            <div className="w-8 h-8 rounded-lg bg-black/[0.02] dark:bg-white/[0.02] flex items-center justify-center text-gray-400">
-                                <Phone size={14} />
-                            </div>
-                            <div className="flex flex-col">
-                                <span className="text-[9px] font-black text-gray-400 uppercase tracking-widest mb-0.5">Contact</span>
-                                <span className="text-[14px] font-bold text-gray-900 dark:text-[#c9d1d9]">{appointment.phone}</span>
-                            </div>
-                        </div>
-                        <div className="flex items-center gap-4">
-                            <div className="w-8 h-8 rounded-lg bg-black/[0.02] dark:bg-white/[0.02] flex items-center justify-center text-gray-400">
-                                <Mail size={14} />
-                            </div>
-                            <div className="flex flex-col min-w-0">
-                                <span className="text-[9px] font-black text-gray-400 uppercase tracking-widest mb-0.5">Email</span>
-                                <span className="text-[12px] font-medium text-gray-500 dark:text-[#8b949e] truncate">{appointment.email}</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                {/* Content Section */}
-                {(appointment.message || appointment.favorite_item_image_url?.length > 0) && (
-                    <div className="space-y-6 pt-6 border-t border-black/5 dark:border-white/5">
-                        {appointment.message && (
-                            <div className="bg-[#fdfdfc] dark:bg-[#0d1117] p-5 rounded-2xl border border-black/5 dark:border-white/5">
-                                <p className="text-[14px] text-gray-700 dark:text-[#c9d1d9] leading-relaxed italic">"{appointment.message}"</p>
-                            </div>
-                        )}
-
-                        {appointment.favorite_item_image_url?.length > 0 && (
-                            <div className="flex flex-col gap-3">
-                                <span className="text-[9px] font-black text-gray-400 uppercase tracking-widest ml-1">Reference Selection</span>
-                                <div className="flex gap-3 overflow-x-auto no-scrollbar py-1">
-                                    {appointment.favorite_item_image_url.map((item, idx) => {
-                                        const imageUrl = typeof item === 'object' ? item.image : item;
-                                        return (
-                                            <div key={idx} className="shrink-0 w-14 h-14 rounded-xl border border-black/5 dark:border-white/5 overflow-hidden transition-all duration-300 hover:scale-105 active:scale-95 cursor-pointer">
-                                                <OptimizedImage
-                                                    src={imageUrl}
-                                                    alt={`Ref ${idx}`}
-                                                    containerClassName="w-full h-full"
-                                                    className="w-full h-full object-cover"
-                                                />
-                                            </div>
-                                        );
-                                    })}
-                                </div>
-                            </div>
-                        )}
-                    </div>
+            {/* Contact (desktop) */}
+            <div className="hidden md:block text-right min-w-[120px]">
+                {appointment.phone && (
+                    <p className="text-[10px] text-gray-500 dark:text-[#8b949e]/60 font-medium">{appointment.phone}</p>
+                )}
+                {appointment.email && (
+                    <p className="text-[10px] text-gray-400 dark:text-[#8b949e]/40 truncate max-w-[140px]">{appointment.email}</p>
                 )}
             </div>
 
-            {/* Actions Bar */}
-            <div className="mt-auto p-4 bg-black/[0.02] dark:bg-black/40 border-t border-black/5 dark:border-white/5 flex items-center justify-between">
-                <div className="flex items-center gap-2 pl-4">
-                    <div className="w-1.5 h-1.5 rounded-full bg-[#0d3542]/20 dark:bg-[#58a6ff]/20 animate-pulse" />
-                    <span className="text-[10px] font-black uppercase tracking-[0.2em] text-gray-400">Quick Actions</span>
-                </div>
-                <div className="flex items-center gap-4">
-                    <button 
-                        onClick={() => onUpdateStatus(appointment.id, 'cancelled')}
-                        className="px-5 py-2.5 text-[10px] font-black uppercase tracking-widest text-gray-400 hover:text-rose-500 transition-all rounded-xl"
-                    >
-                        Void Record
-                    </button>
-                    <button 
-                        onClick={() => onUpdateStatus(appointment.id, 'done')}
-                        disabled={closingId === appointment.id}
-                        className="px-7 py-2.5 bg-[#0d3542] dark:bg-[#58a6ff] text-white dark:text-black rounded-xl text-[10px] font-black uppercase tracking-widest transition-all hover:scale-[1.02] active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
-                    >
-                        {closingId === appointment.id ? (
-                            <span className="flex items-center gap-2"><Loader2 className="animate-spin" size={12} /> Closing...</span>
-                        ) : 'Close'}
-                    </button>
-                </div>
+            {/* Status badge */}
+            <div className={`px-2.5 py-1 rounded-full text-[9px] font-bold uppercase tracking-widest border shrink-0 ${status.color} ${status.bg} ${status.border}`}>
+                {status.label}
             </div>
+
+            {/* Arrow */}
+            <ChevronRight size={14} className="text-gray-300 dark:text-[#8b949e]/20 opacity-0 group-hover:opacity-100 transition-opacity shrink-0 hidden sm:block" />
         </motion.div>
     );
 });
 
+/* ------------------------------------------------------------------ */
+/*  Loading Skeleton                                                    */
+/* ------------------------------------------------------------------ */
 const LoadingState = () => (
-    <div className="col-span-full py-32 flex flex-col items-center justify-center space-y-4">
-        <LumaSpin size="xl" />
-        <p className="text-[10px] font-black uppercase tracking-[0.4em] text-gray-400 dark:text-[#8b949e]/40">Gathering Appointments...</p>
+    <div className="py-24 flex flex-col items-center justify-center gap-3">
+        <LumaSpin size="lg" />
+        <p className="text-[10px] font-bold uppercase tracking-[0.3em] text-gray-400 dark:text-[#8b949e]/40">
+            Loading appointments…
+        </p>
     </div>
 );
 
+/* ------------------------------------------------------------------ */
+/*  Input Field                                                         */
+/* ------------------------------------------------------------------ */
+const InputField = memo(({ label, type = 'text', icon, ...props }) => (
+    <div className="flex flex-col gap-2">
+        <label className="text-[9px] font-bold text-gray-400 dark:text-[#8b949e]/50 uppercase tracking-widest flex items-center gap-1.5">
+            {icon && <span className="opacity-40">{icon}</span>}
+            {label}
+        </label>
+        <input
+            type={type}
+            {...props}
+            className="h-11 px-3.5 bg-black/[0.02] dark:bg-white/[0.02] text-[13px] font-medium text-gray-900 dark:text-[#c9d1d9] border border-black/[0.06] dark:border-white/[0.06] rounded-lg outline-none focus:border-[#0d3542]/40 dark:focus:border-[#58a6ff]/40 transition-colors placeholder:text-gray-300 dark:placeholder:text-[#8b949e]/20"
+        />
+    </div>
+));
+
+/* ------------------------------------------------------------------ */
+/*  Main Component                                                      */
+/* ------------------------------------------------------------------ */
 const AppointmentManager = () => {
-    const { 
-        appointments, 
-        appointmentsLoading, 
+    const {
+        appointments,
+        appointmentsLoading,
         appointmentsPagination,
-        updateAppointmentStatus, 
+        updateAppointmentStatus,
         clearClosedAppointments,
-        createAppointment
+        createAppointment,
     } = useAdmin();
 
     const [activeTab, setActiveTab] = useState('pending');
-    const [visibleCount, setVisibleRows] = useState(12);
+    const [visibleCount, setVisibleCount] = useState(12);
     const [isAdding, setIsAdding] = useState(false);
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [closingId, setClosingId] = useState(null);
     const [formData, setFormData] = useState({
-        name: '', email: '', phone: '', service: 'consultation', date: '', time: '', message: ''
+        name: '', email: '', phone: '', service: 'consultation',
+        date: new Date().toISOString().split('T')[0],
+        time: new Date().toTimeString().slice(0, 5),
+        message: '',
     });
 
-    const handleInputChange = (e) => {
+    const handleInputChange = useCallback((e) => {
         const { name, value } = e.target;
         setFormData(prev => ({ ...prev, [name]: value }));
-    };
+    }, []);
 
-    const handleCreateAppointment = async (e) => {
+    const handleCreateAppointment = useCallback(async (e) => {
         e.preventDefault();
         setIsSubmitting(true);
         try {
             await createAppointment(formData);
             setIsAdding(false);
-            setFormData({ name: '', email: '', phone: '', service: 'consultation', date: '', time: '', message: '' });
+            setFormData({ name: '', email: '', phone: '', service: 'consultation', date: new Date().toISOString().split('T')[0], time: new Date().toTimeString().slice(0, 5), message: '' });
         } catch (err) {
             alert(err.response?.data?.message || 'Failed to create appointment.');
         } finally {
             setIsSubmitting(false);
         }
-    };
+    }, [formData, createAppointment]);
 
-    const handleUpdateStatus = async (id, status) => {
+    const handleUpdateStatus = useCallback(async (id, status) => {
         setClosingId(id);
         try {
             await updateAppointmentStatus(id, status);
-        } catch (err) {
+        } catch {
             alert('Failed to update status.');
         } finally {
             setClosingId(null);
         }
-    };
+    }, [updateAppointmentStatus]);
 
-    const handleClearHistory = async () => {
-        if (window.confirm('IRREVERSIBLE: Clear all history?')) {
+    const handleClearHistory = useCallback(async () => {
+        if (window.confirm('IRREVERSIBLE: Clear all closed & void records?')) {
             try {
                 await clearClosedAppointments();
-            } catch (err) {
+            } catch {
                 alert('Failed to clear records.');
             }
         }
-    };
+    }, [clearClosedAppointments]);
 
+    /* ---- Filtered data ---- */
     const tabFilteredAppointments = useMemo(() => {
         return (appointments || []).filter(app => app.status === activeTab);
     }, [appointments, activeTab]);
@@ -303,69 +389,77 @@ const AppointmentManager = () => {
         };
     }, [appointments]);
 
+    const isPending = activeTab === 'pending';
+
     return (
-        <div className="space-y-10 pb-20 max-w-[1200px] mx-auto px-4 sm:px-6 mt-6">
-            {/* Header */}
-            <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-8 pb-8 border-b border-black/[0.08] dark:border-[#30363d]">
-                <div className="space-y-1">
-                    <h1 className="text-5xl font-serif text-gray-900 dark:text-[#c9d1d9] tracking-tight">Appointments</h1>
-                    <p className="text-[12px] text-gray-500 dark:text-[#8b949e]/60 font-black uppercase tracking-[0.4em] ml-1">{appointmentsPagination.total} Entries Found</p>
+        <div className="space-y-6 pb-16 max-w-[1100px] mx-auto px-4 sm:px-6 mt-4">
+            {/* ---- Header ---- */}
+            <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
+                <div>
+                    <h1 className="text-2xl sm:text-3xl font-serif text-gray-900 dark:text-[#c9d1d9] tracking-tight">
+                        Appointments
+                    </h1>
+                    <p className="text-[10px] text-gray-400 dark:text-[#8b949e]/50 font-bold uppercase tracking-[0.3em] mt-1">
+                        {appointmentsPagination.total} total entries
+                    </p>
                 </div>
 
-                <div className="flex flex-wrap items-center gap-4">
-                    <div className="flex items-center p-1.5 bg-black/[0.03] dark:bg-white/[0.02] rounded-2xl border border-black/5 dark:border-white/5">
-                        <TabButton 
-                            active={activeTab === 'pending'} 
-                            onClick={() => setActiveTab('pending')}
-                            label="Active" 
-                            count={stats.pending}
-                            activeBg="bg-[#0d3542] dark:bg-[#58a6ff]"
-                        />
-                        <TabButton 
-                            active={activeTab === 'done'} 
-                            onClick={() => setActiveTab('done')}
-                            label="History" 
-                            count={stats.done}
-                            activeBg="bg-[#0d3542] dark:bg-[#58a6ff]"
-                        />
-                        <TabButton 
-                            active={activeTab === 'cancelled'} 
-                            onClick={() => setActiveTab('cancelled')}
-                            label="Void" 
-                            count={stats.cancelled}
-                            activeBg="bg-[#0d3542] dark:bg-[#58a6ff]"
-                        />
-                    </div>
-                    
+                <div className="flex items-center gap-2 flex-wrap">
+                    <TabButton
+                        active={activeTab === 'pending'}
+                        onClick={() => { setActiveTab('pending'); setVisibleCount(12); }}
+                        label="Active"
+                        count={stats.pending}
+                        dot="bg-amber-400"
+                    />
+                    <TabButton
+                        active={activeTab === 'done'}
+                        onClick={() => { setActiveTab('done'); setVisibleCount(12); }}
+                        label="Closed"
+                        count={stats.done}
+                        dot="bg-emerald-400"
+                    />
+                    <TabButton
+                        active={activeTab === 'cancelled'}
+                        onClick={() => { setActiveTab('cancelled'); setVisibleCount(12); }}
+                        label="Void"
+                        count={stats.cancelled}
+                        dot="bg-rose-400"
+                    />
+                </div>
+            </div>
+
+            {/* ---- Action bar ---- */}
+            <div className="flex items-center justify-between">
+                <p className="text-[10px] font-bold uppercase tracking-widest text-gray-400 dark:text-[#8b949e]/40">
+                    {tabFilteredAppointments.length} {activeTabLabel(activeTab)} record{tabFilteredAppointments.length !== 1 ? 's' : ''}
+                </p>
+                <div className="flex items-center gap-2">
                     <button
                         onClick={() => setIsAdding(true)}
-                        className="h-12 px-8 bg-[#0d3542] dark:bg-[#58a6ff] text-white dark:text-black rounded-2xl text-[11px] font-black uppercase tracking-widest hover:scale-[1.02] active:scale-95 transition-all"
+                        className="flex items-center gap-2 h-9 px-4 bg-[#0d3542] dark:bg-[#58a6ff] text-white dark:text-black rounded-lg text-[10px] font-bold uppercase tracking-widest hover:opacity-90 active:scale-[0.97] transition-all"
                     >
-                        New Appointment
+                        <Plus size={14} />
+                        <span className="hidden sm:inline">New</span>
                     </button>
-
                     <button
                         onClick={handleClearHistory}
-                        className="w-12 h-12 flex items-center justify-center rounded-2xl bg-black/[0.03] dark:bg-white/[0.02] border border-black/5 dark:border-white/5 text-gray-400 hover:text-rose-500 transition-all active:scale-95"
-                        title="Clear Records"
+                        className="h-9 w-9 flex items-center justify-center rounded-lg bg-black/[0.03] dark:bg-white/[0.03] border border-black/[0.06] dark:border-white/[0.06] text-gray-400 hover:text-rose-500 hover:border-rose-500/20 transition-all active:scale-95"
+                        title="Clear closed & void records"
                     >
-                        <Trash2 size={18} />
+                        <Trash2 size={15} />
                     </button>
                 </div>
             </div>
 
-            {/* List */}
+            {/* ---- Content ---- */}
             {appointmentsLoading && (appointments || []).length === 0 ? (
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                    <LoadingState />
-                </div>
+                <LoadingState />
             ) : tabFilteredAppointments.length === 0 ? (
-                <div className="flex flex-col items-center justify-center py-24 text-center opacity-40">
-                    <Filter className="text-gray-300 dark:text-[#8b949e]/20 mb-6" size={32} />
-                    <p className="text-[11px] font-black uppercase tracking-[0.2em] text-gray-500 dark:text-[#8b949e]/40">No records classified as '{activeTab}'</p>
-                </div>
-            ) : (
-                <div className={activeTab === 'pending' ? "grid grid-cols-1 lg:grid-cols-2 gap-8" : "bg-[#fdfdfc] dark:bg-[#161b22]/40 rounded-3xl border border-black/10 dark:border-[#30363d] overflow-hidden shadow-none"}>
+                <EmptyState tab={activeTab} />
+            ) : isPending ? (
+                /* ---- Pending: Card grid ---- */
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <AnimatePresence mode="popLayout">
                         {visibleAppointments.map(app => {
                             let imageUrls = [];
@@ -376,21 +470,44 @@ const AppointmentManager = () => {
                                 } else if (Array.isArray(app.favorite_item_image_url)) {
                                     imageUrls = app.favorite_item_image_url;
                                 }
-                            } catch (e) {}
-                            
-                            const enhancedApp = { ...app, favorite_item_image_url: imageUrls };
-
-                            return activeTab === 'pending' ? (
-                                <AppointmentCard 
-                                    key={app.id} 
-                                    appointment={enhancedApp} 
+                            } catch { /* ignore */ }
+                            return (
+                                <AppointmentCard
+                                    key={app.id}
+                                    appointment={{ ...app, favorite_item_image_url: imageUrls }}
                                     onUpdateStatus={handleUpdateStatus}
                                     closingId={closingId}
                                 />
-                            ) : (
-                                <AppointmentHistoryRow 
-                                    key={app.id} 
-                                    appointment={enhancedApp} 
+                            );
+                        })}
+                    </AnimatePresence>
+                </div>
+            ) : (
+                /* ---- Done / Void: Compact list ---- */
+                <div className="bg-white dark:bg-[#161b22] rounded-2xl border border-black/[0.06] dark:border-[#30363d] overflow-hidden">
+                    {/* Table header (desktop) */}
+                    <div className="hidden md:flex items-center gap-4 px-5 py-2.5 text-[9px] font-bold uppercase tracking-widest text-gray-400 dark:text-[#8b949e]/50 border-b border-black/[0.04] dark:border-white/[0.04] bg-black/[0.01] dark:bg-white/[0.01]">
+                        <div className="w-9" />
+                        <div className="flex-1">Customer</div>
+                        <div className="w-[140px] text-right">Contact</div>
+                        <div className="w-[80px] text-center">Status</div>
+                        <div className="w-4" />
+                    </div>
+                    <AnimatePresence mode="popLayout">
+                        {visibleAppointments.map(app => {
+                            let imageUrls = [];
+                            try {
+                                if (typeof app.favorite_item_image_url === 'string') {
+                                    const parsed = JSON.parse(app.favorite_item_image_url);
+                                    imageUrls = Array.isArray(parsed) ? parsed : [];
+                                } else if (Array.isArray(app.favorite_item_image_url)) {
+                                    imageUrls = app.favorite_item_image_url;
+                                }
+                            } catch { /* ignore */ }
+                            return (
+                                <AppointmentHistoryRow
+                                    key={app.id}
+                                    appointment={{ ...app, favorite_item_image_url: imageUrls }}
                                 />
                             );
                         })}
@@ -398,130 +515,112 @@ const AppointmentManager = () => {
                 </div>
             )}
 
+            {/* ---- Load more ---- */}
             {tabFilteredAppointments.length > visibleCount && (
-                <div className="flex justify-center mt-12 pb-20">
-                    <button 
-                        onClick={() => setVisibleRows(v => v + 12)}
-                        className="group flex items-center gap-3 px-10 py-5 text-[11px] font-black uppercase tracking-[0.3em] text-gray-500 dark:text-[#8b949e] border border-black/5 dark:border-white/5 rounded-full hover:bg-black/[0.02] dark:hover:bg-white/[0.02] transition-all"
+                <div className="flex justify-center pt-4">
+                    <button
+                        onClick={() => setVisibleCount(v => v + 12)}
+                        className="flex items-center gap-2 px-6 py-3 text-[10px] font-bold uppercase tracking-[0.2em] text-gray-500 dark:text-[#8b949e] border border-black/[0.06] dark:border-white/[0.06] rounded-full hover:bg-black/[0.02] dark:hover:bg-white/[0.02] transition-all"
                     >
-                        <History size={16} className="text-[#0d3542] dark:text-[#58a6ff]" />
-                        Load More Entries
+                        <History size={14} className="text-[#0d3542] dark:text-[#58a6ff]" />
+                        Load more
                     </button>
                 </div>
             )}
 
-            {/* Modal */}
-            <ModernModal isOpen={isAdding} onClose={() => setIsAdding(false)} title="New Appointment" maxWidth="max-w-2xl">
-                <form onSubmit={handleCreateAppointment} className="p-10 space-y-10 bg-[#fdfdfc] dark:bg-[#111111]">
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-12 gap-y-10">
-                        {/* Customer Identity Section */}
-                        <div className="sm:col-span-2 flex items-center gap-3 mb-2">
-                             <div className="h-px bg-black/5 dark:bg-white/5 flex-1" />
-                             <span className="text-[9px] font-black uppercase tracking-[0.4em] text-gray-400">Customer Identity</span>
-                             <div className="h-px bg-black/5 dark:bg-white/5 flex-1" />
-                        </div>
-
-                        <InputField 
-                            label="Full Name *" 
-                            name="name" 
-                            value={formData.name} 
-                            onChange={handleInputChange} 
-                            placeholder="e.g. Jean-Luc" 
-                            required 
-                            icon={<User size={14} />}
-                        />
-                        <InputField 
-                            label="Email Address" 
-                            type="email" 
-                            name="email" 
-                            value={formData.email} 
-                            onChange={handleInputChange} 
-                            placeholder="e.g. contact@bespoke.com" 
-                            icon={<Mail size={14} />}
-                        />
-                        <InputField 
-                            label="Phone Number *" 
-                            name="phone" 
-                            value={formData.phone} 
-                            onChange={handleInputChange} 
-                            placeholder="e.g. +33 00 000 0000" 
-                            required 
-                            icon={<Phone size={14} />}
-                        />
-                        
-                        <div className="flex flex-col gap-3">
-                            <label className="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] ml-1 flex items-center gap-2">
-                                <TagIcon size={12} className="opacity-40" />
-                                Service Type *
-                            </label>
-                            <Select 
-                                value={formData.service} 
-                                onValueChange={(val) => setFormData(prev => ({ ...prev, service: val }))}
-                            >
-                                <SelectTrigger className="h-14 bg-black/[0.03] dark:bg-white/[0.03] border-0 border-b border-black/10 dark:border-white/10 rounded-xl px-4 text-[13px] font-bold uppercase tracking-widest focus:ring-0 focus:ring-offset-0 focus:border-[#0d3542] dark:focus:border-[#58a6ff]">
-                                    <SelectValue placeholder="Select Service" />
-                                </SelectTrigger>
-                                <SelectContent className="rounded-2xl border-black/10 dark:border-white/10 bg-white/95 dark:bg-[#0d1117]/95 backdrop-blur-xl">
-                                    <SelectItem value="consultation" className="text-[11px] font-black uppercase tracking-widest p-3">Consultation</SelectItem>
-                                    <SelectItem value="fitting" className="text-[11px] font-black uppercase tracking-widest p-3">Fitting session</SelectItem>
-                                    <SelectItem value="pickup" className="text-[11px] font-black uppercase tracking-widest p-3">Order pickup</SelectItem>
-                                </SelectContent>
-                            </Select>
-                        </div>
-
-                        {/* Timing Section */}
-                        <div className="sm:col-span-2 flex items-center gap-3 mt-4 mb-2">
-                             <div className="h-px bg-black/5 dark:bg-white/5 flex-1" />
-                             <span className="text-[9px] font-black uppercase tracking-[0.4em] text-gray-400">Scheduling Details</span>
-                             <div className="h-px bg-black/5 dark:bg-white/5 flex-1" />
-                        </div>
-
-                        <div className="flex flex-col gap-3">
-                            <label className="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] ml-1 flex items-center gap-2">
-                                <Calendar size={12} className="opacity-40" />
-                                Scheduled Date *
-                            </label>
-                            <DatePicker 
-                                required
-                                name="date"
-                                value={formData.date}
-                                onChange={(e) => setFormData(prev => ({ ...prev, date: e.target.value }))}
-                                inputClassName="h-14 bg-black/[0.03] dark:bg-white/[0.03] border-0 border-b border-black/10 dark:border-white/10 rounded-xl py-0"
-                            />
-                        </div>
-                        <div className="flex flex-col gap-3">
-                            <label className="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] ml-1 flex items-center gap-2">
-                                <Clock size={12} className="opacity-40" />
-                                Scheduled Time *
-                            </label>
-                            <TimePicker 
-                                use12HourFormat={true}
-                                value={formData.time ? parse(formData.time, 'HH:mm', new Date()) : new Date()}
-                                onChange={(date) => setFormData(prev => ({ ...prev, time: format(date, 'HH:mm') }))}
-                                className="h-14 bg-black/[0.03] dark:bg-white/[0.03] border-0 border-b border-black/10 dark:border-white/10 rounded-xl"
-                            />
-                        </div>
-                        
-                        <div className="sm:col-span-2 flex flex-col gap-3">
-                            <label className="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] ml-1 flex items-center gap-2">
-                                <MessageSquare size={12} className="opacity-40" />
-                                Notes / Instructions
-                            </label>
-                            <textarea 
-                                name="message" 
-                                value={formData.message} 
-                                onChange={handleInputChange} 
-                                rows="3" 
-                                className="bg-black/[0.03] dark:bg-white/[0.03] p-5 text-[13px] font-medium border-0 border-b border-black/10 dark:border-white/10 outline-none focus:border-[#0d3542] dark:focus:border-[#58a6ff] transition-all rounded-2xl resize-none" 
-                                placeholder="Any specific requirements for this session..."
-                            ></textarea>
+            {/* ---- New Appointment Modal ---- */}
+            <ModernModal isOpen={isAdding} onClose={() => setIsAdding(false)} title="New Appointment" maxWidth="max-w-lg">
+                <form onSubmit={handleCreateAppointment} className="p-6 sm:p-8 space-y-6 bg-white dark:bg-[#0d1117]">
+                    {/* Section: Customer */}
+                    <div>
+                        <SectionLabel icon={<User size={11} />} label="Customer" />
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-3">
+                            <InputField label="Full Name *" name="name" value={formData.name} onChange={handleInputChange} placeholder="e.g. Jean-Luc" required icon={<User size={12} />} />
+                            <InputField label="Email" type="email" name="email" value={formData.email} onChange={handleInputChange} placeholder="e.g. contact@bespoke.com" icon={<Mail size={12} />} />
+                            <InputField label="Phone *" name="phone" value={formData.phone} onChange={handleInputChange} placeholder="e.g. +33 00 000 0000" required icon={<Phone size={12} />} />
+                            <div className="flex flex-col gap-2">
+                                <label className="text-[9px] font-bold text-gray-400 dark:text-[#8b949e]/50 uppercase tracking-widest flex items-center gap-1.5">
+                                    <Sparkles size={11} className="opacity-40" />
+                                    Service *
+                                </label>
+                                <Select value={formData.service} onValueChange={(val) => setFormData(prev => ({ ...prev, service: val }))}>
+                                    <SelectTrigger className="h-11 bg-black/[0.02] dark:bg-white/[0.02] border border-black/[0.06] dark:border-white/[0.06] rounded-lg px-3.5 text-[12px] font-medium focus:ring-0 focus:border-[#0d3542]/40 dark:focus:border-[#58a6ff]/40">
+                                        <SelectValue placeholder="Select Service" />
+                                    </SelectTrigger>
+                                    <SelectContent className="rounded-xl border-black/10 dark:border-white/10 bg-white/95 dark:bg-[#0d1117]/95 backdrop-blur-xl">
+                                        <SelectItem value="consultation" className="text-[11px] font-medium p-2.5">Consultation</SelectItem>
+                                        <SelectItem value="fitting" className="text-[11px] font-medium p-2.5">Fitting Session</SelectItem>
+                                        <SelectItem value="pickup" className="text-[11px] font-medium p-2.5">Order Pickup</SelectItem>
+                                    </SelectContent>
+                                </Select>
+                            </div>
                         </div>
                     </div>
 
-                    <div className="flex justify-end gap-6 pt-10 border-t border-black/5 dark:border-white/5">
-                        <button type="button" onClick={() => setIsAdding(false)} className="px-8 py-4 text-[10px] font-black uppercase tracking-widest text-gray-400 hover:text-gray-900 transition-colors">Discard</button>
-                        <button type="submit" disabled={isSubmitting} className="h-14 px-12 bg-[#0d3542] dark:bg-[#58a6ff] text-white dark:text-black rounded-2xl text-[11px] font-black uppercase tracking-widest transition-all active:scale-95">
-                            {isSubmitting ? <Loader2 className="animate-spin" size={16} /> : 'Confirm Selection'}
+                    {/* Section: Scheduling */}
+                    <div>
+                        <SectionLabel icon={<Calendar size={11} />} label="Scheduling" />
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-3">
+                            <div className="flex flex-col gap-2">
+                                <label className="text-[9px] font-bold text-gray-400 dark:text-[#8b949e]/50 uppercase tracking-widest flex items-center gap-1.5">
+                                    <Calendar size={11} className="opacity-40" />
+                                    Date *
+                                </label>
+                                <DatePicker
+                                    required
+                                    name="date"
+                                    value={formData.date}
+                                    onChange={(e) => setFormData(prev => ({ ...prev, date: e.target.value }))}
+                                    inputClassName="h-11 bg-black/[0.02] dark:bg-white/[0.02] border border-black/[0.06] dark:border-white/[0.06] rounded-lg"
+                                />
+                            </div>
+                            <div className="flex flex-col gap-2">
+                                <label className="text-[9px] font-bold text-gray-400 dark:text-[#8b949e]/50 uppercase tracking-widest flex items-center gap-1.5">
+                                    <Clock size={11} className="opacity-40" />
+                                    Time *
+                                </label>
+                                <TimePicker
+                                    use12HourFormat
+                                    value={formData.time ? parse(formData.time, 'HH:mm', new Date()) : new Date()}
+                                    onChange={(date) => setFormData(prev => ({ ...prev, time: format(date, 'HH:mm') }))}
+                                    className="h-11 bg-black/[0.02] dark:bg-white/[0.02] border border-black/[0.06] dark:border-white/[0.06] rounded-lg"
+                                />
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* Notes */}
+                    <div className="flex flex-col gap-2">
+                        <label className="text-[9px] font-bold text-gray-400 dark:text-[#8b949e]/50 uppercase tracking-widest flex items-center gap-1.5">
+                            <MessageSquare size={11} className="opacity-40" />
+                            Notes
+                        </label>
+                        <textarea
+                            name="message"
+                            value={formData.message}
+                            onChange={handleInputChange}
+                            rows={3}
+                            className="bg-black/[0.02] dark:bg-white/[0.02] p-3.5 text-[12px] font-medium text-gray-900 dark:text-[#c9d1d9] border border-black/[0.06] dark:border-white/[0.06] rounded-lg outline-none focus:border-[#0d3542]/40 dark:focus:border-[#58a6ff]/40 transition-colors resize-none placeholder:text-gray-300 dark:placeholder:text-[#8b949e]/20"
+                            placeholder="Any specific requirements…"
+                        />
+                    </div>
+
+                    {/* Actions */}
+                    <div className="flex items-center justify-end gap-3 pt-4 border-t border-black/[0.05] dark:border-white/[0.05]">
+                        <button
+                            type="button"
+                            onClick={() => setIsAdding(false)}
+                            className="px-5 py-2.5 text-[10px] font-bold uppercase tracking-widest text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors"
+                        >
+                            Cancel
+                        </button>
+                        <button
+                            type="submit"
+                            disabled={isSubmitting}
+                            className="h-10 px-6 bg-[#0d3542] dark:bg-[#58a6ff] text-white dark:text-black rounded-lg text-[10px] font-bold uppercase tracking-widest hover:opacity-90 active:scale-[0.97] transition-all disabled:opacity-50 flex items-center gap-2"
+                        >
+                            {isSubmitting ? <Loader2 className="animate-spin" size={14} /> : <Check size={14} />}
+                            Confirm
                         </button>
                     </div>
                 </form>
@@ -530,32 +629,18 @@ const AppointmentManager = () => {
     );
 };
 
-const TabButton = ({ active, label, count, onClick, activeBg = "bg-white dark:bg-[#1c2128]" }) => (
-    <button 
-        onClick={onClick}
-        className={`flex items-center gap-3 px-6 py-3 rounded-xl transition-all duration-300 ${active ? `${activeBg} border border-black/5 dark:border-white/5` : 'opacity-40 hover:opacity-100 hover:bg-black/5 dark:hover:bg-white/5'}`}
-    >
-        <span className={`text-[10px] font-black uppercase tracking-[0.2em] ${active ? 'text-white dark:text-black' : 'text-gray-500'}`}>{label}</span>
-        {count > 0 && (
-            <span className={`px-2 py-0.5 rounded-lg text-[9px] font-black ${active ? 'bg-white/20 dark:bg-black/20 text-white dark:text-black' : 'bg-gray-200 dark:bg-white/10 text-gray-500'}`}>
-                {count}
-            </span>
-        )}
-    </button>
-);
-
-const InputField = ({ label, type = "text", icon, ...props }) => (
-    <div className="flex flex-col gap-3">
-        <label className="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] ml-1 flex items-center gap-2">
-            {icon && <span className="opacity-40">{icon}</span>}
+/* ------------------------------------------------------------------ */
+/*  Section Label (for modal)                                           */
+/* ------------------------------------------------------------------ */
+const SectionLabel = memo(({ icon, label }) => (
+    <div className="flex items-center gap-2">
+        <div className="h-px flex-1 bg-black/[0.06] dark:bg-white/[0.06]" />
+        <span className="text-[9px] font-bold uppercase tracking-[0.3em] text-gray-400 dark:text-[#8b949e]/50 flex items-center gap-1.5">
+            {icon}
             {label}
-        </label>
-        <input 
-            type={type} 
-            {...props} 
-            className="bg-black/[0.03] dark:bg-white/[0.03] h-14 px-4 text-[13px] font-bold border-b border-black/10 dark:border-white/10 outline-none focus:border-[#0d3542] dark:focus:border-[#58a6ff] transition-all rounded-xl placeholder:text-gray-300 dark:placeholder:text-[#8b949e]/20" 
-        />
+        </span>
+        <div className="h-px flex-1 bg-black/[0.06] dark:bg-white/[0.06]" />
     </div>
-);
+));
 
 export default AppointmentManager;

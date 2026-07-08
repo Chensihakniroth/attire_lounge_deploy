@@ -51,9 +51,6 @@ class CustomerProfileController extends Controller
             'is_vip' => 'nullable|boolean',
         ]);
 
-        // Set outlet from request context, not user input
-        $validatedData['outlet'] = $request->header('X-Active-Outlet', 'attire_lounge');
-
         $customerProfile = $this->customerProfileService->createCustomerProfile($validatedData);
 
         return response()->json($customerProfile, 201);

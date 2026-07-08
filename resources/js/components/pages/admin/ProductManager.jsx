@@ -97,7 +97,7 @@ const CustomDropdown = ({ selected, options, onChange, label, icon: FilterIcon =
 /* ------------------------------------------------------------------ */
 /*  Product Card Row                                                   */
 /* ------------------------------------------------------------------ */
-const ProductRow = memo(({ product, onEdit, onDelete, onToggleVisibility, isToggling }) => {
+const ProductRow = memo(({ product, onEdit, onDelete, onToggleVisibility, onToggleLookbook, isToggling }) => {
     return (
         <div className={`group flex items-center gap-4 px-5 py-3 border-b border-black/5 dark:border-[#30363d] hover:bg-black/[0.02] dark:hover:bg-white/[0.02] transition-colors ${!product.is_visible ? 'opacity-50' : ''}`}>
             {/* Thumbnail */}
@@ -144,15 +144,40 @@ const ProductRow = memo(({ product, onEdit, onDelete, onToggleVisibility, isTogg
             </div>
 
             {/* Visibility Status */}
-            <div className="shrink-0 flex items-center gap-1.5 w-20">
+            <div className="shrink-0 flex items-center gap-1.5 w-24">
                 <div className={`w-2 h-2 rounded-full shrink-0 ${product.is_visible ? 'bg-emerald-500' : 'bg-red-400'}`} />
                 <span className="text-[10px] font-bold uppercase tracking-wider text-gray-500 dark:text-[#8b949e]">
                     {product.is_visible ? 'Live' : 'Hidden'}
                 </span>
             </div>
 
+            {/* Lookbook */}
+            <div className="shrink-0 w-16 text-center">
+                {product.show_in_lookbook ? (
+                    <span className="text-[10px] font-bold uppercase tracking-wider text-[#f5a81c]">Lookbook</span>
+                ) : (
+                    <span className="text-[10px] font-bold uppercase tracking-wider text-gray-300 dark:text-[#8b949e]/30">—</span>
+                )}
+            </div>
+
             {/* Actions */}
             <div className="shrink-0 flex items-center gap-1 opacity-60 group-hover:opacity-100 transition-opacity">
+                <button
+                    onClick={() => onToggleLookbook(product.id, product.show_in_lookbook)}
+                    disabled={isToggling}
+                    className={`p-2 rounded-lg transition-all disabled:opacity-50 ${
+                        product.show_in_lookbook
+                            ? 'text-[#f5a81c] hover:bg-[#f5a81c]/10'
+                            : 'text-gray-400 hover:bg-black/5 dark:hover:bg-white/5 hover:text-[#f5a81c]'
+                    }`}
+                    title={product.show_in_lookbook ? 'Remove from lookbook' : 'Add to lookbook'}
+                >
+                    {isToggling ? (
+                        <Loader2 size={14} className="animate-spin" />
+                    ) : (
+                        <Eye size={14} />
+                    )}
+                </button>
                 <button
                     onClick={() => onToggleVisibility(product.id, product.is_visible)}
                     disabled={isToggling}
@@ -216,7 +241,8 @@ const ProductManager = () => {
             });
             return data.data;
         },
-        staleTime: 2 * 60 * 1000,
+        staleTime: 30 * 1000,
+        refetchOnMount: true,
     });
 
     /* ---- Debounced Search ---- */
@@ -258,6 +284,31 @@ const ProductManager = () => {
     const handleEdit = useCallback((slug) => {
         navigate(`/admin/products/${slug}/edit`);
     }, [navigate]);
+
+    const toggleLookbook = useCallback(async (productId, currentLookbook) => {
+        const nextStatus = !currentLookbook;
+        setTogglingId(productId);
+
+        queryClient.setQueryData(['admin-products'], oldData => {
+            if (!oldData) return oldData;
+            return oldData.map(p => p.id === productId ? { ...p, show_in_lookbook: nextStatus } : p);
+        });
+
+        try {
+            const token = localStorage.getItem('admin_token') || sessionStorage.getItem('admin_token');
+            const response = await axios.put(`/api/v1/admin/products/${productId}`,
+                { show_in_lookbook: nextStatus },
+                { headers: { 'Authorization': `Bearer ${token}` } }
+            );
+            if (!response.data.success) throw new Error('Failed to update');
+        } catch (error) {
+            console.error('Failed to toggle lookbook:', error);
+            queryClient.invalidateQueries(['admin-products']);
+            alert('Failed to update lookbook status.');
+        } finally {
+            setTogglingId(null);
+        }
+    }, [queryClient]);
 
     const toggleVisibility = useCallback(async (productId, currentVisibility) => {
         const nextStatus = !currentVisibility;
@@ -383,8 +434,9 @@ const ProductManager = () => {
                         <div className="hidden sm:block w-24">Collection</div>
                         <div className="w-20 text-right">Price</div>
                         <div className="w-16 text-center">Featured</div>
-                        <div className="w-20">Status</div>
-                        <div className="w-28 text-right">Actions</div>
+                        <div className="w-24">Status</div>
+                        <div className="w-16 text-center">Lookbook</div>
+                        <div className="w-32 text-right">Actions</div>
                     </div>
 
                     {/* Product List */}
@@ -397,6 +449,7 @@ const ProductManager = () => {
                                     onEdit={handleEdit}
                                     onDelete={setDeletingProduct}
                                     onToggleVisibility={toggleVisibility}
+                                    onToggleLookbook={toggleLookbook}
                                     isToggling={togglingId === product.id}
                                 />
                             ))

@@ -124,6 +124,49 @@ class SalesReportController extends Controller
     }
 
     /**
+     * GET /api/v1/admin/sales-report/weekly
+     * Weekly report: total revenue, 7-day breakdown, top sellers, refunds.
+     * Accepts a `date` param — week is resolved as Monday→Sunday containing that date.
+     */
+    public function weekly(Request $request): JsonResponse
+    {
+        $date   = $request->get('date', now()->toDateString());
+        $outlet = $this->resolveOutlet();
+
+        $data = $this->salesService->getWeeklyReport($date, $outlet);
+
+        // Payment breakdown for the same week range
+        $startStr = \Carbon\Carbon::parse($date)->startOfWeek(\Carbon\Carbon::MONDAY)->toDateString();
+        $endStr   = \Carbon\Carbon::parse($date)->endOfWeek(\Carbon\Carbon::SUNDAY)->toDateString();
+
+        $data['payment_breakdown'] = DB::table('pos_payments')
+            ->join('pos_invoices', 'pos_payments.invoice_id', '=', 'pos_invoices.id')
+            ->whereBetween('pos_invoices.date', [$startStr, $endStr])
+            ->where('pos_invoices.status', 'completed')
+            ->where('pos_invoices.outlet', $outlet)
+            ->select('pos_payments.method', DB::raw('SUM(pos_payments.amount) as total'))
+            ->groupBy('pos_payments.method')
+            ->get()
+            ->merge(
+                DB::table('pos_invoices')
+                    ->leftJoin('pos_payments', 'pos_invoices.id', '=', 'pos_payments.invoice_id')
+                    ->whereBetween('pos_invoices.date', [$startStr, $endStr])
+                    ->where('pos_invoices.status', 'completed')
+                    ->where('pos_invoices.outlet', $outlet)
+                    ->whereNull('pos_payments.id')
+                    ->where(function ($q) {
+                        $q->where('pos_invoices.order_source', 'woocommerce')
+                          ->orWhereNotNull('pos_invoices.wc_order_id');
+                    })
+                    ->select(DB::raw("'wc' as method"), DB::raw('SUM(pos_invoices.grand_total) as total'))
+                    ->groupBy('method')
+                    ->get()
+            );
+
+        return response()->json($data);
+    }
+
+    /**
      * GET /api/v1/admin/sales-report/targets
      * List all saved targets.
      */

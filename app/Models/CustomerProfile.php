@@ -29,6 +29,5 @@ class CustomerProfile extends Model
         'remarks',
         'birthday',
         'is_vip',
-        'outlet',
     ];
 }

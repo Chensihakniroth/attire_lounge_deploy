@@ -16,6 +16,7 @@ readonly class ProductFilterDTO
         public int $perPage = 12,
         public int $page = 1,
         public bool $includeHidden = false,
+        public bool $lookbookOnly = false,
     ) {}
 
     /**
@@ -37,6 +38,7 @@ readonly class ProductFilterDTO
             perPage: (int) $request->query('per_page', 12),
             page: (int) $request->query('page', 1),
             includeHidden: $request->boolean('include_hidden', false),
+            lookbookOnly: $request->boolean('lookbook', false),
         );
     }
 
@@ -55,6 +57,7 @@ readonly class ProductFilterDTO
             perPage: array_key_exists('perPage', $properties) ? $properties['perPage'] : $this->perPage,
             page: array_key_exists('page', $properties) ? $properties['page'] : $this->page,
             includeHidden: array_key_exists('includeHidden', $properties) ? $properties['includeHidden'] : $this->includeHidden,
+            lookbookOnly: array_key_exists('lookbookOnly', $properties) ? $properties['lookbookOnly'] : $this->lookbookOnly,
         );
     }
 }

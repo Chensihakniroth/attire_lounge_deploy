@@ -65,6 +65,7 @@ Route::prefix('v1')->group(function () {
     // STOREFRONT PUBLIC API (products, collections, categories)
     // ═══════════════════════════════════════════════════════════════════════
     Route::get('/products', [ProductController::class, 'index']);
+    Route::get('/products/lookbook', [ProductController::class, 'lookbook']);
     Route::get('/products/featured', [ProductController::class, 'featured']);
     Route::get('/products/categories', [ProductController::class, 'categories']);
     Route::get('/products/collections', [ProductController::class, 'collections']);
@@ -111,6 +112,8 @@ Route::prefix('v1')->group(function () {
 
             // Gift Requests
             Route::patch('/gift-requests/{id}/status', [GiftRequestController::class, 'updateStatus']);
+            Route::post('/gift-requests/{id}/items', [GiftRequestController::class, 'addItem']);
+            Route::delete('/gift-requests/{id}/items', [GiftRequestController::class, 'removeItem']);
             Route::delete('/gift-requests/{id}', [GiftRequestController::class, 'destroy']);
 
             // Gift Item Stock Management
@@ -188,6 +191,7 @@ Route::prefix('v1')->group(function () {
 
             // ─── Sales Report & Targets ────────────────────────────────────────
             Route::get('/sales-report/daily',   [SalesReportController::class, 'daily']);
+            Route::get('/sales-report/weekly',  [SalesReportController::class, 'weekly']);
             Route::get('/sales-report/monthly', [SalesReportController::class, 'monthly']);
             Route::get('/sales-report/targets', [SalesReportController::class, 'getTargets']);
             Route::post('/sales-report/targets', [SalesReportController::class, 'setTarget']);

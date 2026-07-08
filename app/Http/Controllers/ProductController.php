@@ -101,6 +101,19 @@ class ProductController extends Controller
     }
 
     /**
+     * Get all products for lookbook (show_in_lookbook = true).
+     */
+    public function lookbook(Request $request): JsonResponse
+    {
+        $products = $this->productService->getLookbookProducts();
+
+        return response()->json([
+            'success' => true,
+            'data' => ProductResource::collection($products)
+        ]);
+    }
+
+    /**
      * Get featured products.
      */
     public function featured(): JsonResponse
@@ -305,6 +318,7 @@ class ProductController extends Controller
             'is_featured' => 'nullable|boolean',
             'is_new' => 'nullable|boolean',
             'is_visible' => 'nullable|boolean',
+            'show_in_lookbook' => 'nullable|boolean',
             'fabric' => 'nullable|string|max:255',
             'silhouette' => 'nullable|string|max:255',
             'details' => 'nullable|string|max:255',
@@ -353,6 +367,7 @@ class ProductController extends Controller
             'is_featured' => 'sometimes|boolean',
             'is_new' => 'sometimes|boolean',
             'is_visible' => 'sometimes|boolean',
+            'show_in_lookbook' => 'sometimes|boolean',
             'fabric' => 'sometimes|nullable|string|max:255',
             'silhouette' => 'sometimes|nullable|string|max:255',
             'details' => 'sometimes|nullable|string|max:255',

@@ -1,283 +1,241 @@
-import React, { useState, useEffect, useMemo, useCallback, Suspense, lazy } from 'react';
+import React, { useState, useMemo, useCallback } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import axios from 'axios';
-import { motion, AnimatePresence, useReducedMotion } from 'framer-motion';
-import { 
-    Scissors, 
-    Search, 
-    X, 
-    Smartphone, 
-    Clock, 
-    MoreVertical, 
-    RefreshCw, 
-    Plus, 
-    Download, 
-    ChevronDown, 
-    DollarSign, 
-    Package, 
-    User, 
-    AlertCircle, 
-    CheckCircle2, 
-    Mail,
-    ExternalLink,
-    Eye,
-    Loader2
+import { motion, AnimatePresence } from 'framer-motion';
+import {
+    Scissors, Search, X, Smartphone, Clock, Plus, Download,
+    DollarSign, Package, User, AlertCircle, CheckCircle2, Mail,
+    RefreshCw, Eye, Loader2, ChevronLeft, ChevronRight, Trash2,
+    MoreHorizontal, Filter, ArrowUpDown, ExternalLink
 } from 'lucide-react';
 import { LumaSpin } from '@/components/ui/luma-spin';
-import { Card, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { BorderBeam } from '@/components/ui/border-beam';
 import ModernModal from '../../common/ModernModal.jsx';
 import { formatDate } from '@/helpers/format';
 import DatePicker from '@/components/ui/DatePicker';
-import MorphingPageDots from '@/components/ui/morphing-page-dots';
 
-const statusConfig = {
-    pending: {
-        label: 'Pending',
-        icon: Clock,
-        bgColor: 'bg-amber-500/10',
-        textColor: 'text-amber-500',
-        borderColor: 'border-amber-500/20',
-    },
-    in_progress: {
-        label: 'In Progress',
-        icon: RefreshCw,
-        bgColor: 'bg-blue-500/10',
-        textColor: 'text-blue-500',
-        borderColor: 'border-blue-500/20',
-    },
-    ready: {
-        label: 'Ready',
-        icon: CheckCircle2,
-        bgColor: 'bg-emerald-500/10',
-        textColor: 'text-emerald-500',
-        borderColor: 'border-emerald-500/20',
-    },
-    completed: {
-        label: 'Completed',
-        icon: Scissors,
-        bgColor: 'bg-gray-500/10',
-        textColor: 'text-gray-500',
-        borderColor: 'border-gray-500/20',
-    },
+/* ------------------------------------------------------------------ */
+/*  Status Config                                                      */
+/* ------------------------------------------------------------------ */
+const STATUS_CONFIG = {
+    pending: { label: 'Pending', color: 'text-amber-600 dark:text-amber-400', bg: 'bg-amber-500/10', border: 'border-amber-500/20', dot: 'bg-amber-400' },
+    in_progress: { label: 'In Progress', color: 'text-blue-600 dark:text-blue-400', bg: 'bg-blue-500/10', border: 'border-blue-500/20', dot: 'bg-blue-400' },
+    ready: { label: 'Ready', color: 'text-emerald-600 dark:text-emerald-400', bg: 'bg-emerald-500/10', border: 'border-emerald-500/20', dot: 'bg-emerald-400' },
+    completed: { label: 'Done', color: 'text-gray-500', bg: 'bg-gray-500/10', border: 'border-gray-500/20', dot: 'bg-gray-400' },
 };
 
-const containerVariants = {
-    hidden: { opacity: 0 },
-    visible: {
-        opacity: 1,
-        transition: {
-            staggerChildren: 0.05,
-        },
-    },
-};
+const STATUS_ORDER = ['pending', 'in_progress', 'ready', 'completed'];
 
+/* ------------------------------------------------------------------ */
+/*  Loading                                                            */
+/* ------------------------------------------------------------------ */
 const LoadingState = () => (
-    <div className="flex flex-col items-center justify-center py-32 space-y-4">
-        <LumaSpin size="xl" />
-        <p className="text-[10px] font-black uppercase tracking-[0.4em] text-gray-400 dark:text-[#8b949e]/40">Gathering Alteration Logs...</p>
+    <div className="flex flex-col items-center justify-center py-24 gap-3">
+        <LumaSpin size="lg" />
+        <p className="text-[10px] font-bold uppercase tracking-[0.3em] text-gray-400 dark:text-[#8b949e]/40">
+            Loading records…
+        </p>
     </div>
 );
 
-const AlteringRow = React.memo(({ 
-    altering, 
-    statusConfig, 
-    isSelected, 
-    onSelect, 
-    onDetailOpen,
-    shouldAnimate,
-    rowVariants 
-}) => {
-    const status = statusConfig[altering.status] || statusConfig.pending;
+/* ------------------------------------------------------------------ */
+/*  Empty State                                                        */
+/* ------------------------------------------------------------------ */
+const EmptyState = ({ search, filter }) => (
+    <div className="flex flex-col items-center justify-center py-20 text-center">
+        <div className="w-14 h-14 rounded-xl bg-black/[0.02] dark:bg-white/[0.02] flex items-center justify-center mb-4">
+            <Scissors size={20} className="text-gray-300 dark:text-[#8b949e]/30" />
+        </div>
+        <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-gray-400 dark:text-[#8b949e]/40">
+            {search ? 'No matches found' : filter ? `No ${filter} records` : 'No alteration records yet'}
+        </p>
+    </div>
+);
 
+/* ------------------------------------------------------------------ */
+/*  Status Badge                                                       */
+/* ------------------------------------------------------------------ */
+const StatusBadge = React.memo(({ status }) => {
+    const cfg = STATUS_CONFIG[status] || STATUS_CONFIG.pending;
+    return (
+        <span className={`inline-flex items-center gap-1.5 px-2 py-1 rounded-md text-[9px] font-bold uppercase tracking-widest border ${cfg.color} ${cfg.bg} ${cfg.border}`}>
+            <span className={`w-1.5 h-1.5 rounded-full ${cfg.dot}`} />
+            {cfg.label}
+        </span>
+    );
+});
+
+/* ------------------------------------------------------------------ */
+/*  Altering Row (table)                                               */
+/* ------------------------------------------------------------------ */
+const AlteringRow = React.memo(({ altering, onDetailOpen }) => {
     return (
         <tr
-            className={`hover:bg-black/[0.01] dark:hover:bg-white/[0.01] transition-colors group cursor-pointer ${
-                isSelected ? 'bg-[#0d3542]/5 dark:bg-[#58a6ff]/5' : ''
-            }`}
+            className="hover:bg-black/[0.015] dark:hover:bg-white/[0.015] transition-colors group cursor-pointer"
             onClick={() => onDetailOpen(altering)}
         >
-            <td 
-                className="px-6 py-6 w-12 text-center"
-                onClick={(e) => e.stopPropagation()}
-            >
-                <input
-                    type="checkbox"
-                    className="w-4 h-4 rounded border-gray-300 dark:border-[#30363d] bg-transparent accent-[#0d3542] dark:accent-[#58a6ff] cursor-pointer"
-                    checked={isSelected}
-                    onChange={() => onSelect(altering.id)}
-                />
-            </td>
-
-            <td className="px-6 py-6">
-                <span className="text-sm font-bold text-gray-900 dark:text-[#c9d1d9] truncate uppercase tracking-widest">
+            <td className="px-4 py-4">
+                <span className="text-[13px] font-bold text-gray-900 dark:text-[#c9d1d9] truncate block">
                     {altering.customer_name}
                 </span>
             </td>
-
-            <td className="px-6 py-6 flex flex-col justify-center">
-                <div className="text-xs font-bold text-gray-800 dark:text-gray-300 uppercase tracking-widest">
+            <td className="px-4 py-4 hidden sm:table-cell">
+                <span className="text-[11px] font-bold text-gray-800 dark:text-gray-300">
                     #{altering.order_no || 'MNL'}
-                </div>
-                <div className="text-xs text-gray-500 dark:text-[#8b949e]/60 flex items-center gap-1 uppercase tracking-widest mt-1">
-                    <Smartphone size={10} />
+                </span>
+                <span className="text-[10px] text-gray-400 dark:text-[#8b949e]/50 block mt-0.5">
                     {altering.mobile || 'N/A'}
-                </div>
-            </td>
-
-            <td className="px-6 py-6">
-                <span className={`inline-flex items-center gap-1 px-2 py-1 rounded-lg text-xs font-bold uppercase tracking-widest border ${status.bgColor} ${status.textColor} ${status.borderColor}`}>
-                    <status.icon size={12} className="mr-1 opacity-70" />
-                    {status.label}
                 </span>
             </td>
-
-            <td className="px-6 py-6 text-right">
-                <span className="text-sm font-bold text-[#0d3542] dark:text-[#58a6ff] tracking-widest">
+            <td className="px-4 py-4">
+                <StatusBadge status={altering.status} />
+            </td>
+            <td className="px-4 py-4 text-right hidden md:table-cell">
+                <span className="text-[13px] font-bold text-[#0d3542] dark:text-[#58a6ff]">
                     ${parseFloat(altering.altering_cost || 0).toFixed(2)}
                 </span>
             </td>
-
-            <td className="px-6 py-6 max-w-[200px]">
-                <span className="text-xs font-bold text-gray-500 dark:text-[#8b949e]/60 truncate block italic tracking-wide">
+            <td className="px-4 py-4 max-w-[150px] hidden lg:table-cell">
+                <span className="text-[11px] text-gray-500 dark:text-[#8b949e]/60 truncate block italic">
                     {altering.product || 'Unspecified'}
                 </span>
             </td>
-
-            <td className="px-6 py-6">
-                <div className="flex flex-col">
-                    <span className="text-xs font-bold text-gray-800 dark:text-gray-300 uppercase tracking-widest">
-                        {formatDate(altering.ready_at, { fallback: 'N/A', month: 'short' })}
-                    </span>
-                    <span className="text-xs text-gray-500 dark:text-[#8b949e]/60 uppercase tracking-widest mt-1">
-                        {altering.ready_at ? 'Target' : 'TBD'}
-                    </span>
-                </div>
+            <td className="px-4 py-4 hidden md:table-cell">
+                <span className="text-[11px] text-gray-600 dark:text-[#8b949e]">
+                    {formatDate(altering.ready_at, { fallback: 'TBD', month: 'short' })}
+                </span>
             </td>
-
-            <td className="px-6 py-6 text-right" onClick={(e) => e.stopPropagation()}>
-                <div className="flex items-center justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                    <button 
-                        onClick={() => onDetailOpen(altering)}
-                        className="p-2.5 rounded-lg bg-black/5 dark:bg-[#0d1117] text-gray-400 hover:text-[#0d3542] dark:hover:text-[#58a6ff] hover:bg-[#0d3542]/10 dark:hover:bg-[#58a6ff]/10 transition-all border border-transparent dark:border-[#30363d]"
-                    >
-                        <Eye size={14} />
-                    </button>
-                    <button className="p-2.5 rounded-lg bg-black/5 dark:bg-[#0d1117] text-gray-400 hover:text-[#0d3542] dark:hover:text-[#58a6ff] hover:bg-[#0d3542]/10 dark:hover:bg-[#58a6ff]/10 transition-all border border-transparent dark:border-[#30363d]">
-                        <MoreVertical size={14} />
-                    </button>
-                </div>
+            <td className="px-4 py-4 w-10" onClick={(e) => e.stopPropagation()}>
+                <button
+                    onClick={() => onDetailOpen(altering)}
+                    className="p-2 rounded-lg text-gray-400 hover:text-[#0d3542] dark:hover:text-[#58a6ff] hover:bg-black/5 dark:hover:bg-white/5 transition-all opacity-0 group-hover:opacity-100"
+                >
+                    <Eye size={14} />
+                </button>
             </td>
         </tr>
     );
 });
 
-const AlteringTable = React.memo(({ 
-    alterings, 
-    selectedItems, 
-    onItemSelect, 
-    onSelectAll, 
-    onDetailOpen,
-    shouldAnimate,
-    rowVariants 
-}) => {
+/* ------------------------------------------------------------------ */
+/*  Altering Card (mobile)                                             */
+/* ------------------------------------------------------------------ */
+const AlteringCard = React.memo(({ altering, onDetailOpen }) => {
     return (
-        <div className="w-full text-left">
-            <table className="w-full text-left border-collapse">
-                <thead>
-                    <tr className="bg-black/[0.02] dark:bg-[#0d1117] border-b border-black/5 dark:border-[#30363d]">
-                        <th className="px-6 py-5 text-center w-12">
-                            <input
-                                type="checkbox"
-                                className="w-4 h-4 rounded border-gray-300 dark:border-[#30363d] bg-transparent accent-[#0d3542] dark:accent-[#58a6ff] cursor-pointer"
-                                checked={alterings.length > 0 && selectedItems.length === alterings.length}
-                                onChange={onSelectAll}
-                            />
-                        </th>
-                        {['Client', 'Ref & Mobile', 'Status', 'Adj. Cost', 'Garment Info', 'Scheduled', 'Actions'].map((h, i) => (
-                            <th key={i} className={`px-6 py-5 text-xs font-bold uppercase tracking-[0.2em] text-gray-500 dark:text-[#8b949e]/40 whitespace-nowrap ${i === 3 || i === 6 ? 'text-right' : ''}`}>
-                                {h}
-                            </th>
-                        ))}
-                    </tr>
-                </thead>
-                
-                <tbody className="divide-y divide-black/5 dark:divide-[#30363d]">
-                    {alterings.length === 0 ? (
-                        <tr>
-                            <td colSpan="8" className="py-20 text-center opacity-30 italic font-medium uppercase tracking-widest text-sm">
-                                No active records
-                            </td>
-                        </tr>
-                    ) : (
-                        alterings.map((altering) => (
-                            <AlteringRow
-                                key={altering.id}
-                                altering={altering}
-                                statusConfig={statusConfig}
-                                isSelected={selectedItems.includes(altering.id)}
-                                onSelect={onItemSelect}
-                                onDetailOpen={onDetailOpen}
-                                shouldAnimate={shouldAnimate}
-                                rowVariants={rowVariants}
-                            />
-                        ))
-                    )}
-                </tbody>
-            </table>
-        </div>
+        <motion.div
+            initial={{ opacity: 0, y: 4 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="bg-white dark:bg-[#161b22] border border-black/[0.06] dark:border-[#30363d] rounded-xl p-4 hover:border-[#0d3542]/15 dark:hover:border-[#58a6ff]/15 transition-all cursor-pointer"
+            onClick={() => onDetailOpen(altering)}
+        >
+            <div className="flex items-start justify-between mb-3">
+                <div className="min-w-0 flex-1">
+                    <h3 className="text-[13px] font-bold text-gray-900 dark:text-[#c9d1d9] truncate">
+                        {altering.customer_name}
+                    </h3>
+                    <span className="text-[10px] text-gray-400 dark:text-[#8b949e]/50 font-mono">
+                        #{altering.order_no || 'MNL'}
+                    </span>
+                </div>
+                <StatusBadge status={altering.status} />
+            </div>
+            <div className="grid grid-cols-2 gap-2 mb-3 text-[10px]">
+                <div>
+                    <span className="text-gray-400 dark:text-[#8b949e]/40 uppercase tracking-widest block">Cost</span>
+                    <span className="font-bold text-[#0d3542] dark:text-[#58a6ff]">${parseFloat(altering.altering_cost || 0).toFixed(2)}</span>
+                </div>
+                <div className="text-right">
+                    <span className="text-gray-400 dark:text-[#8b949e]/40 uppercase tracking-widest block">Ready</span>
+                    <span className="font-bold text-gray-600 dark:text-[#8b949e]">
+                        {formatDate(altering.ready_at, { fallback: 'TBD', month: 'short' })}
+                    </span>
+                </div>
+            </div>
+            {altering.product && (
+                <p className="text-[10px] text-gray-500 dark:text-[#8b949e]/50 italic truncate">{altering.product}</p>
+            )}
+        </motion.div>
     );
 });
 
+/* ------------------------------------------------------------------ */
+/*  Altering Table (desktop)                                           */
+/* ------------------------------------------------------------------ */
+const AlteringTable = React.memo(({ alterings, onDetailOpen }) => (
+    <div className="overflow-x-auto">
+        <table className="w-full text-left border-collapse">
+            <thead>
+                <tr className="bg-black/[0.015] dark:bg-white/[0.01] border-b border-black/[0.05] dark:border-[#30363d]">
+                    {['Client', 'Reference', 'Status', 'Cost', 'Garment', 'Scheduled', ''].map((h, i) => (
+                        <th
+                            key={h}
+                            className={`px-4 py-3 text-[9px] font-bold uppercase tracking-[0.15em] text-gray-400 dark:text-[#8b949e]/40 whitespace-nowrap ${
+                                i === 3 ? 'text-right' : ''
+                            } ${i === 1 ? 'hidden sm:table-cell' : ''} ${i === 4 ? 'hidden lg:table-cell' : ''} ${i === 5 ? 'hidden md:table-cell' : ''}`}
+                        >
+                            {h}
+                        </th>
+                    ))}
+                </tr>
+            </thead>
+            <tbody className="divide-y divide-black/[0.04] dark:divide-[#30363d]">
+                {alterings.map(altering => (
+                    <AlteringRow key={altering.id} altering={altering} onDetailOpen={onDetailOpen} />
+                ))}
+            </tbody>
+        </table>
+    </div>
+));
+
+/* ------------------------------------------------------------------ */
+/*  Input Field                                                         */
+/* ------------------------------------------------------------------ */
+const InputField = React.memo(({ label, icon, className = '', ...props }) => (
+    <div className="flex flex-col gap-1.5">
+        <label className="text-[9px] font-bold text-gray-400 dark:text-[#8b949e]/50 uppercase tracking-widest flex items-center gap-1.5">
+            {icon && <span className="opacity-40">{icon}</span>}
+            {label}
+        </label>
+        <input
+            {...props}
+            className={`h-10 px-3 bg-black/[0.02] dark:bg-white/[0.02] text-[12px] font-medium text-gray-900 dark:text-[#c9d1d9] border border-black/[0.06] dark:border-white/[0.06] rounded-lg outline-none focus:border-[#0d3542]/40 dark:focus:border-[#58a6ff]/40 transition-colors placeholder:text-gray-300 dark:placeholder:text-[#8b949e]/20 ${className}`}
+        />
+    </div>
+));
+
+/* ------------------------------------------------------------------ */
+/*  Main Component                                                      */
+/* ------------------------------------------------------------------ */
 export default function AlteringManager() {
     const queryClient = useQueryClient();
-    const [mounted, setMounted] = useState(false);
 
-    // API State
     const [page, setPage] = useState(1);
     const [statusFilter, setStatusFilter] = useState('');
     const [searchQuery, setSearchQuery] = useState('');
-
-    // UI State
-    const [selectedItems, setSelectedItems] = useState([]);
     const [sortField, setSortField] = useState(null);
     const [sortOrder, setSortOrder] = useState('asc');
-    const [showSortMenu, setShowSortMenu] = useState(false);
     const [showFilterMenu, setShowFilterMenu] = useState(false);
+    const [showSortMenu, setShowSortMenu] = useState(false);
     const [showExportMenu, setShowExportMenu] = useState(false);
 
-    // Modals
     const [selectedDetail, setSelectedDetail] = useState(null);
     const [isAdding, setIsAdding] = useState(false);
     const [showSyncModal, setShowSyncModal] = useState(false);
     const [syncUrl, setSyncUrl] = useState('');
     const [isSyncing, setIsSyncing] = useState(false);
-    const [wizardStep, setWizardStep] = useState(1);
     const [isNotifying, setIsNotifying] = useState(null);
     const [formData, setFormData] = useState({
-        customer_name: '',
-        order_no: '',
-        mobile: '',
-        product: '',
-        remark: '',
-        altering_cost: '',
-        ready_at: '',
-        start_date: new Date().toISOString().split('T')[0],
+        customer_name: '', order_no: '', mobile: '', product: '',
+        remark: '', altering_cost: '', ready_at: '', start_date: new Date().toISOString().split('T')[0],
     });
 
-    const shouldReduceMotion = useReducedMotion();
-
-    // Data Fetching
+    /* ---- Data ---- */
     const { data: alteringsData, isLoading } = useQuery({
         queryKey: ['admin-alterings', page, statusFilter, searchQuery],
         queryFn: async () => {
             const { data } = await axios.get('/api/v1/admin/alterings', {
                 params: {
                     page,
-                    status: statusFilter
-                        ? statusFilter.toLowerCase().replace(' ', '_')
-                        : 'all',
+                    status: statusFilter ? statusFilter.toLowerCase().replace(' ', '_') : 'all',
                     search: searchQuery,
                 },
             });
@@ -292,12 +250,10 @@ export default function AlteringManager() {
         total: alteringsData?.total || 0,
     };
 
-    // Mutations
+    /* ---- Mutations ---- */
     const updateMutation = useMutation({
-        mutationFn: async ({ id, data }) =>
-            axios.put(`/api/v1/admin/alterings/${id}`, data),
-        onSuccess: () =>
-            queryClient.invalidateQueries({ queryKey: ['admin-alterings'] }),
+        mutationFn: async ({ id, data }) => axios.put(`/api/v1/admin/alterings/${id}`, data),
+        onSuccess: () => queryClient.invalidateQueries({ queryKey: ['admin-alterings'] }),
     });
 
     const deleteMutation = useMutation({
@@ -310,10 +266,7 @@ export default function AlteringManager() {
 
     const bulkDeleteMutation = useMutation({
         mutationFn: async (ids) => axios.post('/api/v1/admin/alterings/bulk-delete', { ids }),
-        onSuccess: () => {
-            queryClient.invalidateQueries({ queryKey: ['admin-alterings'] });
-            setSelectedItems([]);
-        },
+        onSuccess: () => queryClient.invalidateQueries({ queryKey: ['admin-alterings'] }),
     });
 
     const createMutation = useMutation({
@@ -321,151 +274,24 @@ export default function AlteringManager() {
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ['admin-alterings'] });
             setIsAdding(false);
-            setTimeout(() => setWizardStep(1), 300); // reset after exit anim
-            setFormData({
-                customer_name: '',
-                order_no: '',
-                mobile: '',
-                product: '',
-                remark: '',
-                altering_cost: '',
-                ready_at: '',
-                start_date: new Date().toISOString().split('T')[0],
-            });
+            setFormData({ customer_name: '', order_no: '', mobile: '', product: '', remark: '', altering_cost: '', ready_at: '', start_date: new Date().toISOString().split('T')[0] });
         },
     });
 
-    const handleNotify = async (id) => {
-        setIsNotifying(id);
-        try {
-            await axios.post(`/api/v1/admin/alterings/${id}/notify`);
-            queryClient.invalidateQueries({ queryKey: ['admin-alterings'] });
-        } catch (err) {
-            console.error(err);
-        } finally {
-            setIsNotifying(null);
-        }
-    };
-
-    useEffect(() => {
-        setMounted(true);
-    }, []);
-
-    // 📊 Business Logic (Memoized)
-    const sortedAlterings = useMemo(() => {
-        let sorted = [...alterings];
-        if (!sortField) return sorted;
-
-        return sorted.sort((a, b) => {
-            let aVal = a[sortField] || '';
-            let bVal = b[sortField] || '';
-
-            if (sortField === 'altering_cost') {
-                aVal = parseFloat(aVal) || 0;
-                bVal = parseFloat(bVal) || 0;
-            }
-
-            if (aVal < bVal) return sortOrder === 'asc' ? -1 : 1;
-            if (aVal > bVal) return sortOrder === 'asc' ? 1 : -1;
-            return 0;
-        });
-    }, [alterings, sortField, sortOrder]);
-
-    const exportToCSV = useCallback(() => {
-        const headers = ['Customer', 'Order No', 'Mobile', 'Product', 'Status', 'Cost', 'Ready At'];
-        const rows = sortedAlterings.map((alt) => [
-            alt.customer_name,
-            alt.order_no || '',
-            alt.mobile || '',
-            alt.product || '',
-            alt.status,
-            alt.altering_cost || '0',
-            alt.ready_at || '',
-        ]);
-        const csvContent = [
-            headers.join(','),
-            ...rows.map((row) => row.map((cell) => `"${String(cell).replace(/"/g, '""')}"`).join(',')),
-        ].join('\n');
-        const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-        const link = document.createElement('a');
-        link.href = URL.createObjectURL(blob);
-        link.download = `alterings-${new Date().toISOString().split('T')[0]}.csv`;
-        link.click();
-    }, [sortedAlterings]);
-
-    const exportToJSON = useCallback(() => {
-        const jsonContent = JSON.stringify(sortedAlterings, null, 2);
-        const blob = new Blob([jsonContent], { type: 'application/json;charset=utf-8;' });
-        const link = document.createElement('a');
-        link.href = URL.createObjectURL(blob);
-        link.download = `alterings-${new Date().toISOString().split('T')[0]}.json`;
-        link.click();
-    }, [sortedAlterings]);
-
-    const shouldAnimate = !shouldReduceMotion;
-
-    const rowVariants = {
-        hidden: { opacity: 0, y: 30, filter: 'blur(10px)' },
-        visible: {
-            opacity: 1,
-            y: 0,
-            filter: 'blur(0px)',
-            transition: { duration: 0.6, ease: [0.16, 1, 0.3, 1] },
-        },
-        exit: {
-            opacity: 0,
-            y: -20,
-            filter: 'blur(4px)',
-            transition: { duration: 0.3 },
-        },
-    };
-
-    // 🖱️ Event Handlers (Memoized)
+    /* ---- Handlers ---- */
     const handleSort = useCallback((field) => {
-        setSortField((prev) => {
-            if (prev === field) {
-                setSortOrder((p) => (p === 'asc' ? 'desc' : 'asc'));
-                return prev;
-            }
-            setSortOrder('asc');
-            return field;
+        setSortField(prev => {
+            if (prev === field) setSortOrder(p => (p === 'asc' ? 'desc' : 'asc'));
+            else setSortOrder('asc');
+            return prev === field ? field : field;
         });
         setShowSortMenu(false);
     }, []);
 
-    const handleSelectAll = useCallback(() => {
-        setSelectedItems((prev) => 
-            prev.length === sortedAlterings.length ? [] : sortedAlterings.map((a) => a.id)
-        );
-    }, [sortedAlterings]);
+    const handleDetailOpen = useCallback((altering) => setSelectedDetail(altering), []);
 
-    const handleItemSelect = useCallback((id) => {
-        setSelectedItems((prev) =>
-            prev.includes(id) ? prev.filter((i) => i !== id) : [...prev, id]
-        );
-    }, []);
-
-    const handleSync = useCallback(async () => {
-        if (!syncUrl || !window.hika) return;
-        setIsSyncing(true);
-        try {
-            await window.hika.import('altering', syncUrl);
-            queryClient.invalidateQueries(['admin-alterings']);
-            setShowSyncModal(false);
-            setSyncUrl('');
-        } catch (err) {
-            console.error(err);
-        } finally {
-            setIsSyncing(false);
-        }
-    }, [syncUrl, queryClient]);
-
-    const handleDetailOpen = useCallback((altering) => {
-        setSelectedDetail(altering);
-    }, []);
-
-    const handlePageChange = useCallback((newPage) => {
-        setPage(newPage);
+    const handlePageChange = useCallback((p) => {
+        setPage(p);
         window.scrollTo({ top: 0, behavior: 'smooth' });
     }, []);
 
@@ -480,121 +306,141 @@ export default function AlteringManager() {
         setPage(1);
     }, []);
 
+    const handleNotify = useCallback(async (id) => {
+        setIsNotifying(id);
+        try {
+            await axios.post(`/api/v1/admin/alterings/${id}/notify`);
+            queryClient.invalidateQueries({ queryKey: ['admin-alterings'] });
+        } catch { /* ignore */ }
+        finally { setIsNotifying(null); }
+    }, [queryClient]);
+
+    const handleSync = useCallback(async () => {
+        if (!syncUrl || !window.hika) return;
+        setIsSyncing(true);
+        try {
+            await window.hika.import('altering', syncUrl);
+            queryClient.invalidateQueries({ queryKey: ['admin-alterings'] });
+            setShowSyncModal(false);
+            setSyncUrl('');
+        } catch { /* ignore */ }
+        finally { setIsSyncing(false); }
+    }, [syncUrl, queryClient]);
+
+    /* ---- Sorting ---- */
+    const sortedAlterings = useMemo(() => {
+        if (!sortField) return alterings;
+        return [...alterings].sort((a, b) => {
+            let aVal = a[sortField] || '';
+            let bVal = b[sortField] || '';
+            if (sortField === 'altering_cost') { aVal = parseFloat(aVal) || 0; bVal = parseFloat(bVal) || 0; }
+            if (aVal < bVal) return sortOrder === 'asc' ? -1 : 1;
+            if (aVal > bVal) return sortOrder === 'asc' ? 1 : -1;
+            return 0;
+        });
+    }, [alterings, sortField, sortOrder]);
+
+    /* ---- Export ---- */
+    const exportToCSV = useCallback(() => {
+        const headers = ['Customer', 'Order No', 'Mobile', 'Product', 'Status', 'Cost', 'Ready At'];
+        const rows = sortedAlterings.map(a => [a.customer_name, a.order_no || '', a.mobile || '', a.product || '', a.status, a.altering_cost || '0', a.ready_at || '']);
+        const csv = [headers.join(','), ...rows.map(r => r.map(c => `"${String(c).replace(/"/g, '""')}"`).join(','))].join('\n');
+        const link = document.createElement('a');
+        link.href = URL.createObjectURL(new Blob([csv], { type: 'text/csv;charset=utf-8;' }));
+        link.download = `alterings-${new Date().toISOString().split('T')[0]}.csv`;
+        link.click();
+    }, [sortedAlterings]);
+
+    const exportToJSON = useCallback(() => {
+        const link = document.createElement('a');
+        link.href = URL.createObjectURL(new Blob([JSON.stringify(sortedAlterings, null, 2)], { type: 'application/json' }));
+        link.download = `alterings-${new Date().toISOString().split('T')[0]}.json`;
+        link.click();
+    }, [sortedAlterings]);
+
     return (
-        <div className="p-8 space-y-8 font-sans">
-            {/* Header Section */}
-            <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
+        <div className="space-y-5 pb-16 max-w-[1100px] mx-auto px-4 sm:px-6 mt-4">
+            {/* ---- Header ---- */}
+            <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
                 <div>
-                    <h1 className="text-2xl font-serif text-gray-900 dark:text-[#c9d1d9] uppercase tracking-[0.2em] flex items-center gap-3">
-                        <Scissors className="w-5 h-5 text-gray-400 dark:text-[#8b949e]" />
+                    <h1 className="text-2xl sm:text-3xl font-serif text-gray-900 dark:text-[#c9d1d9] tracking-tight">
                         Altering Logs
                     </h1>
-                    <p className="text-sm text-gray-500 dark:text-[#8b949e]/60 mt-1 uppercase tracking-widest">
-                        Tailor Queue Management
+                    <p className="text-[10px] text-gray-400 dark:text-[#8b949e]/50 font-bold uppercase tracking-[0.3em] mt-1">
+                        {pagination.total} total records
                     </p>
                 </div>
-
-                <div className="flex items-center gap-3 flex-wrap">
-                    <Button
+                <div className="flex items-center gap-2">
+                    <button
                         onClick={() => setShowSyncModal(true)}
-                        className="bg-white dark:bg-[#0d1117] text-gray-600 dark:text-[#c9d1d9] hover:bg-black/5 dark:hover:bg-[#161b22] transition-colors py-2 px-4 rounded-lg font-bold uppercase tracking-widest text-xs border border-black/5 dark:border-[#30363d] shadow-none"
+                        className="h-9 px-4 bg-white dark:bg-[#161b22] border border-black/[0.06] dark:border-[#30363d] rounded-lg text-[10px] font-bold uppercase tracking-widest text-gray-600 dark:text-[#c9d1d9] hover:bg-black/[0.03] dark:hover:bg-white/[0.03] transition-all flex items-center gap-2"
                     >
-                        <RefreshCw className={`w-3.5 h-3.5 mr-2 ${isSyncing ? 'animate-spin' : ''}`} />
-                        Sync Sheet
-                    </Button>
-
-                    <Button
+                        <RefreshCw size={13} className={isSyncing ? 'animate-spin' : ''} />
+                        <span className="hidden sm:inline">Sync</span>
+                    </button>
+                    <button
                         onClick={() => setIsAdding(true)}
-                        className="bg-[#0d3542] dark:bg-[#58a6ff]/10 text-white dark:text-[#58a6ff] dark:border dark:border-[#58a6ff]/30 hover:opacity-90 dark:hover:bg-[#58a6ff]/20 transition-colors py-2 px-4 rounded-lg font-bold uppercase tracking-widest text-xs shadow-none"
+                        className="h-9 px-4 bg-[#0d3542] dark:bg-[#58a6ff] text-white dark:text-black rounded-lg text-[10px] font-bold uppercase tracking-widest hover:opacity-90 active:scale-[0.97] transition-all flex items-center gap-2"
                     >
-                        <Plus className="w-3.5 h-3.5 mr-2" /> Add Record
-                    </Button>
+                        <Plus size={14} />
+                        <span className="hidden sm:inline">Add</span>
+                    </button>
                 </div>
             </div>
 
-            {/* Filter Bar */}
-            <div className="flex flex-col lg:flex-row gap-4 items-center bg-white dark:bg-[#161b22] p-4 rounded-xl border border-black/5 dark:border-[#30363d] shadow-none">
-                <div className="flex items-center gap-4 flex-1 flex-wrap lg:flex-nowrap w-full">
-                    <div className="relative flex-1 group min-w-[200px]">
-                        <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-[#0d3542] dark:group-focus-within:text-[#58a6ff] transition-colors" size={18} />
+            {/* ---- Filter Bar ---- */}
+            <div className="bg-white dark:bg-[#161b22] border border-black/[0.06] dark:border-[#30363d] rounded-xl p-3">
+                <div className="flex flex-col sm:flex-row gap-3">
+                    {/* Search */}
+                    <div className="relative flex-1">
+                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={15} />
                         <input
                             type="text"
-                            placeholder="Search records..."
+                            placeholder="Search by name, order, mobile..."
                             value={searchQuery}
-                            onChange={(e) => {
-                                setSearchQuery(e.target.value);
-                                setPage(1);
-                            }}
-                            className="w-full bg-black/[0.02] dark:bg-[#0d1117] border border-black/5 dark:border-[#30363d] rounded-lg py-3 pl-12 pr-8 text-sm font-bold uppercase tracking-widest outline-none focus:border-[#0d3542]/50 dark:focus:border-[#58a6ff]/50 transition-all placeholder:text-gray-400 dark:placeholder:text-[#8b949e]/20"
+                            onChange={handleSearchChange}
+                            className="w-full h-10 bg-black/[0.02] dark:bg-white/[0.02] border border-black/[0.06] dark:border-white/[0.06] rounded-lg pl-9 pr-8 text-[12px] font-medium text-gray-900 dark:text-[#c9d1d9] outline-none focus:border-[#0d3542]/40 dark:focus:border-[#58a6ff]/40 transition-colors placeholder:text-gray-300 dark:placeholder:text-[#8b949e]/20"
                         />
                         {searchQuery && (
                             <button
-                                onClick={() => {
-                                    setSearchQuery('');
-                                    setPage(1);
-                                }}
-                                className="absolute right-3 top-1/2 -translate-y-1/2 p-0.5 hover:bg-black/5 dark:hover:bg-[#30363d] rounded text-gray-400 dark:text-[#8b949e] hover:text-[#0d3542] dark:hover:text-[#58a6ff] transition-all"
-                                title="Clear search"
+                                onClick={handleReset}
+                                className="absolute right-2.5 top-1/2 -translate-y-1/2 p-0.5 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
                             >
-                                <X size={14} />
+                                <X size={13} />
                             </button>
                         )}
                     </div>
 
-                    {(searchQuery || statusFilter) && (
-                        <button
-                            onClick={() => {
-                                setSearchQuery('');
-                                setStatusFilter('');
-                                setPage(1);
-                            }}
-                            className="text-xs font-bold underline uppercase tracking-widest text-[#0d3542] dark:text-[#58a6ff] hover:opacity-70 transition-colors px-2 whitespace-nowrap"
-                        >
-                            Reset Focus
-                        </button>
-                    )}
-
+                    {/* Filter */}
                     <div className="relative">
                         <button
                             onClick={() => setShowFilterMenu(!showFilterMenu)}
-                            className={`px-4 py-3 bg-white dark:bg-[#0d1117] border border-black/5 dark:border-[#30363d] text-gray-600 dark:text-[#c9d1d9] hover:bg-black/5 dark:hover:bg-[#161b22] transition-colors flex items-center gap-2 rounded-lg font-bold tracking-widest uppercase text-xs whitespace-nowrap ${statusFilter ? 'ring-1 ring-[#0d3542]/50 dark:ring-[#58a6ff]/50' : ''}`}
+                            className={`h-10 px-3 border rounded-lg text-[10px] font-bold uppercase tracking-widest flex items-center gap-2 transition-all ${
+                                statusFilter
+                                    ? 'border-[#0d3542]/30 dark:border-[#58a6ff]/30 text-[#0d3542] dark:text-[#58a6ff] bg-[#0d3542]/5 dark:bg-[#58a6ff]/5'
+                                    : 'border-black/[0.06] dark:border-white/[0.06] text-gray-600 dark:text-[#c9d1d9] hover:bg-black/[0.03] dark:hover:bg-white/[0.03]'
+                            }`}
                         >
-                            <svg width="12" height="12" viewBox="0 0 16 16" fill="none">
-                                <path d="M2 3H14M4 8H12M6 13H10" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
-                            </svg>
-                            Filter Stage
-                            {statusFilter && (
-                                <span className="ml-1 text-[10px] bg-[#0d3542] dark:bg-[#58a6ff] text-white dark:text-[#0d1117] font-black rounded px-1.5 py-0.5 leading-none">
-                                    1
-                                </span>
-                            )}
+                            <Filter size={12} />
+                            {statusFilter || 'All'}
                         </button>
                         {showFilterMenu && (
                             <>
                                 <div className="fixed inset-0 z-10" onClick={() => setShowFilterMenu(false)} />
-                                <div className="absolute right-0 mt-2 w-48 bg-white dark:bg-[#161b22] border border-black/5 dark:border-[#30363d] rounded-xl z-20 py-2 shadow-xl">
+                                <div className="absolute right-0 mt-1.5 w-40 bg-white dark:bg-[#161b22] border border-black/[0.06] dark:border-[#30363d] rounded-lg z-20 py-1 shadow-lg">
                                     <button
-                                        onClick={() => {
-                                            setStatusFilter('');
-                                            setShowFilterMenu(false);
-                                            setPage(1);
-                                        }}
-                                        className={`w-full px-4 py-2.5 text-left text-xs font-bold uppercase tracking-widest text-gray-900 dark:text-[#c9d1d9] hover:bg-black/5 dark:hover:bg-[#30363d] transition-colors ${!statusFilter ? 'bg-black/5 dark:bg-[#30363d]/50' : ''}`}
+                                        onClick={() => { setStatusFilter(''); setShowFilterMenu(false); setPage(1); }}
+                                        className={`w-full px-3 py-2 text-left text-[10px] font-bold uppercase tracking-widest transition-colors ${!statusFilter ? 'text-[#0d3542] dark:text-[#58a6ff] bg-black/[0.03] dark:bg-white/[0.03]' : 'text-gray-500 dark:text-[#8b949e] hover:bg-black/[0.03] dark:hover:bg-white/[0.03]'}`}
                                     >
                                         All Records
                                     </button>
-                                    <div className="h-px bg-black/5 dark:bg-[#30363d] my-1" />
-                                    {['Pending', 'In Progress', 'Ready', 'Completed'].map((status) => (
+                                    {STATUS_ORDER.map(key => (
                                         <button
-                                            key={status}
-                                            onClick={() => {
-                                                setStatusFilter(status);
-                                                setShowFilterMenu(false);
-                                                setPage(1);
-                                            }}
-                                            className={`w-full px-4 py-2.5 text-left text-xs font-bold uppercase tracking-widest text-gray-500 dark:text-[#8b949e] hover:text-gray-900 dark:hover:text-[#c9d1d9] hover:bg-black/5 dark:hover:bg-[#30363d] transition-colors ${statusFilter === status ? 'bg-black/5 dark:bg-[#30363d]/50 text-gray-900 dark:text-[#c9d1d9]' : ''}`}
+                                            key={key}
+                                            onClick={() => { setStatusFilter(STATUS_CONFIG[key].label); setShowFilterMenu(false); setPage(1); }}
+                                            className={`w-full px-3 py-2 text-left text-[10px] font-bold uppercase tracking-widest transition-colors ${statusFilter === STATUS_CONFIG[key].label ? 'text-[#0d3542] dark:text-[#58a6ff] bg-black/[0.03] dark:bg-white/[0.03]' : 'text-gray-500 dark:text-[#8b949e] hover:bg-black/[0.03] dark:hover:bg-white/[0.03]'}`}
                                         >
-                                            {status}
+                                            {STATUS_CONFIG[key].label}
                                         </button>
                                     ))}
                                 </div>
@@ -602,261 +448,172 @@ export default function AlteringManager() {
                         )}
                     </div>
 
+                    {/* Sort */}
                     <div className="relative">
                         <button
                             onClick={() => setShowSortMenu(!showSortMenu)}
-                            className="px-4 py-3 bg-white dark:bg-[#0d1117] border border-black/5 dark:border-[#30363d] text-gray-600 dark:text-[#c9d1d9] hover:bg-black/5 dark:hover:bg-[#161b22] transition-colors flex items-center gap-2 rounded-lg font-bold tracking-widest uppercase text-xs whitespace-nowrap"
+                            className="h-10 px-3 border border-black/[0.06] dark:border-white/[0.06] rounded-lg text-[10px] font-bold uppercase tracking-widest text-gray-600 dark:text-[#c9d1d9] hover:bg-black/[0.03] dark:hover:bg-white/[0.03] flex items-center gap-2 transition-all"
                         >
-                            <svg width="12" height="12" viewBox="0 0 16 16" fill="none">
-                                <path d="M3 6L6 3L9 6M6 3V13M13 10L10 13L7 10M10 13V3" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-                            </svg>
+                            <ArrowUpDown size={12} />
                             Sort
-                            <ChevronDown size={14} className="opacity-50" />
                         </button>
                         {showSortMenu && (
                             <>
                                 <div className="fixed inset-0 z-10" onClick={() => setShowSortMenu(false)} />
-                                <div className="absolute right-0 mt-2 w-48 bg-white dark:bg-[#161b22] border border-black/5 dark:border-[#30363d] rounded-xl z-20 py-2 shadow-xl">
-                                    <button
-                                        onClick={() => handleSort('customer_name')}
-                                        className={`w-full px-4 py-2.5 text-left text-xs font-bold uppercase tracking-widest hover:bg-black/5 dark:hover:bg-[#30363d] text-gray-500 dark:text-[#8b949e] hover:text-gray-900 dark:hover:text-[#c9d1d9] ${sortField === 'customer_name' ? 'bg-black/5 dark:bg-[#30363d]/50 text-gray-900 dark:text-[#c9d1d9]' : ''}`}
-                                    >
-                                        Name {sortField === 'customer_name' && (sortOrder === 'asc' ? 'A-Z' : 'Z-A')}
-                                    </button>
-                                    <button
-                                        onClick={() => handleSort('altering_cost')}
-                                        className={`w-full px-4 py-2.5 text-left text-xs font-bold uppercase tracking-widest hover:bg-black/5 dark:hover:bg-[#30363d] text-gray-500 dark:text-[#8b949e] hover:text-gray-900 dark:hover:text-[#c9d1d9] ${sortField === 'altering_cost' ? 'bg-black/5 dark:bg-[#30363d]/50 text-gray-900 dark:text-[#c9d1d9]' : ''}`}
-                                    >
-                                        Cost {sortField === 'altering_cost' && (sortOrder === 'asc' ? 'Low-High' : 'High-Low')}
-                                    </button>
-                                    <button
-                                        onClick={() => handleSort('ready_at')}
-                                        className={`w-full px-4 py-2.5 text-left text-xs font-bold uppercase tracking-widest hover:bg-black/5 dark:hover:bg-[#30363d] text-gray-500 dark:text-[#8b949e] hover:text-gray-900 dark:hover:text-[#c9d1d9] ${sortField === 'ready_at' ? 'bg-black/5 dark:bg-[#30363d]/50 text-gray-900 dark:text-[#c9d1d9]' : ''}`}
-                                    >
-                                        Ready {sortField === 'ready_at' && (sortOrder === 'asc' ? 'Old-New' : 'New-Old')}
-                                    </button>
+                                <div className="absolute right-0 mt-1.5 w-40 bg-white dark:bg-[#161b22] border border-black/[0.06] dark:border-[#30363d] rounded-lg z-20 py-1 shadow-lg">
+                                    {[
+                                        { field: 'customer_name', label: 'Name' },
+                                        { field: 'altering_cost', label: 'Cost' },
+                                        { field: 'ready_at', label: 'Ready Date' },
+                                    ].map(({ field, label }) => (
+                                        <button
+                                            key={field}
+                                            onClick={() => handleSort(field)}
+                                            className={`w-full px-3 py-2 text-left text-[10px] font-bold uppercase tracking-widest transition-colors ${sortField === field ? 'text-[#0d3542] dark:text-[#58a6ff] bg-black/[0.03] dark:bg-white/[0.03]' : 'text-gray-500 dark:text-[#8b949e] hover:bg-black/[0.03] dark:hover:bg-white/[0.03]'}`}
+                                        >
+                                            {label} {sortField === field && (sortOrder === 'asc' ? '↑' : '↓')}
+                                        </button>
+                                    ))}
                                 </div>
                             </>
                         )}
                     </div>
 
+                    {/* Export */}
                     <div className="relative">
                         <button
                             onClick={() => setShowExportMenu(!showExportMenu)}
-                            className="px-4 py-3 bg-white dark:bg-[#0d1117] border border-black/5 dark:border-[#30363d] text-gray-600 dark:text-[#c9d1d9] hover:bg-black/5 dark:hover:bg-[#161b22] transition-colors flex items-center gap-2 rounded-lg font-bold tracking-widest uppercase text-xs whitespace-nowrap"
+                            className="h-10 w-10 border border-black/[0.06] dark:border-white/[0.06] rounded-lg text-gray-600 dark:text-[#c9d1d9] hover:bg-black/[0.03] dark:hover:bg-white/[0.03] flex items-center justify-center transition-all"
                         >
-                            <Download size={14} /> Export <ChevronDown size={14} className="opacity-50" />
+                            <Download size={14} />
                         </button>
                         {showExportMenu && (
                             <>
                                 <div className="fixed inset-0 z-10" onClick={() => setShowExportMenu(false)} />
-                                <div className="absolute right-0 mt-2 w-32 bg-white dark:bg-[#161b22] border border-black/5 dark:border-[#30363d] rounded-xl z-20 py-2 shadow-xl">
-                                    <button
-                                        onClick={() => { exportToCSV(); setShowExportMenu(false); }}
-                                        className="w-full px-4 py-2.5 text-left text-xs font-bold uppercase tracking-widest hover:bg-black/5 dark:hover:bg-[#30363d] text-gray-500 dark:text-[#8b949e] hover:text-gray-900 dark:hover:text-[#c9d1d9]"
-                                    >
-                                        CSV
-                                    </button>
-                                    <button
-                                        onClick={() => { exportToJSON(); setShowExportMenu(false); }}
-                                        className="w-full px-4 py-2.5 text-left text-xs font-bold uppercase tracking-widest hover:bg-black/5 dark:hover:bg-[#30363d] text-gray-500 dark:text-[#8b949e] hover:text-gray-900 dark:hover:text-[#c9d1d9]"
-                                    >
-                                        JSON
-                                    </button>
+                                <div className="absolute right-0 mt-1.5 w-28 bg-white dark:bg-[#161b22] border border-black/[0.06] dark:border-[#30363d] rounded-lg z-20 py-1 shadow-lg">
+                                    <button onClick={() => { exportToCSV(); setShowExportMenu(false); }} className="w-full px-3 py-2 text-left text-[10px] font-bold uppercase tracking-widest text-gray-500 dark:text-[#8b949e] hover:bg-black/[0.03] dark:hover:bg-white/[0.03]">CSV</button>
+                                    <button onClick={() => { exportToJSON(); setShowExportMenu(false); }} className="w-full px-3 py-2 text-left text-[10px] font-bold uppercase tracking-widest text-gray-500 dark:text-[#8b949e] hover:bg-black/[0.03] dark:hover:bg-white/[0.03]">JSON</button>
                                 </div>
                             </>
                         )}
                     </div>
-
-                    {selectedItems.length > 0 && (
-                        <div className="flex items-center gap-2">
-                            <button
-                                onClick={() => setSelectedItems([])}
-                                className="bg-white dark:bg-[#0d1117] hover:bg-black/5 dark:hover:bg-[#161b22] text-gray-500 dark:text-[#8b949e] transition-all px-4 py-3 rounded-lg font-bold uppercase tracking-widest text-xs border border-black/5 dark:border-[#30363d] flex items-center gap-2 whitespace-nowrap"
-                            >
-                                <X size={12} strokeWidth={3} />
-                                Clear {selectedItems.length}
-                            </button>
-                            <button
-                                onClick={() => {
-                                    if (window.confirm(`Are you sure you want to delete ${selectedItems.length} selected records?`)) {
-                                        bulkDeleteMutation.mutate(selectedItems);
-                                    }
-                                }}
-                                disabled={bulkDeleteMutation.isPending}
-                                className="bg-red-500/10 hover:bg-red-500 text-red-500 hover:text-white transition-all px-4 py-3 rounded-lg font-bold uppercase tracking-widest text-xs flex items-center gap-2 disabled:opacity-50 whitespace-nowrap"
-                            >
-                                {bulkDeleteMutation.isPending ? (
-                                    <Loader2 className="animate-spin" size={16} />
-                                ) : (
-                                    <svg width="10" height="10" viewBox="0 0 16 16" fill="none">
-                                        <path d="M3 4H13M5 4V3C5 2.44772 5.44772 2 6 2H10C10.5523 2 11 2.44772 11 3V4M6.5 7V11M9.5 7V11M4 4V13C4 13.5523 4.44772 14 5 14H11C11.5523 14 12 13.5523 12 13V4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-                                    </svg>
-                                )}
-                                Delete Selected
-                            </button>
-                        </div>
-                    )}
                 </div>
             </div>
 
-            {/* Table Area - Optimized for performance */}
-            <div className="bg-white dark:bg-[#161b22] border border-black/5 dark:border-[#30363d] rounded-xl overflow-hidden min-h-[400px] shadow-none">
-                <Suspense fallback={<LoadingState />}>
-                    {isLoading ? (
-                        <LoadingState />
-                    ) : (
-                        <div className="overflow-x-auto">
-                            <AlteringTable 
-                                alterings={sortedAlterings} 
-                                selectedItems={selectedItems}
-                                onItemSelect={handleItemSelect}
-                                onSelectAll={handleSelectAll}
-                                onDetailOpen={handleDetailOpen}
-                                shouldAnimate={shouldAnimate}
-                                rowVariants={rowVariants}
-                            />
+            {/* ---- Content ---- */}
+            {isLoading ? (
+                <LoadingState />
+            ) : sortedAlterings.length === 0 ? (
+                <EmptyState search={searchQuery} filter={statusFilter} />
+            ) : (
+                <>
+                    {/* Desktop: Table */}
+                    <div className="hidden md:block bg-white dark:bg-[#161b22] border border-black/[0.06] dark:border-[#30363d] rounded-xl overflow-hidden">
+                        <AlteringTable alterings={sortedAlterings} onDetailOpen={handleDetailOpen} />
+                    </div>
+
+                    {/* Mobile: Card grid */}
+                    <div className="md:hidden grid grid-cols-1 gap-3">
+                        <AnimatePresence>
+                            {sortedAlterings.map(altering => (
+                                <AlteringCard key={altering.id} altering={altering} onDetailOpen={handleDetailOpen} />
+                            ))}
+                        </AnimatePresence>
+                    </div>
+
+                    {/* Pagination */}
+                    {pagination.lastPage > 1 && (
+                        <div className="flex items-center justify-center gap-2 pt-2">
+                            <button
+                                onClick={() => handlePageChange(page - 1)}
+                                disabled={page === 1}
+                                className="h-8 w-8 rounded-lg border border-black/[0.06] dark:border-[#30363d] flex items-center justify-center text-gray-500 disabled:opacity-30 disabled:pointer-events-none hover:bg-black/[0.03] dark:hover:bg-white/[0.03] transition-all"
+                            >
+                                <ChevronLeft size={14} />
+                            </button>
+                            <span className="text-[10px] font-bold uppercase tracking-widest text-gray-500 dark:text-[#8b949e] min-w-[60px] text-center">
+                                {page} / {pagination.lastPage}
+                            </span>
+                            <button
+                                onClick={() => handlePageChange(page + 1)}
+                                disabled={page === pagination.lastPage}
+                                className="h-8 w-8 rounded-lg border border-black/[0.06] dark:border-[#30363d] flex items-center justify-center text-gray-500 disabled:opacity-30 disabled:pointer-events-none hover:bg-black/[0.03] dark:hover:bg-white/[0.03] transition-all"
+                            >
+                                <ChevronRight size={14} />
+                            </button>
                         </div>
                     )}
-                </Suspense>
-            </div>
+                </>
+            )}
 
-                {/* Pagination */}
-                {!isLoading && pagination.total > 0 && (
-                    <div className="flex items-center justify-center p-5 border-t border-black/5 dark:border-[#30363d] bg-black/[0.01] dark:bg-[#161b22]">
-                        <MorphingPageDots
-                            total={pagination.lastPage}
-                            activeIndex={pagination.currentPage - 1}
-                            onChange={(index) => handlePageChange(index + 1)}
-                        />
-                    </div>
-                )}
-
-            {/* Detail Modal Overlays */}
-            <ModernModal
-                isOpen={!!selectedDetail}
-                onClose={() => setSelectedDetail(null)}
-                title="Altering Details"
-            >
+            {/* ---- Detail Modal ---- */}
+            <ModernModal isOpen={!!selectedDetail} onClose={() => setSelectedDetail(null)} title="Altering Details">
                 {selectedDetail && (
-                    <div className="space-y-6 relative z-10 p-2">
+                    <div className="p-5 space-y-5">
                         {/* Header */}
-                        <div className="flex items-center gap-3 border-b border-black/5 dark:border-[#30363d] pb-4">
-                            <div className="w-10 h-10 rounded bg-black/5 dark:bg-[#161b22] border border-black/5 dark:border-[#30363d] flex items-center justify-center">
-                                <User className="w-5 h-5 text-gray-400 dark:text-[#8b949e]" />
+                        <div className="flex items-center gap-3 pb-4 border-b border-black/[0.05] dark:border-white/[0.05]">
+                            <div className="w-10 h-10 rounded-lg bg-black/[0.03] dark:bg-white/[0.03] flex items-center justify-center">
+                                <User size={18} className="text-gray-400" />
                             </div>
-                            <div>
-                                <h3 className="text-lg font-serif text-gray-900 dark:text-[#c9d1d9] tracking-tight leading-none mb-1.5">
+                            <div className="flex-1 min-w-0">
+                                <h3 className="text-base font-bold text-gray-900 dark:text-[#c9d1d9] truncate">
                                     {selectedDetail.customer_name}
                                 </h3>
-                                <div className="flex flex-wrap gap-2 text-[10px]">
-                                    {(() => {
-                                        const status = statusConfig[selectedDetail.status] || statusConfig.pending;
-                                        return (
-                                            <div className={`inline-flex items-center gap-1 px-1.5 py-0.5 text-[9px] font-black uppercase tracking-widest ${status.bgColor} ${status.textColor} border ${status.borderColor} rounded`}>
-                                                <status.icon className="w-2.5 h-2.5" />
-                                                {status.label}
-                                            </div>
-                                        );
-                                    })()}
+                                <div className="flex items-center gap-2 mt-0.5">
+                                    <StatusBadge status={selectedDetail.status} />
                                     {selectedDetail.order_no && (
-                                        <div className="inline-flex items-center px-1.5 py-0.5 text-[9px] font-mono uppercase tracking-widest bg-black/5 dark:bg-[#161b22] border border-black/5 dark:border-[#30363d] text-gray-500 dark:text-[#8b949e] rounded">
+                                        <span className="text-[9px] font-mono text-gray-400 dark:text-[#8b949e]">
                                             #{selectedDetail.order_no}
-                                        </div>
+                                        </span>
                                     )}
                                 </div>
                             </div>
                         </div>
 
-                        {/* Information Matrix */}
-                        <div className="grid gap-2">
-                            <div className="flex gap-3 items-start p-3 bg-black/[0.02] dark:bg-[#0d1117] border border-black/5 dark:border-[#30363d] rounded">
-                                <Smartphone size={14} className="text-gray-400 dark:text-[#8b949e] mt-0.5 shrink-0" />
-                                <div>
-                                    <p className="text-[9px] uppercase font-black tracking-widest text-gray-400 dark:text-[#8b949e] mb-0.5">Phone</p>
-                                    <p className="text-xs font-mono text-gray-600 dark:text-[#c9d1d9]">
-                                        {selectedDetail.mobile || 'Unknown'}
-                                    </p>
-                                </div>
-                            </div>
-                            <div className="flex gap-3 items-start p-3 bg-black/[0.02] dark:bg-[#0d1117] border border-black/5 dark:border-[#30363d] rounded">
-                                <Package size={14} className="text-gray-400 dark:text-[#8b949e] mt-0.5 shrink-0" />
-                                <div>
-                                    <p className="text-[9px] uppercase font-black tracking-widest text-gray-400 dark:text-[#8b949e] mb-0.5">Product</p>
-                                    <p className="text-xs text-gray-600 dark:text-[#c9d1d9] font-serif italic">
-                                        {selectedDetail.product || 'Unspecified Detail'}
-                                    </p>
-                                </div>
-                            </div>
-                            {selectedDetail.remark && (
-                                <div className="flex gap-3 items-start p-3 bg-black/[0.02] dark:bg-[#0d1117] border border-black/5 dark:border-[#30363d] rounded">
-                                    <Mail size={14} className="text-gray-400 dark:text-[#8b949e] mt-0.5 shrink-0" />
-                                    <div>
-                                        <p className="text-[9px] uppercase font-black tracking-widest text-gray-400 dark:text-[#8b949e] mb-0.5">Notes</p>
-                                        <p className="text-xs text-gray-600 dark:text-[#c9d1d9] leading-relaxed">
-                                            {selectedDetail.remark}
-                                        </p>
-                                    </div>
-                                </div>
-                            )}
-                            <div className="grid grid-cols-2 gap-2 mt-1">
-                                <div className="p-3 bg-black/[0.02] dark:bg-[#0d1117] border border-black/5 dark:border-[#30363d] rounded">
-                                    <p className="text-[9px] uppercase font-black tracking-widest text-gray-400 dark:text-[#8b949e] mb-1">Ready Date</p>
-                                    <p className="text-sm font-mono text-gray-600 dark:text-[#c9d1d9]">
-                                        {formatDate(selectedDetail.ready_at, { fallback: 'N/A', month: 'short' })}
-                                    </p>
-                                </div>
-                                <div className="p-3 bg-black/[0.02] dark:bg-[#0d1117] border border-black/5 dark:border-[#30363d] rounded">
-                                    <p className="text-[9px] uppercase font-black tracking-widest text-gray-400 dark:text-[#8b949e] mb-1">Cost</p>
-                                    <p className="text-sm font-mono text-[#0d3542] dark:text-[#58a6ff]">
-                                        ${selectedDetail.altering_cost || '0.00'}
-                                    </p>
-                                </div>
-                            </div>
+                        {/* Info grid */}
+                        <div className="grid grid-cols-2 gap-3">
+                            <InfoBlock icon={<Smartphone size={13} />} label="Phone" value={selectedDetail.mobile || '—'} />
+                            <InfoBlock icon={<DollarSign size={13} />} label="Cost" value={`$${selectedDetail.altering_cost || '0.00'}`} accent />
+                            <InfoBlock icon={<Package size={13} />} label="Product" value={selectedDetail.product || '—'} />
+                            <InfoBlock icon={<Clock size={13} />} label="Ready" value={formatDate(selectedDetail.ready_at, { fallback: 'TBD', month: 'short' })} />
                         </div>
 
+                        {selectedDetail.remark && (
+                            <div className="bg-black/[0.02] dark:bg-white/[0.02] rounded-lg p-3.5 border border-black/[0.04] dark:border-white/[0.04]">
+                                <span className="text-[9px] font-bold text-gray-400 uppercase tracking-widest block mb-1">Notes</span>
+                                <p className="text-[12px] text-gray-600 dark:text-[#8b949e] leading-relaxed">{selectedDetail.remark}</p>
+                            </div>
+                        )}
+
                         {/* Actions */}
-                        <div className="flex flex-col gap-2 pt-2 border-t border-black/5 dark:border-[#30363d]">
+                        <div className="flex flex-col gap-2 pt-4 border-t border-black/[0.05] dark:border-white/[0.05]">
                             <div className="flex gap-2">
                                 {selectedDetail.status !== 'completed' && (
                                     <button
-                                        onClick={() => {
-                                            updateMutation.mutate({ id: selectedDetail.id, data: { status: 'completed' } });
-                                            setSelectedDetail(null);
-                                        }}
-                                        className="flex-1 bg-green-50 dark:bg-[#238636]/20 border border-green-200 dark:border-[#2ea043]/30 text-green-700 dark:text-green-400 hover:bg-green-100 dark:hover:bg-[#2ea043]/40 transition-colors py-2.5 rounded text-[10px] font-black uppercase tracking-[0.1em] flex justify-center items-center gap-1.5"
+                                        onClick={() => { updateMutation.mutate({ id: selectedDetail.id, data: { status: 'completed' } }); setSelectedDetail(null); }}
+                                        className="flex-1 h-9 bg-emerald-50 dark:bg-emerald-500/10 border border-emerald-200 dark:border-emerald-500/20 text-emerald-700 dark:text-emerald-400 rounded-lg text-[10px] font-bold uppercase tracking-widest hover:bg-emerald-100 dark:hover:bg-emerald-500/20 transition-all flex items-center justify-center gap-1.5"
                                     >
-                                        <CheckCircle2 size={12} /> Mark Complete
+                                        <CheckCircle2 size={13} /> Complete
                                     </button>
                                 )}
                                 <button
                                     onClick={() => handleNotify(selectedDetail.id)}
                                     disabled={isNotifying === selectedDetail.id}
-                                    className="flex-1 bg-white dark:bg-[#161b22] border border-black/5 dark:border-[#30363d] text-gray-600 dark:text-[#c9d1d9] hover:bg-black/5 dark:hover:bg-[#30363d] transition-colors py-2.5 rounded text-[10px] font-black uppercase tracking-[0.1em] flex justify-center items-center gap-1.5"
+                                    className="flex-1 h-9 bg-white dark:bg-[#161b22] border border-black/[0.06] dark:border-[#30363d] text-gray-600 dark:text-[#c9d1d9] rounded-lg text-[10px] font-bold uppercase tracking-widest hover:bg-black/[0.03] dark:hover:bg-white/[0.03] transition-all flex items-center justify-center gap-1.5"
                                 >
-                                    {isNotifying === selectedDetail.id ? (
-                                        <Loader2 className="animate-spin" size={16} />
-                                    ) : (
-                                        <Mail size={12} />
-                                    )} Notify Client
+                                    {isNotifying === selectedDetail.id ? <Loader2 className="animate-spin" size={13} /> : <Mail size={13} />}
+                                    Notify
                                 </button>
                             </div>
-                            <div className="flex justify-between items-center px-1">
+                            <div className="flex items-center justify-between pt-1">
                                 <button
-                                    onClick={() => {
-                                        if (confirm('Delete this record?')) {
-                                            deleteMutation.mutate(selectedDetail.id);
-                                            setSelectedDetail(null);
-                                        }
-                                    }}
-                                    className="text-red-500/70 hover:text-red-500 hover:bg-red-50 py-1.5 px-3 rounded text-[10px] font-medium transition-colors border border-transparent hover:border-red-100 dark:hover:bg-red-500/10 dark:hover:border-red-500/20"
+                                    onClick={() => { if (confirm('Delete this record?')) { deleteMutation.mutate(selectedDetail.id); setSelectedDetail(null); } }}
+                                    className="text-[10px] text-rose-500/70 hover:text-rose-500 font-medium transition-colors"
                                 >
                                     Delete Record
                                 </button>
-                                <span className="text-[9px] uppercase tracking-widest font-black text-gray-400 dark:text-[#8b949e]">
-                                    {selectedDetail.notified_at
-                                        ? `Last notified: ${formatDate(selectedDetail.notified_at, { fallback: 'N/A', month: 'short' })}`
-                                        : 'Not notified yet'}
+                                <span className="text-[9px] text-gray-400 dark:text-[#8b949e]/40 font-medium">
+                                    {selectedDetail.notified_at ? `Notified ${formatDate(selectedDetail.notified_at, { month: 'short' })}` : 'Not notified'}
                                 </span>
                             </div>
                         </div>
@@ -864,200 +621,129 @@ export default function AlteringManager() {
                 )}
             </ModernModal>
 
-            {/* Add Modal Wizard */}
-            <ModernModal
-                isOpen={isAdding}
-                onClose={() => setIsAdding(false)}
-                title="Add Altering Record"
-            >
-                <div className="relative z-10 px-2 flex flex-col h-full pb-2">
-                    {/* Progress Indicators */}
-                    <div className="flex items-center gap-1 mb-6">
-                        {[1, 2, 3].map((step) => (
-                            <div
-                                key={step}
-                                className={`h-1 rounded-full transition-all duration-300 ${wizardStep >= step ? 'w-8 bg-[#58a6ff]' : 'w-4 bg-[#30363d]'}`}
-                            />
-                        ))}
+            {/* ---- Add Modal ---- */}
+            <ModernModal isOpen={isAdding} onClose={() => setIsAdding(false)} title="New Altering Record">
+                <form
+                    onSubmit={(e) => {
+                        e.preventDefault();
+                        if (!formData.customer_name || !formData.product || !formData.altering_cost || !formData.ready_at) {
+                            return alert('Customer name, product, cost, and ready date are required.');
+                        }
+                        createMutation.mutate(formData);
+                    }}
+                    className="p-5 space-y-5 bg-white dark:bg-[#0d1117]"
+                >
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <InputField label="Customer Name *" icon={<User size={11} />} value={formData.customer_name} onChange={(e) => setFormData({ ...formData, customer_name: e.target.value })} placeholder="Full Name" required />
+                        <InputField label="Phone" icon={<Smartphone size={11} />} value={formData.mobile} onChange={(e) => setFormData({ ...formData, mobile: e.target.value })} placeholder="+1 (555) 000-0000" />
+                        <InputField label="Order Number" icon={<Package size={11} />} value={formData.order_no} onChange={(e) => setFormData({ ...formData, order_no: e.target.value })} placeholder="#ORD-..." />
+                        <InputField label="Cost ($) *" icon={<DollarSign size={11} />} type="number" step="0.01" value={formData.altering_cost} onChange={(e) => setFormData({ ...formData, altering_cost: e.target.value })} placeholder="0.00" required />
                     </div>
 
-                    <div className="flex-1 min-h-[200px]">
-                        <AnimatePresence mode="wait">
-                            {wizardStep === 1 && (
-                                <motion.div key="step1" initial={{ opacity: 0, x: 10 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -10 }} className="space-y-4">
-                                    <div className="space-y-1.5">
-                                        <label className="text-[9px] font-black text-[#8b949e] uppercase tracking-widest">Customer Name</label>
-                                        <input
-                                            required autoFocus value={formData.customer_name} onChange={(e) => setFormData({ ...formData, customer_name: e.target.value })}
-                                            placeholder="Full Name"
-                                            className="w-full bg-[#0d1117] border border-[#30363d] rounded py-2 px-3 text-[#c9d1d9] text-xs outline-none focus:border-[#58a6ff]/50 transition-all font-mono"
-                                        />
-                                    </div>
-                                    <div className="space-y-1.5">
-                                        <label className="text-[9px] font-black text-[#8b949e] uppercase tracking-widest">Phone Number</label>
-                                        <input
-                                            value={formData.mobile} onChange={(e) => setFormData({ ...formData, mobile: e.target.value })}
-                                            placeholder="+1 (555) 000-0000"
-                                            className="w-full bg-[#0d1117] border border-[#30363d] rounded py-2 px-3 text-[#c9d1d9] text-xs outline-none focus:border-[#58a6ff]/50 transition-all font-mono"
-                                        />
-                                    </div>
-                                    <div className="space-y-1.5">
-                                        <label className="text-[9px] font-black text-[#8b949e] uppercase tracking-widest">Order Number</label>
-                                        <input
-                                            value={formData.order_no} onChange={(e) => setFormData({ ...formData, order_no: e.target.value })}
-                                            placeholder="#ORD-..."
-                                            className="w-full bg-[#0d1117] border border-[#30363d] rounded py-2 px-3 text-[#c9d1d9] text-xs outline-none focus:border-[#58a6ff]/50 transition-all font-mono"
-                                        />
-                                    </div>
-                                </motion.div>
-                            )}
-                            {wizardStep === 2 && (
-                                <motion.div key="step2" initial={{ opacity: 0, x: 10 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -10 }} className="space-y-4">
-                                    <div className="space-y-1.5">
-                                        <label className="text-[9px] font-black text-[#8b949e] uppercase tracking-widest">Product Details</label>
-                                        <textarea
-                                            required autoFocus rows="3" value={formData.product} onChange={(e) => setFormData({ ...formData, product: e.target.value })}
-                                            placeholder="Specify the exact alterations required..."
-                                            className="w-full bg-[#0d1117] border border-[#30363d] rounded py-2 px-3 text-[#c9d1d9] text-xs outline-none focus:border-[#58a6ff]/50 transition-all font-mono resize-none"
-                                        />
-                                    </div>
-                                    <div className="space-y-1.5">
-                                        <label className="text-[9px] font-black text-[#8b949e] uppercase tracking-widest">Notes (Optional)</label>
-                                        <textarea
-                                            rows="3" value={formData.remark} onChange={(e) => setFormData({ ...formData, remark: e.target.value })}
-                                            placeholder="Internal tailor notes, structural warnings..."
-                                            className="w-full bg-[#0d1117] border border-[#30363d] rounded py-2 px-3 text-[#8b949e] text-xs outline-none focus:border-[#58a6ff]/50 transition-all font-mono resize-none"
-                                        />
-                                    </div>
-                                </motion.div>
-                            )}
-                            {wizardStep === 3 && (
-                                <motion.div key="step3" initial={{ opacity: 0, x: 10 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -10 }} className="space-y-4">
-                                    <div className="space-y-1.5">
-                                        <label className="text-[9px] font-black text-[#8b949e] uppercase tracking-widest">Cost ($)</label>
-                                        <div className="relative">
-                                            <DollarSign className="absolute left-3 top-1/2 -translate-y-1/2 text-[#8b949e]" size={14} />
-                                            <input
-                                                required type="number" step="0.01" value={formData.altering_cost} onChange={(e) => setFormData({ ...formData, altering_cost: e.target.value })}
-                                                placeholder="0.00"
-                                                className="w-full bg-[#0d1117] border border-[#30363d] rounded py-2 pl-8 pr-3 text-[#58a6ff] text-sm outline-none focus:border-[#58a6ff]/50 transition-all font-mono"
-                                            />
-                                        </div>
-                                    </div>
-                                    <div className="grid grid-cols-2 gap-3">
-                                        <div className="space-y-1.5">
-                                            <label className="text-[9px] font-black text-[#8b949e] uppercase tracking-widest">Start Date</label>
-                                            <DatePicker required value={formData.start_date} onChange={(e) => setFormData({ ...formData, start_date: e.target.value })} name="start_date" />
-                                        </div>
-                                        <div className="space-y-1.5">
-                                            <label className="text-[9px] font-black text-[#8b949e] uppercase tracking-widest">Target Ready</label>
-                                            <DatePicker required value={formData.ready_at} onChange={(e) => setFormData({ ...formData, ready_at: e.target.value })} name="ready_at" />
-                                        </div>
-                                    </div>
-                                </motion.div>
-                            )}
-                        </AnimatePresence>
+                    <div className="flex flex-col gap-1.5">
+                        <label className="text-[9px] font-bold text-gray-400 dark:text-[#8b949e]/50 uppercase tracking-widest flex items-center gap-1.5">
+                            <Package size={11} className="opacity-40" />
+                            Product / Alterations *
+                        </label>
+                        <textarea
+                            required
+                            rows={3}
+                            value={formData.product}
+                            onChange={(e) => setFormData({ ...formData, product: e.target.value })}
+                            placeholder="Describe the garment and required alterations..."
+                            className="bg-black/[0.02] dark:bg-white/[0.02] p-3 text-[12px] font-medium text-gray-900 dark:text-[#c9d1d9] border border-black/[0.06] dark:border-white/[0.06] rounded-lg outline-none focus:border-[#0d3542]/40 dark:focus:border-[#58a6ff]/40 transition-colors resize-none placeholder:text-gray-300 dark:placeholder:text-[#8b949e]/20"
+                        />
                     </div>
 
-                    {/* Controls */}
-                    <div className="mt-6 pt-4 border-t border-[#30363d] flex items-center justify-between relative z-10">
-                        <button
-                            type="button"
-                            onClick={() => wizardStep > 1 ? setWizardStep(w => w - 1) : setIsAdding(false)}
-                            className="text-[9px] font-black uppercase tracking-widest text-[#8b949e] hover:text-[#c9d1d9] transition-colors px-2 py-1.5 rounded hover:bg-[#30363d]/50"
-                        >
-                            {wizardStep === 1 ? 'Cancel' : 'Back'}
+                    <div className="flex flex-col gap-1.5">
+                        <label className="text-[9px] font-bold text-gray-400 dark:text-[#8b949e]/50 uppercase tracking-widest flex items-center gap-1.5">
+                            <Mail size={11} className="opacity-40" />
+                            Notes
+                        </label>
+                        <textarea
+                            rows={2}
+                            value={formData.remark}
+                            onChange={(e) => setFormData({ ...formData, remark: e.target.value })}
+                            placeholder="Internal notes..."
+                            className="bg-black/[0.02] dark:bg-white/[0.02] p-3 text-[12px] font-medium text-gray-900 dark:text-[#c9d1d9] border border-black/[0.06] dark:border-white/[0.06] rounded-lg outline-none focus:border-[#0d3542]/40 dark:focus:border-[#58a6ff]/40 transition-colors resize-none placeholder:text-gray-300 dark:placeholder:text-[#8b949e]/20"
+                        />
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-4">
+                        <InputField label="Start Date" icon={<Clock size={11} />} type="date" value={formData.start_date} onChange={(e) => setFormData({ ...formData, start_date: e.target.value })} />
+                        <InputField label="Ready Date *" icon={<Clock size={11} />} type="date" value={formData.ready_at} onChange={(e) => setFormData({ ...formData, ready_at: e.target.value })} required />
+                    </div>
+
+                    <div className="flex items-center justify-end gap-3 pt-4 border-t border-black/[0.05] dark:border-white/[0.05]">
+                        <button type="button" onClick={() => setIsAdding(false)} className="px-4 py-2.5 text-[10px] font-bold uppercase tracking-widest text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors">
+                            Cancel
                         </button>
-
-                        {wizardStep < 3 ? (
-                            <button
-                                type="button"
-                                onClick={() => {
-                                    if (wizardStep === 1 && !formData.customer_name) return alert('Client name is required.');
-                                    if (wizardStep === 2 && !formData.product) return alert('Garment scope is required.');
-                                    setWizardStep(w => w + 1);
-                                }}
-                                className="px-5 py-2 bg-[#238636] text-white hover:bg-[#2ea043] transition-colors rounded text-[9px] font-black uppercase tracking-[0.1em]"
-                            >
-                                Continue
-                            </button>
-                        ) : (
-                            <Button
-                                onClick={() => {
-                                    if (!formData.altering_cost || !formData.ready_at) return alert('Quote and Target Date are required.');
-                                    createMutation.mutate(formData);
-                                }}
-                                disabled={createMutation.isPending}
-                                className="px-5 py-2 h-auto bg-[#58a6ff] text-[#0d1117] hover:bg-[#79b8ff] transition-colors rounded text-[9px] font-black uppercase tracking-[0.1em]"
-                            >
-                                {createMutation.isPending ? (
-                                    <Loader2 className="animate-spin" size={16} />
-                                ) : (
-                                    <CheckCircle2 className="mr-1.5 w-3 h-3" />
-                                )}
-                                Save
-                            </Button>
-                        )}
+                        <button
+                            type="submit"
+                            disabled={createMutation.isPending}
+                            className="h-9 px-5 bg-[#0d3542] dark:bg-[#58a6ff] text-white dark:text-black rounded-lg text-[10px] font-bold uppercase tracking-widest hover:opacity-90 active:scale-[0.97] transition-all disabled:opacity-50 flex items-center gap-2"
+                        >
+                            {createMutation.isPending ? <Loader2 className="animate-spin" size={14} /> : <CheckCircle2 size={14} />}
+                            Save Record
+                        </button>
                     </div>
-                </div>
+                </form>
             </ModernModal>
 
-            {/* Sync Sheet Modal */}
-            <ModernModal
-                isOpen={showSyncModal}
-                onClose={() => setShowSyncModal(false)}
-                title="Master Sheet Sync"
-            >
-                <div className="space-y-4 px-2 pb-2">
-                    <div className="flex flex-col items-center justify-center p-6 border border-[#30363d] rounded bg-[#0d1117] mb-2">
-                        <div className="w-12 h-12 bg-[#161b22] border border-[#30363d] rounded flex items-center justify-center mb-4">
-                            <RefreshCw size={20} className={`text-[#8b949e] ${isSyncing ? 'animate-spin' : ''}`} />
-                        </div>
-                        <p className="text-[#c9d1d9] text-[10px] font-mono tracking-widest uppercase">
+            {/* ---- Sync Modal ---- */}
+            <ModernModal isOpen={showSyncModal} onClose={() => setShowSyncModal(false)} title="Sync Google Sheet">
+                <div className="p-5 space-y-4">
+                    <div className="flex flex-col items-center justify-center p-5 border border-dashed border-black/[0.08] dark:border-white/[0.08] rounded-xl bg-black/[0.01] dark:bg-white/[0.01]">
+                        <RefreshCw size={24} className={`text-gray-400 mb-3 ${isSyncing ? 'animate-spin' : ''}`} />
+                        <p className="text-[10px] font-bold uppercase tracking-widest text-gray-400 dark:text-[#8b949e]">
                             Google Sheets Bridge
                         </p>
                     </div>
 
-                    <div className="space-y-3">
-                        <div className="space-y-1.5">
-                            <label className="text-[9px] font-black text-[#8b949e] uppercase tracking-widest">
-                                Sheet URL
-                            </label>
-                            <div className="relative group">
-                                <ExternalLink size={12} className="absolute left-2.5 top-1/2 -translate-y-1/2 text-[#8b949e] group-focus-within:text-[#58a6ff] transition-colors" />
-                                <input
-                                    type="text"
-                                    placeholder="https://docs.google.com/spreadsheets/d/..."
-                                    value={syncUrl}
-                                    onChange={(e) => setSyncUrl(e.target.value)}
-                                    className="w-full bg-[#0d1117] border border-[#30363d] rounded py-2 pl-7 pr-3 text-[#c9d1d9] text-xs outline-none focus:border-[#58a6ff]/50 transition-all font-mono"
-                                />
-                            </div>
-                        </div>
+                    <InputField
+                        label="Sheet URL"
+                        icon={<ExternalLink size={11} />}
+                        type="text"
+                        placeholder="https://docs.google.com/spreadsheets/d/..."
+                        value={syncUrl}
+                        onChange={(e) => setSyncUrl(e.target.value)}
+                    />
 
-                        <div className="bg-[#161b22] border border-[#30363d] rounded p-3 flex items-start gap-2.5">
-                            <AlertCircle size={12} className="text-[#8b949e] mt-0.5" />
-                            <p className="text-[10px] text-[#8b949e] leading-snug">
-                                Make sure the sheet is shared with <span className="text-[#c9d1d9] font-bold">"Anyone with the link"</span>.
-                            </p>
-                        </div>
-
-                        <Button
-                            onClick={handleSync}
-                            disabled={isSyncing || !syncUrl}
-                            className="w-full py-2.5 h-auto bg-[#58a6ff] text-[#0d1117] hover:bg-[#79b8ff] transition-all rounded text-[10px] font-black uppercase tracking-[0.1em] flex justify-center items-center"
-                        >
-                            {isSyncing ? (
-                                'Syncing Data...'
-                            ) : (
-                                <>
-                                    <RefreshCw size={12} className="mr-1.5" /> Start Sync
-                                </>
-                            )}
-                        </Button>
+                    <div className="flex items-start gap-2 p-3 bg-amber-500/5 dark:bg-amber-500/5 rounded-lg border border-amber-500/10">
+                        <AlertCircle size={13} className="text-amber-500 mt-0.5 shrink-0" />
+                        <p className="text-[10px] text-gray-500 dark:text-[#8b949e] leading-snug">
+                            Make sure the sheet is shared with <strong className="text-gray-700 dark:text-[#c9d1d9]">"Anyone with the link"</strong>.
+                        </p>
                     </div>
+
+                    <button
+                        onClick={handleSync}
+                        disabled={isSyncing || !syncUrl}
+                        className="w-full h-10 bg-[#0d3542] dark:bg-[#58a6ff] text-white dark:text-black rounded-lg text-[10px] font-bold uppercase tracking-widest hover:opacity-90 disabled:opacity-40 transition-all flex items-center justify-center gap-2"
+                    >
+                        {isSyncing ? (
+                            <><Loader2 className="animate-spin" size={13} /> Syncing…</>
+                        ) : (
+                            <><RefreshCw size={13} /> Start Sync</>
+                        )}
+                    </button>
                 </div>
             </ModernModal>
         </div>
     );
 }
+
+/* ------------------------------------------------------------------ */
+/*  Info Block (for detail modal)                                      */
+/* ------------------------------------------------------------------ */
+const InfoBlock = React.memo(({ icon, label, value, accent }) => (
+    <div className="bg-black/[0.02] dark:bg-white/[0.02] rounded-lg p-3 border border-black/[0.04] dark:border-white/[0.04]">
+        <div className="flex items-center gap-1.5 mb-1">
+            <span className="text-gray-400 dark:text-[#8b949e]/40">{icon}</span>
+            <span className="text-[9px] font-bold text-gray-400 dark:text-[#8b949e]/40 uppercase tracking-widest">{label}</span>
+        </div>
+        <p className={`text-[12px] font-medium ${accent ? 'text-[#0d3542] dark:text-[#58a6ff]' : 'text-gray-700 dark:text-[#c9d1d9]'}`}>
+            {value}
+        </p>
+    </div>
+));

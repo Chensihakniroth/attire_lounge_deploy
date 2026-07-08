@@ -565,16 +565,16 @@ const LookbookSection = memo(forwardRef<HTMLElement>((_props, ref) => (
               transition={{ duration: 1, ease: "easeOut" }}
           >
               <span className="text-[#f5a81c] text-[10px] tracking-[0.6em] uppercase font-bold mb-6 block">The Visuals</span>
-              <h2 className="text-6xl md:text-8xl lg:text-9xl font-serif text-white uppercase tracking-tighter mb-12">
+              <h2 className="text-5xl md:text-7xl lg:text-8xl font-serif text-white uppercase tracking-tighter mb-10 leading-[0.9]">
                   Lookbook <br/>
                   <span className="italic text-transparent bg-clip-text bg-gradient-to-r from-[#FAF8F3] to-white opacity-80">Archives</span>
               </h2>
 
               <Link to="/lookbook" className="group relative inline-flex flex-col items-center gap-4">
-                  <div className="w-20 h-20 rounded-full border border-white/20 flex items-center justify-center group-hover:bg-white group-hover:border-white transition-all duration-500">
-                      <ArrowRight className="text-white group-hover:text-black transition-colors duration-300" size={28} />
+                  <span className="text-white/60 text-sm md:text-base font-light tracking-wide">Explore the full collection</span>
+                  <div className="w-14 h-14 rounded border border-white/20 flex items-center justify-center group-hover:bg-white group-hover:border-white transition-all duration-500">
+                      <ArrowRight className="text-white group-hover:text-black transition-colors duration-300" size={20} />
                   </div>
-                  <span className="text-[10px] tracking-[0.4em] text-white/50 uppercase font-bold group-hover:text-white transition-colors">Explore All Works</span>
               </Link>
           </motion.div>
       </div>

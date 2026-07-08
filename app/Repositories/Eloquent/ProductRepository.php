@@ -30,13 +30,18 @@ class ProductRepository implements ProductRepositoryInterface
             ->select([ // Only select necessary columns
                 'id', 'name', 'slug', 'description', 'price',
                 'images', 'category_id', 'collection_id', 'is_featured',
-                'is_new', 'is_visible', 'availability',
+                'is_new', 'is_visible', 'show_in_lookbook', 'availability',
                 'fabric', 'silhouette', 'details', 'sizing', 'created_at', 'updated_at'
             ]);
 
         // Apply visibility filter
         if (!$dto->includeHidden) {
             $query->where('is_visible', true);
+        }
+
+        // Apply lookbook filter
+        if ($dto->lookbookOnly) {
+            $query->where('show_in_lookbook', true);
         }
 
         // Apply filters
@@ -88,7 +93,7 @@ class ProductRepository implements ProductRepositoryInterface
     public function getFeatured(int $limit): Collection
     {
         return $this->model->featured()
-            ->orderBy('sort_order')
+            ->orderByDesc('created_at')
             ->limit($limit)
             ->get();
     }
@@ -152,6 +157,18 @@ class ProductRepository implements ProductRepositoryInterface
 
         $product->update($data);
         return $product;
+    }
+
+    /**
+     * Get products marked for lookbook.
+     */
+    public function getLookbookProducts()
+    {
+        return $this->model->query()
+            ->with(['category', 'collection'])
+            ->where('show_in_lookbook', true)
+            ->orderBy('created_at', 'desc')
+            ->get();
     }
 
     /**
