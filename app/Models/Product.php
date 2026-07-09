@@ -32,7 +32,8 @@ class Product extends Model
         'sizing',
         'fabric',
         'silhouette',
-        'details'
+        'details',
+        'detailed_description'
     ];
 
     protected $casts = [

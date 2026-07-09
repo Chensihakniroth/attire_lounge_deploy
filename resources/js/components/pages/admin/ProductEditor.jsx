@@ -109,6 +109,7 @@ const ProductEditor = ({ isNew = false }) => {
         fabric: '',
         silhouette: '',
         details: '',
+        detailed_description: '',
         sizing: [],
         category_id: '',
         collection_id: '',
@@ -226,6 +227,7 @@ const ProductEditor = ({ isNew = false }) => {
                             fabric: p.fabric || '',
                             silhouette: p.silhouette || '',
                             details: p.details || '',
+                            detailed_description: p.detailed_description || '',
                             sizing: Array.isArray(p.sizes) ? p.sizes : [],
                             category_id: p.category_id || '',
                             collection_id: p.collection_id || '',
@@ -438,6 +440,15 @@ const ProductEditor = ({ isNew = false }) => {
                                     className={`${inputBase} resize-none leading-relaxed`}
                                     placeholder="Describe the silhouette and essence..." />
                             </Field>
+                            <div className="mt-4">
+                                <Field label="Detailed Description">
+                                    <textarea value={formData.detailed_description}
+                                        onChange={e => updateField('detailed_description', e.target.value)}
+                                        rows={6}
+                                        className={`${inputBase} resize-none leading-relaxed`}
+                                        placeholder="A longer, more immersive description for the product detail page..." />
+                                </Field>
+                            </div>
                         </Section>
 
                         {/* ── Product Imagery ─────────────────────────── */}

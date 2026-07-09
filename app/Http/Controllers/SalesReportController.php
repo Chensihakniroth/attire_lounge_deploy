@@ -73,28 +73,11 @@ class SalesReportController extends Controller
 
         $data = $this->salesService->getMonthlyReport($year, $month, $outlet);
 
-        // Monthly target and top sellers (month) still handled here for now
+        // Monthly target
         $data['target'] = SalesTarget::where('year', $year)->where('month', $month)->first();
-        
+
         $start = Carbon::create($year, $month, 1)->startOfMonth();
         $end   = $start->copy()->endOfMonth();
-
-        $data['top_sellers'] = DB::table('pos_invoice_items')
-            ->join('pos_invoices', 'pos_invoice_items.invoice_id', '=', 'pos_invoices.id')
-            ->whereBetween('pos_invoices.date', [$start->toDateString(), $end->toDateString()])
-            ->where('pos_invoices.status', 'completed')
-            ->where('pos_invoices.outlet', $outlet)
-            ->select(
-                'pos_invoice_items.product_name',
-                'pos_invoice_items.product_variant',
-                'pos_invoice_items.product_sku',
-                DB::raw('SUM(pos_invoice_items.quantity) as total_qty'),
-                DB::raw('SUM(pos_invoice_items.line_total) as total_revenue')
-            )
-            ->groupBy('pos_invoice_items.product_name', 'pos_invoice_items.product_variant', 'pos_invoice_items.product_sku')
-            ->orderByDesc('total_qty')
-            ->limit(10)
-            ->get();
 
         $data['payment_breakdown'] = DB::table('pos_payments')
             ->join('pos_invoices', 'pos_payments.invoice_id', '=', 'pos_invoices.id')

@@ -29,31 +29,22 @@ class SalesService
 
             $netRevenue = $totalRevenue - $totalRefunds;
 
-            // Total items (cups) sold
-            $totalItems = (int) DB::table('pos_invoice_items')
-                ->join('pos_invoices', 'pos_invoice_items.invoice_id', '=', 'pos_invoices.id')
-                ->where('pos_invoices.date', $date)
-                ->where('pos_invoices.status', 'completed')
-                ->where('pos_invoices.outlet', $outlet)
-                ->sum('pos_invoice_items.quantity');
+            // Compute total_items and top_sellers from already-loaded invoices (no extra DB query)
+            $allItems = $invoices->flatMap->items;
+            $totalItems = (int) $allItems->sum('quantity');
 
-            // Top sellers
-            $topSellers = DB::table('pos_invoice_items')
-                ->join('pos_invoices', 'pos_invoice_items.invoice_id', '=', 'pos_invoices.id')
-                ->where('pos_invoices.date', $date)
-                ->where('pos_invoices.status', 'completed')
-                ->where('pos_invoices.outlet', $outlet)
-                ->select(
-                    'pos_invoice_items.product_name',
-                    'pos_invoice_items.product_variant',
-                    'pos_invoice_items.product_sku',
-                    DB::raw('SUM(pos_invoice_items.quantity) as total_qty'),
-                    DB::raw('SUM(pos_invoice_items.line_total) as total_revenue')
-                )
-                ->groupBy('pos_invoice_items.product_name', 'pos_invoice_items.product_variant', 'pos_invoice_items.product_sku')
-                ->orderByDesc('total_qty')
-                ->limit(10)
-                ->get();
+            $topSellers = $allItems
+                ->groupBy(fn($item) => $item->product_name.'|'.$item->product_variant.'|'.$item->product_sku)
+                ->map(fn($group) => (object) [
+                    'product_name'    => $group->first()->product_name,
+                    'product_variant' => $group->first()->product_variant,
+                    'product_sku'     => $group->first()->product_sku,
+                    'total_qty'       => $group->sum('quantity'),
+                    'total_revenue'   => round($group->sum('line_total'), 2),
+                ])
+                ->sortByDesc('total_qty')
+                ->take(10)
+                ->values();
 
             // Category breakdown
             $categoryBreakdown = DB::table('pos_invoice_items')
@@ -114,29 +105,10 @@ class SalesService
 
             $netRevenue = $totalRevenue - $totalRefunds;
 
-            // Total items (cups) sold
-            $totalItems = (int) DB::table('pos_invoice_items')
-                ->join('pos_invoices', 'pos_invoice_items.invoice_id', '=', 'pos_invoices.id')
-                ->whereBetween('pos_invoices.date', [$start->toDateString(), $end->toDateString()])
-                ->where('pos_invoices.status', 'completed')
-                ->where('pos_invoices.outlet', $outlet)
-                ->sum('pos_invoice_items.quantity');
-
-            // Category breakdown
-            $categoryBreakdown = DB::table('pos_invoice_items')
-                ->join('pos_invoices', 'pos_invoice_items.invoice_id', '=', 'pos_invoices.id')
-                ->leftJoin('pos_products', 'pos_invoice_items.product_id', '=', 'pos_products.id')
-                ->whereBetween('pos_invoices.date', [$start->toDateString(), $end->toDateString()])
-                ->where('pos_invoices.status', 'completed')
-                ->where('pos_invoices.outlet', $outlet)
-                ->select(
-                    DB::raw('COALESCE(pos_products.category, "Uncategorized") as category'),
-                    DB::raw('SUM(pos_invoice_items.quantity) as total_qty'),
-                    DB::raw('SUM(pos_invoice_items.line_total) as total_revenue')
-                )
-                ->groupBy('category')
-                ->orderByDesc('total_revenue')
-                ->get();
+            // Total items, top sellers & category breakdown (single consolidated query)
+            [$totalItems, $topSellers, $categoryBreakdown] = $this->getItemsAggregates(
+                $start->toDateString(), $end->toDateString(), $outlet
+            );
 
             return [
                 'year'               => $year,
@@ -145,10 +117,63 @@ class SalesService
                 'total_refunds'      => round($totalRefunds, 2),
                 'net_revenue'        => round($netRevenue, 2),
                 'total_items'        => $totalItems,
+                'top_sellers'        => $topSellers,
                 'daily_breakdown'    => $dailyRevenue,
                 'category_breakdown' => $categoryBreakdown,
             ];
         });
+    }
+
+    /**
+     * Get total_items, top_sellers, and category_breakdown from a SINGLE
+     * DB pass over pos_invoice_items, eliminating 3 separate queries.
+     */
+    private function getItemsAggregates(string $startStr, string $endStr, string $outlet): array
+    {
+        $rows = DB::table('pos_invoice_items')
+            ->join('pos_invoices', 'pos_invoice_items.invoice_id', '=', 'pos_invoices.id')
+            ->leftJoin('pos_products', 'pos_invoice_items.product_id', '=', 'pos_products.id')
+            ->whereBetween('pos_invoices.date', [$startStr, $endStr])
+            ->where('pos_invoices.status', 'completed')
+            ->where('pos_invoices.outlet', $outlet)
+            ->select(
+                'pos_invoice_items.product_name',
+                'pos_invoice_items.product_variant',
+                'pos_invoice_items.product_sku',
+                'pos_invoice_items.quantity',
+                'pos_invoice_items.line_total',
+                DB::raw('COALESCE(pos_products.category, "Uncategorized") as category'),
+            )
+            ->get();
+
+        $totalItems = (int) $rows->sum('quantity');
+
+        // Top sellers — group by product, sort by qty desc, take 10
+        $topSellers = $rows
+            ->groupBy(fn($r) => $r->product_name.'|'.$r->product_variant.'|'.$r->product_sku)
+            ->map(fn($group) => (object) [
+                'product_name'    => $group->first()->product_name,
+                'product_variant' => $group->first()->product_variant,
+                'product_sku'     => $group->first()->product_sku,
+                'total_qty'       => $group->sum('quantity'),
+                'total_revenue'   => round($group->sum('line_total'), 2),
+            ])
+            ->sortByDesc('total_qty')
+            ->take(10)
+            ->values();
+
+        // Category breakdown — group by category
+        $categoryBreakdown = $rows
+            ->groupBy('category')
+            ->map(fn($group) => (object) [
+                'category'     => $group->first()->category,
+                'total_qty'    => $group->sum('quantity'),
+                'total_revenue' => round($group->sum('line_total'), 2),
+            ])
+            ->sortByDesc('total_revenue')
+            ->values();
+
+        return [$totalItems, $topSellers, $categoryBreakdown];
     }
 
     /**
@@ -187,47 +212,8 @@ class SalesService
 
             $netRevenue = $totalRevenue - $totalRefunds;
 
-            // Total items sold
-            $totalItems = (int) DB::table('pos_invoice_items')
-                ->join('pos_invoices', 'pos_invoice_items.invoice_id', '=', 'pos_invoices.id')
-                ->whereBetween('pos_invoices.date', [$startStr, $endStr])
-                ->where('pos_invoices.status', 'completed')
-                ->where('pos_invoices.outlet', $outlet)
-                ->sum('pos_invoice_items.quantity');
-
-            // Top sellers
-            $topSellers = DB::table('pos_invoice_items')
-                ->join('pos_invoices', 'pos_invoice_items.invoice_id', '=', 'pos_invoices.id')
-                ->whereBetween('pos_invoices.date', [$startStr, $endStr])
-                ->where('pos_invoices.status', 'completed')
-                ->where('pos_invoices.outlet', $outlet)
-                ->select(
-                    'pos_invoice_items.product_name',
-                    'pos_invoice_items.product_variant',
-                    'pos_invoice_items.product_sku',
-                    DB::raw('SUM(pos_invoice_items.quantity) as total_qty'),
-                    DB::raw('SUM(pos_invoice_items.line_total) as total_revenue')
-                )
-                ->groupBy('pos_invoice_items.product_name', 'pos_invoice_items.product_variant', 'pos_invoice_items.product_sku')
-                ->orderByDesc('total_qty')
-                ->limit(10)
-                ->get();
-
-            // Category breakdown
-            $categoryBreakdown = DB::table('pos_invoice_items')
-                ->join('pos_invoices', 'pos_invoice_items.invoice_id', '=', 'pos_invoices.id')
-                ->leftJoin('pos_products', 'pos_invoice_items.product_id', '=', 'pos_products.id')
-                ->whereBetween('pos_invoices.date', [$startStr, $endStr])
-                ->where('pos_invoices.status', 'completed')
-                ->where('pos_invoices.outlet', $outlet)
-                ->select(
-                    DB::raw('COALESCE(pos_products.category, "Uncategorized") as category'),
-                    DB::raw('SUM(pos_invoice_items.quantity) as total_qty'),
-                    DB::raw('SUM(pos_invoice_items.line_total) as total_revenue')
-                )
-                ->groupBy('category')
-                ->orderByDesc('total_revenue')
-                ->get();
+            // Total items, top sellers & category breakdown (single consolidated query)
+            [$totalItems, $topSellers, $categoryBreakdown] = $this->getItemsAggregates($startStr, $endStr, $outlet);
 
             // Invoice count & invoices list
             $invoices = PosInvoice::whereBetween('date', [$startStr, $endStr])
