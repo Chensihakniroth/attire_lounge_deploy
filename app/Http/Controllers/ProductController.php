@@ -145,7 +145,6 @@ class ProductController extends Controller
      */
     public function collections(): JsonResponse
     {
-        Cache::forget('product_collections');
         $collections = Cache::remember('product_collections', 7200, function () {
             return Collection::active()
                 ->latest()
