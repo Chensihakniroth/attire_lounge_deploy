@@ -63,10 +63,18 @@ export const LOOKBOOK_IMAGES = [
 
 export const LOOKBOOK_CATEGORIES = [
     { id: 'all', name: 'All' },
-    { id: 'formal-wear', name: 'Formal Wear' },
-    { id: 'groom-wear', name: 'Groom Wear' },
-    { id: 'casual-wear', name: 'Casual Wear' },
-    { id: 'everyday-wear', name: 'Everyday Wear' },
-    { id: 'suits', name: 'Suits' },
-    { id: 'accessories', name: 'Accessories' },
+    { id: 'sartorial', name: 'Sartorial' },
+    { id: 'grooms', name: "Groom's wear" },
+    { id: 'formal', name: 'Formal' },
+    { id: 'shades', name: 'Shades' },
+    { id: 'street', name: 'Street' },
 ];
+
+// Maps old lookbook category IDs to actual DB collection_slugs they should filter by
+export const LOOKBOOK_COLLECTION_MAP = {
+    'sartorial': ['havana-collection', 'mocha-mousse-25'],
+    'grooms': ['groom-collection'],
+    'formal': ['office-collections', 'signature-belted-jacket', 'ivy-league-collection'],
+    'shades': ['shades-of-elegance'],
+    'street': ['street-sartorial'],
+};

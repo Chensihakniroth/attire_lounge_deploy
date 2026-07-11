@@ -5,6 +5,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useInView } from 'react-intersection-observer';
 import { Loader2, Camera } from 'lucide-react';
 import { LOOKBOOK_CATEGORIES } from '../../data/lookbook.js';
+import { LOOKBOOK_COLLECTION_MAP } from '../../data/lookbook.js';
 import axios from 'axios';
 // Sub-components
 import LookbookHeader from './lookbook/LookbookHeader.jsx';
@@ -52,9 +53,11 @@ const LookbookPage = () => {
     }, [filter, sort]);
 
     const filteredAndSortedImages = useMemo(() => {
-        let result = lookbookProducts.filter(
-            (img) => filter === 'all' || (img.category_slug && img.category_slug === filter)
-        );
+        let result = lookbookProducts.filter((img) => {
+            if (filter === 'all') return true;
+            const allowedCollections = LOOKBOOK_COLLECTION_MAP[filter];
+            return allowedCollections && allowedCollections.includes(img.collection_slug);
+        });
 
         switch (sort) {
             case 'a-z':
