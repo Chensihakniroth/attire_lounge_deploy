@@ -63,10 +63,10 @@ export const LOOKBOOK_IMAGES = [
 
 export const LOOKBOOK_CATEGORIES = [
     { id: 'all', name: 'All' },
-    { id: 'sartorial', name: 'Sartorial' },
-    { id: 'grooms', name: 'Grooms' },
-    { id: 'formal', name: 'Formal' },
-    { id: 'business', name: 'Business' },
-    { id: 'shades', name: 'Shade of Elegants' },
-    { id: 'street', name: 'Street Sartorial' },
+    { id: 'formal-wear', name: 'Formal Wear' },
+    { id: 'groom-wear', name: 'Groom Wear' },
+    { id: 'casual-wear', name: 'Casual Wear' },
+    { id: 'everyday-wear', name: 'Everyday Wear' },
+    { id: 'suits', name: 'Suits' },
+    { id: 'accessories', name: 'Accessories' },
 ];
