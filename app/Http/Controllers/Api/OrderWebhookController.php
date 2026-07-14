@@ -208,8 +208,13 @@ class OrderWebhookController extends Controller
 
                 if (!empty($botToken) && !empty($chatId)) {
                     $items = $validated['items'];
+                    $formatVariant = function($variant) {
+                        if (!$variant) return '';
+                        $parts = array_map('trim', array_filter(explode('-', $variant)));
+                        return ' (' . implode(', ', $parts) . ')';
+                    };
                     $itemLines = collect($items)->take(5)->map(fn($i) =>
-                        "• {$i['name']} × {$i['quantity']} — $" . number_format($i['unit_price'], 2)
+                        "• {$i['name']}" . ($products[$i['sku']]->variant ? $formatVariant($products[$i['sku']]->variant) : '') . " × {$i['quantity']} — $" . number_format($i['unit_price'], 2)
                     )->implode("\n");
 
                     if (count($items) > 5) {
@@ -282,9 +287,15 @@ class OrderWebhookController extends Controller
         }
 
         $items = $invoice->items ?? collect();
-        $itemLines = $items->take(5)->map(fn($i) =>
-            "• {$i->product_name} × {$i->quantity} — $" . number_format($i->unit_price, 2)
-        )->implode("\n");
+        $itemLines = $items->take(5)->map(function($i) {
+            $variant = $i->product_variant ?? '';
+            $detail = '';
+            if ($variant) {
+                $parts = array_map('trim', array_filter(explode('-', $variant)));
+                $detail = ' (' . implode(', ', $parts) . ')';
+            }
+            return "• {$i->product_name}{$detail} × {$i->quantity} — $" . number_format($i->unit_price, 2);
+        })->implode("\n");
 
         if ($items->count() > 5) {
             $itemLines .= "\n… and " . ($items->count() - 5) . " more item(s)";
