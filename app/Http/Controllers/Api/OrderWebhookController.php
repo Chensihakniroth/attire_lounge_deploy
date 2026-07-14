@@ -13,6 +13,7 @@ use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Http;
 
 class OrderWebhookController extends Controller
 {
@@ -199,6 +200,48 @@ class OrderWebhookController extends Controller
                 'invoice_id'  => $invoice->id,
             ]);
 
+            // ── Send Telegram Notification (Nile Cambodia Bot) ──
+            try {
+                $nileConfig = config('nile-telegram');
+                $botToken  = $nileConfig['bot_token'] ?? '';
+                $chatId    = $nileConfig['chat_id'] ?? '';
+
+                if (!empty($botToken) && !empty($chatId)) {
+                    $items = $validated['items'];
+                    $itemLines = collect($items)->take(5)->map(fn($i) =>
+                        "• {$i['name']} × {$i['quantity']} — $" . number_format($i['unit_price'], 2)
+                    )->implode("\n");
+
+                    if (count($items) > 5) {
+                        $itemLines .= "\n… and " . (count($items) - 5) . " more item(s)";
+                    }
+
+                    $message = "🛒 *New Online Order #{$validated['wc_order_id']}* 🛒\n\n"
+                        . "👤 *Customer:* {$validated['customer']['name']}\n"
+                        . "📧 *Email:* " . ($validated['customer']['email'] ?? 'N/A') . "\n"
+                        . "📦 *Items:* " . count($items) . "\n\n"
+                        . "{$itemLines}\n\n"
+                        . "💰 *Total:* " . ($validated['currency'] ?? 'USD') . ' ' . number_format($validated['total'], 2) . "\n"
+                        . "💳 *Payment:* " . ($validated['payment_method'] ?? 'N/A') . "\n"
+                        . "🕐 *Time:* " . now()->format('M d, Y h:i A');
+
+                    $response = Http::post("https://api.telegram.org/bot{$botToken}/sendMessage", [
+                        'chat_id'    => $chatId,
+                        'text'       => $message,
+                        'parse_mode' => 'Markdown',
+                    ]);
+
+                    if (!$response->successful()) {
+                        Log::warning('Nile Telegram notification failed', [
+                            'status' => $response->status(),
+                            'body'   => $response->json(),
+                        ]);
+                    }
+                }
+            } catch (\Exception $e) {
+                Log::error('Nile Telegram notification error: ' . $e->getMessage());
+            }
+
             return response()->json([
                 'success'        => true,
                 'invoice_id'     => $invoice->id,
@@ -215,6 +258,80 @@ class OrderWebhookController extends Controller
                 'success' => false,
                 'error'   => 'processing_error',
                 'message' => 'Failed to process order. Please retry.',
+            ], 500);
+        }
+    }
+
+    /**
+     * Manually send a Telegram notification for an existing invoice.
+     * POST /api/v1/admin/pos/invoices/{id}/notify-telegram
+     */
+    public function notifyTelegram(int $invoiceId)
+    {
+        $invoice = PosInvoice::with(['items', 'customer'])->findOrFail($invoiceId);
+
+        $nileConfig = config('nile-telegram');
+        $botToken  = $nileConfig['bot_token'] ?? '';
+        $chatId    = $nileConfig['chat_id'] ?? '';
+
+        if (empty($botToken) || empty($chatId)) {
+            return response()->json([
+                'success' => false,
+                'error'   => 'Telegram not configured',
+            ], 500);
+        }
+
+        $items = $invoice->items ?? collect();
+        $itemLines = $items->take(5)->map(fn($i) =>
+            "• {$i->product_name} × {$i->quantity} — $" . number_format($i->unit_price, 2)
+        )->implode("\n");
+
+        if ($items->count() > 5) {
+            $itemLines .= "\n… and " . ($items->count() - 5) . " more item(s)";
+        }
+
+        $customerName = $invoice->customer?->name ?? 'Guest';
+        $customerEmail = $invoice->customer?->email ?? 'N/A';
+        $wcOrderId = $invoice->wc_order_id ?? $invoice->invoice_number;
+
+        $message = "🛒 *New Online Order #{$wcOrderId}* 🛒\n\n"
+            . "👤 *Customer:* {$customerName}\n"
+            . "📧 *Email:* {$customerEmail}\n"
+            . "📦 *Items:* {$items->count()}\n\n"
+            . "{$itemLines}\n\n"
+            . "💰 *Total:* " . ($invoice->currency ?? 'USD') . ' ' . number_format($invoice->grand_total, 2) . "\n"
+            . "🕐 *Time:* " . $invoice->created_at->format('M d, Y h:i A');
+
+        try {
+            $response = Http::post("https://api.telegram.org/bot{$botToken}/sendMessage", [
+                'chat_id'    => $chatId,
+                'text'       => $message,
+                'parse_mode' => 'Markdown',
+            ]);
+
+            if (!$response->successful()) {
+                Log::warning('Nile manual Telegram notification failed', [
+                    'invoice_id' => $invoiceId,
+                    'status'     => $response->status(),
+                    'body'       => $response->json(),
+                ]);
+
+                return response()->json([
+                    'success' => false,
+                    'error'   => 'Telegram API returned status ' . $response->status(),
+                ], 502);
+            }
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Notification sent to Telegram group',
+            ]);
+        } catch (\Exception $e) {
+            Log::error('Nile manual Telegram notification error: ' . $e->getMessage());
+
+            return response()->json([
+                'success' => false,
+                'error'   => $e->getMessage(),
             ], 500);
         }
     }

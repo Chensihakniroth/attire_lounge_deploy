@@ -12,7 +12,8 @@ import {
     ArrowLeft,
     Download,
     Calendar,
-    DollarSign
+    DollarSign,
+    Send
 } from 'lucide-react';
 import { useAdmin } from './AdminContext';
 import { useNavigate } from 'react-router-dom';
@@ -26,6 +27,7 @@ const OrderManager = () => {
     const [search, setSearch] = useState('');
     const [filter, setFilter] = useState('all');
     const [expandedId, setExpandedId] = useState(null);
+    const [notifyingId, setNotifyingId] = useState(null);
 
     const fetchOrders = async () => {
         setLoading(true);
@@ -60,6 +62,22 @@ const OrderManager = () => {
     useEffect(() => {
         fetchOrders();
     }, [filter, search]);
+
+    const handleNotifyTelegram = async (invoiceId) => {
+        setNotifyingId(invoiceId);
+        try {
+            const response = await axios.post(`/api/v1/admin/pos/invoices/${invoiceId}/notify-telegram`);
+            if (response.data?.success) {
+                alert('✅ Notification sent to Telegram group');
+            } else {
+                alert('❌ Failed: ' + (response.data?.error || 'Unknown error'));
+            }
+        } catch (err) {
+            alert('❌ Error: ' + (err.response?.data?.error || err.message));
+        } finally {
+            setNotifyingId(null);
+        }
+    };
 
     const formatDate = (dateStr) => {
         const d = new Date(dateStr);
@@ -336,6 +354,21 @@ const OrderManager = () => {
                                                     <p className="text-lg font-black text-gray-900 dark:text-white">
                                                         Total: ${parseFloat(invoice.grand_total).toFixed(2)} {invoice.currency || 'USD'}
                                                     </p>
+                                                </div>
+
+                                                {/* Notify Telegram */}
+                                                <div className="flex justify-end pt-2">
+                                                    <button
+                                                        onClick={(e) => {
+                                                            e.stopPropagation();
+                                                            handleNotifyTelegram(invoice.id);
+                                                        }}
+                                                        disabled={notifyingId === invoice.id}
+                                                        className="flex items-center gap-2 px-3 py-1.5 text-[9px] font-black uppercase tracking-widest text-[#1a1a2e] dark:text-[#58a6ff] bg-[#1a1a2e]/5 dark:bg-[#58a6ff]/10 border border-[#1a1a2e]/10 dark:border-[#58a6ff]/20 rounded-lg hover:bg-[#1a1a2e]/10 dark:hover:bg-[#58a6ff]/20 transition-colors disabled:opacity-50"
+                                                    >
+                                                        <Send size={12} className={notifyingId === invoice.id ? 'animate-pulse' : ''} />
+                                                        {notifyingId === invoice.id ? 'Sending...' : 'Notify Telegram'}
+                                                    </button>
                                                 </div>
 
                                                 {/* Notes */}
