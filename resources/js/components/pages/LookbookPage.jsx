@@ -5,7 +5,6 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useInView } from 'react-intersection-observer';
 import { Loader2, Camera } from 'lucide-react';
 import { LOOKBOOK_CATEGORIES } from '../../data/lookbook.js';
-import { LOOKBOOK_COLLECTION_MAP } from '../../data/lookbook.js';
 import axios from 'axios';
 // Sub-components
 import LookbookHeader from './lookbook/LookbookHeader.jsx';
@@ -55,8 +54,9 @@ const LookbookPage = () => {
     const filteredAndSortedImages = useMemo(() => {
         let result = lookbookProducts.filter((img) => {
             if (filter === 'all') return true;
-            const allowedCollections = LOOKBOOK_COLLECTION_MAP[filter];
-            return allowedCollections && allowedCollections.includes(img.collection_slug);
+            // Filter by category_slug (for DB-driven categories like groom-wear, formal-wear)
+            // or collection_slug (for collection-based filters like shades-of-elegance, street-sartorial)
+            return img.category_slug === filter || img.collection_slug === filter;
         });
 
         switch (sort) {
