@@ -111,9 +111,7 @@ const CollectionManager = () => {
         data.append('image', file);
         if (editingId) data.append('collection_id', editingId);
         try {
-            const res = await axios.post('/api/v1/admin/images/upload', data, {
-                headers: { 'Content-Type': 'multipart/form-data' },
-            });
+            const res = await axios.post('/api/v1/admin/images/upload', data);
             if (res.data.url)
                 setFormData((prev) => ({ ...prev, image: res.data.url }));
         } catch {

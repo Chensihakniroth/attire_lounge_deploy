@@ -10,30 +10,7 @@
         <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Open+Sans:ital,wght@0,300..800;1,300..800&family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600&family=Bayon&family=Kantumruy+Pro:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400;1,500;1,600&display=swap" rel="stylesheet">
         <link rel="icon" type="image/png" href="https://bucket-production-4ca0.up.railway.app/product-assets/uploads/asset/ALO.png">
         <link href="{{ asset('/css/app.css') }}?v={{ time() }}" rel="stylesheet">
-        <script>
-            // Avoid FOUC (Flash of Unstyled Content) and white flash
-            (function () {
-                const storedTheme = localStorage.getItem('admin-theme');
-                const systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-                const theme = storedTheme || (systemPrefersDark ? 'dark' : 'light');
-                
-                const bgColor = theme === 'dark' ? '#050505' : '#f9fafb';
-                const fgColor = theme === 'dark' ? '#ffffff' : '#111827';
-                
-                if (theme === 'dark') {
-                    document.documentElement.classList.add('dark');
-                } else {
-                    document.documentElement.classList.remove('dark');
-                }
-                
-                document.write(`
-                    <style>
-                        body { background-color: ${bgColor} !important; color: ${fgColor} !important; }
-                        .initial-loader { background-color: ${bgColor}; }
-                    </style>
-                `);
-            })();
-        </script>
+        <script src="{{ asset('/js/admin-head.js') }}?v={{ time() }}"></script>
         <style>
             .initial-loader {
                 display: flex;

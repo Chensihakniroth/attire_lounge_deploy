@@ -18,6 +18,7 @@
 !/public/.htaccess
 !/public/robots.txt
 !/public/favicon.ico
+!/public/js/admin-head.js
 /storage/*.key
 /storage/pail
 /vendor
