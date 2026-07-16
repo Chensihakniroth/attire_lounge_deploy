@@ -219,11 +219,7 @@ export const AdminProvider = ({ children }) => {
     const { data: collections = [], isLoading: collectionsLoading } = useQuery({
         queryKey: ['admin-collections', activeOutlet],
         queryFn: async () => {
-            const response = await axios.get('/api/v1/products/collections', {
-                params: { 
-                    'X-Active-Outlet': activeOutlet
-                }
-            });
+            const response = await axios.get('/api/v1/admin/collections');
             return response.data.data || [];
         },
         enabled: !!adminToken && !!user,

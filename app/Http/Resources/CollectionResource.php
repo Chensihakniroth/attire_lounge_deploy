@@ -24,6 +24,7 @@ class CollectionResource extends JsonResource
             'image' => $this->getRawOriginal('image'),
             'image_url' => $this->image_url,
             'is_new' => $this->is_new,
+            'is_active' => $this->is_active,
         ];
     }
 }
