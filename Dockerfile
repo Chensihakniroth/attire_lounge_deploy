@@ -22,7 +22,13 @@ RUN apk add --no-cache \
 
 # Install PHP extensions
 RUN docker-php-ext-configure gd --with-freetype --with-jpeg --with-webp \
-    && docker-php-ext-install -j$(nproc) gd pdo_mysql mbstring zip bcmath intl sockets pcntl dom xml simplexml curl
+    && docker-php-ext-install -j$(nproc) gd pdo_mysql mbstring zip bcmath intl sockets pcntl dom xml simplexml curl \
+    && docker-php-ext-enable gd
+
+# Increase PHP upload limits for image uploads (up to 10MB per controller)
+RUN echo 'upload_max_filesize = 20M' > /usr/local/etc/php/conf.d/uploads.ini \
+    && echo 'post_max_size = 20M' >> /usr/local/etc/php/conf.d/uploads.ini \
+    && echo 'max_file_uploads = 20' >> /usr/local/etc/php/conf.d/uploads.ini
 
 # Install Redis extension
 RUN apk add --no-cache --virtual .build-deps $PHPIZE_DEPS \
