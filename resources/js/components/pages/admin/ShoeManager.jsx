@@ -221,6 +221,7 @@ const ProductsPage = () => {
         secondaryValues: ''
     });
     const [matrixData, setMatrixData] = useState({}); // { "COLOR_VAL-SIZE_VAL": qty }
+    const [bulkEditExistingMap, setBulkEditExistingMap] = useState({}); // { "COLOR-SIZE": productId } — tracks existing products during bulk edit
 
     // --- Debounced Filters for API ---
     const [debouncedFilters, setDebouncedFilters] = useState(filters);
@@ -396,8 +397,14 @@ const ProductsPage = () => {
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ['admin-shoes'] });
             setSelectedProductsMap(new Map());
+            setBulkEditExistingMap({});
             setIsBulkDialogOpen(false);
+            navigateToView('list');
             setToast({ type: 'success', message: 'Bulk update completed.' });
+        },
+        onError: (err) => {
+            setIsSaving(false);
+            setToast({ type: 'error', message: err.response?.data?.message || 'Failed to update products.' });
         }
     });
 
@@ -597,6 +604,7 @@ const ProductsPage = () => {
             const primaryAttrs = new Set();
             const secondaryAttrs = new Set();
             const editData = {};
+            const existingProductMap = {};
             
             let foundPrimaryKey = null;
             let foundSecondaryKey = null;
@@ -633,14 +641,18 @@ const ProductsPage = () => {
                 if (primary) primaryAttrs.add(primary);
                 if (secondary) secondaryAttrs.add(secondary);
                 
-                // Build key for matrix data
+                // Build key for matrix data and track existing product IDs
                 if (primary && secondary) {
-                    editData[`${primary}-${secondary}`] = parseInt(p.stock_qty || p.stock || 0);
+                    const key = `${primary}-${secondary}`;
+                    editData[key] = parseInt(p.stock_qty || p.stock || 0);
+                    existingProductMap[key] = p.id;
                 } else if (primary) {
                     // Single attribute — key format: "VALUE-QTY" (no secondary column)
-                    editData[`${primary}-QTY`] = parseInt(p.stock_qty || p.stock || 0);
+                    const key = `${primary}-QTY`;
+                    editData[key] = parseInt(p.stock_qty || p.stock || 0);
+                    existingProductMap[key] = p.id;
                 }
-            });
+                });
             
             // Determine attribute labels
             const primaryVals = Array.from(primaryAttrs);
@@ -681,6 +693,7 @@ const ProductsPage = () => {
                 secondaryValues: secondaryVals.length > 0 ? sortAttrValues(secondaryVals).join(', ') : ''
             });
             setMatrixData(editData);
+            setBulkEditExistingMap(existingProductMap);
             
             navigateToView('form');
         } else {
@@ -742,6 +755,7 @@ const ProductsPage = () => {
 
     const handleAddClick = () => {
         setEditingProduct(null);
+        setBulkEditExistingMap({});
         setFormData({
             sku: '', name: '', price: '', stock_qty: '', category: '', is_service: false,
             barcode: '', status: 'available', min_stock: '0', max_stock: '99999',
@@ -805,6 +819,7 @@ const ProductsPage = () => {
     const handleAddSimilar = (group) => {
         const firstItem = group.items[0];
         setEditingProduct(null);
+        setBulkEditExistingMap({});
         setFormData({
             sku: '',
             name: group.name,
@@ -842,6 +857,59 @@ const ProductsPage = () => {
 
         if (hasMatrixEntries && pVals.length > 0 && !editingProduct) {
             // --- Matrix Grid submission (1D or 2D) ---
+            const hasExistingProducts = Object.keys(bulkEditExistingMap).length > 0;
+
+            if (hasExistingProducts) {
+                // --- Bulk UPDATE existing products (edit mode) ---
+                const updates = [];
+
+                if (sVals.length > 0) {
+                    // 2D grid
+                    pVals.forEach(p => {
+                        sVals.forEach(s => {
+                            const key = `${p}-${s}`;
+                            const qty = parseInt(matrixData[key] || 0);
+                            const productId = bulkEditExistingMap[key];
+                            if (productId) {
+                                updates.push({
+                                    id: productId,
+                                    name: formData.name,
+                                    price: formData.price || undefined,
+                                    stock_qty: qty,
+                                    category: formData.category || undefined,
+                                });
+                            }
+                        });
+                    });
+                } else {
+                    // 1D grid
+                    pVals.forEach(p => {
+                        const key = `${p}-QTY`;
+                        const qty = parseInt(matrixData[key] || 0);
+                        const productId = bulkEditExistingMap[key];
+                        if (productId) {
+                            updates.push({
+                                id: productId,
+                                name: formData.name,
+                                price: formData.price || undefined,
+                                stock_qty: qty,
+                                category: formData.category || undefined,
+                            });
+                        }
+                    });
+                }
+
+                if (updates.length === 0) {
+                    alert('No products matched for update.');
+                    setIsSaving(false);
+                    return;
+                }
+
+                bulkUpdateMutation.mutate({ products: updates });
+                return;
+            }
+
+            // --- Bulk CREATE new products (add mode) ---
             const products = [];
             const baseSku = formData.sku || formData.name.substring(0, 5).replace(/\s+/g, '').toUpperCase();
 
