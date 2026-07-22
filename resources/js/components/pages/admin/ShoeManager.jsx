@@ -399,6 +399,7 @@ const ProductsPage = () => {
             setSelectedProductsMap(new Map());
             setBulkEditExistingMap({});
             setIsBulkDialogOpen(false);
+            setIsSaving(false);
             navigateToView('list');
             setToast({ type: 'success', message: 'Bulk update completed.' });
         },
