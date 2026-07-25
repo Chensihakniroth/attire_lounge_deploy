@@ -6,6 +6,7 @@ use App\Models\PosInvoice;
 use App\Models\PosInvoiceItem;
 use App\Models\PosPayment;
 use App\Models\PosProduct;
+use App\Models\PosRefund;
 use App\Models\Promocode;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
@@ -217,6 +218,55 @@ class PosInvoiceController extends Controller
         } catch (\Exception $e) {
             DB::rollBack();
             return response()->json(['message' => 'Failed to save invoice: ' . $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * Hard-delete an invoice — restores stock, removes all related records.
+     * DELETE /api/v1/admin/pos/invoices/{id}
+     * Admin only. Used to remove accidentally submitted receipts.
+     */
+    public function delete(int $id): JsonResponse
+    {
+        $invoice = PosInvoice::with('items')->findOrFail($id);
+
+        DB::beginTransaction();
+        try {
+            // Restore stock for all physical (non-service) items
+            foreach ($invoice->items as $item) {
+                if (!$item->is_service && $item->product_id) {
+                    $posProduct = PosProduct::find($item->product_id);
+                    if ($posProduct) {
+                        $posProduct->increment('stock_qty', $item->quantity);
+                    }
+                }
+            }
+
+            // Remove related records in correct order (FK-safe)
+            PosRefund::where('invoice_id', $id)->delete();
+            PosPayment::where('invoice_id', $id)->delete();
+            PosInvoiceItem::where('invoice_id', $id)->delete();
+            $invoice->delete();
+
+            DB::commit();
+
+            // Clear report caches
+            $date   = $invoice->date;
+            $outlet = $invoice->outlet;
+            $dateStr = $date instanceof \Carbon\Carbon ? $date->toDateString() : \Carbon\Carbon::parse($date)->toDateString();
+            $year   = \Carbon\Carbon::parse($date)->year;
+            $month  = \Carbon\Carbon::parse($date)->month;
+
+            Cache::forget("sales_daily_{$outlet}_{$dateStr}");
+            Cache::forget("sales_monthly_{$outlet}_{$year}_{$month}");
+
+            return response()->json([
+                'message' => 'Invoice deleted successfully',
+            ]);
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response()->json(['message' => 'Delete failed: ' . $e->getMessage()], 500);
         }
     }
 

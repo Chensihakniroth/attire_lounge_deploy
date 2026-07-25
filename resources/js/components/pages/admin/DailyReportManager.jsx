@@ -5,7 +5,8 @@ import {
     Calendar, RefreshCw, Download, ChevronLeft, ChevronRight,
     Edit3, Check, X, Wallet, ShoppingBag, Package,
     ArrowUpRight, ArrowDownRight, Minus, AlertCircle,
-    CreditCard, Banknote, QrCode, Clock, Layers
+    CreditCard, Banknote, QrCode, Clock, Layers,
+    Trash2
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import DatePicker from '../../ui/DatePicker';
@@ -360,6 +361,11 @@ const DailyReportManager = () => {
     const [targetNotes, setTargetNotes] = useState('');
     const [savingTarget, setSavingTarget] = useState(false);
 
+    // Delete invoice
+    const [deletingInvoice, setDeletingInvoice] = useState(null);
+    const [deleteConfirmVisible, setDeleteConfirmVisible] = useState(false);
+    const [deleting, setDeleting] = useState(false);
+
     // ── fetch ────────────────────────────────────────────────────────────────
     const fetchDaily = useCallback(async () => {
         setLoading(true);
@@ -440,6 +446,33 @@ const DailyReportManager = () => {
             setEditingTarget(false);
         } catch (e) { console.error(e); }
         finally { setSavingTarget(false); }
+    };
+
+    // ── delete invoice ──────────────────────────────────────────────────────
+    const openDeleteConfirm = (invoice) => {
+        setDeletingInvoice(invoice);
+        setDeleteConfirmVisible(true);
+    };
+
+    const confirmDelete = async () => {
+        if (!deletingInvoice) return;
+        setDeleting(true);
+        try {
+            await axios.delete(`/api/v1/admin/pos/invoices/${deletingInvoice.id}`, {
+                headers: { ...authHeaders(), 'X-Active-Outlet': activeOutlet },
+            });
+            // Refresh the data for the current view
+            if (view === 'daily') await fetchDaily();
+            else if (view === 'weekly') await fetchWeekly();
+            else await fetchMonthly();
+        } catch (e) {
+            console.error('Delete failed:', e);
+            alert(e.response?.data?.message || 'Failed to delete invoice.');
+        } finally {
+            setDeleting(false);
+            setDeleteConfirmVisible(false);
+            setDeletingInvoice(null);
+        }
     };
 
     // ── navigate month ────────────────────────────────────────────────────────
@@ -958,6 +991,7 @@ const DailyReportManager = () => {
                                                 <th className="px-6 py-3 font-bold">Items</th>
                                                 <th className="px-6 py-3 font-bold text-right">Total</th>
                                                 <th className="px-6 py-3 font-bold text-right">Payment Methods</th>
+                                                <th className="px-6 py-3 font-bold text-right w-16"></th>
                                             </tr>
                                         </thead>
                                         <tbody className="divide-y divide-black/5 dark:divide-[#30363d]">
@@ -998,6 +1032,15 @@ const DailyReportManager = () => {
                                                             )}
                                                         </div>
                                                     </td>
+                                                    <td className="px-6 py-4 text-right">
+                                                        <button
+                                                            onClick={() => openDeleteConfirm(inv)}
+                                                            className="p-1.5 rounded-lg text-red-400 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-500/10 transition-all opacity-0 group-hover:opacity-100"
+                                                            title="Delete receipt"
+                                                        >
+                                                            <Trash2 size={13} />
+                                                        </button>
+                                                    </td>
                                                 </tr>
                                             ))}
                                         </tbody>
@@ -1009,6 +1052,63 @@ const DailyReportManager = () => {
                     </motion.div>
                 </AnimatePresence>
             )}
+
+            {/* ── Delete Confirmation Modal ── */}
+            <AnimatePresence>
+                {deleteConfirmVisible && deletingInvoice && (
+                    <motion.div
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 dark:bg-black/70"
+                        onClick={(e) => { if (e.target === e.currentTarget) { setDeleteConfirmVisible(false); setDeletingInvoice(null); }}}
+                    >
+                        <motion.div
+                            initial={{ opacity: 0, scale: 0.95 }}
+                            animate={{ opacity: 1, scale: 1 }}
+                            exit={{ opacity: 0, scale: 0.95 }}
+                            className="bg-white dark:bg-[#161b22] border border-black/5 dark:border-[#30363d] rounded-2xl p-6 w-full max-w-md shadow-2xl"
+                        >
+                            <div className="flex items-center gap-3 mb-4">
+                                <div className="p-2.5 rounded-xl bg-red-50 dark:bg-red-500/10">
+                                    <AlertCircle size={18} className="text-red-500" />
+                                </div>
+                                <div>
+                                    <h3 className="text-sm font-black text-gray-900 dark:text-[#c9d1d9]">Delete Receipt</h3>
+                                    <p className="text-[10px] text-gray-400 dark:text-[#8b949e]/50 uppercase tracking-widest">This action cannot be undone</p>
+                                </div>
+                            </div>
+
+                            <div className="bg-black/[0.02] dark:bg-white/[0.02] border border-black/[0.04] dark:border-white/[0.04] rounded-xl p-4 mb-5">
+                                <p className="text-xs text-gray-700 dark:text-[#c9d1d9]">
+                                    Are you sure you want to permanently delete invoice <span className="font-black">{deletingInvoice.invoice_number}</span>?
+                                </p>
+                                <p className="text-[10px] text-gray-400 dark:text-[#8b949e]/50 mt-2">
+                                    Stock will be restored. This invoice and all its records will be removed from the database.
+                                </p>
+                            </div>
+
+                            <div className="flex gap-3">
+                                <button
+                                    onClick={() => { setDeleteConfirmVisible(false); setDeletingInvoice(null); }}
+                                    disabled={deleting}
+                                    className="flex-1 px-4 py-2.5 bg-black/5 dark:bg-white/5 text-gray-500 dark:text-[#8b949e] rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-black/10 dark:hover:bg-white/10 transition-all disabled:opacity-50"
+                                >
+                                    Cancel
+                                </button>
+                                <button
+                                    onClick={confirmDelete}
+                                    disabled={deleting}
+                                    className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 bg-red-500 text-white rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-red-600 transition-all disabled:opacity-50"
+                                >
+                                    {deleting ? <RefreshCw size={12} className="animate-spin" /> : <Trash2 size={12} />}
+                                    {deleting ? 'Deleting...' : 'Delete Forever'}
+                                </button>
+                            </div>
+                        </motion.div>
+                    </motion.div>
+                )}
+            </AnimatePresence>
         </div>
     );
 };

@@ -176,6 +176,7 @@ Route::prefix('v1')->group(function () {
             Route::get('/pos/invoices', [PosInvoiceController::class, 'index']);
             Route::post('/pos/invoices', [PosInvoiceController::class, 'store']);
             Route::get('/pos/invoices/{id}', [PosInvoiceController::class, 'show']);
+            Route::delete('/pos/invoices/{id}', [PosInvoiceController::class, 'delete']);
             Route::post('/pos/invoices/{id}/notify-telegram', [OrderWebhookController::class, 'notifyTelegram']);
 
             // Refunds
