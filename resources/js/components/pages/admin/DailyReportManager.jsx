@@ -1035,7 +1035,7 @@ const DailyReportManager = () => {
                                                     <td className="px-6 py-4 text-right">
                                                         <button
                                                             onClick={() => openDeleteConfirm(inv)}
-                                                            className="p-1.5 rounded-lg text-red-400 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-500/10 transition-all opacity-0 group-hover:opacity-100"
+                                                            className="p-1.5 rounded-lg text-red-400 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-500/10 transition-all"
                                                             title="Delete receipt"
                                                         >
                                                             <Trash2 size={13} />
