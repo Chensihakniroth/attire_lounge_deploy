@@ -6,11 +6,12 @@ import {
     Edit3, Check, X, Wallet, ShoppingBag, Package,
     ArrowUpRight, ArrowDownRight, Minus, AlertCircle,
     CreditCard, Banknote, QrCode, Clock, Layers,
-    Trash2
+    Trash2, Copy, Undo2
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import DatePicker from '../../ui/DatePicker';
 import { useAdmin } from './AdminContext';
+import { useNavigate } from 'react-router-dom';
 
 // ─── helpers ────────────────────────────────────────────────────────────────
 const authHeaders = () => {
@@ -341,6 +342,7 @@ const exportWeeklyCSV = (weekly, weekStart, outlet) => {
 // ─── Main Component ──────────────────────────────────────────────────────────
 const DailyReportManager = () => {
     const { activeOutlet } = useAdmin();
+    const navigate = useNavigate();
     const today = new Date().toISOString().split('T')[0];
     const [view, setView] = useState('daily'); // 'daily' | 'weekly' | 'monthly'
     const [selectedDate, setSelectedDate] = useState(today);
@@ -1033,13 +1035,46 @@ const DailyReportManager = () => {
                                                         </div>
                                                     </td>
                                                     <td className="px-6 py-4 text-right">
-                                                        <button
-                                                            onClick={() => openDeleteConfirm(inv)}
-                                                            className="p-1.5 rounded-lg text-red-400 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-500/10 transition-all"
-                                                            title="Delete receipt"
-                                                        >
-                                                            <Trash2 size={13} />
-                                                        </button>
+                                                        <div className="flex items-center justify-end gap-1">
+                                                            <button
+                                                                onClick={() => navigate(`/admin/pos?action=clone&invoice=${inv.id}`)}
+                                                                className="p-1.5 rounded-lg text-gray-400 hover:text-[#0d3542] dark:hover:text-[#58a6ff] hover:bg-black/5 dark:hover:bg-white/5 transition-all"
+                                                                title="Clone Invoice"
+                                                            >
+                                                                <Copy size={13} />
+                                                            </button>
+                                                            <button
+                                                                onClick={() => navigate(`/admin/pos?action=refund&invoice=${inv.id}`)}
+                                                                className="p-1.5 rounded-lg text-gray-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-500/10 transition-all"
+                                                                title="Refund"
+                                                            >
+                                                                <Undo2 size={13} />
+                                                            </button>
+                                                            {!['void', 'refunded'].includes(inv.status) && (
+                                                                <button
+                                                                    onClick={async () => {
+                                                                        if (!window.confirm('Void this invoice? Stock will be restored and the invoice will be marked as voided.')) return;
+                                                                        try {
+                                                                            await axios.post(`/api/v1/admin/pos/invoices/${inv.id}/void`, { reason: 'Voided from admin' });
+                                                                            fetchDaily();
+                                                                        } catch (err) {
+                                                                            alert(err.response?.data?.message || 'Failed to void invoice');
+                                                                        }
+                                                                    }}
+                                                                    className="p-1.5 rounded-lg text-gray-400 hover:text-orange-500 hover:bg-orange-50 dark:hover:bg-orange-500/10 transition-all"
+                                                                    title="Void Invoice"
+                                                                >
+                                                                    <X size={13} />
+                                                                </button>
+                                                            )}
+                                                            <button
+                                                                onClick={() => openDeleteConfirm(inv)}
+                                                                className="p-1.5 rounded-lg text-red-400 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-500/10 transition-all"
+                                                                title="Delete receipt"
+                                                            >
+                                                                <Trash2 size={13} />
+                                                            </button>
+                                                        </div>
                                                     </td>
                                                 </tr>
                                             ))}

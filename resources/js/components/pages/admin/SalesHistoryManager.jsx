@@ -271,7 +271,7 @@ const SalesHistoryManager = () => {
                                         </span>
                                     </td>
                                     <td className="px-6 py-6 text-right">
-                                        <div className="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                                        <div className="flex items-center gap-2">
                                             <button 
                                                 title="Clone Invoice into POS"
                                                 onClick={() => navigate(`/admin/pos?action=clone&invoice=${inv.id}`)}
