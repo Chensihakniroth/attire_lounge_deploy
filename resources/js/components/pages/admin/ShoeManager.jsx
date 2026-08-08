@@ -1,18 +1,17 @@
-import React, { useState, useEffect, useMemo, useRef } from 'react';
+import React, { useState, useEffect, useMemo, useRef, useCallback } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import axios from 'axios';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
-    X, Plus, Edit, Trash2, 
+    X, Plus, Trash2, 
     Hash, DollarSign, Layers, Check, 
-    ChevronDown, Archive, ChevronLeft, ChevronRight, Search, Package,
+    ChevronLeft, ChevronRight, Search, Package,
     Download, Upload, Tag, 
     Command, AlertCircle,
-    ArrowUp, ArrowDown, Keyboard, Save, Box, Eye, FolderPlus, Loader2, Printer,
+    Keyboard, Save, Box, Eye, FolderPlus, Loader2, Printer,
     Footprints
 } from 'lucide-react';
 import { LumaSpin } from '@/components/ui/luma-spin';
-import Barcode from 'react-barcode';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { formatPrice } from '@/helpers/format';
@@ -144,12 +143,12 @@ const ProductsPage = () => {
         return () => window.removeEventListener('popstate', handlePopState);
     }, []);
 
-    const navigateToView = (newView) => {
+    const navigateToView = useCallback((newView) => {
         setView(newView);
         if (window.history.state?.view !== newView) {
             window.history.pushState({ view: newView }, '');
         }
-    };
+    }, []);
 
     const handleImageUpload = async (e) => {
         const file = e.target.files[0];
@@ -173,9 +172,8 @@ const ProductsPage = () => {
     const [quickEditField, setQuickEditField] = useState(null); // 'price' | 'stock' | null
     const [isSaving, setIsSaving] = useState(false);
     const [barcodePrintProducts, setBarcodePrintProducts] = useState([]);
-    const [currentPage, setCurrentPage] = useState(1);
     const [currentGroupPage, setCurrentGroupPage] = useState(1);
-    const pageSize = 200;
+    const pageSize = 1000; // fetch all products — group pagination happens client-side
     const itemsPerGroupPage = 20;
 
     // Sidebar Filter States
@@ -199,7 +197,7 @@ const ProductsPage = () => {
     const [formData, setFormData] = useState({
         sku: '', name: '', price: '', stock_qty: '', category: '', is_service: false,
         barcode: '', status: 'available', min_stock: '0', max_stock: '99999',
-        watch_threshold: false, variant: '', attributes: [], image_path: ''
+        watch_threshold: false, variant: '', attributes: [], image_path: '', is_active: true
     });
     const [isCreatingGroup, setIsCreatingGroup] = useState(false);
     const [newGroupName, setNewGroupName] = useState('');
@@ -243,7 +241,6 @@ const ProductsPage = () => {
     useEffect(() => {
         const timer = setTimeout(() => {
             setDebouncedFilters(filters);
-            setCurrentPage(1);
             setCurrentGroupPage(1);
         }, 150); // Fast debounce for dropdown clicks
         return () => clearTimeout(timer);
@@ -251,7 +248,7 @@ const ProductsPage = () => {
 
     // --- Data Fetching ---
     const { data: productsData, isLoading, isError, error } = useQuery({
-        queryKey: ['admin-shoes', activeOutlet, debouncedFilters.nameBarcode, debouncedFilters.code, debouncedFilters.attribute, debouncedFilters.group, currentPage],
+        queryKey: ['admin-shoes', activeOutlet, debouncedFilters.nameBarcode, debouncedFilters.code, debouncedFilters.attribute, debouncedFilters.group],
         retry: 1,
         staleTime: 2 * 60 * 1000,
         queryFn: async () => {
@@ -262,7 +259,6 @@ const ProductsPage = () => {
                     code: debouncedFilters.code,
                     attribute: debouncedFilters.attribute,
                     category: debouncedFilters.group !== 'ALL GROUPS' ? debouncedFilters.group : '',
-                    page: currentPage,
                     per_page: pageSize 
                 }
             });
@@ -278,7 +274,7 @@ const ProductsPage = () => {
         return {
             totalValue,
             criticalCount,
-            totalSkus: apiStats?.pos_products ?? data.length
+            totalSkus: productsData?.total ?? apiStats?.pos_products ?? data.length
         };
     }, [productsData, apiStats]);
 
@@ -389,8 +385,13 @@ const ProductsPage = () => {
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ['admin-shoes'] });
             setQuickEditField(null);
+        },
+        onError: (err) => {
+            setToast({ type: 'error', message: err.response?.data?.message || 'Failed to save change.' });
         }
     });
+
+    const handleUpdateField = useCallback((id, data) => updateMutation.mutate({ id, data }), [updateMutation]);
 
     const bulkUpdateMutation = useMutation({
         mutationFn: (data) => axios.post('/api/v1/admin/pos/products/bulk-update', data),
@@ -398,7 +399,6 @@ const ProductsPage = () => {
             queryClient.invalidateQueries({ queryKey: ['admin-shoes'] });
             setSelectedProductsMap(new Map());
             setBulkEditExistingMap({});
-            setIsBulkDialogOpen(false);
             setIsSaving(false);
             navigateToView('list');
             setToast({ type: 'success', message: 'Bulk update completed.' });
@@ -414,8 +414,7 @@ const ProductsPage = () => {
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ['admin-shoes'] });
             setSelectedProductsMap(new Map());
-            setIsBulkDialogOpen(false);
-            setToast({ type: 'success', message: 'Products archived.' });
+            setToast({ type: 'success', message: 'Products deactivated.' });
         }
     });
 
@@ -532,7 +531,7 @@ const ProductsPage = () => {
     }, [focusedId]);
 
     // --- Handlers ---
-    const toggleSelect = (id) => {
+    const toggleSelect = useCallback((id) => {
         setSelectedProductsMap(prev => {
             const next = new Map(prev);
             if (next.has(id)) {
@@ -543,7 +542,7 @@ const ProductsPage = () => {
             }
             return next;
         });
-    };
+    }, [products]);
 
     const handleSelectAll = (e) => {
         const allCurrentSelected = products.length > 0 && products.every(p => selectedProductsMap.has(p.id));
@@ -556,21 +555,6 @@ const ProductsPage = () => {
             }
             return next;
         });
-    };
-
-    const handleBulkApply = (action, config) => {
-        const product_ids = Array.from(selectedIds);
-        if (action === 'archive') {
-            bulkArchiveMutation.mutate({ product_ids });
-        } else {
-            bulkUpdateMutation.mutate({
-                product_ids,
-                category: action === 'category' ? config.category : undefined,
-                price_change_type: action === 'price' ? config.priceType : undefined,
-                price_change_value: action === 'price' ? config.priceValue : undefined,
-                stock_reset_value: action === 'stock' ? config.stockValue : undefined,
-            });
-        }
     };
 
     const handleBulkEditClick = () => {
@@ -598,7 +582,8 @@ const ProductsPage = () => {
                 max_stock: '99999',
                 watch_threshold: false,
                 variant: '',
-                attributes: []
+                attributes: [],
+                is_active: true
             });
             
             // Extract attribute dimensions from selected products
@@ -698,16 +683,16 @@ const ProductsPage = () => {
             
             navigateToView('form');
         } else {
-            alert('Cannot bulk edit shoes from different groups in the matrix grid.');
+            setToast({ type: 'error', message: 'Cannot bulk edit shoes from different groups in the matrix grid.' });
         }
     };
 
-    const handleDeleteClick = (product) => {
-        if (!window.confirm(`Delete "${product.name}${product.variant ? ' ' + product.variant : ''}"?\n\nThis action cannot be undone.`)) return;
+    const handleDeleteClick = useCallback((product) => {
+        if (!window.confirm(`Deactivate "${product.name}${product.variant ? ' ' + product.variant : ''}"?\n\nIt will be hidden from the store.`)) return;
         deleteMutation.mutate(product.id);
-    };
+    }, [deleteMutation]);
 
-    const handleEditClick = (product) => {
+    const handleEditClick = useCallback((product) => {
         setEditingProduct(product);
 
         // Ensure attributes is always an array
@@ -749,10 +734,11 @@ const ProductsPage = () => {
             watch_threshold: product.watch_threshold || false,
             variant: product.variant || '',
             attributes: attrs,
-            image_path: product.image_path || ''
+            image_path: product.image_path || '',
+            is_active: product.is_active !== false
         });
         navigateToView('form');
-    };
+    }, [navigateToView]);
 
     const handleAddClick = () => {
         setEditingProduct(null);
@@ -760,7 +746,7 @@ const ProductsPage = () => {
         setFormData({
             sku: '', name: '', price: '', stock_qty: '', category: '', is_service: false,
             barcode: '', status: 'available', min_stock: '0', max_stock: '99999',
-            watch_threshold: false, variant: '', attributes: [], image_path: ''
+            watch_threshold: false, variant: '', attributes: [], image_path: '', is_active: true
         });
         setMatrixConfig({
             primaryKey: 'COLOR',
@@ -835,7 +821,8 @@ const ProductsPage = () => {
             watch_threshold: firstItem?.watch_threshold || false,
             variant: '',
             attributes: [],
-            image_path: ''
+            image_path: '',
+            is_active: true
         });
         setMatrixConfig({
             primaryKey: 'COLOR',
@@ -851,6 +838,18 @@ const ProductsPage = () => {
         if (e) e.preventDefault();
         setIsSaving(true);
 
+        // --- Frontend validation (friendly toasts instead of cryptic 422s) ---
+        const nameValid = (formData.name || '').trim().length > 0;
+        const priceNum = parseFloat(formData.price);
+        const priceValid = !isNaN(priceNum) && priceNum >= 0;
+        const categoryValid = (formData.category || '').trim().length > 0;
+
+        if (!nameValid) {
+            setToast({ type: 'error', message: 'Shoe name is required.' });
+            setIsSaving(false);
+            return;
+        }
+
         // --- Check if Matrix Grid has data (works regardless of activeTab) ---
         const pVals = (matrixConfig.primaryValues || '').split(',').map(v => v.trim()).filter(Boolean);
         const sVals = (matrixConfig.secondaryValues || '').split(',').map(v => v.trim()).filter(Boolean);
@@ -858,11 +857,24 @@ const ProductsPage = () => {
 
         if (hasMatrixEntries && pVals.length > 0 && !editingProduct) {
             // --- Matrix Grid submission (1D or 2D) ---
+            if (!categoryValid) {
+                setToast({ type: 'error', message: 'Select a product group for the matrix.' });
+                setIsSaving(false);
+                return;
+            }
+
             const hasExistingProducts = Object.keys(bulkEditExistingMap).length > 0;
+            const baseSku = formData.sku || formData.name.substring(0, 5).replace(/\s+/g, '').toUpperCase();
 
             if (hasExistingProducts) {
-                // --- Bulk UPDATE existing products (edit mode) ---
+                // --- Bulk UPDATE existing products + CREATE missing combos (edit mode) ---
                 const updates = [];
+                const newProducts = [];
+
+                // Fallback price for newly-created combos (bulkStore requires a price)
+                const firstExistingId = Object.values(bulkEditExistingMap)[0];
+                const fallbackPrice = products.find(p => p.id === firstExistingId)?.price;
+                const comboPrice = priceValid ? formData.price : fallbackPrice;
 
                 if (sVals.length > 0) {
                     // 2D grid
@@ -878,6 +890,17 @@ const ProductsPage = () => {
                                     price: formData.price || undefined,
                                     stock_qty: qty,
                                     category: formData.category || undefined,
+                                });
+                            } else if (qty > 0) {
+                                // New combo — create it instead of silently dropping it
+                                newProducts.push({
+                                    sku: `${baseSku}-${p.toUpperCase()}-${s.toUpperCase()}`,
+                                    name: formData.name,
+                                    price: comboPrice,
+                                    stock_qty: qty,
+                                    category: formData.category,
+                                    is_service: formData.is_service || false,
+                                    variant: `-${p.toUpperCase()} -${s.toUpperCase()}`,
                                 });
                             }
                         });
@@ -896,13 +919,56 @@ const ProductsPage = () => {
                                 stock_qty: qty,
                                 category: formData.category || undefined,
                             });
+                        } else if (qty > 0) {
+                            // New combo — create it instead of silently dropping it
+                            newProducts.push({
+                                sku: `${baseSku}-${p.toUpperCase()}`,
+                                name: formData.name,
+                                price: comboPrice,
+                                stock_qty: qty,
+                                category: formData.category,
+                                is_service: formData.is_service || false,
+                                variant: `-${p.toUpperCase()}`,
+                            });
                         }
                     });
                 }
 
-                if (updates.length === 0) {
-                    alert('No products matched for update.');
+                if (updates.length === 0 && newProducts.length === 0) {
+                    setToast({ type: 'error', message: 'No products matched for update.' });
                     setIsSaving(false);
+                    return;
+                }
+
+                if (newProducts.length > 0 && !priceValid && !fallbackPrice) {
+                    setToast({ type: 'error', message: 'New variants need a price — enter one in the form.' });
+                    setIsSaving(false);
+                    return;
+                }
+
+                if (updates.length > 0 && newProducts.length > 0) {
+                    // Mixed: update existing + create missing combos in one go
+                    Promise.all([
+                        axios.post('/api/v1/admin/pos/products/bulk-update', { products: updates }),
+                        axios.post('/api/v1/admin/pos/products/bulk', { products: newProducts }),
+                    ])
+                        .then(() => {
+                            queryClient.invalidateQueries({ queryKey: ['admin-shoes'] });
+                            setSelectedProductsMap(new Map());
+                            setBulkEditExistingMap({});
+                            setIsSaving(false);
+                            navigateToView('list');
+                            setToast({ type: 'success', message: `Updated ${updates.length}, created ${newProducts.length} new variant${newProducts.length > 1 ? 's' : ''}.` });
+                        })
+                        .catch(err => {
+                            setIsSaving(false);
+                            setToast({ type: 'error', message: err.response?.data?.message || 'Failed to update products.' });
+                        });
+                    return;
+                }
+
+                if (newProducts.length > 0) {
+                    bulkStoreMutation.mutate({ products: newProducts });
                     return;
                 }
 
@@ -911,8 +977,13 @@ const ProductsPage = () => {
             }
 
             // --- Bulk CREATE new products (add mode) ---
+            if (!priceValid) {
+                setToast({ type: 'error', message: 'Enter a valid price (0 or more) for the matrix.' });
+                setIsSaving(false);
+                return;
+            }
+
             const products = [];
-            const baseSku = formData.sku || formData.name.substring(0, 5).replace(/\s+/g, '').toUpperCase();
 
             if (sVals.length > 0) {
                 // 2D grid: primary × secondary
@@ -951,7 +1022,7 @@ const ProductsPage = () => {
             }
 
             if (products.length === 0) {
-                alert('Please enter quantities in the matrix.');
+                setToast({ type: 'error', message: 'Please enter quantities in the matrix.' });
                 setIsSaving(false);
                 return;
             }
@@ -961,6 +1032,12 @@ const ProductsPage = () => {
         }
 
         // --- Single product submission ---
+        if (!priceValid) {
+            setToast({ type: 'error', message: 'Enter a valid price (0 or more).' });
+            setIsSaving(false);
+            return;
+        }
+
         // Compiles attributes into a standardized string: "-VAL1 -VAL2 ..."
         const attributeString = (formData.attributes || [])
             .filter(attr => attr.value?.trim())
@@ -974,6 +1051,8 @@ const ProductsPage = () => {
             stock_qty: formData.stock_qty || 0,
             category: formData.category,
             is_service: formData.is_service || false,
+            is_active: formData.is_active !== false,
+            barcode: formData.barcode || undefined,
             variant: attributeString || undefined,
             image_path: formData.image_path || undefined,
         };
@@ -1450,7 +1529,7 @@ const ProductsPage = () => {
                                                                         onEdit={handleEditClick}
                                                                         onDelete={handleDeleteClick}
                                                                         onQuickEdit={setQuickEditField}
-                                                                        onUpdateField={(id, data) => updateMutation.mutate({ id, data })}
+                                                                        onUpdateField={handleUpdateField}
                                                                         formatPrice={formatPrice}
                                                                         performanceMode={performanceMode}
                                                                     />
@@ -1571,6 +1650,12 @@ const ProductsPage = () => {
                                                         <span className="absolute left-4 top-1/2 -translate-y-1/2 text-[#0d3542] dark:text-[#58a6ff] font-black text-lg">$</span>
                                                     </div>
                                                 </Field>
+                                                <Field label="Stock Quantity" hint={formData.is_service ? 'Service items do not track stock' : 'Units in stock'}>
+                                                    <input type="number" min="0" value={formData.stock_qty} disabled={formData.is_service} onChange={e => setFormData({...formData, stock_qty: e.target.value})} className={`${inputBase} font-mono tracking-tight`} placeholder="0" />
+                                                </Field>
+                                                <Field label="Barcode" hint="Optional — scan or type">
+                                                    <input value={formData.barcode} onChange={e => setFormData({...formData, barcode: e.target.value})} className={`${inputBase} uppercase font-mono tracking-widest`} placeholder="SCAN OR TYPE..." />
+                                                </Field>
                                             </div>
                                         </Section>
                                         
@@ -1654,6 +1739,30 @@ const ProductsPage = () => {
                                         </div>
                                     </Section>
 
+                                    <Section title="Product Image" icon={Eye}>
+                                        <div className="space-y-3">
+                                            {formData.image_path && (
+                                                <div className="relative rounded-xl overflow-hidden border border-black/10 dark:border-white/10">
+                                                    <img src={formData.image_path} alt="Product preview" className="w-full h-40 object-cover" />
+                                                    <button type="button" onClick={() => setFormData(f => ({ ...f, image_path: '' }))} className="absolute top-2 right-2 p-1.5 bg-black/60 text-white rounded-lg hover:bg-rose-500 transition-all" title="Remove image">
+                                                        <X size={14} />
+                                                    </button>
+                                                </div>
+                                            )}
+                                            <input type="file" id="product-image-input" accept="image/*" className="hidden" onChange={handleImageUpload} />
+                                            <Button
+                                                type="button"
+                                                onClick={() => document.getElementById('product-image-input')?.click()}
+                                                disabled={uploading}
+                                                variant="outline"
+                                                className="w-full h-10 border border-black/15 dark:border-[#30363d] text-[9px] font-black uppercase tracking-widest text-gray-400 dark:text-[#8b949e] hover:bg-black/5 dark:hover:bg-white/5 rounded-xl transition-all"
+                                            >
+                                                {uploading ? <Loader2 className="animate-spin mr-2" size={14} /> : <Upload size={14} className="mr-2" />}
+                                                {formData.image_path ? 'CHANGE IMAGE' : 'UPLOAD IMAGE'}
+                                            </Button>
+                                        </div>
+                                    </Section>
+
                                     <Section title="Organization" icon={FolderPlus}>
                                         <div className="space-y-4">
                                             <Field label="Product Group">
@@ -1728,14 +1837,8 @@ const ProductsPage = () => {
                                 <button
                                     onClick={() => {
                                         const count = selectedIds.size;
-                                        if (!window.confirm(`Delete ${count} selected shoe${count > 1 ? 's' : ''}?\n\nThis action cannot be undone.`)) return;
-                                        Promise.all(
-                                            Array.from(selectedIds).map(id => axios.delete(`/api/v1/admin/pos/products/${id}`))
-                                        ).then(() => {
-                                            queryClient.invalidateQueries({ queryKey: ['admin-shoes'] });
-                                            setSelectedProductsMap(new Map());
-                                            setToast({ type: 'success', message: 'Shoes deleted.' });
-                                        }).catch(err => setToast({ type: 'error', message: 'Delete failed.' }));
+                                        if (!window.confirm(`Deactivate ${count} selected shoe${count > 1 ? 's' : ''}?\n\nThey will be hidden from the store.`)) return;
+                                        bulkArchiveMutation.mutate({ product_ids: Array.from(selectedIds) });
                                     }}
                                     className="flex items-center gap-2 text-red-400 hover:text-red-500 transition-colors group"
                                 >
