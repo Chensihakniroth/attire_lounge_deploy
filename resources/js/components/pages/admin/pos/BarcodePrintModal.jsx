@@ -1,54 +1,118 @@
-import React, { useRef } from 'react';
+import React, { useRef, useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { Printer, X } from 'lucide-react';
+import { Printer, X, Settings2 } from 'lucide-react';
 import Barcode from 'react-barcode';
 import { Button } from '@/components/ui/button';
 
 /**
  * BarcodePrintModal — Shared barcode label printer modal used by PosProductManager and ShoeManager.
- * Renders a preview grid of barcode labels and opens a print window with 2-up 35×22mm layout.
+ *
+ * Configurable label size (persisted in localStorage). Renders a preview grid of labels
+ * and opens a print window whose markup is generated from the product data, so the preview's
+ * Tailwind/inline styles can never leak into the printed output.
  *
  * Props:
  *   products — array of { id, name, variant, parsed_attributes, barcode, sku, price }
  *   onClose  — close handler
  *   formatPrice — price formatter function
  */
+
+/* ─── Label Size Presets (w × h in mm, up = labels per row) ─── */
+const LABEL_PRESETS = {
+    '35x22': { label: '35 × 22 mm — 2-up', w: 35, h: 22, up: 2 },
+    '40x25': { label: '40 × 25 mm — 2-up', w: 40, h: 25, up: 2 },
+    '50x30': { label: '50 × 30 mm — 1-up', w: 50, h: 30, up: 1 },
+    '58x40': { label: '58 × 40 mm — 1-up', w: 58, h: 40, up: 1 },
+};
+const STORAGE_KEY = 'attire.label.preset';
+const DEFAULT_PRESET = '35x22';
+
+const clamp = (v, min, max) => Math.min(max, Math.max(min, v));
+const esc = (s) => String(s ?? '')
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;');
+
 const BarcodePrintModal = ({ products, onClose, formatPrice }) => {
     const labelsRef = useRef(null);
 
+    const [presetKey, setPresetKey] = useState(() => {
+        try { return localStorage.getItem(STORAGE_KEY) || DEFAULT_PRESET; } catch { return DEFAULT_PRESET; }
+    });
+
+    useEffect(() => {
+        try { localStorage.setItem(STORAGE_KEY, presetKey); } catch { /* private mode */ }
+    }, [presetKey]);
+
+    const preset = LABEL_PRESETS[presetKey] || LABEL_PRESETS[DEFAULT_PRESET];
+    const sheetW = preset.w * preset.up + (preset.up - 1) * 2; // 2mm gutter between labels
+    const scale = clamp(preset.h / 22, 1, 1.6);               // font/barcode scale vs base 22mm label
+
+    const labelText = (p) => ({
+        name: p.name || '—',
+        variantText: (Array.isArray(p.parsed_attributes) && p.parsed_attributes.length > 0)
+            ? p.parsed_attributes.map(a => a.value).join(' · ')
+            : (p.variant || ''),
+        code: p.barcode || p.sku || 'N/A',
+        sku: p.sku || '',
+        price: formatPrice ? formatPrice(p.price) : p.price,
+    });
+
     const handlePrint = () => {
-        if (!labelsRef.current) return;
-        const labelEls = labelsRef.current.querySelectorAll('.bc-label');
-        let labelsHtml = '';
-        for (let i = 0; i < labelEls.length; i += 2) {
-            const label1 = labelEls[i].outerHTML;
-            const label2 = labelEls[i + 1] ? labelEls[i + 1].outerHTML : '';
-            labelsHtml += `<div class="lg">${label1}${label2}</div>`;
+        if (!labelsRef.current || products.length === 0) return;
+
+        // Barcode SVGs come from the rendered preview (react-barcode needs React);
+        // everything else is generated cleanly from data so no preview styles leak.
+        const cards = labelsRef.current.querySelectorAll('.bc-label');
+        const rows = [];
+        for (let i = 0; i < products.length; i += preset.up) {
+            rows.push(products.slice(i, i + preset.up));
         }
+
+        let labelsHtml = '';
+        rows.forEach((row, rowIdx) => {
+            let cells = '';
+            row.forEach((p, colIdx) => {
+                const card = cards[rowIdx * preset.up + colIdx];
+                const svg = card?.querySelector('.lbc svg')?.outerHTML || '';
+                const t = labelText(p);
+                cells += `
+                    <div class="bc-label">
+                        <div class="ln">${esc(t.name)}</div>
+                        ${t.variantText ? `<div class="lv">${esc(t.variantText)}</div>` : ''}
+                        <div class="lbc">${svg}</div>
+                        <div class="ls">${esc(t.sku)}</div>
+                        <div class="lp">${esc(t.price)}</div>
+                    </div>`;
+            });
+            labelsHtml += `<div class="lg">${cells}</div>`;
+        });
 
         const printWindow = window.open('', '_blank');
         if (!printWindow) { alert('Please allow popups for barcode printing.'); return; }
-        printWindow.document.write(`<html><head><title>Barcode Labels</title>
+
+        printWindow.document.write(`<html><head><title>Barcode Labels — ${preset.label}</title>
             <style>
                 *{margin:0;padding:0;box-sizing:border-box}
-                html,body{width:72mm;background:#fff;color:#000;font-family:'Arial Black',Arial,Helvetica,sans-serif;font-size:0;margin:0;padding:0}
-                @media print{@page{size:72mm 22mm;margin:0}html,body{width:72mm;-webkit-print-color-adjust:exact}}
-                .lg{display:grid !important;grid-template-columns:35mm 35mm !important;justify-content:space-between !important;width:72mm !important;height:21.5mm !important;max-height:21.5mm !important;overflow:hidden !important;align-items:center !important;page-break-inside:avoid !important;page-break-after:always !important;break-after:page !important}
+                html,body{width:${sheetW}mm;background:#fff;color:#000;font-family:'Arial Black',Arial,Helvetica,sans-serif;font-size:0;margin:0;padding:0}
+                @media print{@page{size:${sheetW}mm ${preset.h}mm;margin:0}html,body{width:${sheetW}mm;-webkit-print-color-adjust:exact}}
+                .lg{display:grid !important;grid-template-columns:repeat(${preset.up}, ${preset.w}mm) !important;justify-content:space-between !important;width:${sheetW}mm !important;height:${preset.h}mm !important;max-height:${preset.h}mm !important;overflow:hidden !important;align-items:center !important;page-break-inside:avoid !important;page-break-after:always !important;break-after:page !important}
                 .lg:last-child{page-break-after:avoid !important;break-after:avoid !important}
-                .bc-label{width:35mm !important;height:21.5mm !important;max-height:21.5mm !important;min-height:21.5mm !important;padding:0 !important;display:flex !important;flex-direction:column !important;align-items:center !important;justify-content:center !important;text-align:center !important;overflow:hidden !important;box-sizing:border-box !important;border:none !important;background:transparent !important;border-radius:0 !important;page-break-inside:avoid !important;page-break-after:avoid !important}
+                .bc-label{width:${preset.w}mm !important;height:${preset.h}mm !important;max-height:${preset.h}mm !important;min-height:${preset.h}mm !important;padding:0 !important;display:flex !important;flex-direction:column !important;align-items:center !important;justify-content:center !important;text-align:center !important;overflow:hidden !important;box-sizing:border-box !important;border:none !important;background:transparent !important;border-radius:0 !important;page-break-inside:avoid !important;page-break-after:avoid !important}
                 .bc-label > div { margin: 0 !important; padding: 0 !important; border: none !important; }
-                .ln{font-size:9pt !important;font-weight:900 !important;text-transform:uppercase !important;letter-spacing:.2px !important;line-height:1 !important;white-space:nowrap !important;overflow:hidden !important;text-overflow:ellipsis !important;max-width:100% !important;margin:0 0 1px 0 !important;padding:0 !important;color:#000 !important}
-                .lv{font-size:6.5pt !important;font-weight:900 !important;color:#000 !important;text-transform:uppercase !important;letter-spacing:.3px !important;line-height:1 !important;margin:1px 0 0 0 !important}
-                .lbc{margin:1px 0 !important;line-height:0 !important;width:100% !important;text-align:center !important}.lbc svg{max-width:33mm !important;height:auto !important;max-height:8mm !important;display:inline-block !important;shape-rendering:crispEdges !important}
-                .ls{font-size:5.5pt !important;font-weight:900 !important;font-family:'Courier New',monospace !important;letter-spacing:0.5px !important;color:#000 !important;line-height:1 !important;margin:0 0 1px 0 !important}
-                .lp{font-size:11pt !important;font-weight:900 !important;line-height:1 !important;margin:1px 0 0 0 !important;padding:0 !important;color:#000 !important;border:none !important}
+                .ln{font-size:${(9 * scale).toFixed(1)}pt !important;font-weight:900 !important;text-transform:uppercase !important;letter-spacing:.2px !important;line-height:1 !important;white-space:nowrap !important;overflow:hidden !important;text-overflow:ellipsis !important;max-width:100% !important;margin:0 0 1px 0 !important;padding:0 !important;color:#000 !important}
+                .lv{font-size:${(6.5 * scale).toFixed(1)}pt !important;font-weight:900 !important;color:#000 !important;text-transform:uppercase !important;letter-spacing:.3px !important;line-height:1 !important;margin:1px 0 0 0 !important}
+                .lbc{margin:1px 0 !important;line-height:0 !important;width:100% !important;text-align:center !important}.lbc svg{max-width:100% !important;height:auto !important;max-height:${(8 * scale).toFixed(1)}mm !important;display:inline-block !important;shape-rendering:crispEdges !important}
+                .ls{font-size:${(5.5 * scale).toFixed(1)}pt !important;font-weight:900 !important;font-family:'Courier New',monospace !important;letter-spacing:0.5px !important;color:#000 !important;line-height:1 !important;margin:0 0 1px 0 !important}
+                .lp{font-size:${(11 * scale).toFixed(1)}pt !important;font-weight:900 !important;line-height:1 !important;margin:1px 0 0 0 !important;padding:0 !important;color:#000 !important;border:none !important}
             </style></head><body>
             ${labelsHtml}
             <script>
                 window.onload = function() {
-                    setTimeout(function(){ window.print(); window.close(); }, 300);
+                    setTimeout(function(){ window.focus(); window.print(); window.close(); }, 300);
                 }
-            </script>
+            <\/script>
         </body></html>`);
         printWindow.document.close();
     };
@@ -72,10 +136,23 @@ const BarcodePrintModal = ({ products, onClose, formatPrice }) => {
                         </div>
                         <div>
                             <h2 className="text-lg font-black text-[#0d3542] dark:text-[#58a6ff] uppercase tracking-[0.3em]">Barcode Labels</h2>
-                            <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mt-0.5">{products.length} label{products.length > 1 ? 's' : ''} · 2-up 35×22mm</p>
+                            <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mt-0.5">{products.length} label{products.length > 1 ? 's' : ''} · {preset.label}</p>
                         </div>
                     </div>
                     <div className="flex items-center gap-3">
+                        <div className="flex items-center gap-2 mr-2">
+                            <Settings2 size={13} className="text-gray-400" />
+                            <select
+                                value={presetKey}
+                                onChange={e => setPresetKey(e.target.value)}
+                                className="h-10 px-3 rounded-xl bg-white dark:bg-[#161b22] border border-black/15 dark:border-[#30363d] text-[10px] font-black uppercase tracking-widest text-gray-600 dark:text-white/70 outline-none focus:border-[#0d3542] dark:focus:border-[#58a6ff] transition-all cursor-pointer"
+                                title="Label size — match your label stock"
+                            >
+                                {Object.entries(LABEL_PRESETS).map(([k, v]) => (
+                                    <option key={k} value={k}>{v.label}</option>
+                                ))}
+                            </select>
+                        </div>
                         <Button onClick={handlePrint} className="h-11 px-8 bg-[#0d3542] dark:bg-[#58a6ff] text-white dark:text-black text-[10px] font-black uppercase tracking-[0.2em] rounded-xl hover:opacity-90 transition-all">
                             <Printer size={14} className="mr-2" /> Print All
                         </Button>
@@ -86,24 +163,31 @@ const BarcodePrintModal = ({ products, onClose, formatPrice }) => {
                 </div>
 
                 <div className="flex-1 overflow-y-auto p-8 bg-gray-50 dark:bg-[#0a0a0a] attire-scrollbar">
+                    <div className="mb-4 flex items-center gap-2 px-1">
+                        <span className="text-[9px] font-black text-gray-400 uppercase tracking-widest">Print tip:</span>
+                        <span className="text-[9px] font-bold text-gray-500 dark:text-white/40 uppercase tracking-wider">
+                            In the print dialog set <span className="text-[#0d3542] dark:text-[#58a6ff]">Margins: None</span> · <span className="text-[#0d3542] dark:text-[#58a6ff]">Scale: 100%</span> (Actual size). Misaligned? Try the matching 1-up size.
+                        </span>
+                    </div>
                     <div ref={labelsRef} className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-6 gap-3">
-                        {products.map((p) => (
-                            <div key={p.id} className="bc-label bg-white border border-gray-200 rounded-lg p-3 flex flex-col items-center justify-between text-center" style={{ minHeight: '120px' }}>
-                                <div className="space-y-0.5 w-full">
-                                    <div className="ln text-[10px] font-black text-gray-900 uppercase tracking-wide leading-tight line-clamp-1">{p.name}</div>
-                                    {(p.variant || (Array.isArray(p.parsed_attributes) && p.parsed_attributes.length > 0)) && (
-                                        <div className="lv text-[8px] font-bold text-gray-400 uppercase tracking-widest">
-                                            {Array.isArray(p.parsed_attributes) ? p.parsed_attributes.map(a => a.value).join(' · ') : p.variant}
-                                        </div>
-                                    )}
+                        {products.map((p, idx) => {
+                            const t = labelText(p);
+                            return (
+                                <div key={p.id ?? idx} data-idx={idx} className="bc-label bg-white border border-gray-200 rounded-lg p-3 flex flex-col items-center justify-between text-center" style={{ minHeight: '120px' }}>
+                                    <div className="space-y-0.5 w-full">
+                                        <div className="ln text-[10px] font-black text-gray-900 uppercase tracking-wide leading-tight line-clamp-1">{t.name}</div>
+                                        {t.variantText && (
+                                            <div className="lv text-[8px] font-bold text-gray-400 uppercase tracking-widest">{t.variantText}</div>
+                                        )}
+                                    </div>
+                                    <div className="lbc my-0.5">
+                                        <Barcode value={t.code} format="CODE128" width={1} height={35} displayValue={false} margin={0} background="transparent" />
+                                    </div>
+                                    <div className="ls text-[8px] font-mono font-bold text-gray-500 tracking-[0.1em] uppercase">{t.sku}</div>
+                                    <div className="lp text-[12px] font-black text-gray-900 border-t border-gray-200 w-full pt-1 mt-1">{t.price}</div>
                                 </div>
-                                <div className="lbc my-0.5">
-                                    <Barcode value={p.barcode || p.sku || 'N/A'} format="CODE128" width={1} height={35} displayValue={false} margin={0} background="transparent" />
-                                </div>
-                                <div className="ls text-[8px] font-mono font-bold text-gray-500 tracking-[0.1em] uppercase">{p.sku}</div>
-                                <div className="lp text-[12px] font-black text-gray-900 border-t border-gray-200 w-full pt-1 mt-1">{formatPrice(p.price)}</div>
-                            </div>
-                        ))}
+                            );
+                        })}
                     </div>
                 </div>
             </motion.div>
