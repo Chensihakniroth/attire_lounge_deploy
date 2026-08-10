@@ -10,11 +10,21 @@ use Illuminate\Support\Facades\DB;
 class SalesService
 {
     /**
-     * Get a comprehensive daily sales report.
+     * Daily sales report. When $endDate is null → single-day report (existing behavior).
+     * When $endDate is provided → period report spanning [$date, $endDate] with a
+     * per-day breakdown, reusing the same aggregate helpers as weekly/monthly.
      */
-    public function getDailyReport(string $date, string $outlet): array
+    public function getDailyReport(string $date, string $outlet, ?string $endDate = null): array
     {
-        return Cache::remember("sales_daily_{$outlet}_{$date}", 3600, function () use ($date, $outlet) {
+        $cacheKey = $endDate
+            ? "sales_daily_{$outlet}_{$date}_{$endDate}"
+            : "sales_daily_{$outlet}_{$date}";
+
+        return Cache::remember($cacheKey, 3600, function () use ($date, $endDate, $outlet) {
+            if ($endDate !== null && $endDate !== $date) {
+                return $this->getPeriodReport($date, $endDate, $outlet);
+            }
+
             $invoices = PosInvoice::where('date', $date)
                 ->where('status', 'completed')
                 ->with(['items', 'payments', 'customer'])
@@ -75,6 +85,60 @@ class SalesService
                 'invoices'           => $invoices,
             ];
         });
+    }
+
+    /**
+     * Period report for an arbitrary [start, end] date range.
+     * Shares the same aggregate helpers as weekly/monthly — no duplicated query logic.
+     */
+    private function getPeriodReport(string $startStr, string $endStr, string $outlet): array
+    {
+        // Daily revenue breakdown grouped by date
+        $dailyRevenue = DB::table('pos_invoices')
+            ->whereBetween('date', [$startStr, $endStr])
+            ->where('status', 'completed')
+            ->where('outlet', $outlet)
+            ->select('date as day', DB::raw('SUM(grand_total) as revenue'), DB::raw('COUNT(*) as invoices'))
+            ->groupBy('date')
+            ->orderBy('date')
+            ->get();
+
+        $totalRevenue = $dailyRevenue->sum('revenue');
+
+        $totalRefunds = DB::table('pos_refunds')
+            ->join('pos_invoices', 'pos_refunds.invoice_id', '=', 'pos_invoices.id')
+            ->whereBetween('pos_invoices.date', [$startStr, $endStr])
+            ->where('pos_invoices.outlet', $outlet)
+            ->sum('pos_refunds.amount');
+
+        $netRevenue = $totalRevenue - $totalRefunds;
+
+        // Total items, top sellers & category breakdown (single consolidated query)
+        [$totalItems, $topSellers, $categoryBreakdown] = $this->getItemsAggregates($startStr, $endStr, $outlet);
+
+        // Full invoice list for the period
+        $invoices = PosInvoice::whereBetween('date', [$startStr, $endStr])
+            ->where('status', 'completed')
+            ->where('outlet', $outlet)
+            ->with(['items', 'payments', 'customer'])
+            ->orderByDesc('created_at')
+            ->get();
+
+        return [
+            'date'               => $startStr,
+            'start_date'         => $startStr,
+            'end_date'           => $endStr,
+            'invoice_count'      => $invoices->count(),
+            'total_revenue'      => round($totalRevenue, 2),
+            'total_refunds'      => round($totalRefunds, 2),
+            'net_revenue'        => round($netRevenue, 2),
+            'avg_order_value'    => $invoices->count() > 0 ? round($totalRevenue / $invoices->count(), 2) : 0,
+            'total_items'        => $totalItems,
+            'top_sellers'        => $topSellers,
+            'category_breakdown' => $categoryBreakdown,
+            'daily_breakdown'    => $dailyRevenue,
+            'invoices'           => $invoices,
+        ];
     }
 
     /**

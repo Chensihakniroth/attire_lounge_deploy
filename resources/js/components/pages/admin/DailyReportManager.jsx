@@ -48,6 +48,20 @@ const formatWeekRange = (startStr) => {
     }
     return `${start.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })} - ${end.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}`;
 };
+const formatPeriodRange = (startStr, endStr) => {
+    const start = new Date(startStr + 'T00:00:00');
+    const end = new Date(endStr + 'T00:00:00');
+    const yearOpts = { month: 'short', day: 'numeric', year: 'numeric' };
+    if (start.getFullYear() === end.getFullYear() && start.getMonth() === end.getMonth() && start.getDate() === end.getDate()) {
+        return start.toLocaleDateString('en-US', yearOpts);
+    }
+    if (start.getFullYear() === end.getFullYear()) {
+        return `${start.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })} - ${end.toLocaleDateString('en-US', yearOpts)}`;
+    }
+    return `${start.toLocaleDateString('en-US', yearOpts)} - ${end.toLocaleDateString('en-US', yearOpts)}`;
+};
+const periodSpanDays = (startStr, endStr) =>
+    Math.round((new Date(endStr + 'T00:00:00') - new Date(startStr + 'T00:00:00')) / 86400000) + 1;
 
 // ─── outlet-aware unit label ────────────────────────────────────────────────
 const useUnitLabel = (outlet) => {
@@ -194,19 +208,30 @@ const downloadCSV = (rows, filename) => {
     URL.revokeObjectURL(url);
 };
 
-const exportDailyCSV = (daily, selectedDate, outlet) => {
+const exportDailyCSV = (daily, selectedDate, outlet, endDate) => {
     const unitLabel = useUnitLabel(outlet);
+    const isPeriod = !!endDate && endDate !== selectedDate;
+    const rangeLabel = isPeriod ? `${selectedDate} to ${endDate}` : selectedDate;
     const rows = [];
-    rows.push(['ATTIRE LOUNGE — DAILY REPORT', selectedDate]);
+    rows.push([isPeriod ? 'ATTIRE LOUNGE — PERIOD REPORT' : 'ATTIRE LOUNGE — DAILY REPORT', rangeLabel]);
     rows.push([]);
     rows.push(['SUMMARY']);
     rows.push(['Metric', 'Value']);
+    if (isPeriod) rows.push(['Period', rangeLabel]);
     rows.push(['Total Revenue', daily?.total_revenue ?? '']);
     rows.push(['Total Refunds', daily?.total_refunds ?? '']);
     rows.push([unitLabel.sold, daily?.total_items ?? '']);
     rows.push(['Invoice Count', daily?.invoice_count ?? '']);
     rows.push(['Avg Order Value', daily?.avg_order_value ?? '']);
     rows.push([]);
+    if (isPeriod) {
+        rows.push(['DAILY BREAKDOWN']);
+        rows.push(['Date', 'Revenue', 'Invoices']);
+        (daily?.daily_breakdown ?? []).forEach(d => {
+            rows.push([d.day, d.revenue, d.invoices]);
+        });
+        rows.push([]);
+    }
     rows.push(['TOP SELLERS']);
     rows.push(['Product', 'SKU', 'Qty Sold', 'Revenue']);
     (daily?.top_sellers ?? []).forEach(p => {
@@ -219,7 +244,9 @@ const exportDailyCSV = (daily, selectedDate, outlet) => {
         rows.push([p.method.toUpperCase(), p.total]);
     });
 
-    downloadCSV(rows, `attire-lounge-daily-${selectedDate}.csv`);
+    downloadCSV(rows, isPeriod
+        ? `attire-lounge-period-${selectedDate}-to-${endDate}.csv`
+        : `attire-lounge-daily-${selectedDate}.csv`);
 };
 
 const exportMonthlyCSV = (monthly, selectedYear, selectedMonth, outlet, targetRevenue, currentTarget) => {
@@ -346,6 +373,8 @@ const DailyReportManager = () => {
     const today = new Date().toISOString().split('T')[0];
     const [view, setView] = useState('daily'); // 'daily' | 'weekly' | 'monthly'
     const [selectedDate, setSelectedDate] = useState(today);
+    const [dailyMode, setDailyMode] = useState('day'); // 'day' | 'period'
+    const [periodEnd, setPeriodEnd] = useState(today);
     const [selectedYear, setSelectedYear] = useState(new Date().getFullYear());
     const [selectedMonth, setSelectedMonth] = useState(new Date().getMonth() + 1);
 
@@ -372,15 +401,18 @@ const DailyReportManager = () => {
     const fetchDaily = useCallback(async () => {
         setLoading(true);
         try {
+            const params = dailyMode === 'period'
+                ? { date: selectedDate, end_date: periodEnd }
+                : { date: selectedDate };
             const res = await axios.get('/api/v1/admin/sales-report/daily', {
-                params: { date: selectedDate },
+                params,
                 headers: { ...authHeaders(), 'X-Active-Outlet': activeOutlet },
             });
             setDailyData(res.data);
         } catch (e) {
             console.error(e);
         } finally { setLoading(false); }
-    }, [selectedDate, activeOutlet]);
+    }, [selectedDate, periodEnd, dailyMode, activeOutlet]);
 
     const fetchMonthly = useCallback(async () => {
         setLoading(true);
@@ -489,11 +521,33 @@ const DailyReportManager = () => {
 
     // ── daily date nav ────────────────────────────────────────────────────────
     const prevDay = () => {
+        if (dailyMode === 'period') {
+            const span = Math.max(1, periodSpanDays(selectedDate, periodEnd));
+            const s = new Date(selectedDate + 'T00:00:00');
+            const e = new Date(periodEnd + 'T00:00:00');
+            s.setDate(s.getDate() - span);
+            e.setDate(e.getDate() - span);
+            setSelectedDate(s.toISOString().split('T')[0]);
+            setPeriodEnd(e.toISOString().split('T')[0]);
+            return;
+        }
         const d = new Date(selectedDate);
         d.setDate(d.getDate() - 1);
         setSelectedDate(d.toISOString().split('T')[0]);
     };
     const nextDay = () => {
+        if (dailyMode === 'period') {
+            const span = Math.max(1, periodSpanDays(selectedDate, periodEnd));
+            const s = new Date(selectedDate + 'T00:00:00');
+            const e = new Date(periodEnd + 'T00:00:00');
+            s.setDate(s.getDate() + span);
+            e.setDate(e.getDate() + span);
+            if (e.toISOString().split('T')[0] <= today) {
+                setSelectedDate(s.toISOString().split('T')[0]);
+                setPeriodEnd(e.toISOString().split('T')[0]);
+            }
+            return;
+        }
         const d = new Date(selectedDate);
         d.setDate(d.getDate() + 1);
         if (d.toISOString().split('T')[0] <= today) setSelectedDate(d.toISOString().split('T')[0]);
@@ -543,7 +597,7 @@ const DailyReportManager = () => {
                         <RefreshCw size={14} className={loading ? 'animate-spin' : ''} />
                     </button>
                     {view === 'daily' && (
-                        <button onClick={() => exportDailyCSV(dailyData, selectedDate, activeOutlet)}
+                        <button onClick={() => exportDailyCSV(dailyData, selectedDate, activeOutlet, dailyMode === 'period' ? periodEnd : undefined)}
                             className="flex items-center gap-2 px-4 py-2 bg-[#0d3542] dark:bg-[#58a6ff] text-white dark:text-black rounded-xl text-[10px] font-black uppercase tracking-widest hover:opacity-90 transition-all">
                             <Download size={13} /> Export CSV
                         </button>
@@ -565,24 +619,66 @@ const DailyReportManager = () => {
 
             {/* ── Date / Month Navigator ── */}
             <div className="flex items-center gap-3 bg-white dark:bg-[#161b22] border border-black/5 dark:border-[#30363d] rounded-2xl p-4">
+                {view === 'daily' && (
+                    <div className="flex bg-black/[0.03] dark:bg-[#0d1117] border border-black/5 dark:border-[#30363d] rounded-xl p-1 shrink-0">
+                        {['day', 'period'].map(m => (
+                            <button key={m} onClick={() => setDailyMode(m)}
+                                className={`px-3 py-1.5 rounded-lg text-[9px] font-black uppercase tracking-widest transition-all ${dailyMode === m ? 'bg-[#0d3542] dark:bg-[#58a6ff] text-white dark:text-black' : 'text-gray-400 dark:text-[#8b949e]/50 hover:text-[#0d3542] dark:hover:text-[#58a6ff]'}`}>
+                                {m}
+                            </button>
+                        ))}
+                    </div>
+                )}
                 <button onClick={view === 'daily' ? prevDay : view === 'weekly' ? prevWeek : prevMonth}
                     className="p-2 rounded-lg hover:bg-black/5 dark:hover:bg-white/5 text-gray-400 hover:text-[#0d3542] dark:hover:text-[#58a6ff] transition-all">
                     <ChevronLeft size={16} />
                 </button>
 
                 {view === 'daily' ? (
-                    <div className="flex-1 flex flex-col items-center justify-center relative">
-                        <DatePicker 
-                            value={selectedDate}
-                            onChange={(e) => setSelectedDate(e.target.value)}
-                            className="w-48 mx-auto -mt-2"
-                            inputClassName="bg-transparent border-none outline-none text-center text-sm font-black uppercase tracking-widest text-gray-900 dark:text-[#c9d1d9] shadow-none !py-0 !px-0 hover:bg-black/5 dark:hover:bg-white/5 transition-colors focus:ring-0"
-                            placeholder="SELECT DATE"
-                        />
-                        <p className="text-[10px] text-gray-400 dark:text-[#8b949e]/40 uppercase tracking-widest mt-1">
-                            {new Date(selectedDate + 'T00:00:00').toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
-                        </p>
-                    </div>
+                    dailyMode === 'period' ? (
+                        <div className="flex-1 flex flex-col items-center justify-center gap-1">
+                            <div className="flex items-center gap-3">
+                                <div className="flex flex-col items-center gap-1">
+                                    <span className="text-[8px] font-black uppercase tracking-[0.25em] text-gray-400 dark:text-[#8b949e]/50">From</span>
+                                    <DatePicker
+                                        value={selectedDate}
+                                        onChange={(e) => { const v = e.target.value; setSelectedDate(v); if (v > periodEnd) setPeriodEnd(v); }}
+                                        className="w-40 -mt-2"
+                                        inputClassName="bg-transparent border-none outline-none text-center text-xs font-black uppercase tracking-widest text-gray-900 dark:text-[#c9d1d9] shadow-none !py-0 !px-0 hover:bg-black/5 dark:hover:bg-white/5 transition-colors focus:ring-0"
+                                        placeholder="START DATE"
+                                    />
+                                </div>
+                                <span className="text-gray-400 dark:text-[#8b949e]/40 font-black -mt-2">→</span>
+                                <div className="flex flex-col items-center gap-1">
+                                    <span className="text-[8px] font-black uppercase tracking-[0.25em] text-gray-400 dark:text-[#8b949e]/50">To</span>
+                                    <DatePicker
+                                        value={periodEnd}
+                                        minDate={selectedDate}
+                                        onChange={(e) => { const v = e.target.value; setPeriodEnd(v); if (v < selectedDate) setSelectedDate(v); }}
+                                        className="w-40 -mt-2"
+                                        inputClassName="bg-transparent border-none outline-none text-center text-xs font-black uppercase tracking-widest text-gray-900 dark:text-[#c9d1d9] shadow-none !py-0 !px-0 hover:bg-black/5 dark:hover:bg-white/5 transition-colors focus:ring-0"
+                                        placeholder="END DATE"
+                                    />
+                                </div>
+                            </div>
+                            <p className="text-[10px] text-gray-400 dark:text-[#8b949e]/40 uppercase tracking-widest mt-1">
+                                {formatPeriodRange(selectedDate, periodEnd)} · {periodSpanDays(selectedDate, periodEnd)} days
+                            </p>
+                        </div>
+                    ) : (
+                        <div className="flex-1 flex flex-col items-center justify-center relative">
+                            <DatePicker
+                                value={selectedDate}
+                                onChange={(e) => setSelectedDate(e.target.value)}
+                                className="w-48 mx-auto -mt-2"
+                                inputClassName="bg-transparent border-none outline-none text-center text-sm font-black uppercase tracking-widest text-gray-900 dark:text-[#c9d1d9] shadow-none !py-0 !px-0 hover:bg-black/5 dark:hover:bg-white/5 transition-colors focus:ring-0"
+                                placeholder="SELECT DATE"
+                            />
+                            <p className="text-[10px] text-gray-400 dark:text-[#8b949e]/40 uppercase tracking-widest mt-1">
+                                {new Date(selectedDate + 'T00:00:00').toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
+                            </p>
+                        </div>
+                    )
                 ) : view === 'weekly' ? (
                     <div className="flex-1 flex flex-col items-center justify-center relative">
                         <DatePicker 
@@ -632,6 +728,89 @@ const DailyReportManager = () => {
                                 icon={<Wallet size={18} />}
                             />
                         </div>
+
+                        {/* ── Period: Trend + Insights ── */}
+                        {view === 'daily' && dailyMode === 'period' && (
+                            <div className="grid md:grid-cols-3 gap-6">
+                                <div className="bg-white dark:bg-[#161b22] border border-black/5 dark:border-[#30363d] rounded-2xl p-6">
+                                    <div className="flex items-center gap-2 mb-4">
+                                        <BarChart2 size={14} className="text-[#0d3542] dark:text-[#58a6ff]" />
+                                        <p className="text-[10px] font-black uppercase tracking-[0.2em] text-gray-900 dark:text-[#c9d1d9]">Period Trend</p>
+                                    </div>
+                                    <MiniBar data={data?.daily_breakdown ?? []} />
+                                </div>
+
+                                <div className="md:col-span-2 bg-white dark:bg-[#161b22] border border-black/5 dark:border-[#30363d] rounded-2xl p-6">
+                                    <div className="flex items-center gap-2 mb-5">
+                                        <BarChart2 size={14} className="text-[#0d3542] dark:text-[#58a6ff]" />
+                                        <p className="text-[10px] font-black uppercase tracking-[0.2em] text-gray-900 dark:text-[#c9d1d9]">Period Insights</p>
+                                    </div>
+
+                                    {(() => {
+                                        const breakdown = data?.daily_breakdown ?? [];
+                                        const daysWithSales = breakdown.filter(d => parseFloat(d.revenue) > 0);
+                                        const spanDays = periodSpanDays(selectedDate, periodEnd);
+                                        const avgDaily = spanDays > 0 ? parseInt(data?.total_items ?? 0) / spanDays : 0;
+                                        const bestDay = daysWithSales.length > 0
+                                            ? daysWithSales.reduce((a, b) => parseFloat(a.revenue) >= parseFloat(b.revenue) ? a : b)
+                                            : null;
+                                        const totalInvoices = breakdown.reduce((a, d) => a + (d.invoices || 0), 0);
+
+                                        const insights = [
+                                            {
+                                                label: 'Best Day',
+                                                value: bestDay ? new Date(bestDay.day + 'T00:00:00').toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' }) : '—',
+                                                sub: bestDay ? `${fmt(bestDay.revenue)} (${fmtNum(bestDay.invoices)} invoices)` : 'No sales yet',
+                                                icon: <Award size={16} />,
+                                                accent: 'text-amber-500',
+                                            },
+                                            {
+                                                label: 'Avg / Day',
+                                                value: fmtNum(Math.round(avgDaily)),
+                                                sub: `${unitLabel.unit} per day over ${spanDays} day${spanDays !== 1 ? 's' : ''}`,
+                                                icon: <TrendingUp size={16} />,
+                                                accent: 'text-emerald-500',
+                                            },
+                                            {
+                                                label: 'Selling Days',
+                                                value: `${daysWithSales.length} / ${spanDays}`,
+                                                sub: `${totalInvoices} total invoices`,
+                                                icon: <Calendar size={16} />,
+                                                accent: 'text-[#0d3542] dark:text-[#58a6ff]',
+                                            },
+                                            {
+                                                label: 'Total Revenue',
+                                                value: fmt(data?.total_revenue),
+                                                sub: fmt(data?.net_revenue) + ' net',
+                                                icon: <TrendingDown size={16} />,
+                                                accent: 'text-purple-500',
+                                            },
+                                        ];
+
+                                        return (
+                                            <div className="grid grid-cols-2 gap-4">
+                                                {insights.map((item, i) => (
+                                                    <motion.div
+                                                        key={i}
+                                                        initial={{ opacity: 0, y: 8 }}
+                                                        animate={{ opacity: 1, y: 0 }}
+                                                        transition={{ delay: i * 0.06 }}
+                                                        className="bg-black/[0.02] dark:bg-white/[0.02] border border-black/[0.04] dark:border-white/[0.04] rounded-xl p-4 flex items-start gap-3"
+                                                    >
+                                                        <div className={`mt-0.5 ${item.accent}`}>{item.icon}</div>
+                                                        <div className="flex-1 min-w-0">
+                                                            <p className="text-[9px] font-black uppercase tracking-[0.2em] text-gray-400 dark:text-[#8b949e]/50 mb-1">{item.label}</p>
+                                                            <p className="text-lg font-black tracking-tight text-gray-900 dark:text-[#c9d1d9] leading-none">{item.value}</p>
+                                                            <p className="text-[10px] text-gray-400 dark:text-[#8b949e]/40 mt-1 uppercase tracking-widest">{item.sub}</p>
+                                                        </div>
+                                                    </motion.div>
+                                                ))}
+                                            </div>
+                                        );
+                                    })()}
+                                </div>
+                            </div>
+                        )}
 
                         {/* ── Monthly: Target Progress + Chart ── */}
                         {view === 'monthly' && (
@@ -982,7 +1161,7 @@ const DailyReportManager = () => {
                             <div className="bg-white dark:bg-[#161b22] border border-black/5 dark:border-[#30363d] rounded-2xl overflow-hidden mt-6">
                                 <div className="px-6 py-4 border-b border-black/5 dark:border-[#30363d] flex items-center gap-2">
                                     <Clock size={14} className="text-[#0d3542] dark:text-[#58a6ff]" />
-                                    <p className="text-[10px] font-black uppercase tracking-[0.2em] text-gray-900 dark:text-[#c9d1d9]">{view === 'weekly' ? 'Weekly Transactions' : 'Daily Transactions'}</p>
+                                    <p className="text-[10px] font-black uppercase tracking-[0.2em] text-gray-900 dark:text-[#c9d1d9]">{view === 'weekly' ? 'Weekly Transactions' : view === 'daily' && dailyMode === 'period' ? 'Period Transactions' : 'Daily Transactions'}</p>
                                 </div>
                                 <div className="overflow-x-auto">
                                     <table className="w-full text-left">

@@ -12,6 +12,7 @@ use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
 use App\Models\Scopes\OutletScope;
 use App\Services\SalesService;
+use Illuminate\Support\Collection;
 
 class SalesReportController extends Controller
 {
@@ -24,39 +25,22 @@ class SalesReportController extends Controller
     /**
      * GET /api/v1/admin/sales-report/daily
      * Detailed daily report: revenue, invoice count, top sellers, refunds.
+     * Optional `end_date` param turns it into a date-period report (inclusive range).
      */
     public function daily(Request $request): JsonResponse
     {
-        $date   = $request->get('date', now()->toDateString());
-        $outlet = $this->resolveOutlet();
+        $date    = $request->get('date', now()->toDateString());
+        $endDate = $request->get('end_date');
+        $outlet  = $this->resolveOutlet();
 
-        $data = $this->salesService->getDailyReport($date, $outlet);
+        // Defensive: ignore end_date when it's not a valid range
+        if ($endDate !== null && ($endDate < $date || !strtotime($endDate))) {
+            $endDate = null;
+        }
 
-        // Add payment breakdown which is specific to this controller for now
-        // Include both pos_payments and WooCommerce orders (which don't have pos_payments records)
-        $data['payment_breakdown'] = DB::table('pos_payments')
-            ->join('pos_invoices', 'pos_payments.invoice_id', '=', 'pos_invoices.id')
-            ->where('pos_invoices.date', $date)
-            ->where('pos_invoices.status', 'completed')
-            ->where('pos_invoices.outlet', $outlet)
-            ->select('pos_payments.method', DB::raw('SUM(pos_payments.amount) as total'))
-            ->groupBy('pos_payments.method')
-            ->get()
-            ->merge(
-                DB::table('pos_invoices')
-                    ->leftJoin('pos_payments', 'pos_invoices.id', '=', 'pos_payments.invoice_id')
-                    ->where('pos_invoices.date', $date)
-                    ->where('pos_invoices.status', 'completed')
-                    ->where('pos_invoices.outlet', $outlet)
-                    ->whereNull('pos_payments.id')
-                    ->where(function ($q) {
-                        $q->where('pos_invoices.order_source', 'woocommerce')
-                          ->orWhereNotNull('pos_invoices.wc_order_id');
-                    })
-                    ->select(DB::raw("'wc' as method"), DB::raw('SUM(pos_invoices.grand_total) as total'))
-                    ->groupBy('method')
-                    ->get()
-            );
+        $data = $this->salesService->getDailyReport($date, $outlet, $endDate ?: null);
+
+        $data['payment_breakdown'] = $this->paymentBreakdown($date, $endDate ?: $date, $outlet);
 
         return response()->json($data);
     }
@@ -79,29 +63,7 @@ class SalesReportController extends Controller
         $start = Carbon::create($year, $month, 1)->startOfMonth();
         $end   = $start->copy()->endOfMonth();
 
-        $data['payment_breakdown'] = DB::table('pos_payments')
-            ->join('pos_invoices', 'pos_payments.invoice_id', '=', 'pos_invoices.id')
-            ->whereBetween('pos_invoices.date', [$start->toDateString(), $end->toDateString()])
-            ->where('pos_invoices.status', 'completed')
-            ->where('pos_invoices.outlet', $outlet)
-            ->select('pos_payments.method', DB::raw('SUM(pos_payments.amount) as total'))
-            ->groupBy('pos_payments.method')
-            ->get()
-            ->merge(
-                DB::table('pos_invoices')
-                    ->leftJoin('pos_payments', 'pos_invoices.id', '=', 'pos_payments.invoice_id')
-                    ->whereBetween('pos_invoices.date', [$start->toDateString(), $end->toDateString()])
-                    ->where('pos_invoices.status', 'completed')
-                    ->where('pos_invoices.outlet', $outlet)
-                    ->whereNull('pos_payments.id')
-                    ->where(function ($q) {
-                        $q->where('pos_invoices.order_source', 'woocommerce')
-                          ->orWhereNotNull('pos_invoices.wc_order_id');
-                    })
-                    ->select(DB::raw("'wc' as method"), DB::raw('SUM(pos_invoices.grand_total) as total'))
-                    ->groupBy('method')
-                    ->get()
-            );
+        $data['payment_breakdown'] = $this->paymentBreakdown($start->toDateString(), $end->toDateString(), $outlet);
 
         return response()->json($data);
     }
@@ -122,29 +84,7 @@ class SalesReportController extends Controller
         $startStr = \Carbon\Carbon::parse($date)->startOfWeek(\Carbon\Carbon::MONDAY)->toDateString();
         $endStr   = \Carbon\Carbon::parse($date)->endOfWeek(\Carbon\Carbon::SUNDAY)->toDateString();
 
-        $data['payment_breakdown'] = DB::table('pos_payments')
-            ->join('pos_invoices', 'pos_payments.invoice_id', '=', 'pos_invoices.id')
-            ->whereBetween('pos_invoices.date', [$startStr, $endStr])
-            ->where('pos_invoices.status', 'completed')
-            ->where('pos_invoices.outlet', $outlet)
-            ->select('pos_payments.method', DB::raw('SUM(pos_payments.amount) as total'))
-            ->groupBy('pos_payments.method')
-            ->get()
-            ->merge(
-                DB::table('pos_invoices')
-                    ->leftJoin('pos_payments', 'pos_invoices.id', '=', 'pos_payments.invoice_id')
-                    ->whereBetween('pos_invoices.date', [$startStr, $endStr])
-                    ->where('pos_invoices.status', 'completed')
-                    ->where('pos_invoices.outlet', $outlet)
-                    ->whereNull('pos_payments.id')
-                    ->where(function ($q) {
-                        $q->where('pos_invoices.order_source', 'woocommerce')
-                          ->orWhereNotNull('pos_invoices.wc_order_id');
-                    })
-                    ->select(DB::raw("'wc' as method"), DB::raw('SUM(pos_invoices.grand_total) as total'))
-                    ->groupBy('method')
-                    ->get()
-            );
+        $data['payment_breakdown'] = $this->paymentBreakdown($startStr, $endStr, $outlet);
 
         return response()->json($data);
     }
@@ -187,6 +127,38 @@ class SalesReportController extends Controller
     {
         SalesTarget::findOrFail($id)->delete();
         return response()->json(['message' => 'Target deleted.']);
+    }
+
+    /**
+     * Payment method breakdown for an inclusive date range.
+     * Includes pos_payments plus WooCommerce orders (which don't have pos_payments records).
+     * Shared by daily/weekly/monthly to avoid duplicated query logic.
+     */
+    private function paymentBreakdown(string $startStr, string $endStr, string $outlet): Collection
+    {
+        return DB::table('pos_payments')
+            ->join('pos_invoices', 'pos_payments.invoice_id', '=', 'pos_invoices.id')
+            ->whereBetween('pos_invoices.date', [$startStr, $endStr])
+            ->where('pos_invoices.status', 'completed')
+            ->where('pos_invoices.outlet', $outlet)
+            ->select('pos_payments.method', DB::raw('SUM(pos_payments.amount) as total'))
+            ->groupBy('pos_payments.method')
+            ->get()
+            ->merge(
+                DB::table('pos_invoices')
+                    ->leftJoin('pos_payments', 'pos_invoices.id', '=', 'pos_payments.invoice_id')
+                    ->whereBetween('pos_invoices.date', [$startStr, $endStr])
+                    ->where('pos_invoices.status', 'completed')
+                    ->where('pos_invoices.outlet', $outlet)
+                    ->whereNull('pos_payments.id')
+                    ->where(function ($q) {
+                        $q->where('pos_invoices.order_source', 'woocommerce')
+                          ->orWhereNotNull('pos_invoices.wc_order_id');
+                    })
+                    ->select(DB::raw("'wc' as method"), DB::raw('SUM(pos_invoices.grand_total) as total'))
+                    ->groupBy('method')
+                    ->get()
+            );
     }
 
     /**
