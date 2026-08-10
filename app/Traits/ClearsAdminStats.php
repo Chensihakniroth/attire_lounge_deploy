@@ -24,11 +24,12 @@ trait ClearsAdminStats
         if (Cache::supportsTags()) {
             Cache::tags(['admin-stats'])->flush();
         } else {
-            Cache::forget('admin_dashboard_stats_attire_lounge');
-            Cache::forget('admin_dashboard_stats_caffeine');
-            Cache::forget('admin_dashboard_stats_kravat');
+            // Forget v2 dashboard stats keys for every outlet
+            foreach (['attire_lounge', 'caffeine', 'kravat', 'nile'] as $outlet) {
+                Cache::forget("admin_dashboard_stats_v2_{$outlet}");
+            }
             // Also flush sales daily/monthly caches since they power the dashboard widgets
-            foreach (['attire_lounge', 'caffeine', 'kravat'] as $outlet) {
+            foreach (['attire_lounge', 'caffeine', 'kravat', 'nile'] as $outlet) {
                 Cache::forget("sales_daily_{$outlet}_" . now()->toDateString());
                 $year = now()->year;
                 $month = now()->month;

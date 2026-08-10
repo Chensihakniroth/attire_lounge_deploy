@@ -66,7 +66,7 @@ const MultiTrendChart = ({
     }
 
     const gradientId = `areaGradient-${activeKey}`;
-    const maxValue = Math.max(...data.flatMap((d) => [d.appointments, d.customers]), 1);
+    const maxValue = Math.max(...data.flatMap((d) => [d.appointments, d.customers, d.sales]), 1);
     const yAxisMax = maxValue > 10 ? Math.ceil(maxValue * 1.1) : maxValue + 2;
 
     const CustomActiveDot = (props) => {
@@ -174,8 +174,22 @@ const MultiTrendChart = ({
                             return (
                                 <div className="bg-[#fdfdfc] dark:bg-[#161b22] text-gray-900 dark:text-[#c9d1d9] px-6 py-3 rounded-2xl border border-black/5 dark:border-[#30363d] flex flex-col items-center gap-1 shadow-xl">
                                     <span className="text-[10px] font-black uppercase tracking-[0.2em] opacity-50">{label}</span>
-                                    <span className="text-lg font-serif text-[#0d3542] dark:text-[#58a6ff]">{payload[0].value}</span>
-                                    <span className="text-[10px] font-black uppercase tracking-widest opacity-30">{activeKey}</span>
+                                    <span className="text-lg font-serif text-[#0d3542] dark:text-[#58a6ff]">
+                                        {activeKey === 'sales'
+                                            ? '$' +
+                                              Number(payload[0].value).toLocaleString(
+                                                  undefined,
+                                                  { maximumFractionDigits: 2 }
+                                              )
+                                            : payload[0].value}
+                                    </span>
+                                    <span className="text-[10px] font-black uppercase tracking-widest opacity-30">
+                                        {activeKey === 'sales'
+                                            ? 'Revenue ($)'
+                                            : activeKey === 'appointments'
+                                              ? 'Appointments'
+                                              : 'Clients'}
+                                    </span>
                                 </div>
                             );
                         }}
@@ -187,8 +201,8 @@ const MultiTrendChart = ({
                         }}
                     />
 
-                    {/* Inactive series */}
-                    {activeKey !== 'appointments' && (
+                    {/* Inactive series (registry modes only — sales mode is single-series) */}
+                    {activeKey === 'customers' && (
                         <Area
                             type="monotone"
                             dataKey="appointments"
@@ -202,7 +216,7 @@ const MultiTrendChart = ({
                             animationDuration={400}
                         />
                     )}
-                    {activeKey !== 'customers' && (
+                    {activeKey === 'appointments' && (
                         <Area
                             type="monotone"
                             dataKey="customers"
@@ -535,8 +549,13 @@ const AdminDashboard = () => {
 
     // ── Real derived stats (replaces hardcoded placeholders) ──────────
     const isAttire = activeOutlet === 'attire_lounge';
-    const activeSeriesKey =
-        dashboardMode === 'services' ? 'appointments' : 'customers';
+    const showDistribution = isAttire;
+    const effectiveChartView = showDistribution ? chartView : 'trend';
+    const activeSeriesKey = isAttire
+        ? dashboardMode === 'services'
+            ? 'appointments'
+            : 'customers'
+        : 'sales';
     const series = (stats.trends?.[timeframe] ?? []).map(
         (t) => t[activeSeriesKey] ?? 0
     );
@@ -691,7 +710,7 @@ const AdminDashboard = () => {
                         <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-8 mb-16">
                             <div className="flex items-center gap-5">
                                 <motion.div
-                                    key={chartView}
+                                    key={effectiveChartView}
                                     initial={{
                                         rotate: -180,
                                         scale: 0.5,
@@ -704,7 +723,7 @@ const AdminDashboard = () => {
                                     }}
                                     className="p-4 bg-[#0d3542] dark:bg-[#58a6ff] text-white dark:text-black rounded-3xl"
                                 >
-                                    {chartView === 'trend' ? (
+                                    {effectiveChartView === 'trend' ? (
                                         <TrendingUp size={28} />
                                     ) : (
                                         <PieIcon size={28} />
@@ -712,13 +731,13 @@ const AdminDashboard = () => {
                                 </motion.div>
                                 <div>
                                     <h2 className="text-3xl font-serif text-gray-900 dark:text-white tracking-tight">
-                                        {chartView === 'trend'
+                                        {effectiveChartView === 'trend'
                                             ? 'Growth'
                                             : 'Types'}
                                     </h2>
                                     <div className="flex items-center gap-2 mt-1">
                                         <p className="text-xs font-black text-gray-400 dark:text-[#8b949e]/40 uppercase tracking-[0.3em]">
-                                            {chartView === 'trend'
+                                            {effectiveChartView === 'trend'
                                                 ? 'History'
                                                 : 'Client Profile'}
                                         </p>
@@ -731,7 +750,7 @@ const AdminDashboard = () => {
                                     <button
                                         onClick={() => setChartView('trend')}
                                         className={`p-3 rounded-xl transition-all duration-500 shadow-none ${
-                                            chartView === 'trend'
+                                            effectiveChartView === 'trend'
                                                 ? 'bg-white dark:bg-white text-black scale-105'
                                                 : 'text-gray-400 hover:text-gray-900 dark:hover:text-white'
                                         }`}
@@ -739,23 +758,25 @@ const AdminDashboard = () => {
                                     >
                                         <BarChart size={18} />
                                     </button>
-                                    <button
-                                        onClick={() =>
-                                            setChartView('distribution')
-                                        }
-                                        className={`p-3 rounded-xl transition-all duration-500 shadow-none ${
-                                            chartView === 'distribution'
-                                                ? 'bg-white dark:bg-white text-black scale-105'
-                                                : 'text-gray-400 hover:text-gray-900 dark:hover:text-white'
-                                        }`}
-                                        title="Distribution View"
-                                    >
-                                        <PieIcon size={18} />
-                                    </button>
+                                    {showDistribution && (
+                                        <button
+                                            onClick={() =>
+                                                setChartView('distribution')
+                                            }
+                                            className={`p-3 rounded-xl transition-all duration-500 shadow-none ${
+                                                effectiveChartView === 'distribution'
+                                                    ? 'bg-white dark:bg-white text-black scale-105'
+                                                    : 'text-gray-400 hover:text-gray-900 dark:hover:text-white'
+                                            }`}
+                                            title="Distribution View"
+                                        >
+                                            <PieIcon size={18} />
+                                        </button>
+                                    )}
                                 </div>
 
                                 <AnimatePresence mode="wait">
-                                    {chartView === 'trend' ? (
+                                    {effectiveChartView === 'trend' ? (
                                         <motion.div
                                             key="trend-toggles"
                                             initial={{ opacity: 0, x: 20 }}
@@ -883,7 +904,7 @@ const AdminDashboard = () => {
                         <div className="grid grid-cols-1 xl:grid-cols-4 gap-12">
                             <div className="xl:col-span-3">
                                 <AnimatePresence mode="wait">
-                                    {chartView === 'trend' ? (
+                                    {effectiveChartView === 'trend' ? (
                                         <motion.div
                                             key="trend-view"
                                             initial={{
@@ -902,11 +923,7 @@ const AdminDashboard = () => {
                                                           ]
                                                         : []
                                                 }
-                                                activeKey={
-                                                    dashboardMode === 'services'
-                                                        ? 'appointments'
-                                                        : 'customers'
-                                                }
+                                                activeKey={activeSeriesKey}
                                                 timeframe={timeframe}
                                             />
                                         </motion.div>

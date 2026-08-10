@@ -30,7 +30,7 @@ class AdminController extends Controller
             ? \Illuminate\Support\Facades\Cache::tags(['admin-stats']) 
             : \Illuminate\Support\Facades\Cache::getFacadeRoot();
 
-        $stats = $cache->remember('admin_dashboard_stats_' . $outlet, 300, function () use ($outlet) {
+        $stats = $cache->remember('admin_dashboard_stats_v2_' . $outlet, 300, function () use ($outlet) {
             // ── Trend Data (Index-friendly: fetch raw rows, group in-memory) ──
             $monthlyStart = Carbon::now()->subMonths(5)->startOfMonth();
             $weeklyStart  = Carbon::now()->subWeeks(3)->startOfWeek();
@@ -41,6 +41,17 @@ class AdminController extends Controller
                 ->pluck('created_at');
             $recentCustomers = CustomerProfile::where('created_at', '>=', $monthlyStart)
                 ->pluck('created_at');
+
+            // POS sales (outlet-scoped via Global Scope): revenue per bucket
+            $recentInvoices = PosInvoice::where('status', 'completed')
+                ->where('date', '>=', $monthlyStart->toDateString())
+                ->get(['date', 'grand_total']);
+
+            $salesBetween = function (Carbon $start, Carbon $end) use ($recentInvoices) {
+                return (float) $recentInvoices
+                    ->filter(fn ($inv) => $inv->date->between($start, $end))
+                    ->sum('grand_total');
+            };
 
             // 1. Monthly Trends (Last 6 Months) — group in-memory
             $monthlyTrends = [];
@@ -54,6 +65,7 @@ class AdminController extends Controller
                     'name'         => $name,
                     'appointments' => $recentAppointments->filter(fn ($d) => Carbon::parse($d)->between($start, $end))->count(),
                     'customers'    => $recentCustomers->filter(fn ($d) => Carbon::parse($d)->between($start, $end))->count(),
+                    'sales'        => $salesBetween($start, $end),
                 ];
             }
 
@@ -68,6 +80,7 @@ class AdminController extends Controller
                     'name'         => 'W' . $weekNum,
                     'appointments' => $recentAppointments->filter(fn ($d) => Carbon::parse($d)->between($start, $end))->count(),
                     'customers'    => $recentCustomers->filter(fn ($d) => Carbon::parse($d)->between($start, $end))->count(),
+                    'sales'        => $salesBetween($start, $end),
                 ];
             }
 
@@ -81,6 +94,7 @@ class AdminController extends Controller
                     'name'         => $day->format('D'),
                     'appointments' => $recentAppointments->filter(fn ($d) => Carbon::parse($d)->toDateString() === $dateString)->count(),
                     'customers'    => $recentCustomers->filter(fn ($d) => Carbon::parse($d)->toDateString() === $dateString)->count(),
+                    'sales'        => (float) $recentInvoices->filter(fn ($inv) => $inv->date->toDateString() === $dateString)->sum('grand_total'),
                 ];
             }
 
