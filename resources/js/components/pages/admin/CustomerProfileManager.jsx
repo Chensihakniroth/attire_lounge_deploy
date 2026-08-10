@@ -4,7 +4,7 @@ import {
     User, Trash2, Plus, Edit, X, AlertCircle, Check,
     ChevronDown, ChevronRight, ChevronLeft, UserCheck, Share2,
     Search, Eye, Globe, Phone, PlusCircle, UserPlus, ShieldCheck,
-    Users, Briefcase, Palette, Ruler, Loader2
+    Users, Briefcase, Palette, Ruler, Loader2, Download
 } from 'lucide-react';
 import { LumaSpin } from '@/components/ui/luma-spin';
 import axios from 'axios';
@@ -13,6 +13,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import ErrorBoundary from '../../common/ErrorBoundary.jsx';
 import ModernModal from '../../common/ModernModal.jsx';
 import DatePicker from '@/components/ui/DatePicker';
+import { downloadCSV, fetchAllPages } from '@/utils/csvExport';
 
 /* ------------------------------------------------------------------ */
 /*  Config                                                             */
@@ -377,6 +378,33 @@ const CustomerProfileManager = () => {
         return profiles.filter(p => p.client_status === filterStatus);
     }, [profiles, filterStatus]);
 
+    /* ---- Export (all pages, honours current search + status filters) ---- */
+    const handleExport = async () => {
+        try {
+            const all = await fetchAllPages('/api/v1/admin/customer-profiles', {
+                search: searchQuery || undefined,
+                status: filterStatus !== 'All' ? filterStatus : undefined,
+            });
+            const rows = [];
+            rows.push(['ATTIRE LOUNGE — CUSTOMER PROFILES']);
+            rows.push(['Exported', new Date().toLocaleString()]);
+            rows.push(['Total Profiles', all.length]);
+            rows.push([]);
+            rows.push(['Name', 'Phone', 'Status', 'Nationality', 'Host', 'Assistant', 'How Found',
+                'Shirt', 'Jacket', 'Pants', 'Shoes', 'Preferred Color', 'Color Notes', 'Birthday', 'Added', 'Remarks']);
+            all.forEach(p => rows.push([
+                p.name || '', p.phone || '', p.client_status || '', p.nationality || '',
+                p.host || '', p.assistant || '', p.how_did_they_find_us || '',
+                p.shirt_size || '', p.jacket_size || '', p.pants_size || '', p.shoes_size || '',
+                p.preferred_color || '', p.color_notes || '', p.birthday || '', p.date || '', p.remarks || '',
+            ]));
+            downloadCSV(rows, `customer-profiles-${new Date().toISOString().split('T')[0]}.csv`);
+        } catch (err) {
+            console.error('Export failed', err);
+            alert('Export failed — please try again.');
+        }
+    };
+
     return (
         <ErrorBoundary>
             <div className="space-y-5 pb-16 max-w-[1100px] mx-auto px-4 sm:px-6 mt-4">
@@ -390,13 +418,22 @@ const CustomerProfileManager = () => {
                             {pagination.total} total profiles
                         </p>
                     </div>
-                    <button
-                        onClick={() => handleOpenModal()}
-                        className="h-9 px-5 bg-[#0d3542] dark:bg-[#58a6ff] text-white dark:text-black rounded-lg text-[10px] font-bold uppercase tracking-widest hover:opacity-90 active:scale-[0.97] transition-all flex items-center gap-2"
-                    >
-                        <Plus size={14} />
-                        <span className="hidden sm:inline">Add Customer</span>
-                    </button>
+                    <div className="flex items-center gap-2">
+                        <button
+                            onClick={handleExport}
+                            className="h-9 px-4 bg-black/[0.03] dark:bg-white/[0.04] border border-black/[0.08] dark:border-white/[0.08] text-gray-600 dark:text-[#8b949e] rounded-lg text-[10px] font-bold uppercase tracking-widest hover:border-[#0d3542]/40 dark:hover:border-[#58a6ff]/40 hover:text-[#0d3542] dark:hover:text-[#58a6ff] active:scale-[0.97] transition-all flex items-center gap-2"
+                        >
+                            <Download size={14} />
+                            <span className="hidden sm:inline">Export</span>
+                        </button>
+                        <button
+                            onClick={() => handleOpenModal()}
+                            className="h-9 px-5 bg-[#0d3542] dark:bg-[#58a6ff] text-white dark:text-black rounded-lg text-[10px] font-bold uppercase tracking-widest hover:opacity-90 active:scale-[0.97] transition-all flex items-center gap-2"
+                        >
+                            <Plus size={14} />
+                            <span className="hidden sm:inline">Add Customer</span>
+                        </button>
+                    </div>
                 </div>
 
                 {/* ---- Stats ---- */}

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Package, AlertTriangle, CheckCircle, XCircle } from 'lucide-react';
+import { Package, AlertTriangle, CheckCircle, XCircle, Download } from 'lucide-react';
 import { LumaSpin } from '../../ui/luma-spin';
 import giftOptions from '../../../data/giftOptions';
 import axios from 'axios';
@@ -7,6 +7,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import OptimizedImage from '../../common/OptimizedImage.jsx';
 import { motion } from 'framer-motion';
 import { useAdmin } from './AdminContext';
+import { downloadCSV } from '@/utils/csvExport';
 
 const InventoryManager = () => {
     const { activeOutlet } = useAdmin();
@@ -99,6 +100,27 @@ const InventoryManager = () => {
         </section>
     );
 
+    /* ---- Export ---- */
+    const handleExport = () => {
+        const sections = [
+            ['Ties', giftOptions.ties],
+            ['Pocket Squares', giftOptions.pocketSquares],
+            ['Gift Boxes', giftOptions.boxes],
+        ];
+        const rows = [];
+        rows.push(['ATTIRE LOUNGE — GIFT INVENTORY']);
+        rows.push(['Exported', new Date().toLocaleString()]);
+        rows.push([]);
+        rows.push(['Section', 'Item', 'Color', 'Status']);
+        sections.forEach(([title, items]) => {
+            (items || []).forEach(item => {
+                const out = outOfStockItems.includes(item.id);
+                rows.push([title, item.name || '', item.color || '', out ? 'OUT OF STOCK' : 'IN STOCK']);
+            });
+        });
+        downloadCSV(rows, `gift-inventory-${new Date().toISOString().split('T')[0]}.csv`);
+    };
+
     if (loading) {
         return (
             <div className="flex flex-col items-center justify-center py-48 space-y-4">
@@ -110,9 +132,18 @@ const InventoryManager = () => {
 
     return (
         <div className="space-y-8 pb-20">
-            <div className="pb-4 border-b border-black/5 dark:border-[#30363d]">
-                <h1 className="text-4xl font-serif text-gray-900 dark:text-[#c9d1d9] mb-2">Inventory</h1>
-                <p className="text-gray-500 dark:text-[#8b949e] text-sm uppercase tracking-widest">Manage gift item availability</p>
+            <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-3 pb-4 border-b border-black/5 dark:border-[#30363d]">
+                <div>
+                    <h1 className="text-4xl font-serif text-gray-900 dark:text-[#c9d1d9] mb-2">Inventory</h1>
+                    <p className="text-gray-500 dark:text-[#8b949e] text-sm uppercase tracking-widest">Manage gift item availability</p>
+                </div>
+                <button
+                    onClick={handleExport}
+                    className="h-9 px-4 bg-black/[0.03] dark:bg-white/[0.04] border border-black/[0.08] dark:border-white/[0.08] text-gray-600 dark:text-[#8b949e] rounded-lg text-[10px] font-bold uppercase tracking-widest hover:border-[#0d3542]/40 dark:hover:border-[#58a6ff]/40 hover:text-[#0d3542] dark:hover:text-[#58a6ff] active:scale-[0.97] transition-all flex items-center gap-2 w-fit"
+                >
+                    <Download size={14} />
+                    Export
+                </button>
             </div>
 
             <div className="space-y-12">

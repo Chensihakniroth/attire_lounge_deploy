@@ -21,6 +21,7 @@ import {
     X
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { downloadCSV, fetchAllPages } from '@/utils/csvExport';
 
 const SalesHistoryManager = () => {
     const navigate = useNavigate();
@@ -104,6 +105,42 @@ const SalesHistoryManager = () => {
         fetchStats(date);
     };
 
+    /* ---- Export (all pages, honours current search + date filters) ---- */
+    const handleExport = async () => {
+        try {
+            const all = await fetchAllPages('/api/v1/admin/pos/invoices', {
+                search: search || undefined,
+                date: date || undefined,
+            });
+            const rows = [];
+            rows.push(['ATTIRE LOUNGE — SALES HISTORY']);
+            rows.push(['Exported', new Date().toLocaleString()]);
+            if (date) rows.push(['Date Filter', date]);
+            rows.push(['Total Transactions', all.length]);
+            rows.push([]);
+            rows.push(['Invoice #', 'Date', 'Time', 'Customer', 'Phone', 'Items', 'Total ($)', 'Status']);
+            all.forEach(inv => {
+                rows.push([
+                    inv.invoice_number,
+                    new Date(inv.created_at).toLocaleDateString(),
+                    new Date(inv.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+                    inv.customer?.name || 'Walk-in',
+                    inv.customer?.phone || '',
+                    inv.items?.length || 0,
+                    inv.grand_total ?? '',
+                    inv.status,
+                ]);
+            });
+            rows.push([]);
+            rows.push(['TOTAL', '', '', '', '', '',
+                all.reduce((sum, i) => sum + (parseFloat(i.grand_total) || 0), 0).toFixed(2), '']);
+            downloadCSV(rows, `sales-history-${date || new Date().toISOString().split('T')[0]}.csv`);
+        } catch (err) {
+            console.error('Export failed', err);
+            alert('Export failed — please try again.');
+        }
+    };
+
     useEffect(() => {
         fetchInvoices();
         fetchStats(date);
@@ -123,7 +160,7 @@ const SalesHistoryManager = () => {
                 </div>
                 
                 <div className="flex items-center gap-3">
-                    <button className="flex items-center gap-2 px-4 py-2 bg-[#0d3542] dark:bg-[#58a6ff] text-white dark:text-black rounded-xl text-xs font-bold uppercase tracking-widest hover:scale-105 transition-all shadow-none border border-transparent">
+                    <button onClick={handleExport} className="flex items-center gap-2 px-4 py-2 bg-[#0d3542] dark:bg-[#58a6ff] text-white dark:text-black rounded-xl text-xs font-bold uppercase tracking-widest hover:scale-105 transition-all shadow-none border border-transparent">
                         <Download size={14} /> Export Report
                     </button>
                 </div>
