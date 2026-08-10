@@ -5,6 +5,7 @@ import {
     Gift,
     ArrowRight,
     TrendingUp,
+    TrendingDown,
     Package,
     ShoppingBag,
     Plus,
@@ -323,7 +324,7 @@ const GlassyStatCard = ({
                         className="text-[#0d3542] dark:text-[#58a6ff]"
                     />
                 </div>
-                {trend && (
+                {typeof trend === 'number' && (
                     <div
                         className={`flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-black uppercase tracking-widest ${
                             trend > 0
@@ -331,7 +332,11 @@ const GlassyStatCard = ({
                                 : 'bg-red-500/10 text-red-500'
                         }`}
                     >
-                        <TrendingUp size={10} />
+                        {trend > 0 ? (
+                            <TrendingUp size={10} />
+                        ) : (
+                            <TrendingDown size={10} />
+                        )}
                         {Math.abs(trend)}%
                     </div>
                 )}
@@ -527,6 +532,51 @@ const AdminDashboard = () => {
     const [chartView, setChartView] = useState('trend');
     const [distType, setDistType] = useState('nationality');
     const [timeframe, setTimeframe] = useState('month');
+
+    // ── Real derived stats (replaces hardcoded placeholders) ──────────
+    const isAttire = activeOutlet === 'attire_lounge';
+    const activeSeriesKey =
+        dashboardMode === 'services' ? 'appointments' : 'customers';
+    const series = (stats.trends?.[timeframe] ?? []).map(
+        (t) => t[activeSeriesKey] ?? 0
+    );
+    const lastBucket = series[series.length - 1] ?? 0;
+    const prevBucket = series[series.length - 2] ?? 0;
+    const peakTrend =
+        prevBucket > 0
+            ? Math.round(((lastBucket - prevBucket) / prevBucket) * 100)
+            : lastBucket > 0
+              ? 100
+              : 0;
+
+    // Rate: Booked Rate (attire_lounge) | Refund Rate (POS outlets)
+    const totalAppts = stats.appointments || 0;
+    const pendingAppts = stats.pending_appointments || 0;
+    const refunds = stats.pos_summary?.total_refunds || 0;
+    const revenue = stats.pos_summary?.total_revenue || 0;
+    const rateLabel = isAttire ? 'Booked Rate' : 'Refund Rate';
+    const rateValue = isAttire
+        ? `${totalAppts > 0 ? Math.round((1 - pendingAppts / totalAppts) * 100) : 0}%`
+        : `${revenue > 0 ? ((refunds / revenue) * 100).toFixed(1) : '0.0'}%`;
+
+    // State card (pending items for attire_lounge, stock for POS)
+    const pendingCount =
+        (stats.pending_appointments || 0) + (stats.pending_gifts || 0);
+    const lowStockCount = stats.low_stock || 0;
+    const outOfStockCount = stats.out_of_stock || 0;
+    const stateInfo = isAttire
+        ? pendingCount > 0
+            ? {
+                  tone: 'warn',
+                  text: `${stats.pending_appointments || 0} pending bookings · ${stats.pending_gifts || 0} gift requests`,
+              }
+            : { tone: 'ok', text: 'All clear — nothing pending' }
+        : lowStockCount + outOfStockCount > 0
+          ? {
+                tone: 'warn',
+                text: `${lowStockCount} low stock · ${outOfStockCount} out of stock`,
+            }
+          : { tone: 'ok', text: 'Stock healthy — all levels above minimum' };
 
     const cardVariants = getCardVariants(performanceMode);
 
@@ -894,45 +944,48 @@ const AdminDashboard = () => {
                                         <GlassyStatCard
                                             label="Peak Activity"
                                             value={
-                                                stats.trends &&
-                                                stats.trends[timeframe]
-                                                    ?.length > 0
-                                                    ? Math.max(
-                                                          ...stats.trends[
-                                                              timeframe
-                                                          ].map(
-                                                              (t) =>
-                                                                  t[
-                                                                      dashboardMode ===
-                                                                      'services'
-                                                                          ? 'appointments'
-                                                                          : 'customers'
-                                                                  ]
-                                                          )
-                                                      )
+                                                series.length > 0
+                                                    ? Math.max(...series)
                                                     : 0
                                             }
                                             icon={Activity}
-                                            trend={12}
+                                            trend={peakTrend}
                                         />
                                         <GlassyStatCard
-                                            label="Rate"
-                                            value="84%"
+                                            label={rateLabel}
+                                            value={rateValue}
                                             icon={TrendingUp}
-                                            color="green-500"
                                         />
-                                        <div className="p-6 bg-[#0d3542]/5 dark:bg-[#58a6ff]/5 rounded-[2rem] border border-[#0d3542]/10 dark:border-[#58a6ff]/10">
+                                        <div
+                                            className={`p-6 rounded-[2rem] border transition-colors duration-500 ${
+                                                stateInfo.tone === 'ok'
+                                                    ? 'bg-green-500/5 border-green-500/10'
+                                                    : 'bg-amber-500/5 border-amber-500/10'
+                                            }`}
+                                        >
                                             <div className="flex items-center gap-3 mb-2">
                                                 <ShieldCheck
-                                                    className="text-[#0d3542] dark:text-[#58a6ff]"
+                                                    className={
+                                                        stateInfo.tone === 'ok'
+                                                            ? 'text-green-500'
+                                                            : 'text-amber-500'
+                                                    }
                                                     size={14}
                                                 />
-                                                <span className="text-xs font-black uppercase tracking-widest text-[#0d3542] dark:text-[#58a6ff]">
-                                                    State
+                                                <span
+                                                    className={`text-xs font-black uppercase tracking-widest ${
+                                                        stateInfo.tone === 'ok'
+                                                            ? 'text-green-500'
+                                                            : 'text-amber-500'
+                                                    }`}
+                                                >
+                                                    {stateInfo.tone === 'ok'
+                                                        ? 'State'
+                                                        : 'Attention'}
                                                 </span>
                                             </div>
                                             <p className="text-xs text-gray-600 dark:text-[#8b949e] leading-relaxed">
-                                                Everything is running well.
+                                                {stateInfo.text}
                                             </p>
                                         </div>
                                     </div>
