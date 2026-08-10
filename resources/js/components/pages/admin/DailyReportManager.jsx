@@ -375,6 +375,7 @@ const DailyReportManager = () => {
     const [selectedDate, setSelectedDate] = useState(today);
     const [dailyMode, setDailyMode] = useState('day'); // 'day' | 'period'
     const [periodEnd, setPeriodEnd] = useState(today);
+    const [sellerMode, setSellerMode] = useState('top'); // 'top' | 'lowest'
     const [selectedYear, setSelectedYear] = useState(new Date().getFullYear());
     const [selectedMonth, setSelectedMonth] = useState(new Date().getMonth() + 1);
 
@@ -568,6 +569,7 @@ const DailyReportManager = () => {
     };
 
     const data = view === 'daily' ? dailyData : view === 'weekly' ? weeklyData : monthlyData;
+    const sellers = sellerMode === 'top' ? (data?.top_sellers ?? []) : (data?.lowest_sellers ?? []);
     const unitLabel = useUnitLabel(activeOutlet);
 
     return (
@@ -636,33 +638,33 @@ const DailyReportManager = () => {
 
                 {view === 'daily' ? (
                     dailyMode === 'period' ? (
-                        <div className="flex-1 flex flex-col items-center justify-center gap-1">
-                            <div className="flex items-center gap-3">
-                                <div className="flex flex-col items-center gap-1">
+                        <div className="flex-1 flex flex-col items-center justify-center gap-1.5">
+                            <div className="flex items-center gap-4">
+                                <div className="flex flex-col items-center gap-1.5">
                                     <span className="text-[8px] font-black uppercase tracking-[0.25em] text-gray-400 dark:text-[#8b949e]/50">From</span>
                                     <DatePicker
                                         value={selectedDate}
                                         onChange={(e) => { const v = e.target.value; setSelectedDate(v); if (v > periodEnd) setPeriodEnd(v); }}
-                                        className="w-40 -mt-2"
-                                        inputClassName="bg-transparent border-none outline-none text-center text-xs font-black uppercase tracking-widest text-gray-900 dark:text-[#c9d1d9] shadow-none !py-0 !px-0 hover:bg-black/5 dark:hover:bg-white/5 transition-colors focus:ring-0"
+                                        className="w-44 [&_.lucide-calendar]:hidden [&_.lucide-chevron-down]:hidden"
+                                        inputClassName="bg-transparent border-none outline-none text-center text-xs font-black uppercase tracking-widest text-gray-900 dark:text-[#c9d1d9] px-3 py-2 shadow-none hover:bg-black/5 dark:hover:bg-white/5 transition-colors focus:ring-0"
                                         placeholder="START DATE"
                                     />
                                 </div>
-                                <span className="text-gray-400 dark:text-[#8b949e]/40 font-black -mt-2">→</span>
-                                <div className="flex flex-col items-center gap-1">
+                                <span className="text-gray-400 dark:text-[#8b949e]/40 font-black">→</span>
+                                <div className="flex flex-col items-center gap-1.5">
                                     <span className="text-[8px] font-black uppercase tracking-[0.25em] text-gray-400 dark:text-[#8b949e]/50">To</span>
                                     <DatePicker
                                         value={periodEnd}
                                         minDate={selectedDate}
                                         onChange={(e) => { const v = e.target.value; setPeriodEnd(v); if (v < selectedDate) setSelectedDate(v); }}
-                                        className="w-40 -mt-2"
-                                        inputClassName="bg-transparent border-none outline-none text-center text-xs font-black uppercase tracking-widest text-gray-900 dark:text-[#c9d1d9] shadow-none !py-0 !px-0 hover:bg-black/5 dark:hover:bg-white/5 transition-colors focus:ring-0"
+                                        className="w-44 [&_.lucide-calendar]:hidden [&_.lucide-chevron-down]:hidden"
+                                        inputClassName="bg-transparent border-none outline-none text-center text-xs font-black uppercase tracking-widest text-gray-900 dark:text-[#c9d1d9] px-3 py-2 shadow-none hover:bg-black/5 dark:hover:bg-white/5 transition-colors focus:ring-0"
                                         placeholder="END DATE"
                                     />
                                 </div>
                             </div>
-                            <p className="text-[10px] text-gray-400 dark:text-[#8b949e]/40 uppercase tracking-widest mt-1">
-                                {formatPeriodRange(selectedDate, periodEnd)} · {periodSpanDays(selectedDate, periodEnd)} days
+                            <p className="text-[10px] text-gray-400 dark:text-[#8b949e]/40 uppercase tracking-widest mt-1.5">
+                                {formatPeriodRange(selectedDate, periodEnd)} · {periodSpanDays(selectedDate, periodEnd)} {periodSpanDays(selectedDate, periodEnd) === 1 ? 'day' : 'days'}
                             </p>
                         </div>
                     ) : (
@@ -1047,20 +1049,38 @@ const DailyReportManager = () => {
 
                         {/* ── Top Sellers ── */}
                         <div className="bg-white dark:bg-[#161b22] border border-black/5 dark:border-[#30363d] rounded-2xl overflow-hidden">
-                            <div className="px-6 py-4 border-b border-black/5 dark:border-[#30363d] flex items-center justify-between">
+                            <div className="px-6 py-4 border-b border-black/5 dark:border-[#30363d] flex items-center justify-between gap-3">
                                 <div className="flex items-center gap-2">
-                                    <Award size={14} className="text-[#0d3542] dark:text-[#58a6ff]" />
-                                    <p className="text-[10px] font-black uppercase tracking-[0.2em] text-gray-900 dark:text-[#c9d1d9]">Top Sellers</p>
+                                    {sellerMode === 'top'
+                                        ? <Award size={14} className="text-[#0d3542] dark:text-[#58a6ff]" />
+                                        : <TrendingDown size={14} className="text-[#0d3542] dark:text-[#58a6ff]" />}
+                                    <p className="text-[10px] font-black uppercase tracking-[0.2em] text-gray-900 dark:text-[#c9d1d9]">
+                                        {sellerMode === 'top' ? 'Top Sellers' : 'Lowest Sellers'}
+                                    </p>
                                 </div>
-                                <p className="text-[10px] text-gray-400 uppercase tracking-widest">by qty sold</p>
+                                <div className="flex items-center gap-2.5">
+                                    <p className="text-[10px] text-gray-400 uppercase tracking-widest">
+                                        {sellerMode === 'top' ? 'by qty sold' : 'least qty sold'}
+                                    </p>
+                                    <div className="flex bg-black/[0.03] dark:bg-[#0d1117] border border-black/5 dark:border-[#30363d] rounded-lg p-0.5">
+                                        {['top', 'lowest'].map(m => (
+                                            <button key={m} onClick={() => setSellerMode(m)}
+                                                className={`px-2.5 py-1 rounded-md text-[9px] font-black uppercase tracking-widest transition-all ${sellerMode === m ? 'bg-[#0d3542] dark:bg-[#58a6ff] text-white dark:text-black' : 'text-gray-400 dark:text-[#8b949e]/50 hover:text-[#0d3542] dark:hover:text-[#58a6ff]'}`}>
+                                                {m === 'top' ? 'Top Sale' : 'Lowest Sell'}
+                                            </button>
+                                        ))}
+                                    </div>
+                                </div>
                             </div>
                             <div className="divide-y divide-black/5 dark:divide-[#30363d]">
-                                {(data?.top_sellers ?? []).length === 0 ? (
+                                {sellers.length === 0 ? (
                                     <div className="px-6 py-12 text-center opacity-30 text-xs uppercase tracking-widest">No sales data</div>
                                 ) : (
-                                    (data?.top_sellers ?? []).map((item, i) => (
+                                    sellers.map((item, i) => (
                                         <div key={i} className="px-6 py-4 flex items-center gap-4 group hover:bg-black/[0.01] dark:hover:bg-white/[0.01] transition-colors">
-                                            <span className={`w-6 text-center text-[10px] font-black ${i === 0 ? 'text-amber-500' : i === 1 ? 'text-gray-400' : i === 2 ? 'text-orange-600' : 'text-gray-300 dark:text-white/20'}`}>
+                                            <span className={`w-6 text-center text-[10px] font-black ${sellerMode === 'lowest'
+                                                ? (i === 0 ? 'text-red-500' : 'text-gray-300 dark:text-white/20')
+                                                : (i === 0 ? 'text-amber-500' : i === 1 ? 'text-gray-400' : i === 2 ? 'text-orange-600' : 'text-gray-300 dark:text-white/20')}`}>
                                                 {i + 1}
                                             </span>
                                             <div className="flex-1 min-w-0">

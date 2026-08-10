@@ -17,8 +17,8 @@ class SalesService
     public function getDailyReport(string $date, string $outlet, ?string $endDate = null): array
     {
         $cacheKey = $endDate
-            ? "sales_daily_{$outlet}_{$date}_{$endDate}"
-            : "sales_daily_{$outlet}_{$date}";
+            ? "sales_daily_v2_{$outlet}_{$date}_{$endDate}"
+            : "sales_daily_v2_{$outlet}_{$date}";
 
         return Cache::remember($cacheKey, 3600, function () use ($date, $endDate, $outlet) {
             if ($endDate !== null && $endDate !== $date) {
@@ -43,7 +43,7 @@ class SalesService
             $allItems = $invoices->flatMap->items;
             $totalItems = (int) $allItems->sum('quantity');
 
-            $topSellers = $allItems
+            $sellers = $allItems
                 ->groupBy(fn($item) => $item->product_name.'|'.$item->product_variant.'|'.$item->product_sku)
                 ->map(fn($group) => (object) [
                     'product_name'    => $group->first()->product_name,
@@ -53,8 +53,10 @@ class SalesService
                     'total_revenue'   => round($group->sum('line_total'), 2),
                 ])
                 ->sortByDesc('total_qty')
-                ->take(10)
                 ->values();
+
+            $topSellers = $sellers->take(10)->values();
+            $lowestSellers = $sellers->reverse()->take(10)->values();
 
             // Category breakdown
             $categoryBreakdown = DB::table('pos_invoice_items')
@@ -81,6 +83,7 @@ class SalesService
                 'avg_order_value'    => $invoices->count() > 0 ? round($totalRevenue / $invoices->count(), 2) : 0,
                 'total_items'        => $totalItems,
                 'top_sellers'        => $topSellers,
+                'lowest_sellers'     => $lowestSellers,
                 'category_breakdown' => $categoryBreakdown,
                 'invoices'           => $invoices,
             ];
@@ -114,7 +117,7 @@ class SalesService
         $netRevenue = $totalRevenue - $totalRefunds;
 
         // Total items, top sellers & category breakdown (single consolidated query)
-        [$totalItems, $topSellers, $categoryBreakdown] = $this->getItemsAggregates($startStr, $endStr, $outlet);
+        [$totalItems, $topSellers, $categoryBreakdown, $lowestSellers] = $this->getItemsAggregates($startStr, $endStr, $outlet);
 
         // Full invoice list for the period
         $invoices = PosInvoice::whereBetween('date', [$startStr, $endStr])
@@ -135,6 +138,7 @@ class SalesService
             'avg_order_value'    => $invoices->count() > 0 ? round($totalRevenue / $invoices->count(), 2) : 0,
             'total_items'        => $totalItems,
             'top_sellers'        => $topSellers,
+            'lowest_sellers'     => $lowestSellers,
             'category_breakdown' => $categoryBreakdown,
             'daily_breakdown'    => $dailyRevenue,
             'invoices'           => $invoices,
@@ -146,7 +150,7 @@ class SalesService
      */
     public function getMonthlyReport(int $year, int $month, string $outlet): array
     {
-        return Cache::remember("sales_monthly_{$outlet}_{$year}_{$month}", 21600, function () use ($year, $month, $outlet) {
+        return Cache::remember("sales_monthly_v2_{$outlet}_{$year}_{$month}", 21600, function () use ($year, $month, $outlet) {
             $start = \Carbon\Carbon::create($year, $month, 1)->startOfMonth();
             $end   = $start->copy()->endOfMonth();
 
@@ -170,7 +174,7 @@ class SalesService
             $netRevenue = $totalRevenue - $totalRefunds;
 
             // Total items, top sellers & category breakdown (single consolidated query)
-            [$totalItems, $topSellers, $categoryBreakdown] = $this->getItemsAggregates(
+            [$totalItems, $topSellers, $categoryBreakdown, $lowestSellers] = $this->getItemsAggregates(
                 $start->toDateString(), $end->toDateString(), $outlet
             );
 
@@ -182,6 +186,7 @@ class SalesService
                 'net_revenue'        => round($netRevenue, 2),
                 'total_items'        => $totalItems,
                 'top_sellers'        => $topSellers,
+                'lowest_sellers'     => $lowestSellers,
                 'daily_breakdown'    => $dailyRevenue,
                 'category_breakdown' => $categoryBreakdown,
             ];
@@ -212,8 +217,8 @@ class SalesService
 
         $totalItems = (int) $rows->sum('quantity');
 
-        // Top sellers — group by product, sort by qty desc, take 10
-        $topSellers = $rows
+        // Sellers — group by product, sort by qty desc (full list for top & lowest)
+        $sellers = $rows
             ->groupBy(fn($r) => $r->product_name.'|'.$r->product_variant.'|'.$r->product_sku)
             ->map(fn($group) => (object) [
                 'product_name'    => $group->first()->product_name,
@@ -223,8 +228,10 @@ class SalesService
                 'total_revenue'   => round($group->sum('line_total'), 2),
             ])
             ->sortByDesc('total_qty')
-            ->take(10)
             ->values();
+
+        $topSellers = $sellers->take(10)->values();
+        $lowestSellers = $sellers->reverse()->take(10)->values();
 
         // Category breakdown — group by category
         $categoryBreakdown = $rows
@@ -237,7 +244,7 @@ class SalesService
             ->sortByDesc('total_revenue')
             ->values();
 
-        return [$totalItems, $topSellers, $categoryBreakdown];
+        return [$totalItems, $topSellers, $categoryBreakdown, $lowestSellers];
     }
 
     /**
@@ -253,7 +260,7 @@ class SalesService
         $startStr = $weekStart->toDateString();
         $endStr   = $weekEnd->toDateString();
 
-        $cacheKey = "sales_weekly_{$outlet}_{$startStr}";
+        $cacheKey = "sales_weekly_v2_{$outlet}_{$startStr}";
 
         return Cache::remember($cacheKey, 21600, function () use ($startStr, $endStr, $outlet, $weekStart) {
             // Daily revenue breakdown for the 7 days
@@ -277,7 +284,7 @@ class SalesService
             $netRevenue = $totalRevenue - $totalRefunds;
 
             // Total items, top sellers & category breakdown (single consolidated query)
-            [$totalItems, $topSellers, $categoryBreakdown] = $this->getItemsAggregates($startStr, $endStr, $outlet);
+            [$totalItems, $topSellers, $categoryBreakdown, $lowestSellers] = $this->getItemsAggregates($startStr, $endStr, $outlet);
 
             // Invoice count & invoices list
             $invoices = PosInvoice::whereBetween('date', [$startStr, $endStr])
@@ -297,6 +304,7 @@ class SalesService
                 'total_items'        => $totalItems,
                 'daily_breakdown'    => $dailyRevenue,
                 'top_sellers'        => $topSellers,
+                'lowest_sellers'     => $lowestSellers,
                 'category_breakdown' => $categoryBreakdown,
                 'invoices'           => $invoices,
             ];
