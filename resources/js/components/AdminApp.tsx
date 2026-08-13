@@ -61,25 +61,33 @@ const RealtimeAdminUpdater: React.FC = () => {
     return null;
 };
 
-const lazyWithRetry = (componentImport: () => Promise<any>) =>
+// Retry a lazy import by doing a full page reload (re-fetches assets and clears
+// any stale chunks). The retry count is persisted in localStorage but RESET on
+// success, so a transient failure during a rebuild can never permanently brick
+// the page. A previously-stuck 'true' value also parses back to 0. After
+// `maxRetries` reloads it throws, so the error surface shows instead of looping.
+const lazyWithRetry = (componentImport, maxRetries = 2) =>
     lazy(async () => {
-        const pageHasAlreadyBeenForceRefreshed = JSON.parse(
-            window.localStorage.getItem('admin-page-has-been-force-refreshed') || 'false'
-        );
+        const retryKey = 'admin-page-has-been-force-refreshed';
+        const getRetries = () =>
+            parseInt(window.localStorage.getItem(retryKey) || '0', 10) || 0;
         try {
             const component = await componentImport();
-            window.localStorage.setItem('admin-page-has-been-force-refreshed', 'false');
+            window.localStorage.removeItem(retryKey);
             return component;
         } catch (error) {
-            if (!pageHasAlreadyBeenForceRefreshed) {
-                window.localStorage.setItem('admin-page-has-been-force-refreshed', 'true');
-                return window.location.reload();
+            const retries = getRetries();
+            if (retries < maxRetries) {
+                window.localStorage.setItem(retryKey, String(retries + 1));
+                window.location.reload();
+                return new Promise(() => {}); // page unloads; never resolves
             }
+            window.localStorage.removeItem(retryKey);
             throw error;
         }
     });
 
-const AdminDashboard = lazyWithRetry(() => import('./pages/admin/AdminDashboard.jsx'));
+const Dashboard = lazyWithRetry(() => import('./dashboard.tsx'));
 const AdminLogin = lazyWithRetry(() => import('./pages/admin/AdminLogin.jsx'));
 const PrivateRoute = lazyWithRetry(() => import('./pages/admin/PrivateRoute.jsx'));
 const AdminLayout = lazyWithRetry(() => import('./pages/admin/AdminLayout.jsx'));
@@ -107,6 +115,7 @@ const DrinkManager = lazyWithRetry(() => import('./pages/admin/DrinkManager.jsx'
 const ShoeManager = lazyWithRetry(() => import('./pages/admin/ShoeManager.jsx'));
 const OrderManager = lazyWithRetry(() => import('./pages/admin/OrderManager.jsx'));
 const DailyReportManager = lazyWithRetry(() => import('./pages/admin/DailyReportManager.jsx'));
+// EfferdDashboard2 retired — new design is now the main /admin dashboard
 
 // ─── Eager Chunk Preloader ─────────────────────────────────────────
 // Pre-downloads JS chunks for high-traffic pages so navigation is instant
@@ -177,6 +186,62 @@ const GlobalStyles = () => (
     `}} />
 );
 
+// Error boundary: catches render-time crashes in lazy components (e.g. Dashboard)
+// so the page shows the error instead of going silently blank. Also reports it.
+class ErrorBoundary extends React.Component<
+    { children: React.ReactNode },
+    { error: Error | null }
+> {
+    constructor(props: { children: React.ReactNode }) {
+        super(props);
+        this.state = { error: null };
+    }
+    static getDerivedStateFromError(error: Error) {
+        return { error };
+    }
+    componentDidCatch(error: Error, info: React.ErrorInfo) {
+        console.error('[ErrorBoundary]', error, info);
+        try {
+            navigator.sendBeacon(
+                '/log_client.php',
+                new Blob(
+                    [
+                        JSON.stringify({
+                            kind: 'REACT_ERROR',
+                            detail: (error && error.stack) || String(error),
+                            componentStack: info && info.componentStack,
+                            ua: navigator.userAgent,
+                            t: Date.now(),
+                        }),
+                    ],
+                    { type: 'application/json' }
+                )
+            );
+        } catch (e) {}
+    }
+    render() {
+        if (this.state.error) {
+            return (
+                <div
+                    style={{
+                        padding: '24px',
+                        color: '#fff',
+                        background: '#7f1d1d',
+                        fontFamily: 'monospace',
+                        whiteSpace: 'pre-wrap',
+                        minHeight: '100vh',
+                    }}
+                >
+                    <h2>⚠ Admin UI crashed during render</h2>
+                    <p>{String(this.state.error && this.state.error.message)}</p>
+                    <pre>{this.state.error && this.state.error.stack}</pre>
+                </div>
+            );
+        }
+        return this.props.children;
+    }
+}
+
 function AdminApp() {
     return (
         <HelmetProvider>
@@ -187,13 +252,14 @@ function AdminApp() {
                     <ThemeProvider>
                         <AdminProvider>
                             <GlobalStyles />
+                            <ErrorBoundary>
                             <Suspense fallback={<AdminLoadingSpinner />}>
                                 <Routes>
                                     <Route path="/admin/login" element={<AdminLogin />} />
                                     
                                     <Route element={<PrivateRoute />}>
                                         <Route element={<AdminLayout />}>
-                                            <Route path="/admin" element={<AdminDashboard />} />
+                                            <Route path="/admin" element={<Dashboard />} />
                                             <Route path="/admin/appointments" element={<AppointmentManager />} />
                                             <Route path="/admin/alterings" element={<AlteringManager />} />
                                             <Route path="/admin/promocodes" element={<PromocodeManager />} />
@@ -217,6 +283,7 @@ function AdminApp() {
                                             <Route path="/admin/customer-profiles/:id" element={<CustomerProfileDetail />} />
                                             <Route path="/admin/sales-history" element={<SalesHistoryManager />} />
                                             <Route path="/admin/daily-report" element={<DailyReportManager />} />
+                                            {/* /admin/efferd-dashboard retired — new design is now /admin */}
                                         </Route>
                                     </Route>
                                     
@@ -231,6 +298,7 @@ function AdminApp() {
                                     <Route path="*" element={<div className="p-8 text-foreground bg-background">Admin Page Not Found</div>} />
                                 </Routes>
                             </Suspense>
+                            </ErrorBoundary>
                         </AdminProvider>
                     </ThemeProvider>
                 </Router>
