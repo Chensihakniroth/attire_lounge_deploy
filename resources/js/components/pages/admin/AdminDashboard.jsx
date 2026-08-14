@@ -865,7 +865,7 @@ const AdminDashboard = () => {
                         </div>
 
                         <div className="grid grid-cols-1 xl:grid-cols-4 gap-12">
-                            <div className="xl:col-span-3">
+                            <div className="xl:col-span-3 min-w-0">
                                 <AnimatePresence mode="wait">
                                     {effectiveChartView === 'trend' ? (
                                         <motion.div
