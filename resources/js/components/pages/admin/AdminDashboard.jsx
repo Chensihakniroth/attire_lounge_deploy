@@ -319,8 +319,6 @@ const StatCard = ({ icon, title, value, link, loading, highlight = false }) => {
 const GlassyStatCard = ({
     label,
     value,
-    icon: Icon,
-    color = 'attire-accent',
 }) => {
     const { performanceMode } = useAdmin();
     const cardVariants = getCardVariants(performanceMode);
@@ -330,15 +328,6 @@ const GlassyStatCard = ({
             variants={cardVariants}
             className="relative overflow-hidden group p-6 rounded-2xl bg-[#fdfdfc] dark:bg-[#161b22] border border-black/5 dark:border-[#30363d] transition-all duration-500 shadow-md hover:shadow-lg dark:shadow-black/30"
         >
-            <div className="flex justify-between items-start mb-4">
-                <div className="p-3 bg-[#0d3542]/10 dark:bg-[#58a6ff]/10 rounded-xl group-hover:scale-110 transition-transform duration-500">
-                    <Icon
-                        size={20}
-                        className="text-[#0d3542] dark:text-[#58a6ff]"
-                    />
-                </div>
-            </div>
-
             <p className="text-xs font-black text-gray-400 dark:text-[#8b949e] uppercase tracking-[0.2em] mb-1">
                 {label}
             </p>
@@ -940,12 +929,10 @@ const AdminDashboard = () => {
                                                     ? Math.max(...series)
                                                     : 0
                                             }
-                                            icon={Activity}
                                         />
                                         <GlassyStatCard
                                             label={rateLabel}
                                             value={rateValue}
-                                            icon={TrendingUp}
                                         />
                                         <div
                                             className={`p-6 rounded-[2rem] border transition-colors duration-500 ${
