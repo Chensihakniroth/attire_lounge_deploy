@@ -50,53 +50,6 @@ function useCountUp(target: number, duration = 900) {
     return val;
 }
 
-/* ── mini sparkline ── */
-function Sparkline({
-    data,
-    id,
-    color = 'hsl(var(--primary))',
-}: {
-    data: number[];
-    id: string;
-    color?: string;
-}) {
-    const w = 96;
-    const h = 30;
-    if (!data || data.length < 2) return null;
-    const max = Math.max(...data);
-    const min = Math.min(...data);
-    const range = max - min || 1;
-    const pts = data.map((d, i) => {
-        const x = (i / (data.length - 1)) * w;
-        const y = h - 3 - ((d - min) / range) * (h - 6);
-        return [x, y] as [number, number];
-    });
-    const line = pts
-        .map((p, i) => `${i ? 'L' : 'M'}${p[0].toFixed(1)} ${p[1].toFixed(1)}`)
-        .join(' ');
-    const area = `${line} L${w} ${h} L0 ${h} Z`;
-    return (
-        <svg width={w} height={h} viewBox={`0 0 ${w} ${h}`} className="overflow-visible">
-            <defs>
-                <linearGradient id={id} x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="0%" stopColor={color} stopOpacity={0.3} />
-                    <stop offset="100%" stopColor={color} stopOpacity={0} />
-                </linearGradient>
-            </defs>
-            <path d={area} fill={`url(#${id})`} />
-            <path
-                d={line}
-                fill="none"
-                stroke={color}
-                strokeWidth={1.6}
-                strokeLinecap="round"
-                strokeLinejoin="round"
-            />
-            <circle cx={pts[pts.length - 1][0]} cy={pts[pts.length - 1][1]} r={2.4} fill={color} />
-        </svg>
-    );
-}
-
 /* ── progress ring (draws in on mount) ── */
 function ProgressRing({
     value,
@@ -151,15 +104,11 @@ function KpiCard({
     icon: Icon,
     label,
     value,
-    spark,
-    sparkId,
     index,
 }: {
     icon: React.ComponentType<{ size?: number; className?: string }>;
     label: string;
     value: string | number;
-    spark?: number[];
-    sparkId?: string;
     index: number;
 }) {
     const animated = useCountUp(typeof value === 'number' ? value : 0);
@@ -180,13 +129,6 @@ function KpiCard({
             </div>
             <div className="mt-3 text-3xl font-bold tracking-tight text-foreground tabular-nums">
                 {display}
-            </div>
-            <div className="mt-2 h-8">
-                {spark && spark.length > 1 ? (
-                    <Sparkline data={spark} id={sparkId ?? 'spark'} />
-                ) : (
-                    <div className="h-full w-full rounded-md bg-gradient-to-r from-primary/5 via-primary/10 to-transparent opacity-70" />
-                )}
             </div>
         </div>
     );
@@ -214,11 +156,6 @@ export function Dashboard() {
         }));
     }, [stats, timeframe, seriesKey]);
 
-    const sparkFor = (key: string) =>
-        ((stats.trends?.[timeframe] ?? []) as Array<Record<string, any>>).map((t) =>
-            Number(t[key] ?? 0)
-        );
-
     // Billing health — daily report (real)
     const todayStr = new Date().toISOString().split('T')[0];
     const { data: daily } = useQuery({
@@ -243,14 +180,14 @@ export function Dashboard() {
     // KPI values (real, per outlet)
     const kpis = isAttire
         ? [
-              { icon: Calendar, label: 'Appointments', value: stats.appointments ?? 0, sparkKey: 'appointments' },
+              { icon: Calendar, label: 'Appointments', value: stats.appointments ?? 0 },
               { icon: Users, label: 'Clients', value: stats.total_customers ?? 0 },
               { icon: ShoppingBag, label: 'Products', value: stats.products ?? 0 },
               { icon: TrendingUp, label: 'Subscribers', value: stats.subscribers ?? 0 },
           ]
         : [
               { icon: ShoppingBag, label: 'Menu Items', value: stats.pos_products ?? 0 },
-              { icon: TrendingUp, label: 'Total Sales', value: stats.sales ?? 0, sparkKey: 'sales' },
+              { icon: TrendingUp, label: 'Total Sales', value: stats.sales ?? 0 },
               { icon: AlertTriangle, label: 'Stock Alerts', value: stats.low_stock ?? 0 },
               { icon: Package, label: 'Daily Orders', value: stats.daily_orders ?? 0 },
           ];
@@ -270,8 +207,6 @@ export function Dashboard() {
                         icon={k.icon}
                         label={k.label}
                         value={k.value}
-                        spark={k.sparkKey ? sparkFor(k.sparkKey) : undefined}
-                        sparkId={`spark-${k.label}`}
                     />
                 ))}
             </div>
