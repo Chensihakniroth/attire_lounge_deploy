@@ -137,7 +137,7 @@ function KpiCard({
 const FADE = (ms: number): React.CSSProperties => ({ animationDelay: `${ms}ms` });
 
 export function Dashboard() {
-    const { stats, activeOutlet, OUTLET_CONFIG } = useAdmin();
+    const { stats, activeOutlet, setActiveOutlet, OUTLET_CONFIG } = useAdmin();
     const qc = useQueryClient();
     const [timeframe, setTimeframe] = useState<Timeframe>('month');
     const [chartReady, setChartReady] = useState(false);
@@ -380,8 +380,17 @@ export function Dashboard() {
                                 return (
                                     <div
                                         key={key}
+                                        role="button"
+                                        tabIndex={0}
+                                        onClick={() => setActiveOutlet(key)}
+                                        onKeyDown={(e) => {
+                                            if (e.key === 'Enter' || e.key === ' ') {
+                                                e.preventDefault();
+                                                setActiveOutlet(key);
+                                            }
+                                        }}
                                         className={cn(
-                                            'flex items-center justify-between rounded-xl border px-3 py-2.5 transition-all duration-200 hover:translate-x-1',
+                                            'flex cursor-pointer items-center justify-between rounded-xl border px-3 py-2.5 transition-all duration-200 hover:translate-x-1',
                                             active
                                                 ? 'border-primary/40 bg-primary/5'
                                                 : 'border-border hover:border-primary/30'
