@@ -157,19 +157,11 @@ const OutletSwitcher = () => {
 
 const SidebarContent = ({ setOpen, isMobile }) => {
     const { isDarkMode, toggleDarkMode } = useTheme();
-    const { userRoles, performanceMode, setPerformanceMode, activeOutlet, OUTLET_CONFIG } = useAdmin();
+    const { userRoles, performanceMode, setPerformanceMode, activeOutlet, OUTLET_CONFIG, logout } = useAdmin();
     const navigate = useNavigate();
 
     const handleLogout = () => {
-        // Clear all storage
-        const storages = [sessionStorage, localStorage];
-        storages.forEach((storage) => {
-            storage.removeItem('admin_token');
-            storage.removeItem('admin_user');
-            storage.removeItem('user_roles');
-            storage.removeItem('user_permissions');
-            storage.removeItem('isAdmin');
-        });
+        logout();
         navigate('/admin/login');
     };
 
