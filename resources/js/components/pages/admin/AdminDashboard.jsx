@@ -512,8 +512,7 @@ const QuickAction = ({ icon, title, description, link }) => (
 // AdminDashboard
 // ----------------------------------------------------------------------
 const AdminDashboard = () => {
-    const { appointments, appointmentsLoading, stats, performanceMode, activeOutlet } =
-        useAdmin();
+    const { stats, statsLoading, appointmentsLoading, performanceMode, activeOutlet } = useAdmin();
     const [dashboardMode, setDashboardMode] = useState('services');
     const [chartView, setChartView] = useState('trend');
     const [distType, setDistType] = useState('nationality');
@@ -590,7 +589,7 @@ const AdminDashboard = () => {
                                 value={stats.appointments}
                                 link="/admin/appointments"
                                 loading={
-                                    appointmentsLoading && appointments.length === 0
+                                    statsLoading
                                 }
                                 highlight={dashboardMode === 'services'}
                             />
@@ -600,7 +599,7 @@ const AdminDashboard = () => {
                                 value={stats.total_customers}
                                 link="/admin/customer-profiles"
                                 loading={
-                                    appointmentsLoading && appointments.length === 0
+                                    statsLoading
                                 }
                                 highlight={dashboardMode === 'registry'}
                             />
@@ -610,7 +609,7 @@ const AdminDashboard = () => {
                                 value={stats.products}
                                 link="/admin/products"
                                 loading={
-                                    appointmentsLoading && appointments.length === 0
+                                    statsLoading
                                 }
                             />
                             <StatCard
@@ -619,7 +618,7 @@ const AdminDashboard = () => {
                                 value={stats.subscribers}
                                 link="/admin/newsletter"
                                 loading={
-                                    appointmentsLoading && appointments.length === 0
+                                    statsLoading
                                 }
                             />
                         </>
@@ -631,7 +630,7 @@ const AdminDashboard = () => {
                                 value={stats.pos_products || 0}
                                 link={activeOutlet === 'nile' ? "/admin/shoe-manager" : "/admin/drink-manager"}
                                 loading={
-                                    appointmentsLoading && appointments.length === 0
+                                    statsLoading
                                 }
                             />
                             <StatCard
@@ -640,7 +639,7 @@ const AdminDashboard = () => {
                                 value={stats.sales || 0}
                                 link="/admin/sales-history"
                                 loading={
-                                    appointmentsLoading && appointments.length === 0
+                                    statsLoading
                                 }
                                 highlight={dashboardMode === 'sales'}
                             />
@@ -650,7 +649,7 @@ const AdminDashboard = () => {
                                 value={stats.low_stock || 0}
                                 link={activeOutlet === 'nile' ? "/admin/shoe-manager" : "/admin/drink-manager"}
                                 loading={
-                                    appointmentsLoading && appointments.length === 0
+                                    statsLoading
                                 }
                             />
                             <StatCard
@@ -659,7 +658,7 @@ const AdminDashboard = () => {
                                 value={stats.daily_orders || 0}
                                 link="/admin/daily-report"
                                 loading={
-                                    appointmentsLoading && appointments.length === 0
+                                    statsLoading
                                 }
                             />
                         </>

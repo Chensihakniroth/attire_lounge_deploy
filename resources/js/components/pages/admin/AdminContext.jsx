@@ -196,7 +196,7 @@ export const AdminProvider = ({ children }) => {
     );
 
     // ─── Shared Data Queries ──────────────────────────────────────────
-    const { data: stats = {} } = useQuery({
+    const { data: stats = {}, isLoading: statsLoading } = useQuery({
         queryKey: ['admin-stats', activeOutlet],
         queryFn: async () => {
             const response = await axios.get('/api/v1/admin/stats');
@@ -276,6 +276,7 @@ export const AdminProvider = ({ children }) => {
 
         // Data
         stats,
+        statsLoading,
         appointments,
         appointmentsLoading,
         appointmentsPagination,
