@@ -98,7 +98,7 @@ const ProductRow = React.memo(({
 const ProductsPage = () => {
     const queryClient = useQueryClient();
     const { performanceMode, activeOutlet } = useAdmin();
-    const [view, setView] = useState('list'); // 'list' | 'form'
+    const [view, setView] = useState('list'); // 'list' | 'form' | 'bulkMatrixEdit'
 
     // Browser History Integration for Back Button
     useEffect(() => {
@@ -505,123 +505,119 @@ const ProductsPage = () => {
         }
     };
 
+    // Populate the bulk matrix form from a set of products sharing one base name.
+    const applyMatrixFromProducts = (prods, baseName) => {
+        setEditingProduct(null);
+        setFormData({
+            sku: prods[0].sku?.substring(0, 5) || '',
+            name: baseName,
+            price: '',
+            stock_qty: '',
+            category: prods[0].category || '',
+            is_service: false,
+            barcode: '',
+            status: 'available',
+            min_stock: '0',
+            max_stock: '99999',
+            watch_threshold: false,
+            variant: '',
+            attributes: []
+        });
+
+        // Extract attribute dimensions from selected products
+        const primaryAttrs = new Set();
+        const secondaryAttrs = new Set();
+        const editData = {};
+
+        let foundPrimaryKey = null;
+        let foundSecondaryKey = null;
+
+        prods.forEach(p => {
+            let primary = '';
+            let secondary = '';
+
+            if (Array.isArray(p.parsed_attributes) && p.parsed_attributes.length > 0) {
+                if (p.parsed_attributes[0]) {
+                    primary = (p.parsed_attributes[0].value || '').trim().toUpperCase();
+                    if (!foundPrimaryKey && p.parsed_attributes[0].key) foundPrimaryKey = p.parsed_attributes[0].key.toUpperCase();
+                }
+                if (p.parsed_attributes[1]) {
+                    secondary = (p.parsed_attributes[1].value || '').trim().toUpperCase();
+                    if (!foundSecondaryKey && p.parsed_attributes[1].key) foundSecondaryKey = p.parsed_attributes[1].key.toUpperCase();
+                }
+            } else {
+                const variant = (p.variant || '').trim();
+                const parts = variant.split('-')
+                    .map(v => v.trim().toUpperCase())
+                    .filter(Boolean);
+
+                if (parts.length >= 2) {
+                    primary = parts[0];
+                    secondary = parts[1];
+                } else if (parts.length === 1) {
+                    primary = parts[0];
+                }
+            }
+
+            if (primary) primaryAttrs.add(primary);
+            if (secondary) secondaryAttrs.add(secondary);
+
+            if (primary && secondary) {
+                editData[`${primary}-${secondary}`] = parseInt(p.stock_qty || p.stock || 0);
+            } else if (primary) {
+                editData[`${primary}-QTY`] = parseInt(p.stock_qty || p.stock || 0);
+            }
+        });
+
+        const primaryVals = Array.from(primaryAttrs);
+        const secondaryVals = Array.from(secondaryAttrs);
+
+        let primaryKey = foundPrimaryKey || 'ATTRIBUTE';
+        let secondaryKey = foundSecondaryKey || '';
+
+        const sizeOrder = ['XXS', 'XS', 'S', 'M', 'L', 'XL', 'XXL', 'XXXL', '3XL', '4XL', '5XL', 'ONE SIZE', 'OS'];
+        const looksLikeSize = (vals) => vals.some(v => sizeOrder.includes(v) || !isNaN(parseInt(v)));
+
+        if (!foundPrimaryKey && secondaryVals.length > 0) {
+            primaryKey = looksLikeSize(primaryVals) ? 'SIZE' : 'COLOR';
+            secondaryKey = looksLikeSize(secondaryVals) ? 'SIZE' : 'COLOR';
+            if (primaryKey === secondaryKey) secondaryKey = 'VARIANT';
+        } else if (!foundPrimaryKey && primaryVals.length > 0) {
+            primaryKey = looksLikeSize(primaryVals) ? 'SIZE' : 'ATTRIBUTE';
+        }
+
+        const sortAttrValues = (vals) => vals.sort((a, b) => {
+            const aIdx = sizeOrder.indexOf(a);
+            const bIdx = sizeOrder.indexOf(b);
+            if (aIdx !== -1 && bIdx !== -1) return aIdx - bIdx;
+            if (aIdx !== -1) return -1;
+            if (bIdx !== -1) return 1;
+            const aNum = parseInt(a);
+            const bNum = parseInt(b);
+            if (!isNaN(aNum) && !isNaN(bNum)) return aNum - bNum;
+            return a.localeCompare(b);
+        });
+
+        setMatrixConfig({
+            primaryKey: primaryKey,
+            primaryValues: sortAttrValues(primaryVals).join(', '),
+            secondaryKey: secondaryKey || 'SIZE',
+            secondaryValues: secondaryVals.length > 0 ? sortAttrValues(secondaryVals).join(', ') : ''
+        });
+        setMatrixData(editData);
+    };
+
     const handleBulkEditClick = () => {
         if (selectedIds.size === 0) return;
-        
+
         const selectedProds = products.filter(p => selectedIds.has(p.id));
         if (selectedProds.length === 0) return;
-        
+
         const firstProductName = (selectedProds[0].name || '').trim().toUpperCase();
         const allSameGroup = selectedProds.every(p => (p.name || '').trim().toUpperCase() === firstProductName);
-        
-        if (allSameGroup && selectedProds.length > 1) {
-            // Use the existing Add Product form with pre-loaded data
-            setEditingProduct(null);
-            setFormData({
-                sku: selectedProds[0].sku?.substring(0, 5) || '',
-                name: firstProductName,
-                price: '',
-                stock_qty: '',
-                category: selectedProds[0].category || '',
-                is_service: false,
-                barcode: '',
-                status: 'available',
-                min_stock: '0',
-                max_stock: '99999',
-                watch_threshold: false,
-                variant: '',
-                attributes: []
-            });
-            
-            // Extract attribute dimensions from selected products
-            const primaryAttrs = new Set();
-            const secondaryAttrs = new Set();
-            const editData = {};
-            
-            let foundPrimaryKey = null;
-            let foundSecondaryKey = null;
 
-            selectedProds.forEach(p => {
-                let primary = '';
-                let secondary = '';
-                
-                if (Array.isArray(p.parsed_attributes) && p.parsed_attributes.length > 0) {
-                    // Extract from explicit attributes if available
-                    if (p.parsed_attributes[0]) {
-                        primary = (p.parsed_attributes[0].value || '').trim().toUpperCase();
-                        if (!foundPrimaryKey && p.parsed_attributes[0].key) foundPrimaryKey = p.parsed_attributes[0].key.toUpperCase();
-                    }
-                    if (p.parsed_attributes[1]) {
-                        secondary = (p.parsed_attributes[1].value || '').trim().toUpperCase();
-                        if (!foundSecondaryKey && p.parsed_attributes[1].key) foundSecondaryKey = p.parsed_attributes[1].key.toUpperCase();
-                    }
-                } else {
-                    // Fallback: split variant string by '-' to keep phrases like 'ONE SIZE' or 'LIGHT BLUE' intact
-                    const variant = (p.variant || '').trim();
-                    const parts = variant.split('-')
-                        .map(v => v.trim().toUpperCase())
-                        .filter(Boolean);
-                    
-                    if (parts.length >= 2) {
-                        primary = parts[0];
-                        secondary = parts[1];
-                    } else if (parts.length === 1) {
-                        primary = parts[0];
-                    }
-                }
-                
-                if (primary) primaryAttrs.add(primary);
-                if (secondary) secondaryAttrs.add(secondary);
-                
-                // Build key for matrix data
-                if (primary && secondary) {
-                    editData[`${primary}-${secondary}`] = parseInt(p.stock_qty || p.stock || 0);
-                } else if (primary) {
-                    // Single attribute — key format: "VALUE-QTY" (no secondary column)
-                    editData[`${primary}-QTY`] = parseInt(p.stock_qty || p.stock || 0);
-                }
-            });
-            
-            // Determine attribute labels
-            const primaryVals = Array.from(primaryAttrs);
-            const secondaryVals = Array.from(secondaryAttrs);
-            
-            let primaryKey = foundPrimaryKey || 'ATTRIBUTE';
-            let secondaryKey = foundSecondaryKey || '';
-            
-            const sizeOrder = ['XXS', 'XS', 'S', 'M', 'L', 'XL', 'XXL', 'XXXL', '3XL', '4XL', '5XL', 'ONE SIZE', 'OS'];
-            const looksLikeSize = (vals) => vals.some(v => sizeOrder.includes(v) || !isNaN(parseInt(v)));
-            
-            if (!foundPrimaryKey && secondaryVals.length > 0) {
-                // Two dimensions — guess labels if not found in attributes
-                primaryKey = looksLikeSize(primaryVals) ? 'SIZE' : 'COLOR';
-                secondaryKey = looksLikeSize(secondaryVals) ? 'SIZE' : 'COLOR';
-                if (primaryKey === secondaryKey) secondaryKey = 'VARIANT';
-            } else if (!foundPrimaryKey && primaryVals.length > 0) {
-                // Single dimension guess
-                primaryKey = looksLikeSize(primaryVals) ? 'SIZE' : 'ATTRIBUTE';
-            }
-            
-            const sortAttrValues = (vals) => vals.sort((a, b) => {
-                const aIdx = sizeOrder.indexOf(a);
-                const bIdx = sizeOrder.indexOf(b);
-                if (aIdx !== -1 && bIdx !== -1) return aIdx - bIdx;
-                if (aIdx !== -1) return -1;
-                if (bIdx !== -1) return 1;
-                const aNum = parseInt(a);
-                const bNum = parseInt(b);
-                if (!isNaN(aNum) && !isNaN(bNum)) return aNum - bNum;
-                return a.localeCompare(b);
-            });
-            
-            setMatrixConfig({
-                primaryKey: primaryKey,
-                primaryValues: sortAttrValues(primaryVals).join(', '),
-                secondaryKey: secondaryKey || 'SIZE',
-                secondaryValues: secondaryVals.length > 0 ? sortAttrValues(secondaryVals).join(', ') : ''
-            });
-            setMatrixData(editData);
-            
+        if (allSameGroup && selectedProds.length > 1) {
+            applyMatrixFromProducts(selectedProds, firstProductName);
             navigateToView('form');
         } else {
             alert('Cannot bulk edit products from different groups in the matrix grid.');
@@ -634,6 +630,14 @@ const ProductsPage = () => {
     };
 
     const handleEditClick = (product) => {
+        // If the product belongs to a multi-variant group, open the bulk matrix editor
+        const group = groupedProducts.find(g => g.items.some(i => i.id === product.id));
+        if (group && group.items.length > 1) {
+            applyMatrixFromProducts(group.items, group.name);
+            navigateToView('bulkMatrixEdit');
+            return;
+        }
+
         setEditingProduct(product);
         setFormData({
             sku: product.sku || '',
@@ -652,7 +656,6 @@ const ProductsPage = () => {
         });
         navigateToView('form');
     };
-
     const handleAddClick = () => {
         setEditingProduct(null);
         setFormData({
@@ -1370,7 +1373,7 @@ const ProductsPage = () => {
                                         <ChevronLeft size={20} />
                                     </button>
                                     <div>
-                                        <h2 className="text-xl font-black text-[#0d3542] dark:text-[#58a6ff] tracking-[0.4em] uppercase">{editingProduct ? 'Edit Product' : 'Add New Product'}</h2>
+                                        <h2 className="text-xl font-black text-[#0d3542] dark:text-[#58a6ff] tracking-[0.4em] uppercase">{view === 'bulkMatrixEdit' ? 'Bulk Matrix Edit' : editingProduct ? 'Edit Product' : 'Add New Product'}</h2>
                                         <p className="text-[10px] font-bold text-gray-400 dark:text-white/30 uppercase tracking-widest mt-1">Product Settings</p>
                                     </div>
                                 </div>
