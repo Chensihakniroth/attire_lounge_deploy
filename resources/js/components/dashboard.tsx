@@ -214,7 +214,7 @@ export function Dashboard() {
             {/* Revenue chart + right column */}
             <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
                 <Card
-                    className="animate-fade-in-up p-4 opacity-0 lg:col-span-2"
+                    className="animate-fade-in-up p-4 opacity-0 lg:col-span-2 min-w-0"
                     style={FADE(120)}
                 >
                     <div className="mb-4 flex items-center justify-between">
@@ -240,12 +240,12 @@ export function Dashboard() {
                         </div>
                     </div>
                     <div
-                        className="h-64 w-full"
+                        className="h-64 w-full min-w-0 overflow-hidden"
                         style={{ filter: 'drop-shadow(0 12px 24px hsl(var(--primary)/0.12))' }}
                     >
                         {chartReady ? (
                             <ResponsiveContainer width="100%" height={256}>
-                                <AreaChart data={trendData} margin={{ left: -16, right: 8, top: 8 }}>
+                                <AreaChart data={trendData} margin={{ left: -16, right: 16, top: 8 }}>
                                 <defs>
                                     <linearGradient id="rev" x1="0" y1="0" x2="0" y2="1">
                                         <stop
