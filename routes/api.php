@@ -99,6 +99,7 @@ Route::prefix('v1')->group(function () {
             // Promocodes
             Route::get('/promocodes', [PromocodeController::class, 'index']);
             Route::post('/promocodes', [PromocodeController::class, 'store']);
+            Route::put('/promocodes/{id}', [PromocodeController::class, 'update']);
             Route::delete('/promocodes/{id}', [PromocodeController::class, 'destroy']);
 
             // Newsletter Management
@@ -121,6 +122,7 @@ Route::prefix('v1')->group(function () {
 
             // Alterings
             Route::get('/alterings', [\App\Http\Controllers\AlteringController::class, 'index']);
+            Route::get('/alterings/trend', [\App\Http\Controllers\AlteringController::class, 'trend']);
             Route::post('/alterings', [\App\Http\Controllers\AlteringController::class, 'store']);
             Route::put('/alterings/{id}', [\App\Http\Controllers\AlteringController::class, 'update']);
             Route::post('/alterings/{id}/notify', [\App\Http\Controllers\AlteringController::class, 'notify']);

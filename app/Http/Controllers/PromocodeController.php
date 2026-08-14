@@ -32,6 +32,27 @@ class PromocodeController extends Controller
         return response()->json($promocode, 201);
     }
 
+    public function update(Request $request, $id)
+    {
+        $promocode = Promocode::findOrFail($id);
+
+        $validated = $request->validate([
+            'name' => 'required|string|max:255',
+            'discount_percentage' => 'required|integer|min:1|max:100',
+            'expires_at' => 'required|date',
+        ]);
+
+        // The asset `code` is kept stable on edit so existing redemptions
+        // against it don't break — only name / discount / expiry change.
+        $promocode->update([
+            'name' => $validated['name'],
+            'discount_percentage' => $validated['discount_percentage'],
+            'expires_at' => Carbon::parse($validated['expires_at']),
+        ]);
+
+        return response()->json($promocode);
+    }
+
     public function destroy($id)
     {
         $promocode = Promocode::findOrFail($id);
