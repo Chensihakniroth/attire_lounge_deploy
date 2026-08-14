@@ -203,12 +203,14 @@ const SidebarContent = ({ setOpen, isMobile }) => {
                 <h1 className="text-[11px] font-black tracking-[0.5em] text-white uppercase whitespace-nowrap overflow-hidden opacity-90">
                     {OUTLET_CONFIG[activeOutlet]?.label || 'Admin'}
                 </h1>
-                <button
-                    onClick={() => setOpen(false)}
-                    className="text-white/40 hover:text-white"
-                >
-                    <ArrowLeftRight size={16} />
-                </button>
+                {isMobile && (
+                    <button
+                        onClick={() => setOpen(false)}
+                        className="text-white/40 hover:text-white"
+                    >
+                        <ArrowLeftRight size={16} />
+                    </button>
+                )}
             </div>
 
             <nav className="flex-grow p-5 space-y-1.5 mt-2 overflow-y-auto no-scrollbar">
@@ -380,11 +382,15 @@ const AdminLayoutContent = ({
             </ModernModal>
 
             {/* Unified Sidebar Overlay */}
-            <Sidebar
-                isOpen={!isEditing && isSidebarOpen}
-                setOpen={setSidebarOpen}
-                isDesktop={isDesktop}
-            />
+            {isDesktop ? (
+                !isEditing && <SidebarContent setOpen={setSidebarOpen} isMobile={false} />
+            ) : (
+                <Sidebar
+                    isOpen={!isEditing && isSidebarOpen}
+                    setOpen={setSidebarOpen}
+                    isDesktop={isDesktop}
+                />
+            )}
 
             <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
                 {!isEditing && (
@@ -392,7 +398,7 @@ const AdminLayoutContent = ({
                         <div className="flex items-center gap-4">
                             <button
                                 onClick={() => setSidebarOpen(!isSidebarOpen)}
-                                className="p-2 hover:bg-white/10 rounded-xl text-white/60 hover:text-white transition-all active:scale-95"
+                                className="p-2 hover:bg-white/10 rounded-xl text-white/60 hover:text-white transition-all active:scale-95 lg:hidden"
                             >
                                 {isSidebarOpen ? <X size={20} /> : <Menu size={20} />}
                             </button>
