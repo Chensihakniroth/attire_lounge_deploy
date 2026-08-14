@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useCallback } from 'react';
+import React, { useState, useMemo, useCallback, useRef, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import axios from 'axios';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -20,10 +20,50 @@ const STATUS_CONFIG = {
     pending: { label: 'Pending', color: 'text-amber-600 dark:text-amber-400', bg: 'bg-amber-500/10', border: 'border-amber-500/20', dot: 'bg-amber-400' },
     in_progress: { label: 'In Progress', color: 'text-blue-600 dark:text-blue-400', bg: 'bg-blue-500/10', border: 'border-blue-500/20', dot: 'bg-blue-400' },
     ready: { label: 'Ready', color: 'text-emerald-600 dark:text-emerald-400', bg: 'bg-emerald-500/10', border: 'border-emerald-500/20', dot: 'bg-emerald-400' },
-    completed: { label: 'Done', color: 'text-gray-500', bg: 'bg-gray-500/10', border: 'border-gray-500/20', dot: 'bg-gray-400' },
+    completed: { label: 'Done', color: 'text-muted-foreground', bg: 'bg-gray-500/10', border: 'border-gray-500/20', dot: 'bg-gray-400' },
 };
 
 const STATUS_ORDER = ['pending', 'in_progress', 'ready', 'completed'];
+
+function useCountUp(target, duration = 900) {
+    const [val, setVal] = useState(0);
+    const prev = useRef(0);
+    useEffect(() => {
+        let raf = 0;
+        const start = performance.now();
+        const from = prev.current;
+        const tick = (now) => {
+            const t = Math.min(1, (now - start) / duration);
+            const eased = 1 - Math.pow(1 - t, 3);
+            setVal(from + (target - from) * eased);
+            if (t < 1) raf = requestAnimationFrame(tick);
+            else prev.current = target;
+        };
+        raf = requestAnimationFrame(tick);
+        return () => cancelAnimationFrame(raf);
+    }, [target, duration]);
+    return val;
+}
+
+function KpiCard({ icon: Icon, label, value, index }) {
+    const animated = useCountUp(typeof value === 'number' ? value : 0);
+    const display = typeof value === 'number' ? Math.round(animated).toLocaleString() : value;
+    return (
+        <div
+            style={{ animationDelay: `${index * 70}ms` }}
+            className="group relative animate-fade-in-up overflow-hidden rounded-2xl border border-border bg-card p-4 opacity-0 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-xl hover:shadow-primary/10"
+        >
+            <div className="flex items-center justify-between">
+                <span className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">{label}</span>
+                <span className="flex h-9 w-9 items-center justify-center rounded-2xl bg-primary/10 text-primary transition-all duration-300 group-hover:scale-110 group-hover:bg-primary/20 group-hover:shadow-[0_0_16px_hsl(var(--primary)/0.45)]">
+                    <Icon size={18} />
+                </span>
+            </div>
+            <div className="mt-3 text-3xl font-bold tracking-tight text-foreground tabular-nums">{display}</div>
+        </div>
+    );
+}
+
 
 /* ------------------------------------------------------------------ */
 /*  Loading                                                            */
@@ -31,7 +71,7 @@ const STATUS_ORDER = ['pending', 'in_progress', 'ready', 'completed'];
 const LoadingState = () => (
     <div className="flex flex-col items-center justify-center py-24 gap-3">
         <LumaSpin size="lg" />
-        <p className="text-[10px] font-bold uppercase tracking-[0.3em] text-gray-400 dark:text-[#8b949e]/40">
+        <p className="text-[10px] font-bold uppercase tracking-[0.3em] text-muted-foreground/70">
             Loading records…
         </p>
     </div>
@@ -42,10 +82,10 @@ const LoadingState = () => (
 /* ------------------------------------------------------------------ */
 const EmptyState = ({ search, filter }) => (
     <div className="flex flex-col items-center justify-center py-20 text-center">
-        <div className="w-14 h-14 rounded-xl bg-black/[0.02] dark:bg-white/[0.02] flex items-center justify-center mb-4">
-            <Scissors size={20} className="text-gray-300 dark:text-[#8b949e]/30" />
+        <div className="w-14 h-14 rounded-2xl bg-muted/40 flex items-center justify-center mb-4">
+            <Scissors size={20} className="text-muted-foreground/50" />
         </div>
-        <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-gray-400 dark:text-[#8b949e]/40">
+        <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-muted-foreground/70">
             {search ? 'No matches found' : filter ? `No ${filter} records` : 'No alteration records yet'}
         </p>
     </div>
@@ -67,22 +107,30 @@ const StatusBadge = React.memo(({ status }) => {
 /* ------------------------------------------------------------------ */
 /*  Altering Row (table)                                               */
 /* ------------------------------------------------------------------ */
-const AlteringRow = React.memo(({ altering, onDetailOpen }) => {
+const AlteringRow = React.memo(({ altering, onDetailOpen, selected, onToggleSelect }) => {
     return (
         <tr
-            className="hover:bg-black/[0.015] dark:hover:bg-white/[0.015] transition-colors group cursor-pointer"
+            className={`transition-colors group cursor-pointer ${selected ? 'bg-primary/5' : 'hover:bg-muted/40'}`}
             onClick={() => onDetailOpen(altering)}
         >
+            <td className="px-3 py-4 w-10" onClick={(e) => e.stopPropagation()}>
+                <input
+                    type="checkbox"
+                    checked={!!selected}
+                    onChange={() => onToggleSelect(altering.id)}
+                    className="h-4 w-4 accent-[hsl(var(--primary))] cursor-pointer"
+                />
+            </td>
             <td className="px-4 py-4">
-                <span className="text-[13px] font-bold text-gray-900 dark:text-[#c9d1d9] truncate block">
+                <span className="text-[13px] font-bold text-foreground truncate block">
                     {altering.customer_name}
                 </span>
             </td>
             <td className="px-4 py-4 hidden sm:table-cell">
-                <span className="text-[11px] font-bold text-gray-800 dark:text-gray-300">
+                <span className="text-[11px] font-bold text-foreground/90">
                     #{altering.order_no || 'MNL'}
                 </span>
-                <span className="text-[10px] text-gray-400 dark:text-[#8b949e]/50 block mt-0.5">
+                <span className="text-[10px] text-muted-foreground block mt-0.5">
                     {altering.mobile || 'N/A'}
                 </span>
             </td>
@@ -90,24 +138,24 @@ const AlteringRow = React.memo(({ altering, onDetailOpen }) => {
                 <StatusBadge status={altering.status} />
             </td>
             <td className="px-4 py-4 text-right hidden md:table-cell">
-                <span className="text-[13px] font-bold text-[#0d3542] dark:text-[#58a6ff]">
+                <span className="text-[13px] font-bold text-primary">
                     ${parseFloat(altering.altering_cost || 0).toFixed(2)}
                 </span>
             </td>
             <td className="px-4 py-4 max-w-[150px] hidden lg:table-cell">
-                <span className="text-[11px] text-gray-500 dark:text-[#8b949e]/60 truncate block italic">
+                <span className="text-[11px] text-muted-foreground/60 truncate block italic">
                     {altering.product || 'Unspecified'}
                 </span>
             </td>
             <td className="px-4 py-4 hidden md:table-cell">
-                <span className="text-[11px] text-gray-600 dark:text-[#8b949e]">
+                <span className="text-[11px] text-muted-foreground">
                     {formatDate(altering.ready_at, { fallback: 'TBD', month: 'short' })}
                 </span>
             </td>
             <td className="px-4 py-4 w-10" onClick={(e) => e.stopPropagation()}>
                 <button
                     onClick={() => onDetailOpen(altering)}
-                    className="p-2 rounded-lg text-gray-400 hover:text-[#0d3542] dark:hover:text-[#58a6ff] hover:bg-black/5 dark:hover:bg-white/5 transition-all opacity-0 group-hover:opacity-100"
+                    className="p-2 rounded-lg text-muted-foreground hover:text-primary hover:bg-black/5 dark:hover:bg-white/5 transition-all opacity-0 group-hover:opacity-100"
                 >
                     <Eye size={14} />
                 </button>
@@ -119,39 +167,47 @@ const AlteringRow = React.memo(({ altering, onDetailOpen }) => {
 /* ------------------------------------------------------------------ */
 /*  Altering Card (mobile)                                             */
 /* ------------------------------------------------------------------ */
-const AlteringCard = React.memo(({ altering, onDetailOpen }) => {
+const AlteringCard = React.memo(({ altering, onDetailOpen, selected, onToggleSelect }) => {
     return (
         <motion.div
             initial={{ opacity: 0, y: 4 }}
             animate={{ opacity: 1, y: 0 }}
-            className="bg-white dark:bg-[#161b22] border border-black/[0.06] dark:border-[#30363d] rounded-xl p-4 hover:border-[#0d3542]/15 dark:hover:border-[#58a6ff]/15 transition-all cursor-pointer"
+            className={`bg-card border rounded-2xl p-4 transition-all cursor-pointer ${selected ? 'border-primary/40 bg-primary/5' : 'border-border hover:border-primary/30'}`}
             onClick={() => onDetailOpen(altering)}
         >
             <div className="flex items-start justify-between mb-3">
                 <div className="min-w-0 flex-1">
-                    <h3 className="text-[13px] font-bold text-gray-900 dark:text-[#c9d1d9] truncate">
+                    <h3 className="text-[13px] font-bold text-foreground truncate">
                         {altering.customer_name}
                     </h3>
-                    <span className="text-[10px] text-gray-400 dark:text-[#8b949e]/50 font-mono">
+                    <span className="text-[10px] text-muted-foreground font-mono">
                         #{altering.order_no || 'MNL'}
                     </span>
                 </div>
-                <StatusBadge status={altering.status} />
+                <div className="flex items-center gap-2" onClick={(e) => e.stopPropagation()}>
+                    <input
+                        type="checkbox"
+                        checked={!!selected}
+                        onChange={() => onToggleSelect(altering.id)}
+                        className="h-4 w-4 accent-[hsl(var(--primary))] cursor-pointer"
+                    />
+                    <StatusBadge status={altering.status} />
+                </div>
             </div>
             <div className="grid grid-cols-2 gap-2 mb-3 text-[10px]">
                 <div>
-                    <span className="text-gray-400 dark:text-[#8b949e]/40 uppercase tracking-widest block">Cost</span>
-                    <span className="font-bold text-[#0d3542] dark:text-[#58a6ff]">${parseFloat(altering.altering_cost || 0).toFixed(2)}</span>
+                    <span className="text-muted-foreground/70 uppercase tracking-widest block">Cost</span>
+                    <span className="font-bold text-primary">${parseFloat(altering.altering_cost || 0).toFixed(2)}</span>
                 </div>
                 <div className="text-right">
-                    <span className="text-gray-400 dark:text-[#8b949e]/40 uppercase tracking-widest block">Ready</span>
-                    <span className="font-bold text-gray-600 dark:text-[#8b949e]">
+                    <span className="text-muted-foreground/70 uppercase tracking-widest block">Ready</span>
+                    <span className="font-bold text-muted-foreground">
                         {formatDate(altering.ready_at, { fallback: 'TBD', month: 'short' })}
                     </span>
                 </div>
             </div>
             {altering.product && (
-                <p className="text-[10px] text-gray-500 dark:text-[#8b949e]/50 italic truncate">{altering.product}</p>
+                <p className="text-[10px] text-muted-foreground/50 italic truncate">{altering.product}</p>
             )}
         </motion.div>
     );
@@ -160,44 +216,67 @@ const AlteringCard = React.memo(({ altering, onDetailOpen }) => {
 /* ------------------------------------------------------------------ */
 /*  Altering Table (desktop)                                           */
 /* ------------------------------------------------------------------ */
-const AlteringTable = React.memo(({ alterings, onDetailOpen }) => (
-    <div className="overflow-x-auto">
-        <table className="w-full text-left border-collapse">
-            <thead>
-                <tr className="bg-black/[0.015] dark:bg-white/[0.01] border-b border-black/[0.05] dark:border-[#30363d]">
-                    {['Client', 'Reference', 'Status', 'Cost', 'Garment', 'Scheduled', ''].map((h, i) => (
-                        <th
-                            key={h}
-                            className={`px-4 py-3 text-[9px] font-bold uppercase tracking-[0.15em] text-gray-400 dark:text-[#8b949e]/40 whitespace-nowrap ${
-                                i === 3 ? 'text-right' : ''
-                            } ${i === 1 ? 'hidden sm:table-cell' : ''} ${i === 4 ? 'hidden lg:table-cell' : ''} ${i === 5 ? 'hidden md:table-cell' : ''}`}
-                        >
-                            {h}
+const AlteringTable = React.memo(({ alterings, onDetailOpen, selectedIds, onToggleSelect, onToggleAll, allSelected }) => {
+    const COLS = [
+        { label: 'Client', cls: 'px-4' },
+        { label: 'Reference', cls: 'px-4 hidden sm:table-cell' },
+        { label: 'Status', cls: 'px-4' },
+        { label: 'Cost', cls: 'px-4 text-right hidden md:table-cell' },
+        { label: 'Garment', cls: 'px-4 max-w-[150px] hidden lg:table-cell' },
+        { label: 'Scheduled', cls: 'px-4 hidden md:table-cell' },
+        { label: '', cls: 'w-10 px-4' },
+    ];
+    return (
+        <div className="overflow-auto max-h-[70vh]">
+            <table className="w-full text-left border-collapse">
+                <thead>
+                    <tr className="bg-card border-b border-border sticky top-0 z-10">
+                        <th className="w-10 px-3">
+                            <input
+                                type="checkbox"
+                                checked={!!allSelected}
+                                onChange={onToggleAll}
+                                className="h-4 w-4 accent-[hsl(var(--primary))] cursor-pointer"
+                            />
                         </th>
+                        {COLS.map((c) => (
+                            <th
+                                key={c.label}
+                                className={`py-3 text-[9px] font-bold uppercase tracking-[0.15em] text-muted-foreground/70 whitespace-nowrap ${c.cls}`}
+                            >
+                                {c.label}
+                            </th>
+                        ))}
+                    </tr>
+                </thead>
+                <tbody className="divide-y divide-border">
+                    {alterings.map(altering => (
+                        <AlteringRow
+                            key={altering.id}
+                            altering={altering}
+                            onDetailOpen={onDetailOpen}
+                            selected={selectedIds.has(altering.id)}
+                            onToggleSelect={onToggleSelect}
+                        />
                     ))}
-                </tr>
-            </thead>
-            <tbody className="divide-y divide-black/[0.04] dark:divide-[#30363d]">
-                {alterings.map(altering => (
-                    <AlteringRow key={altering.id} altering={altering} onDetailOpen={onDetailOpen} />
-                ))}
-            </tbody>
-        </table>
-    </div>
-));
+                </tbody>
+            </table>
+        </div>
+    );
+});
 
 /* ------------------------------------------------------------------ */
 /*  Input Field                                                         */
 /* ------------------------------------------------------------------ */
 const InputField = React.memo(({ label, icon, className = '', ...props }) => (
     <div className="flex flex-col gap-1.5">
-        <label className="text-[9px] font-bold text-gray-400 dark:text-[#8b949e]/50 uppercase tracking-widest flex items-center gap-1.5">
+        <label className="text-[9px] font-bold text-muted-foreground uppercase tracking-widest flex items-center gap-1.5">
             {icon && <span className="opacity-40">{icon}</span>}
             {label}
         </label>
         <input
             {...props}
-            className={`h-10 px-3 bg-black/[0.02] dark:bg-white/[0.02] text-[12px] font-medium text-gray-900 dark:text-[#c9d1d9] border border-black/[0.06] dark:border-white/[0.06] rounded-lg outline-none focus:border-[#0d3542]/40 dark:focus:border-[#58a6ff]/40 transition-colors placeholder:text-gray-300 dark:placeholder:text-[#8b949e]/20 ${className}`}
+            className={`h-10 px-3 bg-muted/40 text-[12px] font-medium text-foreground border border-border rounded-lg outline-none focus:border-primary/40 transition-colors placeholder:text-muted-foreground/40 ${className}`}
         />
     </div>
 ));
@@ -223,6 +302,7 @@ export default function AlteringManager() {
     const [syncUrl, setSyncUrl] = useState('');
     const [isSyncing, setIsSyncing] = useState(false);
     const [isNotifying, setIsNotifying] = useState(null);
+    const [selectedIds, setSelectedIds] = useState(() => new Set());
     const [formData, setFormData] = useState({
         customer_name: '', order_no: '', mobile: '', product: '',
         remark: '', altering_cost: '', ready_at: '', start_date: new Date().toISOString().split('T')[0],
@@ -244,6 +324,11 @@ export default function AlteringManager() {
     });
 
     const alterings = alteringsData?.data || [];
+    const statusCounts = useMemo(() => {
+        const c = { pending: 0, in_progress: 0, ready: 0, completed: 0 };
+        alterings.forEach(a => { if (c[a.status] !== undefined) c[a.status]++; });
+        return c;
+    }, [alterings]);
     const pagination = {
         currentPage: alteringsData?.current_page || 1,
         lastPage: alteringsData?.last_page || 1,
@@ -327,6 +412,39 @@ export default function AlteringManager() {
         finally { setIsSyncing(false); }
     }, [syncUrl, queryClient]);
 
+    /* ---- Selection ---- */
+    const toggleSelect = useCallback((id) => {
+        setSelectedIds(prev => {
+            const next = new Set(prev);
+            if (next.has(id)) next.delete(id); else next.add(id);
+            return next;
+        });
+    }, []);
+
+    const toggleSelectAll = useCallback(() => {
+        setSelectedIds(prev => {
+            const next = new Set(prev);
+            const allSel = sortedAlterings.length > 0 && sortedAlterings.every(a => next.has(a.id));
+            if (allSel) sortedAlterings.forEach(a => next.delete(a.id));
+            else sortedAlterings.forEach(a => next.add(a.id));
+            return next;
+        });
+    }, [sortedAlterings]);
+
+    const clearSelection = useCallback(() => setSelectedIds(new Set()), []);
+
+    const handleBulkStatus = useCallback(async (status) => {
+        const ids = [...selectedIds];
+        if (!ids.length) return;
+        try {
+            await Promise.all(ids.map(id => axios.put(`/api/v1/admin/alterings/${id}`, { status })));
+            queryClient.invalidateQueries({ queryKey: ['admin-alterings'] });
+            setSelectedIds(new Set());
+        } catch { /* ignore */ }
+    }, [selectedIds, queryClient]);
+
+    const allPageSelected = sortedAlterings.length > 0 && sortedAlterings.every(a => selectedIds.has(a.id));
+
     /* ---- Sorting ---- */
     const sortedAlterings = useMemo(() => {
         if (!sortField) return alterings;
@@ -359,28 +477,31 @@ export default function AlteringManager() {
     }, [sortedAlterings]);
 
     return (
-        <div className="space-y-5 pb-16 max-w-[1100px] mx-auto px-4 sm:px-6 mt-4">
-            {/* ---- Header ---- */}
-            <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
+        <div className="space-y-5 pb-16 max-w-[1400px] mx-auto px-4 sm:px-6 mt-4">
+                        {/* ---- Header ---- */}
+            <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
                 <div>
-                    <h1 className="text-2xl sm:text-3xl font-serif text-gray-900 dark:text-[#c9d1d9] tracking-tight">
+                    <h1 className="flex items-center gap-2 font-serif text-2xl font-bold tracking-tight text-foreground sm:text-3xl">
+                        <Scissors size={22} className="text-attire-gold" />
                         Altering Logs
                     </h1>
-                    <p className="text-[10px] text-gray-400 dark:text-[#8b949e]/50 font-bold uppercase tracking-[0.3em] mt-1">
+                    <p className="mt-1 text-[10px] font-bold uppercase tracking-[0.3em] text-muted-foreground">
                         {pagination.total} total records
                     </p>
                 </div>
                 <div className="flex items-center gap-2">
                     <button
+                        type="button"
                         onClick={() => setShowSyncModal(true)}
-                        className="h-9 px-4 bg-white dark:bg-[#161b22] border border-black/[0.06] dark:border-[#30363d] rounded-lg text-[10px] font-bold uppercase tracking-widest text-gray-600 dark:text-[#c9d1d9] hover:bg-black/[0.03] dark:hover:bg-white/[0.03] transition-all flex items-center gap-2"
+                        className="inline-flex h-9 items-center gap-2 rounded-lg border border-border bg-card px-4 text-[10px] font-bold uppercase tracking-widest text-foreground transition-all hover:bg-muted/50"
                     >
                         <RefreshCw size={13} className={isSyncing ? 'animate-spin' : ''} />
                         <span className="hidden sm:inline">Sync</span>
                     </button>
                     <button
+                        type="button"
                         onClick={() => setIsAdding(true)}
-                        className="h-9 px-4 bg-[#0d3542] dark:bg-[#58a6ff] text-white dark:text-black rounded-lg text-[10px] font-bold uppercase tracking-widest hover:opacity-90 active:scale-[0.97] transition-all flex items-center gap-2"
+                        className="inline-flex h-9 items-center gap-2 rounded-lg bg-primary px-4 text-[10px] font-bold uppercase tracking-widest text-primary-foreground transition-all hover:opacity-90 active:scale-[0.97]"
                     >
                         <Plus size={14} />
                         <span className="hidden sm:inline">Add</span>
@@ -388,23 +509,31 @@ export default function AlteringManager() {
                 </div>
             </div>
 
+            {/* ---- KPI strip ---- */}
+            <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
+                <KpiCard icon={Scissors} label="Total Records" value={pagination.total} index={0} />
+                <KpiCard icon={Clock} label="Pending" value={statusCounts.pending} index={1} />
+                <KpiCard icon={Loader2} label="In Progress" value={statusCounts.in_progress} index={2} />
+                <KpiCard icon={CheckCircle2} label="Ready" value={statusCounts.ready + statusCounts.completed} index={3} />
+            </div>
+
             {/* ---- Filter Bar ---- */}
-            <div className="bg-white dark:bg-[#161b22] border border-black/[0.06] dark:border-[#30363d] rounded-xl p-3">
+            <div className="bg-card border border-border rounded-2xl p-3">
                 <div className="flex flex-col sm:flex-row gap-3">
                     {/* Search */}
                     <div className="relative flex-1">
-                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={15} />
+                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" size={15} />
                         <input
                             type="text"
                             placeholder="Search by name, order, mobile..."
                             value={searchQuery}
                             onChange={handleSearchChange}
-                            className="w-full h-10 bg-black/[0.02] dark:bg-white/[0.02] border border-black/[0.06] dark:border-white/[0.06] rounded-lg pl-9 pr-8 text-[12px] font-medium text-gray-900 dark:text-[#c9d1d9] outline-none focus:border-[#0d3542]/40 dark:focus:border-[#58a6ff]/40 transition-colors placeholder:text-gray-300 dark:placeholder:text-[#8b949e]/20"
+                            className="w-full h-10 bg-muted/40 border border-border rounded-lg pl-9 pr-8 text-[12px] font-medium text-foreground outline-none focus:border-primary/40 transition-colors placeholder:text-muted-foreground/40"
                         />
                         {searchQuery && (
                             <button
                                 onClick={handleReset}
-                                className="absolute right-2.5 top-1/2 -translate-y-1/2 p-0.5 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
+                                className="absolute right-2.5 top-1/2 -translate-y-1/2 p-0.5 text-muted-foreground hover:text-foreground"
                             >
                                 <X size={13} />
                             </button>
@@ -417,8 +546,8 @@ export default function AlteringManager() {
                             onClick={() => setShowFilterMenu(!showFilterMenu)}
                             className={`h-10 px-3 border rounded-lg text-[10px] font-bold uppercase tracking-widest flex items-center gap-2 transition-all ${
                                 statusFilter
-                                    ? 'border-[#0d3542]/30 dark:border-[#58a6ff]/30 text-[#0d3542] dark:text-[#58a6ff] bg-[#0d3542]/5 dark:bg-[#58a6ff]/5'
-                                    : 'border-black/[0.06] dark:border-white/[0.06] text-gray-600 dark:text-[#c9d1d9] hover:bg-black/[0.03] dark:hover:bg-white/[0.03]'
+                                    ? 'border-primary/30 text-primary bg-primary/10'
+                                    : 'border-border text-foreground hover:bg-muted/50'
                             }`}
                         >
                             <Filter size={12} />
@@ -427,10 +556,10 @@ export default function AlteringManager() {
                         {showFilterMenu && (
                             <>
                                 <div className="fixed inset-0 z-10" onClick={() => setShowFilterMenu(false)} />
-                                <div className="absolute right-0 mt-1.5 w-40 bg-white dark:bg-[#161b22] border border-black/[0.06] dark:border-[#30363d] rounded-lg z-20 py-1 shadow-lg">
+                                <div className="absolute right-0 mt-1.5 w-40 bg-card border border-border rounded-lg z-20 py-1 shadow-lg">
                                     <button
                                         onClick={() => { setStatusFilter(''); setShowFilterMenu(false); setPage(1); }}
-                                        className={`w-full px-3 py-2 text-left text-[10px] font-bold uppercase tracking-widest transition-colors ${!statusFilter ? 'text-[#0d3542] dark:text-[#58a6ff] bg-black/[0.03] dark:bg-white/[0.03]' : 'text-gray-500 dark:text-[#8b949e] hover:bg-black/[0.03] dark:hover:bg-white/[0.03]'}`}
+                                        className={`w-full px-3 py-2 text-left text-[10px] font-bold uppercase tracking-widest transition-colors ${!statusFilter ? 'text-primary bg-muted/50' : 'text-muted-foreground hover:bg-muted/50'}`}
                                     >
                                         All Records
                                     </button>
@@ -438,7 +567,7 @@ export default function AlteringManager() {
                                         <button
                                             key={key}
                                             onClick={() => { setStatusFilter(STATUS_CONFIG[key].label); setShowFilterMenu(false); setPage(1); }}
-                                            className={`w-full px-3 py-2 text-left text-[10px] font-bold uppercase tracking-widest transition-colors ${statusFilter === STATUS_CONFIG[key].label ? 'text-[#0d3542] dark:text-[#58a6ff] bg-black/[0.03] dark:bg-white/[0.03]' : 'text-gray-500 dark:text-[#8b949e] hover:bg-black/[0.03] dark:hover:bg-white/[0.03]'}`}
+                                            className={`w-full px-3 py-2 text-left text-[10px] font-bold uppercase tracking-widest transition-colors ${statusFilter === STATUS_CONFIG[key].label ? 'text-primary bg-muted/50' : 'text-muted-foreground hover:bg-muted/50'}`}
                                         >
                                             {STATUS_CONFIG[key].label}
                                         </button>
@@ -452,7 +581,7 @@ export default function AlteringManager() {
                     <div className="relative">
                         <button
                             onClick={() => setShowSortMenu(!showSortMenu)}
-                            className="h-10 px-3 border border-black/[0.06] dark:border-white/[0.06] rounded-lg text-[10px] font-bold uppercase tracking-widest text-gray-600 dark:text-[#c9d1d9] hover:bg-black/[0.03] dark:hover:bg-white/[0.03] flex items-center gap-2 transition-all"
+                            className="h-10 px-3 border border-border rounded-lg text-[10px] font-bold uppercase tracking-widest text-foreground hover:bg-muted/50 flex items-center gap-2 transition-all"
                         >
                             <ArrowUpDown size={12} />
                             Sort
@@ -460,7 +589,7 @@ export default function AlteringManager() {
                         {showSortMenu && (
                             <>
                                 <div className="fixed inset-0 z-10" onClick={() => setShowSortMenu(false)} />
-                                <div className="absolute right-0 mt-1.5 w-40 bg-white dark:bg-[#161b22] border border-black/[0.06] dark:border-[#30363d] rounded-lg z-20 py-1 shadow-lg">
+                                <div className="absolute right-0 mt-1.5 w-40 bg-card border border-border rounded-lg z-20 py-1 shadow-lg">
                                     {[
                                         { field: 'customer_name', label: 'Name' },
                                         { field: 'altering_cost', label: 'Cost' },
@@ -469,7 +598,7 @@ export default function AlteringManager() {
                                         <button
                                             key={field}
                                             onClick={() => handleSort(field)}
-                                            className={`w-full px-3 py-2 text-left text-[10px] font-bold uppercase tracking-widest transition-colors ${sortField === field ? 'text-[#0d3542] dark:text-[#58a6ff] bg-black/[0.03] dark:bg-white/[0.03]' : 'text-gray-500 dark:text-[#8b949e] hover:bg-black/[0.03] dark:hover:bg-white/[0.03]'}`}
+                                            className={`w-full px-3 py-2 text-left text-[10px] font-bold uppercase tracking-widest transition-colors ${sortField === field ? 'text-primary bg-muted/50' : 'text-muted-foreground hover:bg-muted/50'}`}
                                         >
                                             {label} {sortField === field && (sortOrder === 'asc' ? '↑' : '↓')}
                                         </button>
@@ -483,22 +612,42 @@ export default function AlteringManager() {
                     <div className="relative">
                         <button
                             onClick={() => setShowExportMenu(!showExportMenu)}
-                            className="h-10 w-10 border border-black/[0.06] dark:border-white/[0.06] rounded-lg text-gray-600 dark:text-[#c9d1d9] hover:bg-black/[0.03] dark:hover:bg-white/[0.03] flex items-center justify-center transition-all"
+                            className="h-10 w-10 border border-border rounded-lg text-foreground hover:bg-muted/50 flex items-center justify-center transition-all"
                         >
                             <Download size={14} />
                         </button>
                         {showExportMenu && (
                             <>
                                 <div className="fixed inset-0 z-10" onClick={() => setShowExportMenu(false)} />
-                                <div className="absolute right-0 mt-1.5 w-28 bg-white dark:bg-[#161b22] border border-black/[0.06] dark:border-[#30363d] rounded-lg z-20 py-1 shadow-lg">
-                                    <button onClick={() => { exportToCSV(); setShowExportMenu(false); }} className="w-full px-3 py-2 text-left text-[10px] font-bold uppercase tracking-widest text-gray-500 dark:text-[#8b949e] hover:bg-black/[0.03] dark:hover:bg-white/[0.03]">CSV</button>
-                                    <button onClick={() => { exportToJSON(); setShowExportMenu(false); }} className="w-full px-3 py-2 text-left text-[10px] font-bold uppercase tracking-widest text-gray-500 dark:text-[#8b949e] hover:bg-black/[0.03] dark:hover:bg-white/[0.03]">JSON</button>
+                                <div className="absolute right-0 mt-1.5 w-28 bg-card border border-border rounded-lg z-20 py-1 shadow-lg">
+                                    <button onClick={() => { exportToCSV(); setShowExportMenu(false); }} className="w-full px-3 py-2 text-left text-[10px] font-bold uppercase tracking-widest text-muted-foreground hover:bg-muted/50">CSV</button>
+                                    <button onClick={() => { exportToJSON(); setShowExportMenu(false); }} className="w-full px-3 py-2 text-left text-[10px] font-bold uppercase tracking-widest text-muted-foreground hover:bg-muted/50">JSON</button>
                                 </div>
                             </>
                         )}
                     </div>
+                    <button
+                        onClick={() => queryClient.invalidateQueries({ queryKey: ['admin-alterings'] })}
+                        title="Refresh"
+                        className="h-10 w-10 border border-border rounded-lg text-foreground hover:bg-muted/50 flex items-center justify-center transition-all"
+                    >
+                        <RefreshCw size={14} />
+                    </button>
                 </div>
             </div>
+
+            {/* ---- Bulk selection bar ---- */}
+            {selectedIds.size > 0 && (
+                <div className="flex flex-wrap items-center gap-2 bg-primary/10 border border-primary/20 rounded-2xl px-4 py-2.5">
+                    <span className="text-[11px] font-bold text-primary">{selectedIds.size} selected</span>
+                    <div className="flex-1" />
+                    <button onClick={() => handleBulkStatus('ready')} className="h-8 px-3 rounded-lg bg-emerald-500/10 border border-emerald-500/20 text-emerald-600 dark:text-emerald-400 text-[10px] font-bold uppercase tracking-widest hover:bg-emerald-500/20 transition-all">Mark Ready</button>
+                    <button onClick={() => handleBulkStatus('in_progress')} className="h-8 px-3 rounded-lg bg-blue-500/10 border border-blue-500/20 text-blue-600 dark:text-blue-400 text-[10px] font-bold uppercase tracking-widest hover:bg-blue-500/20 transition-all">In Progress</button>
+                    <button onClick={() => handleBulkStatus('completed')} className="h-8 px-3 rounded-lg bg-gray-500/10 border border-gray-500/20 text-muted-foreground text-[10px] font-bold uppercase tracking-widest hover:bg-gray-500/20 transition-all">Mark Done</button>
+                    <button onClick={() => { if (confirm('Delete selected records?')) { bulkDeleteMutation.mutate([...selectedIds]); clearSelection(); } }} className="h-8 px-3 rounded-lg bg-rose-500/10 border border-rose-500/20 text-rose-600 dark:text-rose-400 text-[10px] font-bold uppercase tracking-widest hover:bg-rose-500/20 transition-all flex items-center gap-1.5"><Trash2 size={13} /> Delete</button>
+                    <button onClick={clearSelection} className="h-8 px-3 rounded-lg border border-border text-muted-foreground text-[10px] font-bold uppercase tracking-widest hover:bg-muted/50 transition-all">Clear</button>
+                </div>
+            )}
 
             {/* ---- Content ---- */}
             {isLoading ? (
@@ -508,15 +657,22 @@ export default function AlteringManager() {
             ) : (
                 <>
                     {/* Desktop: Table */}
-                    <div className="hidden md:block bg-white dark:bg-[#161b22] border border-black/[0.06] dark:border-[#30363d] rounded-xl overflow-hidden">
-                        <AlteringTable alterings={sortedAlterings} onDetailOpen={handleDetailOpen} />
+                    <div className="hidden md:block bg-card border border-border rounded-2xl overflow-hidden">
+                        <AlteringTable
+                            alterings={sortedAlterings}
+                            onDetailOpen={handleDetailOpen}
+                            selectedIds={selectedIds}
+                            onToggleSelect={toggleSelect}
+                            onToggleAll={toggleSelectAll}
+                            allSelected={allPageSelected}
+                        />
                     </div>
 
                     {/* Mobile: Card grid */}
                     <div className="md:hidden grid grid-cols-1 gap-3">
                         <AnimatePresence>
                             {sortedAlterings.map(altering => (
-                                <AlteringCard key={altering.id} altering={altering} onDetailOpen={handleDetailOpen} />
+                                <AlteringCard key={altering.id} altering={altering} onDetailOpen={handleDetailOpen} selected={selectedIds.has(altering.id)} onToggleSelect={toggleSelect} />
                             ))}
                         </AnimatePresence>
                     </div>
@@ -527,17 +683,17 @@ export default function AlteringManager() {
                             <button
                                 onClick={() => handlePageChange(page - 1)}
                                 disabled={page === 1}
-                                className="h-8 w-8 rounded-lg border border-black/[0.06] dark:border-[#30363d] flex items-center justify-center text-gray-500 disabled:opacity-30 disabled:pointer-events-none hover:bg-black/[0.03] dark:hover:bg-white/[0.03] transition-all"
+                                className="h-8 w-8 rounded-lg border border-border flex items-center justify-center text-muted-foreground disabled:opacity-30 disabled:pointer-events-none hover:bg-muted/50 transition-all"
                             >
                                 <ChevronLeft size={14} />
                             </button>
-                            <span className="text-[10px] font-bold uppercase tracking-widest text-gray-500 dark:text-[#8b949e] min-w-[60px] text-center">
+                            <span className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground min-w-[60px] text-center">
                                 {page} / {pagination.lastPage}
                             </span>
                             <button
                                 onClick={() => handlePageChange(page + 1)}
                                 disabled={page === pagination.lastPage}
-                                className="h-8 w-8 rounded-lg border border-black/[0.06] dark:border-[#30363d] flex items-center justify-center text-gray-500 disabled:opacity-30 disabled:pointer-events-none hover:bg-black/[0.03] dark:hover:bg-white/[0.03] transition-all"
+                                className="h-8 w-8 rounded-lg border border-border flex items-center justify-center text-muted-foreground disabled:opacity-30 disabled:pointer-events-none hover:bg-muted/50 transition-all"
                             >
                                 <ChevronRight size={14} />
                             </button>
@@ -551,18 +707,18 @@ export default function AlteringManager() {
                 {selectedDetail && (
                     <div className="p-5 space-y-5">
                         {/* Header */}
-                        <div className="flex items-center gap-3 pb-4 border-b border-black/[0.05] dark:border-white/[0.05]">
-                            <div className="w-10 h-10 rounded-lg bg-black/[0.03] dark:bg-white/[0.03] flex items-center justify-center">
-                                <User size={18} className="text-gray-400" />
+                        <div className="flex items-center gap-3 pb-4 border-b border-border">
+                            <div className="w-10 h-10 rounded-lg bg-muted/50 flex items-center justify-center">
+                                <User size={18} className="text-muted-foreground" />
                             </div>
                             <div className="flex-1 min-w-0">
-                                <h3 className="text-base font-bold text-gray-900 dark:text-[#c9d1d9] truncate">
+                                <h3 className="text-base font-bold text-foreground truncate">
                                     {selectedDetail.customer_name}
                                 </h3>
                                 <div className="flex items-center gap-2 mt-0.5">
                                     <StatusBadge status={selectedDetail.status} />
                                     {selectedDetail.order_no && (
-                                        <span className="text-[9px] font-mono text-gray-400 dark:text-[#8b949e]">
+                                        <span className="text-[9px] font-mono text-muted-foreground text-muted-foreground">
                                             #{selectedDetail.order_no}
                                         </span>
                                     )}
@@ -579,14 +735,14 @@ export default function AlteringManager() {
                         </div>
 
                         {selectedDetail.remark && (
-                            <div className="bg-black/[0.02] dark:bg-white/[0.02] rounded-lg p-3.5 border border-black/[0.04] dark:border-white/[0.04]">
-                                <span className="text-[9px] font-bold text-gray-400 uppercase tracking-widest block mb-1">Notes</span>
-                                <p className="text-[12px] text-gray-600 dark:text-[#8b949e] leading-relaxed">{selectedDetail.remark}</p>
+                            <div className="bg-muted/40 rounded-lg p-3.5 border border-border">
+                                <span className="text-[9px] font-bold text-muted-foreground uppercase tracking-widest block mb-1">Notes</span>
+                                <p className="text-[12px] text-muted-foreground leading-relaxed">{selectedDetail.remark}</p>
                             </div>
                         )}
 
                         {/* Actions */}
-                        <div className="flex flex-col gap-2 pt-4 border-t border-black/[0.05] dark:border-white/[0.05]">
+                        <div className="flex flex-col gap-2 pt-4 border-t border-border">
                             <div className="flex gap-2">
                                 {selectedDetail.status !== 'completed' && (
                                     <button
@@ -599,7 +755,7 @@ export default function AlteringManager() {
                                 <button
                                     onClick={() => handleNotify(selectedDetail.id)}
                                     disabled={isNotifying === selectedDetail.id}
-                                    className="flex-1 h-9 bg-white dark:bg-[#161b22] border border-black/[0.06] dark:border-[#30363d] text-gray-600 dark:text-[#c9d1d9] rounded-lg text-[10px] font-bold uppercase tracking-widest hover:bg-black/[0.03] dark:hover:bg-white/[0.03] transition-all flex items-center justify-center gap-1.5"
+                                    className="flex-1 h-9 bg-card border border-border text-foreground rounded-lg text-[10px] font-bold uppercase tracking-widest hover:bg-muted/50 transition-all flex items-center justify-center gap-1.5"
                                 >
                                     {isNotifying === selectedDetail.id ? <Loader2 className="animate-spin" size={13} /> : <Mail size={13} />}
                                     Notify
@@ -612,7 +768,7 @@ export default function AlteringManager() {
                                 >
                                     Delete Record
                                 </button>
-                                <span className="text-[9px] text-gray-400 dark:text-[#8b949e]/40 font-medium">
+                                <span className="text-[9px] text-muted-foreground/70 font-medium">
                                     {selectedDetail.notified_at ? `Notified ${formatDate(selectedDetail.notified_at, { month: 'short' })}` : 'Not notified'}
                                 </span>
                             </div>
@@ -631,7 +787,7 @@ export default function AlteringManager() {
                         }
                         createMutation.mutate(formData);
                     }}
-                    className="p-5 space-y-5 bg-white dark:bg-[#0d1117]"
+                    className="p-5 space-y-5 bg-card"
                 >
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <InputField label="Customer Name *" icon={<User size={11} />} value={formData.customer_name} onChange={(e) => setFormData({ ...formData, customer_name: e.target.value })} placeholder="Full Name" required />
@@ -641,7 +797,7 @@ export default function AlteringManager() {
                     </div>
 
                     <div className="flex flex-col gap-1.5">
-                        <label className="text-[9px] font-bold text-gray-400 dark:text-[#8b949e]/50 uppercase tracking-widest flex items-center gap-1.5">
+                        <label className="text-[9px] font-bold text-muted-foreground uppercase tracking-widest flex items-center gap-1.5">
                             <Package size={11} className="opacity-40" />
                             Product / Alterations *
                         </label>
@@ -651,12 +807,12 @@ export default function AlteringManager() {
                             value={formData.product}
                             onChange={(e) => setFormData({ ...formData, product: e.target.value })}
                             placeholder="Describe the garment and required alterations..."
-                            className="bg-black/[0.02] dark:bg-white/[0.02] p-3 text-[12px] font-medium text-gray-900 dark:text-[#c9d1d9] border border-black/[0.06] dark:border-white/[0.06] rounded-lg outline-none focus:border-[#0d3542]/40 dark:focus:border-[#58a6ff]/40 transition-colors resize-none placeholder:text-gray-300 dark:placeholder:text-[#8b949e]/20"
+                            className="bg-muted/40 p-3 text-[12px] font-medium text-foreground border border-border rounded-lg outline-none focus:border-primary/40 transition-colors resize-none placeholder:text-muted-foreground/40"
                         />
                     </div>
 
                     <div className="flex flex-col gap-1.5">
-                        <label className="text-[9px] font-bold text-gray-400 dark:text-[#8b949e]/50 uppercase tracking-widest flex items-center gap-1.5">
+                        <label className="text-[9px] font-bold text-muted-foreground uppercase tracking-widest flex items-center gap-1.5">
                             <Mail size={11} className="opacity-40" />
                             Notes
                         </label>
@@ -665,7 +821,7 @@ export default function AlteringManager() {
                             value={formData.remark}
                             onChange={(e) => setFormData({ ...formData, remark: e.target.value })}
                             placeholder="Internal notes..."
-                            className="bg-black/[0.02] dark:bg-white/[0.02] p-3 text-[12px] font-medium text-gray-900 dark:text-[#c9d1d9] border border-black/[0.06] dark:border-white/[0.06] rounded-lg outline-none focus:border-[#0d3542]/40 dark:focus:border-[#58a6ff]/40 transition-colors resize-none placeholder:text-gray-300 dark:placeholder:text-[#8b949e]/20"
+                            className="bg-muted/40 p-3 text-[12px] font-medium text-foreground border border-border rounded-lg outline-none focus:border-primary/40 transition-colors resize-none placeholder:text-muted-foreground/40"
                         />
                     </div>
 
@@ -674,14 +830,14 @@ export default function AlteringManager() {
                         <InputField label="Ready Date *" icon={<Clock size={11} />} type="date" value={formData.ready_at} onChange={(e) => setFormData({ ...formData, ready_at: e.target.value })} required />
                     </div>
 
-                    <div className="flex items-center justify-end gap-3 pt-4 border-t border-black/[0.05] dark:border-white/[0.05]">
-                        <button type="button" onClick={() => setIsAdding(false)} className="px-4 py-2.5 text-[10px] font-bold uppercase tracking-widest text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors">
+                    <div className="flex items-center justify-end gap-3 pt-4 border-t border-border">
+                        <button type="button" onClick={() => setIsAdding(false)} className="px-4 py-2.5 text-[10px] font-bold uppercase tracking-widest text-muted-foreground hover:text-foreground transition-colors">
                             Cancel
                         </button>
                         <button
                             type="submit"
                             disabled={createMutation.isPending}
-                            className="h-9 px-5 bg-[#0d3542] dark:bg-[#58a6ff] text-white dark:text-black rounded-lg text-[10px] font-bold uppercase tracking-widest hover:opacity-90 active:scale-[0.97] transition-all disabled:opacity-50 flex items-center gap-2"
+                            className="h-9 px-5 bg-primary text-primary-foreground  rounded-lg text-[10px] font-bold uppercase tracking-widest hover:opacity-90 active:scale-[0.97] transition-all disabled:opacity-50 flex items-center gap-2"
                         >
                             {createMutation.isPending ? <Loader2 className="animate-spin" size={14} /> : <CheckCircle2 size={14} />}
                             Save Record
@@ -693,9 +849,9 @@ export default function AlteringManager() {
             {/* ---- Sync Modal ---- */}
             <ModernModal isOpen={showSyncModal} onClose={() => setShowSyncModal(false)} title="Sync Google Sheet">
                 <div className="p-5 space-y-4">
-                    <div className="flex flex-col items-center justify-center p-5 border border-dashed border-black/[0.08] dark:border-white/[0.08] rounded-xl bg-black/[0.01] dark:bg-white/[0.01]">
-                        <RefreshCw size={24} className={`text-gray-400 mb-3 ${isSyncing ? 'animate-spin' : ''}`} />
-                        <p className="text-[10px] font-bold uppercase tracking-widest text-gray-400 dark:text-[#8b949e]">
+                    <div className="flex flex-col items-center justify-center p-5 border border-dashed border-border rounded-2xl bg-muted/30">
+                        <RefreshCw size={24} className={`text-muted-foreground mb-3 ${isSyncing ? 'animate-spin' : ''}`} />
+                        <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground text-muted-foreground">
                             Google Sheets Bridge
                         </p>
                     </div>
@@ -711,15 +867,15 @@ export default function AlteringManager() {
 
                     <div className="flex items-start gap-2 p-3 bg-amber-500/5 dark:bg-amber-500/5 rounded-lg border border-amber-500/10">
                         <AlertCircle size={13} className="text-amber-500 mt-0.5 shrink-0" />
-                        <p className="text-[10px] text-gray-500 dark:text-[#8b949e] leading-snug">
-                            Make sure the sheet is shared with <strong className="text-gray-700 dark:text-[#c9d1d9]">"Anyone with the link"</strong>.
+                        <p className="text-[10px] text-muted-foreground leading-snug">
+                            Make sure the sheet is shared with <strong className="text-foreground">"Anyone with the link"</strong>.
                         </p>
                     </div>
 
                     <button
                         onClick={handleSync}
                         disabled={isSyncing || !syncUrl}
-                        className="w-full h-10 bg-[#0d3542] dark:bg-[#58a6ff] text-white dark:text-black rounded-lg text-[10px] font-bold uppercase tracking-widest hover:opacity-90 disabled:opacity-40 transition-all flex items-center justify-center gap-2"
+                        className="w-full h-10 bg-primary text-primary-foreground  rounded-lg text-[10px] font-bold uppercase tracking-widest hover:opacity-90 disabled:opacity-40 transition-all flex items-center justify-center gap-2"
                     >
                         {isSyncing ? (
                             <><Loader2 className="animate-spin" size={13} /> Syncing…</>
@@ -737,12 +893,12 @@ export default function AlteringManager() {
 /*  Info Block (for detail modal)                                      */
 /* ------------------------------------------------------------------ */
 const InfoBlock = React.memo(({ icon, label, value, accent }) => (
-    <div className="bg-black/[0.02] dark:bg-white/[0.02] rounded-lg p-3 border border-black/[0.04] dark:border-white/[0.04]">
+    <div className="bg-muted/40 rounded-lg p-3 border border-border">
         <div className="flex items-center gap-1.5 mb-1">
-            <span className="text-gray-400 dark:text-[#8b949e]/40">{icon}</span>
-            <span className="text-[9px] font-bold text-gray-400 dark:text-[#8b949e]/40 uppercase tracking-widest">{label}</span>
+            <span className="text-muted-foreground/70">{icon}</span>
+            <span className="text-[9px] font-bold text-muted-foreground/70 uppercase tracking-widest">{label}</span>
         </div>
-        <p className={`text-[12px] font-medium ${accent ? 'text-[#0d3542] dark:text-[#58a6ff]' : 'text-gray-700 dark:text-[#c9d1d9]'}`}>
+        <p className={`text-[12px] font-medium ${accent ? 'text-primary' : 'text-foreground'}`}>
             {value}
         </p>
     </div>

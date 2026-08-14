@@ -68,6 +68,84 @@ class AlteringController extends Controller
         return response()->json($alterings);
     }
 
+    public function trend(Request $request): JsonResponse
+    {
+        $days = (int) $request->input('days', 0); // 0 = auto (full recorded history)
+
+        // Trend on start_date (the actual altering service date) rather than
+        // created_at, which is just the import timestamp and clusters on one day.
+        $min = Altering::min('start_date');
+        $max = Altering::max('start_date');
+
+        if ($days > 0) {
+            $days = max(7, min(180, $days));
+            $end = $max ? \Carbon\Carbon::parse($max)->endOfDay() : now();
+        } else {
+            // Auto: span the entire recorded history so the trend is meaningful
+            // even when all data is historical (falls back to a 30-day window).
+            if ($min && $max) {
+                $days = max(7, min(180,
+                    abs(\Carbon\Carbon::parse($max)->startOfDay()->diffInDays(\Carbon\Carbon::parse($min)->startOfDay())) + 1
+                ));
+                $end = \Carbon\Carbon::parse($max)->endOfDay();
+            } else {
+                $days = 30;
+                $end = now();
+            }
+        }
+
+        $start = $end->copy()->subDays($days - 1)->startOfDay();
+
+        $rows = Altering::query()
+            ->whereNotNull('start_date')
+            ->where('start_date', '>=', $start->toDateString())
+            ->selectRaw('start_date as day')
+            ->selectRaw('status')
+            ->selectRaw('COUNT(*) as cnt')
+            ->groupBy('day', 'status')
+            ->get();
+
+        $buckets = [];
+        foreach ($rows as $row) {
+            $buckets[$row->day][$row->status] = (int) $row->cnt;
+        }
+
+        $labels = [];
+        $total = [];
+        $pending = [];
+        $inProgress = [];
+        $ready = [];
+        $completed = [];
+
+        for ($i = 0; $i < $days; $i++) {
+            $date = $start->copy()->addDays($i)->toDateString();
+            $labels[] = $date;
+            $bucket = $buckets[$date] ?? [];
+            $p = $bucket['pending'] ?? 0;
+            $ip = $bucket['in_progress'] ?? 0;
+            $r = $bucket['ready'] ?? 0;
+            $c = $bucket['completed'] ?? 0;
+            $pending[] = $p;
+            $inProgress[] = $ip;
+            $ready[] = $r;
+            $completed[] = $c;
+            $total[] = $p + $ip + $r + $c;
+        }
+
+        return response()->json([
+            'days' => $labels,
+            'series' => [
+                'total' => $total,
+                'pending' => $pending,
+                'in_progress' => $inProgress,
+                'ready' => $ready,
+                'completed' => $completed,
+            ],
+            'anchored_to' => $end->toDateString(),
+            'window_days' => $days,
+        ]);
+    }
+
     public function store(Request $request): JsonResponse
     {
         $validated = $request->validate([

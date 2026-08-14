@@ -319,7 +319,6 @@ const StatCard = ({ icon, title, value, link, loading, highlight = false }) => {
 const GlassyStatCard = ({
     label,
     value,
-    trend,
     icon: Icon,
     color = 'attire-accent',
 }) => {
@@ -338,22 +337,6 @@ const GlassyStatCard = ({
                         className="text-[#0d3542] dark:text-[#58a6ff]"
                     />
                 </div>
-                {typeof trend === 'number' && (
-                    <div
-                        className={`flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-black uppercase tracking-widest ${
-                            trend > 0
-                                ? 'bg-green-500/10 text-green-500'
-                                : 'bg-red-500/10 text-red-500'
-                        }`}
-                    >
-                        {trend > 0 ? (
-                            <TrendingUp size={10} />
-                        ) : (
-                            <TrendingDown size={10} />
-                        )}
-                        {Math.abs(trend)}%
-                    </div>
-                )}
             </div>
 
             <p className="text-xs font-black text-gray-400 dark:text-[#8b949e] uppercase tracking-[0.2em] mb-1">
@@ -559,14 +542,6 @@ const AdminDashboard = () => {
     const series = (stats.trends?.[timeframe] ?? []).map(
         (t) => t[activeSeriesKey] ?? 0
     );
-    const lastBucket = series[series.length - 1] ?? 0;
-    const prevBucket = series[series.length - 2] ?? 0;
-    const peakTrend =
-        prevBucket > 0
-            ? Math.round(((lastBucket - prevBucket) / prevBucket) * 100)
-            : lastBucket > 0
-              ? 100
-              : 0;
 
     // Rate: Booked Rate (attire_lounge) | Refund Rate (POS outlets)
     const totalAppts = stats.appointments || 0;
@@ -966,7 +941,6 @@ const AdminDashboard = () => {
                                                     : 0
                                             }
                                             icon={Activity}
-                                            trend={peakTrend}
                                         />
                                         <GlassyStatCard
                                             label={rateLabel}

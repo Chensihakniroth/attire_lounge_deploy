@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import {
-    User, Trash2, Plus, Edit, X, AlertCircle, Check,
-    ChevronDown, ChevronRight, ChevronLeft, UserCheck, Share2,
+    User, Trash2, Plus, Edit, X, AlertCircle, Check, Copy,
+    ChevronDown, ChevronRight, ChevronLeft, ChevronUp, UserCheck, Share2,
     Search, Eye, Globe, Phone, PlusCircle, UserPlus, ShieldCheck,
     Users, Briefcase, Palette, Ruler, Loader2, Download
 } from 'lucide-react';
@@ -50,6 +50,25 @@ const STATUS_OPTIONS = [
     { label: 'Returning', value: 'Returning' },
     { label: 'VIP', value: 'VIP' }
 ];
+
+const CSV_HEADERS = ['Name', 'Phone', 'Status', 'Nationality', 'Host', 'Assistant', 'How Found',
+    'Shirt', 'Jacket', 'Pants', 'Shoes', 'Preferred Color', 'Color Notes', 'Birthday', 'Added', 'Remarks'];
+
+/* ------------------------------------------------------------------ */
+/*  Small UI primitives                                                */
+/* ------------------------------------------------------------------ */
+const Checkbox = React.memo(({ checked, onChange, label }) => (
+    <button
+        type="button"
+        onClick={onChange}
+        aria-label={label}
+        className={`grid place-items-center w-4 h-4 rounded border transition-all ${checked
+            ? 'bg-[#0d3542] dark:bg-[#58a6ff] border-[#0d3542] dark:border-[#58a6ff] text-white dark:text-black'
+            : 'border-black/15 dark:border-white/15 hover:border-[#0d3542]/40 dark:hover:border-[#58a6ff]/40'}`}
+    >
+        {checked && <Check size={11} strokeWidth={3} />}
+    </button>
+));
 
 /* ------------------------------------------------------------------ */
 /*  Loading                                                            */
@@ -135,8 +154,11 @@ const SizeToggleGroup = React.memo(({ label, field, sizes, formData, onToggle })
 /* ------------------------------------------------------------------ */
 /*  Customer Row                                                       */
 /* ------------------------------------------------------------------ */
-const CustomerRow = React.memo(({ profile, onEdit, onDelete, onView }) => (
-    <tr className="hover:bg-black/[0.015] dark:hover:bg-white/[0.015] transition-colors group">
+const CustomerRow = React.memo(({ profile, selected, onToggleSelect, onEdit, onDelete, onDuplicate }) => (
+    <tr className={`transition-colors group ${selected ? 'bg-[#0d3542]/[0.04] dark:bg-[#58a6ff]/[0.06]' : 'hover:bg-black/[0.015] dark:hover:bg-white/[0.015]'}`}>
+        <td className="px-3 py-4 w-9" onClick={e => e.stopPropagation()}>
+            <Checkbox checked={selected} onChange={() => onToggleSelect(profile)} label="Select row" />
+        </td>
         <td className="px-4 py-4">
             <p className="text-[13px] font-bold text-gray-900 dark:text-[#c9d1d9] truncate">
                 {profile.name}
@@ -160,8 +182,11 @@ const CustomerRow = React.memo(({ profile, onEdit, onDelete, onView }) => (
         <td className="px-4 py-4">
             <StatusBadge status={profile.client_status} />
         </td>
-        <td className="px-4 py-4 w-24" onClick={e => e.stopPropagation()}>
-            <div className="flex items-center gap-1 justify-end opacity-0 group-hover:opacity-100 transition-opacity">
+        <td className="px-4 py-4 w-28" onClick={e => e.stopPropagation()}>
+            <div className="flex items-center gap-1 justify-end opacity-0 group-hover:opacity-100 focus-within:opacity-100 transition-opacity">
+                <button onClick={() => onDuplicate(profile)} className="p-2 rounded-lg text-gray-400 hover:text-[#0d3542] dark:hover:text-[#58a6ff] hover:bg-black/5 dark:hover:bg-white/5 transition-all" title="Duplicate">
+                    <Copy size={13} />
+                </button>
                 <Link to={`/admin/customer-profiles/${profile.id}`} className="p-2 rounded-lg text-gray-400 hover:text-[#0d3542] dark:hover:text-[#58a6ff] hover:bg-black/5 dark:hover:bg-white/5 transition-all" title="View">
                     <Eye size={13} />
                 </Link>
@@ -179,20 +204,27 @@ const CustomerRow = React.memo(({ profile, onEdit, onDelete, onView }) => (
 /* ------------------------------------------------------------------ */
 /*  Customer Card (mobile)                                             */
 /* ------------------------------------------------------------------ */
-const CustomerCard = React.memo(({ profile, onEdit, onDelete, onView }) => (
+const CustomerCard = React.memo(({ profile, selected, onToggleSelect, onEdit, onDelete, onDuplicate }) => (
     <motion.div
         initial={{ opacity: 0, y: 4 }}
         animate={{ opacity: 1, y: 0 }}
-        className="bg-white dark:bg-[#161b22] border border-black/[0.06] dark:border-[#30363d] rounded-xl p-4 hover:border-[#0d3542]/15 dark:hover:border-[#58a6ff]/15 transition-all"
+        className={`rounded-xl p-4 border transition-all ${selected
+            ? 'bg-[#0d3542]/[0.04] dark:bg-[#58a6ff]/[0.06] border-[#0d3542]/20 dark:border-[#58a6ff]/20'
+            : 'bg-white dark:bg-[#161b22] border-black/[0.06] dark:border-[#30363d] hover:border-[#0d3542]/15 dark:hover:border-[#58a6ff]/15'}`}
     >
         <div className="flex items-start justify-between mb-3">
-            <div className="min-w-0 flex-1">
-                <Link to={`/admin/customer-profiles/${profile.id}`} className="text-[13px] font-bold text-gray-900 dark:text-[#c9d1d9] hover:text-[#0d3542] dark:hover:text-[#58a6ff] transition-colors truncate block">
-                    {profile.name}
-                </Link>
-                <div className="flex items-center gap-3 mt-1 text-[10px] text-gray-400 dark:text-[#8b949e]/50">
-                    <span className="flex items-center gap-1"><Phone size={9} className="opacity-40" />{profile.phone || '—'}</span>
-                    <span className="flex items-center gap-1"><Globe size={9} className="opacity-40" />{profile.nationality || '—'}</span>
+            <div className="min-w-0 flex-1 flex items-start gap-2">
+                <div className="pt-0.5" onClick={e => e.stopPropagation()}>
+                    <Checkbox checked={selected} onChange={() => onToggleSelect(profile)} label="Select card" />
+                </div>
+                <div className="min-w-0">
+                    <Link to={`/admin/customer-profiles/${profile.id}`} className="text-[13px] font-bold text-gray-900 dark:text-[#c9d1d9] hover:text-[#0d3542] dark:hover:text-[#58a6ff] transition-colors truncate block">
+                        {profile.name}
+                    </Link>
+                    <div className="flex items-center gap-3 mt-1 text-[10px] text-gray-400 dark:text-[#8b949e]/50">
+                        <span className="flex items-center gap-1"><Phone size={9} className="opacity-40" />{profile.phone || '—'}</span>
+                        <span className="flex items-center gap-1"><Globe size={9} className="opacity-40" />{profile.nationality || '—'}</span>
+                    </div>
                 </div>
             </div>
             <StatusBadge status={profile.client_status} />
@@ -202,13 +234,16 @@ const CustomerCard = React.memo(({ profile, onEdit, onDelete, onView }) => (
                 Host: {profile.host || '—'}
             </span>
             <div className="flex items-center gap-1">
-                <Link to={`/admin/customer-profiles/${profile.id}`} className="p-1.5 rounded-lg text-gray-400 hover:text-[#0d3542] dark:hover:text-[#58a6ff] hover:bg-black/5 dark:hover:bg-white/5 transition-all">
+                <button onClick={() => onDuplicate(profile)} className="p-1.5 rounded-lg text-gray-400 hover:text-[#0d3542] dark:hover:text-[#58a6ff] hover:bg-black/5 dark:hover:bg-white/5 transition-all" title="Duplicate">
+                    <Copy size={12} />
+                </button>
+                <Link to={`/admin/customer-profiles/${profile.id}`} className="p-1.5 rounded-lg text-gray-400 hover:text-[#0d3542] dark:hover:text-[#58a6ff] hover:bg-black/5 dark:hover:bg-white/5 transition-all" title="View">
                     <Eye size={12} />
                 </Link>
-                <button onClick={() => onEdit(profile)} className="p-1.5 rounded-lg text-gray-400 hover:text-[#0d3542] dark:hover:text-[#58a6ff] hover:bg-black/5 dark:hover:bg-white/5 transition-all">
+                <button onClick={() => onEdit(profile)} className="p-1.5 rounded-lg text-gray-400 hover:text-[#0d3542] dark:hover:text-[#58a6ff] hover:bg-black/5 dark:hover:bg-white/5 transition-all" title="Edit">
                     <Edit size={12} />
                 </button>
-                <button onClick={() => onDelete(profile.id)} className="p-1.5 rounded-lg text-gray-400 hover:text-rose-500 hover:bg-rose-500/5 transition-all">
+                <button onClick={() => onDelete(profile.id)} className="p-1.5 rounded-lg text-gray-400 hover:text-rose-500 hover:bg-rose-500/5 transition-all" title="Delete">
                     <Trash2 size={12} />
                 </button>
             </div>
@@ -232,7 +267,18 @@ const StatCard = React.memo(({ label, value, icon: Icon, accent }) => (
 ));
 
 /* ------------------------------------------------------------------ */
-/*  Main Component                                                      */
+/*  Sortable column config                                             */
+/* ------------------------------------------------------------------ */
+const COLUMNS = [
+    { key: 'name', label: 'Name', sortable: true, className: '' },
+    { key: 'nationality', label: 'Nationality', sortable: true, className: 'hidden sm:table-cell' },
+    { key: 'host', label: 'Host', sortable: true, className: 'hidden md:table-cell' },
+    { key: 'client_status', label: 'Status', sortable: true, className: '' },
+    { key: null, label: '', sortable: false, className: '' },
+];
+
+/* ------------------------------------------------------------------ */
+/*  Main Component                                                     */
 /* ------------------------------------------------------------------ */
 const CustomerProfileManager = () => {
     const { stats } = useAdmin();
@@ -251,6 +297,15 @@ const CustomerProfileManager = () => {
     const [showCustomHost, setShowCustomHost] = useState(false);
     const [showCustomAssistant, setShowCustomAssistant] = useState(false);
 
+    /* ---- Selection (bulk) ---- */
+    const [selected, setSelected] = useState(() => new Map()); // id -> profile object (cross-page safe)
+    /* ---- Delete confirmation ---- */
+    const [deleteTarget, setDeleteTarget] = useState(null); // { type:'single', id, name } | { type:'bulk' } | null
+    /* ---- Sorting ---- */
+    const [sortConfig, setSortConfig] = useState({ key: null, dir: 'asc' });
+    /* ---- Toast ---- */
+    const [toast, setToast] = useState(null);
+
     const [formData, setFormData] = useState({
         date: new Date().toISOString().slice(0, 10),
         client_status: 'New', name: '', nationality: 'Cambodia', phone: '',
@@ -258,6 +313,13 @@ const CustomerProfileManager = () => {
         shirt_size: '', jacket_size: '', pants_size: '', shoes_size: '',
         preferred_color: '', color_notes: '', remarks: '', birthday: '', is_vip: false,
     });
+
+    /* ---- Toast auto-dismiss ---- */
+    useEffect(() => {
+        if (!toast) return;
+        const t = setTimeout(() => setToast(null), 2600);
+        return () => clearTimeout(t);
+    }, [toast]);
 
     /* ---- Data Fetch ---- */
     const fetchData = useCallback(async (page = 1) => {
@@ -288,17 +350,92 @@ const CustomerProfileManager = () => {
         return () => clearTimeout(timer);
     }, [searchQuery, filterStatus]);
 
-    /* ---- Handlers ---- */
-    const handlePageChange = useCallback((page) => {
-        if (page >= 1 && page <= pagination.last_page) fetchData(page);
-    }, [fetchData, pagination.last_page]);
+    /* ---- Selection handlers ---- */
+    const toggleSelect = useCallback((profile) => {
+        setSelected(prev => {
+            const next = new Map(prev);
+            if (next.has(profile.id)) next.delete(profile.id);
+            else next.set(profile.id, profile);
+            return next;
+        });
+    }, []);
 
-    const handleOpenModal = useCallback((profile = null) => {
+    /* ---- Filtered + sorted view (defined before selection-all check) ---- */
+    const filteredProfiles = useMemo(() => {
+        if (filterStatus === 'All') return profiles;
+        return profiles.filter(p => p.client_status === filterStatus);
+    }, [profiles, filterStatus]);
+
+    const sortedProfiles = useMemo(() => {
+        if (!sortConfig.key) return filteredProfiles;
+        const dir = sortConfig.dir === 'asc' ? 1 : -1;
+        return [...filteredProfiles].sort((a, b) => {
+            const av = String(a[sortConfig.key] ?? '').toLowerCase();
+            const bv = String(b[sortConfig.key] ?? '').toLowerCase();
+            if (av < bv) return -1 * dir;
+            if (av > bv) return 1 * dir;
+            return 0;
+        });
+    }, [filteredProfiles, sortConfig]);
+
+    const isAllPageSelected = useMemo(
+        () => sortedProfiles.length > 0 && sortedProfiles.every(p => selected.has(p.id)),
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+        [sortedProfiles, selected]
+    );
+
+    const toggleSelectAllPage = useCallback(() => {
+        setSelected(prev => {
+            const next = new Map(prev);
+            if (isAllPageSelected) {
+                sortedProfiles.forEach(p => next.delete(p.id));
+            } else {
+                sortedProfiles.forEach(p => next.set(p.id, p));
+            }
+            return next;
+        });
+    }, [isAllPageSelected, sortedProfiles]);
+
+    const clearSelection = useCallback(() => setSelected(new Map()), []);
+
+    /* ---- Sorting ---- */
+    const handleSort = useCallback((key) => {
+        setSortConfig(prev => ({
+            key,
+            dir: prev.key === key && prev.dir === 'asc' ? 'desc' : 'asc'
+        }));
+    }, []);
+
+    /* ---- Modal open (new / edit / duplicate) ---- */
+    const openModal = useCallback((profile = null, isDuplicate = false) => {
         setError(null);
-        if (profile) {
+        if (profile && !isDuplicate) {
             setEditingProfile(profile);
             setFormData({
                 date: profile.date || new Date().toISOString().slice(0, 10),
+                client_status: profile.client_status || 'New',
+                name: profile.name || '',
+                nationality: profile.nationality || 'Cambodia',
+                phone: profile.phone || '',
+                host: profile.host || '',
+                assistant: profile.assistant || '',
+                how_did_they_find_us: profile.how_did_they_find_us || 'Facebook',
+                shirt_size: profile.shirt_size || '',
+                jacket_size: profile.jacket_size || '',
+                pants_size: profile.pants_size || '',
+                shoes_size: profile.shoes_size || '',
+                preferred_color: profile.preferred_color || '',
+                color_notes: profile.color_notes || '',
+                remarks: profile.remarks || '',
+                birthday: profile.birthday || '',
+                is_vip: profile.is_vip || false,
+            });
+            setShowCustomHost(!!profile.host && !STAFF_NAMES.includes(profile.host));
+            setShowCustomAssistant(!!profile.assistant && !STAFF_NAMES.includes(profile.assistant));
+        } else if (profile && isDuplicate) {
+            setEditingProfile(null);
+            setFormData({
+                date: new Date().toISOString().slice(0, 10),
                 client_status: profile.client_status || 'New',
                 name: profile.name || '',
                 nationality: profile.nationality || 'Cambodia',
@@ -333,6 +470,9 @@ const CustomerProfileManager = () => {
         setShowModal(true);
     }, []);
 
+    const duplicateProfile = useCallback((profile) => openModal(profile, true), [openModal]);
+
+    /* ---- Submit (create / update) ---- */
     const handleSubmit = useCallback(async (e) => {
         e.preventDefault();
         setSaving(true);
@@ -347,6 +487,7 @@ const CustomerProfileManager = () => {
                 await axios.post('/api/v1/admin/customer-profiles', formData, { headers });
             }
             setShowModal(false);
+            setToast({ type: 'success', msg: editingProfile ? 'Profile updated' : 'Profile created' });
             fetchData(pagination.current_page);
         } catch (err) {
             setError(err.response?.data?.message || 'Failed to save profile.');
@@ -355,54 +496,93 @@ const CustomerProfileManager = () => {
         }
     }, [editingProfile, formData, fetchData, pagination.current_page]);
 
-    const handleDelete = useCallback(async (id) => {
-        if (!window.confirm('Delete this profile?')) return;
+    /* ---- Delete (single + bulk) via confirm modal ---- */
+    const requestDelete = useCallback((id) => {
+        const profile = selected.get(id) || profiles.find(p => p.id === id);
+        setDeleteTarget({ type: 'single', id, name: profile?.name || 'this profile' });
+    }, [profiles, selected]);
+
+    const requestBulkDelete = useCallback(() => {
+        if (selected.size === 0) return;
+        setDeleteTarget({ type: 'bulk' });
+    }, [selected]);
+
+    const confirmDelete = useCallback(async () => {
+        if (!deleteTarget) return;
         try {
             const token = localStorage.getItem('admin_token') || sessionStorage.getItem('admin_token');
             const outlet = localStorage.getItem('active_outlet') || 'attire_lounge';
-            await axios.delete(`/api/v1/admin/customer-profiles/${id}`, {
-                headers: { 'Authorization': `Bearer ${token}`, 'X-Active-Outlet': outlet },
-            });
-            fetchData(pagination.current_page);
+            const headers = { 'Authorization': `Bearer ${token}`, 'X-Active-Outlet': outlet };
+            if (deleteTarget.type === 'single') {
+                await axios.delete(`/api/v1/admin/customer-profiles/${deleteTarget.id}`, { headers });
+                setToast({ type: 'success', msg: 'Profile deleted' });
+            } else {
+                const ids = [...selected.keys()];
+                await Promise.all(ids.map(id => axios.delete(`/api/v1/admin/customer-profiles/${id}`, { headers })));
+                setToast({ type: 'success', msg: `${ids.length} profiles deleted` });
+            }
+            clearSelection();
         } catch (err) {
-            alert(err.response?.data?.message || 'Failed to delete.');
+            setToast({ type: 'error', msg: err.response?.data?.message || 'Delete failed' });
+        } finally {
+            setDeleteTarget(null);
+            fetchData(pagination.current_page);
         }
-    }, [fetchData, pagination.current_page]);
+    }, [deleteTarget, selected, clearSelection, fetchData, pagination.current_page]);
 
     const toggleSize = useCallback((field, size) => {
         setFormData(prev => ({ ...prev, [field]: prev[field] === size ? '' : size }));
     }, []);
 
-    const filteredProfiles = useMemo(() => {
-        if (filterStatus === 'All') return profiles;
-        return profiles.filter(p => p.client_status === filterStatus);
-    }, [profiles, filterStatus]);
+    /* ---- Pagination ---- */
+    const handlePageChange = useCallback((page) => {
+        if (page >= 1 && page <= pagination.last_page) fetchData(page);
+    }, [fetchData, pagination.last_page]);
 
     /* ---- Export (all pages, honours current search + status filters) ---- */
+    const buildRows = useCallback((list, title) => {
+        const rows = [];
+        rows.push(['ATTIRE LOUNGE — ' + title]);
+        rows.push(['Exported', new Date().toLocaleString()]);
+        rows.push(['Total', list.length]);
+        rows.push([]);
+        rows.push(CSV_HEADERS);
+        list.forEach(p => rows.push([
+            p.name || '', p.phone || '', p.client_status || '', p.nationality || '',
+            p.host || '', p.assistant || '', p.how_did_they_find_us || '',
+            p.shirt_size || '', p.jacket_size || '', p.pants_size || '', p.shoes_size || '',
+            p.preferred_color || '', p.color_notes || '', p.birthday || '', p.date || '', p.remarks || '',
+        ]));
+        return rows;
+    }, []);
+
     const handleExport = async () => {
         try {
             const all = await fetchAllPages('/api/v1/admin/customer-profiles', {
                 search: searchQuery || undefined,
                 status: filterStatus !== 'All' ? filterStatus : undefined,
             });
-            const rows = [];
-            rows.push(['ATTIRE LOUNGE — CUSTOMER PROFILES']);
-            rows.push(['Exported', new Date().toLocaleString()]);
-            rows.push(['Total Profiles', all.length]);
-            rows.push([]);
-            rows.push(['Name', 'Phone', 'Status', 'Nationality', 'Host', 'Assistant', 'How Found',
-                'Shirt', 'Jacket', 'Pants', 'Shoes', 'Preferred Color', 'Color Notes', 'Birthday', 'Added', 'Remarks']);
-            all.forEach(p => rows.push([
-                p.name || '', p.phone || '', p.client_status || '', p.nationality || '',
-                p.host || '', p.assistant || '', p.how_did_they_find_us || '',
-                p.shirt_size || '', p.jacket_size || '', p.pants_size || '', p.shoes_size || '',
-                p.preferred_color || '', p.color_notes || '', p.birthday || '', p.date || '', p.remarks || '',
-            ]));
-            downloadCSV(rows, `customer-profiles-${new Date().toISOString().split('T')[0]}.csv`);
+            downloadCSV(buildRows(all, 'CUSTOMER PROFILES'), `customer-profiles-${new Date().toISOString().split('T')[0]}.csv`);
+            setToast({ type: 'success', msg: `Exported ${all.length} profiles` });
         } catch (err) {
             console.error('Export failed', err);
-            alert('Export failed — please try again.');
+            setToast({ type: 'error', msg: 'Export failed — try again' });
         }
+    };
+
+    const handleExportSelected = useCallback(() => {
+        const list = [...selected.values()];
+        if (list.length === 0) return;
+        downloadCSV(buildRows(list, 'SELECTED CUSTOMER PROFILES'), `selected-customer-profiles-${new Date().toISOString().split('T')[0]}.csv`);
+        setToast({ type: 'success', msg: `Exported ${list.length} selected` });
+    }, [selected, buildRows]);
+
+    /* ---- Sort indicator ---- */
+    const SortIcon = ({ columnKey }) => {
+        if (sortConfig.key !== columnKey) return <ChevronDown size={12} className="opacity-20" />;
+        return sortConfig.dir === 'asc'
+            ? <ChevronUp size={12} className="text-[#0d3542] dark:text-[#58a6ff]" />
+            : <ChevronDown size={12} className="text-[#0d3542] dark:text-[#58a6ff]" />;
     };
 
     return (
@@ -415,7 +595,7 @@ const CustomerProfileManager = () => {
                             Customers
                         </h1>
                         <p className="text-[10px] text-gray-400 dark:text-[#8b949e]/50 font-bold uppercase tracking-[0.3em] mt-1">
-                            {pagination.total} total profiles
+                            {pagination.total} total profiles{pagination.total !== filteredProfiles.length ? ` · ${filteredProfiles.length} shown` : ''}
                         </p>
                     </div>
                     <div className="flex items-center gap-2">
@@ -427,7 +607,7 @@ const CustomerProfileManager = () => {
                             <span className="hidden sm:inline">Export</span>
                         </button>
                         <button
-                            onClick={() => handleOpenModal()}
+                            onClick={() => openModal()}
                             className="h-9 px-5 bg-[#0d3542] dark:bg-[#58a6ff] text-white dark:text-black rounded-lg text-[10px] font-bold uppercase tracking-widest hover:opacity-90 active:scale-[0.97] transition-all flex items-center gap-2"
                         >
                             <Plus size={14} />
@@ -442,6 +622,43 @@ const CustomerProfileManager = () => {
                     <StatCard label="VIP" value={profiles.filter(p => p.client_status === 'VIP').length} icon={ShieldCheck} />
                     <StatCard label="Appointments" value={stats?.pending_appointments || 0} icon={UserCheck} accent />
                 </div>
+
+                {/* ---- Bulk action bar ---- */}
+                <AnimatePresence>
+                    {selected.size > 0 && (
+                        <motion.div
+                            initial={{ opacity: 0, y: -6 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            exit={{ opacity: 0, y: -6 }}
+                            className="flex items-center justify-between gap-3 bg-[#0d3542]/[0.06] dark:bg-[#58a6ff]/[0.08] border border-[#0d3542]/15 dark:border-[#58a6ff]/15 rounded-xl px-4 py-3"
+                        >
+                            <span className="text-[11px] font-bold uppercase tracking-widest text-[#0d3542] dark:text-[#58a6ff]">
+                                {selected.size} selected
+                            </span>
+                            <div className="flex items-center gap-2">
+                                <button
+                                    onClick={handleExportSelected}
+                                    className="h-8 px-3 rounded-lg text-[10px] font-bold uppercase tracking-widest bg-white dark:bg-[#161b22] border border-black/[0.08] dark:border-white/[0.08] text-gray-600 dark:text-[#8b949e] hover:border-[#0d3542]/40 dark:hover:border-[#58a6ff]/40 transition-all flex items-center gap-1.5"
+                                >
+                                    <Download size={13} /> Export
+                                </button>
+                                <button
+                                    onClick={requestBulkDelete}
+                                    className="h-8 px-3 rounded-lg text-[10px] font-bold uppercase tracking-widest bg-rose-500/10 border border-rose-500/20 text-rose-500 hover:bg-rose-500/20 transition-all flex items-center gap-1.5"
+                                >
+                                    <Trash2 size={13} /> Delete
+                                </button>
+                                <button
+                                    onClick={clearSelection}
+                                    className="h-8 w-8 grid place-items-center rounded-lg text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-black/5 dark:hover:bg-white/5 transition-all"
+                                    title="Clear selection"
+                                >
+                                    <X size={14} />
+                                </button>
+                            </div>
+                        </motion.div>
+                    )}
+                </AnimatePresence>
 
                 {/* ---- Filters ---- */}
                 <div className="bg-white dark:bg-[#161b22] border border-black/[0.06] dark:border-[#30363d] rounded-xl p-3">
@@ -492,27 +709,34 @@ const CustomerProfileManager = () => {
                                 <table className="w-full text-left border-collapse">
                                     <thead>
                                         <tr className="bg-black/[0.015] dark:bg-white/[0.01] border-b border-black/[0.05] dark:border-[#30363d]">
-                                            {['Name', 'Nationality', 'Host', 'Status', ''].map((h, i) => (
+                                            <th className="px-3 py-3 w-9">
+                                                <Checkbox checked={isAllPageSelected} onChange={toggleSelectAllPage} label="Select all on page" />
+                                            </th>
+                                            {COLUMNS.map(col => (
                                                 <th
-                                                    key={h}
-                                                    className={`px-4 py-3 text-[9px] font-bold uppercase tracking-[0.15em] text-gray-400 dark:text-[#8b949e]/40 whitespace-nowrap ${
-                                                        i === 1 ? 'hidden sm:table-cell' : ''
-                                                    } ${i === 2 ? 'hidden md:table-cell' : ''}`}
+                                                    key={col.label}
+                                                    onClick={col.sortable ? () => handleSort(col.key) : undefined}
+                                                    className={`px-4 py-3 text-[9px] font-bold uppercase tracking-[0.15em] text-gray-400 dark:text-[#8b949e]/40 whitespace-nowrap ${col.className} ${col.sortable ? 'cursor-pointer select-none hover:text-[#0d3542] dark:hover:text-[#58a6ff] transition-colors' : ''}`}
                                                 >
-                                                    {h}
+                                                    <span className="inline-flex items-center gap-1">
+                                                        {col.label}
+                                                        {col.sortable && <SortIcon columnKey={col.key} />}
+                                                    </span>
                                                 </th>
                                             ))}
                                         </tr>
                                     </thead>
                                     <tbody className="divide-y divide-black/[0.04] dark:divide-[#30363d]">
                                         <AnimatePresence>
-                                            {filteredProfiles.map(profile => (
+                                            {sortedProfiles.map(profile => (
                                                 <CustomerRow
                                                     key={profile.id}
                                                     profile={profile}
-                                                    onEdit={handleOpenModal}
-                                                    onDelete={handleDelete}
-                                                    onView={(p) => window.location.href = `/admin/customer-profiles/${p.id}`}
+                                                    selected={selected.has(profile.id)}
+                                                    onToggleSelect={toggleSelect}
+                                                    onEdit={openModal}
+                                                    onDelete={requestDelete}
+                                                    onDuplicate={duplicateProfile}
                                                 />
                                             ))}
                                         </AnimatePresence>
@@ -551,13 +775,15 @@ const CustomerProfileManager = () => {
                         {/* Mobile: Card grid */}
                         <div className="md:hidden grid grid-cols-1 gap-3">
                             <AnimatePresence>
-                                {filteredProfiles.map(profile => (
+                                {sortedProfiles.map(profile => (
                                     <CustomerCard
                                         key={profile.id}
                                         profile={profile}
-                                        onEdit={handleOpenModal}
-                                        onDelete={handleDelete}
-                                        onView={(p) => window.location.href = `/admin/customer-profiles/${p.id}`}
+                                        selected={selected.has(profile.id)}
+                                        onToggleSelect={toggleSelect}
+                                        onEdit={openModal}
+                                        onDelete={requestDelete}
+                                        onDuplicate={duplicateProfile}
                                     />
                                 ))}
                             </AnimatePresence>
@@ -587,7 +813,7 @@ const CustomerProfileManager = () => {
                     </>
                 )}
 
-                {/* ---- Modal ---- */}
+                {/* ---- Edit / New Modal ---- */}
                 <ModernModal
                     isOpen={showModal}
                     onClose={() => setShowModal(false)}
@@ -748,6 +974,62 @@ const CustomerProfileManager = () => {
                         </div>
                     </form>
                 </ModernModal>
+
+                {/* ---- Delete confirmation modal ---- */}
+                <ModernModal
+                    isOpen={!!deleteTarget}
+                    onClose={() => setDeleteTarget(null)}
+                    title="Confirm Delete"
+                    maxWidth="max-w-md"
+                >
+                    <div className="p-5 sm:p-6 space-y-5 bg-white dark:bg-[#0d1117]">
+                        <div className="flex items-center gap-3">
+                            <div className="w-10 h-10 rounded-xl bg-rose-500/10 text-rose-500 grid place-items-center shrink-0">
+                                <AlertCircle size={18} />
+                            </div>
+                            <p className="text-[12px] font-medium text-gray-600 dark:text-[#8b949e] leading-relaxed">
+                                {deleteTarget?.type === 'bulk'
+                                    ? `Delete ${selected.size} selected profile${selected.size === 1 ? '' : 's'}? This cannot be undone.`
+                                    : `Delete “${deleteTarget?.name}”? This cannot be undone.`}
+                            </p>
+                        </div>
+                        <div className="flex items-center gap-3 pt-2">
+                            <button
+                                type="button"
+                                onClick={() => setDeleteTarget(null)}
+                                className="flex-1 h-9 border border-black/[0.06] dark:border-white/[0.06] rounded-lg text-[10px] font-bold uppercase tracking-widest text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors"
+                            >
+                                Cancel
+                            </button>
+                            <button
+                                type="button"
+                                onClick={confirmDelete}
+                                className="flex-1 h-9 bg-rose-500 text-white rounded-lg text-[10px] font-bold uppercase tracking-widest hover:bg-rose-600 transition-all flex items-center justify-center gap-2"
+                            >
+                                <Trash2 size={14} />
+                                Delete
+                            </button>
+                        </div>
+                    </div>
+                </ModernModal>
+
+                {/* ---- Toast ---- */}
+                <AnimatePresence>
+                    {toast && (
+                        <motion.div
+                            initial={{ opacity: 0, y: 12 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            exit={{ opacity: 0, y: 12 }}
+                            className={`fixed bottom-6 right-6 z-[60] px-4 py-3 rounded-xl shadow-lg border text-[11px] font-bold uppercase tracking-widest backdrop-blur ${
+                                toast.type === 'success'
+                                    ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-600 dark:text-emerald-400'
+                                    : 'bg-rose-500/10 border-rose-500/30 text-rose-500'
+                            }`}
+                        >
+                            {toast.msg}
+                        </motion.div>
+                    )}
+                </AnimatePresence>
             </div>
         </ErrorBoundary>
     );
