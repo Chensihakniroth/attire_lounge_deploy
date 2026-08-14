@@ -381,16 +381,12 @@ const AdminLayoutContent = ({
                 </div>
             </ModernModal>
 
-            {/* Unified Sidebar Overlay */}
-            {isDesktop ? (
-                !isEditing && <SidebarContent setOpen={setSidebarOpen} isMobile={false} />
-            ) : (
-                <Sidebar
-                    isOpen={!isEditing && isSidebarOpen}
-                    setOpen={setSidebarOpen}
-                    isDesktop={isDesktop}
-                />
-            )}
+            {/* Unified Sidebar — hidden by default, toggled via the header button */}
+            <Sidebar
+                isOpen={!isEditing && isSidebarOpen}
+                setOpen={setSidebarOpen}
+                isDesktop={isDesktop}
+            />
 
             <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
                 {!isEditing && (
@@ -398,7 +394,7 @@ const AdminLayoutContent = ({
                         <div className="flex items-center gap-4">
                             <button
                                 onClick={() => setSidebarOpen(!isSidebarOpen)}
-                                className="p-2 hover:bg-white/10 rounded-xl text-white/60 hover:text-white transition-all active:scale-95 lg:hidden"
+                                className="p-2 hover:bg-white/10 rounded-xl text-white/60 hover:text-white transition-all active:scale-95"
                             >
                                 {isSidebarOpen ? <X size={20} /> : <Menu size={20} />}
                             </button>
