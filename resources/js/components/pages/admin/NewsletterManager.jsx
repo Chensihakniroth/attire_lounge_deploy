@@ -4,6 +4,8 @@ import axios from 'axios';
 import { motion, AnimatePresence } from 'framer-motion';
 import { LumaSpin } from "@/components/ui/luma-spin";
 import ErrorBoundary from '../../common/ErrorBoundary.jsx';
+import { useToast } from '@/components/ui/toast';
+import { useConfirm } from '@/components/ui/confirm-dialog';
 
 const NewsletterManager = () => {
     const [subscribers, setSubscribers] = useState([]);
@@ -15,6 +17,8 @@ const NewsletterManager = () => {
         total: 0
     });
     const [deleting, setDeleting] = useState(null);
+    const { toast } = useToast();
+    const { confirm } = useConfirm();
 
     const fetchSubscribers = useCallback(async (page = 1) => {
         setLoading(true);

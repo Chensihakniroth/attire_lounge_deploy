@@ -9,6 +9,8 @@ import { LumaSpin } from '@/components/ui/luma-spin';
 import axios from 'axios';
 import { motion, AnimatePresence } from 'framer-motion';
 import ErrorBoundary from '../../common/ErrorBoundary.jsx';
+import { useToast } from '@/components/ui/toast';
+import { useConfirm } from '@/components/ui/confirm-dialog';
 
 const InfoCard = ({ icon: Icon, label, value, color = "attire-accent" }) => (
     <motion.div 
@@ -48,6 +50,8 @@ const CustomerProfileDetail = () => {
     const [profile, setProfile] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
+    const { toast } = useToast();
+    const { confirm } = useConfirm();
 
     useEffect(() => {
         const fetchProfile = async () => {
@@ -72,7 +76,14 @@ const CustomerProfileDetail = () => {
     }, [id]);
 
     const handleDelete = async () => {
-        if (!window.confirm('Are you sure you want to delete this profile? This cannot be undone.')) return;
+        const ok = await confirm({
+            title: 'Delete this customer profile?',
+            message: 'This cannot be undone.',
+            confirmLabel: 'Delete profile',
+            cancelLabel: 'Cancel',
+            danger: true,
+        });
+        if (!ok) return;
         try {
             const token = localStorage.getItem('admin_token') || sessionStorage.getItem('admin_token');
             const outlet = localStorage.getItem('active_outlet') || 'attire_lounge';
@@ -82,10 +93,11 @@ const CustomerProfileDetail = () => {
                     'X-Active-Outlet': outlet,
                 }
             });
+            toast.success('Customer profile deleted');
             navigate('/admin/customer-profiles');
         } catch (err) {
             console.error('Error deleting profile:', err);
-            alert('Failed to delete profile.');
+            toast.error('Failed to delete profile.');
         }
     };
 

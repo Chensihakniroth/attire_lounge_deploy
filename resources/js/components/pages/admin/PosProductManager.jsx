@@ -20,6 +20,8 @@ import { Section, Field, inputBase, SidebarSection } from './common/FormPrimitiv
 import BespokeSelect from './pos/BespokeSelect';
 import QuickEditCell from './pos/QuickEditCell';
 import BarcodePrintModal from './pos/BarcodePrintModal';
+import { useToast } from '@/components/ui/toast';
+import { useConfirm } from '@/components/ui/confirm-dialog';
 const ProductRow = React.memo(({ 
     product, isSelected, isFocused, quickEditField, 
     onToggleSelect, onFocus, onEdit, onDelete, onQuickEdit, onUpdateField,
@@ -96,6 +98,8 @@ const ProductRow = React.memo(({
     );
 });
 const ProductsPage = () => {
+    const { toast } = useToast();
+    const { confirm } = useConfirm();
     const queryClient = useQueryClient();
     const { performanceMode, activeOutlet } = useAdmin();
     const [view, setView] = useState('list'); // 'list' | 'form' | 'bulkMatrixEdit'
@@ -320,10 +324,11 @@ const ProductsPage = () => {
             queryClient.invalidateQueries({ queryKey: ['admin-pos-products'] });
             setView('list');
             setIsSaving(false);
+            toast.success(editingProduct ? 'Product updated' : 'Product created');
         },
         onError: (err) => {
             setIsSaving(false);
-            alert('Save failed: ' + (err.response?.data?.message || err.message));
+            toast.error('Save failed: ' + (err.response?.data?.message || err.message));
         }
     });
 
@@ -358,9 +363,10 @@ const ProductsPage = () => {
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ['admin-pos-products'] });
             if (view === 'form') navigateToView('list');
+            toast.success('Product deleted');
         },
         onError: (err) => {
-            alert('Delete failed: ' + (err.response?.data?.message || err.message));
+            toast.error('Delete failed: ' + (err.response?.data?.message || err.message));
         }
     });
 
@@ -370,10 +376,11 @@ const ProductsPage = () => {
             queryClient.invalidateQueries({ queryKey: ['admin-pos-products'] });
             setView('list');
             setIsSaving(false);
+            toast.success('Bulk products created');
         },
         onError: (err) => {
             setIsSaving(false);
-            alert(err.response?.data?.message || 'Failed to save bulk products. Check for duplicate SKUs.');
+            toast.error(err.response?.data?.message || 'Failed to save bulk products. Check for duplicate SKUs.');
         }
     });
 
@@ -620,12 +627,19 @@ const ProductsPage = () => {
             applyMatrixFromProducts(selectedProds, firstProductName);
             navigateToView('form');
         } else {
-            alert('Cannot bulk edit products from different groups in the matrix grid.');
+            toast.error('Cannot bulk edit products from different groups in the matrix grid.');
         }
     };
 
-    const handleDeleteClick = (product) => {
-        if (!window.confirm(`Delete "${product.name}${product.variant ? ' ' + product.variant : ''}"?\n\nThis action cannot be undone.`)) return;
+    const handleDeleteClick = async (product) => {
+        const ok = await confirm({
+            title: `Delete "${product.name}${product.variant ? ' ' + product.variant : ''}"?`,
+            message: 'This action cannot be undone.',
+            confirmLabel: 'Delete product',
+            cancelLabel: 'Cancel',
+            danger: true,
+        });
+        if (!ok) return;
         deleteMutation.mutate(product.id);
     };
 
@@ -689,7 +703,7 @@ const ProductsPage = () => {
             link.remove();
         } catch (err) {
             console.error('Export failed:', err);
-            alert('Export failed. Please try again.');
+            toast.error('Export failed. Please try again.');
         }
     };
 
@@ -704,11 +718,11 @@ const ProductsPage = () => {
             const res = await axios.post('/api/v1/admin/pos/products/import', formData, {
                 headers: { 'Content-Type': 'multipart/form-data' }
             });
-            alert(`Import completed! ${res.data.imported} products processed.`);
+            toast.success(`Import completed! ${res.data.imported} products processed.`);
             queryClient.invalidateQueries(['admin-pos-products']);
         } catch (err) {
             console.error('Import failed:', err);
-            alert('Import failed: ' + (err.response?.data?.message || err.message));
+            toast.error('Import failed: ' + (err.response?.data?.message || err.message));
         } finally {
             if (fileInputRef.current) fileInputRef.current.value = '';
         }
@@ -797,7 +811,7 @@ const ProductsPage = () => {
             }
 
             if (products.length === 0) {
-                alert('Please enter quantities in the matrix.');
+                toast.error('Please enter quantities in the matrix.');
                 setIsSaving(false);
                 return;
             }
@@ -1571,15 +1585,23 @@ const ProductsPage = () => {
                                 </button>
                                 <div className="w-px h-4 bg-black/10 dark:bg-white/10" />
                                 <button
-                                    onClick={() => {
+                                    onClick={async () => {
                                         const count = selectedIds.size;
-                                        if (!window.confirm(`Delete ${count} selected product${count > 1 ? 's' : ''}?\n\nThis action cannot be undone.`)) return;
+                                        const ok = await confirm({
+                                            title: `Delete ${count} selected product${count > 1 ? 's' : ''}?`,
+                                            message: 'This action cannot be undone.',
+                                            confirmLabel: 'Delete',
+                                            cancelLabel: 'Cancel',
+                                            danger: true,
+                                        });
+                                        if (!ok) return;
                                         Promise.all(
                                             Array.from(selectedIds).map(id => axios.delete(`/api/v1/admin/pos/products/${id}`))
                                         ).then(() => {
                                             queryClient.invalidateQueries({ queryKey: ['admin-pos-products'] });
                                             setSelectedProductsMap(new Map());
-                                        }).catch(err => alert('Delete failed: ' + (err.response?.data?.message || err.message)));
+                                            toast.success('Products deleted');
+                                        }).catch(err => toast.error('Delete failed: ' + (err.response?.data?.message || err.message)));
                                     }}
                                     className="flex items-center gap-2 text-red-400 hover:text-red-500 transition-colors group"
                                 >

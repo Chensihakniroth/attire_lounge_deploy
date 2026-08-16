@@ -925,6 +925,23 @@ input[type="number"] {
     -moz-appearance: textfield;
 }
 
+/* ============ KEYBOARD ACCESSIBILITY (visible focus) ============ */
+/* Show a crisp focus ring only for keyboard/tab navigation (not mouse clicks),
+   and make sure mouse users don't get a permanent outline. */
+:focus-visible {
+    outline: 2px solid #0d3542;
+    outline-offset: 2px;
+    border-radius: 6px;
+}
+
+html.dark :focus-visible {
+    outline-color: #f5a81c;
+}
+
+:focus:not(:focus-visible) {
+    outline: none;
+}
+
 /* ============ THERMAL RECEIPT PRINTING ============ */
 @media screen {
     .print-only {

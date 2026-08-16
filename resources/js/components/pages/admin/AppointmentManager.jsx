@@ -16,6 +16,8 @@ import {
     Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from '@/components/ui/select';
 import { format, parse } from 'date-fns';
+import { useToast } from '@/components/ui/toast';
+import { useConfirm } from '@/components/ui/confirm-dialog';
 
 /* ------------------------------------------------------------------ */
 /*  Status Config                                                      */
@@ -331,6 +333,9 @@ const AppointmentManager = () => {
         message: '',
     });
 
+    const { toast } = useToast();
+    const { confirm } = useConfirm();
+
     const handleInputChange = useCallback((e) => {
         const { name, value } = e.target;
         setFormData(prev => ({ ...prev, [name]: value }));
@@ -343,33 +348,42 @@ const AppointmentManager = () => {
             await createAppointment(formData);
             setIsAdding(false);
             setFormData({ name: '', email: '', phone: '', service: 'consultation', date: new Date().toISOString().split('T')[0], time: new Date().toTimeString().slice(0, 5), message: '' });
+            toast.success('Appointment created');
         } catch (err) {
-            alert(err.response?.data?.message || 'Failed to create appointment.');
+            toast.error(err.response?.data?.message || 'Failed to create appointment.');
         } finally {
             setIsSubmitting(false);
         }
-    }, [formData, createAppointment]);
+    }, [formData, createAppointment, toast]);
 
     const handleUpdateStatus = useCallback(async (id, status) => {
         setClosingId(id);
         try {
             await updateAppointmentStatus(id, status);
+            toast.success('Status updated');
         } catch {
-            alert('Failed to update status.');
+            toast.error('Failed to update status.');
         } finally {
             setClosingId(null);
         }
-    }, [updateAppointmentStatus]);
+    }, [updateAppointmentStatus, toast]);
 
     const handleClearHistory = useCallback(async () => {
-        if (window.confirm('IRREVERSIBLE: Clear all closed & void records?')) {
-            try {
-                await clearClosedAppointments();
-            } catch {
-                alert('Failed to clear records.');
-            }
+        const ok = await confirm({
+            title: 'Clear closed & void records?',
+            message: 'This action is IRREVERSIBLE — all cleared appointment history will be permanently deleted.',
+            confirmLabel: 'Clear history',
+            cancelLabel: 'Keep records',
+            danger: true,
+        });
+        if (!ok) return;
+        try {
+            await clearClosedAppointments();
+            toast.success('History cleared');
+        } catch {
+            toast.error('Failed to clear records.');
         }
-    }, [clearClosedAppointments]);
+    }, [clearClosedAppointments, confirm, toast]);
 
     /* ---- Filtered data ---- */
     const tabFilteredAppointments = useMemo(() => {

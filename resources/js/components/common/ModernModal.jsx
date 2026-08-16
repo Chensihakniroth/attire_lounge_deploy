@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useRef } from 'react';
 import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X } from 'lucide-react';
@@ -16,6 +16,9 @@ const ModernModal = ({
     showCloseButton = true,
     overflowVisible = false,
 }) => {
+    const panelRef = useRef(null);
+    const previouslyFocused = useRef(null);
+
     // Prevent scrolling when modal is open
     useEffect(() => {
         if (isOpen) {
@@ -36,6 +39,68 @@ const ModernModal = ({
         return () => window.removeEventListener('keydown', handleEsc);
     }, [isOpen, onClose]);
 
+    // Keyboard accessibility: remember the trigger element, auto-focus the first
+    // field, trap Tab inside the dialog, and restore focus when it closes.
+    useEffect(() => {
+        if (!isOpen) return;
+
+        previouslyFocused.current = document.activeElement;
+
+        const getFocusables = () =>
+            panelRef.current
+                ? Array.from(
+                      panelRef.current.querySelectorAll(
+                          'a[href], button:not([disabled]), textarea:not([disabled]), input:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex="-1"])'
+                      )
+                  ).filter(
+                      (el) => el.offsetParent !== null || el === document.activeElement
+                  )
+                : [];
+
+        // Prefer a data-entry field over the close button for initial focus.
+        const firstField =
+            getFocusables().find(
+                (el) =>
+                    el.tagName === 'INPUT' ||
+                    el.tagName === 'SELECT' ||
+                    el.tagName === 'TEXTAREA'
+            ) || getFocusables()[0];
+
+        const raf = window.requestAnimationFrame(() => {
+            if (firstField) firstField.focus();
+            else panelRef.current?.focus();
+        });
+
+        // Trap Tab within the dialog.
+        const handleTab = (e) => {
+            if (e.key !== 'Tab') return;
+            const els = getFocusables();
+            if (els.length === 0) return;
+            const first = els[0];
+            const last = els[els.length - 1];
+
+            if (e.shiftKey && document.activeElement === first) {
+                e.preventDefault();
+                last.focus();
+            } else if (!e.shiftKey && document.activeElement === last) {
+                e.preventDefault();
+                first.focus();
+            }
+        };
+        window.addEventListener('keydown', handleTab);
+
+        return () => {
+            window.cancelAnimationFrame(raf);
+            window.removeEventListener('keydown', handleTab);
+
+            // Give focus back to whatever opened the modal.
+            const prev = previouslyFocused.current;
+            if (prev && typeof prev.focus === 'function' && prev.isConnected) {
+                prev.focus();
+            }
+        };
+    }, [isOpen]);
+
     if (typeof document === 'undefined') return null;
 
     return createPortal(
@@ -54,12 +119,17 @@ const ModernModal = ({
 
                     {/* Modal Content */}
                     <motion.div
+                        ref={panelRef}
+                        tabIndex={-1}
+                        role="dialog"
+                        aria-modal="true"
+                        aria-label={title || 'Dialog'}
                         initial={{ opacity: 0, scale: 0.97, y: 12 }}
                         animate={{ opacity: 1, scale: 1, y: 0 }}
                         exit={{ opacity: 0, scale: 0.97, y: 12 }}
                         transition={{ duration: 0.2, ease: [0.25, 0.46, 0.45, 0.94] }}
                         style={{ willChange: 'transform, opacity' }}
-                        className={`relative w-full ${maxWidth} bg-white dark:bg-[#161b22] border border-gray-200 dark:border-[#30363d] rounded-xl ${overflowVisible ? 'overflow-visible' : 'overflow-hidden'} shadow-lg flex flex-col transition-colors duration-200 pointer-events-auto font-sans`}
+                        className={`relative w-full ${maxWidth} bg-white dark:bg-[#161b22] border border-gray-200 dark:border-[#30363d] rounded-xl ${overflowVisible ? 'overflow-visible' : 'overflow-hidden'} shadow-lg flex flex-col transition-colors duration-200 pointer-events-auto font-sans outline-none`}
                         onClick={(e) => e.stopPropagation()}
                     >
                         {/* Standardized Header (If Title Provided) */}

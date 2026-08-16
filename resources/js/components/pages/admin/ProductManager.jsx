@@ -6,6 +6,8 @@ import axios from 'axios';
 import OptimizedImage from '../../common/OptimizedImage.jsx';
 import { useAdmin } from './AdminContext';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { useToast } from '@/components/ui/toast';
+import { useConfirm } from '@/components/ui/confirm-dialog';
 
 /* ------------------------------------------------------------------ */
 /*  Delete Confirmation Modal                                          */
@@ -220,6 +222,8 @@ const ProductRow = memo(({ product, onEdit, onDelete, onToggleVisibility, onTogg
 /*  Main Component                                                     */
 /* ------------------------------------------------------------------ */
 const ProductManager = () => {
+    const { toast } = useToast();
+    const { confirm } = useConfirm();
     const queryClient = useQueryClient();
     const { collections } = useAdmin();
     const navigate = useNavigate();
@@ -304,7 +308,7 @@ const ProductManager = () => {
         } catch (error) {
             console.error('Failed to toggle lookbook:', error);
             queryClient.invalidateQueries(['admin-products']);
-            alert('Failed to update lookbook status.');
+            toast.error('Failed to update lookbook status.');
         } finally {
             setTogglingId(null);
         }
@@ -329,7 +333,7 @@ const ProductManager = () => {
         } catch (error) {
             console.error('Failed to toggle visibility:', error);
             queryClient.invalidateQueries(['admin-products']);
-            alert('Failed to update product visibility.');
+            toast.error('Failed to update product visibility.');
         } finally {
             setTogglingId(null);
         }
@@ -345,12 +349,13 @@ const ProductManager = () => {
             });
             if (response.data.success) {
                 queryClient.invalidateQueries(['admin-products']);
+                toast.success('Product deleted');
             } else {
                 throw new Error(response.data.message || 'Unknown error');
             }
         } catch (error) {
             console.error('Deletion failed!', error);
-            alert('Failed to delete product: ' + (error.response?.data?.message || error.message));
+            toast.error('Failed to delete product: ' + (error.response?.data?.message || error.message));
         } finally {
             setIsDeleting(false);
             setDeletingProduct(null);

@@ -19,6 +19,8 @@ const queryClient = new QueryClient({
 import AdminLoadingSpinner from './common/AdminLoadingSpinner.jsx';
 import { AdminProvider } from './pages/admin/AdminContext';
 import { ThemeProvider } from './pages/admin/ThemeContext';
+import { ToastProvider } from './ui/toast';
+import { ConfirmProvider } from './ui/confirm-dialog';
 
 const RealtimeAdminUpdater: React.FC = () => {
     useEffect(() => {
@@ -252,6 +254,8 @@ function AdminApp() {
                     <ThemeProvider>
                         <AdminProvider>
                             <GlobalStyles />
+                            <ToastProvider>
+                            <ConfirmProvider>
                             <ErrorBoundary>
                             <Suspense fallback={<AdminLoadingSpinner />}>
                                 <Routes>
@@ -299,6 +303,8 @@ function AdminApp() {
                                 </Routes>
                             </Suspense>
                             </ErrorBoundary>
+                            </ConfirmProvider>
+                            </ToastProvider>
                         </AdminProvider>
                     </ThemeProvider>
                 </Router>

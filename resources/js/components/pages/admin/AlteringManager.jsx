@@ -12,6 +12,8 @@ import { LumaSpin } from '@/components/ui/luma-spin';
 import ModernModal from '../../common/ModernModal.jsx';
 import { formatDate } from '@/helpers/format';
 import DatePicker from '@/components/ui/DatePicker';
+import { useToast } from '@/components/ui/toast';
+import { useConfirm } from '@/components/ui/confirm-dialog';
 
 /* ------------------------------------------------------------------ */
 /*  Status Config                                                      */
@@ -286,6 +288,8 @@ const InputField = React.memo(({ label, icon, className = '', ...props }) => (
 /* ------------------------------------------------------------------ */
 export default function AlteringManager() {
     const queryClient = useQueryClient();
+    const { toast } = useToast();
+    const { confirm } = useConfirm();
 
     const [page, setPage] = useState(1);
     const [statusFilter, setStatusFilter] = useState('');
@@ -644,7 +648,7 @@ export default function AlteringManager() {
                     <button onClick={() => handleBulkStatus('ready')} className="h-8 px-3 rounded-lg bg-emerald-500/10 border border-emerald-500/20 text-emerald-600 dark:text-emerald-400 text-[10px] font-bold uppercase tracking-widest hover:bg-emerald-500/20 transition-all">Mark Ready</button>
                     <button onClick={() => handleBulkStatus('in_progress')} className="h-8 px-3 rounded-lg bg-blue-500/10 border border-blue-500/20 text-blue-600 dark:text-blue-400 text-[10px] font-bold uppercase tracking-widest hover:bg-blue-500/20 transition-all">In Progress</button>
                     <button onClick={() => handleBulkStatus('completed')} className="h-8 px-3 rounded-lg bg-gray-500/10 border border-gray-500/20 text-muted-foreground text-[10px] font-bold uppercase tracking-widest hover:bg-gray-500/20 transition-all">Mark Done</button>
-                    <button onClick={() => { if (confirm('Delete selected records?')) { bulkDeleteMutation.mutate([...selectedIds]); clearSelection(); } }} className="h-8 px-3 rounded-lg bg-rose-500/10 border border-rose-500/20 text-rose-600 dark:text-rose-400 text-[10px] font-bold uppercase tracking-widest hover:bg-rose-500/20 transition-all flex items-center gap-1.5"><Trash2 size={13} /> Delete</button>
+                    <button onClick={async () => { if (await confirm({ title: 'Delete selected records?', message: `${selectedIds.size} record(s) will be permanently deleted.`, confirmLabel: 'Delete', cancelLabel: 'Cancel', danger: true })) { bulkDeleteMutation.mutate([...selectedIds]); clearSelection(); } }} className="h-8 px-3 rounded-lg bg-rose-500/10 border border-rose-500/20 text-rose-600 dark:text-rose-400 text-[10px] font-bold uppercase tracking-widest hover:bg-rose-500/20 transition-all flex items-center gap-1.5"><Trash2 size={13} /> Delete</button>
                     <button onClick={clearSelection} className="h-8 px-3 rounded-lg border border-border text-muted-foreground text-[10px] font-bold uppercase tracking-widest hover:bg-muted/50 transition-all">Clear</button>
                 </div>
             )}
@@ -763,7 +767,7 @@ export default function AlteringManager() {
                             </div>
                             <div className="flex items-center justify-between pt-1">
                                 <button
-                                    onClick={() => { if (confirm('Delete this record?')) { deleteMutation.mutate(selectedDetail.id); setSelectedDetail(null); } }}
+                                    onClick={async () => { if (await confirm({ title: 'Delete this record?', confirmLabel: 'Delete', cancelLabel: 'Cancel', danger: true })) { deleteMutation.mutate(selectedDetail.id); setSelectedDetail(null); } }}
                                     className="text-[10px] text-rose-500/70 hover:text-rose-500 font-medium transition-colors"
                                 >
                                     Delete Record
@@ -783,7 +787,8 @@ export default function AlteringManager() {
                     onSubmit={(e) => {
                         e.preventDefault();
                         if (!formData.customer_name || !formData.product || !formData.altering_cost || !formData.ready_at) {
-                            return alert('Customer name, product, cost, and ready date are required.');
+                            toast.error('Customer name, product, cost, and ready date are required.');
+                            return;
                         }
                         createMutation.mutate(formData);
                     }}

@@ -4,6 +4,8 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { X, Check, AlertCircle, RefreshCw, ChevronLeft, Plus, Trash2, ImageIcon, Sparkles, Loader2 } from 'lucide-react';
 import axios from 'axios';
 import { useAdmin } from './AdminContext';
+import { useToast } from '@/components/ui/toast';
+import { useConfirm } from '@/components/ui/confirm-dialog';
 
 const CustomDropdown = ({ selected, options, onChange, icon: Icon = RefreshCw, className = "", label = "Select Option" }) => {
     const [isOpen, setIsOpen] = useState(false);
@@ -74,6 +76,8 @@ const BulkProductEditor = () => {
     const { setIsEditing } = useAdmin();
     const [saving, setSaving] = useState(false);
     const [error, setError] = useState(null);
+    const { toast } = useToast();
+    const { confirm } = useConfirm();
     const [formData, setFormData] = useState({
         base_name: '',
         price: '',
@@ -170,14 +174,18 @@ const BulkProductEditor = () => {
         if (files.length === 0) return;
 
         if (formData.images.length + files.length > 10) {
-            alert("Maximum 10 products can be uploaded at once.");
+            toast.error("Maximum 10 products can be uploaded at once.");
             return;
         }
 
         if (!formData.collection_id) {
-            if (!window.confirm("No collection selected. The images will be uploaded to the general assets folder. Continue?")) {
-                return;
-            }
+            const ok = await confirm({
+                title: 'No collection selected',
+                message: 'The images will be uploaded to the general assets folder. Continue?',
+                cancelLabel: 'Cancel',
+                confirmLabel: 'Continue',
+            });
+            if (!ok) return;
         }
 
         setUploading(true);

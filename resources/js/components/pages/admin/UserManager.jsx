@@ -14,6 +14,8 @@ import axios from 'axios';
 import { motion, AnimatePresence } from 'framer-motion';
 import ErrorBoundary from '../../common/ErrorBoundary.jsx';
 import ModernModal from '../../common/ModernModal.jsx';
+import { useToast } from '@/components/ui/toast';
+import { useConfirm } from '@/components/ui/confirm-dialog';
 
 // Only two roles in the system
 const ROLES = [
@@ -57,6 +59,9 @@ const UserManager = () => {
     const [editingUser, setEditingUser] = useState(null);
     const [saving, setSaving] = useState(false);
     const [error, setError] = useState('');
+
+    const { toast } = useToast();
+    const { confirm } = useConfirm();
 
     const [formData, setFormData] = useState({
         name: '',
@@ -128,6 +133,7 @@ const UserManager = () => {
             }
             setShowModal(false);
             fetchUsers();
+            toast.success(editingUser ? 'Changes saved' : 'Team member added');
         } catch (e) {
             setError(e.response?.data?.message || 'Failed to save user.');
         } finally {
@@ -136,14 +142,22 @@ const UserManager = () => {
     };
 
     const handleDelete = async (user) => {
-        if (!window.confirm(`Remove ${user.name} from the team?`)) return;
+        const ok = await confirm({
+            title: `Remove ${user.name} from the team?`,
+            message: 'They will lose access to the admin panel immediately.',
+            confirmLabel: 'Remove',
+            cancelLabel: 'Cancel',
+            danger: true,
+        });
+        if (!ok) return;
         try {
             await axios.delete(`/api/v1/admin/users/${user.id}`, {
                 headers: getAuthHeader(),
             });
             setUsers((prev) => prev.filter((u) => u.id !== user.id));
+            toast.success('User removed from the team');
         } catch (e) {
-            alert(e.response?.data?.message || 'Failed to delete user.');
+            toast.error(e.response?.data?.message || 'Failed to delete user.');
         }
     };
 

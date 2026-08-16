@@ -6,6 +6,7 @@ import { useQuery, useQueryClient } from '@tanstack/react-query';
 import axios from 'axios';
 import OptimizedImage from '../../common/OptimizedImage.jsx';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useToast } from '@/components/ui/toast';
 
 /* ------------------------------------------------------------------ */
 /*  Product Picker Modal                                               */
@@ -96,6 +97,7 @@ const ProductPickerModal = ({ isOpen, onClose, onSelect, existingIds }) => {
 const GiftRequestCard = React.forwardRef(({ request, onUpdate, onDelete, onRefresh }, ref) => {
     const [isUpdating, setIsUpdating] = useState(false);
     const [showPicker, setShowPicker] = useState(false);
+    const { toast } = useToast();
 
     const handleUpdate = async (status) => {
         setIsUpdating(true);
@@ -108,8 +110,9 @@ const GiftRequestCard = React.forwardRef(({ request, onUpdate, onDelete, onRefre
             await axios.post(`/api/v1/admin/gift-requests/${request.id}/items`, { product_id: product.id });
             onRefresh();
             setShowPicker(false);
+            toast.success('Item added');
         } catch (err) {
-            alert(err.response?.data?.message || 'Failed to add item.');
+            toast.error(err.response?.data?.message || 'Failed to add item.');
         }
     };
 
@@ -117,8 +120,9 @@ const GiftRequestCard = React.forwardRef(({ request, onUpdate, onDelete, onRefre
         try {
             await axios.delete(`/api/v1/admin/gift-requests/${request.id}/items`, { data: { product_id: productId } });
             onRefresh();
+            toast.success('Item removed');
         } catch (err) {
-            alert('Failed to remove item.');
+            toast.error('Failed to remove item.');
         }
     };
 

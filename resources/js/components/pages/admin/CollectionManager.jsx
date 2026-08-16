@@ -17,6 +17,8 @@ import { useAdmin } from './AdminContext';
 import { Field, inputBase } from './common/FormPrimitives';
 import OptimizedImage from '../../common/OptimizedImage.jsx';
 import ModernModal from '../../common/ModernModal.jsx';
+import { useToast } from '@/components/ui/toast';
+import { useConfirm } from '@/components/ui/confirm-dialog';
 
 const DEFAULT_FORM = {
     name: '',
@@ -103,6 +105,9 @@ const CollectionManager = () => {
         }));
     };
 
+    const { toast } = useToast();
+    const { confirm } = useConfirm();
+
     const handleImageUpload = async (e) => {
         const file = e.target.files[0];
         if (!file) return;
@@ -134,6 +139,7 @@ const CollectionManager = () => {
             if (res.data.success) {
                 queryClient.invalidateQueries();
                 closeModal();
+                toast.success(editingId ? 'Collection updated' : 'Collection created');
             }
         } catch (err) {
             setError(
@@ -145,19 +151,22 @@ const CollectionManager = () => {
     };
 
     const handleDelete = async (id, name) => {
-        if (
-            !window.confirm(
-                `Delete "${name}"? This will fail if it has products.`
-            )
-        )
-            return;
+        const ok = await confirm({
+            title: `Delete "${name}"?`,
+            message: 'This will fail if the collection still has products.',
+            confirmLabel: 'Delete collection',
+            cancelLabel: 'Cancel',
+            danger: true,
+        });
+        if (!ok) return;
         try {
             const res = await axios.delete(`/api/v1/admin/collections/${id}`);
-            if (res.data.success) queryClient.invalidateQueries();
+            if (res.data.success) {
+                queryClient.invalidateQueries();
+                toast.success(`Deleted "${name}"`);
+            }
         } catch (err) {
-            alert(
-                err.response?.data?.message || 'Failed to delete collection.'
-            );
+            toast.error(err.response?.data?.message || 'Failed to delete collection.');
         }
     };
 
