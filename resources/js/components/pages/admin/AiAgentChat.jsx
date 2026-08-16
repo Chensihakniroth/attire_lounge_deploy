@@ -551,51 +551,30 @@ export default function AiAgentChat() {
                     </div>
                 </div>
 
-                <div className="flex items-center gap-2.5">
-                    {/* Language Switcher Pill */}
-                    <div className="flex items-center rounded-xl border border-border/80 dark:border-white/10 bg-muted/50 dark:bg-white/5 p-0.5 text-xs font-semibold">
-                        <button
-                            type="button"
-                            onClick={() => {
-                                setLanguage('en');
-                                toast.info('Language set to English');
-                            }}
-                            className={`flex items-center gap-1 rounded-lg px-2.5 py-1 transition-all ${
-                                language === 'en'
-                                    ? 'bg-background dark:bg-[#161b22] text-foreground dark:text-white shadow-xs font-bold'
-                                    : 'text-muted-foreground hover:text-foreground dark:text-white/60 dark:hover:text-white'
-                            }`}
-                            title="English"
-                        >
-                            <span>🇬🇧</span>
-                            <span>EN</span>
-                        </button>
-                        <button
-                            type="button"
-                            onClick={() => {
-                                setLanguage('km');
-                                toast.info('បានកំណត់ភាសាខ្មែរ (Khmer)');
-                            }}
-                            className={`flex items-center gap-1 rounded-lg px-2.5 py-1 transition-all ${
-                                language === 'km'
-                                    ? 'bg-background dark:bg-[#161b22] text-foreground dark:text-white shadow-xs font-bold'
-                                    : 'text-muted-foreground hover:text-foreground dark:text-white/60 dark:hover:text-white'
-                            }`}
-                            title="Khmer (ភាសាខ្មែរ)"
-                        >
-                            <span>🇰🇭</span>
-                            <span>ខ្មែរ</span>
-                        </button>
-                    </div>
+                <div className="flex items-center gap-2">
+                    {/* Language Toggle — compact single-click flip */}
+                    <button
+                        type="button"
+                        onClick={() => {
+                            const next = language === 'en' ? 'km' : 'en';
+                            setLanguage(next);
+                            toast.info(next === 'km' ? 'ភាសាខ្មែរ' : 'English');
+                        }}
+                        className="relative flex items-center gap-1 rounded-lg border border-border/60 dark:border-white/10 bg-muted/40 dark:bg-white/5 px-2 py-1 text-[11px] font-semibold tracking-wide text-foreground/80 dark:text-white/70 transition-all hover:bg-muted dark:hover:bg-white/10 active:scale-95"
+                        title={language === 'en' ? 'Switch to Khmer' : 'Switch to English'}
+                    >
+                        <span className="text-sm leading-none">{language === 'en' ? '🇬🇧' : '🇰🇭'}</span>
+                        <span className="uppercase">{language === 'en' ? 'EN' : 'KH'}</span>
+                    </button>
 
                     <button
                         type="button"
                         onClick={clearChat}
-                        className="flex items-center gap-1.5 rounded-xl border border-border/70 dark:border-white/10 bg-muted/50 dark:bg-white/5 px-3 py-1.5 text-xs font-semibold text-foreground/80 dark:text-white/70 transition hover:bg-muted hover:text-foreground dark:hover:bg-white/10 dark:hover:text-white active:scale-95"
+                        className="flex items-center gap-1.5 rounded-lg border border-border/60 dark:border-white/10 bg-muted/40 dark:bg-white/5 px-2.5 py-1 text-[11px] font-semibold text-foreground/80 dark:text-white/70 transition hover:bg-muted dark:hover:bg-white/10 active:scale-95"
                         title="New Chat"
                     >
-                        <PlusCircle size={14} />
-                        <span>New Chat</span>
+                        <PlusCircle size={13} />
+                        <span>New</span>
                     </button>
                 </div>
             </div>
