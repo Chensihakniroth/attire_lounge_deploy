@@ -148,6 +148,12 @@ export function Dashboard() {
     const isAttire = activeOutlet === 'attire_lounge';
 
     const seriesKey = isAttire ? 'appointments' : 'sales';
+    // The chart is branded/titled as "Revenue Trend" and currency-formatted.
+    // For the Attire Lounge outlet, seriesKey resolves to *appointment counts*
+    // (no per-bucket revenue exists for that outlet), so we MUST NOT format
+    // those counts as dollars or label them as Revenue. `isRevenue` drives
+    // every formatter + the title below so the display always matches reality.
+    const isRevenue = seriesKey === 'sales';
     const trendData = useMemo(() => {
         const raw = (stats.trends?.[timeframe] ?? []) as Array<Record<string, any>>;
         return raw.map((t, i) => ({
@@ -219,7 +225,7 @@ export function Dashboard() {
                 >
                     <div className="mb-4 flex items-center justify-between">
                         <CardTitle className="flex items-center gap-2 text-base">
-                            <Sparkles size={15} className="text-attire-gold" /> Revenue Trend
+                            <Sparkles size={15} className="text-attire-gold" /> {isRevenue ? 'Revenue Trend' : 'Appointments Trend'}
                         </CardTitle>
                         <div className="flex gap-1 rounded-lg border border-border bg-muted p-1">
                             {TIMEFRAMES.map((t) => (
@@ -276,9 +282,10 @@ export function Dashboard() {
                                     axisLine={false}
                                 />
                                 <YAxis
-                                    tickFormatter={(v: number) =>
-                                        v >= 1000 ? `$${(v / 1000).toFixed(1)}k` : `$${v}`
-                                    }
+                                    tickFormatter={(v: number) => {
+                                        if (!isRevenue) return `${v >= 1000 ? `${(v / 1000).toFixed(1)}k` : v}`;
+                                        return v >= 1000 ? `$${(v / 1000).toFixed(1)}k` : `$${v}`;
+                                    }}
                                     tick={{ fontSize: 11, fill: 'hsl(var(--muted-foreground))' }}
                                     tickLine={false}
                                     axisLine={false}
@@ -286,7 +293,11 @@ export function Dashboard() {
                                     tickCount={6}
                                 />
                                 <Tooltip
-                                    formatter={(value: number) => [`$${Number(value).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`, 'Revenue']}
+                                    formatter={(value: number) =>
+                                        isRevenue
+                                            ? [`$${Number(value).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`, 'Revenue']
+                                            : [`${Number(value).toLocaleString()}`, 'Appointments']
+                                    }
                                     contentStyle={{
                                         fontSize: 12,
                                         borderRadius: 12,
