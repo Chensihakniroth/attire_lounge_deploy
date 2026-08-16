@@ -27,7 +27,10 @@ import {
     RotateCcw,
     ThumbsUp,
     ThumbsDown,
-    PlusCircle
+    PlusCircle,
+    Download,
+    ChevronUp,
+    Square
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useToast } from '../../ui/toast';
@@ -65,51 +68,50 @@ const WELCOME_SUGGESTIONS = [
     },
 ];
 
-function generateThinkingSteps(promptText, outletLabel, lang = 'en') {
-    const lower = (promptText || '').toLowerCase();
-    const outlet = outletLabel || 'Attire Lounge';
+
+
+function renderTableCell(cell) {
+    const trimmed = (cell || '').trim();
+    if (!trimmed) return <span className="text-muted-foreground/50">—</span>;
+    const lower = trimmed.toLowerCase();
     
-    if (lang === 'km') {
-        let prose = `ជាបឋម ខ្ញុំត្រូវវាយតម្លៃទិន្នន័យប្រតិបត្តិការរបស់សាខា ${outlet}។ ដោយយោងតាមសំណួរ "${promptText}" ខ្ញុំនឹងពិនិត្យមើលតារាងទិន្នន័យ និងព័ត៌មានពាក់ព័ន្ធក្នុងប្រព័ន្ធ។`;
-
-        if (lower.includes('stock') || lower.includes('product') || lower.includes('inventory') || lower.includes('item') || lower.includes('suit') || lower.includes('tuxedo')) {
-            prose += ` សំណួរនេះទាក់ទងនឹងផលិតផល និងស្តុកទំនិញ។ ខ្ញុំនឹងស្វែងរកទិន្នន័យពី PosProduct និង PosProductVariant សម្រាប់ ${outlet} ដោយពិនិត្យមើលចំនួន SKU ស្ថានភាពផលិតផល និងកម្រិតស្តុកដែលនៅសល់តិច។`;
-        } else if (lower.includes('appointment') || lower.includes('fitting') || lower.includes('schedule') || lower.includes('booking')) {
-            prose += ` សំណួរនេះទាក់ទងនឹងការណាត់ជួបកាត់សម្លៀកបំពាក់។ ខ្ញុំនឹងពិនិត្យមើលកំណត់ត្រា Appointment តាមកាលបរិច្ឆេទ ភាពទំនេររបស់ជាងកាត់ និងស្ថានភាពណាត់ជួប (confirmed, pending)។`;
-        } else if (lower.includes('sale') || lower.includes('revenue') || lower.includes('order') || lower.includes('invoice') || lower.includes('stat') || lower.includes('pulse')) {
-            prose += ` សំណួរនេះទាក់ទងនឹងប្រាក់ចំណូល និងប្រតិបត្តិការលក់។ ខ្ញុំនឹងពិនិត្យមើលវិក្កយបត្រ PosInvoice និង PosPayment សម្រាប់ ${outlet} ដើម្បីបូកសរុបប្រាក់ចំណូល និងចំនួនវិក្កយបត្រសរុប។`;
-        } else if (lower.includes('customer') || lower.includes('client') || lower.includes('profile')) {
-            prose += ` សំណួរនេះទាក់ទងនឹងព័ត៌មានអតិថិជន។ ខ្ញុំនឹងស្វែងរកកំណត់ត្រាអតិថិជន CustomerProfile ប្រវត្តិទិញទំនិញ និងទិន្នន័យទំនាក់ទំនង។`;
-        } else if (lower.includes('newsletter') || lower.includes('subscriber') || lower.includes('email') || lower.includes('phone')) {
-            prose += ` សំណួរនេះទាក់ទងនឹងការចុះឈ្មោះទទួលព័ត៌មាន Newsletter។ ខ្ញុំនឹងពិនិត្យមើលបញ្ជីឈ្មោះ NewsletterSubscription ក្នុងប្រព័ន្ធ។`;
-        } else {
-            prose += ` ខ្ញុំនឹងរៀបចំគម្រោងវិភាគទិន្នន័យឆ្លងកាត់តារាងពាក់ព័ន្ធក្នុងប្រព័ន្ធទិន្នន័យ ដើម្បីធានាបាននូវភាពត្រឹមត្រូវខ្ពស់បំផុត។`;
-        }
-
-        prose += ` ឥឡូវនេះ ខ្ញុំកំពុងប្រមូលផ្តុំទិន្នន័យដែលទទួលបាន រៀបចំជាតារាង និងសេចក្តីសង្ខេបច្បាស់លាស់ជាភាសាខ្មែរជូនលោកអ្នក។`;
-
-        return prose;
+    // Status Pills
+    if (lower === 'active' || lower === 'yes' || lower === 'completed' || lower === 'done' || lower === 'approved') {
+        return (
+            <span className="inline-flex items-center gap-1 rounded-full bg-emerald-500/10 dark:bg-emerald-500/15 border border-emerald-500/20 px-2 py-0.5 text-[10.5px] font-semibold text-emerald-600 dark:text-emerald-400">
+                <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
+                {trimmed}
+            </span>
+        );
+    }
+    if (lower === 'low stock' || lower === 'pending' || lower === 'processing' || lower.includes('low')) {
+        return (
+            <span className="inline-flex items-center gap-1 rounded-full bg-amber-500/10 dark:bg-amber-500/15 border border-amber-500/20 px-2 py-0.5 text-[10.5px] font-semibold text-amber-600 dark:text-amber-400">
+                <span className="h-1.5 w-1.5 rounded-full bg-amber-500" />
+                {trimmed}
+            </span>
+        );
+    }
+    if (lower === 'out of stock' || lower === 'cancelled' || lower === 'no' || lower === 'inactive' || lower === 'void' || lower === 'refunded') {
+        return (
+            <span className="inline-flex items-center gap-1 rounded-full bg-rose-500/10 dark:bg-rose-500/15 border border-rose-500/20 px-2 py-0.5 text-[10.5px] font-semibold text-rose-600 dark:text-rose-400">
+                <span className="h-1.5 w-1.5 rounded-full bg-rose-500" />
+                {trimmed}
+            </span>
+        );
+    }
+    
+    // Price / Money
+    if (/^\$\s*[\d,]+(\.\d{2})?$/.test(trimmed)) {
+        return <span className="font-mono font-semibold text-foreground dark:text-white">{trimmed}</span>;
     }
 
-    let prose = `First, I need to evaluate the store operational context for ${outlet}. Looking at the user query "${promptText}", I will determine which business data tables and schemas to inspect.`;
-
-    if (lower.includes('stock') || lower.includes('product') || lower.includes('inventory') || lower.includes('item') || lower.includes('suit') || lower.includes('tuxedo')) {
-        prose += ` The query pertains to products and inventory levels. I should inspect the PosProduct and PosProductVariant models for ${outlet}, checking SKU counts, active flags, category classifications, and alert thresholds where quantities fall below the minimum required levels. I will cross-reference variants to ensure accurate stock tallies across all sizes and colorways.`;
-    } else if (lower.includes('appointment') || lower.includes('fitting') || lower.includes('schedule') || lower.includes('booking')) {
-        prose += ` The query focuses on customer fittings and appointment scheduling. I should inspect the Appointment records, filtering by date range, fitting room availability, assigned tailors, and current statuses such as confirmed, pending, or completed. I will verify client details to provide a comprehensive timetable.`;
-    } else if (lower.includes('sale') || lower.includes('revenue') || lower.includes('order') || lower.includes('invoice') || lower.includes('stat') || lower.includes('pulse')) {
-        prose += ` The user is requesting financial performance and transaction metrics. I should query the PosInvoice and PosPayment ledger for ${outlet}, aggregating total revenue, discount adjustments, invoice counts, and payment breakdown methods. I will calculate averages and identify key revenue drivers for the active period.`;
-    } else if (lower.includes('customer') || lower.includes('client') || lower.includes('profile')) {
-        prose += ` This request involves client relationship management. I should look up CustomerProfile records, checking purchase history, total spend, bespoke preferences, and contact details while adhering to data privacy constraints.`;
-    } else if (lower.includes('newsletter') || lower.includes('subscriber') || lower.includes('email') || lower.includes('phone')) {
-        prose += ` The query references marketing audience subscriptions. I should query the NewsletterSubscription records, verifying recent signups and active subscriber status.`;
-    } else {
-        prose += ` I will formulate a multi-turn analytical query plan across the database models, resolving any necessary entity relationships and filtering out inactive records to ensure precision.`;
+    // SKU / Product ID (e.g. #123, SKU-01, etc.)
+    if (/^#\d+$/.test(trimmed)) {
+        return <span className="font-mono text-[11.5px] font-semibold text-muted-foreground dark:text-white/70">{trimmed}</span>;
     }
 
-    prose += ` Now, I will synthesize all retrieved records, format the data clearly with tables and key takeaways, and stream the finalized executive response back to the user.`;
-
-    return prose;
+    return renderInline(trimmed);
 }
 
 /**
@@ -131,29 +133,31 @@ function MarkdownRenderer({ content, isStreaming = false }) {
         const bodyRows = tableRows.slice(1).filter((r) => !r.isSeparator);
 
         elements.push(
-            <div key={`table-${key}`} className="my-4 overflow-x-auto rounded-2xl border border-border/80 dark:border-white/10 bg-muted/30 dark:bg-white/5 shadow-sm">
-                <table className="w-full text-left text-xs sm:text-sm">
-                    <thead className="border-b border-border/80 dark:border-white/10 bg-muted/60 dark:bg-white/5 text-[11px] font-bold uppercase tracking-wider text-muted-foreground dark:text-white/60">
-                        <tr>
-                            {headerRow.cells.map((cell, cIdx) => (
-                                <th key={cIdx} className="px-4 py-3 font-semibold">
-                                    {renderInline(cell)}
-                                </th>
-                            ))}
-                        </tr>
-                    </thead>
-                    <tbody className="divide-y divide-border/40 dark:divide-white/5 font-mono text-[12px] sm:text-[13px]">
-                        {bodyRows.map((row, rIdx) => (
-                            <tr key={rIdx} className="hover:bg-muted/40 dark:hover:bg-white/5 transition-colors">
-                                {row.cells.map((cell, cIdx) => (
-                                    <td key={cIdx} className="px-4 py-2.5 text-foreground/90 dark:text-white/90 font-sans">
+            <div key={`table-${key}`} className="my-3.5 overflow-hidden rounded-2xl border border-border/80 dark:border-white/10 bg-card/70 dark:bg-[#161b22]/70 backdrop-blur-md shadow-sm">
+                <div className="overflow-x-auto max-w-full">
+                    <table className="w-full min-w-[620px] text-left text-xs sm:text-[13px] border-collapse">
+                        <thead className="border-b border-border/80 dark:border-white/10 bg-muted/60 dark:bg-white/[0.04] text-[11px] font-bold uppercase tracking-wider text-muted-foreground dark:text-white/60">
+                            <tr>
+                                {headerRow.cells.map((cell, cIdx) => (
+                                    <th key={cIdx} className="px-4 py-3 font-semibold whitespace-nowrap">
                                         {renderInline(cell)}
-                                    </td>
+                                    </th>
                                 ))}
                             </tr>
-                        ))}
-                    </tbody>
-                </table>
+                        </thead>
+                        <tbody className="divide-y divide-border/40 dark:divide-white/5 font-sans">
+                            {bodyRows.map((row, rIdx) => (
+                                <tr key={rIdx} className="hover:bg-muted/40 dark:hover:bg-white/[0.03] transition-colors even:bg-muted/20 dark:even:bg-white/[0.015]">
+                                    {row.cells.map((cell, cIdx) => (
+                                        <td key={cIdx} className="px-4 py-2.5 text-foreground/90 dark:text-white/90">
+                                            {renderTableCell(cell)}
+                                        </td>
+                                    ))}
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
+                </div>
             </div>
         );
         tableRows = [];
@@ -162,6 +166,52 @@ function MarkdownRenderer({ content, isStreaming = false }) {
 
     const flushList = (key) => {
         if (listItems.length === 0) return;
+
+        // Auto-convert structured pipe list items (e.g. "- #1 Item | SKU: 123 | stock: 0 | $22.00 | Cat: ...") into a table!
+        const pipeItems = listItems.filter((it) => (it.match(/\|/g) || []).length >= 2);
+        if (pipeItems.length >= 2 && pipeItems.length >= listItems.length * 0.6) {
+            const rows = listItems.map((item) => {
+                if ((item.match(/\|/g) || []).length < 2) return [item];
+                return item.split('|').map((part) => part.trim());
+            });
+
+            const colCount = Math.max(...rows.map((r) => r.length));
+            const defaultHeaders = ['Item / Title', 'SKU / Code', 'Stock Level', 'Price', 'Category / Details', 'Status', 'Notes'];
+            const headerCells = defaultHeaders.slice(0, colCount);
+
+            elements.push(
+                <div key={`pipe-table-${key}`} className="my-3.5 overflow-hidden rounded-2xl border border-border/80 dark:border-white/10 bg-card/70 dark:bg-[#161b22]/70 backdrop-blur-md shadow-sm">
+                    <div className="overflow-x-auto max-w-full">
+                        <table className="w-full min-w-[620px] text-left text-xs sm:text-[13px] border-collapse">
+                            <thead className="border-b border-border/80 dark:border-white/10 bg-muted/60 dark:bg-white/[0.04] text-[11px] font-bold uppercase tracking-wider text-muted-foreground dark:text-white/60">
+                                <tr>
+                                    {headerCells.map((h, hIdx) => (
+                                        <th key={hIdx} className="px-4 py-3 font-semibold whitespace-nowrap">
+                                            {h}
+                                        </th>
+                                    ))}
+                                </tr>
+                            </thead>
+                            <tbody className="divide-y divide-border/40 dark:divide-white/5 font-sans">
+                                {rows.map((r, rIdx) => (
+                                    <tr key={rIdx} className="hover:bg-muted/40 dark:hover:bg-white/[0.03] transition-colors even:bg-muted/20 dark:even:bg-white/[0.015]">
+                                        {r.map((cell, cIdx) => (
+                                            <td key={cIdx} className="px-4 py-2.5 text-foreground/90 dark:text-white/90">
+                                                {renderTableCell(cell)}
+                                            </td>
+                                        ))}
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            );
+            listItems = [];
+            inList = false;
+            return;
+        }
+
         elements.push(
             <ul key={`list-${key}`} className="my-2.5 space-y-1.5 pl-5 text-[14px] sm:text-[15px] list-disc list-outside text-foreground/90 dark:text-white/90">
                 {listItems.map((item, idx) => (
@@ -179,21 +229,25 @@ function MarkdownRenderer({ content, isStreaming = false }) {
         const line = lines[i];
         const trimmed = line.trim();
 
-        if (trimmed.startsWith('|') && trimmed.endsWith('|')) {
+        // Check for table row (starts with | or contains multiple pipes)
+        const isTableLine = (trimmed.startsWith('|') && (trimmed.match(/\|/g) || []).length >= 1) || 
+                            (!trimmed.startsWith('- ') && !trimmed.startsWith('* ') && (trimmed.match(/\|/g) || []).length >= 2);
+
+        if (isTableLine) {
             if (inList) flushList(i);
             inTable = true;
-            const cells = trimmed
-                .slice(1, -1)
-                .split('|')
-                .map((c) => c.trim());
-            const isSeparator = cells.every((c) => /^[-:]+$/.test(c));
+            let rawCells = trimmed;
+            if (rawCells.startsWith('|')) rawCells = rawCells.slice(1);
+            if (rawCells.endsWith('|')) rawCells = rawCells.slice(0, -1);
+            const cells = rawCells.split('|').map((c) => c.trim());
+            const isSeparator = cells.length > 0 && cells.every((c) => /^[:\s-]+$/.test(c));
             tableRows.push({ cells, isSeparator });
             continue;
         } else if (inTable) {
             flushTable(i);
         }
 
-        if (trimmed.startsWith('- ') || trimmed.startsWith('* ')) {
+        if (trimmed.startsWith('- ') || trimmed.startsWith('* ') || trimmed.startsWith('• ')) {
             inList = true;
             listItems.push(trimmed.slice(2));
             continue;
@@ -245,9 +299,6 @@ function MarkdownRenderer({ content, isStreaming = false }) {
     return (
         <div className="space-y-1.5">
             {elements}
-            {isStreaming && (
-                <span className="inline-block w-2 h-4 ml-1 bg-primary animate-pulse align-middle rounded-xs" />
-            )}
         </div>
     );
 }
@@ -275,14 +326,19 @@ function renderInline(text) {
 }
 
 export default function AiAgentChat() {
-    const { activeOutlet, OUTLET_CONFIG } = useAdmin() || {};
+    const { user, activeOutlet, OUTLET_CONFIG } = useAdmin() || {};
     const outletInfo = OUTLET_CONFIG?.[activeOutlet] || { label: 'Attire Lounge', color: '#0d3542' };
     const outletLogo = outletInfo.logo || 'https://bucket-production-4ca0.up.railway.app/product-assets/uploads/asset/ALO.png';
 
+    const storageKey = `attire_ai_chat_${user?.id || 'admin'}_${activeOutlet || 'attire_lounge'}`;
+
     const [messages, setMessages] = useState(() => {
         try {
-            const saved = localStorage.getItem('attire_ai_chat_history');
-            return saved ? JSON.parse(saved) : [];
+            const key = `attire_ai_chat_${user?.id || 'admin'}_${activeOutlet || 'attire_lounge'}`;
+            const saved = localStorage.getItem(key);
+            if (saved) return JSON.parse(saved);
+            const legacy = localStorage.getItem('attire_ai_chat_history');
+            return legacy ? JSON.parse(legacy) : [];
         } catch (e) {
             return [];
         }
@@ -290,10 +346,11 @@ export default function AiAgentChat() {
 
     const [inputValue, setInputValue] = useState('');
     const [loading, setLoading] = useState(false);
-    const [thinkingText, setThinkingText] = useState('');
+    const [thinkingText, setThinkingText] = useState('Evaluating query and preparing tools...');
+    const [liveTools, setLiveTools] = useState([]);
     const [language, setLanguage] = useState(() => {
         try {
-            return localStorage.getItem('attire_ai_language') || 'en';
+            return localStorage.getItem(`attire_ai_language_${user?.id || 'admin'}`) || localStorage.getItem('attire_ai_language') || 'en';
         } catch (e) {
             return 'en';
         }
@@ -305,17 +362,32 @@ export default function AiAgentChat() {
     const [showUploadAnimation, setShowUploadAnimation] = useState(false);
     const [isListening, setIsListening] = useState(false);
     const [copiedIndex, setCopiedIndex] = useState(null);
+    const [confirmClear, setConfirmClear] = useState(false);
+    const [showScrollTop, setShowScrollTop] = useState(false);
+    const abortRef = useRef(null);
 
     const { toast } = useToast();
     const listRef = useRef(null);
     const bottomRef = useRef(null);
     const textareaRef = useRef(null);
 
+    // Sync chat history whenever user account or active outlet changes
     useEffect(() => {
         try {
+            const key = `attire_ai_chat_${user?.id || 'admin'}_${activeOutlet || 'attire_lounge'}`;
+            const saved = localStorage.getItem(key);
+            setMessages(saved ? JSON.parse(saved) : []);
+        } catch (e) {
+            setMessages([]);
+        }
+    }, [user?.id, activeOutlet]);
+
+    useEffect(() => {
+        try {
+            localStorage.setItem(`attire_ai_language_${user?.id || 'admin'}`, language);
             localStorage.setItem('attire_ai_language', language);
         } catch (e) {}
-    }, [language]);
+    }, [language, user?.id]);
 
     const scrollToBottom = useCallback((behavior = 'smooth') => {
         if (bottomRef.current) {
@@ -327,11 +399,12 @@ export default function AiAgentChat() {
 
     useEffect(() => {
         try {
-            localStorage.setItem('attire_ai_chat_history', JSON.stringify(messages));
+            const key = `attire_ai_chat_${user?.id || 'admin'}_${activeOutlet || 'attire_lounge'}`;
+            localStorage.setItem(key, JSON.stringify(messages));
         } catch (e) {
             console.error('Failed to save chat history', e);
         }
-    }, [messages]);
+    }, [messages, user?.id, activeOutlet]);
 
     // Auto-scroll when messages stream or change
     useEffect(() => {
@@ -362,6 +435,29 @@ export default function AiAgentChat() {
             textarea.style.height = `${Math.min(textarea.scrollHeight, 180)}px`;
         }
     }, [inputValue]);
+
+    // ── Keyboard shortcut: Ctrl/Cmd+K to focus input ──
+    useEffect(() => {
+        const handleGlobalKeyDown = (e) => {
+            if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
+                e.preventDefault();
+                textareaRef.current?.focus();
+            }
+        };
+        window.addEventListener('keydown', handleGlobalKeyDown);
+        return () => window.removeEventListener('keydown', handleGlobalKeyDown);
+    }, []);
+
+    // ── Scroll-to-top visibility ──
+    useEffect(() => {
+        const container = listRef.current;
+        if (!container) return;
+        const handleScroll = () => {
+            setShowScrollTop(container.scrollTop > 400);
+        };
+        container.addEventListener('scroll', handleScroll, { passive: true });
+        return () => container.removeEventListener('scroll', handleScroll);
+    }, []);
 
     const handleUploadFile = () => {
         setShowUploadAnimation(true);
@@ -427,88 +523,143 @@ export default function AiAgentChat() {
             textareaRef.current.style.height = 'auto';
         }
 
-        const dynamicProse = generateThinkingSteps(enrichedText, outletInfo.label, language);
-        setThinkingText(dynamicProse);
+        setThinkingText('Evaluating query and preparing database tools...');
+        setLiveTools([]);
         setMessages(next);
         setLoading(true);
 
+        if (abortRef.current) abortRef.current.abort();
+        const controller = new AbortController();
+        abortRef.current = controller;
+
+        const token = localStorage.getItem('admin_token') || sessionStorage.getItem('admin_token');
+
         try {
-            const { data } = await axios.post('/api/v1/admin/ai/chat', {
-                messages: next.map(({ role, content }) => ({ role, content })),
-                language: language,
-            }, {
+            // Use native fetch with SSE streaming for real-time tool call tracking
+            const response = await fetch('/api/v1/admin/ai/chat', {
+                method: 'POST',
                 headers: {
-                    'X-Active-Outlet': activeOutlet || 'attire_lounge'
-                }
+                    'Content-Type': 'application/json',
+                    'Accept': 'text/event-stream',
+                    'X-Active-Outlet': activeOutlet || 'attire_lounge',
+                    ...(token ? { 'Authorization': `Bearer ${token}` } : {}),
+                },
+                body: JSON.stringify({
+                    messages: next.map(({ role, content }) => ({ role, content })),
+                    language: language,
+                    stream: true,
+                }),
+                signal: controller.signal,
             });
 
-            if (data?.success) {
-                const fullReply = data.reply || '';
-                const toolCalls = data.tool_calls || [];
-                const resTime = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-
-                setLoading(false);
-
-                // Initialize streaming message
-                const streamingIndex = next.length;
-                setMessages((m) => [
-                    ...m,
-                    {
-                        role: 'assistant',
-                        content: '',
-                        toolCalls: toolCalls,
-                        isStreaming: true,
-                        timestamp: resTime
-                    },
-                ]);
-
-                // Stream tokens smoothly chunk-by-chunk (dynamic typing effect)
-                let charPos = 0;
-                const step = fullReply.length > 800 ? 10 : fullReply.length > 300 ? 5 : 2;
-                const streamInterval = setInterval(() => {
-                    charPos += step;
-                    if (charPos >= fullReply.length) {
-                        clearInterval(streamInterval);
-                        setMessages((prev) => {
-                            const copy = [...prev];
-                            if (copy[streamingIndex]) {
-                                copy[streamingIndex] = {
-                                    ...copy[streamingIndex],
-                                    content: fullReply,
-                                    isStreaming: false
-                                };
-                            }
-                            return copy;
-                        });
-                    } else {
-                        const chunk = fullReply.slice(0, charPos);
-                        setMessages((prev) => {
-                            const copy = [...prev];
-                            if (copy[streamingIndex]) {
-                                copy[streamingIndex] = {
-                                    ...copy[streamingIndex],
-                                    content: chunk
-                                };
-                            }
-                            return copy;
-                        });
-                    }
-                }, 16);
-            } else {
-                setLoading(false);
-                toast.error(data?.message || 'AI reply failed.');
+            if (!response.ok) {
+                const errBody = await response.text();
+                throw new Error(`HTTP ${response.status}: ${errBody.slice(0, 300)}`);
             }
+
+            // Parse SSE stream from response body
+            const reader = response.body.getReader();
+            const decoder = new TextDecoder();
+            let buffer = '';
+            let finalReply = '';
+            let finalToolCalls = [];
+
+            while (true) {
+                const { done, value } = await reader.read();
+                if (done) break;
+
+                buffer += decoder.decode(value, { stream: true });
+
+                // Parse SSE lines from buffer
+                const lines = buffer.split('\n');
+                buffer = lines.pop() || ''; // keep incomplete line in buffer
+
+                let currentEvent = '';
+                for (const line of lines) {
+                    if (line.startsWith('event: ')) {
+                        currentEvent = line.slice(7).trim();
+                    } else if (line.startsWith('data: ')) {
+                        const rawData = line.slice(6);
+                        let eventData;
+                        try {
+                            eventData = JSON.parse(rawData);
+                        } catch {
+                            continue;
+                        }
+
+                        const eventType = currentEvent || eventData.type || 'message';
+
+                        if (eventType === 'tool_start') {
+                            setLiveTools((prev) => [
+                                ...prev,
+                                {
+                                    name: eventData.name,
+                                    args: eventData.args || {},
+                                    status: 'running',
+                                    tool_call_id: eventData.tool_call_id,
+                                },
+                            ]);
+                            setThinkingText(`Executing ${eventData.name}...`);
+                        } else if (eventType === 'tool_end') {
+                            setLiveTools((prev) =>
+                                prev.map((t) =>
+                                    (t.tool_call_id === eventData.tool_call_id || t.name === eventData.name) && t.status === 'running'
+                                        ? {
+                                              ...t,
+                                              status: 'completed',
+                                              duration_ms: eventData.duration_ms,
+                                              summary: eventData.summary,
+                                          }
+                                        : t
+                                )
+                            );
+                        } else if (eventType === 'status') {
+                            setThinkingText(eventData.message || '');
+                        } else if (eventType === 'done') {
+                            finalReply = eventData.reply || '';
+                            finalToolCalls = eventData.tool_calls || [];
+                        } else if (eventType === 'error') {
+                            finalReply = `⚠️ **Error**: ${eventData.message || 'Unknown error'}`;
+                        }
+
+                        currentEvent = '';
+                    }
+                }
+            }
+
+            // Finalize response
+            const fullReply = (finalReply && finalReply.trim() !== '')
+                ? finalReply
+                : 'I have processed the request, but no summary content was generated. Please ask for specific details or next page.';
+            const resTime = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+
+            setLoading(false);
+            setLiveTools([]);
+
+            // Show the full reply instantly (no typing or streaming text animation)
+            setMessages((m) => [
+                ...m,
+                {
+                    role: 'assistant',
+                    content: fullReply,
+                    toolCalls: finalToolCalls,
+                    isStreaming: false,
+                    timestamp: resTime,
+                },
+            ]);
         } catch (e) {
             setLoading(false);
-            const errorMsg = e?.response?.data?.message || e?.message || 'Could not reach the AI assistant.';
+            setLiveTools([]);
+            if (e?.name === 'AbortError') return;
+            const errorMsg = e?.message || 'Could not reach the AI assistant.';
             toast.error(errorMsg);
             setMessages((m) => [
                 ...m,
                 {
                     role: 'assistant',
                     content: `⚠️ **Request Error**: ${errorMsg}`,
-                    timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
-                }
+                    timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+                },
             ]);
         }
     };
@@ -521,8 +672,16 @@ export default function AiAgentChat() {
     };
 
     const clearChat = () => {
+        if (!confirmClear) {
+            setConfirmClear(true);
+            setTimeout(() => setConfirmClear(false), 2500);
+            return;
+        }
         setMessages([]);
+        const key = `attire_ai_chat_${user?.id || 'admin'}_${activeOutlet || 'attire_lounge'}`;
+        localStorage.removeItem(key);
         localStorage.removeItem('attire_ai_chat_history');
+        setConfirmClear(false);
         toast.success('Started new chat.');
     };
 
@@ -540,18 +699,76 @@ export default function AiAgentChat() {
         setTimeout(() => setCopiedIndex(null), 2000);
     };
 
+    const deleteMessage = (idx) => {
+        setMessages((prev) => prev.filter((_, i) => i !== idx));
+        toast.success('Message removed.');
+    };
+
+    const exportChat = () => {
+        if (messages.length === 0) {
+            toast.error('No messages to export.');
+            return;
+        }
+        const lines = messages.map((m) => {
+            const role = m.role === 'user' ? 'You' : `${outletInfo.label} AI`;
+            return `[${m.timestamp || '—'}] ${role}:\n${m.content}\n`;
+        });
+        const blob = new Blob([lines.join('\n---\n\n')], { type: 'text/plain' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `${outletInfo.label.replace(/\s+/g, '_')}_AI_Chat_${new Date().toISOString().slice(0, 10)}.txt`;
+        a.click();
+        URL.revokeObjectURL(url);
+        toast.success('Chat exported!');
+    };
+
+    const stopGeneration = () => {
+        if (abortRef.current) {
+            abortRef.current.abort();
+            abortRef.current = null;
+        }
+        setLoading(false);
+        setLiveTools([]);
+    };
+
+    const getGreeting = () => {
+        const hour = new Date().getHours();
+        if (hour < 12) return 'Good morning';
+        if (hour < 17) return 'Good afternoon';
+        return 'Good evening';
+    };
+
     return (
         <div className="relative flex h-full w-full flex-col bg-background dark:bg-[#0d1117] text-foreground dark:text-white transition-colors duration-300 overflow-hidden">
             {/* Top Bar (Clean & Theme-Aware) */}
             <div className="flex items-center justify-between border-b border-border/60 dark:border-white/10 bg-background/90 dark:bg-[#0d1117]/90 px-6 py-3 backdrop-blur-md z-10">
                 <div className="flex items-center gap-3">
                     <img src={outletLogo} alt={outletInfo.label} className="h-7 w-auto max-w-[36px] object-contain" />
-                    <div>
+                    <div className="flex items-center gap-2">
                         <h1 className="text-sm font-bold tracking-tight text-foreground dark:text-white">{outletInfo.label} AI</h1>
+                        {messages.length > 0 && (
+                            <span className="rounded-full bg-muted/70 dark:bg-white/10 px-2 py-0.5 text-[10px] font-semibold text-muted-foreground dark:text-white/60">
+                                {messages.length} {messages.length === 1 ? 'msg' : 'msgs'}
+                            </span>
+                        )}
                     </div>
                 </div>
 
                 <div className="flex items-center gap-2">
+                    {/* Export Chat */}
+                    {messages.length > 0 && (
+                        <button
+                            type="button"
+                            onClick={exportChat}
+                            className="flex items-center gap-1.5 rounded-lg border border-border/60 dark:border-white/10 bg-muted/40 dark:bg-white/5 px-2.5 py-1 text-[11px] font-semibold text-foreground/80 dark:text-white/70 transition hover:bg-muted dark:hover:bg-white/10 active:scale-95"
+                            title="Export conversation as text"
+                        >
+                            <Download size={13} />
+                            <span className="hidden sm:inline">Export</span>
+                        </button>
+                    )}
+
                     {/* Language Toggle — compact single-click flip */}
                     <button
                         type="button"
@@ -570,11 +787,24 @@ export default function AiAgentChat() {
                     <button
                         type="button"
                         onClick={clearChat}
-                        className="flex items-center gap-1.5 rounded-lg border border-border/60 dark:border-white/10 bg-muted/40 dark:bg-white/5 px-2.5 py-1 text-[11px] font-semibold text-foreground/80 dark:text-white/70 transition hover:bg-muted dark:hover:bg-white/10 active:scale-95"
-                        title="New Chat"
+                        className={`flex items-center gap-1.5 rounded-lg border px-2.5 py-1 text-[11px] font-semibold transition active:scale-95 ${
+                            confirmClear
+                                ? 'border-rose-500/50 bg-rose-500/15 text-rose-600 dark:text-rose-400 animate-pulse'
+                                : 'border-border/60 dark:border-white/10 bg-muted/40 dark:bg-white/5 text-foreground/80 dark:text-white/70 hover:bg-muted dark:hover:bg-white/10'
+                        }`}
+                        title={confirmClear ? 'Click again to confirm clearing chat' : 'New Chat'}
                     >
-                        <PlusCircle size={13} />
-                        <span>New</span>
+                        {confirmClear ? (
+                            <>
+                                <Trash2 size={13} />
+                                <span>Clear?</span>
+                            </>
+                        ) : (
+                            <>
+                                <PlusCircle size={13} />
+                                <span>New</span>
+                            </>
+                        )}
                     </button>
                 </div>
             </div>
@@ -596,7 +826,7 @@ export default function AiAgentChat() {
                             >
                                 <img src={outletLogo} alt={outletInfo.label} className="h-16 w-auto max-w-[130px] object-contain drop-shadow-md mb-4" />
                                 <h2 className="text-2xl sm:text-3xl font-bold tracking-tight text-foreground dark:text-white mb-2">
-                                    Ready to assist you
+                                    {getGreeting()}{user?.name ? `, ${user.name.split(' ')[0]}` : ''}
                                 </h2>
                                 <p className="text-sm sm:text-base text-muted-foreground dark:text-white/60 max-w-md mb-8">
                                     Ask anything about products, inventory, revenue, appointments, or clients at <span className="text-foreground dark:text-white font-semibold">{outletInfo.label}</span>.
@@ -641,10 +871,10 @@ export default function AiAgentChat() {
                                 return (
                                     <motion.div
                                         key={idx}
-                                        initial={{ opacity: 0, y: 8 }}
-                                        animate={{ opacity: 1, y: 0 }}
-                                        transition={{ duration: 0.2 }}
-                                        className={`flex flex-col ${isUser ? 'items-end' : 'items-start'}`}
+                                        initial={{ opacity: 0, y: 14, filter: 'blur(3px)' }}
+                                        animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
+                                        transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
+                                        className={`flex flex-col ${isUser ? 'items-end' : 'items-start w-full'}`}
                                     >
                                         {/* User Message */}
                                         {isUser ? (
@@ -662,42 +892,23 @@ export default function AiAgentChat() {
                                                     >
                                                         {copiedIndex === idx ? <Check size={12} className="text-emerald-500 dark:text-emerald-400" /> : <Copy size={12} />}
                                                     </button>
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => deleteMessage(idx)}
+                                                        className="opacity-0 group-hover:opacity-100 transition-opacity hover:text-rose-500 dark:hover:text-rose-400"
+                                                        title="Delete message"
+                                                    >
+                                                        <Trash2 size={12} />
+                                                    </button>
                                                 </div>
                                             </div>
                                         ) : (
-                                            /* Assistant Message */
-                                            <div className="group flex items-start gap-4 w-full">
-                                                <div className="shrink-0 mt-1">
-                                                    <img src={outletLogo} alt={outletInfo.label} className="h-6 w-auto max-w-[28px] object-contain" />
-                                                </div>
-                                                <div className="flex-1 min-w-0">
-                                                    {/* Compact Clean Tool Execution Pill */}
-                                                    {Array.isArray(m.toolCalls) && m.toolCalls.length > 0 && (
-                                                        <div className="mb-2.5 flex flex-wrap items-center gap-1.5">
-                                                            {m.toolCalls.map((tool, tIdx) => {
-                                                                const formattedName = tool
-                                                                    .replace(/^(get_|list_|search_|update_)/, '')
-                                                                    .replace(/_/g, ' ')
-                                                                    .replace(/\b\w/g, (c) => c.toUpperCase());
-
-                                                                return (
-                                                                    <div
-                                                                        key={tIdx}
-                                                                        className="inline-flex items-center gap-1.5 rounded-lg border border-border/60 dark:border-white/10 bg-muted/40 dark:bg-white/[0.04] px-2.5 py-1 text-[11px] font-medium text-muted-foreground dark:text-white/70 shadow-xs"
-                                                                        title={`Function executed: ${tool}`}
-                                                                    >
-                                                                        <Check size={11} className="text-emerald-500 dark:text-emerald-400 shrink-0" />
-                                                                        <span className="text-[10.5px] opacity-70">Queried</span>
-                                                                        <span className="font-semibold text-foreground/90 dark:text-white/90">{formattedName}</span>
-                                                                    </div>
-                                                                );
-                                                            })}
-                                                        </div>
-                                                    )}
-
+                                            /* Assistant Message (Clean Full-Width without Logo) */
+                                            <div className="group flex flex-col items-start w-full">
+                                                <div className="w-full">
                                                     {/* Assistant Markdown Content */}
                                                     <div className="text-[14.5px] leading-relaxed text-foreground/95 dark:text-white/90">
-                                                        <MarkdownRenderer content={m.content} isStreaming={m.isStreaming} />
+                                                        <MarkdownRenderer content={m.content} />
                                                     </div>
 
                                                     {/* Assistant Action Bar */}
@@ -735,6 +946,14 @@ export default function AiAgentChat() {
                                                         >
                                                             <ThumbsDown size={13} />
                                                         </button>
+                                                        <button
+                                                            type="button"
+                                                            onClick={() => deleteMessage(idx)}
+                                                            className="p-1.5 rounded-lg hover:bg-muted dark:hover:bg-white/10 hover:text-rose-500 dark:hover:text-rose-400 transition-colors"
+                                                            title="Delete message"
+                                                        >
+                                                            <Trash2 size={13} />
+                                                        </button>
                                                     </div>
                                                 </div>
                                             </div>
@@ -745,16 +964,13 @@ export default function AiAgentChat() {
                         </div>
                     )}
 
-                    {/* Reasoning / Thinking Block */}
+                    {/* Reasoning / Thinking Indicator */}
                     {loading && (
-                        <div className="flex items-start gap-4 py-2">
-                            <div className="shrink-0 mt-1">
-                                <img src={outletLogo} alt={outletInfo.label} className="h-6 w-auto max-w-[28px] object-contain animate-pulse" />
-                            </div>
+                        <div className="py-2 px-1">
                             <AIThinkingBlock
                                 outletName={outletInfo.label}
                                 thinkingText={thinkingText}
-                                onToggle={() => scrollToBottom('smooth')}
+                                liveTools={liveTools}
                             />
                         </div>
                     )}
@@ -797,7 +1013,7 @@ export default function AiAgentChat() {
                             onChange={(e) => setInputValue(e.target.value)}
                             onKeyDown={onKeyDown}
                             rows={1}
-                            placeholder="Message Attire..."
+                            placeholder="Message Attire... (Press ⌘K / Ctrl+K to focus)"
                             className="w-full max-h-44 resize-none bg-transparent !border-0 !border-none px-5 pt-4 pb-2 text-[15px] text-foreground dark:text-white placeholder-muted-foreground/50 dark:placeholder-white/30 !outline-none !ring-0 !shadow-none focus:!border-0 focus:!border-none focus:!ring-0 focus:!outline-none leading-relaxed"
                         />
 
@@ -858,7 +1074,7 @@ export default function AiAgentChat() {
                                 </button>
                             </div>
 
-                            {/* Right: Mic & Circular Send Button */}
+                            {/* Right: Mic & Send / Stop Button */}
                             <div className="flex items-center gap-2">
                                 <button
                                     type="button"
@@ -873,29 +1089,54 @@ export default function AiAgentChat() {
                                     <Mic size={17} />
                                 </button>
 
-                                <button
-                                    type="button"
-                                    onClick={() => handleSendMessage()}
-                                    disabled={!inputValue.trim() || loading}
-                                    className={`flex h-9 w-9 items-center justify-center rounded-full transition-all shadow-sm ${
-                                        inputValue.trim() && !loading
-                                            ? 'bg-primary text-primary-foreground hover:scale-105 active:scale-95'
-                                            : 'bg-muted dark:bg-white/10 text-muted-foreground/40 dark:text-white/20 cursor-not-allowed'
-                                    }`}
-                                    title="Send Message"
-                                >
-                                    <ArrowUp size={17} />
-                                </button>
+                                {loading ? (
+                                    <button
+                                        type="button"
+                                        onClick={stopGeneration}
+                                        className="flex h-9 w-9 items-center justify-center rounded-full bg-foreground dark:bg-white text-background dark:text-black hover:scale-105 active:scale-95 transition-all shadow-md"
+                                        title="Stop generating"
+                                    >
+                                        <Square size={13} className="fill-current" />
+                                    </button>
+                                ) : (
+                                    <button
+                                        type="button"
+                                        onClick={() => handleSendMessage()}
+                                        disabled={!inputValue.trim()}
+                                        className={`flex h-9 w-9 items-center justify-center rounded-full transition-all shadow-sm ${
+                                            inputValue.trim()
+                                                ? 'bg-primary text-primary-foreground hover:scale-105 active:scale-95'
+                                                : 'bg-muted dark:bg-white/10 text-muted-foreground/40 dark:text-white/20 cursor-not-allowed'
+                                        }`}
+                                        title="Send Message"
+                                    >
+                                        <ArrowUp size={17} />
+                                    </button>
+                                )}
                             </div>
                         </div>
                     </div>
 
-                    {/* Disclaimer Footnote */}
-                    <p className="mt-2 text-center text-[11px] text-muted-foreground/60 dark:text-white/40">
-                        Attire AI operates in secure closed-data mode. Verify critical store transactions.
-                    </p>
+
                 </div>
             </div>
+
+            {/* Floating Scroll to Top Button */}
+            <AnimatePresence>
+                {showScrollTop && (
+                    <motion.button
+                        initial={{ opacity: 0, scale: 0.8, y: 10 }}
+                        animate={{ opacity: 1, scale: 1, y: 0 }}
+                        exit={{ opacity: 0, scale: 0.8, y: 10 }}
+                        type="button"
+                        onClick={() => listRef.current?.scrollTo({ top: 0, behavior: 'smooth' })}
+                        className="fixed bottom-28 right-6 sm:right-10 z-20 flex h-9 w-9 items-center justify-center rounded-full border border-border/80 dark:border-white/15 bg-card/90 dark:bg-[#161b22]/90 text-foreground dark:text-white shadow-lg backdrop-blur-md transition hover:bg-muted dark:hover:bg-white/10 active:scale-95"
+                        title="Scroll to top"
+                    >
+                        <ChevronUp size={16} />
+                    </motion.button>
+                )}
+            </AnimatePresence>
         </div>
     );
 }

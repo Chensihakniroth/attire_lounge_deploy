@@ -21,13 +21,47 @@ class AiAgentController extends Controller
     public function chat(Request $request)
     {
         $data = $request->validate([
-            'messages'          => 'required|array|min:1',
-            'messages.*.role'   => 'required|string|in:user,assistant,system,tool',
+            'messages'           => 'required|array|min:1',
+            'messages.*.role'    => 'required|string|in:user,assistant,system,tool',
             'messages.*.content' => 'nullable|string',
-            'language'          => 'nullable|string|in:en,km',
+            'language'           => 'nullable|string|in:en,km',
+            'stream'             => 'nullable|boolean',
         ]);
 
-        $result = $this->agent->chat($data['messages'], $data['language'] ?? 'en');
+        $messages = $data['messages'];
+        $language = $data['language'] ?? 'en';
+        $stream   = $request->boolean('stream', false) || $request->header('Accept') === 'text/event-stream';
+
+        if ($stream) {
+            return response()->stream(function () use ($messages, $language) {
+                @ini_set('output_buffering', 'off');
+                @ini_set('zlib.output_compression', '0');
+                while (ob_get_level()) {
+                    ob_end_flush();
+                }
+                ob_implicit_flush(true);
+
+                $sendEvent = function (string $event, array $payload) {
+                    echo "event: {$event}\n";
+                    echo 'data: ' . json_encode($payload, JSON_UNESCAPED_UNICODE) . "\n\n";
+                    if (ob_get_level() > 0) {
+                        @ob_flush();
+                    }
+                    @flush();
+                };
+
+                $this->agent->chat($messages, $language, function ($evt) use ($sendEvent) {
+                    $sendEvent($evt['type'] ?? 'message', $evt);
+                });
+            }, 200, [
+                'Content-Type'      => 'text/event-stream; charset=UTF-8',
+                'Cache-Control'     => 'no-cache, no-transform',
+                'Connection'        => 'keep-alive',
+                'X-Accel-Buffering' => 'no',
+            ]);
+        }
+
+        $result = $this->agent->chat($messages, $language);
 
         return response()->json([
             'success'    => true,

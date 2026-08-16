@@ -18,7 +18,7 @@ return [
     'api_key'           => env('AI_API_KEY'),
     'model'             => env('AI_MODEL'),
 
-    'max_output_tokens' => (int) env('AI_MAX_OUTPUT_TOKENS', 1024),
+    'max_output_tokens' => (int) env('AI_MAX_OUTPUT_TOKENS', 4096),
     'temperature'       => (float) env('AI_TEMPERATURE', 0.2),
     'top_p'             => (float) env('AI_TOP_P', 1.0),
     'max_turns'         => (int) env('AI_MAX_TURNS', 8),
@@ -42,5 +42,13 @@ return [
         'inventory',
         'stats',
         'newsletter',
+        'gifts',
+        'altering',
+        'finance',
+        'targets',
+        'notifications',
+        'promocodes',
+        'activities',
+        'reports',
     ],
 ];

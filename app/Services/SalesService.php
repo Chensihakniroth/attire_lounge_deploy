@@ -25,7 +25,7 @@ class SalesService
                 return $this->getPeriodReport($date, $endDate, $outlet);
             }
 
-            $invoices = PosInvoice::where('date', $date)
+            $invoices = PosInvoice::whereDate('date', $date)
                 ->where('status', 'completed')
                 ->with(['items', 'payments', 'customer'])
                 ->orderByDesc('created_at')
@@ -34,7 +34,7 @@ class SalesService
             $totalRevenue = $invoices->sum('grand_total');
 
             $totalRefunds = PosRefund::whereHas('invoice', function ($q) use ($date, $outlet) {
-                $q->where('date', $date)->where('outlet', $outlet);
+                $q->whereDate('date', $date)->where('outlet', $outlet);
             })->sum('amount');
 
             $netRevenue = $totalRevenue - $totalRefunds;
@@ -62,7 +62,7 @@ class SalesService
             $categoryBreakdown = DB::table('pos_invoice_items')
                 ->join('pos_invoices', 'pos_invoice_items.invoice_id', '=', 'pos_invoices.id')
                 ->leftJoin('pos_products', 'pos_invoice_items.product_id', '=', 'pos_products.id')
-                ->where('pos_invoices.date', $date)
+                ->whereDate('pos_invoices.date', $date)
                 ->where('pos_invoices.status', 'completed')
                 ->where('pos_invoices.outlet', $outlet)
                 ->select(
