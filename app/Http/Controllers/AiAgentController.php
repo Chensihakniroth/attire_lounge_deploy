@@ -24,9 +24,10 @@ class AiAgentController extends Controller
             'messages'          => 'required|array|min:1',
             'messages.*.role'   => 'required|string|in:user,assistant,system,tool',
             'messages.*.content' => 'nullable|string',
+            'language'          => 'nullable|string|in:en,km',
         ]);
 
-        $result = $this->agent->chat($data['messages']);
+        $result = $this->agent->chat($data['messages'], $data['language'] ?? 'en');
 
         return response()->json([
             'success'    => true,

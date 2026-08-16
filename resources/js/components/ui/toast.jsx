@@ -8,10 +8,10 @@ import React, {
 } from 'react';
 import { createPortal } from 'react-dom';
 import { AnimatePresence, motion } from 'framer-motion';
-import { AlertTriangle, CheckCircle2, Info, X, XCircle } from 'lucide-react';
+import { AlertTriangle, Check, Info, X, XCircle } from 'lucide-react';
 
 /**
- * Minimal, shared toast system for the admin panel.
+ * Minimal, ultra-clean glassmorphic toast system for the admin panel.
  *
  * Usage (inside the provider tree):
  *   const { toast } = useToast();
@@ -26,12 +26,33 @@ const ToastContext = createContext({ toast: () => {} });
 export const useToast = () => useContext(ToastContext);
 
 const TYPE_META = {
-    success: { icon: CheckCircle2, iconClass: 'text-emerald-500', chipClass: 'bg-emerald-500/10' },
-    error: { icon: XCircle, iconClass: 'text-rose-500', chipClass: 'bg-rose-500/10' },
-    warning: { icon: AlertTriangle, iconClass: 'text-amber-500', chipClass: 'bg-amber-500/10' },
-    info: { icon: Info, iconClass: 'text-[#58a6ff]', chipClass: 'bg-[#58a6ff]/10' },
+    success: {
+        icon: Check,
+        iconClass: 'text-emerald-500 dark:text-emerald-400',
+        chipClass: 'bg-emerald-500/10 text-emerald-500 ring-1 ring-emerald-500/20 shadow-[0_0_12px_rgba(16,185,129,0.2)]',
+        barClass: 'bg-emerald-500/60',
+    },
+    error: {
+        icon: XCircle,
+        iconClass: 'text-rose-500 dark:text-rose-400',
+        chipClass: 'bg-rose-500/10 text-rose-500 ring-1 ring-rose-500/20 shadow-[0_0_12px_rgba(244,63,94,0.2)]',
+        barClass: 'bg-rose-500/60',
+    },
+    warning: {
+        icon: AlertTriangle,
+        iconClass: 'text-amber-500 dark:text-amber-400',
+        chipClass: 'bg-amber-500/10 text-amber-500 ring-1 ring-amber-500/20 shadow-[0_0_12px_rgba(245,158,11,0.2)]',
+        barClass: 'bg-amber-500/60',
+    },
+    info: {
+        icon: Info,
+        iconClass: 'text-sky-500 dark:text-sky-400',
+        chipClass: 'bg-sky-500/10 text-sky-500 ring-1 ring-sky-500/20 shadow-[0_0_12px_rgba(14,165,233,0.2)]',
+        barClass: 'bg-sky-500/60',
+    },
 };
 
+const DURATION_MS = 4000;
 let toastSeq = 0;
 
 export function ToastProvider({ children }) {
@@ -45,8 +66,7 @@ export function ToastProvider({ children }) {
         (type, title, description) => {
             const id = ++toastSeq;
             setToasts((prev) => [...prev, { id, type, title, description }]);
-            // Auto-dismiss after 4.5s
-            window.setTimeout(() => dismiss(id), 4500);
+            window.setTimeout(() => dismiss(id), DURATION_MS);
             return id;
         },
         [dismiss]
@@ -76,8 +96,11 @@ export function ToastProvider({ children }) {
             {children}
             {typeof document !== 'undefined' &&
                 createPortal(
-                    <div className="fixed top-4 right-4 z-[999998] flex flex-col items-end gap-2 max-w-[95vw] w-full sm:w-auto pointer-events-none" aria-live="polite">
-                        <AnimatePresence>
+                    <div
+                        className="fixed bottom-5 left-5 z-[999998] flex flex-col items-start gap-2.5 max-w-[92vw] sm:max-w-md pointer-events-none"
+                        aria-live="polite"
+                    >
+                        <AnimatePresence mode="popLayout">
                             {toasts.map((t) => {
                                 const meta = TYPE_META[t.type] || TYPE_META.info;
                                 const Icon = meta.icon;
@@ -85,29 +108,53 @@ export function ToastProvider({ children }) {
                                     <motion.div
                                         key={t.id}
                                         layout
-                                        initial={{ opacity: 0, y: -14, scale: 0.97 }}
-                                        animate={{ opacity: 1, y: 0, scale: 1 }}
-                                        exit={{ opacity: 0, x: 32, transition: { duration: 0.18 } }}
-                                        transition={{ duration: 0.22, ease: [0.22, 1, 0.36, 1] }}
-                                        className="pointer-events-auto w-full sm:w-[340px] rounded-xl border border-black/10 dark:border-[#30363d] bg-white dark:bg-[#161b22] shadow-lg shadow-black/10 flex items-start gap-3 px-4 py-3"
+                                        initial={{ opacity: 0, y: 18, scale: 0.92, filter: 'blur(4px)' }}
+                                        animate={{ opacity: 1, y: 0, scale: 1, filter: 'blur(0px)' }}
+                                        exit={{
+                                            opacity: 0,
+                                            x: -24,
+                                            scale: 0.95,
+                                            filter: 'blur(4px)',
+                                            transition: { duration: 0.18 }
+                                        }}
+                                        transition={{ type: 'spring', stiffness: 380, damping: 26 }}
+                                        className="pointer-events-auto group relative overflow-hidden rounded-2xl border border-black/10 dark:border-white/10 bg-white/95 dark:bg-[#161b22]/95 backdrop-blur-2xl shadow-[0_12px_36px_rgba(0,0,0,0.18)] dark:shadow-[0_12px_36px_rgba(0,0,0,0.4)] flex items-center gap-3 px-4 py-3 min-w-[280px] max-w-sm transition-colors"
                                     >
-                                        <span className={`w-8 h-8 shrink-0 rounded-lg flex items-center justify-center ${meta.chipClass}`}>
-                                            <Icon size={16} className={meta.iconClass} />
+                                        {/* Status Icon Badge */}
+                                        <span className={`w-7 h-7 shrink-0 rounded-xl flex items-center justify-center transition-transform group-hover:scale-105 ${meta.chipClass}`}>
+                                            <Icon size={14} className={meta.iconClass} strokeWidth={2.5} />
                                         </span>
-                                        <div className="flex-1 min-w-0 py-0.5">
-                                            <p className="text-[12px] font-bold leading-snug text-gray-900 dark:text-[#c9d1d9]">{t.title}</p>
+
+                                        {/* Content */}
+                                        <div className="flex-1 min-w-0 pr-1">
+                                            <p className="text-[13px] font-semibold tracking-tight text-gray-900 dark:text-white leading-snug">
+                                                {t.title}
+                                            </p>
                                             {t.description && (
-                                                <p className="text-[11px] leading-relaxed text-gray-500 dark:text-[#8b949e] mt-0.5">{t.description}</p>
+                                                <p className="text-[11.5px] leading-relaxed text-gray-500 dark:text-white/60 mt-0.5">
+                                                    {t.description}
+                                                </p>
                                             )}
                                         </div>
+
+                                        {/* Close Button */}
                                         <button
                                             type="button"
                                             onClick={() => dismiss(t.id)}
                                             aria-label="Dismiss notification"
-                                            className="shrink-0 p-1 rounded-md text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 transition-colors"
+                                            className="shrink-0 p-1 rounded-lg text-gray-400 hover:text-gray-700 dark:text-white/40 dark:hover:text-white hover:bg-black/5 dark:hover:bg-white/10 transition-colors"
                                         >
-                                            <X size={14} />
+                                            <X size={13} />
                                         </button>
+
+                                        {/* Micro Progress Line */}
+                                        <motion.div
+                                            initial={{ scaleX: 1 }}
+                                            animate={{ scaleX: 0 }}
+                                            transition={{ duration: DURATION_MS / 1000, ease: 'linear' }}
+                                            style={{ originX: 0 }}
+                                            className={`absolute bottom-0 left-0 right-0 h-[2px] ${meta.barClass}`}
+                                        />
                                     </motion.div>
                                 );
                             })}

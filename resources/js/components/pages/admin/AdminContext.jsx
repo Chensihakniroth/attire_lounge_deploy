@@ -23,6 +23,7 @@ export const AdminProvider = ({ children }) => {
             label: 'Attire Lounge',
             shortLabel: 'AL',
             color: '#0d3542',
+            logo: 'https://bucket-production-4ca0.up.railway.app/product-assets/uploads/asset/ALO.png',
         },
         caffeine: { label: 'CUFFEINE', shortLabel: 'CF', color: '#6f4e37', logo: 'https://bucket-production-4ca0.up.railway.app/product-assets/uploads/asset/cuff.png' },
         kravat: { label: 'Kravat', shortLabel: 'KV', color: '#3d2b56', logo: 'https://bucket-production-4ca0.up.railway.app/product-assets/uploads/asset/@asset5.png' },

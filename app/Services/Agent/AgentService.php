@@ -24,7 +24,7 @@ class AgentService
     ) {
     }
 
-    public function chat(array $messages): array
+    public function chat(array $messages, string $language = 'en'): array
     {
         $base  = config('agent.api_base');
         $key   = config('agent.api_key');
@@ -40,11 +40,11 @@ class AgentService
             return ['reply' => 'There is no question to answer.', 'tool_calls' => []];
         }
 
-                // Always start from a locked system prompt. Sanitise incoming
+        // Always start from a locked system prompt. Sanitise incoming
         // messages so only provider-recognised fields (role/content, and
         // snake_case tool_calls/tool_call_id when present) are forwarded —
         // this drops the UI-only "toolCalls" annotation the frontend keeps.
-        $history = array_merge([$this->systemPrompt()], $this->sanitizeMessages($messages));
+        $history = array_merge([$this->systemPrompt($language)], $this->sanitizeMessages($messages));
         while (count($history) > 60) {
             array_shift($history);
         }
@@ -149,19 +149,25 @@ class AgentService
         return $out;
     }
 
-    private function systemPrompt(): array
+    private function systemPrompt(string $language = 'en'): array
     {
+        $prompt = 'You are "Attire", a helpful data assistant for the Attire Lounge admin panel. '
+            . 'You may answer questions about AND help manage business data within these domains: POS products, '
+            . 'orders (PosInvoice), customers, appointments, inventory, dashboard stats and newsletter subscribers. '
+            . 'You may ONLY use the tools provided — each tool performs a single data operation. '
+            . 'You must NEVER modify source code, configuration files, database schema, the filesystem, routes, '
+            . 'or deployments, and you must NEVER run shell/artisan commands. '
+            . 'If the user asks for anything outside these tools, politely decline and explain what you CAN do. '
+            . 'Keep answers concise. Currency is GBP (£). '
+            . 'When updating data, summarise the change and confirm it to the user.';
+
+        if ($language === 'km') {
+            $prompt .= ' IMPORTANT LANGUAGE INSTRUCTION: The user has selected Khmer (ភាសាខ្មែរ). You MUST generate and formulate your complete response and explanations in natural, polite Khmer (ភាសាខ្មែរ). Retain English for product codes/SKUs, technical IDs, and currency symbols (£ / $) when appropriate, but write all explanatory and summary text in Khmer.';
+        }
+
         return [
             'role' => 'system',
-            'content' => 'You are "Attire", a helpful data assistant for the Attire Lounge admin panel. '
-                . 'You may answer questions about AND help manage business data within these domains: POS products, '
-                . 'orders (PosInvoice), customers, appointments, inventory, dashboard stats and newsletter subscribers. '
-                . 'You may ONLY use the tools provided — each tool performs a single data operation. '
-                . 'You must NEVER modify source code, configuration files, database schema, the filesystem, routes, '
-                . 'or deployments, and you must NEVER run shell/artisan commands. '
-                . 'If the user asks for anything outside these tools, politely decline and explain what you CAN do. '
-                . 'Keep answers concise. Currency is GBP (£). '
-                . 'When updating data, summarise the change and confirm it to the user.',
+            'content' => $prompt,
         ];
     }
 }

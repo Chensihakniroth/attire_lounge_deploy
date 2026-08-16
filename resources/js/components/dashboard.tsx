@@ -19,7 +19,6 @@ import {
     FileText,
     Package,
     ShoppingBag,
-    Sparkles,
     TrendingUp,
     Users,
 } from 'lucide-react';
@@ -220,12 +219,12 @@ export function Dashboard() {
             {/* Revenue chart + right column */}
             <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
                 <Card
-                    className="animate-fade-in-up p-4 opacity-0 lg:col-span-2 min-w-0"
+                    className="animate-fade-in-up p-5 opacity-0 lg:col-span-2 min-w-0 flex flex-col justify-between"
                     style={FADE(120)}
                 >
                     <div className="mb-4 flex items-center justify-between">
                         <CardTitle className="flex items-center gap-2 text-base">
-                            <Sparkles size={15} className="text-attire-gold" /> {isRevenue ? 'Revenue Trend' : 'Appointments Trend'}
+                            <TrendingUp size={15} className="text-attire-gold" /> {isRevenue ? 'Revenue Trend' : 'Appointments Trend'}
                         </CardTitle>
                         <div className="flex gap-1 rounded-lg border border-border bg-muted p-1">
                             {TIMEFRAMES.map((t) => (
@@ -246,12 +245,12 @@ export function Dashboard() {
                         </div>
                     </div>
                     <div
-                        className="h-64 w-full min-w-0"
+                        className="flex-1 w-full min-w-0 min-h-[320px] sm:min-h-[360px]"
                         style={{ filter: 'drop-shadow(0 12px 24px hsl(var(--primary)/0.12))' }}
                     >
                         {chartReady ? (
                             <ResponsiveContainer width="100%" height="100%">
-                                <AreaChart data={trendData} margin={{ left: 0, right: 8, top: 8, bottom: 0 }}>
+                                <AreaChart data={trendData} margin={{ left: -10, right: 10, top: 10, bottom: 0 }}>
                                 <defs>
                                     <linearGradient id="rev" x1="0" y1="0" x2="0" y2="1">
                                         <stop
@@ -289,7 +288,7 @@ export function Dashboard() {
                                     tick={{ fontSize: 11, fill: 'hsl(var(--muted-foreground))' }}
                                     tickLine={false}
                                     axisLine={false}
-                                    width={50}
+                                    width={45}
                                     tickCount={6}
                                 />
                                 <Tooltip
@@ -326,7 +325,7 @@ export function Dashboard() {
                             </AreaChart>
                         </ResponsiveContainer>
                         ) : (
-                            <div className="h-64 w-full" />
+                            <div className="flex-1 min-h-[320px] sm:min-h-[360px] w-full" />
                         )}
                     </div>
                 </Card>
@@ -335,7 +334,7 @@ export function Dashboard() {
                     {/* Billing health — ring */}
                     <Card className="animate-fade-in-up p-4 opacity-0" style={FADE(180)}>
                         <CardTitle className="mb-3 flex items-center gap-2 text-base">
-                            <Sparkles size={15} className="text-attire-gold" /> Billing Health
+                            <FileText size={15} className="text-attire-gold" /> Billing Health
                         </CardTitle>
                         <div className="flex items-center gap-4">
                             <div className="relative">
@@ -388,7 +387,7 @@ export function Dashboard() {
                     {/* Channel sales */}
                     <Card className="animate-fade-in-up p-4 opacity-0" style={FADE(240)}>
                         <CardTitle className="mb-3 flex items-center gap-2 text-base">
-                            <Sparkles size={15} className="text-attire-gold" /> Sales Channels
+                            <ShoppingBag size={15} className="text-attire-gold" /> Sales Channels
                         </CardTitle>
                         <div className="space-y-2">
                             {outlets.map(([key, cfg]) => {
