@@ -157,6 +157,7 @@ Route::prefix('v1')->group(function () {
             // Customer Profiles
             Route::get('/customer-profiles', [CustomerProfileController::class, 'index']);
             Route::post('/customer-profiles', [CustomerProfileController::class, 'store']);
+            Route::post('/customer-profiles/import', [CustomerProfileController::class, 'import']);
             Route::get('/customer-profiles/{id}', [CustomerProfileController::class, 'show']);
             Route::put('/customer-profiles/{id}', [CustomerProfileController::class, 'update']);
             Route::delete('/customer-profiles/{id}', [CustomerProfileController::class, 'destroy']);

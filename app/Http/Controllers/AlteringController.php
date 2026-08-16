@@ -224,7 +224,7 @@ class AlteringController extends Controller
     {
         $ids = $request->input('ids', []);
 
-        if (empty($ids)) {
+        if (empty($ids) || !is_array($ids)) {
             return response()->json(['message' => 'No items selected.'], 400);
         }
 
@@ -233,11 +233,12 @@ class AlteringController extends Controller
             return response()->json(['message' => 'Cannot delete more than 100 items at once.'], 400);
         }
 
-        // Scope to outlet — only delete records belonging to the admin's outlet
-        $outlet = $request->header('X-Active-Outlet', 'attire_lounge');
-        $deletedCount = Altering::whereIn('id', $ids)
-            ->where('outlet', $outlet)
-            ->delete();
+        $query = Altering::whereIn('id', $ids);
+        if (\Illuminate\Support\Facades\Schema::hasColumn('alterings', 'outlet')) {
+            $outlet = $request->header('X-Active-Outlet', 'attire_lounge');
+            $query->where('outlet', $outlet);
+        }
+        $deletedCount = $query->delete();
 
         return response()->json([
             'message' => 'Selected altering records deleted successfully.',
@@ -347,7 +348,6 @@ class AlteringController extends Controller
                 'status' => $status,
                 'start_date' => $startDate ?: now()->toDateString(),
                 'ready_at' => $readyAt,
-                'outlet' => OutletHelper::resolve($request->header('X-Active-Outlet')),
             ]);
             $imported++;
         }

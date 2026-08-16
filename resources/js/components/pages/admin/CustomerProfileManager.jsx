@@ -4,7 +4,7 @@ import {
     User, Trash2, Plus, Edit, X, AlertCircle, Check, Copy,
     ChevronDown, ChevronRight, ChevronLeft, ChevronUp, UserCheck, Share2,
     Search, Eye, Globe, Phone, PlusCircle, UserPlus, ShieldCheck,
-    Users, Briefcase, Palette, Ruler, Loader2, Download
+    Users, Briefcase, Palette, Ruler, Loader2, Download, RefreshCw
 } from 'lucide-react';
 import { LumaSpin } from '@/components/ui/luma-spin';
 import axios from 'axios';
@@ -306,6 +306,11 @@ const CustomerProfileManager = () => {
     /* ---- Toast ---- */
     const [toast, setToast] = useState(null);
 
+    /* ---- Spreadsheet Sync ---- */
+    const [showSyncModal, setShowSyncModal] = useState(false);
+    const [syncUrl, setSyncUrl] = useState('https://docs.google.com/spreadsheets/d/1jUuSk2Cx23W_ERDuLbOMl3VGTd9pjg5ra4hOYgZwF0k/edit?gid=925131477#gid=925131477');
+    const [isSyncing, setIsSyncing] = useState(false);
+
     const [formData, setFormData] = useState({
         date: new Date().toISOString().slice(0, 10),
         client_status: 'New', name: '', nationality: 'Cambodia', phone: '',
@@ -570,6 +575,24 @@ const CustomerProfileManager = () => {
         }
     };
 
+    /* ---- Google Sheets Sync ---- */
+    const handleSync = useCallback(async () => {
+        if (!syncUrl) return;
+        setIsSyncing(true);
+        try {
+            if (window.hika?.import) {
+                await window.hika.import('customer-profile', syncUrl);
+            }
+            fetchData(pagination.current_page);
+            setShowSyncModal(false);
+            setToast({ type: 'success', msg: 'Spreadsheet sync complete!' });
+        } catch {
+            setToast({ type: 'error', msg: 'Spreadsheet sync failed — check URL and try again' });
+        } finally {
+            setIsSyncing(false);
+        }
+    }, [syncUrl, fetchData, pagination.current_page]);
+
     const handleExportSelected = useCallback(() => {
         const list = [...selected.values()];
         if (list.length === 0) return;
@@ -599,6 +622,13 @@ const CustomerProfileManager = () => {
                         </p>
                     </div>
                     <div className="flex items-center gap-2">
+                        <button
+                            onClick={() => setShowSyncModal(true)}
+                            className="h-9 px-4 bg-black/[0.03] dark:bg-white/[0.04] border border-black/[0.08] dark:border-white/[0.08] text-gray-600 dark:text-[#8b949e] rounded-lg text-[10px] font-bold uppercase tracking-widest hover:border-[#0d3542]/40 dark:hover:border-[#58a6ff]/40 hover:text-[#0d3542] dark:hover:text-[#58a6ff] active:scale-[0.97] transition-all flex items-center gap-2"
+                        >
+                            <RefreshCw size={14} className={isSyncing ? 'animate-spin' : ''} />
+                            <span className="hidden sm:inline">Sync Sheet</span>
+                        </button>
                         <button
                             onClick={handleExport}
                             className="h-9 px-4 bg-black/[0.03] dark:bg-white/[0.04] border border-black/[0.08] dark:border-white/[0.08] text-gray-600 dark:text-[#8b949e] rounded-lg text-[10px] font-bold uppercase tracking-widest hover:border-[#0d3542]/40 dark:hover:border-[#58a6ff]/40 hover:text-[#0d3542] dark:hover:text-[#58a6ff] active:scale-[0.97] transition-all flex items-center gap-2"
@@ -1010,6 +1040,40 @@ const CustomerProfileManager = () => {
                                 Delete
                             </button>
                         </div>
+                    </div>
+                </ModernModal>
+
+                {/* ---- Google Sheets Sync Modal ---- */}
+                <ModernModal isOpen={showSyncModal} onClose={() => setShowSyncModal(false)} title="Sync from Google Sheet">
+                    <div className="p-5 sm:p-6 space-y-4 bg-white dark:bg-[#0d1117]">
+                        <div className="flex flex-col items-center justify-center p-6 border border-dashed border-black/[0.08] dark:border-white/[0.08] rounded-xl bg-black/[0.015] dark:bg-white/[0.015] text-center">
+                            <RefreshCw size={24} className={`text-[#0d3542] dark:text-[#58a6ff] mb-2.5 ${isSyncing ? 'animate-spin' : ''}`} />
+                            <h4 className="text-[11px] font-bold text-gray-900 dark:text-[#c9d1d9]">Import or Sync Customer Profiles</h4>
+                            <p className="text-[10px] text-gray-400 dark:text-[#8b949e]/50 mt-1 max-w-xs">
+                                Paste your published Google Sheet URL to import or sync customer profiles automatically. Existing profiles are matched by phone or name.
+                            </p>
+                        </div>
+
+                        <div className="space-y-1.5">
+                            <label className="text-[9px] font-bold text-gray-400 dark:text-[#8b949e]/40 uppercase tracking-widest">Google Sheet Shareable URL</label>
+                            <input
+                                type="url"
+                                placeholder="https://docs.google.com/spreadsheets/d/..."
+                                value={syncUrl}
+                                onChange={(e) => setSyncUrl(e.target.value)}
+                                className="w-full h-10 bg-black/[0.02] dark:bg-white/[0.02] border border-black/[0.06] dark:border-white/[0.06] rounded-lg px-3 text-[11px] font-medium text-gray-900 dark:text-[#c9d1d9] outline-none focus:border-[#0d3542]/40 dark:focus:border-[#58a6ff]/40 transition-colors placeholder:text-gray-300 dark:placeholder:text-[#8b949e]/20"
+                            />
+                        </div>
+
+                        <button
+                            type="button"
+                            onClick={handleSync}
+                            disabled={isSyncing || !syncUrl}
+                            className="w-full h-10 bg-[#0d3542] dark:bg-[#58a6ff] text-white dark:text-black rounded-lg text-[10px] font-bold uppercase tracking-widest hover:opacity-90 transition-all disabled:opacity-40 flex items-center justify-center gap-2"
+                        >
+                            {isSyncing ? <Loader2 size={14} className="animate-spin" /> : <RefreshCw size={14} />}
+                            <span>{isSyncing ? 'Syncing Spreadsheet…' : 'Start Sync'}</span>
+                        </button>
                     </div>
                 </ModernModal>
 

@@ -28,6 +28,7 @@ const ActivityItem = React.forwardRef(({ item, type, isLast }, ref) => {
     };
 
     const getTimeAgo = (dateString) => {
+        if (!dateString) return 'RECENT';
         const date = new Date(dateString);
         const now = new Date();
         const diffMs = now - date;
@@ -39,6 +40,14 @@ const ActivityItem = React.forwardRef(({ item, type, isLast }, ref) => {
         if (diffHours < 24) return `${diffHours}H`;
         return `${Math.floor(diffHours / 24)}D`;
     };
+
+    const primaryText = type === 'appointment' 
+        ? (item.service || item.appointment_type || 'Bespoke Fitting')
+        : (item.name || 'Client Registration');
+
+    const secondaryText = type === 'appointment'
+        ? (item.name ? `${item.name}${item.status ? ` • ${item.status}` : ''}` : (item.phone || item.email || 'Scheduled Booking'))
+        : (item.email || item.phone || item.nationality || 'New Client Profile');
 
     return (
         <div className="relative flex gap-4 pr-2 group">
@@ -52,34 +61,43 @@ const ActivityItem = React.forwardRef(({ item, type, isLast }, ref) => {
             <div className="flex-grow pt-1 min-w-0">
                 <div className="flex items-center justify-between gap-2">
                     <p className="text-[10px] font-black text-gray-900 dark:text-white uppercase tracking-wider truncate">
-                        {type === 'appointment' ? (item.service_type || 'Booking') : (item.customer_name || 'Registry')}
+                        {primaryText}
                     </p>
                     <span className="text-[8px] font-mono font-black text-gray-400 dark:text-[#8b949e]/30 shrink-0">
                         {getTimeAgo(item.created_at)}
                     </span>
                 </div>
                 <p className="text-[9px] text-gray-400 dark:text-[#8b949e]/50 uppercase tracking-widest mt-0.5 truncate italic">
-                    {item.customer_name || item.reference_id || 'System Event'}
+                    {secondaryText}
                 </p>
             </div>
         </div>
     );
 });
+
 const RecentActivityWidget = ({ loading: appointmentsLoading }) => {
-    const { performanceMode } = useAdmin();
+    const { performanceMode, activeOutlet } = useAdmin() || {};
 
     const { data: recentActivities = [] } = useQuery({
-        queryKey: ['admin-recent-activities'],
+        queryKey: ['admin-recent-activities', activeOutlet],
         queryFn: async () => {
             const [appointments, customers] = await Promise.all([
-                API.getAdminAppointments({ per_page: 5 }),
-                API.getAdminCustomers({ per_page: 5 })
+                API.getAdminAppointments({ per_page: 5 }).catch(() => ({ data: [] })),
+                API.getAdminCustomers({ per_page: 5 }).catch(() => ({ data: [] }))
             ]);
 
+            const appList = Array.isArray(appointments)
+                ? appointments
+                : (Array.isArray(appointments?.data) ? appointments.data : []);
+
+            const custList = Array.isArray(customers)
+                ? customers
+                : (Array.isArray(customers?.data) ? customers.data : []);
+
             return [
-                ...(appointments.data || []).map(item => ({ ...item, type: 'appointment' })),
-                ...(customers.data || []).map(item => ({ ...item, type: 'customer' }))
-            ].sort((a, b) => new Date(b.created_at) - new Date(a.created_at)).slice(0, 6);
+                ...appList.map(item => ({ ...item, type: 'appointment' })),
+                ...custList.map(item => ({ ...item, type: 'customer' }))
+            ].sort((a, b) => new Date(b.created_at || 0) - new Date(a.created_at || 0)).slice(0, 6);
         },
         staleTime: 60000
     });

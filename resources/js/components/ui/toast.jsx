@@ -108,16 +108,15 @@ export function ToastProvider({ children }) {
                                     <motion.div
                                         key={t.id}
                                         layout
-                                        initial={{ opacity: 0, y: 18, scale: 0.92, filter: 'blur(4px)' }}
-                                        animate={{ opacity: 1, y: 0, scale: 1, filter: 'blur(0px)' }}
+                                        initial={{ opacity: 0, y: 16, scale: 0.94 }}
+                                        animate={{ opacity: 1, y: 0, scale: 1 }}
                                         exit={{
                                             opacity: 0,
-                                            x: -24,
+                                            x: -20,
                                             scale: 0.95,
-                                            filter: 'blur(4px)',
-                                            transition: { duration: 0.18 }
+                                            transition: { duration: 0.16 }
                                         }}
-                                        transition={{ type: 'spring', stiffness: 380, damping: 26 }}
+                                        transition={{ type: 'spring', stiffness: 380, damping: 28 }}
                                         className="pointer-events-auto group relative overflow-hidden rounded-2xl border border-black/10 dark:border-white/10 bg-white/95 dark:bg-[#161b22]/95 backdrop-blur-2xl shadow-[0_12px_36px_rgba(0,0,0,0.18)] dark:shadow-[0_12px_36px_rgba(0,0,0,0.4)] flex items-center gap-3 px-4 py-3 min-w-[280px] max-w-sm transition-colors"
                                     >
                                         {/* Status Icon Badge */}

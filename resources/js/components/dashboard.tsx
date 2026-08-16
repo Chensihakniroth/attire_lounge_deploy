@@ -161,26 +161,29 @@ export function Dashboard() {
         }));
     }, [stats, timeframe, seriesKey]);
 
-    // Billing health — daily report (real)
-    const todayStr = new Date().toISOString().split('T')[0];
+    // Billing health — daily report (real, scoped by outlet)
+    const todayStr = useMemo(() => new Date().toISOString().split('T')[0], []);
     const { data: daily } = useQuery({
-        queryKey: ['sales-report-daily', todayStr],
+        queryKey: ['sales-report-daily', todayStr, activeOutlet],
         queryFn: () => API.getDailySalesReport(todayStr),
     });
-    const dailyStats = ((daily as any)?.stats ?? {}) as Record<string, any>;
-    const revenue = Number(dailyStats.total_revenue || 0);
-    const invoicesToday = Number(dailyStats.total_invoices || 0);
-    const refunds = Number(stats.pos_summary?.total_refunds || 0);
+
+    const revenue = Number(daily?.total_revenue ?? stats.pos_summary?.total_revenue ?? 0);
+    const invoicesToday = Number(daily?.invoice_count ?? stats.pos_summary?.invoice_count ?? 0);
+    const refunds = Number(daily?.total_refunds ?? stats.pos_summary?.total_refunds ?? 0);
     const refundRate = revenue > 0 ? (refunds / revenue) * 100 : 0;
 
-    // Invoices — real endpoint
+    // Invoices — real endpoint scoped by outlet
     const { data: invoicesRaw } = useQuery({
-        queryKey: ['pos-invoices', 'recent'],
+        queryKey: ['pos-invoices', 'recent', activeOutlet],
         queryFn: () => API.getPosInvoices({ per_page: 6 }),
     });
-    const invoices = Array.isArray(invoicesRaw)
-        ? (invoicesRaw as any[])
-        : ((invoicesRaw as any)?.data ?? []);
+    const invoices = useMemo(() => {
+        if (!invoicesRaw) return [];
+        if (Array.isArray(invoicesRaw)) return invoicesRaw;
+        if (Array.isArray((invoicesRaw as any).data)) return (invoicesRaw as any).data;
+        return [];
+    }, [invoicesRaw]);
 
     // KPI values (real, per outlet)
     const kpis = isAttire
@@ -198,7 +201,7 @@ export function Dashboard() {
           ];
 
     const outlets = Object.entries(OUTLET_CONFIG ?? {}) as Array<[string, any]>;
-    const activeRevenue = Number(stats.pos_summary?.total_revenue || stats.sales || 0);
+    const activeRevenue = Number(stats.pos_summary?.total_revenue ?? revenue ?? 0);
     const lastPoint = trendData.length > 0 ? trendData[trendData.length - 1] : null;
 
     return (
@@ -249,7 +252,7 @@ export function Dashboard() {
                         style={{ filter: 'drop-shadow(0 12px 24px hsl(var(--primary)/0.12))' }}
                     >
                         {chartReady ? (
-                            <ResponsiveContainer width="100%" height="100%">
+                            <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={320}>
                                 <AreaChart data={trendData} margin={{ left: -10, right: 10, top: 10, bottom: 0 }}>
                                 <defs>
                                     <linearGradient id="rev" x1="0" y1="0" x2="0" y2="1">
@@ -364,7 +367,7 @@ export function Dashboard() {
                                     {refundRate < 5 ? 'Healthy' : 'Watch'}
                                 </span>
                                 <p className="text-xs text-muted-foreground">
-                                    Refunds vs. today's revenue. Lower is better, honey.
+                                    Refund percentage vs today's revenue.
                                 </p>
                             </div>
                         </div>
@@ -372,7 +375,7 @@ export function Dashboard() {
                             <div className="rounded-lg bg-muted p-3 transition-colors hover:bg-muted/70">
                                 <p className="text-xs text-muted-foreground">Revenue (today)</p>
                                 <p className="font-semibold tabular-nums text-foreground">
-                                    ${Math.floor(revenue).toLocaleString()}
+                                    ${revenue.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                                 </p>
                             </div>
                             <div className="rounded-lg bg-muted p-3 transition-colors hover:bg-muted/70">
@@ -430,7 +433,7 @@ export function Dashboard() {
                                         </div>
                                         <span className="text-xs font-semibold tabular-nums text-muted-foreground">
                                             {active
-                                                ? `$${Math.floor(activeRevenue).toLocaleString()}`
+                                                ? `$${activeRevenue.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
                                                 : '—'}
                                         </span>
                                     </div>
@@ -452,7 +455,7 @@ export function Dashboard() {
                     </CardTitle>
                     {invoices.length === 0 ? (
                         <p className="py-8 text-center text-sm text-muted-foreground">
-                            No recent invoices
+                            No recent invoices for this outlet
                         </p>
                     ) : (
                         <div className="overflow-x-auto">
@@ -466,45 +469,47 @@ export function Dashboard() {
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    {invoices.map((inv: any, i: number) => (
-                                        <tr
-                                            key={inv.id ?? i}
-                                            className="border-t border-border transition-colors hover:bg-muted/40"
-                                        >
-                                            <td className="py-2 font-mono text-xs text-foreground">
-                                                #
-                                                {inv.reference_id ??
-                                                    inv.reference ??
-                                                    inv.id ??
-                                                    i + 1}
-                                            </td>
-                                            <td className="py-2 text-foreground">
-                                                {inv.customer_name ?? inv.customer ?? 'Walk-in'}
-                                            </td>
-                                            <td className="py-2 tabular-nums text-foreground">
-                                                $
-                                                {Number(
-                                                    inv.total ?? inv.amount ?? 0
-                                                ).toLocaleString()}
-                                            </td>
-                                            <td className="py-2">
-                                                <span
-                                                    className={cn(
-                                                        'rounded-full px-2 py-0.5 text-xs font-medium',
-                                                        inv.status === 'paid' ||
-                                                            inv.status === 'completed'
-                                                            ? 'bg-emerald-500/10 text-emerald-500'
-                                                            : inv.status === 'refunded' ||
-                                                              inv.status === 'cancelled'
-                                                            ? 'bg-red-500/10 text-red-500'
-                                                            : 'bg-amber-500/10 text-amber-500'
-                                                    )}
-                                                >
-                                                    {inv.status ?? 'pending'}
-                                                </span>
-                                            </td>
-                                        </tr>
-                                    ))}
+                                    {invoices.map((inv: any, i: number) => {
+                                        const refId = inv.invoice_number || (inv.id ? `INV-${String(inv.id).padStart(4, '0')}` : `#${i + 1}`);
+                                        const customerName = typeof inv.customer === 'object' && inv.customer?.name
+                                            ? inv.customer.name
+                                            : (typeof inv.customer === 'string' ? inv.customer : (inv.customer_name || 'Walk-in'));
+                                        const totalAmt = Number(inv.grand_total ?? inv.total ?? inv.amount ?? 0);
+                                        const status = (inv.status || 'pending').toLowerCase();
+
+                                        return (
+                                            <tr
+                                                key={inv.id ?? i}
+                                                className="border-t border-border transition-colors hover:bg-muted/40"
+                                            >
+                                                <td className="py-2.5 font-mono text-xs font-semibold text-foreground">
+                                                    {refId}
+                                                </td>
+                                                <td className="py-2.5 text-foreground font-medium">
+                                                    {customerName}
+                                                </td>
+                                                <td className="py-2.5 tabular-nums font-semibold text-foreground">
+                                                    ${totalAmt.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                                                </td>
+                                                <td className="py-2.5">
+                                                    <span
+                                                        className={cn(
+                                                            'inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold capitalize',
+                                                            status === 'paid' || status === 'completed'
+                                                                ? 'bg-emerald-500/10 text-emerald-500'
+                                                                : status === 'refunded' || status === 'void' || status === 'voided' || status === 'cancelled'
+                                                                ? 'bg-red-500/10 text-red-500'
+                                                                : status === 'partial'
+                                                                ? 'bg-blue-500/10 text-blue-500'
+                                                                : 'bg-amber-500/10 text-amber-500'
+                                                        )}
+                                                    >
+                                                        {status}
+                                                    </span>
+                                                </td>
+                                            </tr>
+                                        );
+                                    })}
                                 </tbody>
                             </table>
                         </div>
