@@ -107,7 +107,7 @@ JSON;
 
     private function fmtMoney(float $value): string
     {
-        return '£' . number_format($value, 2);
+        return '$' . number_format($value, 2);
     }
 
     // ─── Tool implementations (data-only: Eloquent read/write on business models) ──

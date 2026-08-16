@@ -70,7 +70,7 @@ class BusinessDataToolsTest extends TestCase
         // Search
         $searchRes = $this->tools->call('search_products', ['query' => 'Classic']);
         $this->assertStringContainsString('Classic Navy Suit', $searchRes);
-        $this->assertStringContainsString('£250.00', $searchRes);
+        $this->assertStringContainsString('$250.00', $searchRes);
 
         // Get single
         $getRes = $this->tools->call('get_product', ['id' => $product->id]);
@@ -164,7 +164,7 @@ class BusinessDataToolsTest extends TestCase
         ]);
 
         $salesRes = $this->tools->call('get_daily_sales', ['date' => today()->toDateString()]);
-        $this->assertStringContainsString('£110.00', $salesRes);
+        $this->assertStringContainsString('$110.00', $salesRes);
 
         $orderRes = $this->tools->call('list_orders', ['status' => 'completed']);
         $this->assertStringContainsString('INV-2026-001', $orderRes);

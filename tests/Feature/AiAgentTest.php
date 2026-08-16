@@ -126,7 +126,7 @@ class AiAgentTest extends TestCase
                         [
                             'message' => [
                                 'role' => 'assistant',
-                                'content' => 'We have the Italian Wool Tuxedo in stock (5 units) priced at £450.00.',
+                                'content' => 'We have the Italian Wool Tuxedo in stock (5 units) priced at $450.00.',
                             ],
                         ],
                     ],
@@ -142,7 +142,7 @@ class AiAgentTest extends TestCase
         $res->assertStatus(200);
         $res->assertJson([
             'success' => true,
-            'reply' => 'We have the Italian Wool Tuxedo in stock (5 units) priced at £450.00.',
+            'reply' => 'We have the Italian Wool Tuxedo in stock (5 units) priced at $450.00.',
             'tool_calls' => ['search_products'],
         ]);
     }

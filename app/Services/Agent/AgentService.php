@@ -158,11 +158,11 @@ class AgentService
             . 'You must NEVER modify source code, configuration files, database schema, the filesystem, routes, '
             . 'or deployments, and you must NEVER run shell/artisan commands. '
             . 'If the user asks for anything outside these tools, politely decline and explain what you CAN do. '
-            . 'Keep answers concise. Currency is GBP (£). '
+            . 'Keep answers concise. Currency is USD ($). '
             . 'When updating data, summarise the change and confirm it to the user.';
 
         if ($language === 'km') {
-            $prompt .= ' IMPORTANT LANGUAGE INSTRUCTION: The user has selected Khmer (ភាសាខ្មែរ). You MUST generate and formulate your complete response and explanations in natural, polite Khmer (ភាសាខ្មែរ). Retain English for product codes/SKUs, technical IDs, and currency symbols (£ / $) when appropriate, but write all explanatory and summary text in Khmer.';
+            $prompt .= ' IMPORTANT LANGUAGE INSTRUCTION: The user has selected Khmer (ភាសាខ្មែរ). You MUST generate and formulate your complete response and explanations in natural, polite Khmer (ភាសាខ្មែរ). Retain English for product codes/SKUs, technical IDs, and currency symbols ($) when appropriate, but write all explanatory and summary text in Khmer.';
         }
 
         return [
