@@ -62,8 +62,12 @@ class PosInvoiceItem extends Model
     ): array {
         $subtotal = $qty * $unitPrice;
 
+        // Clamp percentage discounts to 0–100% so a stray value like 250% can't
+        // produce a negative line total on the invoice.
+        $pct = min(100, max(0.0, (float) $discountValue));
+
         $discountAmount = match ($discountType) {
-            'percent' => $subtotal * ($discountValue / 100),
+            'percent' => $subtotal * ($pct / 100),
             'amount'  => min($discountValue * $qty, $subtotal),
             default   => 0.0,
         };

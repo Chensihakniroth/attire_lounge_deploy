@@ -33,7 +33,7 @@ class AppointmentService
      */
     public function createAppointment(array $data): Appointment
     {
-        Log::info('AppointmentService: Creating appointment...', ['data' => $data]);
+        Log::info('AppointmentService: Creating appointment...');
 
         try {
             $appointmentData = $data;

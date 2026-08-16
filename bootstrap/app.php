@@ -14,7 +14,15 @@ return Application::configure(basePath: dirname(__DIR__))
         apiPrefix: 'api',
     )
     ->withMiddleware(function (Middleware $middleware): void {
-        $middleware->trustProxies('*');
+        // Trust X-Forwarded-* from configured proxies only (comma-separated
+        // IPs/CIDRs in TRUSTED_PROXIES). Defaults to "*" to preserve the
+        // previous behaviour behind Railway's load balancer / reverse proxy.
+        $middleware->trustProxies(
+            at: array_values(array_filter(array_map(
+                'trim',
+                explode(',', (string) env('TRUSTED_PROXIES', '*'))
+            )))
+        );
 
         $middleware->alias([
             'role' => \Spatie\Permission\Middleware\RoleMiddleware::class,

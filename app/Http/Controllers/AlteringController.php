@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Helpers\OutletHelper;
 use App\Models\Altering;
 use App\Services\AlteringService;
 use Illuminate\Http\Request;
@@ -346,7 +347,7 @@ class AlteringController extends Controller
                 'status' => $status,
                 'start_date' => $startDate ?: now()->toDateString(),
                 'ready_at' => $readyAt,
-                'outlet' => $request->header('X-Active-Outlet', 'attire_lounge'),
+                'outlet' => OutletHelper::resolve($request->header('X-Active-Outlet')),
             ]);
             $imported++;
         }

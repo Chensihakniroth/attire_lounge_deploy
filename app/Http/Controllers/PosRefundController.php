@@ -150,8 +150,8 @@ class PosRefundController extends Controller
             $year   = \Carbon\Carbon::parse($date)->year;
             $month  = \Carbon\Carbon::parse($date)->month;
             
-            \Illuminate\Support\Facades\Cache::forget("sales_daily_{$outlet}_{$dateStr}");
-            \Illuminate\Support\Facades\Cache::forget("sales_monthly_{$outlet}_{$year}_{$month}");
+            \Illuminate\Support\Facades\Cache::forget("sales_daily_v2_{$outlet}_{$dateStr}");
+            \Illuminate\Support\Facades\Cache::forget("sales_monthly_v2_{$outlet}_{$year}_{$month}");
 
             return response()->json([
                 'message' => 'Refund processed successfully',
@@ -185,12 +185,20 @@ class PosRefundController extends Controller
 
         DB::beginTransaction();
         try {
-            // Restore stock for all physical (non-service) items
+            // Restore stock for all physical (non-service) items.
+            // Only restore units that haven't already been returned through a
+            // refund — otherwise voiding a (partially) refunded invoice would
+            // double-restore stock.
             foreach ($invoice->items as $item) {
                 if (!$item->is_service && $item->product_id) {
-                    $posProduct = PosProduct::find($item->product_id);
-                    if ($posProduct) {
-                        $posProduct->increment('stock_qty', $item->quantity);
+                    $alreadyRestored = PosRefund::where('invoice_item_id', $item->id)->sum('quantity');
+                    $qtyToRestore = $item->quantity - $alreadyRestored;
+
+                    if ($qtyToRestore > 0) {
+                        $posProduct = PosProduct::find($item->product_id);
+                        if ($posProduct) {
+                            $posProduct->increment('stock_qty', $qtyToRestore);
+                        }
                     }
                 }
             }
@@ -215,8 +223,8 @@ class PosRefundController extends Controller
             $year   = \Carbon\Carbon::parse($date)->year;
             $month  = \Carbon\Carbon::parse($date)->month;
 
-            \Illuminate\Support\Facades\Cache::forget("sales_daily_{$outlet}_{$dateStr}");
-            \Illuminate\Support\Facades\Cache::forget("sales_monthly_{$outlet}_{$year}_{$month}");
+            \Illuminate\Support\Facades\Cache::forget("sales_daily_v2_{$outlet}_{$dateStr}");
+            \Illuminate\Support\Facades\Cache::forget("sales_monthly_v2_{$outlet}_{$year}_{$month}");
 
             return response()->json([
                 'message' => 'Invoice voided successfully',

@@ -43,10 +43,12 @@ Route::prefix('v1')->group(function () {
         Route::put('/stock/nile/{sku}', [StockApiController::class, 'update']);
     });
 
-    // Notifications
-    Route::get('/notifications', [NotificationController::class, 'index']);
-    Route::patch('/notifications/{id}/read', [NotificationController::class, 'markAsRead']);
-    Route::post('/notifications/read-all', [NotificationController::class, 'markAllAsRead']);
+    // Notifications (POS UI — protected; auth token required. Previously public!)
+    Route::middleware(['auth:sanctum'])->group(function () {
+        Route::get('/notifications', [NotificationController::class, 'index']);
+        Route::patch('/notifications/{id}/read', [NotificationController::class, 'markAsRead']);
+        Route::post('/notifications/read-all', [NotificationController::class, 'markAllAsRead']);
+    });
 
     // ═══════════════════════════════════════════════════════════════════════
     // PUBLIC ROUTES (storefront)

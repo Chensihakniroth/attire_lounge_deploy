@@ -26,7 +26,7 @@ class AppointmentController extends Controller
      */
     public function store(StoreAppointmentRequest $request): JsonResponse
     {
-        Log::info('=== APPOINTMENT REQUEST START ===', ['data' => $request->all()]);
+        Log::info('Appointment booking request received (see AuditLog for details).');
 
         try {
             $appointment = $this->appointmentService->createAppointment($request->validated());

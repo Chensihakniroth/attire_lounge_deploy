@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Helpers\OutletHelper;
 use App\Models\Appointment;
 use App\Models\Collection;
 use App\Models\GiftRequest;
@@ -24,7 +25,9 @@ class AdminController extends Controller
      */
     public function stats(): JsonResponse
     {
-        $outlet = request()->header('X-Active-Outlet', request()->query('outlet', 'attire_lounge'));
+        $outlet = OutletHelper::resolve(
+            request()->header('X-Active-Outlet', request()->query('outlet', 'attire_lounge'))
+        );
 
         $cache = \Illuminate\Support\Facades\Cache::supportsTags() 
             ? \Illuminate\Support\Facades\Cache::tags(['admin-stats']) 

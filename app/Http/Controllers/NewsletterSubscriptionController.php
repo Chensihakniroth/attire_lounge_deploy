@@ -46,10 +46,16 @@ class NewsletterSubscriptionController extends Controller
         }
 
         try {
-            NewsletterSubscription::create(['phone_number' => $request->phone_number]);
+            $subscriber = NewsletterSubscription::create(['phone_number' => $request->phone_number]);
+
+            \Illuminate\Support\Facades\Log::info('Newsletter subscription created', [
+                'subscriber_id' => $subscriber->id,
+            ]);
+
             return response()->json(['message' => 'Successfully subscribed!'], 201);
-        } catch (\Exception $e) {
-            return response()->json(['message' => $e->getMessage()], 500);
+        } catch (\Throwable $e) {
+            \Illuminate\Support\Facades\Log::error('Newsletter subscription failed: ' . $e->getMessage());
+            return response()->json(['message' => 'Something went wrong while subscribing. Please try again later.'], 500);
         }
     }
 

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Helpers\OutletHelper;
 use App\Models\PosProduct;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
@@ -89,7 +90,7 @@ class PosProductController extends Controller
             'products.*.barcode' => 'nullable|string',
         ]);
 
-        $outlet = $request->header('X-Active-Outlet', 'attire_lounge');
+        $outlet = OutletHelper::resolve($request->header('X-Active-Outlet'));
         $created = [];
         foreach ($validated['products'] as $productData) {
             $productData['outlet'] = $outlet;
@@ -134,7 +135,7 @@ class PosProductController extends Controller
             'barcode' => 'nullable|string',
         ]);
 
-        $validated['outlet'] = $request->header('X-Active-Outlet', 'attire_lounge');
+        $validated['outlet'] = OutletHelper::resolve($request->header('X-Active-Outlet'));
 
         $product = PosProduct::create($validated);
         return response()->json($product, 201);
@@ -162,7 +163,6 @@ class PosProductController extends Controller
             'tier' => 'nullable|string',
             'is_active' => 'nullable|boolean',
             'image_path' => 'nullable|string',
-            'outlet' => 'nullable|string',
             'max_stock' => 'nullable|integer|min:0',
             'status' => 'nullable|string|in:available,unavailable,discontinued',
             'watch_threshold' => 'nullable|boolean',
@@ -197,7 +197,7 @@ class PosProductController extends Controller
      */
     public function services(Request $request): JsonResponse
     {
-        $outlet = $request->header('X-Active-Outlet', 'attire_lounge');
+        $outlet = OutletHelper::resolve($request->header('X-Active-Outlet'));
         $services = PosProduct::active()
             ->where('outlet', $outlet)
             ->services()
@@ -213,7 +213,7 @@ class PosProductController extends Controller
      */
     public function categories(Request $request): JsonResponse
     {
-        $outlet = $request->header('X-Active-Outlet', 'attire_lounge');
+        $outlet = OutletHelper::resolve($request->header('X-Active-Outlet'));
         $categories = PosProduct::active()
             ->where('outlet', $outlet)
             ->products()

@@ -2,6 +2,7 @@
 
 namespace App\Traits;
 
+use Carbon\Carbon;
 use Illuminate\Support\Facades\Cache;
 
 trait ClearsAdminStats
@@ -28,12 +29,15 @@ trait ClearsAdminStats
             foreach (['attire_lounge', 'caffeine', 'kravat', 'nile'] as $outlet) {
                 Cache::forget("admin_dashboard_stats_v2_{$outlet}");
             }
-            // Also flush sales daily/monthly caches since they power the dashboard widgets
+            // Flush sales daily/monthly/weekly caches (v2 key scheme — see SalesService).
+            // These power the dashboard widgets, and the keys must match EXACTLY
+            // (a mismatch means reports stay stale until TTL expiry).
+            $today = now()->toDateString();
+            $weekStart = now()->startOfWeek(Carbon::MONDAY)->toDateString();
             foreach (['attire_lounge', 'caffeine', 'kravat', 'nile'] as $outlet) {
-                Cache::forget("sales_daily_{$outlet}_" . now()->toDateString());
-                $year = now()->year;
-                $month = now()->month;
-                Cache::forget("sales_monthly_{$outlet}_{$year}_{$month}");
+                Cache::forget("sales_daily_v2_{$outlet}_{$today}");
+                Cache::forget("sales_monthly_v2_{$outlet}_" . now()->year . '_' . now()->month);
+                Cache::forget("sales_weekly_v2_{$outlet}_{$weekStart}");
             }
         }
     }

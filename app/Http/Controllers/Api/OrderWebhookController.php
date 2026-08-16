@@ -43,20 +43,9 @@ class OrderWebhookController extends Controller
             'payment_method' => 'nullable|string|max:100',
         ]);
 
-        // Check for duplicate order (raw query to bypass outlet scope)
-        $existing = DB::table('pos_invoices')
-            ->where('wc_order_id', $validated['wc_order_id'])
-            ->where('outlet', 'nile')
-            ->first();
-
-        if ($existing) {
-            return response()->json([
-                'success'    => true,
-                'message'    => 'Order already processed',
-                'invoice_id' => $existing->id,
-                'duplicate'  => true,
-            ]);
-        }
+        // Duplicate-order detection happens INSIDE the transaction below (row lock +
+        // unique index on wc_order_id), so two concurrent webhook deliveries
+        // of the same order can't both slip through the check.
 
         // Validate all SKUs exist
         $skus = collect($validated['items'])->pluck('sku');
@@ -97,7 +86,19 @@ class OrderWebhookController extends Controller
 
         // Process the order
         try {
-            $invoice = DB::transaction(function () use ($validated, $products) {
+            $result = DB::transaction(function () use ($validated, $products) {
+                // Duplicate guard: lock the row inside the transaction so two
+                // concurrent deliveries of the same order can't both insert.
+                $existing = DB::table('pos_invoices')
+                    ->where('wc_order_id', $validated['wc_order_id'])
+                    ->where('outlet', 'nile')
+                    ->lockForUpdate()
+                    ->first();
+
+                if ($existing) {
+                    return ['duplicate' => true, 'invoice_id' => $existing->id];
+                }
+
                 $customerProfileId = null;
                 if (!empty($validated['customer']['email'])) {
                     $customer = CustomerProfile::firstOrCreate(
@@ -192,8 +193,19 @@ class OrderWebhookController extends Controller
                     'source'  => 'webhook',
                 ]);
 
-                return $invoice;
+                return ['duplicate' => false, 'invoice' => $invoice];
             });
+
+            if ($result['duplicate']) {
+                return response()->json([
+                    'success'    => true,
+                    'message'    => 'Order already processed',
+                    'invoice_id' => $result['invoice_id'],
+                    'duplicate'  => true,
+                ]);
+            }
+
+            $invoice = $result['invoice'];
 
             Log::info('WC webhook: Order processed', [
                 'wc_order_id' => $validated['wc_order_id'],

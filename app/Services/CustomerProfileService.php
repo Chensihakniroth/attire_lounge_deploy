@@ -27,7 +27,7 @@ class CustomerProfileService
 
     public function createCustomerProfile(array $data): CustomerProfile
     {
-        Log::info('CustomerProfileService: Creating customer profile...', ['data' => $data]);
+        Log::info('CustomerProfileService: Creating customer profile...');
 
         try {
             $customerProfile = $this->customerProfileRepository->create($data);
