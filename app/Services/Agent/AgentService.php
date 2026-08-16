@@ -40,8 +40,11 @@ class AgentService
             return ['reply' => 'There is no question to answer.', 'tool_calls' => []];
         }
 
-        // Always start from a locked system prompt.
-        $history = [$this->systemPrompt(), ...$messages];
+                // Always start from a locked system prompt. Sanitise incoming
+        // messages so only provider-recognised fields (role/content, and
+        // snake_case tool_calls/tool_call_id when present) are forwarded —
+        // this drops the UI-only "toolCalls" annotation the frontend keeps.
+        $history = array_merge([$this->systemPrompt()], $this->sanitizeMessages($messages));
         while (count($history) > 60) {
             array_shift($history);
         }
@@ -121,6 +124,29 @@ class AgentService
                 return ['reply' => $reply . "\n\nStopped: reached the tool-use limit. Ask again to continue.", 'tool_calls' => $used];
             }
         }
+    }
+
+        private function sanitizeMessages(array $messages): array
+    {
+        $out = [];
+        foreach ($messages as $m) {
+            if (! is_array($m) || ! isset($m['role'])) {
+                continue;
+            }
+            $clean = ['role' => $m['role']];
+            if (array_key_exists('content', $m)) {
+                $clean['content'] = $m['content'] ?? null;
+            }
+            // Preserve a tool-call trace only when forwarded in snake_case.
+            if ($m['role'] === 'assistant' && isset($m['tool_calls'])) {
+                $clean['tool_calls'] = $m['tool_calls'];
+            }
+            if ($m['role'] === 'tool' && isset($m['tool_call_id'])) {
+                $clean['tool_call_id'] = $m['tool_call_id'];
+            }
+            $out[] = $clean;
+        }
+        return $out;
     }
 
     private function systemPrompt(): array
