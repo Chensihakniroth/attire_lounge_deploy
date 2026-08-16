@@ -240,12 +240,12 @@ export function Dashboard() {
                         </div>
                     </div>
                     <div
-                        className="h-64 w-full min-w-0 overflow-hidden"
+                        className="h-64 w-full min-w-0"
                         style={{ filter: 'drop-shadow(0 12px 24px hsl(var(--primary)/0.12))' }}
                     >
                         {chartReady ? (
-                            <ResponsiveContainer width="100%" height={256}>
-                                <AreaChart data={trendData} margin={{ left: -16, right: 16, top: 8 }}>
+                            <ResponsiveContainer width="100%" height="100%">
+                                <AreaChart data={trendData} margin={{ left: 0, right: 8, top: 8, bottom: 0 }}>
                                 <defs>
                                     <linearGradient id="rev" x1="0" y1="0" x2="0" y2="1">
                                         <stop
@@ -276,12 +276,17 @@ export function Dashboard() {
                                     axisLine={false}
                                 />
                                 <YAxis
+                                    tickFormatter={(v: number) =>
+                                        v >= 1000 ? `$${(v / 1000).toFixed(1)}k` : `$${v}`
+                                    }
                                     tick={{ fontSize: 11, fill: 'hsl(var(--muted-foreground))' }}
                                     tickLine={false}
                                     axisLine={false}
-                                    width={40}
+                                    width={50}
+                                    tickCount={6}
                                 />
                                 <Tooltip
+                                    formatter={(value: number) => [`$${Number(value).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`, 'Revenue']}
                                     contentStyle={{
                                         fontSize: 12,
                                         borderRadius: 12,
