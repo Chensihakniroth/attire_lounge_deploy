@@ -17,6 +17,7 @@ use App\Http\Controllers\PromocodeController;
 use App\Http\Controllers\PosProductController;
 use App\Http\Controllers\PosInvoiceController;
 use App\Http\Controllers\PosRefundController;
+use App\Http\Controllers\AiAgentController;
 use App\Http\Controllers\SalesReportController;
 use App\Http\Controllers\Api\OrderWebhookController;
 use App\Http\Controllers\Api\NotificationController;
@@ -97,6 +98,9 @@ Route::prefix('v1')->group(function () {
         Route::middleware(['role:admin|super-admin'])->group(function () {
             // Admin Dashboard Stats
             Route::get('/stats', [AdminController::class, 'stats']);
+
+            // AI Data Assistant — admin-only (OpenCode Zen API, OpenAI-compatible)
+            Route::post('/ai/chat', [AiAgentController::class, 'chat']);
 
             // Promocodes
             Route::get('/promocodes', [PromocodeController::class, 'index']);

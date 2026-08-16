@@ -19,6 +19,7 @@ const queryClient = new QueryClient({
 import AdminLoadingSpinner from './common/AdminLoadingSpinner.jsx';
 import { AdminProvider } from './pages/admin/AdminContext';
 import { ThemeProvider } from './pages/admin/ThemeContext';
+import AiAgentFab from './pages/admin/AiAgentFab.jsx';
 import { ToastProvider } from './ui/toast';
 import { ConfirmProvider } from './ui/confirm-dialog';
 
@@ -117,6 +118,7 @@ const DrinkManager = lazyWithRetry(() => import('./pages/admin/DrinkManager.jsx'
 const ShoeManager = lazyWithRetry(() => import('./pages/admin/ShoeManager.jsx'));
 const OrderManager = lazyWithRetry(() => import('./pages/admin/OrderManager.jsx'));
 const DailyReportManager = lazyWithRetry(() => import('./pages/admin/DailyReportManager.jsx'));
+const AiAgentChat = lazyWithRetry(() => import('./pages/admin/AiAgentChat.jsx'));
 // EfferdDashboard2 retired — new design is now the main /admin dashboard
 
 // ─── Eager Chunk Preloader ─────────────────────────────────────────
@@ -286,8 +288,9 @@ function AdminApp() {
                                             <Route path="/admin/customer-profiles" element={<CustomerProfileManager />} />
                                             <Route path="/admin/customer-profiles/:id" element={<CustomerProfileDetail />} />
                                             <Route path="/admin/sales-history" element={<SalesHistoryManager />} />
-                                            <Route path="/admin/daily-report" element={<DailyReportManager />} />
+                                                                                        <Route path="/admin/daily-report" element={<DailyReportManager />} />
                                             {/* /admin/efferd-dashboard retired — new design is now /admin */}
+                                            <Route path="/admin/ai" element={<AiAgentChat />} />
                                         </Route>
                                     </Route>
                                     
@@ -299,8 +302,9 @@ function AdminApp() {
                                     </Route>
                                     
                                     {/* Fallback for admin routes */}
-                                    <Route path="*" element={<div className="p-8 text-foreground bg-background">Admin Page Not Found</div>} />
+                                                                        <Route path="*" element={<div className="p-8 text-foreground bg-background">Admin Page Not Found</div>} />
                                 </Routes>
+                                <AiAgentFab />
                             </Suspense>
                             </ErrorBoundary>
                             </ConfirmProvider>
