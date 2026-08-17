@@ -125,6 +125,18 @@ class AgentService
             $content   = $message['content'] ?? $message['reasoning_content'] ?? '';
             $toolCalls = $message['tool_calls'] ?? [];
 
+            // Some models leak tool invocations as raw XML in the content field
+            // (e.g. <tool_calls>, <tool_call:xxx>, <arg_key:xxx>, etc.)
+            // Strip them so they don't render as visible text in the chat UI.
+            if (is_string($content)) {
+                $content = preg_replace(
+                    '/<\/?(?:tool_calls?|arg_key|arg_value)(?::[a-f0-9]+)?>[^<]*(?:<\/(?:tool_calls?|arg_key|arg_value)(?::[a-f0-9]+)?>)?/i',
+                    '',
+                    $content
+                );
+                $content = trim($content);
+            }
+
             // If we forced final synthesis or no tool calls were requested, finalize the response
             if ($forceFinalSynthesis || empty($toolCalls)) {
                 $finalReply = trim((string) ($content ?? ''));

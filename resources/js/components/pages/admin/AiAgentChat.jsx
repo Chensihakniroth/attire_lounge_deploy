@@ -120,7 +120,14 @@ function renderTableCell(cell) {
 function MarkdownRenderer({ content, isStreaming = false }) {
     if (!content && !isStreaming) return null;
 
-    const lines = (content || '').split('\n');
+    // Strip leaked tool-call XML tags that some models emit in the content field
+    // e.g. <tool_calls:6124c78e>, <tool_call:xxx>, <arg_key:xxx>, <arg_value:xxx>
+    const sanitized = (content || '').replace(
+        /<\/?(?:tool_calls?|arg_key|arg_value)(?::[a-f0-9]+)?>[^<]*/gi,
+        ''
+    ).trim();
+
+    const lines = sanitized.split('\n');
     const elements = [];
     let tableRows = [];
     let inTable = false;
@@ -865,7 +872,7 @@ export default function AiAgentChat() {
                         </div>
                     ) : (
                         /* Conversation Messages */
-                        <div className="space-y-8 pb-6">
+                        <div className="space-y-4 pb-6">
                             {messages.map((m, idx) => {
                                 const isUser = m.role === 'user';
                                 return (
