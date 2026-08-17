@@ -6,8 +6,8 @@ import { Calendar } from './calendar';
 import { cn } from '@/lib/utils';
 
 /**
- * DatePicker - A premium, Cyber-Bespoke date selection component.
- * Features: Centered 'Pop-out' modal with backdrop blur for focused selection.
+ * DatePicker — Clean, minimal date selection component.
+ * Click-to-select: choosing a date auto-closes the modal.
  */
 export default function DatePicker({ 
     value, 
@@ -19,6 +19,8 @@ export default function DatePicker({
     minDate,
     className,
     inputClassName,
+    showIcon = true,
+    showChevron = true,
     error
 }) {
     const [isOpen, setIsOpen] = useState(false);
@@ -34,14 +36,14 @@ export default function DatePicker({
         return () => { document.body.style.overflow = ''; };
     }, [isOpen]);
 
-    // Format display date: "April 6, 2026"
-    const displayDate = value ? new Date(value).toLocaleDateString('en-US', {
-        month: 'long',
+    // Format display: "Aug 17, 2026"
+    const displayDate = value ? new Date(value + 'T00:00:00').toLocaleDateString('en-US', {
+        month: 'short',
         day: 'numeric',
         year: 'numeric'
     }) : "";
 
-    // Handle selection: converts Date object to YYYY-MM-DD
+    // Handle selection: converts Date object to YYYY-MM-DD and auto-closes
     const handleSelect = (date) => {
         if (!date) return;
         const year = date.getFullYear();
@@ -54,53 +56,58 @@ export default function DatePicker({
     };
 
     return (
-        <div className={cn("relative flex flex-col gap-1.5", className)} ref={containerRef}>
+        <div className={cn("relative flex flex-col gap-1", className)} ref={containerRef}>
             {label && (
-                <label className="text-[9px] font-black text-gray-400 uppercase tracking-[0.2em] ml-1">
-                    {label} {required && <span className="text-attire-accent">*</span>}
+                <label className="text-[10px] font-semibold text-gray-500 dark:text-white/50 uppercase tracking-wider ml-0.5">
+                    {label} {required && <span className="text-red-400">*</span>}
                 </label>
             )}
             
             <div className="relative group">
-                <CalendarIcon 
-                    size={14} 
-                    className={cn(
-                        "absolute left-4 top-1/2 -translate-y-1/2 transition-colors duration-300",
-                        isOpen ? "text-attire-accent" : "text-gray-400 group-hover:text-gray-300"
-                    )} 
-                />
-                
                 <button
                     type="button"
                     onClick={() => setIsOpen(true)}
                     className={cn(
-                        "w-full bg-black/5 dark:bg-white/5 border rounded-2xl py-3.5 pl-10 pr-10 text-left transition-all duration-300",
-                        "border-black/10 dark:border-white/10 group-hover:border-black/20 dark:group-hover:border-white/20",
-                        isOpen ? "border-attire-accent/50 ring-4 ring-attire-accent/5" : "",
-                        error ? "border-red-500/50" : "",
+                        "w-full bg-black/[0.03] dark:bg-white/[0.04] border rounded-xl py-2 px-3 text-left transition-all duration-200 flex items-center justify-between gap-2",
+                        "border-black/8 dark:border-white/8 hover:border-black/15 dark:hover:border-white/15",
+                        isOpen ? "border-[#0d3542]/30 dark:border-white/20 bg-black/[0.05] dark:bg-white/[0.06]" : "",
+                        error ? "border-red-400/50" : "",
                         inputClassName
                     )}
                 >
-                    <span className={cn(
-                        "text-xs tracking-wider font-mono uppercase",
-                        value ? "text-gray-900 dark:text-white" : "text-gray-400"
-                    )}>
-                        {displayDate || placeholder}
-                    </span>
-                </button>
+                    <div className="flex items-center gap-2 min-w-0">
+                        {showIcon && (
+                            <CalendarIcon 
+                                size={13} 
+                                className={cn(
+                                    "shrink-0 transition-colors duration-200",
+                                    isOpen ? "text-[#0d3542] dark:text-white" : "text-gray-400 dark:text-white/30 group-hover:text-gray-600 dark:group-hover:text-white/50"
+                                )} 
+                            />
+                        )}
+                        <span className={cn(
+                            "text-xs font-semibold tracking-wide truncate",
+                            value ? "text-gray-900 dark:text-white" : "text-gray-400 dark:text-white/40"
+                        )}>
+                            {displayDate || placeholder}
+                        </span>
+                    </div>
 
-                <ChevronDown 
-                    size={14} 
-                    className={cn(
-                        "absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 transition-transform duration-300",
-                        isOpen ? "rotate-180 text-attire-accent" : ""
-                    )} 
-                />
+                    {showChevron && (
+                        <ChevronDown 
+                            size={12} 
+                            className={cn(
+                                "shrink-0 text-gray-400 dark:text-white/30 transition-transform duration-200",
+                                isOpen ? "rotate-180 text-[#0d3542] dark:text-white" : ""
+                            )} 
+                        />
+                    )}
+                </button>
             </div>
 
-            {error && <p className="text-[9px] text-red-500 font-bold uppercase tracking-widest ml-1">{error}</p>}
+            {error && <p className="text-[10px] text-red-400 font-medium ml-0.5">{error}</p>}
 
-            {/* Centered 'Pop-out' Portal */}
+            {/* Calendar Modal Portal */}
             {typeof document !== 'undefined' && createPortal(
                 <AnimatePresence>
                     {isOpen && (
@@ -110,51 +117,58 @@ export default function DatePicker({
                                 initial={{ opacity: 0 }}
                                 animate={{ opacity: 1 }}
                                 exit={{ opacity: 0 }}
+                                transition={{ duration: 0.15 }}
                                 onClick={() => setIsOpen(false)}
-                                className="absolute inset-0 bg-black/40 backdrop-blur-md cursor-pointer"
+                                className="absolute inset-0 bg-black/30 dark:bg-black/50 backdrop-blur-sm cursor-pointer"
                             />
 
-                            {/* Calendar Pop-out */}
+                            {/* Calendar Card */}
                             <motion.div
-                                initial={{ opacity: 0, scale: 0.9, y: 10 }}
+                                initial={{ opacity: 0, scale: 0.95, y: 8 }}
                                 animate={{ opacity: 1, scale: 1, y: 0 }}
-                                exit={{ opacity: 0, scale: 0.9, y: 10 }}
-                                transition={{ type: 'spring', damping: 25, stiffness: 400 }}
-                                className="relative bg-white/95 dark:bg-[#0d1117]/95 backdrop-blur-2xl rounded-[3rem] border border-black/10 dark:border-white/10 shadow-[0_30px_100px_rgba(0,0,0,0.4)] p-5 sm:p-8 overflow-hidden w-full max-w-sm"
+                                exit={{ opacity: 0, scale: 0.95, y: 8 }}
+                                transition={{ type: 'spring', damping: 30, stiffness: 500 }}
+                                className="relative bg-white dark:bg-[#161b22] rounded-2xl border border-black/8 dark:border-white/10 shadow-2xl p-5 w-full max-w-[340px]"
                             >
-                                <div className="flex justify-between items-center mb-6">
-                                    <span className="text-[10px] font-black uppercase tracking-[0.3em] text-gray-400">Select Date</span>
+                                {/* Header */}
+                                <div className="flex justify-between items-center mb-4">
+                                    <div>
+                                        <p className="text-xs font-bold text-gray-900 dark:text-white">Pick a date</p>
+                                        {value && (
+                                            <p className="text-[10px] text-gray-400 dark:text-white/40 mt-0.5 font-medium">
+                                                Selected: {new Date(value + 'T00:00:00').toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' })}
+                                            </p>
+                                        )}
+                                    </div>
                                     <button 
                                         onClick={() => setIsOpen(false)}
-                                        className="p-2.5 bg-black/5 dark:bg-white/5 rounded-full text-gray-400 hover:text-gray-900 dark:hover:text-white transition-all shadow-sm"
+                                        className="p-1.5 rounded-lg bg-black/5 dark:bg-white/5 text-gray-400 hover:text-gray-900 dark:hover:text-white hover:bg-black/10 dark:hover:bg-white/10 transition-all"
                                     >
-                                        <X size={16} />
+                                        <X size={14} />
                                     </button>
                                 </div>
 
+                                {/* Calendar Grid */}
                                 <Calendar
                                     mode="single"
-                                    selected={value ? new Date(value) : undefined}
+                                    selected={value ? new Date(value + 'T00:00:00') : undefined}
                                     onSelect={handleSelect}
-                                    disabled={(date) => minDate ? date < new Date(minDate) : false}
+                                    disabled={(date) => minDate ? date < new Date(minDate + 'T00:00:00') : false}
                                     initialFocus
                                 />
 
-                                {value && (
-                                    <div className="mt-8 pt-6 border-t border-black/5 dark:border-white/5 flex flex-col items-center gap-4">
-                                        <div className="px-6 py-2.5 bg-[#0d3542]/5 dark:bg-[#f5a81c]/5 rounded-full border border-[#0d3542]/10 dark:border-[#f5a81c]/10">
-                                            <span className="text-[10px] font-black uppercase tracking-widest text-[#0d3542] dark:text-[#f5a81c]">
-                                                {new Date(value).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}
-                                            </span>
-                                        </div>
-                                        <button
-                                            onClick={() => setIsOpen(false)}
-                                            className="w-full h-12 bg-[#0d3542] dark:bg-[#f5a81c] text-white dark:text-black rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all hover:scale-[1.02] active:scale-95 shadow-lg shadow-[#0d3542]/20 dark:shadow-[#f5a81c]/20"
-                                        >
-                                            Confirm Selection
-                                        </button>
-                                    </div>
-                                )}
+                                {/* Today shortcut */}
+                                <div className="mt-3 pt-3 border-t border-black/5 dark:border-white/5 flex justify-center">
+                                    <button
+                                        onClick={() => {
+                                            const now = new Date();
+                                            handleSelect(now);
+                                        }}
+                                        className="px-4 py-1.5 text-[10px] font-bold uppercase tracking-wider text-gray-500 dark:text-white/50 hover:text-[#0d3542] dark:hover:text-white bg-black/[0.03] dark:bg-white/[0.04] hover:bg-black/[0.06] dark:hover:bg-white/[0.08] rounded-lg transition-all"
+                                    >
+                                        Today
+                                    </button>
+                                </div>
                             </motion.div>
                         </div>
                     )}

@@ -114,6 +114,130 @@ function renderTableCell(cell) {
     return renderInline(trimmed);
 }
 
+function MarkdownTable({ headers, rows, renderInline, renderTableCell, idKey }) {
+    const [copied, setCopied] = useState(false);
+
+    const generateCsv = () => {
+        const cleanCell = (val) => {
+            if (val === null || val === undefined) return '';
+            let str = String(val).trim();
+            str = str.replace(/\[([^\]]+)\]\([^)]+\)/g, '$1').replace(/[*_`]/g, '');
+            if (str.includes(',') || str.includes('"') || str.includes('\n')) {
+                return `"${str.replace(/"/g, '""')}"`;
+            }
+            return str;
+        };
+
+        const headerLine = headers.map(cleanCell).join(',');
+        const rowLines = rows.map((r) => {
+            const cells = Array.isArray(r.cells) ? r.cells : (Array.isArray(r) ? r : [r]);
+            return cells.map(cleanCell).join(',');
+        });
+        return [headerLine, ...rowLines].join('\n');
+    };
+
+    const handleCopyCsv = () => {
+        const csv = generateCsv();
+        navigator.clipboard.writeText(csv);
+        setCopied(true);
+        setTimeout(() => setCopied(false), 2000);
+    };
+
+    const handleDownloadCsv = () => {
+        const csv = generateCsv();
+        const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.setAttribute('href', url);
+        link.setAttribute('download', `attire_table_export_${Date.now()}.csv`);
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+    };
+
+    return (
+        <div key={idKey} className="my-3.5 overflow-hidden rounded-2xl border border-border/80 dark:border-white/10 bg-card/70 dark:bg-[#161b22]/70 backdrop-blur-md shadow-sm group/table">
+            <div className="flex items-center justify-between px-3.5 py-2 border-b border-border/60 dark:border-white/5 bg-muted/40 dark:bg-white/[0.02]">
+                <div className="flex items-center gap-2 text-[11px] font-medium text-muted-foreground dark:text-white/50">
+                    <span className="font-mono">{rows.length} {rows.length === 1 ? 'record' : 'records'}</span>
+                </div>
+                <div className="flex items-center gap-1.5 opacity-80 group-hover/table:opacity-100 transition-opacity">
+                    <button
+                        type="button"
+                        onClick={handleCopyCsv}
+                        className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-[11px] font-medium bg-background/80 dark:bg-white/5 hover:bg-muted dark:hover:bg-white/10 text-muted-foreground hover:text-foreground dark:text-white/60 dark:hover:text-white border border-border/50 dark:border-white/10 transition-colors shadow-xs active:scale-95"
+                        title="Copy as CSV"
+                    >
+                        {copied ? <Check size={11} className="text-emerald-500" /> : <Copy size={11} />}
+                        <span>{copied ? 'Copied CSV' : 'Copy CSV'}</span>
+                    </button>
+                    <button
+                        type="button"
+                        onClick={handleDownloadCsv}
+                        className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-[11px] font-medium bg-background/80 dark:bg-white/5 hover:bg-muted dark:hover:bg-white/10 text-muted-foreground hover:text-foreground dark:text-white/60 dark:hover:text-white border border-border/50 dark:border-white/10 transition-colors shadow-xs active:scale-95"
+                        title="Download CSV file"
+                    >
+                        <Download size={11} />
+                        <span>Export CSV</span>
+                    </button>
+                </div>
+            </div>
+            <div className="overflow-x-auto max-w-full">
+                <table className="w-full min-w-[620px] text-left text-xs sm:text-[13px] border-collapse">
+                    <thead className="border-b border-border/80 dark:border-white/10 bg-muted/60 dark:bg-white/[0.04] text-[11px] font-bold uppercase tracking-wider text-muted-foreground dark:text-white/60">
+                        <tr>
+                            {headers.map((cell, cIdx) => (
+                                <th key={cIdx} className="px-4 py-3 font-semibold whitespace-nowrap">
+                                    {renderInline ? renderInline(cell) : cell}
+                                </th>
+                            ))}
+                        </tr>
+                    </thead>
+                    <tbody className="divide-y divide-border/40 dark:divide-white/5 font-sans">
+                        {rows.map((row, rIdx) => {
+                            const cells = Array.isArray(row.cells) ? row.cells : (Array.isArray(row) ? row : [row]);
+                            return (
+                                <tr key={rIdx} className="hover:bg-muted/40 dark:hover:bg-white/[0.03] transition-colors even:bg-muted/20 dark:even:bg-white/[0.015]">
+                                    {cells.map((cell, cIdx) => (
+                                        <td key={cIdx} className="px-4 py-2.5 text-foreground/90 dark:text-white/90">
+                                            {renderTableCell ? renderTableCell(cell) : cell}
+                                        </td>
+                                    ))}
+                                </tr>
+                            );
+                        })}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    );
+}
+
+/**
+ * Generate contextual follow-up prompt chips based on the last message content.
+ */
+function getFollowUpChips(content) {
+    const text = (content || '').toLowerCase();
+    const chips = [];
+    if (text.includes('product') || text.includes('stock') || text.includes('inventory') || text.includes('item')) {
+        chips.push({ label: 'Check low stock items', prompt: 'List all products that are currently low in stock or out of stock.' });
+        chips.push({ label: 'Search suits & tuxedos', prompt: 'Search for all suit, tuxedo, and blazer products in inventory.' });
+    } else if (text.includes('sales') || text.includes('order') || text.includes('revenue') || text.includes('invoice')) {
+        chips.push({ label: "Today's sales breakdown", prompt: "Give me a detailed breakdown of today's orders, revenue, and refunds." });
+        chips.push({ label: 'Monthly sales target', prompt: 'Show current month sales target and actual performance.' });
+    } else if (text.includes('customer') || text.includes('client') || text.includes('profile')) {
+        chips.push({ label: 'Recent customers', prompt: 'Search and list recently active customers.' });
+        chips.push({ label: 'Gift requests', prompt: 'List any pending or processing customer gift requests.' });
+    } else if (text.includes('appointment') || text.includes('fitting') || text.includes('bespoke')) {
+        chips.push({ label: 'Today’s appointments', prompt: 'What appointments are scheduled or pending for today?' });
+        chips.push({ label: 'Alteration orders', prompt: 'Show all tailoring and alteration orders.' });
+    } else {
+        chips.push({ label: "Today's pulse", prompt: "Show me today's overview stats, revenue, and order volume." });
+        chips.push({ label: 'Low stock watchlist', prompt: 'List all active products that are low in stock or out of stock.' });
+    }
+    return chips.slice(0, 2);
+}
+
 /**
  * Custom Markdown parser for tables, lists, bold text, inline code, and alert boxes.
  */
@@ -140,32 +264,14 @@ function MarkdownRenderer({ content, isStreaming = false }) {
         const bodyRows = tableRows.slice(1).filter((r) => !r.isSeparator);
 
         elements.push(
-            <div key={`table-${key}`} className="my-3.5 overflow-hidden rounded-2xl border border-border/80 dark:border-white/10 bg-card/70 dark:bg-[#161b22]/70 backdrop-blur-md shadow-sm">
-                <div className="overflow-x-auto max-w-full">
-                    <table className="w-full min-w-[620px] text-left text-xs sm:text-[13px] border-collapse">
-                        <thead className="border-b border-border/80 dark:border-white/10 bg-muted/60 dark:bg-white/[0.04] text-[11px] font-bold uppercase tracking-wider text-muted-foreground dark:text-white/60">
-                            <tr>
-                                {headerRow.cells.map((cell, cIdx) => (
-                                    <th key={cIdx} className="px-4 py-3 font-semibold whitespace-nowrap">
-                                        {renderInline(cell)}
-                                    </th>
-                                ))}
-                            </tr>
-                        </thead>
-                        <tbody className="divide-y divide-border/40 dark:divide-white/5 font-sans">
-                            {bodyRows.map((row, rIdx) => (
-                                <tr key={rIdx} className="hover:bg-muted/40 dark:hover:bg-white/[0.03] transition-colors even:bg-muted/20 dark:even:bg-white/[0.015]">
-                                    {row.cells.map((cell, cIdx) => (
-                                        <td key={cIdx} className="px-4 py-2.5 text-foreground/90 dark:text-white/90">
-                                            {renderTableCell(cell)}
-                                        </td>
-                                    ))}
-                                </tr>
-                            ))}
-                        </tbody>
-                    </table>
-                </div>
-            </div>
+            <MarkdownTable
+                key={`table-${key}`}
+                idKey={`table-${key}`}
+                headers={headerRow.cells}
+                rows={bodyRows}
+                renderInline={renderInline}
+                renderTableCell={renderTableCell}
+            />
         );
         tableRows = [];
         inTable = false;
@@ -187,32 +293,14 @@ function MarkdownRenderer({ content, isStreaming = false }) {
             const headerCells = defaultHeaders.slice(0, colCount);
 
             elements.push(
-                <div key={`pipe-table-${key}`} className="my-3.5 overflow-hidden rounded-2xl border border-border/80 dark:border-white/10 bg-card/70 dark:bg-[#161b22]/70 backdrop-blur-md shadow-sm">
-                    <div className="overflow-x-auto max-w-full">
-                        <table className="w-full min-w-[620px] text-left text-xs sm:text-[13px] border-collapse">
-                            <thead className="border-b border-border/80 dark:border-white/10 bg-muted/60 dark:bg-white/[0.04] text-[11px] font-bold uppercase tracking-wider text-muted-foreground dark:text-white/60">
-                                <tr>
-                                    {headerCells.map((h, hIdx) => (
-                                        <th key={hIdx} className="px-4 py-3 font-semibold whitespace-nowrap">
-                                            {h}
-                                        </th>
-                                    ))}
-                                </tr>
-                            </thead>
-                            <tbody className="divide-y divide-border/40 dark:divide-white/5 font-sans">
-                                {rows.map((r, rIdx) => (
-                                    <tr key={rIdx} className="hover:bg-muted/40 dark:hover:bg-white/[0.03] transition-colors even:bg-muted/20 dark:even:bg-white/[0.015]">
-                                        {r.map((cell, cIdx) => (
-                                            <td key={cIdx} className="px-4 py-2.5 text-foreground/90 dark:text-white/90">
-                                                {renderTableCell(cell)}
-                                            </td>
-                                        ))}
-                                    </tr>
-                                ))}
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
+                <MarkdownTable
+                    key={`pipe-table-${key}`}
+                    idKey={`pipe-table-${key}`}
+                    headers={headerCells}
+                    rows={rows}
+                    renderInline={renderInline}
+                    renderTableCell={renderTableCell}
+                />
             );
             listItems = [];
             inList = false;
@@ -352,6 +440,9 @@ export default function AiAgentChat() {
     });
 
     const [inputValue, setInputValue] = useState('');
+    const [promptHistory, setPromptHistory] = useState([]);
+    const [historyIndex, setHistoryIndex] = useState(-1);
+    const [draftInput, setDraftInput] = useState('');
     const [loading, setLoading] = useState(false);
     const [thinkingText, setThinkingText] = useState('Evaluating query and preparing tools...');
     const [liveTools, setLiveTools] = useState([]);
@@ -524,6 +615,13 @@ export default function AiAgentChat() {
         const timeStr = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
         const next = [...messages, { role: 'user', content: enrichedText, timestamp: timeStr }];
 
+        setPromptHistory((prev) => {
+            const filtered = prev.filter((p) => p !== text);
+            return [text, ...filtered].slice(0, 50);
+        });
+        setHistoryIndex(-1);
+        setDraftInput('');
+
         setInputValue('');
         setUploadedFiles([]);
         if (textareaRef.current) {
@@ -540,6 +638,7 @@ export default function AiAgentChat() {
         abortRef.current = controller;
 
         const token = localStorage.getItem('admin_token') || sessionStorage.getItem('admin_token');
+        const activeOutlet = localStorage.getItem('admin_outlet_slug') || 'attire_lounge';
 
         try {
             // Use native fetch with SSE streaming for real-time tool call tracking
@@ -553,18 +652,20 @@ export default function AiAgentChat() {
                 },
                 body: JSON.stringify({
                     messages: next.map(({ role, content }) => ({ role, content })),
-                    language: language,
+                    language,
                     stream: true,
+                    search_enabled: searchEnabled,
+                    deep_research: deepResearchEnabled,
+                    reasoning: reasonEnabled,
                 }),
                 signal: controller.signal,
             });
 
             if (!response.ok) {
-                const errBody = await response.text();
-                throw new Error(`HTTP ${response.status}: ${errBody.slice(0, 300)}`);
+                const errorData = await response.json().catch(() => ({}));
+                throw new Error(errorData.message || `HTTP error ${response.status}`);
             }
 
-            // Parse SSE stream from response body
             const reader = response.body.getReader();
             const decoder = new TextDecoder();
             let buffer = '';
@@ -572,102 +673,88 @@ export default function AiAgentChat() {
             let finalToolCalls = [];
 
             while (true) {
-                const { done, value } = await reader.read();
+                const { value, done } = await reader.read();
                 if (done) break;
 
                 buffer += decoder.decode(value, { stream: true });
-
-                // Parse SSE lines from buffer
                 const lines = buffer.split('\n');
-                buffer = lines.pop() || ''; // keep incomplete line in buffer
+                buffer = lines.pop(); // Keep the remaining unfinished line
 
-                let currentEvent = '';
                 for (const line of lines) {
-                    if (line.startsWith('event: ')) {
-                        currentEvent = line.slice(7).trim();
-                    } else if (line.startsWith('data: ')) {
-                        const rawData = line.slice(6);
-                        let eventData;
-                        try {
-                            eventData = JSON.parse(rawData);
-                        } catch {
-                            continue;
-                        }
+                    const trimmed = line.trim();
+                    if (!trimmed || !trimmed.startsWith('data:')) continue;
 
-                        const eventType = currentEvent || eventData.type || 'message';
+                    const jsonStr = trimmed.slice(5).trim();
+                    if (!jsonStr) continue;
 
-                        if (eventType === 'tool_start') {
+                    try {
+                        const eventData = JSON.parse(jsonStr);
+
+                        if (eventData.type === 'status') {
+                            setThinkingText(eventData.message || 'Thinking...');
+                        } else if (eventData.type === 'tool_start') {
                             setLiveTools((prev) => [
                                 ...prev,
                                 {
                                     name: eventData.name,
-                                    args: eventData.args || {},
+                                    args: eventData.args,
                                     status: 'running',
+                                    started_at: Date.now(),
                                     tool_call_id: eventData.tool_call_id,
-                                },
+                                }
                             ]);
-                            setThinkingText(`Executing ${eventData.name}...`);
-                        } else if (eventType === 'tool_end') {
+                        } else if (eventData.type === 'tool_end') {
                             setLiveTools((prev) =>
                                 prev.map((t) =>
                                     (t.tool_call_id === eventData.tool_call_id || t.name === eventData.name) && t.status === 'running'
                                         ? {
                                               ...t,
-                                              status: 'completed',
+                                              status: 'done',
                                               duration_ms: eventData.duration_ms,
                                               summary: eventData.summary,
                                           }
                                         : t
                                 )
                             );
-                        } else if (eventType === 'status') {
-                            setThinkingText(eventData.message || '');
-                        } else if (eventType === 'done') {
+                        } else if (eventData.type === 'done') {
                             finalReply = eventData.reply || '';
                             finalToolCalls = eventData.tool_calls || [];
-                        } else if (eventType === 'error') {
-                            finalReply = `⚠️ **Error**: ${eventData.message || 'Unknown error'}`;
+                        } else if (eventData.type === 'error') {
+                            throw new Error(eventData.message || 'An error occurred during AI processing.');
                         }
-
-                        currentEvent = '';
+                    } catch (err) {
+                        // Skip malformed individual SSE events
                     }
                 }
             }
 
-            // Finalize response
-            const fullReply = (finalReply && finalReply.trim() !== '')
-                ? finalReply
-                : 'I have processed the request, but no summary content was generated. Please ask for specific details or next page.';
-            const resTime = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-
-            setLoading(false);
-            setLiveTools([]);
-
-            // Show the full reply instantly (no typing or streaming text animation)
-            setMessages((m) => [
-                ...m,
+            // Append final assistant response
+            const assistantTime = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+            setMessages((prev) => [
+                ...prev,
                 {
                     role: 'assistant',
-                    content: fullReply,
-                    toolCalls: finalToolCalls,
-                    isStreaming: false,
-                    timestamp: resTime,
+                    content: finalReply || 'I processed your request, but received an empty response.',
+                    timestamp: assistantTime,
+                    tool_calls: finalToolCalls,
                 },
             ]);
-        } catch (e) {
-            setLoading(false);
-            setLiveTools([]);
-            if (e?.name === 'AbortError') return;
-            const errorMsg = e?.message || 'Could not reach the AI assistant.';
+        } catch (error) {
+            if (error.name === 'AbortError') return;
+            const errorMsg = error.message || 'Failed to communicate with AI Agent.';
             toast.error(errorMsg);
-            setMessages((m) => [
-                ...m,
+            setMessages((prev) => [
+                ...prev,
                 {
                     role: 'assistant',
                     content: `⚠️ **Request Error**: ${errorMsg}`,
                     timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
                 },
             ]);
+        } finally {
+            setLoading(false);
+            setLiveTools([]);
+            abortRef.current = null;
         }
     };
 
@@ -675,6 +762,32 @@ export default function AiAgentChat() {
         if (e.key === 'Enter' && !e.shiftKey) {
             e.preventDefault();
             handleSendMessage();
+            return;
+        }
+
+        // Terminal-style prompt history navigation
+        if (e.key === 'ArrowUp') {
+            const isAtStart = textareaRef.current?.selectionStart === 0 && textareaRef.current?.selectionEnd === 0;
+            if (isAtStart && promptHistory.length > 0) {
+                e.preventDefault();
+                if (historyIndex === -1) {
+                    setDraftInput(inputValue);
+                }
+                const nextIdx = Math.min(historyIndex + 1, promptHistory.length - 1);
+                setHistoryIndex(nextIdx);
+                setInputValue(promptHistory[nextIdx]);
+            }
+        } else if (e.key === 'ArrowDown') {
+            if (historyIndex >= 0) {
+                e.preventDefault();
+                const nextIdx = historyIndex - 1;
+                setHistoryIndex(nextIdx);
+                if (nextIdx === -1) {
+                    setInputValue(draftInput);
+                } else {
+                    setInputValue(promptHistory[nextIdx]);
+                }
+            }
         }
     };
 
@@ -821,7 +934,7 @@ export default function AiAgentChat() {
                 ref={listRef}
                 className="flex-1 overflow-y-auto overflow-x-hidden scroll-smooth"
             >
-                <div className="mx-auto max-w-4xl lg:max-w-5xl w-full px-4 sm:px-8 py-8 min-h-full flex flex-col justify-between">
+                <div className="mx-auto max-w-4xl lg:max-w-5xl w-full px-4 sm:px-8 py-6 min-h-full flex flex-col justify-start">
                     {/* Empty State Hero */}
                     {messages.length === 0 ? (
                         <div className="my-auto py-8 flex flex-col items-center text-center">
@@ -851,7 +964,10 @@ export default function AiAgentChat() {
                                             animate={{ opacity: 1, y: 0 }}
                                             transition={{ delay: idx * 0.05 }}
                                             type="button"
-                                            onClick={() => handleSendMessage(item.prompt)}
+                                            onClick={() => {
+                                                setInputValue(item.prompt);
+                                                textareaRef.current?.focus();
+                                            }}
                                             className="group flex items-start gap-3.5 rounded-2xl border border-border/80 dark:border-white/10 bg-card/70 dark:bg-[#161b22]/70 p-4.5 transition-all hover:border-primary/50 dark:hover:border-white/25 hover:bg-card dark:hover:bg-[#161b22] hover:shadow-lg active:scale-[0.98]"
                                         >
                                             <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-muted dark:bg-white/5 text-foreground dark:text-white group-hover:text-primary transition-colors">
@@ -962,23 +1078,43 @@ export default function AiAgentChat() {
                                                             <Trash2 size={13} />
                                                         </button>
                                                     </div>
+
+                                                    {/* Dynamic Contextual Follow-up Prompt Chips */}
+                                                    {idx === messages.length - 1 && !loading && (
+                                                        <div className="mt-3 flex flex-wrap items-center gap-2">
+                                                            {getFollowUpChips(m.content).map((chip, cIdx) => (
+                                                                <button
+                                                                    key={cIdx}
+                                                                    type="button"
+                                                                    onClick={() => {
+                                                                        setInputValue(chip.prompt);
+                                                                        textareaRef.current?.focus();
+                                                                    }}
+                                                                    className="inline-flex items-center gap-1.5 rounded-xl border border-border/70 dark:border-white/10 bg-card/60 dark:bg-white/[0.03] hover:bg-card dark:hover:bg-[#161b22] px-3 py-1.5 text-xs font-medium text-foreground/80 dark:text-white/80 hover:text-primary dark:hover:text-primary hover:border-primary/40 dark:hover:border-primary/40 transition-all shadow-xs active:scale-95"
+                                                                >
+                                                                    <Sparkles size={11} className="text-primary/70" />
+                                                                    <span>{chip.label}</span>
+                                                                </button>
+                                                            ))}
+                                                        </div>
+                                                    )}
                                                 </div>
                                             </div>
                                         )}
                                     </motion.div>
                                 );
                             })}
-                        </div>
-                    )}
 
-                    {/* Reasoning / Thinking Indicator */}
-                    {loading && (
-                        <div className="py-2 px-1">
-                            <AIThinkingBlock
-                                outletName={outletInfo.label}
-                                thinkingText={thinkingText}
-                                liveTools={liveTools}
-                            />
+                            {/* Reasoning / Thinking Indicator — directly below the latest message */}
+                            {loading && (
+                                <div className="py-1 px-1">
+                                    <AIThinkingBlock
+                                        outletName={outletInfo.label}
+                                        thinkingText={thinkingText}
+                                        liveTools={liveTools}
+                                    />
+                                </div>
+                            )}
                         </div>
                     )}
 
