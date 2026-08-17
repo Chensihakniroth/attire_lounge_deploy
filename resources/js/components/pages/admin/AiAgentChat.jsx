@@ -653,6 +653,7 @@ export default function AiAgentChat() {
                 body: JSON.stringify({
                     messages: next.map(({ role, content }) => ({ role, content })),
                     language,
+                    outlet: activeOutlet || 'attire_lounge',
                     stream: true,
                     search_enabled: searchEnabled,
                     deep_research: deepResearchEnabled,

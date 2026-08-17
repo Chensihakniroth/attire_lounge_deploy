@@ -30,10 +30,11 @@ class AiAgentController extends Controller
 
         $messages = $data['messages'];
         $language = $data['language'] ?? 'en';
+        $outlet   = $request->header('X-Active-Outlet') ?: $request->input('outlet', 'attire_lounge');
         $stream   = $request->boolean('stream', false) || $request->header('Accept') === 'text/event-stream';
 
         if ($stream) {
-            return response()->stream(function () use ($messages, $language) {
+            return response()->stream(function () use ($messages, $language, $outlet) {
                 @ini_set('output_buffering', 'off');
                 @ini_set('zlib.output_compression', '0');
                 while (ob_get_level()) {
@@ -50,7 +51,7 @@ class AiAgentController extends Controller
                     @flush();
                 };
 
-                $this->agent->chat($messages, $language, function ($evt) use ($sendEvent) {
+                $this->agent->chat($messages, $language, $outlet, function ($evt) use ($sendEvent) {
                     $sendEvent($evt['type'] ?? 'message', $evt);
                 });
             }, 200, [
@@ -61,7 +62,7 @@ class AiAgentController extends Controller
             ]);
         }
 
-        $result = $this->agent->chat($messages, $language);
+        $result = $this->agent->chat($messages, $language, $outlet);
 
         return response()->json([
             'success'    => true,

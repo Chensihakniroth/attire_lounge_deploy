@@ -38,17 +38,17 @@ class BusinessDataTools
     {
         $json = <<<'JSON'
 [
-  {"type":"function","function":{"name":"get_stats","description":"Today's key metrics for the active outlet: product count, low/out-of-stock counts, orders today, revenue, appointments today, customers and newsletter subscribers.","parameters":{"type":"object","properties":{},"required":[]}}},
-  {"type":"function","function":{"name":"search_products","description":"Search POS products (outlet-scoped) by name, SKU or variant. Supports pagination and large batch limits up to 500 items.","parameters":{"type":"object","properties":{"query":{"type":"string"},"category":{"type":"string"},"limit":{"type":"integer","minimum":1,"maximum":500},"page":{"type":"integer","minimum":1}},"required":[]}}},
+  {"type":"function","function":{"name":"get_stats","description":"Today's key metrics for the active outlet or a specified outlet: product count, low/out-of-stock counts, orders today, revenue, appointments today, customers and newsletter subscribers.","parameters":{"type":"object","properties":{"outlet":{"type":"string","description":"Optional outlet slug: 'caffeine', 'kravat', or 'attire_lounge'. Defaults to active outlet."}},"required":[]}}},
+  {"type":"function","function":{"name":"search_products","description":"Search POS products (outlet-scoped or specified outlet) by name, SKU or variant. Supports pagination and large batch limits up to 500 items.","parameters":{"type":"object","properties":{"query":{"type":"string"},"category":{"type":"string"},"outlet":{"type":"string","description":"Optional outlet slug: 'caffeine', 'kravat', or 'attire_lounge'."},"limit":{"type":"integer","minimum":1,"maximum":500},"page":{"type":"integer","minimum":1}},"required":[]}}},
   {"type":"function","function":{"name":"get_product","description":"Fetch a single POS product by ID.","parameters":{"type":"object","properties":{"id":{"type":"integer"}},"required":["id"]}}},
   {"type":"function","function":{"name":"update_product","description":"Update a POS product price, stock_qty, min_stock or is_active. Only these fields may change.","parameters":{"type":"object","properties":{"id":{"type":"integer"},"price":{"type":"number","minimum":0},"stock_qty":{"type":"integer","minimum":0},"min_stock":{"type":"integer","minimum":0},"is_active":{"type":"boolean"}},"required":["id"],"additionalProperties":false}}},
-  {"type":"function","function":{"name":"list_low_stock","description":"List active products that are low in stock (stock <= min_stock) or completely out of stock (stock <= 0) with individual item details. Supports filtering by query/category, pagination (page parameter) and batch limits up to 500 items.","parameters":{"type":"object","properties":{"query":{"type":"string","description":"Filter by product name, SKU or variant"},"category":{"type":"string","description":"Filter by product category"},"include_out_of_stock":{"type":"boolean","description":"Whether to list out-of-stock items (default: true)"},"out_of_stock_only":{"type":"boolean","description":"Filter to only show out-of-stock items"},"limit":{"type":"integer","minimum":1,"maximum":500},"page":{"type":"integer","minimum":1}},"required":[]}}},
+  {"type":"function","function":{"name":"list_low_stock","description":"List active products that are low in stock (stock <= min_stock) or completely out of stock (stock <= 0) with individual item details. Supports filtering by query/category, pagination (page parameter) and batch limits up to 500 items.","parameters":{"type":"object","properties":{"query":{"type":"string","description":"Filter by product name, SKU or variant"},"category":{"type":"string","description":"Filter by product category"},"outlet":{"type":"string","description":"Optional outlet slug: 'caffeine', 'kravat', or 'attire_lounge'."},"include_out_of_stock":{"type":"boolean","description":"Whether to list out-of-stock items (default: true)"},"out_of_stock_only":{"type":"boolean","description":"Filter to only show out-of-stock items"},"limit":{"type":"integer","minimum":1,"maximum":500},"page":{"type":"integer","minimum":1}},"required":[]}}},
   {"type":"function","function":{"name":"search_customers","description":"Search customer profiles by name or phone number. Supports pagination (page) and limit up to 500.","parameters":{"type":"object","properties":{"query":{"type":"string"},"limit":{"type":"integer","minimum":1,"maximum":500},"page":{"type":"integer","minimum":1}},"required":[]}}},
   {"type":"function","function":{"name":"get_customer","description":"Fetch a customer profile by ID.","parameters":{"type":"object","properties":{"id":{"type":"integer"}},"required":["id"]}}},
   {"type":"function","function":{"name":"get_customer_order_history","description":"Fetch complete order history, past invoices and lifetime spending summary for a customer.","parameters":{"type":"object","properties":{"customer_id":{"type":"integer"},"limit":{"type":"integer","minimum":1,"maximum":500},"page":{"type":"integer","minimum":1}},"required":["customer_id"]}}},
-  {"type":"function","function":{"name":"get_daily_sales","description":"Daily sales summary for a date (defaults today): completed orders, revenue and refunds.","parameters":{"type":"object","properties":{"date":{"type":"string"}},"required":[]}}},
-  {"type":"function","function":{"name":"list_daily_report","description":"Fetch comprehensive daily sales report including total revenue, net revenue, refunds, top-selling products and category breakdown.","parameters":{"type":"object","properties":{"date":{"type":"string"},"end_date":{"type":"string"}},"required":[]}}},
-  {"type":"function","function":{"name":"list_orders","description":"List POS invoices and orders filtered by status, specific single date, date range (start_date to end_date), or search keyword (invoice # or customer). Supports pagination and limit up to 500.","parameters":{"type":"object","properties":{"status":{"type":"string","description":"Order status e.g. completed, pending, refunded, void"},"date":{"type":"string","description":"Single date YYYY-MM-DD"},"start_date":{"type":"string","description":"Start date of date range YYYY-MM-DD"},"end_date":{"type":"string","description":"End date of date range YYYY-MM-DD"},"query":{"type":"string","description":"Search by invoice number or customer name/phone"},"limit":{"type":"integer","minimum":1,"maximum":500},"page":{"type":"integer","minimum":1}},"required":[]}}},
+  {"type":"function","function":{"name":"get_daily_sales","description":"Daily sales summary for a date (defaults today): completed orders, revenue and refunds for the active or specified outlet.","parameters":{"type":"object","properties":{"date":{"type":"string"},"outlet":{"type":"string","description":"Optional outlet slug: 'caffeine', 'kravat', or 'attire_lounge'."}},"required":[]}}},
+  {"type":"function","function":{"name":"list_daily_report","description":"Fetch comprehensive daily/period sales report including total revenue, net revenue, refunds, top-selling products and category breakdown for the active or specified outlet.","parameters":{"type":"object","properties":{"date":{"type":"string","description":"Start date YYYY-MM-DD"},"end_date":{"type":"string","description":"Optional end date YYYY-MM-DD for date ranges or monthly top sellers"},"outlet":{"type":"string","description":"Optional outlet slug: 'caffeine', 'kravat', or 'attire_lounge'."}},"required":[]}}},
+  {"type":"function","function":{"name":"list_orders","description":"List POS invoices and orders filtered by status, specific single date, date range (start_date to end_date), or search keyword (invoice # or customer). Supports pagination and limit up to 500.","parameters":{"type":"object","properties":{"status":{"type":"string","description":"Order status e.g. completed, pending, refunded, void"},"date":{"type":"string","description":"Single date YYYY-MM-DD"},"start_date":{"type":"string","description":"Start date of date range YYYY-MM-DD"},"end_date":{"type":"string","description":"End date of date range YYYY-MM-DD"},"query":{"type":"string","description":"Search by invoice number or customer name/phone"},"outlet":{"type":"string","description":"Optional outlet slug: 'caffeine', 'kravat', or 'attire_lounge'."},"limit":{"type":"integer","minimum":1,"maximum":500},"page":{"type":"integer","minimum":1}},"required":[]}}},
   {"type":"function","function":{"name":"get_invoice_detail","description":"Fetch detailed POS invoice breakdown (items, payments, discounts, refunds, customer info) by invoice ID or invoice_number.","parameters":{"type":"object","properties":{"id":{"type":"integer"},"invoice_number":{"type":"string"}},"required":[]}}},
   {"type":"function","function":{"name":"create_pos_refund","description":"Process a refund for a completed POS invoice (full or partial by item ID and quantity). Automatically restores product stock.","parameters":{"type":"object","properties":{"invoice_id":{"type":"integer"},"type":{"type":"string","enum":["full","partial"]},"invoice_item_id":{"type":"integer"},"quantity":{"type":"integer","minimum":1},"reason":{"type":"string"}},"required":["invoice_id"]}}},
   {"type":"function","function":{"name":"search_gift_requests","description":"Search and list customer gift requests filtered by query or status. Supports pagination (page) and limit up to 500.","parameters":{"type":"object","properties":{"query":{"type":"string"},"status":{"type":"string"},"limit":{"type":"integer","minimum":1,"maximum":500},"page":{"type":"integer","minimum":1}},"required":[]}}},
@@ -58,7 +58,7 @@ class BusinessDataTools
   {"type":"function","function":{"name":"get_altering_order","description":"Fetch full details for a single tailoring/altering order by ID.","parameters":{"type":"object","properties":{"id":{"type":"integer"}},"required":["id"]}}},
   {"type":"function","function":{"name":"update_altering_status","description":"Update an altering order status, tailor pickup status, customer pickup status, or remark.","parameters":{"type":"object","properties":{"id":{"type":"integer"},"status":{"type":"string"},"pickup_status":{"type":"string"},"customer_pickup_status":{"type":"string"},"remark":{"type":"string"}},"required":["id"]}}},
   {"type":"function","function":{"name":"search_promocodes","description":"Search discount promo codes by code or name. Supports pagination (page) and limit up to 500.","parameters":{"type":"object","properties":{"query":{"type":"string"},"limit":{"type":"integer","minimum":1,"maximum":500},"page":{"type":"integer","minimum":1}},"required":[]}}},
-  {"type":"function","function":{"name":"get_sales_target","description":"Fetch monthly sales target vs actual revenue performance for the active outlet.","parameters":{"type":"object","properties":{"year":{"type":"integer","minimum":2000,"maximum":2100},"month":{"type":"integer","minimum":1,"maximum":12}},"required":[]}}},
+  {"type":"function","function":{"name":"get_sales_target","description":"Fetch monthly sales target vs actual revenue performance for the active or specified outlet.","parameters":{"type":"object","properties":{"year":{"type":"integer","minimum":2000,"maximum":2100},"month":{"type":"integer","minimum":1,"maximum":12},"outlet":{"type":"string","description":"Optional outlet slug: 'caffeine', 'kravat', or 'attire_lounge'."}},"required":[]}}},
   {"type":"function","function":{"name":"list_notifications","description":"List system notifications and alerts with unread count. Supports pagination (page) and limit up to 500.","parameters":{"type":"object","properties":{"unread_only":{"type":"boolean"},"type":{"type":"string"},"limit":{"type":"integer","minimum":1,"maximum":500},"page":{"type":"integer","minimum":1}},"required":[]}}},
   {"type":"function","function":{"name":"list_activities","description":"List recent system activity audit logs. Supports pagination (page) and limit up to 500.","parameters":{"type":"object","properties":{"action":{"type":"string"},"model_type":{"type":"string"},"limit":{"type":"integer","minimum":1,"maximum":500},"page":{"type":"integer","minimum":1}},"required":[]}}},
   {"type":"function","function":{"name":"list_appointments","description":"List appointments filtered by status and/or date. Supports pagination (page) and limit up to 500.","parameters":{"type":"object","properties":{"status":{"type":"string","enum":["pending","confirmed","done","cancelled"]},"date":{"type":"string"},"limit":{"type":"integer","minimum":1,"maximum":500},"page":{"type":"integer","minimum":1}},"required":[]}}},
@@ -71,7 +71,7 @@ class BusinessDataTools
   {"type":"function","function":{"name":"update_gift_item_stock","description":"Update a gift item stock out-of-stock flag.","parameters":{"type":"object","properties":{"id":{"type":"integer"},"is_out_of_stock":{"type":"boolean"}},"required":["id"],"additionalProperties":false}}},
   {"type":"function","function":{"name":"list_telegram_subscribers","description":"List Telegram subscribers (chat id, type, title, active). Supports pagination (page) and limit up to 500.","parameters":{"type":"object","properties":{"limit":{"type":"integer","minimum":1,"maximum":500},"page":{"type":"integer","minimum":1}},"required":[]}}},
   {"type":"function","function":{"name":"bulk_update_products","description":"Update the same allowed fields (price, stock_qty, min_stock, is_active) across multiple POS products by id in a single transaction (max 50 ids).","parameters":{"type":"object","properties":{"ids":{"type":"array","items":{"type":"integer"},"minItems":1,"maxItems":50},"price":{"type":"number","minimum":0},"stock_qty":{"type":"integer","minimum":0},"min_stock":{"type":"integer","minimum":0},"is_active":{"type":"boolean"}},"required":["ids"],"additionalProperties":false}}},
-  {"type":"function","function":{"name":"compare_sales","description":"Compare sales performance of a period (daily/weekly/monthly) against a previous comparison period. Returns revenue, refunds, net revenue, orders and AOV with deltas.","parameters":{"type":"object","properties":{"period":{"type":"string","enum":["daily","weekly","monthly"]},"date":{"type":"string","description":"Anchor date YYYY-MM-DD (defaults today)"},"compare":{"type":"string","enum":["previous","same_last_week","same_last_month","same_last_year"],"description":"Which prior period to compare against (defaults previous)"}},"required":[]}}}
+  {"type":"function","function":{"name":"compare_sales","description":"Compare sales performance of a period (daily/weekly/monthly) against a previous comparison period for the active or specified outlet. Returns revenue, refunds, net revenue, orders and AOV with deltas.","parameters":{"type":"object","properties":{"period":{"type":"string","enum":["daily","weekly","monthly"]},"date":{"type":"string","description":"Anchor date YYYY-MM-DD (defaults today)"},"compare":{"type":"string","enum":["previous","same_last_week","same_last_month","same_last_year"],"description":"Which prior period to compare against (defaults previous)"},"outlet":{"type":"string","description":"Optional outlet slug: 'caffeine', 'kravat', or 'attire_lounge'."}},"required":[]}}}
 ]
 JSON;
         $defs = json_decode($json, true);
@@ -164,16 +164,17 @@ JSON;
         };
 
         return match ($ruleName) {
-            'search_products'             => ['query' => 'nullable|string', 'category' => 'nullable|string', 'limit' => "nullable|integer|min:1|max:$max", 'page' => 'nullable|integer|min:1'],
+            'get_stats'                   => ['outlet' => 'nullable|string'],
+            'search_products'             => ['query' => 'nullable|string', 'category' => 'nullable|string', 'outlet' => 'nullable|string', 'limit' => "nullable|integer|min:1|max:$max", 'page' => 'nullable|integer|min:1'],
             'get_product'                 => ['id' => 'required|integer|min:1'],
             'update_product'              => ['id' => 'required|integer|min:1', 'price' => 'nullable|numeric|min:0', 'stock_qty' => 'nullable|integer|min:0', 'min_stock' => 'nullable|integer|min:0', 'is_active' => 'nullable|boolean'],
-            'list_low_stock'              => ['query' => 'nullable|string', 'category' => 'nullable|string', 'include_out_of_stock' => 'nullable|boolean', 'out_of_stock_only' => 'nullable|boolean', 'limit' => "nullable|integer|min:1|max:$max", 'page' => 'nullable|integer|min:1'],
+            'list_low_stock'              => ['query' => 'nullable|string', 'category' => 'nullable|string', 'outlet' => 'nullable|string', 'include_out_of_stock' => 'nullable|boolean', 'out_of_stock_only' => 'nullable|boolean', 'limit' => "nullable|integer|min:1|max:$max", 'page' => 'nullable|integer|min:1'],
             'search_customers'            => ['query' => 'nullable|string', 'limit' => "nullable|integer|min:1|max:$max", 'page' => 'nullable|integer|min:1'],
             'get_customer'                => ['id' => 'required|integer|min:1'],
             'get_customer_order_history'  => ['customer_id' => 'required|integer|min:1', 'limit' => "nullable|integer|min:1|max:$max", 'page' => 'nullable|integer|min:1'],
-            'get_daily_sales'             => ['date' => 'nullable|date_format:Y-m-d'],
-            'list_daily_report'           => ['date' => 'nullable|date_format:Y-m-d', 'end_date' => 'nullable|date_format:Y-m-d'],
-            'list_orders'                 => ['status' => 'nullable|string', 'date' => 'nullable|date_format:Y-m-d', 'start_date' => 'nullable|date_format:Y-m-d', 'end_date' => 'nullable|date_format:Y-m-d', 'query' => 'nullable|string', 'limit' => "nullable|integer|min:1|max:$max", 'page' => 'nullable|integer|min:1'],
+            'get_daily_sales'             => ['date' => 'nullable|date_format:Y-m-d', 'outlet' => 'nullable|string'],
+            'list_daily_report'           => ['date' => 'nullable|date_format:Y-m-d', 'end_date' => 'nullable|date_format:Y-m-d', 'outlet' => 'nullable|string'],
+            'list_orders'                 => ['status' => 'nullable|string', 'date' => 'nullable|date_format:Y-m-d', 'start_date' => 'nullable|date_format:Y-m-d', 'end_date' => 'nullable|date_format:Y-m-d', 'query' => 'nullable|string', 'outlet' => 'nullable|string', 'limit' => "nullable|integer|min:1|max:$max", 'page' => 'nullable|integer|min:1'],
             'get_invoice_detail'          => ['id' => 'nullable|integer|min:1', 'invoice_number' => 'nullable|string'],
             'create_pos_refund'           => ['invoice_id' => 'required|integer|min:1', 'type' => 'nullable|string|in:full,partial', 'invoice_item_id' => 'nullable|integer|min:1', 'quantity' => 'nullable|integer|min:1', 'reason' => 'nullable|string|max:500'],
             'search_gift_requests'        => ['query' => 'nullable|string', 'status' => 'nullable|string', 'limit' => "nullable|integer|min:1|max:$max", 'page' => 'nullable|integer|min:1'],
@@ -183,7 +184,7 @@ JSON;
             'get_altering_order'          => ['id' => 'required|integer|min:1'],
             'update_altering_status'      => ['id' => 'required|integer|min:1', 'status' => 'nullable|string', 'pickup_status' => 'nullable|string', 'customer_pickup_status' => 'nullable|string', 'remark' => 'nullable|string'],
             'search_promocodes'           => ['query' => 'nullable|string', 'limit' => "nullable|integer|min:1|max:$max", 'page' => 'nullable|integer|min:1'],
-            'get_sales_target'            => ['year' => 'nullable|integer|min:2000|max:2100', 'month' => 'nullable|integer|min:1|max:12'],
+            'get_sales_target'            => ['year' => 'nullable|integer|min:2000|max:2100', 'month' => 'nullable|integer|min:1|max:12', 'outlet' => 'nullable|string'],
             'list_notifications'          => ['unread_only' => 'nullable|boolean', 'type' => 'nullable|string', 'limit' => "nullable|integer|min:1|max:$max", 'page' => 'nullable|integer|min:1'],
             'list_activities'             => ['action' => 'nullable|string', 'model_type' => 'nullable|string', 'limit' => "nullable|integer|min:1|max:$max", 'page' => 'nullable|integer|min:1'],
             'list_appointments'           => ['status' => "nullable|string|in:$st", 'date' => 'nullable|date_format:Y-m-d', 'limit' => "nullable|integer|min:1|max:$max", 'page' => 'nullable|integer|min:1'],
@@ -196,7 +197,7 @@ JSON;
             'update_gift_item_stock'      => ['id' => 'required|integer|min:1', 'is_out_of_stock' => 'nullable|boolean'],
             'list_telegram_subscribers'   => ['limit' => "nullable|integer|min:1|max:$max", 'page' => 'nullable|integer|min:1'],
             'bulk_update_products'        => ['ids' => "required|array|max:50", 'ids.*' => 'integer|min:1', 'price' => 'nullable|numeric|min:0', 'stock_qty' => 'nullable|integer|min:0', 'min_stock' => 'nullable|integer|min:0', 'is_active' => 'nullable|boolean'],
-            'compare_sales'               => ['period' => 'nullable|string|in:daily,weekly,monthly', 'date' => 'nullable|date_format:Y-m-d', 'compare' => 'nullable|string|in:previous,same_last_week,same_last_month,same_last_year'],
+            'compare_sales'               => ['period' => 'nullable|string|in:daily,weekly,monthly', 'date' => 'nullable|date_format:Y-m-d', 'compare' => 'nullable|string|in:previous,same_last_week,same_last_month,same_last_year', 'outlet' => 'nullable|string'],
             default                       => [],
         };
     }
@@ -221,21 +222,44 @@ JSON;
 
     // ─── Tool implementations (data-only: Eloquent read/write on business models) ──
 
-    private function getStats(): string
+    public function resolveOutlet(array $a = []): string
+    {
+        if (! empty($a['outlet'])) {
+            $val = strtolower(trim((string) $a['outlet']));
+            if (in_array($val, ['caffeine', 'cuffience', 'cuffence', 'caffeine_cafe', 'cafe', 'coffee', 'caffeine_outlet', 'drinks', 'beverages'])) {
+                return 'caffeine';
+            }
+            if (in_array($val, ['kravat', 'ties', 'neckwear', 'kravat_outlet'])) {
+                return 'kravat';
+            }
+            if (in_array($val, ['attire_lounge', 'attire', 'suits', 'styling_house', 'attire_outlet'])) {
+                return 'attire_lounge';
+            }
+            return $val;
+        }
+
+        $outlet = request()->header('X-Active-Outlet')
+            ?? request()->get('outlet')
+            ?? 'attire_lounge';
+
+        return in_array($outlet, ['attire_lounge', 'caffeine', 'kravat', 'nile']) ? $outlet : 'attire_lounge';
+    }
+
+    private function getStats(array $a = []): string
     {
         $today = today()->toDateString();
-        $outlet = request()->header('X-Active-Outlet', 'attire_lounge');
-        $products = (int) PosProduct::where('is_active', true)->count();
-        $lowStock = (int) PosProduct::where('is_active', true)->where('stock_qty', '>', 0)->whereColumn('stock_qty', '<=', 'min_stock')->count();
-        $outOfStock = (int) PosProduct::where('is_active', true)->where('stock_qty', '<=', 0)->count();
-        $ordersToday = (int) PosInvoice::whereDate('date', $today)->count();
-        $revenueToday = (float) PosInvoice::whereDate('date', $today)->where('status', 'completed')->sum('grand_total');
+        $outlet = $this->resolveOutlet($a);
+        $products = (int) PosProduct::withoutGlobalScope(\App\Models\Scopes\OutletScope::class)->where('outlet', $outlet)->where('is_active', true)->count();
+        $lowStock = (int) PosProduct::withoutGlobalScope(\App\Models\Scopes\OutletScope::class)->where('outlet', $outlet)->where('is_active', true)->where('stock_qty', '>', 0)->whereColumn('stock_qty', '<=', 'min_stock')->count();
+        $outOfStock = (int) PosProduct::withoutGlobalScope(\App\Models\Scopes\OutletScope::class)->where('outlet', $outlet)->where('is_active', true)->where('stock_qty', '<=', 0)->count();
+        $ordersToday = (int) PosInvoice::withoutGlobalScope(\App\Models\Scopes\OutletScope::class)->where('outlet', $outlet)->whereDate('date', $today)->count();
+        $revenueToday = (float) PosInvoice::withoutGlobalScope(\App\Models\Scopes\OutletScope::class)->where('outlet', $outlet)->whereDate('date', $today)->where('status', 'completed')->sum('grand_total');
         $appointmentsToday = (int) Appointment::whereDate('date', $today)->count();
         $customers = (int) CustomerProfile::count();
         $subscribers = (int) NewsletterSubscription::count();
 
         return sprintf(
-            'Outlet %s — products: %d | low-stock: %d | out-of-stock: %d | orders today: %d | revenue today: %s | appointments today: %d | customers: %d | newsletter subs: %d',
+            'Outlet "%s" — products: %d | low-stock: %d | out-of-stock: %d | orders today: %d | revenue today: %s | appointments today: %d | customers: %d | newsletter subs: %d',
             $outlet, $products, $lowStock, $outOfStock, $ordersToday, $this->fmtMoney($revenueToday), $appointmentsToday, $customers, $subscribers
         );
     }
@@ -243,7 +267,8 @@ JSON;
     private function searchProducts(array $a): string
     {
         [$limit, $page, $offset] = $this->pagination($a, 50);
-        $query = PosProduct::query();
+        $outlet = $this->resolveOutlet($a);
+        $query = PosProduct::withoutGlobalScope(\App\Models\Scopes\OutletScope::class)->where('outlet', $outlet);
         if (! empty($a['query'])) {
             $q = $a['query'];
             $query->where(function ($sq) use ($q) {
@@ -259,10 +284,10 @@ JSON;
         $rows = $query->orderBy('name')
             ->offset($offset)
             ->limit($limit)
-            ->get(['id', 'name', 'sku', 'variant', 'price', 'stock_qty', 'min_stock', 'category', 'is_active']);
+            ->get(['id', 'name', 'sku', 'variant', 'price', 'stock_qty', 'min_stock', 'category', 'is_active', 'outlet']);
 
         if ($rows->isEmpty()) {
-            return 'No products found.';
+            return "No products found in outlet \"{$outlet}\".";
         }
         $tableRows = $rows->map(fn ($p) => sprintf(
             '| #%d | %s | %s | %s | %s | %d (min %d) | %s | %s |',
@@ -279,7 +304,7 @@ JSON;
 
         $totalPages = (int) ceil($total / $limit);
         $pageInfo = $totalPages > 1 ? " (Page {$page} of {$totalPages}, total: {$total})" : " (Total: {$total})";
-        return "### Products found{$pageInfo}\n\n"
+        return "### Products in {$outlet}{$pageInfo}\n\n"
             . "| ID | Product Name | Variant | SKU | Price | Stock (Min) | Category | Status |\n"
             . "| :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- |\n"
             . $tableRows;
@@ -314,13 +339,14 @@ JSON;
     private function listLowStock(array $a): string
     {
         [$limit, $page, $offset] = $this->pagination($a, 30);
+        $outlet = $this->resolveOutlet($a);
         $outOfStockOnly = (bool) ($a['out_of_stock_only'] ?? false);
         $includeOutOfStock = $a['include_out_of_stock'] ?? true;
         $q = $a['query'] ?? null;
         $cat = $a['category'] ?? null;
 
-        $outQuery = PosProduct::where('is_active', true)->where('stock_qty', '<=', 0);
-        $lowQuery = PosProduct::where('is_active', true)->where('stock_qty', '>', 0)->whereColumn('stock_qty', '<=', 'min_stock');
+        $outQuery = PosProduct::withoutGlobalScope(\App\Models\Scopes\OutletScope::class)->where('outlet', $outlet)->where('is_active', true)->where('stock_qty', '<=', 0);
+        $lowQuery = PosProduct::withoutGlobalScope(\App\Models\Scopes\OutletScope::class)->where('outlet', $outlet)->where('is_active', true)->where('stock_qty', '>', 0)->whereColumn('stock_qty', '<=', 'min_stock');
 
         if ($q) {
             $filter = function ($sq) use ($q) {
@@ -465,17 +491,19 @@ JSON;
 
     private function getDailySales(array $a): string
     {
+        $outlet = $this->resolveOutlet($a);
         $date = $a['date'] ?? today()->toDateString();
-        $revenue = (float) PosInvoice::whereDate('date', $date)->where('status', 'completed')->sum('grand_total');
-        $orders = (int) PosInvoice::whereDate('date', $date)->where('status', 'completed')->count();
-        $refunds = (float) PosInvoice::whereDate('date', $date)->whereIn('status', ['refunded', 'void'])->sum('grand_total');
-        return "Sales for {$date}: {$orders} completed orders, revenue {$this->fmtMoney($revenue)}, refunds (refunded/void) {$this->fmtMoney($refunds)}.";
+        $revenue = (float) PosInvoice::withoutGlobalScope(\App\Models\Scopes\OutletScope::class)->where('outlet', $outlet)->whereDate('date', $date)->where('status', 'completed')->sum('grand_total');
+        $orders = (int) PosInvoice::withoutGlobalScope(\App\Models\Scopes\OutletScope::class)->where('outlet', $outlet)->whereDate('date', $date)->where('status', 'completed')->count();
+        $refunds = (float) PosInvoice::withoutGlobalScope(\App\Models\Scopes\OutletScope::class)->where('outlet', $outlet)->whereDate('date', $date)->whereIn('status', ['refunded', 'void'])->sum('grand_total');
+        return "Sales for {$date} (Outlet: {$outlet}): {$orders} completed orders, revenue {$this->fmtMoney($revenue)}, refunds (refunded/void) {$this->fmtMoney($refunds)}.";
     }
 
     private function listOrders(array $a): string
     {
         [$limit, $page, $offset] = $this->pagination($a, 50);
-        $query = PosInvoice::query();
+        $outlet = $this->resolveOutlet($a);
+        $query = PosInvoice::withoutGlobalScope(\App\Models\Scopes\OutletScope::class)->where('outlet', $outlet);
         if (! empty($a['status'])) {
             $query->where('status', $a['status']);
         }
@@ -682,17 +710,21 @@ JSON;
     {
         $year = (int) ($a['year'] ?? now()->year);
         $month = (int) ($a['month'] ?? now()->month);
-        $outlet = request()->header('X-Active-Outlet', 'attire_lounge');
+        $outlet = $this->resolveOutlet($a);
 
-        $target = SalesTarget::where('year', $year)->where('month', $month)->first();
+        $target = SalesTarget::where('outlet', $outlet)->where('year', $year)->where('month', $month)->first();
         $targetRev = (float) ($target?->target_revenue ?? 0);
 
-        $actualRev = (float) PosInvoice::whereYear('date', $year)
+        $actualRev = (float) PosInvoice::withoutGlobalScope(\App\Models\Scopes\OutletScope::class)
+            ->where('outlet', $outlet)
+            ->whereYear('date', $year)
             ->whereMonth('date', $month)
             ->where('status', 'completed')
             ->sum('grand_total');
 
-        $completedOrders = (int) PosInvoice::whereYear('date', $year)
+        $completedOrders = (int) PosInvoice::withoutGlobalScope(\App\Models\Scopes\OutletScope::class)
+            ->where('outlet', $outlet)
+            ->whereYear('date', $year)
             ->whereMonth('date', $month)
             ->where('status', 'completed')
             ->count();
@@ -704,7 +736,7 @@ JSON;
             : 'No target set for this month.';
 
         return sprintf(
-            'Sales Performance for %04d-%02d (%s) — Target: %s | Actual Revenue: %s (%d completed orders) | %s',
+            'Sales Performance for %04d-%02d (Outlet: %s) — Target: %s | Actual Revenue: %s (%d completed orders) | %s',
             $year,
             $month,
             $outlet,
@@ -1117,7 +1149,7 @@ JSON;
     {
         $date = $a['date'] ?? today()->toDateString();
         $endDate = $a['end_date'] ?? null;
-        $outlet = request()->header('X-Active-Outlet', 'attire_lounge');
+        $outlet = $this->resolveOutlet($a);
 
         /** @var SalesService $service */
         $service = app(SalesService::class);
@@ -1137,7 +1169,7 @@ JSON;
         );
 
         if (! empty($report['top_sellers']) && count($report['top_sellers']) > 0) {
-            $topLines = collect($report['top_sellers'])->take(5)->map(fn ($ts) => sprintf('  - %s (%s): %d sold (%s)', $ts->product_name, $ts->product_variant ?: 'Standard', (int) $ts->total_qty, $this->fmtMoney((float) $ts->total_revenue)))->implode("\n");
+            $topLines = collect($report['top_sellers'])->take(10)->map(fn ($ts) => sprintf('  - %s (%s): %d sold (%s)', $ts->product_name, $ts->product_variant ?: 'Standard', (int) $ts->total_qty, $this->fmtMoney((float) $ts->total_revenue)))->implode("\n");
             $res .= "\nTop Sellers:\n" . $topLines;
         }
 
@@ -1320,7 +1352,7 @@ JSON;
         $period  = $a['period'] ?? 'daily';
         $date    = $a['date'] ?? today()->toDateString();
         $compare = $a['compare'] ?? 'previous';
-        $outlet  = request()->header('X-Active-Outlet', 'attire_lounge');
+        $outlet  = $this->resolveOutlet($a);
 
         $current  = $this->salesPeriod($period, $date, $outlet);
         $prevDate = $this->salesCompareDate($period, $compare, $date);
