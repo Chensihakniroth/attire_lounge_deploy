@@ -16,6 +16,7 @@ use App\Models\PosProduct;
 use App\Models\PosRefund;
 use App\Models\Promocode;
 use App\Models\SalesTarget;
+use App\Models\TelegramSubscriber;
 use App\Services\SalesService;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
@@ -47,7 +48,7 @@ class BusinessDataTools
   {"type":"function","function":{"name":"get_customer_order_history","description":"Fetch complete order history, past invoices and lifetime spending summary for a customer.","parameters":{"type":"object","properties":{"customer_id":{"type":"integer"},"limit":{"type":"integer","minimum":1,"maximum":500},"page":{"type":"integer","minimum":1}},"required":["customer_id"]}}},
   {"type":"function","function":{"name":"get_daily_sales","description":"Daily sales summary for a date (defaults today): completed orders, revenue and refunds.","parameters":{"type":"object","properties":{"date":{"type":"string"}},"required":[]}}},
   {"type":"function","function":{"name":"list_daily_report","description":"Fetch comprehensive daily sales report including total revenue, net revenue, refunds, top-selling products and category breakdown.","parameters":{"type":"object","properties":{"date":{"type":"string"},"end_date":{"type":"string"}},"required":[]}}},
-  {"type":"function","function":{"name":"list_orders","description":"List POS invoices filtered by status and/or date. Supports pagination (page) and limit up to 500.","parameters":{"type":"object","properties":{"status":{"type":"string"},"date":{"type":"string"},"limit":{"type":"integer","minimum":1,"maximum":500},"page":{"type":"integer","minimum":1}},"required":[]}}},
+  {"type":"function","function":{"name":"list_orders","description":"List POS invoices and orders filtered by status, specific single date, date range (start_date to end_date), or search keyword (invoice # or customer). Supports pagination and limit up to 500.","parameters":{"type":"object","properties":{"status":{"type":"string","description":"Order status e.g. completed, pending, refunded, void"},"date":{"type":"string","description":"Single date YYYY-MM-DD"},"start_date":{"type":"string","description":"Start date of date range YYYY-MM-DD"},"end_date":{"type":"string","description":"End date of date range YYYY-MM-DD"},"query":{"type":"string","description":"Search by invoice number or customer name/phone"},"limit":{"type":"integer","minimum":1,"maximum":500},"page":{"type":"integer","minimum":1}},"required":[]}}},
   {"type":"function","function":{"name":"get_invoice_detail","description":"Fetch detailed POS invoice breakdown (items, payments, discounts, refunds, customer info) by invoice ID or invoice_number.","parameters":{"type":"object","properties":{"id":{"type":"integer"},"invoice_number":{"type":"string"}},"required":[]}}},
   {"type":"function","function":{"name":"create_pos_refund","description":"Process a refund for a completed POS invoice (full or partial by item ID and quantity). Automatically restores product stock.","parameters":{"type":"object","properties":{"invoice_id":{"type":"integer"},"type":{"type":"string","enum":["full","partial"]},"invoice_item_id":{"type":"integer"},"quantity":{"type":"integer","minimum":1},"reason":{"type":"string"}},"required":["invoice_id"]}}},
   {"type":"function","function":{"name":"search_gift_requests","description":"Search and list customer gift requests filtered by query or status. Supports pagination (page) and limit up to 500.","parameters":{"type":"object","properties":{"query":{"type":"string"},"status":{"type":"string"},"limit":{"type":"integer","minimum":1,"maximum":500},"page":{"type":"integer","minimum":1}},"required":[]}}},
@@ -63,7 +64,14 @@ class BusinessDataTools
   {"type":"function","function":{"name":"list_appointments","description":"List appointments filtered by status and/or date. Supports pagination (page) and limit up to 500.","parameters":{"type":"object","properties":{"status":{"type":"string","enum":["pending","confirmed","done","cancelled"]},"date":{"type":"string"},"limit":{"type":"integer","minimum":1,"maximum":500},"page":{"type":"integer","minimum":1}},"required":[]}}},
   {"type":"function","function":{"name":"create_appointment","description":"Book a new appointment with client details, service type, date and time.","parameters":{"type":"object","properties":{"name":{"type":"string"},"phone":{"type":"string"},"service":{"type":"string"},"date":{"type":"string"},"time":{"type":"string"},"email":{"type":"string"},"appointment_type":{"type":"string"},"message":{"type":"string"}},"required":["name","phone","service","date","time"]}}},
   {"type":"function","function":{"name":"update_appointment_status","description":"Update an appointment status (pending, confirmed, done, cancelled).","parameters":{"type":"object","properties":{"id":{"type":"integer"},"status":{"type":"string","enum":["pending","confirmed","done","cancelled"]}},"required":["id","status"],"additionalProperties":false}}},
-  {"type":"function","function":{"name":"list_newsletter_subscribers","description":"List newsletter subscribers. Supports pagination (page) and limit up to 500.","parameters":{"type":"object","properties":{"limit":{"type":"integer","minimum":1,"maximum":500},"page":{"type":"integer","minimum":1}},"required":[]}}}
+  {"type":"function","function":{"name":"list_newsletter_subscribers","description":"List newsletter subscribers. Supports pagination (page) and limit up to 500.","parameters":{"type":"object","properties":{"limit":{"type":"integer","minimum":1,"maximum":500},"page":{"type":"integer","minimum":1}},"required":[]}}},
+  {"type":"function","function":{"name":"update_customer","description":"Update a customer profile's contact/detail fields (phone, email, name, nationality, remarks, is_vip). Only these fields may change.","parameters":{"type":"object","properties":{"id":{"type":"integer"},"phone":{"type":"string"},"email":{"type":"string"},"name":{"type":"string"},"nationality":{"type":"string"},"remarks":{"type":"string"},"is_vip":{"type":"boolean"}},"required":["id"],"additionalProperties":false}}},
+  {"type":"function","function":{"name":"list_gift_item_stock","description":"List gift item stock entries with optional out-of-stock filter. Supports pagination (page) and limit up to 500.","parameters":{"type":"object","properties":{"is_out_of_stock":{"type":"boolean","description":"Filter to out-of-stock items only"},"limit":{"type":"integer","minimum":1,"maximum":500},"page":{"type":"integer","minimum":1}},"required":[]}}},
+  {"type":"function","function":{"name":"get_gift_item_stock","description":"Fetch a single gift item stock entry by id.","parameters":{"type":"object","properties":{"id":{"type":"integer"}},"required":["id"]}}},
+  {"type":"function","function":{"name":"update_gift_item_stock","description":"Update a gift item stock out-of-stock flag.","parameters":{"type":"object","properties":{"id":{"type":"integer"},"is_out_of_stock":{"type":"boolean"}},"required":["id"],"additionalProperties":false}}},
+  {"type":"function","function":{"name":"list_telegram_subscribers","description":"List Telegram subscribers (chat id, type, title, active). Supports pagination (page) and limit up to 500.","parameters":{"type":"object","properties":{"limit":{"type":"integer","minimum":1,"maximum":500},"page":{"type":"integer","minimum":1}},"required":[]}}},
+  {"type":"function","function":{"name":"bulk_update_products","description":"Update the same allowed fields (price, stock_qty, min_stock, is_active) across multiple POS products by id in a single transaction (max 50 ids).","parameters":{"type":"object","properties":{"ids":{"type":"array","items":{"type":"integer"},"minItems":1,"maxItems":50},"price":{"type":"number","minimum":0},"stock_qty":{"type":"integer","minimum":0},"min_stock":{"type":"integer","minimum":0},"is_active":{"type":"boolean"}},"required":["ids"],"additionalProperties":false}}},
+  {"type":"function","function":{"name":"compare_sales","description":"Compare sales performance of a period (daily/weekly/monthly) against a previous comparison period. Returns revenue, refunds, net revenue, orders and AOV with deltas.","parameters":{"type":"object","properties":{"period":{"type":"string","enum":["daily","weekly","monthly"]},"date":{"type":"string","description":"Anchor date YYYY-MM-DD (defaults today)"},"compare":{"type":"string","enum":["previous","same_last_week","same_last_month","same_last_year"],"description":"Which prior period to compare against (defaults previous)"}},"required":[]}}}
 ]
 JSON;
         $defs = json_decode($json, true);
@@ -82,16 +90,24 @@ JSON;
         $map = [
             'get_stats'                   => 'getStats',
             'search_products'             => 'searchProducts',
+            'list_products'               => 'searchProducts',
             'get_product'                 => 'getProduct',
             'update_product'              => 'updateProduct',
             'list_low_stock'              => 'listLowStock',
+            'get_inventory'               => 'listLowStock',
             'search_customers'            => 'searchCustomers',
+            'list_customers'              => 'searchCustomers',
             'get_customer'                => 'getCustomer',
             'get_customer_order_history'  => 'getCustomerOrderHistory',
             'get_daily_sales'             => 'getDailySales',
             'list_daily_report'           => 'listDailyReport',
+            'list_sales_report'           => 'listDailyReport',
             'list_orders'                 => 'listOrders',
+            'list_invoices'               => 'listOrders',
+            'search_invoices'             => 'listOrders',
+            'get_orders'                  => 'listOrders',
             'get_invoice_detail'          => 'getInvoiceDetail',
+            'get_order_detail'            => 'getInvoiceDetail',
             'create_pos_refund'           => 'createPosRefund',
             'search_gift_requests'        => 'searchGiftRequests',
             'get_gift_request'            => 'getGiftRequest',
@@ -107,6 +123,13 @@ JSON;
             'create_appointment'          => 'createAppointment',
             'update_appointment_status'   => 'updateAppointmentStatus',
             'list_newsletter_subscribers' => 'listNewsletterSubscribers',
+            'update_customer'             => 'updateCustomer',
+            'list_gift_item_stock'        => 'listGiftItemStock',
+            'get_gift_item_stock'         => 'getGiftItemStock',
+            'update_gift_item_stock'      => 'updateGiftItemStock',
+            'list_telegram_subscribers'   => 'listTelegramSubscribers',
+            'bulk_update_products'        => 'bulkUpdateProducts',
+            'compare_sales'               => 'compareSales',
         ];
         if (! isset($map[$name])) {
             return 'Refused: tool "' . $name . '" is not available. ' . config('agent.refusal_message');
@@ -129,7 +152,18 @@ JSON;
         $max = self::MAX_RESULTS;
         $st = implode(',', self::APPOINTMENT_STATUSES);
         $gst = implode(',', self::GIFT_STATUSES);
-        return match ($name) {
+
+        $ruleName = match ($name) {
+            'list_invoices', 'search_invoices', 'get_orders' => 'list_orders',
+            'list_products'                                 => 'search_products',
+            'list_customers'                                => 'search_customers',
+            'get_inventory'                                 => 'list_low_stock',
+            'list_sales_report'                             => 'list_daily_report',
+            'get_order_detail'                              => 'get_invoice_detail',
+            default                                         => $name,
+        };
+
+        return match ($ruleName) {
             'search_products'             => ['query' => 'nullable|string', 'category' => 'nullable|string', 'limit' => "nullable|integer|min:1|max:$max", 'page' => 'nullable|integer|min:1'],
             'get_product'                 => ['id' => 'required|integer|min:1'],
             'update_product'              => ['id' => 'required|integer|min:1', 'price' => 'nullable|numeric|min:0', 'stock_qty' => 'nullable|integer|min:0', 'min_stock' => 'nullable|integer|min:0', 'is_active' => 'nullable|boolean'],
@@ -139,7 +173,7 @@ JSON;
             'get_customer_order_history'  => ['customer_id' => 'required|integer|min:1', 'limit' => "nullable|integer|min:1|max:$max", 'page' => 'nullable|integer|min:1'],
             'get_daily_sales'             => ['date' => 'nullable|date_format:Y-m-d'],
             'list_daily_report'           => ['date' => 'nullable|date_format:Y-m-d', 'end_date' => 'nullable|date_format:Y-m-d'],
-            'list_orders'                 => ['status' => 'nullable|string', 'date' => 'nullable|date_format:Y-m-d', 'limit' => "nullable|integer|min:1|max:$max", 'page' => 'nullable|integer|min:1'],
+            'list_orders'                 => ['status' => 'nullable|string', 'date' => 'nullable|date_format:Y-m-d', 'start_date' => 'nullable|date_format:Y-m-d', 'end_date' => 'nullable|date_format:Y-m-d', 'query' => 'nullable|string', 'limit' => "nullable|integer|min:1|max:$max", 'page' => 'nullable|integer|min:1'],
             'get_invoice_detail'          => ['id' => 'nullable|integer|min:1', 'invoice_number' => 'nullable|string'],
             'create_pos_refund'           => ['invoice_id' => 'required|integer|min:1', 'type' => 'nullable|string|in:full,partial', 'invoice_item_id' => 'nullable|integer|min:1', 'quantity' => 'nullable|integer|min:1', 'reason' => 'nullable|string|max:500'],
             'search_gift_requests'        => ['query' => 'nullable|string', 'status' => 'nullable|string', 'limit' => "nullable|integer|min:1|max:$max", 'page' => 'nullable|integer|min:1'],
@@ -156,6 +190,13 @@ JSON;
             'create_appointment'          => ['name' => 'required|string|max:255', 'phone' => 'required|string|max:50', 'service' => 'required|string|max:255', 'date' => 'required|date_format:Y-m-d', 'time' => 'required|string', 'email' => 'nullable|email|max:255', 'appointment_type' => 'nullable|string', 'message' => 'nullable|string'],
             'update_appointment_status'   => ['id' => 'required|integer|min:1', 'status' => "required|string|in:$st"],
             'list_newsletter_subscribers' => ['limit' => "nullable|integer|min:1|max:$max", 'page' => 'nullable|integer|min:1'],
+            'update_customer'             => ['id' => 'required|integer|min:1', 'phone' => 'nullable|string|max:50', 'email' => 'nullable|email|max:255', 'name' => 'nullable|string|max:255', 'nationality' => 'nullable|string|max:100', 'remarks' => 'nullable|string', 'is_vip' => 'nullable|boolean'],
+            'list_gift_item_stock'        => ['is_out_of_stock' => 'nullable|boolean', 'limit' => "nullable|integer|min:1|max:$max", 'page' => 'nullable|integer|min:1'],
+            'get_gift_item_stock'         => ['id' => 'required|integer|min:1'],
+            'update_gift_item_stock'      => ['id' => 'required|integer|min:1', 'is_out_of_stock' => 'nullable|boolean'],
+            'list_telegram_subscribers'   => ['limit' => "nullable|integer|min:1|max:$max", 'page' => 'nullable|integer|min:1'],
+            'bulk_update_products'        => ['ids' => "required|array|max:50", 'ids.*' => 'integer|min:1', 'price' => 'nullable|numeric|min:0', 'stock_qty' => 'nullable|integer|min:0', 'min_stock' => 'nullable|integer|min:0', 'is_active' => 'nullable|boolean'],
+            'compare_sales'               => ['period' => 'nullable|string|in:daily,weekly,monthly', 'date' => 'nullable|date_format:Y-m-d', 'compare' => 'nullable|string|in:previous,same_last_week,same_last_month,same_last_year'],
             default                       => [],
         };
     }
@@ -440,6 +481,23 @@ JSON;
         }
         if (! empty($a['date'])) {
             $query->whereDate('date', $a['date']);
+        }
+        if (! empty($a['start_date'])) {
+            $query->whereDate('date', '>=', $a['start_date']);
+        }
+        if (! empty($a['end_date'])) {
+            $query->whereDate('date', '<=', $a['end_date']);
+        }
+        if (! empty($a['query'])) {
+            $term = trim($a['query']);
+            $query->where(function ($q) use ($term) {
+                $q->where('invoice_number', 'like', "%{$term}%")
+                  ->orWhereHas('customer', function ($cq) use ($term) {
+                      $cq->where('first_name', 'like', "%{$term}%")
+                        ->orWhere('last_name', 'like', "%{$term}%")
+                        ->orWhere('phone', 'like', "%{$term}%");
+                  });
+            });
         }
         $total = $query->count();
         $rows = $query->orderByDesc('created_at')
@@ -1110,5 +1168,245 @@ JSON;
         $totalPages = (int) ceil($total / $limit);
         $pageInfo = $totalPages > 1 ? " (Page {$page} of {$totalPages}, total: {$total})" : " (Total: {$total})";
         return "Subscribers found{$pageInfo}:\n{$lines}";
+    }
+
+    // ─── Tier-1 expansion tools ──────────────────────────────────────────────
+
+    private function updateCustomer(array $a): string
+    {
+        $c = CustomerProfile::findOrFail($a['id']);
+        $allowed = ['phone', 'email', 'name', 'nationality', 'remarks', 'is_vip'];
+        $changed = [];
+        foreach ($allowed as $field) {
+            if (array_key_exists($field, $a) && $a[$field] !== null) {
+                $old = $c->{$field};
+                $c->{$field} = $a[$field];
+                $changed[] = sprintf('%s: %s -> %s', $field, $old ?? 'null', $a[$field]);
+            }
+        }
+        if (empty($changed)) {
+            return "No changes applied to customer #{$c->id}.";
+        }
+        $c->save();
+        return sprintf('Updated customer #%d (%s). Changes: %s.', $c->id, $c->name, implode('; ', $changed));
+    }
+
+    private function listGiftItemStock(array $a): string
+    {
+        [$limit, $page, $offset] = $this->pagination($a, 50);
+        $query = GiftItemStock::query();
+        if (array_key_exists('is_out_of_stock', $a) && $a['is_out_of_stock'] !== null) {
+            $query->where('is_out_of_stock', (bool) $a['is_out_of_stock']);
+        }
+        $total = $query->count();
+        $rows = $query->orderByDesc('id')
+            ->offset($offset)
+            ->limit($limit)
+            ->get(['id', 'item_id', 'is_out_of_stock', 'created_at', 'updated_at']);
+
+        if ($rows->isEmpty()) {
+            return 'No gift item stock entries found.';
+        }
+        $lines = $rows->map(function ($g) {
+            return sprintf(
+                '- #%d | item_id: %s | out_of_stock: %s | updated: %s',
+                $g->id,
+                $g->item_id,
+                $g->is_out_of_stock ? 'YES' : 'no',
+                optional($g->updated_at)->toDateTimeString() ?? 'n/a'
+            );
+        })->implode("\n");
+        $totalPages = (int) ceil($total / $limit);
+        $pageInfo = $totalPages > 1 ? " (Page {$page} of {$totalPages}, total: {$total})" : " (Total: {$total})";
+        return "Gift item stock{$pageInfo}:\n{$lines}";
+    }
+
+    private function getGiftItemStock(array $a): string
+    {
+        $g = GiftItemStock::findOrFail($a['id']);
+        return sprintf(
+            'Gift item stock #%d - item_id: %s | out_of_stock: %s | created: %s | updated: %s',
+            $g->id,
+            $g->item_id,
+            $g->is_out_of_stock ? 'YES' : 'no',
+            optional($g->created_at)->toDateTimeString() ?? 'n/a',
+            optional($g->updated_at)->toDateTimeString() ?? 'n/a'
+        );
+    }
+
+    private function updateGiftItemStock(array $a): string
+    {
+        $g = GiftItemStock::findOrFail($a['id']);
+        $old = $g->is_out_of_stock;
+        if (array_key_exists('is_out_of_stock', $a) && $a['is_out_of_stock'] !== null) {
+            $g->is_out_of_stock = (bool) $a['is_out_of_stock'];
+            $g->save();
+            return sprintf(
+                'Updated gift item stock #%d (item_id %s). out_of_stock: %s -> %s.',
+                $g->id, $g->item_id, $old ? 'YES' : 'no', $g->is_out_of_stock ? 'YES' : 'no'
+            );
+        }
+        return "No change for gift item stock #{$g->id}.";
+    }
+
+    private function listTelegramSubscribers(array $a): string
+    {
+        [$limit, $page, $offset] = $this->pagination($a, 50);
+        $total = TelegramSubscriber::count();
+        $rows = TelegramSubscriber::orderByDesc('id')
+            ->offset($offset)
+            ->limit($limit)
+            ->get(['id', 'chat_id', 'chat_type', 'chat_title', 'is_active', 'created_at']);
+
+        if ($rows->isEmpty()) {
+            return 'No Telegram subscribers found.';
+        }
+        $lines = $rows->map(function ($s) {
+            return sprintf(
+                '- #%d | chat %s (%s) | title: %s | active: %s',
+                $s->id,
+                $s->chat_id ?? 'n/a',
+                $s->chat_type ?? '-',
+                $s->chat_title ?? '-',
+                $s->is_active ? 'yes' : 'no'
+            );
+        })->implode("\n");
+        $totalPages = (int) ceil($total / $limit);
+        $pageInfo = $totalPages > 1 ? " (Page {$page} of {$totalPages}, total: {$total})" : " (Total: {$total})";
+        return "Telegram subscribers found{$pageInfo}:\n{$lines}";
+    }
+
+    private function bulkUpdateProducts(array $a): string
+    {
+        $ids = array_slice(array_unique(array_map('intval', (array) $a['ids'])), 0, 50);
+        if (empty($ids)) {
+            return 'No valid product ids provided.';
+        }
+        $fields = [];
+        foreach (['price', 'stock_qty', 'min_stock', 'is_active'] as $f) {
+            if (array_key_exists($f, $a) && $a[$f] !== null) {
+                $fields[$f] = $a[$f];
+            }
+        }
+        if (empty($fields)) {
+            return 'No fields to update for bulk_update_products.';
+        }
+        $outlet = request()->header('X-Active-Outlet', 'attire_lounge');
+        DB::beginTransaction();
+        try {
+            $updated = 0;
+            foreach ($ids as $id) {
+                $p = PosProduct::find($id);
+                if (! $p) {
+                    continue;
+                }
+                foreach ($fields as $f => $v) {
+                    $p->{$f} = $v;
+                }
+                $p->save();
+                $updated++;
+            }
+            \Illuminate\Support\Facades\Cache::forget("sales_daily_v2_{$outlet}_" . today()->toDateString());
+            DB::commit();
+            return sprintf('Bulk updated %d product(s) with fields: %s.', $updated, implode(', ', array_keys($fields)));
+        } catch (\Throwable $e) {
+            DB::rollBack();
+            return 'Bulk update error: ' . $e->getMessage();
+        }
+    }
+
+    private function compareSales(array $a): string
+    {
+        $period  = $a['period'] ?? 'daily';
+        $date    = $a['date'] ?? today()->toDateString();
+        $compare = $a['compare'] ?? 'previous';
+        $outlet  = request()->header('X-Active-Outlet', 'attire_lounge');
+
+        $current  = $this->salesPeriod($period, $date, $outlet);
+        $prevDate = $this->salesCompareDate($period, $compare, $date);
+        $previous = $this->salesPeriod($period, $prevDate, $outlet);
+
+        $revC = (float) ($current['total_revenue'] ?? 0);
+        $revP = (float) ($previous['total_revenue'] ?? 0);
+        $ordersC = $this->salesOrders($current);
+        $ordersP = $this->salesOrders($previous);
+        $aovC = $this->salesAov($current, $revC, $ordersC);
+        $aovP = $this->salesAov($previous, $revP, $ordersP);
+
+        $pct = function ($c, $p) {
+            if (! $p) {
+                return 'n/a';
+            }
+            return sprintf('%+01.1f%%', round((($c - $p) / $p) * 100, 1));
+        };
+
+        return sprintf(
+            "Sales comparison (%s): %s vs %s\n- Revenue: %s vs %s (%s)\n- Net Revenue: %s vs %s\n- Refunds: %s vs %s\n- Orders: %s vs %s\n- AOV: %s vs %s",
+            $period,
+            $date,
+            $prevDate,
+            $this->fmtMoney($revC), $this->fmtMoney($revP), $pct($revC, $revP),
+            $this->fmtMoney((float) ($current['net_revenue'] ?? 0)), $this->fmtMoney((float) ($previous['net_revenue'] ?? 0)),
+            $this->fmtMoney((float) ($current['total_refunds'] ?? 0)), $this->fmtMoney((float) ($previous['total_refunds'] ?? 0)),
+            $ordersC, $ordersP,
+            $this->fmtMoney($aovC), $this->fmtMoney($aovP)
+        );
+    }
+
+    private function salesPeriod(string $period, string $date, string $outlet): array
+    {
+        /** @var SalesService $service */
+        $service = app(SalesService::class);
+        if ($period === 'weekly') {
+            return $service->getWeeklyReport($date, $outlet);
+        }
+        if ($period === 'monthly') {
+            $d = \Carbon\Carbon::parse($date);
+            return $service->getMonthlyReport($d->year, $d->month, $outlet);
+        }
+        return $service->getDailyReport($date, $outlet);
+    }
+
+    private function salesCompareDate(string $period, string $compare, string $date): string
+    {
+        $d = \Carbon\Carbon::parse($date);
+        if ($compare === 'same_last_week') {
+            return $d->copy()->subWeek()->toDateString();
+        }
+        if ($compare === 'same_last_month') {
+            return $d->copy()->subMonth()->toDateString();
+        }
+        if ($compare === 'same_last_year') {
+            return $d->copy()->subYear()->toDateString();
+        }
+        if ($period === 'weekly') {
+            return $d->copy()->subWeek()->toDateString();
+        }
+        if ($period === 'monthly') {
+            return $d->copy()->subMonth()->toDateString();
+        }
+        return $d->copy()->subDay()->toDateString();
+    }
+
+    private function salesOrders(array $r)
+    {
+        if (isset($r['invoice_count'])) {
+            return (int) $r['invoice_count'];
+        }
+        if (isset($r['daily_breakdown']) && $r['daily_breakdown'] instanceof \Illuminate\Support\Collection) {
+            return (int) $r['daily_breakdown']->sum('invoices');
+        }
+        return 'n/a';
+    }
+
+    private function salesAov(array $r, float $revenue, $orders)
+    {
+        if (isset($r['avg_order_value'])) {
+            return (float) $r['avg_order_value'];
+        }
+        if (is_numeric($orders) && $orders > 0) {
+            return round($revenue / $orders, 2);
+        }
+        return 0.0;
     }
 }
