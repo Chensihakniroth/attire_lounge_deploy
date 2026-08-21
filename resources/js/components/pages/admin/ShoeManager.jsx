@@ -349,10 +349,12 @@ const ProductsPage = () => {
     }, [currentGroupPage, totalGroupPages]);
 
     const categories = useMemo(() => {
+        // Data-driven: show the outlet's ACTUAL categories so the dropdown
+        // reflects real data (e.g. Nile's style-based cats: PENNY, TASSEL, …)
+        // instead of a hardcoded shoe list that doesn't match every outlet
+        // (and would inject dead/empty options for outlets like nile).
         const unique = Array.from(new Set(products.map(p => p.category).filter(Boolean)));
-        const shoeCats = ['Loafers', 'Slippers', 'Formal', 'Boots', 'Sneakers', 'Accessories', 'Shoe Care'];
-        const all = [...shoeCats, ...unique];
-        return ['ALL GROUPS', ...all.filter((v, i, a) => a.indexOf(v) === i).sort()];
+        return ['ALL GROUPS', ...unique.sort()];
     }, [products]);
 
     const selectedProducts = useMemo(() => 
