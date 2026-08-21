@@ -1,6 +1,6 @@
 import React, { useRef, useState, useMemo } from 'react';
 import { motion } from 'framer-motion';
-import { Printer, X } from 'lucide-react';
+import { Minus, Plus, Printer, X } from 'lucide-react';
 import Barcode from 'react-barcode';
 import { Button } from '@/components/ui/button';
 
@@ -102,13 +102,13 @@ const BarcodePrintModal = ({ products, onClose, formatPrice }) => {
                 @media print{@page{size:${SHEET_W}mm ${LABEL_H}mm;margin:0}html,body{width:${SHEET_W}mm;-webkit-print-color-adjust:exact}}
                 .lg{display:grid !important;grid-template-columns:repeat(${LABEL_UP}, ${LABEL_W}mm) !important;justify-content:space-between !important;width:${SHEET_W}mm !important;height:${LABEL_H}mm !important;max-height:${LABEL_H}mm !important;overflow:hidden !important;align-items:center !important;page-break-inside:avoid !important;page-break-after:always !important;break-after:page !important}
                 .lg:last-child{page-break-after:avoid !important;break-after:avoid !important}
-                .bc-label{width:${LABEL_W}mm !important;height:${LABEL_H}mm !important;max-height:${LABEL_H}mm !important;min-height:${LABEL_H}mm !important;padding:0 !important;display:flex !important;flex-direction:column !important;align-items:center !important;justify-content:center !important;text-align:center !important;overflow:hidden !important;box-sizing:border-box !important;border:none !important;background:transparent !important;border-radius:0 !important;page-break-inside:avoid !important;page-break-after:avoid !important}
+                .bc-label{width:${LABEL_W}mm !important;height:${LABEL_H}mm !important;max-height:${LABEL_H}mm !important;min-height:${LABEL_H}mm !important;padding:1.2mm 1.5mm !important;display:flex !important;flex-direction:column !important;align-items:center !important;justify-content:center !important;gap:.4mm !important;text-align:center !important;overflow:hidden !important;box-sizing:border-box !important;border:none !important;background:transparent !important;border-radius:0 !important;page-break-inside:avoid !important;page-break-after:avoid !important}
                 .bc-label > div { margin: 0 !important; padding: 0 !important; border: none !important; }
-                .ln{font-size:9pt !important;font-weight:900 !important;text-transform:uppercase !important;letter-spacing:.2px !important;line-height:1 !important;white-space:nowrap !important;overflow:hidden !important;text-overflow:ellipsis !important;max-width:100% !important;margin:0 0 1px 0 !important;padding:0 !important;color:#000 !important}
-                .lv{font-size:6.5pt !important;font-weight:900 !important;color:#000 !important;text-transform:uppercase !important;letter-spacing:.3px !important;line-height:1 !important;margin:1px 0 0 0 !important}
-                .lbc{margin:1px 0 !important;line-height:0 !important;width:100% !important;text-align:center !important}.lbc svg{max-width:100% !important;height:auto !important;max-height:8mm !important;display:inline-block !important;shape-rendering:crispEdges !important}
-                .ls{font-size:5.5pt !important;font-weight:900 !important;font-family:'Courier New',monospace !important;letter-spacing:0.5px !important;color:#000 !important;line-height:1 !important;margin:0 0 1px 0 !important}
-                .lp{font-size:11pt !important;font-weight:900 !important;line-height:1 !important;margin:1px 0 0 0 !important;padding:0 !important;color:#000 !important;border:none !important}
+                .ln{font-size:8pt !important;font-weight:900 !important;text-transform:uppercase !important;letter-spacing:.15px !important;line-height:1.05 !important;white-space:nowrap !important;overflow:hidden !important;text-overflow:ellipsis !important;max-width:100% !important;margin:0 !important;padding:0 !important;color:#000 !important}
+                .lv{font-size:6pt !important;font-weight:900 !important;color:#000 !important;text-transform:uppercase !important;letter-spacing:.25px !important;line-height:1 !important;margin:0 !important;max-width:100% !important;white-space:nowrap !important;overflow:hidden !important;text-overflow:ellipsis !important}
+                .lbc{margin:.6mm 0 !important;line-height:0 !important;width:100% !important;text-align:center !important}.lbc svg{max-width:100% !important;height:auto !important;max-height:8.5mm !important;display:inline-block !important;shape-rendering:crispEdges !important}
+                .ls{font-size:5.2pt !important;font-weight:900 !important;font-family:'Courier New',monospace !important;letter-spacing:.4px !important;color:#000 !important;line-height:1 !important;margin:0 !important}
+                .lp{font-size:10pt !important;font-weight:900 !important;line-height:1 !important;margin:.5mm 0 0 0 !important;padding:.5mm 0 0 0 !important;color:#000 !important;border-top:.2mm solid #000 !important;width:100% !important}
             </style></head><body>
             ${labelsHtml}
             <script>
@@ -167,28 +167,31 @@ const BarcodePrintModal = ({ products, onClose, formatPrice }) => {
                             In the print dialog set <span className="text-[#0d3542] dark:text-[#58a6ff]">Margins: None</span> · <span className="text-[#0d3542] dark:text-[#58a6ff]">Scale: 100%</span> (Actual size) · use <span className="text-[#0d3542] dark:text-[#58a6ff]">- / +</span> on a label for copies.
                         </span>
                     </div>
-                    <div ref={labelsRef} className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-6 gap-3">
+                    <div ref={labelsRef} className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-5">
                         {products.map((p, idx) => {
                             const t = labelText(p);
                             const k = p.id ?? idx;
                             return (
-                                <div key={k} data-key={k} className="bc-label relative bg-white border border-gray-200 rounded-lg p-3 flex flex-col items-center justify-between text-center" style={{ minHeight: '120px' }}>
-                                    <div className="absolute top-1 right-1 flex items-center gap-0.5 bg-white/90 rounded-md border border-gray-200 shadow-sm">
-                                        <button type="button" onClick={() => bump(k, -1)} className="h-5 w-5 flex items-center justify-center text-gray-500 hover:text-[#0d3542] dark:hover:text-[#58a6ff] text-[13px] font-black leading-none">-</button>
-                                        <span className="text-[10px] font-black text-gray-700 dark:text-gray-200 w-4 text-center tabular-nums">{copies[k] ?? 1}</span>
-                                        <button type="button" onClick={() => bump(k, 1)} className="h-5 w-5 flex items-center justify-center text-gray-500 hover:text-[#0d3542] dark:hover:text-[#58a6ff] text-[13px] font-black leading-none">+</button>
-                                    </div>
-                                    <div className="space-y-0.5 w-full">
-                                        <div className="ln text-[10px] font-black text-gray-900 uppercase tracking-wide leading-tight line-clamp-1">{t.name}</div>
+                                <div key={k} data-key={k} className="bc-label relative bg-white border border-gray-200 rounded-xl p-4 flex flex-col items-center text-center gap-2 shadow-sm" style={{ minHeight: '180px' }}>
+                                    <div className="space-y-1 w-full min-w-0">
+                                        <div className="ln text-[11px] font-black text-gray-900 uppercase tracking-wide leading-tight truncate">{t.name}</div>
                                         {t.variantText && (
-                                            <div className="lv text-[8px] font-bold text-gray-400 uppercase tracking-widest">{t.variantText}</div>
+                                            <div className="lv text-[8px] font-bold text-gray-400 uppercase tracking-widest truncate">{t.variantText}</div>
                                         )}
                                     </div>
-                                    <div className="lbc my-0.5">
-                                        <Barcode value={t.code} format="CODE128" width={1} height={35} displayValue={false} margin={0} background="transparent" />
+                                    <div className="lbc w-full py-1">
+                                        <Barcode value={t.code} format="CODE128" width={1.2} height={42} displayValue={false} margin={0} background="transparent" />
                                     </div>
-                                    <div className="ls text-[8px] font-mono font-bold text-gray-500 tracking-[0.1em] uppercase">{t.sku}</div>
-                                    <div className="lp text-[12px] font-black text-gray-900 border-t border-gray-200 w-full pt-1 mt-1">{t.price}</div>
+                                    <div className="ls text-[8px] font-mono font-bold text-gray-500 tracking-[0.1em] uppercase truncate max-w-full">{t.sku || t.code}</div>
+                                    <div className="lp text-[13px] font-black text-gray-900 border-t border-gray-200 w-full pt-1 mt-auto">{t.price}</div>
+                                    <div className="w-full pt-2 mt-1 border-t border-dashed border-gray-200 flex items-center justify-between">
+                                        <span className="text-[9px] font-black uppercase tracking-widest text-gray-400">Copies</span>
+                                        <div className="flex items-center gap-1 bg-gray-50 rounded-lg border border-gray-200 px-1 py-0.5">
+                                            <button type="button" aria-label={`Decrease copies for ${t.name}`} onClick={() => bump(k, -1)} className="h-6 w-6 flex items-center justify-center text-gray-500 hover:text-[#0d3542] text-[13px] font-black leading-none rounded-md hover:bg-white"><Minus size={12} /></button>
+                                            <span className="text-[11px] font-black text-gray-700 w-5 text-center tabular-nums">{copies[k] ?? 1}</span>
+                                            <button type="button" aria-label={`Increase copies for ${t.name}`} onClick={() => bump(k, 1)} className="h-6 w-6 flex items-center justify-center text-gray-500 hover:text-[#0d3542] text-[13px] font-black leading-none rounded-md hover:bg-white"><Plus size={12} /></button>
+                                        </div>
+                                    </div>
                                 </div>
                             );
                         })}
