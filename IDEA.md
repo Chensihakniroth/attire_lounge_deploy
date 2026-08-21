@@ -1,9 +1,12 @@
-# Attirelounge_web
+attirelounge_srouce: A community-driven platform for discovering, sharing, and sourcing sustainable loungewear and comfortable attire.
 
-A curated online clothing marketplace where users browse, mix, and match outfits from independent designers in a virtual lounge experience.
+- Build a curated feed of loungewear brands focusing on eco-friendly materials and ethical production.
+- Let users save and organize outfit inspirations into personal mood boards.
+- Integrate a price-comparison tool for sourced items across multiple retailers.
+- Foster a discussion forum for fit, fabric, and comfort reviews.
+- Offer a weekly newsletter highlighting new indie loungewear labels.
 
-- Build a responsive storefront with category filters (style, occasion, size, price) and high-quality product imagery
-- Implement a virtual "fit room" where users can pair tops, bottoms, and accessories to preview complete outfits
-- Create user accounts with saved favorites, size preferences, and order history
-- Integrate a secure checkout flow with multiple payment options and order tracking
-- Add an admin dashboard for inventory management, order processing, and sales analytics
+
+include an admin_panle 
+
+to mange the whole bussiness
