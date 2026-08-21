@@ -1,4 +1,4 @@
-import React, { useRef } from 'react';
+import React, { useRef, useState, useMemo } from 'react';
 import { motion } from 'framer-motion';
 import { Printer, X } from 'lucide-react';
 import Barcode from 'react-barcode';
@@ -33,6 +33,23 @@ const esc = (s) => String(s ?? '')
 const BarcodePrintModal = ({ products, onClose, formatPrice }) => {
     const labelsRef = useRef(null);
 
+    // Per-label copy count (QoL): repeat a single label N times without re-clicking print.
+    const keyOf = (p, i) => p.id ?? i;
+    const clamp = (n, lo, hi) => Math.min(hi, Math.max(lo, n));
+    const [copies, setCopies] = useState(() =>
+        Object.fromEntries(products.map((p, i) => [keyOf(p, i), 1]))
+    );
+    const bump = (k, d) => setCopies(c => ({ ...c, [k]: clamp((c[k] ?? 1) + d, 1, 99) }));
+    const setAll = (n) => setCopies(Object.fromEntries(products.map((p, i) => [keyOf(p, i), clamp(n, 1, 99)])));
+    const expanded = useMemo(
+        () => products.flatMap((p, i) => {
+            const k = keyOf(p, i);
+            const n = clamp(copies[k] ?? 1, 1, 99);
+            return Array.from({ length: n }, () => ({ p, k }));
+        }),
+        [products, copies]
+    );
+
     const labelText = (p) => ({
         name: p.name || '—',
         variantText: (Array.isArray(p.parsed_attributes) && p.parsed_attributes.length > 0)
@@ -49,17 +66,19 @@ const BarcodePrintModal = ({ products, onClose, formatPrice }) => {
         // Barcode SVGs come from the rendered preview (react-barcode needs React);
         // everything else is generated cleanly from data so no preview styles leak.
         const cards = labelsRef.current.querySelectorAll('.bc-label');
+        const svgByKey = {};
+        cards.forEach(card => { const k = card.getAttribute('data-key'); if (k) svgByKey[k] = card.querySelector('.lbc svg')?.outerHTML || ''; });
+
         const rows = [];
-        for (let i = 0; i < products.length; i += LABEL_UP) {
-            rows.push(products.slice(i, i + LABEL_UP));
+        for (let i = 0; i < expanded.length; i += LABEL_UP) {
+            rows.push(expanded.slice(i, i + LABEL_UP));
         }
 
         let labelsHtml = '';
-        rows.forEach((row, rowIdx) => {
+        rows.forEach((row) => {
             let cells = '';
-            row.forEach((p, colIdx) => {
-                const card = cards[rowIdx * LABEL_UP + colIdx];
-                const svg = card?.querySelector('.lbc svg')?.outerHTML || '';
+            row.forEach(({ p, k }) => {
+                const svg = svgByKey[k] || '';
                 const t = labelText(p);
                 cells += `
                     <div class="bc-label">
@@ -120,10 +139,18 @@ const BarcodePrintModal = ({ products, onClose, formatPrice }) => {
                         </div>
                         <div>
                             <h2 className="text-lg font-black text-[#0d3542] dark:text-[#58a6ff] uppercase tracking-[0.3em]">Barcode Labels</h2>
-                            <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mt-0.5">{products.length} label{products.length > 1 ? 's' : ''} · 35 × 22 mm — 2-up</p>
+                            <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mt-0.5">{expanded.length} label{expanded.length > 1 ? 's' : ''} · 35 × 22 mm — 2-up</p>
                         </div>
                     </div>
                     <div className="flex items-center gap-3">
+                        <div className="flex items-center gap-1 mr-1 bg-black/5 dark:bg-white/5 rounded-xl px-2 py-1">
+                            <span className="text-[9px] font-black uppercase tracking-widest text-gray-400">All &times;</span>
+                            <input
+                                type="number" min={1} max={99} defaultValue={1}
+                                onChange={(e) => setAll(parseInt(e.target.value || '1', 10) || 1)}
+                                className="w-10 h-7 text-center bg-white dark:bg-[#0d1117] rounded-md text-[11px] font-black text-[#0d3542] dark:text-[#58a6ff] outline-none border border-black/10 dark:border-white/10"
+                            />
+                        </div>
                         <Button onClick={handlePrint} className="h-11 px-8 bg-[#0d3542] dark:bg-[#58a6ff] text-white dark:text-black text-[10px] font-black uppercase tracking-[0.2em] rounded-xl hover:opacity-90 transition-all">
                             <Printer size={14} className="mr-2" /> Print All
                         </Button>
@@ -136,15 +163,21 @@ const BarcodePrintModal = ({ products, onClose, formatPrice }) => {
                 <div className="flex-1 overflow-y-auto p-8 bg-gray-50 dark:bg-[#0a0a0a] attire-scrollbar">
                     <div className="mb-4 flex items-center gap-2 px-1">
                         <span className="text-[9px] font-black text-gray-400 uppercase tracking-widest">Print tip:</span>
-                        <span className="text-[9px] font-bold text-gray-500 dark:text-white/40 uppercase tracking-wider">
-                            In the print dialog set <span className="text-[#0d3542] dark:text-[#58a6ff]">Margins: None</span> · <span className="text-[#0d3542] dark:text-[#58a6ff]">Scale: 100%</span> (Actual size).
+                        <span className="text-[9px] font-bold text-gray-500 dark:text-white/40 uppercase tracking-widest">
+                            In the print dialog set <span className="text-[#0d3542] dark:text-[#58a6ff]">Margins: None</span> · <span className="text-[#0d3542] dark:text-[#58a6ff]">Scale: 100%</span> (Actual size) · use <span className="text-[#0d3542] dark:text-[#58a6ff]">- / +</span> on a label for copies.
                         </span>
                     </div>
                     <div ref={labelsRef} className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-6 gap-3">
                         {products.map((p, idx) => {
                             const t = labelText(p);
+                            const k = p.id ?? idx;
                             return (
-                                <div key={p.id ?? idx} data-idx={idx} className="bc-label bg-white border border-gray-200 rounded-lg p-3 flex flex-col items-center justify-between text-center" style={{ minHeight: '120px' }}>
+                                <div key={k} data-key={k} className="bc-label relative bg-white border border-gray-200 rounded-lg p-3 flex flex-col items-center justify-between text-center" style={{ minHeight: '120px' }}>
+                                    <div className="absolute top-1 right-1 flex items-center gap-0.5 bg-white/90 rounded-md border border-gray-200 shadow-sm">
+                                        <button type="button" onClick={() => bump(k, -1)} className="h-5 w-5 flex items-center justify-center text-gray-500 hover:text-[#0d3542] dark:hover:text-[#58a6ff] text-[13px] font-black leading-none">-</button>
+                                        <span className="text-[10px] font-black text-gray-700 dark:text-gray-200 w-4 text-center tabular-nums">{copies[k] ?? 1}</span>
+                                        <button type="button" onClick={() => bump(k, 1)} className="h-5 w-5 flex items-center justify-center text-gray-500 hover:text-[#0d3542] dark:hover:text-[#58a6ff] text-[13px] font-black leading-none">+</button>
+                                    </div>
                                     <div className="space-y-0.5 w-full">
                                         <div className="ln text-[10px] font-black text-gray-900 uppercase tracking-wide leading-tight line-clamp-1">{t.name}</div>
                                         {t.variantText && (
