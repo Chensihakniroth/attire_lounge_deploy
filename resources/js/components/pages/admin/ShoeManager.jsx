@@ -2,11 +2,11 @@ import React, { useState, useEffect, useMemo, useRef, useCallback } from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import axios from 'axios';
 import { motion, AnimatePresence } from 'framer-motion';
-import { 
-    X, Plus, Trash2, 
-    Hash, DollarSign, Layers, Check, 
+import {
+    X, Plus, Trash2,
+    Hash, DollarSign, Layers, Check,
     ChevronLeft, ChevronRight, Search, Package,
-    Download, Upload, Tag, 
+    Download, Upload, Tag,
     Command, AlertCircle,
     Keyboard, Save, Box, Eye, FolderPlus, Loader2, Printer,
     Footprints
@@ -40,8 +40,8 @@ const CATEGORY_COLORS = {
     default: { bg: 'bg-gray-500/10', border: 'border-gray-500/20', text: 'text-gray-600 dark:text-gray-400', fill: 'fill-gray-500' },
 };
 const getCategoryColor = (cat) => CATEGORY_COLORS[cat] || CATEGORY_COLORS.default;
-const ProductRow = React.memo(({ 
-    product, isSelected, isFocused, quickEditField, 
+const ProductRow = React.memo(({
+    product, isSelected, isFocused, quickEditField,
     onToggleSelect, onFocus, onEdit, onDelete, onQuickEdit, onUpdateField,
     formatPrice, performanceMode
 }) => {
@@ -50,7 +50,7 @@ const ProductRow = React.memo(({
     const colorScheme = getCategoryColor(p.category);
     return (
         <React.Fragment>
-            <tr 
+            <tr
                 key={p.id} id={`row-${p.id}`}
                 onClick={(e) => { e.stopPropagation(); onFocus(isFocused ? null : p.id); }}
                 onDoubleClick={(e) => { e.stopPropagation(); onEdit(p); }}
@@ -58,7 +58,7 @@ const ProductRow = React.memo(({
             >
                 <td className="px-4 py-3 text-center relative">
                     {isFocused && <div className="absolute left-0 top-0 bottom-0 w-1 bg-[#0d3542] dark:bg-[#58a6ff]" />}
-                    <button 
+                    <button
                         onClick={(e) => { e.stopPropagation(); onToggleSelect(p.id); }}
                         className={`w-5 h-5 rounded-md border-2 flex items-center justify-center transition-all mx-auto ${isSelected ? 'bg-[#0d3542] dark:bg-[#58a6ff] border-[#0d3542] dark:border-[#58a6ff]' : 'border-black/25 dark:border-[#30363d] group-hover:border-[#0d3542]/40 dark:group-hover:border-[#58a6ff]/40'}`}
                     >
@@ -78,7 +78,7 @@ const ProductRow = React.memo(({
                             p.parsed_attributes.map((attr, idx) => {
                                 const isSize = attr.key?.toUpperCase() === 'SIZE';
                                 return (
-                                    <span 
+                                    <span
                                         key={idx}
                                         className={`inline-flex items-center gap-1 px-2 py-0.5 rounded text-[10px] font-black uppercase tracking-widest ${isSize ? 'bg-red-500/10 text-red-500 border border-red-500/20' : attr.color ? '' : 'bg-black/5 dark:bg-white/5 text-gray-500 dark:text-white/60'}`}
                                         style={attr.color ? { backgroundColor: attr.color + '20', borderColor: attr.color, color: attr.color } : {}}
@@ -184,14 +184,14 @@ const ProductsPage = () => {
         group: 'ALL GROUPS',
         stockStatus: 'all' // 'all' | 'in' | 'out' | 'low'
     });
-    
+
     // Local State for text inputs (prevents rapid keystrokes from re-rendering the whole table)
     const [localFilters, setLocalFilters] = useState({
         code: '',
         nameBarcode: '',
         attribute: ''
     });
-    
+
     // Form State
     const [editingProduct, setEditingProduct] = useState(null);
     const [formData, setFormData] = useState({
@@ -223,7 +223,7 @@ const ProductsPage = () => {
 
     // --- Debounced Filters for API ---
     const [debouncedFilters, setDebouncedFilters] = useState(filters);
-    
+
     // Sync local text inputs to main filters after user stops typing
     useEffect(() => {
         const timer = setTimeout(() => {
@@ -253,19 +253,19 @@ const ProductsPage = () => {
         staleTime: 2 * 60 * 1000,
         queryFn: async () => {
             const { data } = await axios.get('/api/v1/admin/pos/products', {
-                params: { 
+                params: {
                     type: 'all',
                     name: debouncedFilters.nameBarcode,
                     code: debouncedFilters.code,
                     attribute: debouncedFilters.attribute,
                     category: debouncedFilters.group !== 'ALL GROUPS' ? debouncedFilters.group : '',
-                    per_page: pageSize 
+                    per_page: pageSize
                 }
             });
             return data;
         }
     });
-    
+
     // --- Metric Calculations ---
     const metrics = useMemo(() => {
         const data = productsData?.data || [];
@@ -280,7 +280,7 @@ const ProductsPage = () => {
 
     const products = useMemo(() => {
         let list = productsData?.data || [];
-        
+
         // Apply Stock Status Filter
         if (filters.stockStatus === 'in') {
             list = list.filter(p => (p.stock_qty || 0) > 0);
@@ -289,7 +289,7 @@ const ProductsPage = () => {
         } else if (filters.stockStatus === 'low') {
             list = list.filter(p => (p.stock_qty || 0) > 0 && (p.stock_qty || 0) <= (p.min_stock || 5));
         }
-        
+
         return list;
     }, [productsData, filters.stockStatus]);
 
@@ -357,7 +357,7 @@ const ProductsPage = () => {
         return ['ALL GROUPS', ...unique.sort()];
     }, [products]);
 
-    const selectedProducts = useMemo(() => 
+    const selectedProducts = useMemo(() =>
         Array.from(selectedProductsMap.values()),
     [selectedProductsMap]);
 
@@ -561,13 +561,13 @@ const ProductsPage = () => {
 
     const handleBulkEditClick = () => {
         if (selectedIds.size === 0) return;
-        
+
         const selectedProds = products.filter(p => selectedIds.has(p.id));
         if (selectedProds.length === 0) return;
-        
+
         const firstProductName = (selectedProds[0].name || '').trim().toUpperCase();
         const allSameGroup = selectedProds.every(p => (p.name || '').trim().toUpperCase() === firstProductName);
-        
+
         if (allSameGroup && selectedProds.length > 1) {
             // Use the existing Add Shoe form with pre-loaded data
             setEditingProduct(null);
@@ -587,20 +587,20 @@ const ProductsPage = () => {
                 attributes: [],
                 is_active: true
             });
-            
+
             // Extract attribute dimensions from selected products
             const primaryAttrs = new Set();
             const secondaryAttrs = new Set();
             const editData = {};
             const existingProductMap = {};
-            
+
             let foundPrimaryKey = null;
             let foundSecondaryKey = null;
 
             selectedProds.forEach(p => {
                 let primary = '';
                 let secondary = '';
-                
+
                 if (Array.isArray(p.parsed_attributes) && p.parsed_attributes.length > 0) {
                     // Extract from explicit attributes if available
                     if (p.parsed_attributes[0]) {
@@ -617,7 +617,7 @@ const ProductsPage = () => {
                     const parts = variant.split('-')
                         .map(v => v.trim().toUpperCase())
                         .filter(Boolean);
-                    
+
                     if (parts.length >= 2) {
                         primary = parts[0];
                         secondary = parts[1];
@@ -625,10 +625,10 @@ const ProductsPage = () => {
                         primary = parts[0];
                     }
                 }
-                
+
                 if (primary) primaryAttrs.add(primary);
                 if (secondary) secondaryAttrs.add(secondary);
-                
+
                 // Build key for matrix data and track existing product IDs
                 if (primary && secondary) {
                     const key = `${primary}-${secondary}`;
@@ -641,17 +641,17 @@ const ProductsPage = () => {
                     existingProductMap[key] = p.id;
                 }
                 });
-            
+
             // Determine attribute labels
             const primaryVals = Array.from(primaryAttrs);
             const secondaryVals = Array.from(secondaryAttrs);
-            
+
             let primaryKey = foundPrimaryKey || 'ATTRIBUTE';
             let secondaryKey = foundSecondaryKey || '';
-            
+
             const sizeOrder = ['XXS', 'XS', 'S', 'M', 'L', 'XL', 'XXL', 'XXXL', '3XL', '4XL', '5XL', 'ONE SIZE', 'OS'];
             const looksLikeSize = (vals) => vals.some(v => sizeOrder.includes(v) || !isNaN(parseInt(v)));
-            
+
             if (!foundPrimaryKey && secondaryVals.length > 0) {
                 // Two dimensions — guess labels if not found in attributes
                 primaryKey = looksLikeSize(primaryVals) ? 'SIZE' : 'COLOR';
@@ -661,7 +661,7 @@ const ProductsPage = () => {
                 // Single dimension guess
                 primaryKey = looksLikeSize(primaryVals) ? 'SIZE' : 'ATTRIBUTE';
             }
-            
+
             const sortAttrValues = (vals) => vals.sort((a, b) => {
                 const aIdx = sizeOrder.indexOf(a);
                 const bIdx = sizeOrder.indexOf(b);
@@ -673,7 +673,7 @@ const ProductsPage = () => {
                 if (!isNaN(aNum) && !isNaN(bNum)) return aNum - bNum;
                 return a.localeCompare(b);
             });
-            
+
             setMatrixConfig({
                 primaryKey: primaryKey,
                 primaryValues: sortAttrValues(primaryVals).join(', '),
@@ -682,7 +682,7 @@ const ProductsPage = () => {
             });
             setMatrixData(editData);
             setBulkEditExistingMap(existingProductMap);
-            
+
             navigateToView('form');
         } else {
             setToast({ type: 'error', message: 'Cannot bulk edit shoes from different groups in the matrix grid.' });
@@ -1119,17 +1119,17 @@ const ProductsPage = () => {
                                 <button type="button" onClick={() => applyMatrixPreset('primaryValues', matrixPresets.sizes)} className="text-[9px] font-black text-[#0d3542] dark:text-[#58a6ff] hover:underline uppercase tracking-tighter">Sizes</button>
                             </div>
                         </div>
-                        <input 
-                            value={matrixConfig.primaryKey} 
-                            onChange={e => setMatrixConfig(prev => ({...prev, primaryKey: e.target.value.toUpperCase()}))} 
-                            className="w-full bg-black/5 dark:bg-white/5 p-5 text-[13px] font-black outline-none border border-black/15 dark:border-white/10 focus:border-[#0d3542] dark:focus:border-[#58a6ff] rounded-2xl transition-all" 
+                        <input
+                            value={matrixConfig.primaryKey}
+                            onChange={e => setMatrixConfig(prev => ({...prev, primaryKey: e.target.value.toUpperCase()}))}
+                            className="w-full bg-black/5 dark:bg-white/5 p-5 text-[13px] font-black outline-none border border-black/15 dark:border-white/10 focus:border-[#0d3542] dark:focus:border-[#58a6ff] rounded-2xl transition-all"
                             placeholder="ATTRIBUTE NAME"
                         />
-                        <textarea 
-                            placeholder="Enter values separated by commas..." 
-                            value={matrixConfig.primaryValues} 
-                            onChange={e => setMatrixConfig(prev => ({...prev, primaryValues: e.target.value}))} 
-                            className="w-full bg-black/5 dark:bg-white/5 p-5 text-[13px] font-bold outline-none border border-black/15 dark:border-white/10 focus:border-[#0d3542] dark:focus:border-[#58a6ff] rounded-2xl min-h-24 attire-scrollbar uppercase" 
+                        <textarea
+                            placeholder="Enter values separated by commas..."
+                            value={matrixConfig.primaryValues}
+                            onChange={e => setMatrixConfig(prev => ({...prev, primaryValues: e.target.value}))}
+                            className="w-full bg-black/5 dark:bg-white/5 p-5 text-[13px] font-bold outline-none border border-black/15 dark:border-white/10 focus:border-[#0d3542] dark:focus:border-[#58a6ff] rounded-2xl min-h-24 attire-scrollbar uppercase"
                         />
                     </div>
 
@@ -1143,17 +1143,17 @@ const ProductsPage = () => {
                                 <button type="button" onClick={() => applyMatrixPreset('secondaryValues', matrixPresets.numbers)} className="text-[9px] font-black text-[#0d3542] dark:text-[#58a6ff] hover:underline uppercase tracking-tighter">Numbers</button>
                             </div>
                         </div>
-                        <input 
-                            value={matrixConfig.secondaryKey} 
-                            onChange={e => setMatrixConfig(prev => ({...prev, secondaryKey: e.target.value.toUpperCase()}))} 
-                            className="w-full bg-black/5 dark:bg-white/5 p-5 text-[13px] font-black outline-none border border-black/15 dark:border-white/10 focus:border-[#0d3542] dark:focus:border-[#58a6ff] rounded-2xl transition-all" 
+                        <input
+                            value={matrixConfig.secondaryKey}
+                            onChange={e => setMatrixConfig(prev => ({...prev, secondaryKey: e.target.value.toUpperCase()}))}
+                            className="w-full bg-black/5 dark:bg-white/5 p-5 text-[13px] font-black outline-none border border-black/15 dark:border-white/10 focus:border-[#0d3542] dark:focus:border-[#58a6ff] rounded-2xl transition-all"
                             placeholder="ATTRIBUTE NAME"
                         />
-                        <textarea 
-                            placeholder="Leave empty for single-attribute grid..." 
-                            value={matrixConfig.secondaryValues} 
-                            onChange={e => setMatrixConfig(prev => ({...prev, secondaryValues: e.target.value}))} 
-                            className="w-full bg-black/5 dark:bg-white/5 p-5 text-[13px] font-bold outline-none border border-black/15 dark:border-white/10 focus:border-[#0d3542] dark:focus:border-[#58a6ff] rounded-2xl min-h-24 attire-scrollbar uppercase" 
+                        <textarea
+                            placeholder="Leave empty for single-attribute grid..."
+                            value={matrixConfig.secondaryValues}
+                            onChange={e => setMatrixConfig(prev => ({...prev, secondaryValues: e.target.value}))}
+                            className="w-full bg-black/5 dark:bg-white/5 p-5 text-[13px] font-bold outline-none border border-black/15 dark:border-white/10 focus:border-[#0d3542] dark:focus:border-[#58a6ff] rounded-2xl min-h-24 attire-scrollbar uppercase"
                         />
                     </div>
                 </div>
@@ -1184,7 +1184,7 @@ const ProductsPage = () => {
                             <div className="h-1 w-10 bg-[#0d3542] dark:bg-[#58a6ff] rounded-full" />
                             <h3 className="text-xs font-black uppercase tracking-[0.4em] text-[#0d3542] dark:bg-[#58a6ff]">Stock Grid</h3>
                         </div>
-                        
+
                         <div className="overflow-x-auto border-2 border-black/15 dark:border-white/5 rounded-[2rem] bg-white dark:bg-[#0d1117] shadow-xl">
                             <table className="w-full border-collapse">
                                 <thead>
@@ -1207,10 +1207,10 @@ const ProductsPage = () => {
                                             </td>
                                             {sVals.map((s, cIdx) => (
                                                 <td key={s} className="p-2 border-b border-black/15 dark:border-white/5 group-hover:bg-black/[0.01] dark:group-hover:bg-white/[0.01] transition-colors">
-                                                    <input 
-                                                        type="number" 
+                                                    <input
+                                                        type="number"
                                                         data-pos={`${rIdx}-${cIdx}`}
-                                                        value={matrixData[`${p}-${s}`] || ''} 
+                                                        value={matrixData[`${p}-${s}`] || ''}
                                                         onChange={e => updateMatrixQty(p, s, e.target.value)}
                                                         onKeyDown={e => handleGridKeyDown(e, rIdx, cIdx)}
                                                         className="w-full bg-black/5 dark:bg-white/5 border-2 border-transparent p-4 text-center font-mono font-black text-lg rounded-xl focus:border-[#0d3542] dark:focus:border-[#58a6ff] focus:bg-white dark:focus:bg-[#161b22] outline-none transition-all placeholder:text-gray-300 dark:placeholder:text-white/5 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
@@ -1240,7 +1240,7 @@ const ProductsPage = () => {
                             <h3 className="text-xs font-black uppercase tracking-[0.4em] text-[#0d3542] dark:text-[#58a6ff]">Stock List</h3>
                             <span className="text-[9px] font-bold text-gray-400 uppercase tracking-widest ml-2">Single attribute mode</span>
                         </div>
-                        
+
                         <div className="overflow-x-auto border-2 border-black/15 dark:border-white/5 rounded-[2rem] bg-white dark:bg-[#0d1117] shadow-xl">
                             <table className="w-full border-collapse">
                                 <thead>
@@ -1260,10 +1260,10 @@ const ProductsPage = () => {
                                                 {p}
                                             </td>
                                             <td className="p-2 border-b border-black/15 dark:border-white/5 group-hover:bg-black/[0.01] dark:group-hover:bg-white/[0.01] transition-colors">
-                                                <input 
-                                                    type="number" 
+                                                <input
+                                                    type="number"
                                                     data-pos={`${rIdx}-0`}
-                                                    value={matrixData[`${p}-QTY`] || ''} 
+                                                    value={matrixData[`${p}-QTY`] || ''}
                                                     onChange={e => updateMatrixQty(p, 'QTY', e.target.value)}
                                                     onKeyDown={e => handleGridKeyDown(e, rIdx, 0)}
                                                     className="w-full bg-black/5 dark:bg-white/5 border-2 border-transparent p-4 text-center font-mono font-black text-lg rounded-xl focus:border-[#0d3542] dark:focus:border-[#58a6ff] focus:bg-white dark:focus:bg-[#161b22] outline-none transition-all placeholder:text-gray-300 dark:placeholder:text-white/5 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
@@ -1296,35 +1296,35 @@ const ProductsPage = () => {
 
     return (
         <div className="flex flex-row w-full h-full bg-background dark:bg-[#111111] font-sans selection:bg-[#0d3542]/20 relative text-gray-900 dark:text-white transition-colors duration-300">
-            
+
             {/* --- Persistent Sidebar Filter Hub --- */}
             <div className="w-[280px] shrink-0 flex flex-col p-0 border-r-2 border-black/15 dark:border-[#30363d] bg-[#fdfdfc] dark:bg-[#0d1117] transition-colors sticky top-0 h-screen z-50 overflow-hidden">
                 <div className="p-5 border-b-2 border-black/15 dark:border-[#30363d] bg-[#fdfdfc] dark:bg-[#0d1117]">
                     <div className="space-y-3">
-                        <Button 
+                        <Button
                             onClick={handleAddClick}
                             className="w-full bg-[#0d3542] dark:bg-[#58a6ff] text-white dark:text-black hover:opacity-90 text-[10px] font-black uppercase tracking-[0.2em] h-11 shadow-none rounded-xl"
                         >
                             <Plus size={14} className="mr-2" /> Add Shoe
                         </Button>
                         <div className="flex gap-2">
-                            <input 
-                                type="file" 
-                                ref={fileInputRef} 
-                                onChange={handleImport} 
-                                accept=".csv" 
-                                className="hidden" 
+                            <input
+                                type="file"
+                                ref={fileInputRef}
+                                onChange={handleImport}
+                                accept=".csv"
+                                className="hidden"
                             />
-                            <Button 
+                            <Button
                                 onClick={handleExport}
-                                variant="outline" 
+                                variant="outline"
                                 className="flex-1 h-10 border border-black/15 dark:border-[#30363d] text-[9px] font-black uppercase tracking-widest text-gray-400 dark:text-[#8b949e] hover:bg-black/5 dark:hover:bg-white/5 rounded-xl transition-all"
                             >
                                 <Download size={12} className="mr-1.5" /> Export
                             </Button>
-                            <Button 
+                            <Button
                                 onClick={() => fileInputRef.current?.click()}
-                                variant="outline" 
+                                variant="outline"
                                 className="flex-1 h-10 border border-black/15 dark:border-[#30363d] text-[9px] font-black uppercase tracking-widest text-gray-400 dark:text-[#8b949e] hover:bg-black/5 dark:hover:bg-white/5 rounded-xl transition-all"
                             >
                                 <Upload size={12} className="mr-1.5" /> Import
@@ -1337,7 +1337,7 @@ const ProductsPage = () => {
                     <SidebarSection title="Search" icon={Search}>
                         <div className="space-y-3">
                             <div className="group relative">
-                                <input 
+                                <input
                                     type="text"
                                     value={localFilters.code}
                                     onChange={e => setLocalFilters({...localFilters, code: e.target.value.toUpperCase()})}
@@ -1347,7 +1347,7 @@ const ProductsPage = () => {
                                 <Hash size={12} className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" />
                             </div>
                             <div className="group relative">
-                                <input 
+                                <input
                                     id="filter-name"
                                     type="text"
                                     value={localFilters.nameBarcode}
@@ -1358,7 +1358,7 @@ const ProductsPage = () => {
                                 <Tag size={12} className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" />
                             </div>
                             <div className="group relative">
-                                <input 
+                                <input
                                     type="text"
                                     value={localFilters.attribute}
                                     onChange={e => setLocalFilters({...localFilters, attribute: e.target.value.toUpperCase()})}
@@ -1371,7 +1371,7 @@ const ProductsPage = () => {
                     </SidebarSection>
 
                     <SidebarSection title="Group" icon={Layers}>
-                        <BespokeSelect 
+                        <BespokeSelect
                             value={filters.group}
                             options={categories}
                             onChange={val => setFilters({...filters, group: val})}
@@ -1380,9 +1380,9 @@ const ProductsPage = () => {
                     </SidebarSection>
 
                     <SidebarSection title="Stock Status" icon={Package}>
-                        <BespokeSelect 
-                            value={filters.stockStatus === 'all' ? 'ALL STOCK' : 
-                                   filters.stockStatus === 'in' ? 'IN STOCK' : 
+                        <BespokeSelect
+                            value={filters.stockStatus === 'all' ? 'ALL STOCK' :
+                                   filters.stockStatus === 'in' ? 'IN STOCK' :
                                    filters.stockStatus === 'out' ? 'OUT OF STOCK' : 'LOW STOCK'}
                             options={[
                                 { label: 'ALL STOCK', value: 'all' },
@@ -1401,11 +1401,11 @@ const ProductsPage = () => {
             <div className="flex-1 flex flex-col overflow-hidden bg-background dark:bg-[#111111] transition-colors duration-300">
                 <AnimatePresence mode="wait">
                     {view === 'list' ? (
-                        <motion.div 
-                            key="list" 
-                            initial={performanceMode ? { opacity: 0 } : { opacity: 0, x: -20 }} 
-                            animate={{ opacity: 1, x: 0 }} 
-                            exit={performanceMode ? { opacity: 0 } : { opacity: 0, x: 20 }} 
+                        <motion.div
+                            key="list"
+                            initial={performanceMode ? { opacity: 0 } : { opacity: 0, x: -20 }}
+                            animate={{ opacity: 1, x: 0 }}
+                            exit={performanceMode ? { opacity: 0 } : { opacity: 0, x: 20 }}
                             transition={performanceMode ? { duration: 0 } : { duration: 0.3 }}
                             className="flex-1 flex flex-col overflow-hidden"
                         >
@@ -1450,7 +1450,7 @@ const ProductsPage = () => {
                                             <thead className="sticky top-0 z-40 bg-[#fdfdfc] dark:bg-[#0d1117]">
                                                 <tr className="bg-black/2 dark:bg-[#161b22] text-gray-400 dark:text-[#8b949e]/40 uppercase text-[10px] tracking-[0.3em] font-black transition-colors border-b-2 border-black/15 dark:border-[#30363d]">
                                                     <th className="px-4 py-4 w-14 text-center">
-                                                        <button 
+                                                        <button
                                                             onClick={handleSelectAll}
                                                             className={`w-5 h-5 rounded-md border-2 flex items-center justify-center transition-all mx-auto ${selectedIds.size === products.length && products.length > 0 ? 'bg-[#0d3542] dark:bg-[#58a6ff] border-[#0d3542] dark:border-[#58a6ff]' : 'border-black/25 dark:border-[#30363d]'}`}
                                                         >
@@ -1502,14 +1502,14 @@ const ProductsPage = () => {
                                                                                 <span className="px-2 py-0.5 bg-black/10 dark:bg-white/10 text-[9px] font-black text-gray-500 dark:text-white/40 uppercase tracking-widest rounded">{group.items.length} variants</span>
                                                                             </div>
                                                                             <div className="flex items-center gap-2">
-                                                                                <button 
+                                                                                <button
                                                                                     onClick={() => handlePrintLabels(group.items)}
                                                                                     className="flex items-center gap-2 px-3 py-1.5 bg-black/5 dark:bg-white/5 text-gray-500 dark:text-white/40 hover:text-[#0d3542] dark:hover:text-[#58a6ff] text-[9px] font-black uppercase tracking-widest rounded-lg hover:bg-[#0d3542]/10 dark:hover:bg-[#58a6ff]/10 transition-all border border-black/10 dark:border-white/10"
                                                                                     title="Print barcode labels for this group"
                                                                                 >
                                                                                     <Printer size={12} /> Print Labels
                                                                                 </button>
-                                                                                <button 
+                                                                                <button
                                                                                     onClick={() => handleAddSimilar(group)}
                                                                                     className="flex items-center gap-2 px-3 py-1.5 bg-[#0d3542] dark:bg-[#58a6ff] text-white dark:text-black text-[9px] font-black uppercase tracking-widest rounded-lg hover:opacity-90 transition-all"
                                                                                 >
@@ -1520,7 +1520,7 @@ const ProductsPage = () => {
                                                                     </td>
                                                                 </tr>
                                                                 {group.items.map((p) => (
-                                                                    <ProductRow 
+                                                                    <ProductRow
                                                                         key={p.id}
                                                                         product={p}
                                                                         isSelected={selectedIds.has(p.id)}
@@ -1602,7 +1602,7 @@ const ProductsPage = () => {
                             {/* --- Form Header --- */}
                             <div className="h-24 shrink-0 border-b border-black/15 dark:border-white/5 flex items-center justify-between px-12 bg-white dark:bg-[#111]">
                                 <div className="flex items-center gap-6">
-                                    <button 
+                                    <button
                                         onClick={() => window.history.back()}
                                         className="h-12 w-12 rounded-2xl bg-black/5 dark:bg-white/5 flex items-center justify-center text-gray-500 hover:text-[#0d3542] dark:hover:text-[#58a6ff] transition-all hover:bg-[#0d3542]/10 dark:hover:bg-[#58a6ff]/10"
                                     >
@@ -1660,12 +1660,12 @@ const ProductsPage = () => {
                                                 </Field>
                                             </div>
                                         </Section>
-                                        
+
                                         <Section title="Name Preview" icon={Eye}>
                                             <div className="p-6 bg-black/3 dark:bg-white/3 rounded-xl border border-dashed border-black/25 dark:border-white/10 h-full min-h-32 flex flex-col justify-center text-center space-y-2">
                                                 <div className="text-[10px] font-black text-[#0d3542]/50 dark:text-[#58a6ff]/50 uppercase tracking-widest mb-2">Generated Display Name</div>
                                                 <div className="text-xl font-mono font-black text-gray-900 dark:text-white uppercase leading-snug">
-                                                    {formData.name || 'PRODUCT NAME'} 
+                                                    {formData.name || 'PRODUCT NAME'}
                                                     <br/>
                                                     <span className="text-[#0d3542] dark:text-[#58a6ff] text-base mt-1">{(formData.attributes || []).filter(a => a.value).map(a => `-${a.value.toUpperCase()}`).join(' ')}</span>
                                                 </div>
@@ -1700,7 +1700,7 @@ const ProductsPage = () => {
                                                     </button>
                                                 </div>
                                             ))}
-                                            <button 
+                                            <button
                                                 onClick={() => setFormData({...formData, attributes: [...(formData.attributes || []), { key: '', value: '' }]})}
                                                 className="w-full flex items-center justify-center gap-2 bg-black/5 dark:bg-white/5 hover:bg-black/10 dark:hover:bg-white/10 text-gray-500 hover:text-gray-900 dark:hover:text-white py-4 rounded-xl text-xs font-black uppercase tracking-widest transition-all border border-dashed border-black/20 dark:border-white/10"
                                             >
@@ -1793,7 +1793,7 @@ const ProductsPage = () => {
                                                         <button onClick={() => { setIsCreatingGroup(false); setNewGroupName(''); }} className="px-3 py-3 bg-black/5 dark:bg-white/5 text-gray-500 hover:bg-red-500/10 hover:text-red-500 rounded-xl transition-all"><X size={16} /></button>
                                                     </div>
                                                 ) : (
-                                                    <BespokeSelect 
+                                                    <BespokeSelect
                                                         value={formData.category}
                                                         options={[
                                                             ...categories.filter(c => c !== 'ALL GROUPS'),
@@ -1857,10 +1857,10 @@ const ProductsPage = () => {
 
             <AnimatePresence>
                 {barcodePrintProducts.length > 0 && (
-                    <BarcodePrintModal 
-                        products={barcodePrintProducts} 
-                        onClose={() => setBarcodePrintProducts([])} 
-                        formatPrice={formatPrice} 
+                    <BarcodePrintModal
+                        products={barcodePrintProducts}
+                        onClose={() => setBarcodePrintProducts([])}
+                        formatPrice={formatPrice}
                     />
                 )}
             </AnimatePresence>
