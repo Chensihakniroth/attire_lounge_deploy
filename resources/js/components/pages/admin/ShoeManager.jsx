@@ -985,7 +985,7 @@ const ProductsPage = () => {
                 return;
             }
 
-            const products = [];
+            const createdProducts = [];
 
             if (sVals.length > 0) {
                 // 2D grid: primary × secondary
@@ -993,7 +993,7 @@ const ProductsPage = () => {
                     sVals.forEach(s => {
                         const qty = parseInt(matrixData[`${p}-${s}`] || 0);
                         if (qty > 0) {
-                            products.push({
+                            createdProducts.push({
                                 sku: `${baseSku}-${p.toUpperCase()}-${s.toUpperCase()}`,
                                 name: formData.name,
                                 price: formData.price,
@@ -1010,7 +1010,7 @@ const ProductsPage = () => {
                 pVals.forEach(p => {
                     const qty = parseInt(matrixData[`${p}-QTY`] || 0);
                     if (qty > 0) {
-                        products.push({
+                        createdProducts.push({
                             sku: `${baseSku}-${p.toUpperCase()}`,
                             name: formData.name,
                             price: formData.price,
@@ -1023,13 +1023,13 @@ const ProductsPage = () => {
                 });
             }
 
-            if (products.length === 0) {
+            if (createdProducts.length === 0) {
                 setToast({ type: 'error', message: 'Please enter quantities in the matrix.' });
                 setIsSaving(false);
                 return;
             }
 
-            bulkStoreMutation.mutate({ products });
+            bulkStoreMutation.mutate({ products: createdProducts });
             return;
         }
 
