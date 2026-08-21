@@ -7,7 +7,7 @@ import { Bot } from 'lucide-react';
  * Only renders while the admin is authenticated and browsing admin routes
  * (not on the login page or the AI chat page itself).
  */
-export default function AiAgentFab() {
+export default function AiAgentFab({ variant = 'fab' }) {
     const navigate = useNavigate();
     const { pathname } = useLocation();
     const [authed, setAuthed] = useState(false);
@@ -28,6 +28,27 @@ export default function AiAgentFab() {
         pathname === '/admin/ai'
     ) {
         return null;
+    }
+
+    if (variant === 'header') {
+        return (
+            <button
+                type="button"
+                onClick={() => navigate('/admin/ai')}
+                aria-label="AI Assistant"
+                title="Ask Attire AI"
+                className="group relative flex items-center gap-2 px-4 py-2 bg-white/10 border border-white/20 rounded-xl hover:bg-white hover:text-attire-navy transition-all"
+            >
+                <span className="relative flex h-2 w-2">
+                    <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75"></span>
+                    <span className="relative inline-flex h-2 w-2 rounded-full bg-emerald-500"></span>
+                </span>
+                <Bot size={16} className="text-white group-hover:text-attire-navy transition-colors" />
+                <span className="text-xs font-bold uppercase tracking-widest text-white group-hover:text-attire-navy hidden sm:block transition-colors">
+                    AI
+                </span>
+            </button>
+        );
     }
 
     return (

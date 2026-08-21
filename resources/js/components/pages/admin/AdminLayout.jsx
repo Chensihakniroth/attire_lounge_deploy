@@ -44,6 +44,7 @@ import { ThemeProvider, useTheme } from './ThemeContext';
 import { AdminProvider, useAdmin } from './AdminContext';
 import { motion, AnimatePresence } from 'framer-motion';
 import axios from 'axios';
+import AiAgentFab from './AiAgentFab.jsx';
 import { isSafari } from '../../../helpers/browserUtils';
 import ModernModal from '../../common/ModernModal';
 
@@ -416,6 +417,9 @@ const AdminLayoutContent = ({
 
                             {/* Outlet Switcher */}
                             <OutletSwitcher />
+
+                            {/* AI Assistant — inline button next to the outlet switcher */}
+                            <AiAgentFab variant="header" />
 
                             <div className="h-4 w-px bg-white/20 mx-2" />
 

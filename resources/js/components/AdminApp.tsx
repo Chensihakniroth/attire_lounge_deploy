@@ -19,7 +19,6 @@ const queryClient = new QueryClient({
 import AdminLoadingSpinner from './common/AdminLoadingSpinner.jsx';
 import { AdminProvider } from './pages/admin/AdminContext';
 import { ThemeProvider } from './pages/admin/ThemeContext';
-import AiAgentFab from './pages/admin/AiAgentFab.jsx';
 import { ToastProvider } from './ui/toast';
 import { ConfirmProvider } from './ui/confirm-dialog';
 
@@ -304,7 +303,6 @@ function AdminApp() {
                                     {/* Fallback for admin routes */}
                                                                         <Route path="*" element={<div className="p-8 text-foreground bg-background">Admin Page Not Found</div>} />
                                 </Routes>
-                                <AiAgentFab />
                             </Suspense>
                             </ErrorBoundary>
                             </ConfirmProvider>
