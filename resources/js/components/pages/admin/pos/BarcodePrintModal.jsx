@@ -95,6 +95,12 @@ const BarcodePrintModal = ({ products, onClose, formatPrice }) => {
         const printWindow = window.open('', '_blank');
         if (!printWindow) { alert('Please allow popups for barcode printing.'); return; }
 
+        printWindow.onafterprint = () => printWindow.close();
+        printWindow.onload = () => {
+            printWindow.focus();
+            setTimeout(() => printWindow.print(), 250);
+        };
+
         printWindow.document.write(`<html><head><title>Barcode Labels — 35 × 22 mm</title>
             <style>
                 *{margin:0;padding:0;box-sizing:border-box}
@@ -111,11 +117,6 @@ const BarcodePrintModal = ({ products, onClose, formatPrice }) => {
                 .lp{font-size:10pt !important;font-weight:900 !important;line-height:1 !important;margin:.5mm 0 0 0 !important;padding:.5mm 0 0 0 !important;color:#000 !important;border-top:.2mm solid #000 !important;width:100% !important}
             </style></head><body>
             ${labelsHtml}
-            <script>
-                window.onload = function() {
-                    setTimeout(function(){ window.focus(); window.print(); window.close(); }, 300);
-                }
-            <\/script>
         </body></html>`);
         printWindow.document.close();
     };
@@ -123,7 +124,7 @@ const BarcodePrintModal = ({ products, onClose, formatPrice }) => {
     if (!products || products.length === 0) return null;
 
     return (
-        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 z-[200] flex items-center justify-center">
+        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 z-200 flex items-center justify-center">
             <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={onClose} />
             <motion.div
                 initial={{ scale: 0.95, opacity: 0, y: 20 }}
@@ -182,7 +183,7 @@ const BarcodePrintModal = ({ products, onClose, formatPrice }) => {
                                     <div className="lbc w-full py-1">
                                         <Barcode value={t.code} format="CODE128" width={1.2} height={42} displayValue={false} margin={0} background="transparent" />
                                     </div>
-                                    <div className="ls text-[8px] font-mono font-bold text-gray-500 tracking-[0.1em] uppercase truncate max-w-full">{t.sku || t.code}</div>
+                                    <div className="ls text-[8px] font-mono font-bold text-gray-500 tracking-widest uppercase truncate max-w-full">{t.sku || t.code}</div>
                                     <div className="lp text-[13px] font-black text-gray-900 border-t border-gray-200 w-full pt-1 mt-auto">{t.price}</div>
                                     <div className="w-full pt-2 mt-1 border-t border-dashed border-gray-200 flex items-center justify-between">
                                         <span className="text-[9px] font-black uppercase tracking-widest text-gray-400">Copies</span>
