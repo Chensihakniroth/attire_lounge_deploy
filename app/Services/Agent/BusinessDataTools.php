@@ -47,7 +47,8 @@ class BusinessDataTools
   {"type":"function","function":{"name":"get_customer","description":"Fetch a customer profile by ID.","parameters":{"type":"object","properties":{"id":{"type":"integer"}},"required":["id"]}}},
   {"type":"function","function":{"name":"get_customer_order_history","description":"Fetch complete order history, past invoices and lifetime spending summary for a customer.","parameters":{"type":"object","properties":{"customer_id":{"type":"integer"},"limit":{"type":"integer","minimum":1,"maximum":500},"page":{"type":"integer","minimum":1}},"required":["customer_id"]}}},
   {"type":"function","function":{"name":"get_daily_sales","description":"Daily sales summary for a date (defaults today): completed orders, revenue and refunds for the active or specified outlet.","parameters":{"type":"object","properties":{"date":{"type":"string"},"outlet":{"type":"string","description":"Optional outlet slug: 'caffeine', 'kravat', or 'attire_lounge'."}},"required":[]}}},
-  {"type":"function","function":{"name":"list_daily_report","description":"Fetch comprehensive daily/period sales report including total revenue, net revenue, refunds, top-selling products and category breakdown for the active or specified outlet.","parameters":{"type":"object","properties":{"date":{"type":"string","description":"Start date YYYY-MM-DD"},"end_date":{"type":"string","description":"Optional end date YYYY-MM-DD for date ranges or monthly top sellers"},"outlet":{"type":"string","description":"Optional outlet slug: 'caffeine', 'kravat', or 'attire_lounge'."}},"required":[]}}},
+  {"type":"function","function":{"name":"list_daily_report","description":"Fetch comprehensive daily/period sales report including total revenue, net revenue, refunds, TOP-selling AND LOWEST-selling products, and category breakdown for the active or specified outlet. Use end_date for date ranges.","parameters":{"type":"object","properties":{"date":{"type":"string","description":"Start date YYYY-MM-DD"},"end_date":{"type":"string","description":"Optional end date YYYY-MM-DD for date ranges"},"outlet":{"type":"string","description":"Optional outlet slug: 'caffeine', 'kravat', or 'attire_lounge'."}},"required":[]}}},
+  {"type":"function","function":{"name":"list_monthly_report","description":"Fetch comprehensive MONTHLY sales report for a given year/month. Includes total revenue, net revenue, refunds, TOP-selling products, LOWEST-selling products, and category breakdown. Use this tool when the user asks about monthly performance, best/worst selling products in a month, or least/most sold items.","parameters":{"type":"object","properties":{"year":{"type":"integer","minimum":2000,"maximum":2100,"description":"Year (defaults current year)"},"month":{"type":"integer","minimum":1,"maximum":12,"description":"Month 1-12 (defaults current month)"},"outlet":{"type":"string","description":"Optional outlet slug: 'caffeine', 'kravat', or 'attire_lounge'."}},"required":[]}}},
   {"type":"function","function":{"name":"list_orders","description":"List POS invoices and orders filtered by status, specific single date, date range (start_date to end_date), or search keyword (invoice # or customer). Supports pagination and limit up to 500.","parameters":{"type":"object","properties":{"status":{"type":"string","description":"Order status e.g. completed, pending, refunded, void"},"date":{"type":"string","description":"Single date YYYY-MM-DD"},"start_date":{"type":"string","description":"Start date of date range YYYY-MM-DD"},"end_date":{"type":"string","description":"End date of date range YYYY-MM-DD"},"query":{"type":"string","description":"Search by invoice number or customer name/phone"},"outlet":{"type":"string","description":"Optional outlet slug: 'caffeine', 'kravat', or 'attire_lounge'."},"limit":{"type":"integer","minimum":1,"maximum":500},"page":{"type":"integer","minimum":1}},"required":[]}}},
   {"type":"function","function":{"name":"get_invoice_detail","description":"Fetch detailed POS invoice breakdown (items, payments, discounts, refunds, customer info) by invoice ID or invoice_number.","parameters":{"type":"object","properties":{"id":{"type":"integer"},"invoice_number":{"type":"string"}},"required":[]}}},
   {"type":"function","function":{"name":"create_pos_refund","description":"Process a refund for a completed POS invoice (full or partial by item ID and quantity). Automatically restores product stock.","parameters":{"type":"object","properties":{"invoice_id":{"type":"integer"},"type":{"type":"string","enum":["full","partial"]},"invoice_item_id":{"type":"integer"},"quantity":{"type":"integer","minimum":1},"reason":{"type":"string"}},"required":["invoice_id"]}}},
@@ -102,6 +103,7 @@ JSON;
             'get_daily_sales'             => 'getDailySales',
             'list_daily_report'           => 'listDailyReport',
             'list_sales_report'           => 'listDailyReport',
+            'list_monthly_report'         => 'listMonthlyReport',
             'list_orders'                 => 'listOrders',
             'list_invoices'               => 'listOrders',
             'search_invoices'             => 'listOrders',
@@ -174,6 +176,7 @@ JSON;
             'get_customer_order_history'  => ['customer_id' => 'required|integer|min:1', 'limit' => "nullable|integer|min:1|max:$max", 'page' => 'nullable|integer|min:1'],
             'get_daily_sales'             => ['date' => 'nullable|date_format:Y-m-d', 'outlet' => 'nullable|string'],
             'list_daily_report'           => ['date' => 'nullable|date_format:Y-m-d', 'end_date' => 'nullable|date_format:Y-m-d', 'outlet' => 'nullable|string'],
+            'list_monthly_report'         => ['year' => 'nullable|integer|min:2000|max:2100', 'month' => 'nullable|integer|min:1|max:12', 'outlet' => 'nullable|string'],
             'list_orders'                 => ['status' => 'nullable|string', 'date' => 'nullable|date_format:Y-m-d', 'start_date' => 'nullable|date_format:Y-m-d', 'end_date' => 'nullable|date_format:Y-m-d', 'query' => 'nullable|string', 'outlet' => 'nullable|string', 'limit' => "nullable|integer|min:1|max:$max", 'page' => 'nullable|integer|min:1'],
             'get_invoice_detail'          => ['id' => 'nullable|integer|min:1', 'invoice_number' => 'nullable|string'],
             'create_pos_refund'           => ['invoice_id' => 'required|integer|min:1', 'type' => 'nullable|string|in:full,partial', 'invoice_item_id' => 'nullable|integer|min:1', 'quantity' => 'nullable|integer|min:1', 'reason' => 'nullable|string|max:500'],
@@ -1173,9 +1176,57 @@ JSON;
             $res .= "\nTop Sellers:\n" . $topLines;
         }
 
+        if (! empty($report['lowest_sellers']) && count($report['lowest_sellers']) > 0) {
+            $lowLines = collect($report['lowest_sellers'])->take(10)->map(fn ($ts) => sprintf('  - %s (%s): %d sold (%s)', $ts->product_name, $ts->product_variant ?: 'Standard', (int) $ts->total_qty, $this->fmtMoney((float) $ts->total_revenue)))->implode("\n");
+            $res .= "\nLowest Sellers:\n" . $lowLines;
+        }
+
         if (! empty($report['category_breakdown']) && count($report['category_breakdown']) > 0) {
             $catLines = collect($report['category_breakdown'])->map(fn ($cat) => sprintf('  - %s: %d qty (%s)', $cat->category, (int) $cat->total_qty, $this->fmtMoney((float) $cat->total_revenue)))->implode("\n");
             $res .= "\nCategory Breakdown:\n" . $catLines;
+        }
+
+        return $res;
+    }
+
+    private function listMonthlyReport(array $a): string
+    {
+        $year = (int) ($a['year'] ?? now()->year);
+        $month = (int) ($a['month'] ?? now()->month);
+        $outlet = $this->resolveOutlet($a);
+
+        /** @var SalesService $service */
+        $service = app(SalesService::class);
+        $report = $service->getMonthlyReport($year, $month, $outlet);
+
+        $monthName = \Carbon\Carbon::create($year, $month, 1)->format('F Y');
+        $res = sprintf(
+            "Monthly Sales Report for %s (Outlet: %s):\n- Total Revenue: %s | Refunds: %s | Net Revenue: %s | Items Sold: %d",
+            $monthName,
+            $outlet,
+            $this->fmtMoney((float) ($report['total_revenue'] ?? 0)),
+            $this->fmtMoney((float) ($report['total_refunds'] ?? 0)),
+            $this->fmtMoney((float) ($report['net_revenue'] ?? 0)),
+            (int) ($report['total_items'] ?? 0)
+        );
+
+        if (! empty($report['top_sellers']) && count($report['top_sellers']) > 0) {
+            $topLines = collect($report['top_sellers'])->take(10)->map(fn ($ts) => sprintf('  - %s (%s): %d sold (%s)', $ts->product_name, $ts->product_variant ?: 'Standard', (int) $ts->total_qty, $this->fmtMoney((float) $ts->total_revenue)))->implode("\n");
+            $res .= "\nTop Sellers:\n" . $topLines;
+        }
+
+        if (! empty($report['lowest_sellers']) && count($report['lowest_sellers']) > 0) {
+            $lowLines = collect($report['lowest_sellers'])->take(10)->map(fn ($ts) => sprintf('  - %s (%s): %d sold (%s)', $ts->product_name, $ts->product_variant ?: 'Standard', (int) $ts->total_qty, $this->fmtMoney((float) $ts->total_revenue)))->implode("\n");
+            $res .= "\nLowest Sellers:\n" . $lowLines;
+        }
+
+        if (! empty($report['category_breakdown']) && count($report['category_breakdown']) > 0) {
+            $catLines = collect($report['category_breakdown'])->map(fn ($cat) => sprintf('  - %s: %d qty (%s)', $cat->category, (int) $cat->total_qty, $this->fmtMoney((float) $cat->total_revenue)))->implode("\n");
+            $res .= "\nCategory Breakdown:\n" . $catLines;
+        }
+
+        if (((float) ($report['total_revenue'] ?? 0)) === 0.0) {
+            $res .= "\n\nNote: No sales data was recorded for {$monthName} in the {$outlet} outlet. The outlet may not have had transactions during this period.";
         }
 
         return $res;
