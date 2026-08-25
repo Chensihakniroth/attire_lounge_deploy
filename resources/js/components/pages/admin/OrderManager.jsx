@@ -13,7 +13,8 @@ import {
     Download,
     Calendar,
     DollarSign,
-    Send
+    Send,
+    Undo2
 } from 'lucide-react';
 import { useAdmin } from './AdminContext';
 import { useNavigate } from 'react-router-dom';
@@ -260,6 +261,11 @@ const OrderManager = () => {
                                             <p className="text-lg font-black text-gray-900 dark:text-white">
                                                 ${parseFloat(invoice.grand_total).toFixed(2)}
                                             </p>
+                                            {invoice.items_discount > 0 && (
+                                                <span className="text-[10px] font-black text-red-500 bg-red-500/10 border border-red-500/20 px-2 py-1 rounded-md">
+                                                    -${parseFloat(invoice.items_discount).toFixed(2)} off
+                                                </span>
+                                            )}
                                             <ChevronRight
                                                 size={18}
                                                 className={`text-gray-400 transition-transform ${expandedId === invoice.id ? 'rotate-90' : ''}`}
@@ -341,7 +347,7 @@ const OrderManager = () => {
 
                                                 {/* Totals */}
                                                 <div className="flex items-center justify-between pt-3 border-t border-black/5 dark:border-[#30363d]">
-                                                    <div className="flex gap-4">
+                                                    <div className="flex flex-wrap gap-4">
                                                         <p className="text-[10px] font-bold text-gray-500">
                                                             Subtotal: ${parseFloat(invoice.subtotal).toFixed(2)}
                                                         </p>
@@ -350,14 +356,29 @@ const OrderManager = () => {
                                                                 Discount: -${parseFloat(invoice.items_discount).toFixed(2)}
                                                             </p>
                                                         )}
+                                                        {parseFloat(invoice.tax || 0) > 0 && (
+                                                            <p className="text-[10px] font-bold text-amber-500">
+                                                                Tax: ${parseFloat(invoice.tax).toFixed(2)}
+                                                            </p>
+                                                        )}
                                                     </div>
                                                     <p className="text-lg font-black text-gray-900 dark:text-white">
                                                         Total: ${parseFloat(invoice.grand_total).toFixed(2)} {invoice.currency || 'USD'}
                                                     </p>
                                                 </div>
 
-                                                {/* Notify Telegram */}
-                                                <div className="flex justify-end pt-2">
+                                                {/* Actions: Refund + Notify */}
+                                                <div className="flex justify-end gap-2 pt-2">
+                                                    <button
+                                                        title="Initiate Refund in POS"
+                                                        onClick={(e) => {
+                                                            e.stopPropagation();
+                                                            navigate(`/admin/pos?action=refund&invoice=${invoice.id}`);
+                                                        }}
+                                                        className="flex items-center gap-2 px-3 py-1.5 text-[9px] font-black uppercase tracking-widest text-red-500 bg-red-500/5 border border-red-500/20 rounded-lg hover:bg-red-500/10 transition-colors"
+                                                    >
+                                                        <Undo2 size={12} /> Refund
+                                                    </button>
                                                     <button
                                                         onClick={(e) => {
                                                             e.stopPropagation();

@@ -126,6 +126,7 @@ class OrderWebhookController extends Controller
                     'tier_discount_amt'  => 0,
                     'promo_discount_amt' => 0,
                     'grand_total'        => $validated['total'],
+                    'tax'                => $validated['tax'] ?? 0,
                     'currency'           => $validated['currency'] ?? 'USD',
                     'notes'              => 'WC Order #' . $validated['wc_order_id'] . ' | ' . ($validated['payment_method'] ?? 'N/A'),
                     'status'             => 'completed',
@@ -187,6 +188,9 @@ class OrderWebhookController extends Controller
                         'customer_name'  => $validated['customer']['name'],
                         'customer_email' => $validated['customer']['email'] ?? null,
                         'item_count'     => count($validated['items']),
+                        'subtotal'       => $validated['subtotal'],
+                        'discount'       => $validated['discount'] ?? 0,
+                        'tax'            => $validated['tax'] ?? 0,
                         'total'          => $validated['total'],
                         'currency'       => $validated['currency'] ?? 'USD',
                     ],
@@ -233,12 +237,21 @@ class OrderWebhookController extends Controller
                         $itemLines .= "\n… and " . (count($items) - 5) . " more item(s)";
                     }
 
+                    $currency = $validated['currency'] ?? 'USD';
+                    $priceSummary = $this->formatPriceSummary(
+                        $validated['subtotal'],
+                        $validated['discount'] ?? 0,
+                        $validated['tax'] ?? 0,
+                        $validated['total'],
+                        $currency
+                    );
+
                     $message = "🛒 *New Online Order #{$validated['wc_order_id']}* 🛒\n\n"
                         . "👤 *Customer:* {$validated['customer']['name']}\n"
                         . "📧 *Email:* " . ($validated['customer']['email'] ?? 'N/A') . "\n"
                         . "📦 *Items:* " . count($items) . "\n\n"
                         . "{$itemLines}\n\n"
-                        . "💰 *Total:* " . ($validated['currency'] ?? 'USD') . ' ' . number_format($validated['total'], 2) . "\n"
+                        . "{$priceSummary}\n"
                         . "💳 *Payment:* " . ($validated['payment_method'] ?? 'N/A') . "\n"
                         . "🕐 *Time:* " . now()->format('M d, Y h:i A');
 
@@ -316,13 +329,22 @@ class OrderWebhookController extends Controller
         $customerName = $invoice->customer?->name ?? 'Guest';
         $customerEmail = $invoice->customer?->email ?? 'N/A';
         $wcOrderId = $invoice->wc_order_id ?? $invoice->invoice_number;
+        $currency = $invoice->currency ?? 'USD';
+
+        $priceSummary = $this->formatPriceSummary(
+            $invoice->subtotal,
+            $invoice->items_discount,
+            $invoice->tax ?? 0,
+            $invoice->grand_total,
+            $currency
+        );
 
         $message = "🛒 *New Online Order #{$wcOrderId}* 🛒\n\n"
             . "👤 *Customer:* {$customerName}\n"
             . "📧 *Email:* {$customerEmail}\n"
             . "📦 *Items:* {$items->count()}\n\n"
             . "{$itemLines}\n\n"
-            . "💰 *Total:* " . ($invoice->currency ?? 'USD') . ' ' . number_format($invoice->grand_total, 2) . "\n"
+            . "{$priceSummary}\n"
             . "🕐 *Time:* " . $invoice->created_at->format('M d, Y h:i A');
 
         try {
@@ -357,5 +379,21 @@ class OrderWebhookController extends Controller
                 'error'   => $e->getMessage(),
             ], 500);
         }
+    }
+
+    /**
+     * Build the price-summary block for an order notification.
+     * Shows the discount & tax lines only when present (> 0), so the
+     * "recipe" stays clean for orders with no discount or tax.
+     */
+    private function formatPriceSummary(float $subtotal, float $discount, float $tax, float $total, string $currency): string
+    {
+        $cur = $currency ?: 'USD';
+        $lines = "💵 *Subtotal:* {$cur} " . number_format($subtotal, 2);
+
+        return $lines
+            . ($discount > 0 ? "\n🏷️ *Discount:* -{$cur} " . number_format($discount, 2) : '')
+            . ($tax > 0 ? "\n🧾 *Tax:* {$cur} " . number_format($tax, 2) : '')
+            . "\n💰 *Total:* {$cur} " . number_format($total, 2);
     }
 }
