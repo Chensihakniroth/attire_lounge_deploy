@@ -27,7 +27,6 @@ class PosInvoice extends Model
         'promo_code_id',
         'promo_discount_amt',
         'grand_total',
-        'tax',
         'currency',
         'notes',
         'status',
@@ -42,7 +41,6 @@ class PosInvoice extends Model
         'tier_discount_amt'  => 'float',
         'promo_discount_amt' => 'float',
         'grand_total'        => 'float',
-        'tax'                => 'float',
     ];
 
     // Auto-generate invoice number on create

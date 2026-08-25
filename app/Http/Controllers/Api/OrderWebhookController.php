@@ -37,7 +37,6 @@ class OrderWebhookController extends Controller
             'items.*.unit_price' => 'required|numeric|min:0',
             'subtotal'       => 'required|numeric|min:0',
             'discount'       => 'nullable|numeric|min:0',
-            'tax'            => 'nullable|numeric|min:0',
             'total'          => 'required|numeric|min:0',
             'currency'       => 'nullable|string|size:3',
             'payment_method' => 'nullable|string|max:100',
@@ -126,7 +125,6 @@ class OrderWebhookController extends Controller
                     'tier_discount_amt'  => 0,
                     'promo_discount_amt' => 0,
                     'grand_total'        => $validated['total'],
-                    'tax'                => $validated['tax'] ?? 0,
                     'currency'           => $validated['currency'] ?? 'USD',
                     'notes'              => 'WC Order #' . $validated['wc_order_id'] . ' | ' . ($validated['payment_method'] ?? 'N/A'),
                     'status'             => 'completed',
@@ -190,7 +188,6 @@ class OrderWebhookController extends Controller
                         'item_count'     => count($validated['items']),
                         'subtotal'       => $validated['subtotal'],
                         'discount'       => $validated['discount'] ?? 0,
-                        'tax'            => $validated['tax'] ?? 0,
                         'total'          => $validated['total'],
                         'currency'       => $validated['currency'] ?? 'USD',
                     ],
@@ -241,7 +238,6 @@ class OrderWebhookController extends Controller
                     $priceSummary = $this->formatPriceSummary(
                         $validated['subtotal'],
                         $validated['discount'] ?? 0,
-                        $validated['tax'] ?? 0,
                         $validated['total'],
                         $currency
                     );
@@ -334,7 +330,6 @@ class OrderWebhookController extends Controller
         $priceSummary = $this->formatPriceSummary(
             $invoice->subtotal,
             $invoice->items_discount,
-            $invoice->tax ?? 0,
             $invoice->grand_total,
             $currency
         );
@@ -383,17 +378,16 @@ class OrderWebhookController extends Controller
 
     /**
      * Build the price-summary block for an order notification.
-     * Shows the discount & tax lines only when present (> 0), so the
-     * "recipe" stays clean for orders with no discount or tax.
+     * Shows the discount line only when present (> 0), so the
+     * "recipe" stays clean for orders with no discount.
      */
-    private function formatPriceSummary(float $subtotal, float $discount, float $tax, float $total, string $currency): string
+    private function formatPriceSummary(float $subtotal, float $discount, float $total, string $currency): string
     {
         $cur = $currency ?: 'USD';
         $lines = "💵 *Subtotal:* {$cur} " . number_format($subtotal, 2);
 
         return $lines
             . ($discount > 0 ? "\n🏷️ *Discount:* -{$cur} " . number_format($discount, 2) : '')
-            . ($tax > 0 ? "\n🧾 *Tax:* {$cur} " . number_format($tax, 2) : '')
             . "\n💰 *Total:* {$cur} " . number_format($total, 2);
     }
 }

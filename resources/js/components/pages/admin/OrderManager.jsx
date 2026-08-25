@@ -356,11 +356,6 @@ const OrderManager = () => {
                                                                 Discount: -${parseFloat(invoice.items_discount).toFixed(2)}
                                                             </p>
                                                         )}
-                                                        {parseFloat(invoice.tax || 0) > 0 && (
-                                                            <p className="text-[10px] font-bold text-amber-500">
-                                                                Tax: ${parseFloat(invoice.tax).toFixed(2)}
-                                                            </p>
-                                                        )}
                                                     </div>
                                                     <p className="text-lg font-black text-gray-900 dark:text-white">
                                                         Total: ${parseFloat(invoice.grand_total).toFixed(2)} {invoice.currency || 'USD'}
