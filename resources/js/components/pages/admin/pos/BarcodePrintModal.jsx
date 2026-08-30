@@ -199,7 +199,8 @@ const BarcodePrintModal = ({ products, onClose, formatPrice }) => {
                     html,body{width:${SHEET_W}mm;height:${LABEL_H}mm;-webkit-print-color-adjust:exact;print-color-adjust:exact}}
 
                 .lg{display:grid !important;grid-template-columns:repeat(${LABEL_UP}, ${LABEL_W}mm) !important;
-                    justify-content:space-between !important;width:${SHEET_W}mm !important;
+                    column-gap:${GUTTER}mm !important;row-gap:0 !important;
+                    justify-content:flex-start !important;width:${SHEET_W}mm !important;
                     height:${LABEL_H}mm !important;max-height:${LABEL_H}mm !important;
                     overflow:hidden !important;align-items:stretch !important;
                     margin:0 !important;padding:0 !important;page-break-inside:avoid !important}
@@ -408,7 +409,17 @@ const BarcodePrintModal = ({ products, onClose, formatPrice }) => {
                             In the print dialog set <span className="text-[#0d3542] dark:text-[#58a6ff]">Margins: None</span> · <span className="text-[#0d3542] dark:text-[#58a6ff]">Scale: 100%</span> (Actual size) · use <span className="text-[#0d3542] dark:text-[#58a6ff]">- / +</span> on a label for copies.
                         </span>
                     </div>
-                    <div ref={labelsRef} className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-7">
+                    <div
+                        ref={labelsRef}
+                        className="grid"
+                        style={{
+                            gridTemplateColumns: `repeat(${LABEL_UP}, ${LABEL_W * PREVIEW_SCALE}px)`,
+                            columnGap: `${GUTTER * PREVIEW_SCALE}px`,
+                            rowGap: 0,
+                            justifyContent: 'flex-start',
+                            width: 'fit-content',
+                        }}
+                    >
                         {products.map((p, idx) => {
                             const t = labelText(p);
                             const k = p.id ?? idx;
