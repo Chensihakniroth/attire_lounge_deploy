@@ -957,12 +957,15 @@ export default function AiAgentChat() {
                         <button
                             type="button"
                             onClick={() => setModelPanelOpen((v) => !v)}
-                            className="flex items-center gap-1.5 rounded-lg border border-border/60 dark:border-white/10 bg-muted/40 dark:bg-white/5 px-2.5 py-1 text-[11px] font-semibold text-foreground/80 dark:text-white/70 transition hover:bg-muted dark:hover:bg-white/10 active:scale-95"
+                            className="group flex items-center gap-2 rounded-xl border border-indigo-400/30 bg-gradient-to-r from-indigo-500/15 via-violet-500/10 to-cyan-500/15 px-3 py-1.5 text-[11px] font-bold uppercase tracking-[0.18em] text-indigo-700 shadow-[0_0_0_1px_rgba(99,102,241,0.12)] transition-all duration-200 hover:scale-[1.02] hover:border-indigo-400/50 hover:shadow-[0_8px_20px_rgba(99,102,241,0.18)] dark:border-indigo-500/30 dark:bg-gradient-to-r dark:from-indigo-500/20 dark:via-violet-500/10 dark:to-cyan-500/15 dark:text-indigo-200"
                             title="AI model settings"
                         >
-                            <BrainCircuit size={13} />
-                            <span className="hidden sm:inline">{modelSettings.model || 'Model'}</span>
+                            <span className="flex h-6 w-6 items-center justify-center rounded-lg bg-indigo-500/10 dark:bg-indigo-500/20">
+                                <BrainCircuit size={12} className="text-indigo-600 dark:text-indigo-200" />
+                            </span>
+                            <span className="hidden sm:inline max-w-[140px] truncate">{modelSettings.model || 'Model'}</span>
                             <span className="sm:hidden">Model</span>
+                            <span className="inline-flex h-5 w-5 items-center justify-center rounded-full border border-indigo-400/40 bg-white/30 text-[9px] font-black text-indigo-700 dark:bg-slate-900/40 dark:text-indigo-200">▾</span>
                         </button>
 
                         <AnimatePresence>
@@ -971,53 +974,57 @@ export default function AiAgentChat() {
                                     initial={{ opacity: 0, y: 8, scale: 0.98 }}
                                     animate={{ opacity: 1, y: 0, scale: 1 }}
                                     exit={{ opacity: 0, y: 8, scale: 0.98 }}
-                                    className="absolute right-0 top-full mt-2 w-80 rounded-2xl border border-border/60 dark:border-white/10 bg-background dark:bg-[#111827] p-3 shadow-2xl z-30"
+                                    className="absolute right-0 top-full mt-2 w-80 overflow-hidden rounded-2xl border border-indigo-400/30 bg-white/95 p-3 shadow-[0_20px_50px_rgba(15,23,42,0.24)] backdrop-blur-xl z-30 dark:border-white/10 dark:bg-slate-950/95"
                                 >
-                                    <div className="mb-2 flex items-center justify-between">
-                                        <div className="text-[10px] font-black uppercase tracking-[0.25em] text-muted-foreground dark:text-white/50">
+                                    <div className="mb-3 flex items-center justify-between rounded-xl bg-gradient-to-r from-indigo-500/10 via-violet-500/10 to-cyan-500/10 px-2.5 py-2 dark:from-indigo-500/15 dark:via-violet-500/10 dark:to-cyan-500/15">
+                                        <div className="flex items-center gap-2 text-[10px] font-black uppercase tracking-[0.25em] text-indigo-700 dark:text-indigo-200">
+                                            <BrainCircuit size={12} />
                                             AI model
                                         </div>
-                                        <button onClick={() => setModelPanelOpen(false)} className="rounded-full p-1 hover:bg-muted dark:hover:bg-white/10">
+                                        <button onClick={() => setModelPanelOpen(false)} className="rounded-full p-1 text-slate-500 transition hover:bg-slate-200/80 hover:text-slate-700 dark:text-slate-300 dark:hover:bg-white/10 dark:hover:text-white">
                                             <X size={12} />
                                         </button>
                                     </div>
 
-                                    <label className="mb-2 block text-[11px] font-semibold text-muted-foreground dark:text-white/60">
+                                    <label className="mb-2 block text-[11px] font-semibold text-slate-600 dark:text-slate-300">
                                         Provider URL
                                         <input
                                             value={modelSettings.api_base}
                                             onChange={(e) => setModelSettings((prev) => ({ ...prev, api_base: e.target.value }))}
-                                            className="mt-1 w-full rounded-xl border border-border/60 dark:border-white/10 bg-muted/40 dark:bg-white/5 px-2.5 py-2 text-[12px] outline-none ring-0"
+                                            className="mt-1 w-full rounded-xl border border-slate-200 bg-slate-50 px-2.5 py-2 text-[12px] text-slate-800 shadow-inner outline-none transition placeholder:text-slate-400 focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100 dark:focus:border-indigo-500 dark:focus:ring-indigo-500/20"
                                         />
                                     </label>
 
-                                    <label className="mb-3 block text-[11px] font-semibold text-muted-foreground dark:text-white/60">
+                                    <label className="mb-3 block text-[11px] font-semibold text-slate-600 dark:text-slate-300">
                                         Model
-                                        <select
-                                            value={modelSettings.model}
-                                            onChange={(e) => setModelSettings((prev) => ({ ...prev, model: e.target.value }))}
-                                            className="mt-1 w-full rounded-xl border border-border/60 dark:border-white/10 bg-muted/40 dark:bg-white/5 px-2.5 py-2 text-[12px] outline-none ring-0"
-                                        >
-                                            {(modelSettings.available_models?.length ? modelSettings.available_models : [
-                                                'deepseek-v4-flash-free',
-                                                'muse-spark-1.2-contributor-free',
-                                                'mimo-v2.5-free',
-                                                'ling-3.0-flash-fin-free',
-                                                'gemini-3.5-flash-lite',
-                                                'gemini-3-flash',
-                                                'claude-haiku-4-5',
-                                                'claude-sonnet-4',
-                                            ]).map((option) => (
-                                                <option key={option} value={option}>{option}</option>
-                                            ))}
-                                        </select>
+                                        <div className="relative mt-1">
+                                            <select
+                                                value={modelSettings.model}
+                                                onChange={(e) => setModelSettings((prev) => ({ ...prev, model: e.target.value }))}
+                                                className="w-full appearance-none rounded-xl border border-slate-200 bg-slate-50 px-2.5 py-2.5 pr-10 text-[12px] text-slate-800 shadow-inner outline-none transition focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100 dark:focus:border-indigo-500 dark:focus:ring-indigo-500/20"
+                                            >
+                                                {(modelSettings.available_models?.length ? modelSettings.available_models : [
+                                                    'deepseek-v4-flash-free',
+                                                    'muse-spark-1.2-contributor-free',
+                                                    'mimo-v2.5-free',
+                                                    'ling-3.0-flash-fin-free',
+                                                    'gemini-3.5-flash-lite',
+                                                    'gemini-3-flash',
+                                                    'claude-haiku-4-5',
+                                                    'claude-sonnet-4',
+                                                ]).map((option) => (
+                                                    <option key={option} value={option}>{option}</option>
+                                                ))}
+                                            </select>
+                                            <span className="pointer-events-none absolute inset-y-0 right-3 flex items-center text-slate-500 dark:text-slate-300">▾</span>
+                                        </div>
                                     </label>
 
                                     <button
                                         type="button"
                                         onClick={handleModelChange}
                                         disabled={savingModel}
-                                        className="w-full rounded-xl bg-primary px-3 py-2 text-[11px] font-black uppercase tracking-[0.2em] text-white disabled:opacity-70"
+                                        className="w-full rounded-xl bg-gradient-to-r from-indigo-600 to-violet-600 px-3 py-2.5 text-[11px] font-black uppercase tracking-[0.2em] text-white shadow-lg shadow-indigo-500/25 transition hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-70"
                                     >
                                         {savingModel ? 'Saving...' : 'Save model'}
                                     </button>
