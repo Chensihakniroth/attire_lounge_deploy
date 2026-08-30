@@ -999,14 +999,14 @@ export default function AiAgentChat() {
                                             className="mt-1 w-full rounded-xl border border-border/60 dark:border-white/10 bg-muted/40 dark:bg-white/5 px-2.5 py-2 text-[12px] outline-none ring-0"
                                         >
                                             {(modelSettings.available_models?.length ? modelSettings.available_models : [
-                                                'claude-sonnet-5',
-                                                'claude-opus-5',
                                                 'deepseek-v4-flash-free',
                                                 'muse-spark-1.2-contributor-free',
                                                 'mimo-v2.5-free',
                                                 'ling-3.0-flash-fin-free',
-                                                'gpt-5.5',
-                                                'gemini-3.7-flash',
+                                                'gemini-3.5-flash-lite',
+                                                'gemini-3-flash',
+                                                'claude-haiku-4-5',
+                                                'claude-sonnet-4',
                                             ]).map((option) => (
                                                 <option key={option} value={option}>{option}</option>
                                             ))}
