@@ -39,15 +39,15 @@ const AdminLogin = () => {
         try {
             // Use the centralized API method
             const response = await API.adminLogin({ login, password });
-            const { data: responseData } = response;
-            
+            const responseData = response?.data?.data ?? response?.data ?? response;
+
             if (!responseData || !responseData.token) {
                 throw new Error('Invalid response from server');
             }
-            
+
             // Set user data in context (handles persistence internally)
             setUserData(responseData);
-            
+
             // Give context a tiny moment to update before navigating
             setTimeout(() => navigate('/admin'), 100);
         } catch (err) {

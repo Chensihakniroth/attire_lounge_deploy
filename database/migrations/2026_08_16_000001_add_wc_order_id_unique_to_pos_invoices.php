@@ -18,16 +18,19 @@ return new class extends Migration
     {
         // Refuse to build the index while duplicate values already exist,
         // otherwise the migration silently fails or corrupts integrity.
-        $duplicates = DB::table('pos_invoices')
+        // Use a GROUP BY on the actual key column only so the query remains valid
+        // under MySQL's ONLY_FULL_GROUP_BY strict mode.
+        $duplicateIds = DB::table('pos_invoices')
             ->whereNotNull('wc_order_id')
+            ->select('wc_order_id')
             ->groupBy('wc_order_id')
             ->havingRaw('COUNT(*) > 1')
-            ->count();
+            ->pluck('wc_order_id');
 
-        if ($duplicates > 0) {
+        if ($duplicateIds->isNotEmpty()) {
             throw new RuntimeException(
                 "Cannot create unique index on pos_invoices.wc_order_id: " .
-                "{$duplicates} duplicate wc_order_id value(s) exist. " .
+                "{$duplicateIds->count()} duplicate wc_order_id value(s) exist. " .
                 "Deduplicate these rows before running this migration."
             );
         }

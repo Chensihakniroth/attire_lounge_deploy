@@ -2,9 +2,10 @@
 
 namespace Database\Seeders;
 
+use App\Models\User;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
-use App\Models\User;
+use Spatie\Permission\Models\Role;
 
 class AdminSeeder extends Seeder
 {
@@ -16,6 +17,11 @@ class AdminSeeder extends Seeder
     public function run()
     {
         \Illuminate\Support\Facades\Log::info('Running AdminSeeder');
+
+        foreach (['web', 'sanctum'] as $guard) {
+            Role::firstOrCreate(['name' => 'admin', 'guard_name' => $guard]);
+            Role::firstOrCreate(['name' => 'super-admin', 'guard_name' => $guard]);
+        }
 
         $admins = [
             [

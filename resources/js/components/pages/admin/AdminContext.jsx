@@ -145,11 +145,12 @@ export const AdminProvider = ({ children }) => {
     }, [adminToken, user, profileLoading]);
 
     const setUserData = useCallback((userData) => {
-        const newUser = userData?.user || null;
-        const roles = userData?.roles || userData?.user?.roles || [];
+        const payload = userData?.data ?? userData ?? {};
+        const newUser = payload?.user || userData?.user || null;
+        const roles = payload?.user?.roles || userData?.roles || payload?.roles || [];
         const permissions =
-            userData?.permissions || userData?.user?.permissions || [];
-        const token = userData?.token || null;
+            payload?.user?.permissions || userData?.permissions || payload?.permissions || [];
+        const token = payload?.token || userData?.token || null;
 
         setUser(newUser);
         setUserRoles(roles);
