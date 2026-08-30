@@ -107,19 +107,24 @@ class AgentService
 
             $llmDurMs = (int) round((microtime(true) - $t0Llm) * 1000);
 
-            if ($resp->failed()) {
-                $body = $resp->json('error.message');
-                if (! is_string($body) || $body === '') {
-                    $body = $resp->body();
-                }
-                $err = 'Sorry, the AI service returned an error (HTTP ' . $resp->status() . '): ' . Str::limit($body ?: 'unknown', 300);
+            $respJson = $resp->json();
+            if (isset($respJson['error'])) {
+                $providerMessage = $respJson['error']['message'] ?? $respJson['error'] ?? 'unknown provider error';
+                $err = 'The AI provider rejected the request: ' . Str::limit((string) $providerMessage, 300);
                 if ($onEvent) $onEvent(['type' => 'error', 'message' => $err]);
                 return ['reply' => $err, 'tool_calls' => $used];
             }
 
-            $message = $resp->json('choices.0.message');
+            if ($resp->failed()) {
+                $body = $respJson['error']['message'] ?? $respJson['message'] ?? $resp->body();
+                $err = 'Sorry, the AI service returned an error (HTTP ' . $resp->status() . '): ' . Str::limit((string) ($body ?: 'unknown'), 300);
+                if ($onEvent) $onEvent(['type' => 'error', 'message' => $err]);
+                return ['reply' => $err, 'tool_calls' => $used];
+            }
+
+            $message = $respJson['choices'][0]['message'] ?? null;
             if (! is_array($message)) {
-                $err = 'Sorry, the AI service returned an unexpected response.';
+                $err = 'Sorry, the AI service returned an unexpected response. Please check the provider model and billing status.';
                 if ($onEvent) $onEvent(['type' => 'error', 'message' => $err]);
                 return ['reply' => $err, 'tool_calls' => $used];
             }
