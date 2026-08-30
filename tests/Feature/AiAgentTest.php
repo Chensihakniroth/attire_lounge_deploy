@@ -77,6 +77,30 @@ class AiAgentTest extends TestCase
         $this->assertStringContainsString('The AI assistant is not configured on the server', $res->json('reply'));
     }
 
+    public function test_ai_settings_requires_admin_access(): void
+    {
+        Sanctum::actingAs($this->regularUser);
+
+        $res = $this->getJson('/api/v1/admin/ai/settings');
+
+        $res->assertStatus(403);
+    }
+
+    public function test_ai_settings_updates_model_in_env(): void
+    {
+        Sanctum::actingAs($this->admin);
+
+        $res = $this->postJson('/api/v1/admin/ai/settings', [
+            'api_base' => 'https://opencode.ai/zen/v1',
+            'model' => 'claude-sonnet-5',
+        ]);
+
+        $res->assertStatus(200);
+        $res->assertJsonPath('success', true);
+        $this->assertSame('claude-sonnet-5', env('AI_MODEL'));
+        $this->assertSame('https://opencode.ai/zen/v1', env('AI_API_BASE'));
+    }
+
     public function test_ai_chat_with_mocked_llm_and_tool_call_loop(): void
     {
         Sanctum::actingAs($this->admin);

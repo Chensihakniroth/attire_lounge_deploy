@@ -426,6 +426,9 @@ export default function AiAgentChat() {
     const outletLogo = outletInfo.logo || 'https://bucket-production-4ca0.up.railway.app/product-assets/uploads/asset/ALO.png';
 
     const storageKey = `attire_ai_chat_${user?.id || 'admin'}_${activeOutlet || 'attire_lounge'}`;
+    const [modelSettings, setModelSettings] = useState({ api_base: 'https://opencode.ai/zen/v1', model: 'claude-sonnet-5', available_models: [] });
+    const [modelPanelOpen, setModelPanelOpen] = useState(false);
+    const [savingModel, setSavingModel] = useState(false);
 
     const [messages, setMessages] = useState(() => {
         try {
@@ -503,6 +506,34 @@ export default function AiAgentChat() {
             console.error('Failed to save chat history', e);
         }
     }, [messages, user?.id, activeOutlet]);
+
+    const loadAiSettings = useCallback(async () => {
+        try {
+            const token = localStorage.getItem('admin_token') || sessionStorage.getItem('admin_token');
+            const res = await fetch('/api/v1/admin/ai/settings', {
+                headers: {
+                    'Content-Type': 'application/json',
+                    ...(token ? { Authorization: `Bearer ${token}` } : {}),
+                },
+            });
+
+            if (!res.ok) return;
+            const data = await res.json();
+            if (data?.success) {
+                setModelSettings({
+                    api_base: data.api_base || 'https://opencode.ai/zen/v1',
+                    model: data.model || 'claude-sonnet-5',
+                    available_models: data.available_models || [],
+                });
+            }
+        } catch (e) {
+            console.error('Failed to load AI settings', e);
+        }
+    }, []);
+
+    useEffect(() => {
+        loadAiSettings();
+    }, [loadAiSettings]);
 
     // Auto-scroll when messages stream or change
     useEffect(() => {
@@ -792,6 +823,38 @@ export default function AiAgentChat() {
         }
     };
 
+    const handleModelChange = async () => {
+        if (!modelSettings.model) return;
+
+        try {
+            setSavingModel(true);
+            const token = localStorage.getItem('admin_token') || sessionStorage.getItem('admin_token');
+            const res = await fetch('/api/v1/admin/ai/settings', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    ...(token ? { Authorization: `Bearer ${token}` } : {}),
+                },
+                body: JSON.stringify({
+                    api_base: modelSettings.api_base,
+                    model: modelSettings.model,
+                }),
+            });
+
+            const data = await res.json().catch(() => ({}));
+            if (!res.ok || !data?.success) {
+                throw new Error(data?.message || 'Unable to update the AI model.');
+            }
+
+            setModelPanelOpen(false);
+            toast.success(`AI model updated to ${data.model}`);
+        } catch (error) {
+            toast.error(error.message || 'Could not update the AI model.');
+        } finally {
+            setSavingModel(false);
+        }
+    };
+
     const clearChat = () => {
         if (!confirmClear) {
             setConfirmClear(true);
@@ -889,6 +952,69 @@ export default function AiAgentChat() {
                             <span className="hidden sm:inline">Export</span>
                         </button>
                     )}
+
+                    <div className="relative">
+                        <button
+                            type="button"
+                            onClick={() => setModelPanelOpen((v) => !v)}
+                            className="flex items-center gap-1.5 rounded-lg border border-border/60 dark:border-white/10 bg-muted/40 dark:bg-white/5 px-2.5 py-1 text-[11px] font-semibold text-foreground/80 dark:text-white/70 transition hover:bg-muted dark:hover:bg-white/10 active:scale-95"
+                            title="AI model settings"
+                        >
+                            <BrainCircuit size={13} />
+                            <span className="hidden sm:inline">Model</span>
+                        </button>
+
+                        <AnimatePresence>
+                            {modelPanelOpen && (
+                                <motion.div
+                                    initial={{ opacity: 0, y: 8, scale: 0.98 }}
+                                    animate={{ opacity: 1, y: 0, scale: 1 }}
+                                    exit={{ opacity: 0, y: 8, scale: 0.98 }}
+                                    className="absolute right-0 top-full mt-2 w-80 rounded-2xl border border-border/60 dark:border-white/10 bg-background dark:bg-[#111827] p-3 shadow-2xl z-30"
+                                >
+                                    <div className="mb-2 flex items-center justify-between">
+                                        <div className="text-[10px] font-black uppercase tracking-[0.25em] text-muted-foreground dark:text-white/50">
+                                            AI model
+                                        </div>
+                                        <button onClick={() => setModelPanelOpen(false)} className="rounded-full p-1 hover:bg-muted dark:hover:bg-white/10">
+                                            <X size={12} />
+                                        </button>
+                                    </div>
+
+                                    <label className="mb-2 block text-[11px] font-semibold text-muted-foreground dark:text-white/60">
+                                        Provider URL
+                                        <input
+                                            value={modelSettings.api_base}
+                                            onChange={(e) => setModelSettings((prev) => ({ ...prev, api_base: e.target.value }))}
+                                            className="mt-1 w-full rounded-xl border border-border/60 dark:border-white/10 bg-muted/40 dark:bg-white/5 px-2.5 py-2 text-[12px] outline-none ring-0"
+                                        />
+                                    </label>
+
+                                    <label className="mb-3 block text-[11px] font-semibold text-muted-foreground dark:text-white/60">
+                                        Model
+                                        <select
+                                            value={modelSettings.model}
+                                            onChange={(e) => setModelSettings((prev) => ({ ...prev, model: e.target.value }))}
+                                            className="mt-1 w-full rounded-xl border border-border/60 dark:border-white/10 bg-muted/40 dark:bg-white/5 px-2.5 py-2 text-[12px] outline-none ring-0"
+                                        >
+                                            {(modelSettings.available_models?.length ? modelSettings.available_models : ['claude-sonnet-5', 'deepseek-v4-flash-free', 'ling-3.0-flash-fin-free']).map((option) => (
+                                                <option key={option} value={option}>{option}</option>
+                                            ))}
+                                        </select>
+                                    </label>
+
+                                    <button
+                                        type="button"
+                                        onClick={handleModelChange}
+                                        disabled={savingModel}
+                                        className="w-full rounded-xl bg-primary px-3 py-2 text-[11px] font-black uppercase tracking-[0.2em] text-white disabled:opacity-70"
+                                    >
+                                        {savingModel ? 'Saving...' : 'Save model'}
+                                    </button>
+                                </motion.div>
+                            )}
+                        </AnimatePresence>
+                    </div>
 
                     {/* Language Toggle — compact single-click flip */}
                     <button

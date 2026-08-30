@@ -100,6 +100,8 @@ Route::prefix('v1')->group(function () {
             Route::get('/stats', [AdminController::class, 'stats']);
 
             // AI Data Assistant — admin-only (OpenCode Zen API, OpenAI-compatible)
+            Route::get('/ai/settings', [AiAgentController::class, 'settings']);
+            Route::post('/ai/settings', [AiAgentController::class, 'updateSettings']);
             Route::post('/ai/chat', [AiAgentController::class, 'chat']);
 
             // Promocodes
