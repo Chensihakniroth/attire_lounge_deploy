@@ -961,7 +961,8 @@ export default function AiAgentChat() {
                             title="AI model settings"
                         >
                             <BrainCircuit size={13} />
-                            <span className="hidden sm:inline">Model</span>
+                            <span className="hidden sm:inline">{modelSettings.model || 'Model'}</span>
+                            <span className="sm:hidden">Model</span>
                         </button>
 
                         <AnimatePresence>
@@ -997,7 +998,16 @@ export default function AiAgentChat() {
                                             onChange={(e) => setModelSettings((prev) => ({ ...prev, model: e.target.value }))}
                                             className="mt-1 w-full rounded-xl border border-border/60 dark:border-white/10 bg-muted/40 dark:bg-white/5 px-2.5 py-2 text-[12px] outline-none ring-0"
                                         >
-                                            {(modelSettings.available_models?.length ? modelSettings.available_models : ['claude-sonnet-5', 'deepseek-v4-flash-free', 'ling-3.0-flash-fin-free']).map((option) => (
+                                            {(modelSettings.available_models?.length ? modelSettings.available_models : [
+                                                'claude-sonnet-5',
+                                                'claude-opus-5',
+                                                'deepseek-v4-flash-free',
+                                                'muse-spark-1.2-contributor-free',
+                                                'mimo-v2.5-free',
+                                                'ling-3.0-flash-fin-free',
+                                                'gpt-5.5',
+                                                'gemini-3.7-flash',
+                                            ]).map((option) => (
                                                 <option key={option} value={option}>{option}</option>
                                             ))}
                                         </select>
