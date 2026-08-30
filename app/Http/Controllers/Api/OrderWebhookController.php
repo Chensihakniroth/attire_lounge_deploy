@@ -40,6 +40,8 @@ class OrderWebhookController extends Controller
             'total'          => 'required|numeric|min:0',
             'currency'       => 'nullable|string|size:3',
             'payment_method' => 'nullable|string|max:100',
+            'address'         => 'nullable|string|max:500',
+            'shipping_method' => 'nullable|string|max:100',
         ]);
 
         // Duplicate-order detection happens INSIDE the transaction below (row lock +
@@ -220,41 +222,40 @@ class OrderWebhookController extends Controller
                 $chatId    = $nileConfig['chat_id'] ?? '';
 
                 if (!empty($botToken) && !empty($chatId)) {
-                    $items = $validated['items'];
-                    $formatVariant = function($variant) {
-                        if (!$variant) return '';
-                        $parts = array_map('trim', array_filter(explode('-', $variant)));
-                        return ' (' . implode(', ', $parts) . ')';
-                    };
-                    $itemLines = collect($items)->take(5)->map(fn($i) =>
-                        "• {$i['name']}" . ($products[$i['sku']]->variant ? $formatVariant($products[$i['sku']]->variant) : '') . " × {$i['quantity']} — $" . number_format($i['unit_price'], 2)
-                    )->implode("\n");
-
-                    if (count($items) > 5) {
-                        $itemLines .= "\n… and " . (count($items) - 5) . " more item(s)";
-                    }
-
-                    $currency = $validated['currency'] ?? 'USD';
-                    $priceSummary = $this->formatPriceSummary(
-                        $validated['subtotal'],
-                        $validated['discount'] ?? 0,
-                        $validated['total'],
-                        $currency
+                    $currency  = $validated['currency'] ?? 'USD';
+                    $itemLines = $this->formatNileItems(
+                        $validated['items'],
+                        $currency,
+                        fn($i) => [
+                            $i['name'],
+                            $products[$i['sku']]->variant ?? '',
+                            $i['quantity'],
+                            $i['unit_price'],
+                        ]
                     );
 
-                    $message = "🛒 *New Online Order #{$validated['wc_order_id']}* 🛒\n\n"
-                        . "👤 *Customer:* {$validated['customer']['name']}\n"
-                        . "📧 *Email:* " . ($validated['customer']['email'] ?? 'N/A') . "\n"
-                        . "📦 *Items:* " . count($items) . "\n\n"
-                        . "{$itemLines}\n\n"
-                        . "{$priceSummary}\n"
-                        . "💳 *Payment:* " . ($validated['payment_method'] ?? 'N/A') . "\n"
-                        . "🕐 *Time:* " . now()->format('M d, Y h:i A');
+                    $message = $this->buildNileOrderTelegramMessage([
+                        'wc_order_id'     => $validated['wc_order_id'],
+                        'customer_name'   => $validated['customer']['name'],
+                        'customer_email'  => $validated['customer']['email'] ?? null,
+                        'customer_phone'  => $validated['customer']['phone'] ?? null,
+                        'address'         => $validated['address'] ?? null,
+                        'shipping_method' => $validated['shipping_method'] ?? null,
+                        'payment_method'  => $validated['payment_method'] ?? null,
+                        'currency'        => $currency,
+                        'item_lines'      => $itemLines,
+                        'item_count'      => count($validated['items']),
+                        'subtotal'        => $validated['subtotal'],
+                        'discount'        => $validated['discount'] ?? 0,
+                        'total'           => $validated['total'],
+                        'time'            => now()->format('M d, Y h:i A'),
+                        'view_order_url'  => $this->nileOrderViewUrl($validated['wc_order_id']),
+                    ]);
 
                     $response = Http::post("https://api.telegram.org/bot{$botToken}/sendMessage", [
                         'chat_id'    => $chatId,
                         'text'       => $message,
-                        'parse_mode' => 'Markdown',
+                        'parse_mode' => 'HTML',
                     ]);
 
                     if (!$response->successful()) {
@@ -307,40 +308,39 @@ class OrderWebhookController extends Controller
             ], 500);
         }
 
-        $items = $invoice->items ?? collect();
-        $itemLines = $items->take(5)->map(function($i) {
-            $variant = $i->product_variant ?? '';
-            $detail = '';
-            if ($variant) {
-                $parts = array_map('trim', array_filter(explode('-', $variant)));
-                $detail = ' (' . implode(', ', $parts) . ')';
-            }
-            return "• {$i->product_name}{$detail} × {$i->quantity} — $" . number_format($i->unit_price, 2);
-        })->implode("\n");
-
-        if ($items->count() > 5) {
-            $itemLines .= "\n… and " . ($items->count() - 5) . " more item(s)";
-        }
-
-        $customerName = $invoice->customer?->name ?? 'Guest';
-        $customerEmail = $invoice->customer?->email ?? 'N/A';
-        $wcOrderId = $invoice->wc_order_id ?? $invoice->invoice_number;
-        $currency = $invoice->currency ?? 'USD';
-
-        $priceSummary = $this->formatPriceSummary(
-            $invoice->subtotal,
-            $invoice->items_discount,
-            $invoice->grand_total,
-            $currency
+        $currency  = $invoice->currency ?? 'USD';
+        $itemLines = $this->formatNileItems(
+            $invoice->items ?? collect(),
+            $currency,
+            fn($i) => [
+                $i->product_name,
+                $i->product_variant ?? '',
+                $i->quantity,
+                $i->unit_price,
+            ]
         );
 
-        $message = "🛒 *New Online Order #{$wcOrderId}* 🛒\n\n"
-            . "👤 *Customer:* {$customerName}\n"
-            . "📧 *Email:* {$customerEmail}\n"
-            . "📦 *Items:* {$items->count()}\n\n"
-            . "{$itemLines}\n\n"
-            . "{$priceSummary}\n"
-            . "🕐 *Time:* " . $invoice->created_at->format('M d, Y h:i A');
+        $customerName  = $invoice->customer?->name ?? 'Guest';
+        $customerEmail = $invoice->customer?->email ?? null;
+        $wcOrderId     = $invoice->wc_order_id ?? $invoice->invoice_number;
+
+        $message = $this->buildNileOrderTelegramMessage([
+            'wc_order_id'     => $wcOrderId,
+            'customer_name'   => $customerName,
+            'customer_email'  => $customerEmail,
+            'customer_phone'  => $invoice->customer?->phone ?? null,
+            'address'         => $invoice->customer?->address ?? null,
+            'shipping_method' => $invoice->shipping_method ?? null,
+            'payment_method'  => $this->extractPaymentMethod($invoice),
+            'currency'        => $currency,
+            'item_lines'      => $itemLines,
+            'item_count'      => $invoice->items?->count() ?? 0,
+            'subtotal'        => $invoice->subtotal,
+            'discount'        => $invoice->items_discount,
+            'total'           => $invoice->grand_total,
+            'time'            => $invoice->created_at->format('M d, Y h:i A'),
+            'view_order_url'  => $this->nileOrderViewUrl($wcOrderId),
+        ]);
 
         try {
             $response = Http::post("https://api.telegram.org/bot{$botToken}/sendMessage", [
@@ -377,17 +377,155 @@ class OrderWebhookController extends Controller
     }
 
     /**
-     * Build the price-summary block for an order notification.
-     * Shows the discount line only when present (> 0), so the
-     * "recipe" stays clean for orders with no discount.
+     * Build the Nile order Telegram notification body (HTML), matching the
+     * approved reference layout: header + order date, customer block,
+     * payment/delivery, "+ Items :" list, totals, optional View-Order link.
+     * Every user-supplied value is HTML-escaped, so a value containing
+     * '<', '>', '&' (or an email with '_') can never break parsing.
+     * Optional fields (phone / address / delivery) are omitted when empty.
      */
-    private function formatPriceSummary(float $subtotal, float $discount, float $total, string $currency): string
+    private function buildNileOrderTelegramMessage(array $data): string
     {
-        $cur = $currency ?: 'USD';
-        $lines = "💵 *Subtotal:* {$cur} " . number_format($subtotal, 2);
+        $e   = fn($s) => htmlspecialchars((string) ($s ?? ''), ENT_QUOTES | ENT_HTML5, 'UTF-8');
+        $sep = '──────────────';
+        $ts  = strtotime((string) ($data['time'] ?? '')) ?: time();
+        $sym = (($data['currency'] ?? 'USD') === 'USD') ? '$' : $e($data['currency']) . ' ';
 
-        return $lines
-            . ($discount > 0 ? "\n🏷️ *Discount:* -{$cur} " . number_format($discount, 2) : '')
-            . "\n💰 *Total:* {$cur} " . number_format($total, 2);
+        $lines = [
+            "🛍️ <b>NEW ORDER : #{$e($data['wc_order_id'])}</b>",
+            'Order Date: ' . date('F j, Y', $ts) . ' • ' . date('g:i A', $ts),
+            $sep,
+            "Customer: {$e($data['customer_name'])}",
+        ];
+
+        // Email -> tappable mailto link, shown ONLY when the address is valid.
+        $email = trim((string) ($data['customer_email'] ?? ''));
+        if ($email !== '' && filter_var($email, FILTER_VALIDATE_EMAIL) !== false) {
+            $lines[] = "Email: <a href=\"mailto:{$e($email)}\">{$e($email)}</a>";
+        }
+
+        // Phone -> tap opens a Telegram chat with that number (https://t.me/+<digits>).
+        $phone  = trim((string) ($data['customer_phone'] ?? ''));
+        $digits = preg_replace('/\D/', '', $phone);
+        if (strlen($digits) >= 8) {
+            $lines[] = "Phone: <a href=\"https://t.me/+{$digits}\">{$e($phone)}</a>";
+        }
+        if (!empty($data['address'])) {
+            $lines[] = "Address: {$e($data['address'])}";
+        }
+
+        $lines[] = $sep;
+        $lines[] = 'Payment: ' . ($data['payment_method'] ? $e($data['payment_method']) : 'N/A');
+
+        if (!empty($data['shipping_method'])) {
+            $lines[] = "Delivery: {$e($data['shipping_method'])}";
+        }
+
+        $lines[] = $sep;
+        $lines[] = '+ Items :';
+
+        if (!empty($data['item_lines'])) {
+            $lines[] = $data['item_lines'];
+        }
+
+        $lines[] = $sep;
+        $lines[] = 'Subtotal: ' . $sym . number_format((float) $data['subtotal'], 2);
+
+        if ((float) ($data['discount'] ?? 0) > 0) {
+            $lines[] = '🏷️ Discount: -' . $sym . number_format((float) $data['discount'], 2);
+        }
+
+        $lines[] = '💰 Total: ' . $sym . number_format((float) $data['total'], 2);
+
+        if (!empty($data['view_order_url'])) {
+            $lines[] = '';
+            $lines[] = "🔗 <a href=\"{$e($data['view_order_url'])}\">View Order</a>";
+        }
+
+        return implode("\n", $lines);
+    }
+
+    /**
+     * Build the "+ Items :" block (HTML-escaped) to match the reference layout:
+     *   1. Horsebit
+     *   • Color Black | Size 43 | Qty 1
+     *   • $145.00 × 1
+     * Variant "Black-43" maps to color=Black, size=43. Shows the first 5 items,
+     * then appends a "… and N more" note.
+     */
+    private function formatNileItems(iterable $items, string $currency, \Closure $resolve): string
+    {
+        $e   = fn($s) => htmlspecialchars((string) ($s ?? ''), ENT_QUOTES | ENT_HTML5, 'UTF-8');
+        $all = collect($items);
+        $sym = (($currency ?: 'USD') === 'USD') ? '$' : $e($currency) . ' ';
+
+        $blocks = $all->take(5)->values()->map(function ($it, $idx) use ($resolve, $e, $sym) {
+            [$name, $variant, $qty, $price] = $resolve($it);
+
+            return ($idx + 1) . '. ' . $e($name) . "\n"
+                . $this->variantDetailLine($variant, $qty, $e) . "\n"
+                . '• ' . $sym . number_format((float) $price, 2) . " × {$qty}";
+        })->implode("\n");
+
+        if ($all->count() > 5) {
+            $blocks .= "\n… and " . ($all->count() - 5) . " more item(s)";
+        }
+
+        return $blocks;
+    }
+
+    /**
+     * Render the "• Color X | Size Y | Qty N" line for a variant like "Black-43".
+     * Falls back gracefully when the variant is missing or has one part only.
+     */
+    private function variantDetailLine(?string $variant, $qty, \Closure $e): string
+    {
+        $parts = array_values(array_filter(
+            array_map('trim', explode('-', (string) $variant)),
+            fn($p) => $p !== ''
+        ));
+
+        if (count($parts) >= 2) {
+            return "• Color {$e($parts[0])} | Size {$e($parts[1])} | Qty {$qty}";
+        }
+        if (count($parts) === 1) {
+            return "• Color {$e($parts[0])} | Qty {$qty}";
+        }
+
+        return "• Qty {$qty}";
+    }
+
+    /**
+     * Resolve the "View Order" deep link from config (set NILE_ORDER_VIEW_URL).
+     * The template may contain a {wc_order_id} placeholder. Returns null when
+     * not configured, so the link is simply omitted.
+     */
+    private function nileOrderViewUrl($wcOrderId): ?string
+    {
+        $template = config('nile-telegram.order_view_url');
+        if (empty($template) || empty($wcOrderId)) {
+            return null;
+        }
+
+        return str_replace('{wc_order_id}', $wcOrderId, $template);
+    }
+
+    /**
+     * Best-effort payment-method for the manual re-send. The webhook stores it
+     * in the invoice notes ("WC Order #123 | ABA PayWay"), so fall back to that.
+     */
+    private function extractPaymentMethod(PosInvoice $invoice): ?string
+    {
+        if (!empty($invoice->payment_method)) {
+            return $invoice->payment_method;
+        }
+        if (empty($invoice->notes)) {
+            return null;
+        }
+        if (preg_match('/\|\\s*(.+)$/', $invoice->notes, $m)) {
+            return trim($m[1]);
+        }
+
+        return null;
     }
 }
