@@ -15,21 +15,20 @@ class AiAgentController extends Controller
     public function settings(Request $request)
     {
         $base = config('agent.api_base') ?: 'https://opencode.ai/zen/v1';
-        $model = config('agent.model') ?: 'claude-sonnet-5';
+        $model = config('agent.model') ?: 'laguna-s-2.1-free';
 
         return response()->json([
             'success' => true,
             'api_base' => $base,
             'model' => $model,
             'available_models' => [
+                'laguna-s-2.1-free',
+                'nemotron-3-ultra-free',
+                'nemotron-3.5-lightning-free',
                 'deepseek-v4-flash-free',
                 'muse-spark-1.2-contributor-free',
                 'mimo-v2.5-free',
                 'ling-3.0-flash-fin-free',
-                'gemini-3.5-flash-lite',
-                'gemini-3-flash',
-                'claude-haiku-4-5',
-                'claude-sonnet-4',
             ],
         ]);
     }

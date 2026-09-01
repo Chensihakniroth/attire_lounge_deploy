@@ -16,7 +16,7 @@ return [
     'driver'            => env('AI_DRIVER', 'openai-compatible'),
     'api_base'          => rtrim(env('AI_API_BASE', ''), '/'),
     'api_key'           => env('AI_API_KEY'),
-    'model'             => env('AI_MODEL'),
+    'model'             => env('AI_MODEL', 'laguna-s-2.1-free'),
 
     'max_output_tokens' => (int) env('AI_MAX_OUTPUT_TOKENS', 4096),
     'temperature'       => (float) env('AI_TEMPERATURE', 0.2),

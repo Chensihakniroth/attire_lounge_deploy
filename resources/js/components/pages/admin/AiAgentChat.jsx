@@ -426,7 +426,7 @@ export default function AiAgentChat() {
     const outletLogo = outletInfo.logo || 'https://bucket-production-4ca0.up.railway.app/product-assets/uploads/asset/ALO.png';
 
     const storageKey = `attire_ai_chat_${user?.id || 'admin'}_${activeOutlet || 'attire_lounge'}`;
-    const [modelSettings, setModelSettings] = useState({ api_base: 'https://opencode.ai/zen/v1', model: 'claude-sonnet-5', available_models: [] });
+    const [modelSettings, setModelSettings] = useState({ api_base: 'https://opencode.ai/zen/v1', model: 'laguna-s-2.1-free', available_models: [] });
     const [modelPanelOpen, setModelPanelOpen] = useState(false);
     const [savingModel, setSavingModel] = useState(false);
 
@@ -522,7 +522,7 @@ export default function AiAgentChat() {
             if (data?.success) {
                 setModelSettings({
                     api_base: data.api_base || 'https://opencode.ai/zen/v1',
-                    model: data.model || 'claude-sonnet-5',
+                    model: data.model || 'laguna-s-2.1-free',
                     available_models: data.available_models || [],
                 });
             }
@@ -957,82 +957,68 @@ export default function AiAgentChat() {
                         <button
                             type="button"
                             onClick={() => setModelPanelOpen((v) => !v)}
-                            className="group flex items-center gap-2 rounded-xl border border-indigo-400/30 bg-gradient-to-r from-indigo-500/15 via-violet-500/10 to-cyan-500/15 px-3 py-1.5 text-[11px] font-bold uppercase tracking-[0.18em] text-indigo-700 shadow-[0_0_0_1px_rgba(99,102,241,0.12)] transition-all duration-200 hover:scale-[1.02] hover:border-indigo-400/50 hover:shadow-[0_8px_20px_rgba(99,102,241,0.18)] dark:border-indigo-500/30 dark:bg-gradient-to-r dark:from-indigo-500/20 dark:via-violet-500/10 dark:to-cyan-500/15 dark:text-indigo-200"
+                            className="flex items-center gap-1.5 rounded-lg border border-border/60 dark:border-white/10 bg-muted/40 dark:bg-white/5 px-2.5 py-1 text-[11px] font-semibold text-foreground/80 dark:text-white/70 transition hover:bg-muted dark:hover:bg-white/10 active:scale-95"
                             title="AI model settings"
                         >
-                            <span className="flex h-6 w-6 items-center justify-center rounded-lg bg-indigo-500/10 dark:bg-indigo-500/20">
-                                <BrainCircuit size={12} className="text-indigo-600 dark:text-indigo-200" />
-                            </span>
+                            <BrainCircuit size={13} />
                             <span className="hidden sm:inline max-w-[140px] truncate">{modelSettings.model || 'Model'}</span>
                             <span className="sm:hidden">Model</span>
-                            <span className="inline-flex h-5 w-5 items-center justify-center rounded-full border border-indigo-400/40 bg-white/30 text-[9px] font-black text-indigo-700 dark:bg-slate-900/40 dark:text-indigo-200">▾</span>
+                            <span className="text-[10px] opacity-60">▾</span>
                         </button>
 
-                        <AnimatePresence>
-                            {modelPanelOpen && (
-                                <motion.div
-                                    initial={{ opacity: 0, y: 8, scale: 0.98 }}
-                                    animate={{ opacity: 1, y: 0, scale: 1 }}
-                                    exit={{ opacity: 0, y: 8, scale: 0.98 }}
-                                    className="absolute right-0 top-full z-30 mt-2 w-72 overflow-hidden rounded-xl border border-slate-200 bg-white/95 p-2.5 shadow-lg shadow-slate-200/70 backdrop-blur-sm dark:border-slate-700 dark:bg-slate-950/95 dark:shadow-black/30"
-                                >
-                                    <div className="mb-2 flex items-center justify-between">
-                                        <div className="flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-[0.16em] text-slate-600 dark:text-slate-300">
-                                            <BrainCircuit size={12} />
-                                            Model
-                                        </div>
-                                        <button onClick={() => setModelPanelOpen(false)} className="rounded-full p-1 text-slate-500 transition hover:bg-slate-100 hover:text-slate-700 dark:text-slate-300 dark:hover:bg-slate-800 dark:hover:text-white">
-                                            <X size={12} />
-                                        </button>
+                        {modelPanelOpen && (
+                            <div className="absolute right-0 top-full z-30 mt-2 w-72 rounded-lg border border-border/60 dark:border-white/10 bg-background dark:bg-[#111827] p-2.5 shadow-lg">
+                                <div className="mb-2 flex items-center justify-between">
+                                    <div className="text-[10px] font-semibold uppercase tracking-wide text-muted-foreground dark:text-white/50">
+                                        AI model
                                     </div>
+                                    <button onClick={() => setModelPanelOpen(false)} className="rounded-full p-1 text-muted-foreground hover:bg-muted dark:hover:bg-white/10">
+                                        <X size={12} />
+                                    </button>
+                                </div>
 
-                                    <div className="space-y-2">
-                                        <label className="block text-[10px] font-medium text-slate-600 dark:text-slate-300">
-                                            Provider URL
-                                            <input
-                                                value={modelSettings.api_base}
-                                                onChange={(e) => setModelSettings((prev) => ({ ...prev, api_base: e.target.value }))}
-                                                className="mt-1 w-full rounded-lg border border-slate-200 bg-slate-50 px-2 py-1.5 text-[11px] text-slate-800 outline-none transition focus:border-indigo-400 focus:ring-1 focus:ring-indigo-100 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100 dark:focus:border-indigo-500 dark:focus:ring-indigo-500/20"
-                                            />
-                                        </label>
+                                <div className="space-y-2">
+                                    <label className="block text-[11px] font-semibold text-muted-foreground dark:text-white/60">
+                                        Provider URL
+                                        <input
+                                            value={modelSettings.api_base}
+                                            onChange={(e) => setModelSettings((prev) => ({ ...prev, api_base: e.target.value }))}
+                                            className="mt-1 w-full rounded-lg border border-border/60 dark:border-white/10 bg-muted/40 dark:bg-white/5 px-2.5 py-1.5 text-[12px] outline-none focus:ring-1 focus:ring-indigo-100 dark:focus:ring-indigo-500/20"
+                                        />
+                                    </label>
 
-                                        <label className="block text-[10px] font-medium text-slate-600 dark:text-slate-300">
-                                            Choose model
-                                            <div className="relative mt-1">
-                                                <select
-                                                    value={modelSettings.model}
-                                                    onChange={(e) => setModelSettings((prev) => ({ ...prev, model: e.target.value }))}
-                                                    className="w-full appearance-none rounded-lg border border-slate-200 bg-slate-50 px-2 py-1.5 pr-8 text-[11px] text-slate-800 outline-none transition focus:border-indigo-400 focus:ring-1 focus:ring-indigo-100 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100 dark:focus:border-indigo-500 dark:focus:ring-indigo-500/20"
-                                                >
-                                                    {(modelSettings.available_models?.length ? modelSettings.available_models : [
-                                                        'deepseek-v4-flash-free',
-                                                        'muse-spark-1.2-contributor-free',
-                                                        'mimo-v2.5-free',
-                                                        'ling-3.0-flash-fin-free',
-                                                        'gemini-3.5-flash-lite',
-                                                        'gemini-3-flash',
-                                                        'claude-haiku-4-5',
-                                                        'claude-sonnet-4',
-                                                    ]).map((option) => (
-                                                        <option key={option} value={option}>{option}</option>
-                                                    ))}
-                                                </select>
-                                                <span className="pointer-events-none absolute inset-y-0 right-2 flex items-center text-slate-500 dark:text-slate-300">▾</span>
-                                            </div>
-                                        </label>
-
-                                        <button
-                                            type="button"
-                                            onClick={handleModelChange}
-                                            disabled={savingModel}
-                                            className="w-full rounded-lg bg-indigo-600 px-2.5 py-1.5 text-[10px] font-bold uppercase tracking-[0.18em] text-white transition hover:bg-indigo-500 disabled:cursor-not-allowed disabled:opacity-70"
+                                    <label className="block text-[11px] font-semibold text-muted-foreground dark:text-white/60">
+                                        Model
+                                        <select
+                                            value={modelSettings.model}
+                                            onChange={(e) => setModelSettings((prev) => ({ ...prev, model: e.target.value }))}
+                                            className="mt-1 w-full rounded-lg border border-border/60 dark:border-white/10 bg-muted/40 dark:bg-white/5 px-2.5 py-1.5 text-[12px] outline-none focus:ring-1 focus:ring-indigo-100 dark:focus:ring-indigo-500/20"
                                         >
-                                            {savingModel ? 'Saving...' : 'Save'}
-                                        </button>
-                                    </div>
-                                </motion.div>
-                            )}
-                        </AnimatePresence>
+                                            {(modelSettings.available_models?.length ? modelSettings.available_models : [
+                                                'laguna-s-2.1-free',
+                                                'nemotron-3-ultra-free',
+                                                'nemotron-3.5-lightning-free',
+                                                'deepseek-v4-flash-free',
+                                                'muse-spark-1.2-contributor-free',
+                                                'mimo-v2.5-free',
+                                                'ling-3.0-flash-fin-free',
+                                            ]).map((option) => (
+                                                <option key={option} value={option}>{option}</option>
+                                            ))}
+                                        </select>
+                                    </label>
+
+                                    <button
+                                        type="button"
+                                        onClick={handleModelChange}
+                                        disabled={savingModel}
+                                        className="w-full rounded-lg bg-primary px-3 py-1.5 text-[11px] font-semibold uppercase tracking-wide text-white disabled:opacity-70"
+                                    >
+                                        {savingModel ? 'Saving...' : 'Save model'}
+                                    </button>
+                                </div>
+                            </div>
+                        )}
                     </div>
 
                     {/* Language Toggle — compact single-click flip */}
