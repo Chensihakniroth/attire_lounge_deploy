@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { 
-    User, Mail, Key, Shield, Check, AlertCircle, 
+import {
+    User, Mail, Key, Shield, Check, AlertCircle, Loader2,
     ChevronLeft, Edit, Save, Trash2, ShieldCheck, Lock, Info
 } from 'lucide-react';
 import { LumaSpin } from '@/components/ui/luma-spin';
