@@ -74,7 +74,7 @@ function renderTableCell(cell) {
     const trimmed = (cell || '').trim();
     if (!trimmed) return <span className="text-muted-foreground/50">—</span>;
     const lower = trimmed.toLowerCase();
-    
+
     // Status Pills
     if (lower === 'active' || lower === 'yes' || lower === 'completed' || lower === 'done' || lower === 'approved') {
         return (
@@ -100,7 +100,7 @@ function renderTableCell(cell) {
             </span>
         );
     }
-    
+
     // Price / Money
     if (/^\$\s*[\d,]+(\.\d{2})?$/.test(trimmed)) {
         return <span className="font-mono font-semibold text-foreground dark:text-white">{trimmed}</span>;
@@ -325,7 +325,7 @@ function MarkdownRenderer({ content, isStreaming = false }) {
         const trimmed = line.trim();
 
         // Check for table row (starts with | or contains multiple pipes)
-        const isTableLine = (trimmed.startsWith('|') && (trimmed.match(/\|/g) || []).length >= 1) || 
+        const isTableLine = (trimmed.startsWith('|') && (trimmed.match(/\|/g) || []).length >= 1) ||
                             (!trimmed.startsWith('- ') && !trimmed.startsWith('* ') && (trimmed.match(/\|/g) || []).length >= 2);
 
         if (isTableLine) {

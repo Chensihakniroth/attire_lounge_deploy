@@ -63,16 +63,16 @@ const AdminLogin = () => {
         <div className="relative min-h-screen flex font-sans overflow-hidden bg-[#0d1117] text-white selection:bg-[#58a6ff] selection:text-black">
             {/* Left Column: Visual Branding */}
             <div className="hidden lg:flex lg:w-1/2 relative overflow-hidden bg-black border-r border-white/5">
-                <motion.div 
+                <motion.div
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 0.4 }}
                     transition={{ duration: 2 }}
                     className="absolute inset-0 z-0"
                 >
-                    <video 
-                        autoPlay 
-                        loop 
-                        muted 
+                    <video
+                        autoPlay
+                        loop
+                        muted
                         playsInline
                         className="w-full h-full object-cover grayscale opacity-30 brightness-50 contrast-125"
                     >
@@ -102,7 +102,7 @@ const AdminLogin = () => {
                     >
                         <div className="h-px w-24 bg-attire-accent/40" />
                         <p className="text-sm text-attire-silver/60 max-w-sm leading-relaxed tracking-wide font-light">
-                            Secured administrative access for curated excellence. 
+                            Secured administrative access for curated excellence.
                             Manage collections, appointments, and styling house operations from your master console.
                         </p>
                         <div className="flex items-center gap-4 text-[9px] font-bold uppercase tracking-[0.3em] text-white/20">
@@ -118,7 +118,7 @@ const AdminLogin = () => {
             <div className="flex-1 flex items-center justify-center p-8 bg-[#0d1117] relative">
 
 
-                <motion.div 
+                <motion.div
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
@@ -132,13 +132,13 @@ const AdminLogin = () => {
                             transition={{ delay: 0.3, duration: 0.8 }}
                             className="mb-8"
                         >
-                            <img 
-                                src={logoUrl} 
-                                alt="Attire Lounge Official Logo" 
+                            <img
+                                src={logoUrl}
+                                alt="Attire Lounge Official Logo"
                                 className="w-24 h-auto object-contain brightness-110 drop-shadow-[0_0_15px_rgba(255,255,255,0.1)]"
                             />
                         </motion.div>
-                        
+
                         <h3 className="text-2xl font-serif text-white mb-2 tracking-tight">Master Console</h3>
                         <div className="flex items-center justify-center gap-3">
                             <div className="h-px w-4 bg-attire-accent/30" />
@@ -188,7 +188,7 @@ const AdminLogin = () => {
                         </div>
 
                         {error && (
-                            <motion.div 
+                            <motion.div
                                 initial={{ opacity: 0 }}
                                 animate={{ opacity: 1 }}
                                 className="flex items-center gap-3 p-4 bg-red-500/5 border border-red-500/10 rounded-xl"
