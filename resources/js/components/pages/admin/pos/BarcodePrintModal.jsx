@@ -442,11 +442,16 @@ const BarcodePrintModal = ({ products, onClose, formatPrice }) => {
                         ref={labelsRef}
                         className="grid"
                         style={{
-                            gridTemplateColumns: `repeat(${LABEL_UP}, ${LABEL_W * PREVIEW_SCALE}px)`,
+                            // Auto-fill cards horizontally to fill the modal width.
+                            // Each card keeps its true-to-print shape (aspect-ratio
+                            // LABEL_W/LABEL_H) and CSS grid wraps onto new rows as
+                            // needed. The print sheet layout (2-up etc.) is built
+                            // separately in handlePrint() — this is preview only.
+                            gridTemplateColumns: `repeat(auto-fill, minmax(${LABEL_W * PREVIEW_SCALE}px, 1fr))`,
                             columnGap: `${GUTTER * PREVIEW_SCALE}px`,
-                            rowGap: 0,
-                            justifyContent: 'flex-start',
-                            width: 'fit-content',
+                            rowGap: '12px',
+                            justifyItems: 'flex-start',
+                            width: '100%',
                         }}
                     >
                         {products.map((p, idx) => {
@@ -463,8 +468,12 @@ const BarcodePrintModal = ({ products, onClose, formatPrice }) => {
                                    printed output so what you see is what prints. */}
                                 <div data-key={k} className="bc-label bg-white border border-gray-200 rounded-xl shadow-sm relative"
                                     style={{
-                                        width: `${LABEL_W * PREVIEW_SCALE}px`,
-                                        height: `${LABEL_H * PREVIEW_SCALE}px`,
+                                        // Width comes from the grid column (auto-fill
+                                        // minmax above). Height is derived from width via
+                                        // aspect-ratio so the card keeps its true-to-print
+                                        // shape regardless of column size.
+                                        width: '100%',
+                                        aspectRatio: `${LABEL_W} / ${LABEL_H}`,
                                         padding: `${parseFloat(MM.padY) * PREVIEW_SCALE}px ${parseFloat(MM.padX) * PREVIEW_SCALE}px`,
                                         ...baseCardStyle,
                                         justifyContent: 'flex-start',
