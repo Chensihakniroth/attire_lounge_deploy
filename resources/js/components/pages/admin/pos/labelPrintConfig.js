@@ -8,7 +8,7 @@ const DEFAULT_LABEL_PRINT_CONFIG = {
         paddingY: '1.0mm',
         gap: '0.5mm',
         name: '3.1mm',
-        variant: '1.2mm',
+        variant: '2.2mm',
         sku: '1.5mm',
         price: '4.0mm',
         priceCurrency: '2.2mm',
