@@ -144,27 +144,32 @@ const BarcodePrintModal = ({ products, onClose, formatPrice }) => {
         const productColor = getProductColor(p);
         const colorSuffix = productColor ? ` (${productColor})` : '';
 
-        // Build variantText but skip any attribute whose value duplicates the color
-        // already shown on the name line. Otherwise shoes print "(BLACK)" on the name
-        // AND "BLACK · 40" on the variant line — same color twice. For a shoe
-        // {COLOR:'Black', SIZE:'40'} this leaves variantText = "40" (size only).
+        // Build extraNameParts from parsed_attributes but skip any value that
+        // duplicates the color already shown on the name line (otherwise shoes
+        // print "(BLACK)" on the name AND "BLACK · 40" on a second line).
+        // For a shoe {COLOR:'Black', SIZE:'40'} this leaves ["40"] so the name
+        // becomes "CROSS-BUCKLE (BLACK · 40)" — color and size on one line.
         const parsed = Array.isArray(p.parsed_attributes) ? p.parsed_attributes : [];
-        const variantText = parsed.length > 0
+        const extraNameParts = parsed.length > 0
             ? parsed
                 .map(a => a.value)
                 .filter(v => {
                     const trimmed = String(v ?? '').trim();
                     if (!trimmed) return false;
-                    // Don't repeat the color that the name line already shows.
                     if (productColor && trimmed.toLowerCase() === String(productColor).trim().toLowerCase()) return false;
                     return true;
                 })
-                .join(' · ')
-            : (p.variant || '');
+            : [];
+
+        // Combine any non-color parts (typically the size) onto the name line
+        // with a " · " separator. VariantText stays empty so the dedicated
+        // variant row below the name is suppressed — saves a row of vertical
+        // space on the small 32x22mm label.
+        const extraSuffix = extraNameParts.length > 0 ? ` · ${extraNameParts.join(' · ')}` : '';
 
         return {
-            name: `${productName}${colorSuffix}`,
-            variantText,
+            name: `${productName}${colorSuffix}${extraSuffix}`,
+            variantText: '',
             code: p.barcode || p.sku || 'N/A',
             sku: p.sku || '',
             price: formatPrice ? formatPrice(p.price) : p.price,
