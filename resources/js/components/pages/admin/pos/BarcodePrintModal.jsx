@@ -256,9 +256,9 @@ const BarcodePrintModal = ({ products, onClose, formatPrice }) => {
                     max-height:${MM.barcodeH} !important;display:inline-block !important;
                     shape-rendering:crispEdges !important}
 
-                .ls{font-size:${MM.sku} !important;font-weight:400 !important;
+                .ls{font-size:${MM.sku} !important;font-weight:700 !important;
                     font-family:'Courier New',monospace !important;letter-spacing:0 !important;
-                    color:#555 !important;line-height:1 !important;margin:0 !important;
+                    color:#000 !important;line-height:1 !important;margin:0 !important;
                     padding:0 !important;flex:0 0 auto !important;
                     white-space:nowrap !important;overflow:hidden !important;
                     text-overflow:ellipsis !important;max-width:100% !important}
@@ -518,13 +518,13 @@ const BarcodePrintModal = ({ products, onClose, formatPrice }) => {
                                             width: '100%', textAlign: 'center', lineHeight: 0,
                                             flex: '0 0 auto', margin: 0, padding: 0,
                                         }}>
-                                        <Barcode value={t.code} format="CODE128" width={1.2} height={Math.round(parseFloat(MM.barcodeH) * PREVIEW_SCALE)} displayValue={false} margin={0} background="transparent" />
+                                        <Barcode value={t.code} format="CODE128" width={1.2} height={Math.round(parseFloat(MM.barcodeH) * PREVIEW_SCALE)} displayValue={false} margin={6} background="#fff" />
                                     </div>
                                     <div className="ls"
                                         style={{
                                             fontSize: `${parseFloat(MM.sku) * PREVIEW_SCALE}px`,
                                             fontFamily: "'Courier New', monospace",
-                                            fontWeight: 400, color: '#555', lineHeight: 1,
+                                            fontWeight: 700, color: '#000', lineHeight: 1,
                                             whiteSpace: 'nowrap', overflow: 'hidden',
                                             textOverflow: 'ellipsis', maxWidth: '100%',
                                             flex: '0 0 auto', margin: 0, padding: 0,
@@ -633,12 +633,12 @@ const BarcodePrintModal = ({ products, onClose, formatPrice }) => {
                                         width: '100%', textAlign: 'center', lineHeight: 0,
                                         flex: '0 0 auto', margin: 0, padding: 0,
                                     }}>
-                                        <Barcode value={et.code} format="CODE128" width={1.2} height={Math.round(parseFloat(MM.barcodeH) * BIG)} displayValue={false} margin={0} background="transparent" />
+                                        <Barcode value={et.code} format="CODE128" width={1.2} height={Math.round(parseFloat(MM.barcodeH) * BIG)} displayValue={false} margin={6} background="#fff" />
                                     </div>
                                     <div style={{
                                         fontSize: `${parseFloat(MM.sku) * BIG}px`,
                                         fontFamily: "'Courier New', monospace",
-                                        fontWeight: 400, color: '#555', lineHeight: 1,
+                                        fontWeight: 700, color: '#000', lineHeight: 1,
                                         whiteSpace: 'nowrap', overflow: 'hidden',
                                         textOverflow: 'ellipsis', maxWidth: '100%',
                                         flex: '0 0 auto', margin: 0, padding: 0,

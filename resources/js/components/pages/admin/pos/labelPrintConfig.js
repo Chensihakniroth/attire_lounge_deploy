@@ -12,7 +12,7 @@ const DEFAULT_LABEL_PRINT_CONFIG = {
         sku: '1.5mm',
         price: '4.0mm',
         priceCurrency: '2.2mm',
-        barcodeHeight: '7.6mm',
+        barcodeHeight: '8.5mm',
         priceRuleWidth: '0mm',
     },
     print: {
