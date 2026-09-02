@@ -179,6 +179,7 @@ const BarcodePrintModal = ({ products, onClose, formatPrice }) => {
                 cells += `
                     <div class="bc-label">
                         <div class="ln" style="font-size:${nameSize} !important;">${esc(t.name)}</div>
+                        ${t.variantText ? `<div class="lv">${esc(t.variantText)}</div>` : ''}
                         <div class="lbc">${svg}</div>
                         <div class="ls">${esc(t.sku)}</div>
                         <div class="lp"><span class="lpa">${esc(t.price)}</span></div>
@@ -219,6 +220,13 @@ const BarcodePrintModal = ({ products, onClose, formatPrice }) => {
                     line-height:1 !important;color:#000 !important;
                     display:block !important;max-width:100% !important;
                     overflow:hidden !important;word-break:break-word !important;
+                    margin:0 !important;padding:0 !important;flex:0 0 auto !important}
+
+                .lv{font-size:${MM.variant} !important;font-weight:600 !important;
+                    text-transform:uppercase !important;color:#000 !important;
+                    letter-spacing:0 !important;line-height:1 !important;
+                    white-space:nowrap !important;overflow:hidden !important;
+                    text-overflow:ellipsis !important;max-width:100% !important;
                     margin:0 !important;padding:0 !important;flex:0 0 auto !important}
 
                 .lbc{line-height:0 !important;width:100% !important;text-align:center !important;
@@ -463,6 +471,18 @@ const BarcodePrintModal = ({ products, onClose, formatPrice }) => {
                                             wordBreak: 'break-word', maxWidth: '100%',
                                             flex: '0 0 auto', margin: 0, padding: 0,
                                         }}>{t.name}</div>
+                                    {t.variantText && (
+                                        <div className="lv"
+                                            style={{
+                                                width: '100%',
+                                                fontSize: `${parseFloat(MM.variant) * PREVIEW_SCALE}px`,
+                                                fontWeight: 600, color: '#000',
+                                                textTransform: 'uppercase', lineHeight: 1,
+                                                whiteSpace: 'nowrap', overflow: 'hidden',
+                                                textOverflow: 'ellipsis', maxWidth: '100%',
+                                                flex: '0 0 auto', margin: 0, padding: 0,
+                                            }}>{t.variantText}</div>
+                                    )}
                                     <div className="lbc"
                                         style={{
                                             width: '100%', textAlign: 'center', lineHeight: 0,
@@ -568,6 +588,17 @@ const BarcodePrintModal = ({ products, onClose, formatPrice }) => {
                                         wordBreak: 'break-word', maxWidth: '100%',
                                         flex: '0 0 auto', margin: 0, padding: 0,
                                     }}>{et.name}</div>
+                                    {et.variantText && (
+                                        <div style={{
+                                            width: '100%',
+                                            fontSize: `${parseFloat(MM.variant) * BIG}px`,
+                                            fontWeight: 600, color: '#000',
+                                            textTransform: 'uppercase', lineHeight: 1,
+                                            whiteSpace: 'nowrap', overflow: 'hidden',
+                                            textOverflow: 'ellipsis', maxWidth: '100%',
+                                            flex: '0 0 auto', margin: 0, padding: 0,
+                                        }}>{et.variantText}</div>
+                                    )}
                                     <div style={{
                                         width: '100%', textAlign: 'center', lineHeight: 0,
                                         flex: '0 0 auto', margin: 0, padding: 0,
