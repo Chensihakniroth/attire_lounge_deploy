@@ -144,11 +144,27 @@ const BarcodePrintModal = ({ products, onClose, formatPrice }) => {
         const productColor = getProductColor(p);
         const colorSuffix = productColor ? ` (${productColor})` : '';
 
+        // Build variantText but skip any attribute whose value duplicates the color
+        // already shown on the name line. Otherwise shoes print "(BLACK)" on the name
+        // AND "BLACK · 40" on the variant line — same color twice. For a shoe
+        // {COLOR:'Black', SIZE:'40'} this leaves variantText = "40" (size only).
+        const parsed = Array.isArray(p.parsed_attributes) ? p.parsed_attributes : [];
+        const variantText = parsed.length > 0
+            ? parsed
+                .map(a => a.value)
+                .filter(v => {
+                    const trimmed = String(v ?? '').trim();
+                    if (!trimmed) return false;
+                    // Don't repeat the color that the name line already shows.
+                    if (productColor && trimmed.toLowerCase() === String(productColor).trim().toLowerCase()) return false;
+                    return true;
+                })
+                .join(' · ')
+            : (p.variant || '');
+
         return {
             name: `${productName}${colorSuffix}`,
-            variantText: (Array.isArray(p.parsed_attributes) && p.parsed_attributes.length > 0)
-                ? p.parsed_attributes.map(a => a.value).join(' · ')
-                : (p.variant || ''),
+            variantText,
             code: p.barcode || p.sku || 'N/A',
             sku: p.sku || '',
             price: formatPrice ? formatPrice(p.price) : p.price,
