@@ -15,7 +15,11 @@ const QuickEditCell = ({ value, prefix, onSave, onClose }) => {
 
     const handleKeyDown = (e) => {
         if (e.key === 'Enter') {
-            onSave(val);
+            // Parse to number so backend validation doesn't choke on strings
+            const parsed = val === '' ? 0 : Number(val);
+            if (!isNaN(parsed) && parsed >= 0) {
+                onSave(parsed);
+            }
             onClose();
         } else if (e.key === 'Escape') {
             onClose();
