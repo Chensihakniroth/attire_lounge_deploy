@@ -1050,7 +1050,7 @@ const ProductsPage = () => {
             sku: formData.sku || undefined,
             name: formData.name,
             price: formData.price,
-            stock_qty: formData.stock_qty || 0,
+            stock_qty: formData.stock_qty === '' ? 0 : parseInt(formData.stock_qty, 10),
             category: formData.category,
             is_service: formData.is_service || false,
             is_active: formData.is_active !== false,
