@@ -375,7 +375,6 @@ const ProductsPage = () => {
         },
         onError: (err) => {
             setIsSaving(false);
-            console.error('[ShoeManager] Save failed:', err.response?.data);
             const errors = err.response?.data?.errors;
             let detail = '';
             if (errors) detail = ': ' + Object.values(errors).map(e => e.join(', ')).join(' | ');
@@ -1060,7 +1059,6 @@ const ProductsPage = () => {
             image_path: formData.image_path || undefined,
         };
 
-        console.log('[ShoeManager] Submitting product data:', finalData);
         mutation.mutate(finalData);
     };
 

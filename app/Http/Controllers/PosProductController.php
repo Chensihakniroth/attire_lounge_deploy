@@ -152,8 +152,14 @@ class PosProductController extends Controller
             $request->merge(['stock_qty' => 0]);
         }
         
+        // Only validate SKU uniqueness if it's being changed
+        $skuRule = 'nullable|string';
+        if ($request->filled('sku') && $request->input('sku') !== $product->sku) {
+            $skuRule = 'nullable|string|unique:pos_products,sku,' . $id;
+        }
+
         $validated = $request->validate([
-            'sku' => 'nullable|string|unique:pos_products,sku,' . $id,
+            'sku' => $skuRule,
             'name' => 'nullable|string',
             'variant' => 'nullable|string',
             'price' => 'nullable|numeric|min:0',
