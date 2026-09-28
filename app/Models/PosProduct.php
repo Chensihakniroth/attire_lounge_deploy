@@ -18,6 +18,7 @@ class PosProduct extends Model
         'name',
         'variant',
         'price',
+        'regular_price',
         'stock_qty',
         'min_stock',
         'max_stock',
@@ -33,6 +34,7 @@ class PosProduct extends Model
 
     protected $casts = [
         'price'           => 'float',
+        'regular_price'   => 'float',
         'stock_qty'       => 'integer',
         'min_stock'       => 'integer',
         'max_stock'       => 'integer',
