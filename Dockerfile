@@ -1,3 +1,19 @@
+# THE ONLY BUILD PATH FOR PRODUCTION.
+#
+# The stack is nginx + php-fpm under supervisord, orchestrated by
+# docker/entrypoint.sh (package:discover -> migrate --force -> exec supervisord).
+# Long-running jobs are `[program:x]` blocks in docker/supervisord.conf —
+# php-fpm, nginx, laravel-worker, reverb, telegram-bot, scheduler.
+#
+# There is deliberately no nixpacks.toml. One existed and claimed this app ran
+# on FrankenPHP + Caddy with PHP 8.2; it was never read, and it cost a wasted
+# deploy on 2026-09-28 when a process was added to it instead of to
+# supervisord.conf. Nixpacks cannot run this nginx/php-fpm/supervisord layout
+# anyway, so the file could never have been made correct — it was a decoy that
+# looked authoritative. The leftover Caddyfile is likewise unused.
+#
+# When you change how a process starts, edit docker/supervisord.conf and confirm
+# the deploy log shows `spawned: '<name>' with pid N`.
 FROM php:8.3-fpm-alpine
 
 # Install system dependencies
