@@ -14,3 +14,10 @@ Artisan::command('inspire', function () {
 Schedule::command('nile:sync-prices')
     ->hourly()
     ->withoutOverlapping();
+
+// Push POS stock up to WooCommerce so a shop-floor sale is reflected on the
+// storefront. Prices and stock run in opposite directions and cannot share a
+// job: the storefront owns the selling price, the POS owns the stock count.
+Schedule::command('nile:sync-stock')
+    ->hourly()
+    ->withoutOverlapping();
