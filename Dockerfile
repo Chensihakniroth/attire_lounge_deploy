@@ -10,7 +10,8 @@
 # deploy on 2026-09-28 when a process was added to it instead of to
 # supervisord.conf. Nixpacks cannot run this nginx/php-fpm/supervisord layout
 # anyway, so the file could never have been made correct — it was a decoy that
-# looked authoritative. The leftover Caddyfile is likewise unused.
+# looked authoritative. The Caddyfile that went with it has been removed too;
+# nothing referenced it once nixpacks.toml was gone.
 #
 # When you change how a process starts, edit docker/supervisord.conf and confirm
 # the deploy log shows `spawned: '<name>' with pid N`.
