@@ -19,6 +19,7 @@ use App\Http\Controllers\PosInvoiceController;
 use App\Http\Controllers\PosRefundController;
 use App\Http\Controllers\AiAgentController;
 use App\Http\Controllers\SalesReportController;
+use App\Http\Controllers\NileSyncController;
 use App\Http\Controllers\Api\OrderWebhookController;
 use App\Http\Controllers\Api\NotificationController;
 use App\Http\Controllers\Api\ProductApiController;
@@ -98,6 +99,10 @@ Route::prefix('v1')->group(function () {
         Route::middleware(['role:admin|super-admin'])->group(function () {
             // Admin Dashboard Stats
             Route::get('/stats', [AdminController::class, 'stats']);
+
+            // Nile storefront sync monitor (admin "Sync POS" screen)
+            Route::get('/nile-sync', [NileSyncController::class, 'index']);
+            Route::post('/nile-sync/run', [NileSyncController::class, 'run']);
 
             // AI Data Assistant — admin-only (OpenCode Zen API, OpenAI-compatible)
             Route::get('/ai/settings', [AiAgentController::class, 'settings']);

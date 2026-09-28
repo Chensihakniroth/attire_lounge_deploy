@@ -2,6 +2,7 @@
 
 namespace App\Console\Commands;
 
+use App\Models\NileSyncRun;
 use App\Models\PosProduct;
 use App\Models\Scopes\OutletScope;
 use Illuminate\Console\Command;
@@ -28,6 +29,7 @@ class SyncNileStock extends Command
 
     public function handle(): int
     {
+        $startedAt = microtime(true);
         $dryRun = (bool) $this->option('dry-run');
         $outlet = $this->option('outlet') ?: config('nile-woocommerce.outlet');
 
@@ -37,6 +39,7 @@ class SyncNileStock extends Command
 
         if (! $key || ! $secret) {
             $this->error('WooCommerce credentials missing. Set WC_CONSUMER_KEY and WC_CONSUMER_SECRET.');
+            $this->recordRun($startedAt, $outlet, 'error', 'WooCommerce credentials missing.', 0, 0, 0, 0, 0, []);
             return self::FAILURE;
         }
 
@@ -44,6 +47,7 @@ class SyncNileStock extends Command
 
         $variations = $this->fetchVariations($base, $key, $secret);
         if ($variations === null) {
+            $this->recordRun($startedAt, $outlet, 'error', 'Could not reach the WooCommerce storefront.', 0, 0, 0, 0, 0, []);
             return self::FAILURE;
         }
 
@@ -78,6 +82,7 @@ class SyncNileStock extends Command
         $enabledTracking = 0;
         $errors = 0;
         $lines = [];
+        $changedRows = [];
 
         foreach ($products as $product) {
             $sku = trim((string) $product->sku);
@@ -126,6 +131,14 @@ class SyncNileStock extends Command
                 mb_strimwidth(trim($product->name . ' ' . $product->variant), 0, 38),
                 implode(', ', $why)
             );
+
+            $changedRows[] = [
+                'sku'  => $sku,
+                'name' => trim($product->name . ' ' . $product->variant),
+                'from' => $remoteStock,
+                'to'   => $target,
+                'why'  => $why,
+            ];
 
             if ($dryRun) {
                 continue;
@@ -195,7 +208,62 @@ class SyncNileStock extends Command
             ]);
         }
 
+        if (! $dryRun) {
+            $this->recordRun(
+                $startedAt,
+                $outlet,
+                $errors > 0 ? 'error' : 'success',
+                $errors > 0
+                    ? $errors . ' variation(s) could not be written.'
+                    : ($changed > 0
+                        ? $changed . ' stock value(s) pushed to the storefront.'
+                        : 'Storefront stock already matches the POS.'),
+                $matched,
+                $changed,
+                $unchanged,
+                $notOnStore,
+                $errors,
+                $changedRows
+            );
+        }
+
         return $errors > 0 ? self::FAILURE : self::SUCCESS;
+    }
+
+    /**
+     * Persist a run summary for the admin "Sync POS" screen.
+     */
+    private function recordRun(
+        float $startedAt,
+        string $outlet,
+        string $status,
+        string $message,
+        int $matched,
+        int $changed,
+        int $unchanged,
+        int $notOnStore,
+        int $errors,
+        array $details
+    ): void {
+        try {
+            NileSyncRun::create([
+                'job'         => 'stock',
+                'outlet'      => $outlet,
+                'status'      => $status,
+                'direction'   => 'pos_to_wp',
+                'matched'     => $matched,
+                'changed'     => $changed,
+                'unchanged'   => $unchanged,
+                'not_on_store'=> $notOnStore,
+                'errors'      => $errors,
+                'duration_ms' => (int) round((microtime(true) - $startedAt) * 1000),
+                'message'     => $message,
+                'details'     => $details,
+            ]);
+        } catch (\Throwable $e) {
+            // Never let telemetry bookkeeping break the actual sync.
+            Log::warning('Could not record nile stock sync run', ['error' => $e->getMessage()]);
+        }
     }
 
     /**

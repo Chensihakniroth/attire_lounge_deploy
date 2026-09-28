@@ -27,9 +27,30 @@ const RealtimeAdminUpdater: React.FC = () => {
         if (typeof window !== 'undefined' && window.Echo) {
             console.log('%c📡 [AdminApp] Real-time ready', 'color: #d4af37; font-weight: bold;');
             
+            // Scope invalidation to the queries each event actually affects.
+            // A bare invalidateQueries() refetched all ~24 queries on every
+            // event, so one stock tick refetched the entire admin panel.
+            const EVENT_QUERY_KEYS: Record<string, string[]> = {
+                'appointment.created': ['admin-appointments', 'admin-stats'],
+                'appointment.status-updated': ['admin-appointments', 'admin-stats'],
+                'gift-request.created': ['admin-gift-requests', 'admin-stats'],
+                'collection.updated': ['admin-collections'],
+                'product.updated': ['admin-pos-products', 'admin-shoes', 'seo-products', 'admin-stats'],
+                'stock.updated': ['admin-pos-products', 'admin-shoes', 'admin-drinks', 'outOfStockItems', 'giftItems', 'giftItemsPublic'],
+                'stock.changed': ['admin-pos-products', 'admin-shoes', 'admin-drinks', 'admin-stats'],
+            };
+
             const handleUpdate = (type: string) => {
                 console.log(`%c[RT] ${type}`, 'color: #00cc88;');
-                queryClient.invalidateQueries();
+                const eventName = type.split(':').pop() ?? type;
+                const keys = EVENT_QUERY_KEYS[eventName];
+                if (keys?.length) {
+                    keys.forEach((key) => queryClient.invalidateQueries({ queryKey: [key] }));
+                } else {
+                    // Unknown event — fall back to a full refresh rather than
+                    // silently showing stale data.
+                    queryClient.invalidateQueries();
+                }
             };
 
             const channels = [
@@ -41,7 +62,8 @@ const RealtimeAdminUpdater: React.FC = () => {
                         '.gift-request.created',
                         '.collection.updated',
                         '.product.updated',
-                        '.stock.updated'
+                        '.stock.updated',
+                        '.stock.changed',
                     ]
                 }
             ];
@@ -116,6 +138,7 @@ const PosProductManager = lazyWithRetry(() => import('./pages/admin/PosProductMa
 const DrinkManager = lazyWithRetry(() => import('./pages/admin/DrinkManager.jsx'));
 const ShoeManager = lazyWithRetry(() => import('./pages/admin/ShoeManager.jsx'));
 const OrderManager = lazyWithRetry(() => import('./pages/admin/OrderManager.jsx'));
+const SyncPos = lazyWithRetry(() => import('./pages/admin/SyncPos.jsx'));
 const DailyReportManager = lazyWithRetry(() => import('./pages/admin/DailyReportManager.jsx'));
 const AiAgentChat = lazyWithRetry(() => import('./pages/admin/AiAgentChat.jsx'));
 // EfferdDashboard2 retired — new design is now the main /admin dashboard
@@ -274,6 +297,7 @@ function AdminApp() {
                                             <Route path="/admin/drink-manager" element={<DrinkManager />} />
                                             <Route path="/admin/shoe-manager" element={<ShoeManager />} />
                                             <Route path="/admin/order-manager" element={<OrderManager />} />
+                                            <Route path="/admin/sync-pos" element={<SyncPos />} />
                                             <Route path="/admin/products/bulk" element={<BulkProductEditor />} />
                                             <Route path="/admin/products/new" element={<ProductEditor isNew={true} />} />
                                             <Route path="/admin/products/:productId/edit" element={<ProductEditor />} />

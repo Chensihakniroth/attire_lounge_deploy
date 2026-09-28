@@ -2,6 +2,7 @@
 
 namespace App\Console\Commands;
 
+use App\Models\NileSyncRun;
 use App\Models\PosProduct;
 use App\Models\Scopes\OutletScope;
 use Illuminate\Console\Command;
@@ -28,6 +29,7 @@ class SyncNilePrices extends Command
 
     public function handle(): int
     {
+        $startedAt = microtime(true);
         $dryRun = (bool) $this->option('dry-run');
         $outlet = $this->option('outlet') ?: config('nile-woocommerce.outlet');
 
@@ -37,6 +39,7 @@ class SyncNilePrices extends Command
 
         if (! $key || ! $secret) {
             $this->error('WooCommerce credentials missing. Set WC_CONSUMER_KEY and WC_CONSUMER_SECRET.');
+            $this->recordRun($startedAt, $outlet, 'error', 'WooCommerce credentials missing.', 0, 0, 0, 0, 0, []);
             return self::FAILURE;
         }
 
@@ -44,6 +47,7 @@ class SyncNilePrices extends Command
 
         $variations = $this->fetchVariations($base, $key, $secret);
         if ($variations === null) {
+            $this->recordRun($startedAt, $outlet, 'error', 'Could not reach the WooCommerce storefront.', 0, 0, 0, 0, 0, []);
             return self::FAILURE;
         }
 
@@ -71,6 +75,7 @@ class SyncNilePrices extends Command
         $unchanged = 0;
         $notOnStore = 0;
         $lines = [];
+        $changedRows = [];
 
         foreach ($products as $product) {
             $sku = trim((string) $product->sku);
@@ -125,6 +130,15 @@ class SyncNilePrices extends Command
                 $onSale ? '   [SALE, regular ' . number_format($regular, 2) . ']' : ''
             );
 
+            $changedRows[] = [
+                'sku'     => $sku,
+                'name'    => trim($product->name . ' ' . $product->variant),
+                'from'    => $currentPrice,
+                'to'      => $effective,
+                'regular' => $regular,
+                'on_sale' => $onSale,
+            ];
+
             if (! $dryRun && $update !== []) {
                 $product->update($update);
             }
@@ -154,7 +168,60 @@ class SyncNilePrices extends Command
             ]);
         }
 
+        if (! $dryRun) {
+            $this->recordRun(
+                $startedAt,
+                $outlet,
+                'success',
+                $changed > 0
+                    ? count($changedRows) . ' price(s) aligned to the storefront.'
+                    : 'Everything already matches the storefront.',
+                $matched,
+                $changed,
+                $unchanged,
+                $notOnStore,
+                0,
+                $changedRows
+            );
+        }
+
         return self::SUCCESS;
+    }
+
+    /**
+     * Persist a run summary for the admin "Sync POS" screen.
+     */
+    private function recordRun(
+        float $startedAt,
+        string $outlet,
+        string $status,
+        string $message,
+        int $matched,
+        int $changed,
+        int $unchanged,
+        int $notOnStore,
+        int $errors,
+        array $details
+    ): void {
+        try {
+            NileSyncRun::create([
+                'job'         => 'prices',
+                'outlet'      => $outlet,
+                'status'      => $status,
+                'direction'   => 'wp_to_pos',
+                'matched'     => $matched,
+                'changed'     => $changed,
+                'unchanged'   => $unchanged,
+                'not_on_store'=> $notOnStore,
+                'errors'      => $errors,
+                'duration_ms' => (int) round((microtime(true) - $startedAt) * 1000),
+                'message'     => $message,
+                'details'     => $details,
+            ]);
+        } catch (\Throwable $e) {
+            // Never let telemetry bookkeeping break the actual sync.
+            Log::warning('Could not record nile price sync run', ['error' => $e->getMessage()]);
+        }
     }
 
     /**
