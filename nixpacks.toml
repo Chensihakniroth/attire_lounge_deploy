@@ -8,4 +8,10 @@ nixPkgs = ["php82", "php82Extensions.redis", "php82Extensions.pcntl", "php82Exte
 cmds = ["composer install --no-dev", "npm install", "npm run build"]
 
 [processes]
-web = "php artisan migrate --force && php artisan optimize && frankenphp run --config Caddyfile --adapter caddyfile"
+# The scheduler runs alongside FrankenPHP in the same container so it inherits
+# the existing service env (DB, API keys, WC_CONSUMER_*) without duplicating
+# them onto a second Railway service. `schedule:work` is what actually executes
+# the hourly `nile:sync-prices` entry in routes/console.php — without it the
+# schedule is defined but never fires. Its output stays on stdout so scheduler
+# errors surface in the Railway logs.
+web = "php artisan migrate --force && php artisan optimize && (php artisan schedule:work &) && exec frankenphp run --config Caddyfile --adapter caddyfile"
