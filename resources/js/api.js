@@ -1,84 +1,32 @@
 import axios from 'axios';
 
-// Cache configuration
-const CACHE_PREFIX = 'attire_cache_';
-const CACHE_TTL = 30 * 60 * 1000; // 30 minutes
-
-// Helper to get data from cache
-const getCached = (key) => {
-    try {
-        const item = sessionStorage.getItem(CACHE_PREFIX + key);
-        if (!item) return null;
-
-        const { value, timestamp } = JSON.parse(item);
-        if (Date.now() - timestamp > CACHE_TTL) {
-            sessionStorage.removeItem(CACHE_PREFIX + key);
-            return null;
-        }
-        return value;
-    } catch (e) {
-        return null;
-    }
-};
-
-// Helper to set data to cache
-const setCached = (key, value) => {
-    try {
-        const item = { value, timestamp: Date.now() };
-        sessionStorage.setItem(CACHE_PREFIX + key, JSON.stringify(item));
-    } catch (e) {
-        console.warn('Failed to cache data', e);
-    }
-};
-
 // Helper to extract data from axios response
 const getData = (response) => response.data;
 
-// Fetch with caching strategy for GET requests
-const fetchWithCache = async (url, params = {}) => {
-    const outlet = localStorage.getItem('active_outlet') || 'attire_lounge';
-    const queryString = new URLSearchParams(params).toString();
-    const cacheKey = `${outlet}:${url}?${queryString}`;
-
-    // Try cache first
-    const cachedData = getCached(cacheKey);
-    if (cachedData) {
-        return cachedData;
-    }
-
-    // Fallback to network
-    const response = await axios.get(url, { params });
-    const data = getData(response);
-
-    // Save to cache
-    setCached(cacheKey, data);
-    return data;
-};
-
 const API = {
-    // Fetch products with optional filters (Cached)
+    // Fetch products with optional filters
     async getProducts(filters = {}) {
-        return await fetchWithCache('/api/v1/products', filters);
+        return getData(await axios.get('/api/v1/products', { params: filters }));
     },
 
-    // Fetch featured products (Cached)
+    // Fetch featured products
     async getFeaturedProducts() {
-        return await fetchWithCache('/api/v1/products/featured');
+        return getData(await axios.get('/api/v1/products/featured'));
     },
 
-    // Fetch categories (Cached)
+    // Fetch categories
     async getCategories() {
-        return await fetchWithCache('/api/v1/products/categories');
+        return getData(await axios.get('/api/v1/products/categories'));
     },
 
-    // Fetch collections (Cached)
+    // Fetch collections
     async getCollections() {
-        return await fetchWithCache('/api/v1/products/collections');
+        return getData(await axios.get('/api/v1/products/collections'));
     },
 
-    // Fetch single product by slug (Cached)
+    // Fetch single product by slug
     async getProduct(slug) {
-        return await fetchWithCache(`/api/v1/products/${slug}`);
+        return getData(await axios.get(`/api/v1/products/${slug}`));
     },
 
     // Search products (Network only - usually too dynamic to cache effectively without short TTL)
@@ -119,6 +67,27 @@ const API = {
             item_id: itemId,
             is_out_of_stock: isOutOfStock
         });
+        return getData(response);
+    },
+
+    // Gift item catalog (DB-backed, replaces the hardcoded giftOptions.js)
+    async getGiftItems() {
+        const response = await axios.get('/api/v1/admin/gift-items');
+        return getData(response);
+    },
+
+    async createGiftItem(payload) {
+        const response = await axios.post('/api/v1/admin/gift-items', payload);
+        return getData(response);
+    },
+
+    async updateGiftItem(itemId, payload) {
+        const response = await axios.put(`/api/v1/admin/gift-items/${itemId}`, payload);
+        return getData(response);
+    },
+
+    async deleteGiftItem(itemId) {
+        const response = await axios.delete(`/api/v1/admin/gift-items/${itemId}`);
         return getData(response);
     },
 

@@ -8,7 +8,8 @@ import {
 } from 'lucide-react';
 import api from '../../api';
 import Skeleton from '../common/Skeleton.jsx';
-import giftOptions from '../../data/giftOptions';
+import giftOptionsFallback from '../../data/giftOptions';
+import axios from 'axios';
 import { useQuery } from '@tanstack/react-query';
 
 const fadeUp = {
@@ -123,6 +124,24 @@ const CustomizeGiftPage = () => {
         queryKey: ['outOfStockItems'],
         queryFn: () => api.getOutOfStockItems()
     });
+
+    // Catalog is DB-backed so admins can add items without a redeploy.
+    // Falls back to the legacy static list if the API is unreachable.
+    const { data: liveGiftOptions } = useQuery({
+        queryKey: ['giftItemsPublic'],
+        queryFn: async () => {
+            const { data } = await axios.get('/api/v1/gift-items');
+            return {
+                ties: data.ties || [],
+                pocketSquares: data.pocket_squares || [],
+                boxes: data.boxes || [],
+            };
+        },
+        retry: 1,
+        staleTime: 5 * 60 * 1000,
+    });
+
+    const giftOptions = liveGiftOptions || giftOptionsFallback;
 
     useEffect(() => {
         if (contentRef.current && step > 1) {

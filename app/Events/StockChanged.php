@@ -44,11 +44,16 @@ class StockChanged implements ShouldBroadcast
 
     /**
      * Get the channels the event should broadcast on.
+     *
+     * Broadcasts on the role-gated `admin-notifications` channel so the admin
+     * panel's RealtimeAdminUpdater picks it up. Previously this fired on a
+     * public `stock-updates` channel that no client subscribed to and that had
+     * no entry in routes/channels.php — so POS stock changes pushed nowhere.
      */
     public function broadcastOn(): array
     {
         return [
-            new Channel('stock-updates'),
+            new Channel('admin-notifications'),
         ];
     }
 

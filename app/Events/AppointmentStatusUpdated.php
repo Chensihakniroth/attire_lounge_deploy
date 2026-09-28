@@ -38,7 +38,7 @@ class AppointmentStatusUpdated implements ShouldBroadcast
     public function broadcastOn(): array
     {
         return [
-            new Channel('appointments'),
+            new Channel('admin-notifications'),
         ];
     }
 

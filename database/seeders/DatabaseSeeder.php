@@ -49,6 +49,7 @@ class DatabaseSeeder extends Seeder
         $this->call(PosProductSeeder::class);
         $this->call(NileProductSeeder::class);
         $this->call(CustomerProfileSeeder::class);
+        $this->call(GiftItemSeeder::class);
         $this->call(PromocodeSeeder::class);
         $this->call(NewsletterSubscriptionSeeder::class);
 

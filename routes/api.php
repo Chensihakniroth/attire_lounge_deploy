@@ -9,6 +9,7 @@ use App\Http\Controllers\AdminLoginController;
 use App\Http\Controllers\ReverbConfigController;
 use App\Http\Controllers\GiftRequestController;
 use App\Http\Controllers\GiftItemStockController;
+use App\Http\Controllers\GiftItemController;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\ActivityController;
 use App\Http\Controllers\CustomerProfileController;
@@ -64,6 +65,10 @@ Route::prefix('v1')->group(function () {
 
     // Gift Request Submission (public)
     Route::post('/gift-requests', [GiftRequestController::class, 'store'])->middleware('throttle:5,1');
+
+    // Gift catalog + stock status (public — storefront gift page)
+    Route::get('/gift-items', [GiftItemController::class, 'index']);
+    Route::get('/gift-items/out-of-stock', [GiftItemStockController::class, 'index']);
 
     // ═══════════════════════════════════════════════════════════════════════
     // STOREFRONT PUBLIC API (products, collections, categories)
@@ -132,6 +137,12 @@ Route::prefix('v1')->group(function () {
 
             // Gift Item Stock Management
             Route::post('/gift-items/toggle-stock', [GiftItemStockController::class, 'toggle']);
+
+            // Gift Item Catalog CRUD
+            Route::get('/gift-items', [GiftItemController::class, 'adminIndex']);
+            Route::post('/gift-items', [GiftItemController::class, 'store']);
+            Route::put('/gift-items/{giftItem}', [GiftItemController::class, 'update']);
+            Route::delete('/gift-items/{giftItem}', [GiftItemController::class, 'destroy']);
 
             // Alterings
             Route::get('/alterings', [\App\Http\Controllers\AlteringController::class, 'index']);
