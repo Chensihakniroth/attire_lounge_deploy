@@ -19,6 +19,15 @@ const PosProductRow = React.memo(({
         <span className="px-2 py-0.5 bg-black/5 dark:bg-[#161b22] text-[9px] font-black text-gray-400 dark:text-[#8b949e] rounded-md uppercase tracking-[0.2em] border border-black/15 dark:border-[#30363d]">{p.category}</span>
     );
 
+    // Promotional pricing: `nile:sync-prices` keeps `price` at the live
+    // storefront price and stores the undiscounted value in `regular_price`, so a
+    // price below regular means a promotion is currently active on the storefront.
+    const currentPrice = parseFloat(p.price);
+    const regularPrice = parseFloat(p.regular_price);
+    const discountPercent = (
+        Number.isFinite(regularPrice) && regularPrice > 0 && Number.isFinite(currentPrice) && currentPrice < regularPrice
+    ) ? Math.round((1 - currentPrice / regularPrice) * 100) : null;
+
     // Stock display: ShoeManager supports is_service (∞), PosProductManager does not
     const stockDisplay = (p.is_service !== undefined && p.is_service) ? (
         <div className="flex items-center justify-end gap-1">
@@ -95,7 +104,21 @@ const PosProductRow = React.memo(({
                 <td className="px-8 py-3 text-center font-mono font-black text-gray-900 dark:text-[#c9d1d9] text-[16px] relative border-l-2 border-black/15 dark:border-[#30363d]">
                     {isFocused && quickEditField === 'price' ? (
                         <QuickEditCell value={p.price} prefix="$" onSave={(val) => onUpdateField(p.id, { price: val })} onClose={() => onQuickEdit(null)} />
-                    ) : formatPrice(p.price)}
+                    ) : (
+                        <span className="inline-flex flex-col items-center leading-none">
+                            <span>{formatPrice(p.price)}</span>
+                            {discountPercent !== null && (
+                                <>
+                                    <span className="mt-1 text-[11px] font-bold text-gray-400 line-through decoration-red-500/70">
+                                        {formatPrice(p.regular_price)}
+                                    </span>
+                                    <span className="mt-1 px-1.5 py-[1px] rounded bg-red-500 text-white text-[9px] font-black tracking-widest">
+                                        −{discountPercent}%
+                                    </span>
+                                </>
+                            )}
+                        </span>
+                    )}
                 </td>
             </tr>
         </React.Fragment>

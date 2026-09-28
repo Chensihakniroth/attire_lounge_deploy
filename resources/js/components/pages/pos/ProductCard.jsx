@@ -18,6 +18,15 @@ const ProductCard = ({ product }) => {
         (i) => i.product_id === product.id
     );
 
+    // Promotional pricing: `nile:sync-prices` keeps `price` at the live storefront
+    // price and stores the undiscounted value in `regular_price`. A cashier needs
+    // to see that the price is a promotion, and what the item normally sells for.
+    const currentPrice = parseFloat(product.price);
+    const regularPrice = parseFloat(product.regular_price);
+    const discountPercent = (
+        Number.isFinite(regularPrice) && regularPrice > 0 && Number.isFinite(currentPrice) && currentPrice < regularPrice
+    ) ? Math.round((1 - currentPrice / regularPrice) * 100) : null;
+
     // Dynamic color based on tiers
     const getTierColor = (tier) => {
         switch (tier?.toLowerCase()) {
@@ -133,6 +142,16 @@ const ProductCard = ({ product }) => {
 
                     <div className="flex items-center justify-between pt-3 border-t border-black/5 dark:border-white/5">
                         <div className="flex flex-col">
+                            {discountPercent !== null && (
+                                <span className="flex items-center gap-1 mb-0.5">
+                                    <span className="px-1 py-[1px] rounded bg-red-500 text-white text-[8px] font-black tracking-widest">
+                                        SALE −{discountPercent}%
+                                    </span>
+                                    <span className="text-[10px] text-gray-400 line-through decoration-red-500/70">
+                                        ${regularPrice.toLocaleString()}
+                                    </span>
+                                </span>
+                            )}
                             <span className="text-[14px] font-bold text-gray-900 dark:text-white group-hover:scale-105 origin-left transition-transform tracking-tight">
                                 ${parseFloat(product.price).toLocaleString()}
                             </span>
