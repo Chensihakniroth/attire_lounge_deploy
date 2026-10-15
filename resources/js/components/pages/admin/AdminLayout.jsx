@@ -338,6 +338,9 @@ const AdminLayoutContent = ({
         }
     };
 
+    const isAiPage = location.pathname === '/admin/ai';
+    const isPromocodePage = location.pathname === '/admin/promocodes';
+
     return (
         <div
             id="admin-root"
@@ -446,8 +449,8 @@ const AdminLayoutContent = ({
                     </header>
                 )}
 
-                <main className={`flex-1 relative ${location.pathname === '/admin/ai' ? 'p-0 overflow-hidden h-[calc(100vh-4rem)] bg-background dark:bg-[#0d1117]' : 'p-6 overflow-y-auto bg-background dark:bg-[#0d1117]'}`}>
-                    <div className={`relative z-10 w-full max-w-none ${location.pathname === '/admin/ai' ? 'h-full' : ''}`}>
+                <main className={`flex-1 relative ${isAiPage ? 'p-0 overflow-hidden h-[calc(100vh-4rem)] bg-background dark:bg-[#0d1117]' : isPromocodePage ? 'p-0 overflow-y-auto bg-[#0b0c10]' : 'p-6 overflow-y-auto bg-background dark:bg-[#0d1117]'}`}>
+                    <div className={`relative z-10 w-full ${isAiPage ? 'h-full' : ''}`}>
                         <React.Suspense fallback={
                             <div className="w-full h-full min-h-[50vh] flex flex-col items-center justify-center gap-4">
                                 <LumaSpin size="lg" />
