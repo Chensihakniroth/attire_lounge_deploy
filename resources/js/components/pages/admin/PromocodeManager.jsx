@@ -1,7 +1,7 @@
-import { useEffect, useState, useCallback } from 'react';
+import { useEffect, useState, useCallback, useMemo } from 'react';
 import axios from 'axios';
 import Swal from 'sweetalert2';
-import { Copy, Plus, Tag, Ticket, Pencil, Trash2, ArrowUpDown, AlertTriangle, RefreshCw, Clock } from 'lucide-react';
+import { Copy, Plus, Tag, Ticket, Pencil, Trash2, ArrowUpDown, AlertTriangle, RefreshCw, Clock, CheckCircle2, Archive, CalendarDays } from 'lucide-react';
 import DatePicker from '@/components/ui/DatePicker';
 import ModernModal from '../../common/ModernModal';
 
@@ -157,38 +157,92 @@ export default function PromocodeManager() {
 
   const filters = [['all', 'All'], ['live', 'Live'], ['archived', 'Archived']];
 
+  const stats = useMemo(() => {
+    const live = promocodes.filter((pc) => !isArchived(pc));
+    const archived = promocodes.length - live.length;
+    const nextWeek = now + (7 * 24 * 60 * 60 * 1000);
+    const expiringSoon = live.filter((pc) => new Date(pc.expires_at).getTime() <= nextWeek).length;
+    return {
+      total: promocodes.length,
+      live: live.length,
+      archived,
+      expiringSoon,
+    };
+  }, [promocodes, now]);
+
   return (
-    <div className="min-h-screen bg-[#0b0c10] text-[#e7e9ee] px-6 py-8">
-      <div className="max-w-5xl mx-auto">
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
-          <div>
-            <h1 className="text-xl font-semibold tracking-tight">Promo Codes</h1>
-            <p className="text-sm text-[#9aa0ab] mt-1">Create and manage discount codes for your store.</p>
+    <div className="min-h-full bg-[#0b0c10] text-[#e7e9ee] px-4 py-6 sm:px-6 lg:px-8">
+      <div className="max-w-6xl mx-auto space-y-8">
+        <header className="flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
+          <div className="flex items-start gap-4">
+            <div className="hidden sm:flex h-12 w-12 items-center justify-center rounded-2xl bg-[#f59e0b]/10 text-[#f59e0b] ring-1 ring-[#f59e0b]/20">
+              <Ticket size={22} />
+            </div>
+            <div>
+              <p className="text-[10px] font-black uppercase tracking-[0.28em] text-[#9aa0ab]">Store promotions</p>
+              <h1 className="mt-1 text-3xl font-semibold tracking-tight text-[#f4f5f7]">Promo codes</h1>
+              <p className="mt-1 max-w-xl text-sm text-[#9aa0ab]">Create, share, and retire discounts without losing track of what is live.</p>
+            </div>
           </div>
-          <button onClick={openCreate} className="inline-flex items-center gap-2 bg-[#f59e0b] hover:bg-[#fbbf24] text-black text-sm font-medium px-4 py-2 rounded-lg transition-colors">
-            <Plus size={16} /> New Promo Code
+          <button
+            onClick={openCreate}
+            className="inline-flex h-10 items-center justify-center gap-2 rounded-xl bg-[#f59e0b] px-4 text-sm font-semibold text-black transition-all hover:bg-[#fbbf24] active:scale-[0.98] focus:outline-none focus:ring-2 focus:ring-[#f59e0b]/50"
+          >
+            <Plus size={16} /> New promo code
           </button>
+        </header>
+
+        <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
+          <div className="rounded-2xl border border-white/10 bg-[#14161b] p-4">
+            <p className="text-[10px] font-bold uppercase tracking-widest text-[#9aa0ab]">Total codes</p>
+            <p className="mt-2 text-2xl font-mono tabular-nums text-[#f4f5f7]">{stats.total}</p>
+          </div>
+          <div className="rounded-2xl border border-emerald-400/15 bg-emerald-400/[0.04] p-4">
+            <p className="flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-widest text-emerald-300/70"><CheckCircle2 size={12} /> Live now</p>
+            <p className="mt-2 text-2xl font-mono tabular-nums text-emerald-300">{stats.live}</p>
+          </div>
+          <div className="rounded-2xl border border-amber-400/15 bg-amber-400/[0.04] p-4">
+            <p className="flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-widest text-amber-300/70"><Clock size={12} /> Expiring soon</p>
+            <p className="mt-2 text-2xl font-mono tabular-nums text-amber-300">{stats.expiringSoon}</p>
+          </div>
+          <div className="rounded-2xl border border-white/10 bg-[#14161b] p-4">
+            <p className="flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-widest text-[#9aa0ab]"><Archive size={12} /> Archived</p>
+            <p className="mt-2 text-2xl font-mono tabular-nums text-[#c4c8d0]">{stats.archived}</p>
+          </div>
         </div>
 
-        <div className="flex flex-wrap items-center justify-between gap-3 mb-6">
-          <div className="inline-flex bg-[#14161b] border border-white/10 rounded-lg p-1 text-sm">
-            {filters.map(([k, label]) => (
-              <button key={k} onClick={() => changeFilter(k)}
-                className={`px-3 py-1.5 rounded-md transition-colors ${filter === k ? 'bg-[#f59e0b] text-black' : 'text-[#9aa0ab] hover:text-white'}`}>
-                {label}
-              </button>
-            ))}
+        <section className="rounded-2xl border border-white/10 bg-[#14161b] p-4 sm:p-5">
+          <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+            <div className="flex flex-wrap items-center gap-2">
+              {filters.map(([k, label]) => {
+                const count = k === 'all' ? stats.total : k === 'live' ? stats.live : stats.archived;
+                return (
+                  <button
+                    key={k}
+                    onClick={() => changeFilter(k)}
+                    className={`inline-flex items-center gap-2 rounded-lg px-3.5 py-2 text-xs font-semibold transition-all focus:outline-none focus:ring-2 focus:ring-[#f59e0b]/40 ${filter === k ? 'bg-[#f59e0b] text-black' : 'text-[#9aa0ab] hover:bg-white/5 hover:text-white'}`}
+                  >
+                    {label}
+                    <span className="font-mono tabular-nums opacity-70">{count}</span>
+                  </button>
+                );
+              })}
+            </div>
+            <label className="flex items-center gap-2 text-sm text-[#9aa0ab]">
+              <ArrowUpDown size={14} />
+              <span className="sr-only">Sort promo codes</span>
+              <select
+                value={sortBy}
+                onChange={(e) => setSortBy(e.target.value)}
+                className="rounded-lg border border-white/10 bg-[#0f1115] px-3 py-2 text-sm text-[#e7e9ee] focus:outline-none focus:border-[#f59e0b]/50"
+              >
+                <option value="newest">Expiry: newest</option>
+                <option value="oldest">Expiry: oldest</option>
+                <option value="discount">Discount: highest</option>
+              </select>
+            </label>
           </div>
-          <div className="inline-flex items-center gap-2 text-sm text-[#9aa0ab]">
-            <ArrowUpDown size={14} />
-            <select value={sortBy} onChange={(e) => setSortBy(e.target.value)}
-              className="bg-[#14161b] border border-white/10 rounded-md px-2 py-1.5 text-[#e7e9ee] focus:outline-none focus:border-[#f59e0b]/50">
-              <option value="newest">Newest</option>
-              <option value="oldest">Oldest</option>
-              <option value="discount">Discount</option>
-            </select>
-          </div>
-        </div>
+        </section>
 
         {loading ? (
           <div className="flex items-center justify-center py-20 text-[#9aa0ab]">
@@ -215,39 +269,52 @@ export default function PromocodeManager() {
             )}
           </div>
         ) : (
-          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+          <div className="grid gap-5 sm:grid-cols-2 xl:grid-cols-3">
             {visible.map((pc) => {
               const archived = isArchived(pc);
               return (
-                <div key={pc.id} className={`bg-[#14161b] border border-white/10 rounded-xl p-4 ${archived ? 'opacity-70' : ''}`}>
-                  <div className="flex items-start justify-between gap-2">
+                <article key={pc.id} className={`group flex flex-col gap-5 rounded-2xl border border-white/10 bg-[#14161b] p-5 transition-all hover:border-white/20 ${archived ? 'opacity-70' : ''}`}>
+                  <div className="flex items-start justify-between gap-3">
                     <div className="min-w-0">
-                      <h3 className="font-medium truncate">{pc.name}</h3>
-                      <span className="text-xs text-[#9aa0ab]">{formatDiscount(pc.discount_percentage)}</span>
+                      <h3 className="truncate text-base font-semibold text-[#f4f5f7]">{pc.name}</h3>
+                      <p className="mt-1 text-sm text-[#9aa0ab]">{formatDiscount(pc.discount_percentage)}</p>
                     </div>
                     <StatusBadge archived={archived} pc={pc} />
                   </div>
-                  <div className="mt-3 flex items-center gap-2 bg-[#0f1115] border border-white/10 rounded-lg px-3 py-2">
-                    <Tag size={14} className="text-[#9aa0ab]" />
-                    <code className="text-sm font-mono tracking-wider text-[#e7e9ee] flex-1 truncate">{pc.code}</code>
-                    <button onClick={() => copyCode(pc.code)} className="text-[#9aa0ab] hover:text-white transition-colors" title="Copy">
-                      <Copy size={14} />
-                    </button>
-                  </div>
-                  <div className="mt-3 flex items-center justify-between">
-                    <span className="text-xs text-[#9aa0ab] flex items-center gap-1">
-                      <Clock size={12} /> {formatDate(pc.expires_at)}
-                    </span>
-                    <div className="flex items-center gap-1">
-                      <button onClick={() => openEdit(pc)} className="text-[#9aa0ab] hover:text-[#f59e0b] p-1.5 rounded-md hover:bg-white/5 transition-colors" title="Edit">
-                        <Pencil size={15} />
+
+                  <div className="rounded-xl border border-white/10 bg-[#0f1115] p-4">
+                    <div className="flex items-center justify-between gap-2">
+                      <span className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest text-[#9aa0ab]"><Tag size={13} /> Code</span>
+                      <button onClick={() => copyCode(pc.code)} className="rounded-md p-1.5 text-[#9aa0ab] transition-colors hover:bg-white/5 hover:text-white focus:outline-none focus:ring-2 focus:ring-[#f59e0b]/40" title="Copy promo code" aria-label={`Copy ${pc.code}`}>
+                        <Copy size={14} />
                       </button>
-                      <button onClick={() => handleDelete(pc)} className="text-[#9aa0ab] hover:text-red-400 p-1.5 rounded-md hover:bg-red-500/10 transition-colors" title="Delete">
+                    </div>
+                    <code className="mt-3 block truncate text-lg font-mono font-semibold tracking-[0.16em] text-[#f59e0b]">{pc.code}</code>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-3">
+                    <div className="rounded-xl bg-white/[0.03] p-3">
+                      <span className="flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-widest text-[#9aa0ab]"><CalendarDays size={12} /> Expires</span>
+                      <strong className="mt-2 block text-sm font-medium text-[#e7e9ee]">{formatDate(pc.expires_at)}</strong>
+                    </div>
+                    <div className="rounded-xl bg-white/[0.03] p-3">
+                      <span className="flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-widest text-[#9aa0ab]"><Tag size={12} /> Discount</span>
+                      <strong className="mt-2 block text-sm font-medium text-[#e7e9ee]">{formatDiscount(pc.discount_percentage)}</strong>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center justify-between border-t border-white/10 pt-4">
+                    <span className="text-xs text-[#9aa0ab]">{pc.max_usage ? `${pc.times_used ?? 0}/${pc.max_usage} used` : `${pc.times_used ?? 0} uses`}</span>
+                    <div className="flex items-center gap-1">
+                      <button onClick={() => openEdit(pc)} className="inline-flex items-center gap-1.5 rounded-lg px-2.5 py-2 text-xs font-semibold text-[#9aa0ab] transition-colors hover:bg-[#f59e0b]/10 hover:text-[#f59e0b] focus:outline-none focus:ring-2 focus:ring-[#f59e0b]/40" title="Edit promo code">
+                        <Pencil size={14} /> Edit
+                      </button>
+                      <button onClick={() => handleDelete(pc)} className="rounded-lg p-2 text-[#9aa0ab] transition-colors hover:bg-red-500/10 hover:text-red-400 focus:outline-none focus:ring-2 focus:ring-red-500/40" title="Delete promo code" aria-label={`Delete ${pc.code}`}>
                         <Trash2 size={15} />
                       </button>
                     </div>
                   </div>
-                </div>
+                </article>
               );
             })}
           </div>
