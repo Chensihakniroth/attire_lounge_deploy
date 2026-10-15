@@ -62,5 +62,10 @@ class SeoMetadataTest extends TestCase
 
         $this->assertSame('SEO Test Product | Attire Lounge', $product->fresh()->meta_title);
         $this->assertSame('SEO Test Collection | Attire Lounge', $collection->fresh()->meta_title);
+
+        $this->getJson('/api/v1/products?search=SEO Test&per_page=10')
+            ->assertOk()
+            ->assertJsonPath('data.0.meta_title', 'SEO Test Product | Attire Lounge')
+            ->assertJsonPath('data.0.meta_description', 'Shop the SEO test product from Attire Lounge.');
     }
 }

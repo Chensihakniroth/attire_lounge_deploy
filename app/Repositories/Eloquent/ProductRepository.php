@@ -28,7 +28,7 @@ class ProductRepository implements ProductRepositoryInterface
         $query = $this->model->query()
             ->with(['category', 'collection']) // Eager load relationships ✨
             ->select([ // Only select necessary columns
-                'id', 'name', 'slug', 'description', 'price',
+                'id', 'name', 'slug', 'description', 'meta_title', 'meta_description', 'price',
                 'images', 'category_id', 'collection_id', 'is_featured',
                 'is_new', 'is_visible', 'show_in_lookbook', 'availability',
                 'fabric', 'silhouette', 'details', 'sizing', 'created_at', 'updated_at'
