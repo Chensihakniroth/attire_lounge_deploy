@@ -19,6 +19,8 @@ class CollectionResource extends JsonResource
             'name' => $this->name,
             'slug' => $this->slug,
             'description' => $this->description,
+            'meta_title' => $this->meta_title,
+            'meta_description' => $this->meta_description,
             'season' => $this->season,
             'year' => $this->year,
             'image' => $this->getRawOriginal('image'),
