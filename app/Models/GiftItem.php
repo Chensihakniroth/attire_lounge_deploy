@@ -57,4 +57,16 @@ class GiftItem extends Model
             'image' => $this->image,
         ];
     }
+
+    /**
+     * Admin catalog shape — includes visibility so the inventory screen can
+     * offer a reversible hide/show control without exposing admin state in the
+     * public storefront response.
+     */
+    public function toAdminOption(): array
+    {
+        return $this->toOption() + [
+            'is_active' => (bool) $this->is_active,
+        ];
+    }
 }

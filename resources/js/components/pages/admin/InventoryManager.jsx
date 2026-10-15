@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo, useRef } from 'react';
-import { Package, AlertTriangle, CheckCircle, XCircle, Download, Plus, Pencil, Trash2, X, Upload } from 'lucide-react';
+import { Package, AlertTriangle, CheckCircle, XCircle, Download, Plus, Pencil, Trash2, X, Upload, Eye, EyeOff } from 'lucide-react';
 import { LumaSpin } from '../../ui/luma-spin';
 import giftOptionsFallback from '../../../data/giftOptions';
 import axios from 'axios';
@@ -208,6 +208,15 @@ const InventoryManager = () => {
         onError: () => toast.error('Failed to remove item'),
     });
 
+    const visibilityMutation = useMutation({
+        mutationFn: async ({ id, is_active }) => axios.patch(`/api/v1/admin/gift-items/${id}/visibility`, { is_active }),
+        onSuccess: (_, { is_active }) => {
+            invalidateCatalog();
+            toast.success(is_active ? 'Item shown on storefront' : 'Item hidden from storefront');
+        },
+        onError: (err) => toast.error(err.response?.data?.message || 'Failed to update storefront visibility'),
+    });
+
     const openAdd = () => { setForm(EMPTY_FORM); setModalOpen(true); };
 
     const openEdit = (item, category) => {
@@ -237,6 +246,10 @@ const InventoryManager = () => {
     const handleDelete = (item) => {
         if (!window.confirm(`Remove "${item.name}" from the catalog? It will no longer be selectable on the gift page.`)) return;
         deleteMutation.mutate(item.id);
+    };
+
+    const toggleVisibility = (item) => {
+        visibilityMutation.mutate({ id: item.id, is_active: !item.is_active });
     };
 
     const toggleStockMutation = useMutation({
@@ -281,6 +294,7 @@ const InventoryManager = () => {
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
                 {items.map(item => {
                     const isOutOfStock = outOfStockItems.includes(item.id);
+                    const isHidden = item.is_active === false;
                     return (
                         <motion.div
                             layout="position"
@@ -290,7 +304,7 @@ const InventoryManager = () => {
                                 isOutOfStock
                                     ? 'bg-red-500/5 border-red-500/20 hover:border-red-500/40'
                                     : 'bg-white dark:bg-[#161b22] border-black/5 dark:border-[#30363d] hover:border-[#0d3542]/30 dark:hover:border-[#58a6ff]/30 shadow-none'
-                            }`}
+                            } ${isHidden ? 'opacity-60' : ''}`}
                         >
                             <div className="flex items-center gap-4">
                                 <div className="h-16 w-16 rounded-xl overflow-hidden border border-black/5 dark:border-[#30363d] flex-shrink-0">
@@ -298,7 +312,7 @@ const InventoryManager = () => {
                                         src={item.image}
                                         alt={item.name}
                                         containerClassName="w-full h-full"
-                                        className={`w-full h-full ${isOutOfStock ? 'grayscale opacity-50' : ''}`}
+                                        className={`w-full h-full ${isOutOfStock || isHidden ? 'grayscale opacity-50' : ''}`}
                                     />
                                 </div>
                                 <div className="flex-grow min-w-0">
@@ -306,6 +320,7 @@ const InventoryManager = () => {
                                     <p className="text-xs text-gray-500 dark:text-[#8b949e]">
                                         {item.color || 'Default'}
                                         {item.price != null && <span> · ${Number(item.price).toFixed(2).replace(/\.00$/, '')}</span>}
+                                        {isHidden && <span className="text-rose-500 dark:text-rose-400"> · Hidden</span>}
                                     </p>
                                 </div>
                                 <div
@@ -322,6 +337,19 @@ const InventoryManager = () => {
                                 className="flex items-center justify-end gap-1 mt-3 pt-3 border-t border-black/[0.05] dark:border-[#30363d] opacity-0 group-hover:opacity-100 transition-opacity"
                                 onClick={(e) => e.stopPropagation()}
                             >
+                                <button
+                                    onClick={() => toggleVisibility(item)}
+                                    disabled={visibilityMutation.isPending}
+                                    title={isHidden ? 'Show on storefront' : 'Hide from storefront'}
+                                    className={`h-7 px-2.5 rounded-lg border text-[9px] font-bold uppercase tracking-widest transition-all flex items-center gap-1 disabled:opacity-50 ${
+                                        isHidden
+                                            ? 'border-emerald-500/20 text-emerald-600 dark:text-emerald-400 hover:bg-emerald-500/10'
+                                            : 'border-amber-500/20 text-amber-600 dark:text-amber-400 hover:bg-amber-500/10'
+                                    }`}
+                                >
+                                    {isHidden ? <Eye size={11} /> : <EyeOff size={11} />}
+                                    {isHidden ? 'Show' : 'Hide'}
+                                </button>
                                 <button
                                     onClick={() => openEdit(item, categoryKey)}
                                     title="Edit item"

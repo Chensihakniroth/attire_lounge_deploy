@@ -141,6 +141,7 @@ Route::prefix('v1')->group(function () {
             // Gift Item Catalog CRUD
             Route::get('/gift-items', [GiftItemController::class, 'adminIndex']);
             Route::post('/gift-items', [GiftItemController::class, 'store']);
+            Route::patch('/gift-items/{giftItem}/visibility', [GiftItemController::class, 'updateVisibility']);
             Route::put('/gift-items/{giftItem}', [GiftItemController::class, 'update']);
             Route::delete('/gift-items/{giftItem}', [GiftItemController::class, 'destroy']);
 

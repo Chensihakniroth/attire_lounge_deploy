@@ -36,7 +36,7 @@ class GiftItemController extends Controller
 
         $grouped = [];
         foreach (GiftItem::CATEGORIES as $key => $label) {
-            $grouped[$key] = $items->where('category', $key)->map->toOption()->values();
+            $grouped[$key] = $items->where('category', $key)->map->toAdminOption()->values();
         }
 
         return response()->json($grouped);
@@ -68,7 +68,7 @@ class GiftItemController extends Controller
             'is_active' => true,
         ]);
 
-        return response()->json($item->toOption(), 201);
+        return response()->json($item->toAdminOption(), 201);
     }
 
     public function update(Request $request, GiftItem $giftItem)
@@ -86,7 +86,21 @@ class GiftItemController extends Controller
         // submitted gift request reference it.
         $giftItem->update($validated);
 
-        return response()->json($giftItem->fresh()->toOption());
+        return response()->json($giftItem->fresh()->toAdminOption());
+    }
+
+    /**
+     * Toggle storefront visibility without requiring the full catalog payload.
+     */
+    public function updateVisibility(Request $request, GiftItem $giftItem)
+    {
+        $validated = $request->validate([
+            'is_active' => 'required|boolean',
+        ]);
+
+        $giftItem->update(['is_active' => $validated['is_active']]);
+
+        return response()->json($giftItem->fresh()->toAdminOption());
     }
 
     /**
@@ -97,6 +111,6 @@ class GiftItemController extends Controller
     {
         $giftItem->update(['is_active' => false]);
 
-        return response()->json(['success' => true, 'item' => $giftItem->toOption()]);
+        return response()->json(['success' => true, 'item' => $giftItem->toAdminOption()]);
     }
 }
