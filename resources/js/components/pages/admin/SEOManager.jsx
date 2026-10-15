@@ -1,6 +1,6 @@
-import React, { useState, useEffect, useCallback } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { Search, Globe, AlertCircle, Check, Filter, ExternalLink, Edit3, Save, X, ChevronLeft, ChevronRight, Loader2 } from 'lucide-react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
+import { motion } from 'framer-motion';
+import { Search, Globe, AlertCircle, Check, Filter, ExternalLink, Edit3, Save, X, ChevronLeft, ChevronRight, Loader2, RotateCcw } from 'lucide-react';
 import { LumaSpin } from '@/components/ui/luma-spin';
 import axios from 'axios';
 import { useAdmin } from './AdminContext';
@@ -38,6 +38,34 @@ const SEOManager = () => {
 
     const loading = productsLoading;
     const items = activeTab === 'products' ? products : collections;
+
+    const seoStats = useMemo(() => {
+        const total = items.length;
+        const missing = items.filter(item => !item.meta_title?.trim() || !item.meta_description?.trim()).length;
+        const tooLong = items.filter(item => (item.meta_title?.length || 0) > 60 || (item.meta_description?.length || 0) > 160).length;
+        const ready = items.filter(item => {
+            const hasMetadata = item.meta_title?.trim() && item.meta_description?.trim();
+            const withinLimits = (item.meta_title?.length || 0) <= 60 && (item.meta_description?.length || 0) <= 160;
+            return hasMetadata && withinLimits;
+        }).length;
+
+        return {
+            total,
+            missing,
+            tooLong,
+            ready,
+            completion: total ? Math.round((ready / total) * 100) : 0,
+        };
+    }, [items]);
+
+    const filterCounts = useMemo(() => ({
+        all: items.length,
+        missing: items.filter(item => !item.meta_title?.trim() || !item.meta_description?.trim()).length,
+        long: items.filter(item => (item.meta_title?.length || 0) > 60 || (item.meta_description?.length || 0) > 160).length,
+        short: items.filter(item => (item.meta_title?.length || 0) < 30 || (item.meta_description?.length || 0) < 70).length,
+    }), [items]);
+
+    const hasFilters = Boolean(search.trim()) || filter !== 'all';
     
     const filteredItems = items.filter(item => {
         const matchesSearch = item.name.toLowerCase().includes(search.toLowerCase()) || 
@@ -100,72 +128,163 @@ const SEOManager = () => {
     };
 
     return (
-        <div className="p-8 space-y-8 font-sans">
-            {/* Header Area */}
-            <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
-                <div>
-                    <h1 className="text-2xl font-serif text-gray-900 dark:text-[#c9d1d9] uppercase tracking-[0.2em] mb-1">
-                        SEO Matrix
-                    </h1>
-                    <p className="text-sm text-gray-500 dark:text-[#8b949e]/60 uppercase tracking-widest">
-                        Digital Index & Search Optimization
+        <div className="p-5 sm:p-6 lg:p-8 space-y-6 max-w-[1440px] mx-auto">
+            {/* Header */}
+            <div className="flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
+                <div className="flex items-start gap-3">
+                    <div className="hidden sm:flex h-11 w-11 items-center justify-center rounded-xl bg-[#0d3542]/10 dark:bg-[#58a6ff]/10 text-[#0d3542] dark:text-[#58a6ff]">
+                        <Globe size={20} />
+                    </div>
+                    <div>
+                        <p className="text-[10px] font-black uppercase tracking-[0.28em] text-gray-400 dark:text-[#8b949e]/60">Content control</p>
+                        <h1 className="mt-1 text-3xl font-serif tracking-tight text-gray-900 dark:text-[#c9d1d9]">SEO manager</h1>
+                        <p className="mt-1 max-w-2xl text-sm text-gray-500 dark:text-[#8b949e]">
+                            Keep product and collection metadata clear, complete, and within search limits.
+                        </p>
+                    </div>
+                </div>
+                <div className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest text-gray-400 dark:text-[#8b949e]/60">
+                    <span className="rounded-full bg-emerald-500/10 px-3 py-1.5 text-emerald-600 dark:text-emerald-400">{seoStats.completion}% ready</span>
+                    <span>{seoStats.ready} of {seoStats.total} pages</span>
+                </div>
+            </div>
+
+            {/* Overview */}
+            <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
+                <div className="rounded-xl border border-black/5 bg-white p-4 dark:border-[#30363d] dark:bg-[#161b22]">
+                    <p className="text-[10px] font-bold uppercase tracking-widest text-gray-400 dark:text-[#8b949e]">Total pages</p>
+                    <p className="mt-2 text-2xl font-mono tabular-nums text-gray-900 dark:text-[#c9d1d9]">{seoStats.total}</p>
+                </div>
+                <div className="rounded-xl border border-emerald-500/15 bg-emerald-500/[0.04] p-4">
+                    <p className="text-[10px] font-bold uppercase tracking-widest text-emerald-600/70 dark:text-emerald-400/70">Ready</p>
+                    <p className="mt-2 text-2xl font-mono tabular-nums text-emerald-700 dark:text-emerald-400">{seoStats.ready}</p>
+                </div>
+                <button
+                    type="button"
+                    onClick={() => setFilter('missing')}
+                    className="rounded-xl border border-rose-500/15 bg-rose-500/[0.04] p-4 text-left transition-colors hover:bg-rose-500/[0.08] focus:outline-none focus:ring-2 focus:ring-rose-500/30"
+                >
+                    <p className="text-[10px] font-bold uppercase tracking-widest text-rose-600/70 dark:text-rose-400/70">Needs metadata</p>
+                    <p className="mt-2 text-2xl font-mono tabular-nums text-rose-700 dark:text-rose-400">{seoStats.missing}</p>
+                </button>
+                <button
+                    type="button"
+                    onClick={() => setFilter('long')}
+                    className="rounded-xl border border-amber-500/15 bg-amber-500/[0.04] p-4 text-left transition-colors hover:bg-amber-500/[0.08] focus:outline-none focus:ring-2 focus:ring-amber-500/30"
+                >
+                    <p className="text-[10px] font-bold uppercase tracking-widest text-amber-600/70 dark:text-amber-400/70">Over length</p>
+                    <p className="mt-2 text-2xl font-mono tabular-nums text-amber-700 dark:text-amber-400">{seoStats.tooLong}</p>
+                </button>
+            </div>
+
+            {/* Content type navigation */}
+            <section className="rounded-xl border border-black/5 bg-white p-3 dark:border-[#30363d] dark:bg-[#161b22]">
+                <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                    <div className="flex rounded-lg bg-black/[0.03] p-1 dark:bg-[#0d1117]" role="tablist" aria-label="SEO content type">
+                        <button
+                            type="button"
+                            role="tab"
+                            aria-selected={activeTab === 'products'}
+                            onClick={() => setActiveTab('products')}
+                            className={`flex items-center gap-2 rounded-md px-4 py-2 text-xs font-bold transition-all focus:outline-none focus:ring-2 focus:ring-[#58a6ff]/40 ${activeTab === 'products' ? 'bg-[#0d3542] text-white dark:bg-[#58a6ff] dark:text-black' : 'text-gray-500 hover:text-gray-900 dark:text-[#8b949e] dark:hover:text-white'}`}
+                        >
+                            Products <span className="font-mono tabular-nums opacity-70">{products.length}</span>
+                        </button>
+                        <button
+                            type="button"
+                            role="tab"
+                            aria-selected={activeTab === 'collections'}
+                            onClick={() => setActiveTab('collections')}
+                            className={`flex items-center gap-2 rounded-md px-4 py-2 text-xs font-bold transition-all focus:outline-none focus:ring-2 focus:ring-[#58a6ff]/40 ${activeTab === 'collections' ? 'bg-[#0d3542] text-white dark:bg-[#58a6ff] dark:text-black' : 'text-gray-500 hover:text-gray-900 dark:text-[#8b949e] dark:hover:text-white'}`}
+                        >
+                            Collections <span className="font-mono tabular-nums opacity-70">{collections.length}</span>
+                        </button>
+                    </div>
+                    <p className="text-[10px] font-bold uppercase tracking-widest text-gray-400 dark:text-[#8b949e]/60">
+                        {filteredItems.length} matching {activeTab}
                     </p>
                 </div>
-
-                <div className="flex bg-black/[0.03] dark:bg-[#0d1117] p-1 rounded-lg border border-black/5 dark:border-[#30363d]">
-                    <button 
-                        onClick={() => setActiveTab('products')}
-                        className={`px-6 py-2 rounded-xl text-xs font-bold uppercase tracking-widest transition-all ${activeTab === 'products' ? 'bg-[#0d3542] dark:bg-[#58a6ff] text-white dark:text-black' : 'text-gray-400 hover:text-gray-600 dark:hover:text-white/60'}`}
-                    >
-                        Products
-                    </button>
-                    <button 
-                        onClick={() => setActiveTab('collections')}
-                        className={`px-6 py-2 rounded-xl text-xs font-bold uppercase tracking-widest transition-all ${activeTab === 'collections' ? 'bg-[#0d3542] dark:bg-[#58a6ff] text-white dark:text-black' : 'text-gray-400 hover:text-gray-600 dark:hover:text-white/60'}`}
-                    >
-                        Collections
-                    </button>
-                </div>
-            </div>
+            </section>
 
             {/* Toolbar */}
-            <div className="flex flex-col md:flex-row gap-4 items-center bg-white dark:bg-[#161b22] p-4 rounded-xl border border-black/5 dark:border-[#30363d] shadow-none">
-                <div className="relative flex-1 w-full group">
-                    <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-[#0d3542] dark:group-focus-within:text-[#58a6ff] transition-colors" size={18} />
-                    <input 
-                        type="text"
-                        placeholder={`Search ${activeTab}...`}
-                        value={search}
-                        onChange={e => setSearch(e.target.value)}
-                        className="w-full bg-black/[0.02] dark:bg-[#0d1117] border border-black/5 dark:border-[#30363d] rounded-lg py-3 pl-12 pr-4 text-sm font-bold uppercase tracking-widest outline-none focus:border-[#0d3542]/50 dark:focus:border-[#58a6ff]/50 transition-all placeholder:text-gray-400 dark:placeholder:text-[#8b949e]/20"
-                    />
+            <section className="rounded-xl border border-black/5 bg-white p-4 dark:border-[#30363d] dark:bg-[#161b22]">
+                <div className="flex flex-col gap-3 lg:flex-row lg:items-center">
+                    <div className="relative flex-1 w-full group">
+                        <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-[#0d3542] dark:group-focus-within:text-[#58a6ff] transition-colors" size={16} />
+                        <input
+                            type="text"
+                            placeholder={`Search ${activeTab} by name or slug`}
+                            value={search}
+                            onChange={e => setSearch(e.target.value)}
+                            aria-label={`Search ${activeTab}`}
+                            className="w-full bg-black/[0.02] dark:bg-[#0d1117] border border-black/5 dark:border-[#30363d] rounded-lg py-2.5 pl-10 pr-4 text-sm text-gray-900 dark:text-[#c9d1d9] outline-none focus:border-[#0d3542]/50 dark:focus:border-[#58a6ff]/50 transition-all placeholder:text-gray-400 dark:placeholder:text-[#8b949e]/40"
+                        />
+                    </div>
+                    <div className="relative w-full lg:w-56 group">
+                        <Filter className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-[#0d3542] dark:group-focus-within:text-[#58a6ff] transition-colors" size={16} />
+                        <select
+                            value={filter}
+                            onChange={e => setFilter(e.target.value)}
+                            aria-label="Filter SEO status"
+                            className="w-full bg-black/[0.02] dark:bg-[#0d1117] border border-black/5 dark:border-[#30363d] rounded-lg py-2.5 pl-10 pr-8 text-xs font-bold text-gray-600 dark:text-[#8b949e] focus:border-[#0d3542]/50 dark:focus:border-[#58a6ff]/50 outline-none appearance-none transition-all cursor-pointer"
+                        >
+                            <option value="all">All content ({filterCounts.all})</option>
+                            <option value="missing">Needs metadata ({filterCounts.missing})</option>
+                            <option value="long">Over length ({filterCounts.long})</option>
+                            <option value="short">Short or thin ({filterCounts.short})</option>
+                        </select>
+                    </div>
+                    {hasFilters && (
+                        <button
+                            type="button"
+                            onClick={() => { setSearch(''); setFilter('all'); }}
+                            className="flex items-center justify-center gap-2 rounded-lg border border-black/5 px-3 py-2.5 text-xs font-bold text-gray-500 transition-colors hover:border-[#0d3542]/30 hover:text-[#0d3542] dark:border-[#30363d] dark:text-[#8b949e] dark:hover:border-[#58a6ff]/30 dark:hover:text-[#58a6ff]"
+                        >
+                            <RotateCcw size={13} />
+                            Reset
+                        </button>
+                    )}
                 </div>
-                <div className="relative w-full md:w-64 group">
-                    <Filter className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-[#0d3542] dark:group-focus-within:text-[#58a6ff] transition-colors" size={18} />
-                    <select 
-                        value={filter}
-                        onChange={e => setFilter(e.target.value)}
-                        className="w-full bg-black/[0.02] dark:bg-[#0d1117] border border-black/5 dark:border-[#30363d] rounded-lg py-3 pl-12 pr-10 text-[11px] font-bold uppercase tracking-widest text-gray-600 dark:text-[#8b949e] focus:border-[#0d3542]/50 dark:focus:border-[#58a6ff]/50 outline-none appearance-none transition-all cursor-pointer"
-                    >
-                        <option value="all">All Content</option>
-                        <option value="missing">Missing Metadata</option>
-                        <option value="long">Too Long (Red)</option>
-                        <option value="short">Short/Thin</option>
-                    </select>
+                <div className="mt-3 flex flex-wrap items-center gap-2">
+                    <span className="mr-1 text-[10px] font-bold uppercase tracking-widest text-gray-400 dark:text-[#8b949e]/60">Show</span>
+                    {[
+                        ['all', 'All', filterCounts.all],
+                        ['missing', 'Needs metadata', filterCounts.missing],
+                        ['long', 'Over length', filterCounts.long],
+                        ['short', 'Short or thin', filterCounts.short],
+                    ].map(([value, label, count]) => (
+                        <button
+                            key={value}
+                            type="button"
+                            onClick={() => setFilter(value)}
+                            className={`rounded-full border px-3 py-1.5 text-[11px] font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-[#58a6ff]/30 ${filter === value ? 'border-[#0d3542]/30 bg-[#0d3542]/10 text-[#0d3542] dark:border-[#58a6ff]/30 dark:bg-[#58a6ff]/10 dark:text-[#58a6ff]' : 'border-black/5 text-gray-500 hover:border-black/15 dark:border-[#30363d] dark:text-[#8b949e] dark:hover:border-white/20'}`}
+                        >
+                            {label} <span className="ml-1 font-mono tabular-nums opacity-70">{count}</span>
+                        </button>
+                    ))}
                 </div>
-            </div>
+            </section>
 
             {/* List */}
             <div className="space-y-4">
+                <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
+                    <div>
+                        <h2 className="text-lg font-semibold text-gray-900 dark:text-[#c9d1d9]">{activeTab === 'products' ? 'Product pages' : 'Collection pages'}</h2>
+                        <p className="text-xs text-gray-500 dark:text-[#8b949e]">Edit one page at a time. Start with the items flagged for attention.</p>
+                    </div>
+                    <p className="text-[10px] font-bold uppercase tracking-widest text-gray-400 dark:text-[#8b949e]/60 tabular-nums">
+                        {filteredItems.length === 0 ? '0 results' : `${((currentPage - 1) * ITEMS_PER_PAGE) + 1}-${Math.min(currentPage * ITEMS_PER_PAGE, filteredItems.length)} of ${filteredItems.length}`}
+                    </p>
+                </div>
                 {loading ? (
                     <div className="py-24 flex flex-col items-center justify-center">
                         <LumaSpin size="lg" className="mb-4" />
-                        <p className="text-xs uppercase tracking-widest font-black text-gray-400">Indexing Digital Repository...</p>
+                        <p className="text-xs uppercase tracking-widest font-black text-gray-400">Loading {activeTab}...</p>
                     </div>
                 ) : filteredItems.length === 0 ? (
                     <div className="py-24 text-center bg-black/[0.02] dark:bg-white/[0.02] rounded-[2rem] border border-dashed border-black/5 dark:border-white/10">
                         <AlertCircle className="mx-auto text-gray-300 mb-4" size={32} />
-                        <p className="text-gray-400 dark:text-attire-silver/30 text-xs uppercase tracking-widest">No matching assets found.</p>
+                        <p className="text-gray-400 dark:text-attire-silver/30 text-xs uppercase tracking-widest">No pages match these filters.</p>
                     </div>
                 ) : (
                     <>
@@ -182,7 +301,7 @@ const SEOManager = () => {
                                     <h3 className="font-serif text-xl text-gray-900 dark:text-white mb-1.5 truncate">{item.name}</h3>
                                     <div className="flex items-center gap-3">
                                         <span className="text-[13px] font-mono text-gray-400 dark:text-attire-silver/30 font-bold">/{item.slug}</span>
-                                        <a href={`/shop/product/${item.slug}`} target="_blank" rel="noreferrer" className="text-[#0d3542]/40 dark:text-[#58a6ff]/40 hover:text-[#0d3542] dark:hover:text-[#58a6ff] transition-colors">
+                                        <a href={activeTab === 'products' ? `/product/${item.slug}` : `/products/${item.slug}`} target="_blank" rel="noreferrer" className="text-[#0d3542]/40 dark:text-[#58a6ff]/40 hover:text-[#0d3542] dark:hover:text-[#58a6ff] transition-colors" aria-label={`Open ${item.name}`}>
                                             <ExternalLink size={14} />
                                         </a>
                                     </div>
@@ -200,7 +319,7 @@ const SEOManager = () => {
                                         <div className="space-y-4 animate-in fade-in slide-in-from-top-2 duration-300">
                                             <div className="space-y-2">
                                                 <div className="flex justify-between items-center">
-                                                    <label className="text-[11.5px] font-bold text-gray-500 uppercase tracking-widest">Matrix Title</label>
+                                                    <label className="text-[11.5px] font-bold text-gray-500 uppercase tracking-widest">Meta title</label>
                                                     <span className={`text-[11px] font-bold ${editData.meta_title.length > 60 ? 'text-rose-500' : 'text-[#0d3542]/60 dark:text-[#58a6ff]/60'}`}>
                                                         {editData.meta_title.length}/60
                                                     </span>
@@ -215,7 +334,7 @@ const SEOManager = () => {
                                             </div>
                                             <div className="space-y-2">
                                                 <div className="flex justify-between items-center">
-                                                    <label className="text-[11.5px] font-bold text-gray-500 uppercase tracking-widest">Matrix Discovery Description</label>
+                                                    <label className="text-[11.5px] font-bold text-gray-500 uppercase tracking-widest">Meta description</label>
                                                     <span className={`text-[11px] font-bold ${editData.meta_description.length > 160 ? 'text-rose-500' : 'text-[#0d3542]/60 dark:text-[#58a6ff]/60'}`}>
                                                         {editData.meta_description.length}/160
                                                     </span>
@@ -231,13 +350,13 @@ const SEOManager = () => {
                                     ) : (
                                         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 opacity-80 group-hover:opacity-100 transition-opacity">
                                             <div className="space-y-1.5">
-                                                <p className="text-[11.5px] font-black text-gray-400 uppercase tracking-[0.2em]">Matrix Title</p>
+                                                <p className="text-[11.5px] font-black text-gray-400 uppercase tracking-[0.2em]">Meta title</p>
                                                 <p className={`text-[15.5px] font-medium ${!item.meta_title ? 'text-gray-300 dark:text-white/10 italic' : 'text-gray-700 dark:text-white/80'}`}>
                                                     {item.meta_title || 'Not specified'}
                                                 </p>
                                             </div>
                                             <div className="space-y-1.5">
-                                                <p className="text-[11.5px] font-black text-gray-400 uppercase tracking-[0.2em]">Discovery Description</p>
+                                                <p className="text-[11.5px] font-black text-gray-400 uppercase tracking-[0.2em]">Meta description</p>
                                                 <p className={`text-[15.5px] font-medium line-clamp-2 leading-relaxed ${!item.meta_description ? 'text-gray-300 dark:text-white/10 italic' : 'text-gray-700 dark:text-white/80'}`}>
                                                     {item.meta_description || 'Not specified'}
                                                 </p>
