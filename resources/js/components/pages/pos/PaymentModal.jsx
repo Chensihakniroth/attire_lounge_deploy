@@ -25,6 +25,7 @@ const PaymentModal = ({ onClose }) => {
     const payments = activeTab.payments || [];
     const currentPaid = totals.currentPaid || 0;
     const remaining = totals.remaining || Math.max(0, totals.finalTotal - currentPaid);
+    const noPaymentRequired = totals.finalTotal <= 0.005;
     const [currentMethod, setCurrentMethod] = useState('Cash');
     const [amountInput, setAmountInput] = useState('');
     const [loading, setLoading] = useState(false);
@@ -45,10 +46,12 @@ const PaymentModal = ({ onClose }) => {
     ];
 
     useEffect(() => {
-        setAmountInput(parseFloat(remaining.toFixed(2)).toString());
-    }, [remaining]);
+        setAmountInput(noPaymentRequired ? '' : parseFloat(remaining.toFixed(2)).toString());
+    }, [remaining, noPaymentRequired]);
 
     const addPayment = () => {
+        if (noPaymentRequired) return;
+
         const amount = parseFloat(amountInput);
         if (isNaN(amount) || amount <= 0) return;
 
@@ -303,23 +306,32 @@ const PaymentModal = ({ onClose }) => {
 
                                 <div className="space-y-6 mt-auto">
                                     <div className="space-y-2">
-                                        <label className="text-[9px] font-bold uppercase tracking-[0.2em] text-gray-500 ml-1">Payment Amount</label>
-                                        <div className="relative group">
-                                            <span className="absolute left-6 top-1/2 -translate-y-1/2 text-2xl font-bold text-gray-400 dark:text-[#8b949e]/20 group-focus-within:text-[#0d3542] dark:group-focus-within:text-[#f5a81c] transition-colors">$</span>
-                                             <input 
-                                                type="number"
-                                                placeholder="0.00"
-                                                className="w-full bg-black/[0.02] dark:bg-[#161b22] border border-black/10 dark:border-[#30363d] rounded-[1.5rem] py-6 pl-14 pr-32 text-3xl font-bold tracking-tighter text-gray-900 dark:text-[#c9d1d9] outline-none focus:border-[#0d3542]/50 dark:focus:border-[#f5a81c]/50 focus:bg-[#fdfdfc] dark:focus:bg-[#0d1117] transition-all"
-                                                value={amountInput}
-                                                onChange={(e) => setAmountInput(e.target.value)}
-                                            />
-                                            <button 
-                                                onClick={addPayment}
-                                                className="absolute right-4 top-1/2 -translate-y-1/2 px-6 py-3 bg-[#0d3542] dark:bg-[#f5a81c] text-white dark:text-black text-[9px] font-bold uppercase tracking-widest rounded-xl hover:scale-105 transition-all shadow-none border border-black/5 dark:border-white/5"
-                                            >
-                                                Add Payment
-                                            </button>
-                                        </div>
+                                        <label className="text-[9px] font-bold uppercase tracking-[0.2em] text-gray-500 ml-1">
+                                            {noPaymentRequired ? 'Payment Not Required' : 'Payment Amount'}
+                                        </label>
+                                        {noPaymentRequired ? (
+                                            <div className="rounded-[1.5rem] border border-emerald-500/20 bg-emerald-500/10 px-6 py-5 text-center">
+                                                <p className="text-[11px] font-bold uppercase tracking-[0.2em] text-emerald-500">No payment required</p>
+                                                <p className="mt-1 text-[9px] uppercase tracking-widest text-emerald-500/70">The discount covers this order</p>
+                                            </div>
+                                        ) : (
+                                            <div className="relative group">
+                                                <span className="absolute left-6 top-1/2 -translate-y-1/2 text-2xl font-bold text-gray-400 dark:text-[#8b949e]/20 group-focus-within:text-[#0d3542] dark:group-focus-within:text-[#f5a81c] transition-colors">$</span>
+                                                <input
+                                                    type="number"
+                                                    placeholder="0.00"
+                                                    className="w-full bg-black/[0.02] dark:bg-[#161b22] border border-black/10 dark:border-[#30363d] rounded-[1.5rem] py-6 pl-14 pr-32 text-3xl font-bold tracking-tighter text-gray-900 dark:text-[#c9d1d9] outline-none focus:border-[#0d3542]/50 dark:focus:border-[#f5a81c]/50 focus:bg-[#fdfdfc] dark:focus:bg-[#0d1117] transition-all"
+                                                    value={amountInput}
+                                                    onChange={(e) => setAmountInput(e.target.value)}
+                                                />
+                                                <button
+                                                    onClick={addPayment}
+                                                    className="absolute right-4 top-1/2 -translate-y-1/2 px-6 py-3 bg-[#0d3542] dark:bg-[#f5a81c] text-white dark:text-black text-[9px] font-bold uppercase tracking-widest rounded-xl hover:scale-105 transition-all shadow-none border border-black/5 dark:border-white/5"
+                                                >
+                                                    Add Payment
+                                                </button>
+                                            </div>
+                                        )}
                                     </div>
                                 </div>
                             </>
@@ -407,7 +419,11 @@ const PaymentModal = ({ onClose }) => {
                                 <p className={`text-3xl font-bold tracking-tighter ${remaining === 0 ? 'text-green-500' : 'text-gray-900 dark:text-[#c9d1d9]'}`}>
                                     ${remaining.toLocaleString()}
                                 </p>
-                                {remaining === 0 && <p className="text-[8px] font-bold text-green-500 uppercase tracking-[0.3em]">Fully Paid</p>}
+                                {noPaymentRequired ? (
+                                    <p className="text-[8px] font-bold text-green-500 uppercase tracking-[0.3em]">No payment required</p>
+                                ) : remaining === 0 ? (
+                                    <p className="text-[8px] font-bold text-green-500 uppercase tracking-[0.3em]">Fully Paid</p>
+                                ) : null}
                             </div>
 
                                  <button 

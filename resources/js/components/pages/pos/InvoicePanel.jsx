@@ -116,10 +116,14 @@ const InvoicePanel = () => {
                                 <input 
                                     type="number"
                                     min="0"
+                                    max={activeTab.cartDiscount?.type === 'percentage' ? 100 : undefined}
                                     placeholder="0"
                                     value={activeTab.cartDiscount?.value || ''}
                                     onChange={(e) => {
-                                        const val = Math.max(0, parseFloat(e.target.value) || 0);
+                                        const rawValue = parseFloat(e.target.value) || 0;
+                                        const val = activeTab.cartDiscount?.type === 'percentage'
+                                            ? Math.min(100, Math.max(0, rawValue))
+                                            : Math.max(0, rawValue);
                                         updateCartDiscount(activeTab.cartDiscount?.type || 'percentage', val);
                                     }}
                                     className="w-16 bg-transparent text-right font-black text-[13px] outline-none text-gray-900 dark:text-[#c9d1d9] placeholder:text-gray-300 dark:placeholder:text-[#8b949e]/20 [appearance:textfield]"

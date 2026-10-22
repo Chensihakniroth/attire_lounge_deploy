@@ -114,7 +114,10 @@ class PosInvoiceController extends Controller
             'items.*.discount_type'  => 'in:none,amount,percent',
             'items.*.discount_value' => 'numeric|min:0',
             'items.*.gift_wrap'    => 'boolean',
-            'payments'             => 'required|array|min:1',
+            // A fully discounted order has no money to collect, so it may
+            // legitimately contain an empty payment list. Positive totals are
+            // still checked for a payment below.
+            'payments'             => 'nullable|array',
             'payments.*.method'    => 'required|in:cash,card,deposit,aba,acleda,true_money,foodpanda,grab,wownow',
             'payments.*.amount'    => 'required|numeric|min:0.01',
             'payments.*.reference' => 'nullable|string',
@@ -122,20 +125,31 @@ class PosInvoiceController extends Controller
             'notes'                => 'nullable|string',
         ]);
 
+        $payments = $validated['payments'] ?? [];
+        $totals = $this->computeTotals(
+            $validated['items'],
+            $validated['promo_code_id'] ?? null,
+            $validated['discount_type'] ?? null,
+            $validated['discount_value'] ?? 0
+        );
+
+        // Zero-total invoices are valid when a discount covers the order.
+        // Positive-total invoices still need at least one payment row. The
+        // existing partial/deposit payment behavior remains unchanged.
+        $totalPaid = collect($payments)->sum('amount');
+        if ($totals['grand_total'] > 0 && count($payments) === 0) {
+            return response()->json([
+                'message' => 'Please add a payment before checking out.',
+                'errors' => [
+                    'payments' => ['A payment is required for a positive-total invoice.'],
+                ],
+            ], 422);
+        }
+
+        $paymentStatus = ($totalPaid >= $totals['grand_total']) ? 'paid' : 'partial';
+
         DB::beginTransaction();
         try {
-            // Compute totals
-            $totals = $this->computeTotals(
-                $validated['items'],
-                $validated['promo_code_id'] ?? null,
-                $validated['discount_type'] ?? null,
-                $validated['discount_value'] ?? 0
-            );
-
-            // Determine payment status
-            $totalPaid   = collect($validated['payments'])->sum('amount');
-            $hasDeposit  = collect($validated['payments'])->contains('method', 'deposit');
-            $paymentStatus = ($totalPaid >= $totals['grand_total']) ? 'paid' : 'partial';
 
             // Create invoice
             $invoice = PosInvoice::create([
@@ -189,7 +203,7 @@ class PosInvoiceController extends Controller
             }
 
             // Create payment rows (split payment support)
-            foreach ($validated['payments'] as $payment) {
+            foreach ($payments as $payment) {
                 PosPayment::create([
                     'invoice_id' => $invoice->id,
                     'method'     => $payment['method'],
