@@ -15,7 +15,7 @@ const POSLayout = () => {
     
     return (
         <POSProvider>
-            <div key={themeKey} className={`h-screen w-screen flex flex-col font-sans transition-colors duration-300 relative overflow-hidden bg-attire-navy text-white`}>
+            <div key={themeKey} id="pos-root" className={`h-dvh w-screen flex flex-col font-sans transition-colors duration-300 relative overflow-hidden bg-attire-navy text-white`}>
                 {/* Scoped Reset for Full Screen */}
                 <style dangerouslySetInnerHTML={{ __html: `
                     html, body, #app { height: 100% !important; width: 100% !important; overflow: hidden !important; margin: 0; padding: 0; }

@@ -21,6 +21,23 @@ import { AdminProvider } from './pages/admin/AdminContext';
 import { ThemeProvider } from './pages/admin/ThemeContext';
 import { ToastProvider } from './ui/toast';
 import { ConfirmProvider } from './ui/confirm-dialog';
+import { isSafari } from '../helpers/browserUtils.js';
+
+/**
+ * iOS/Safari: mark <body> so the Safari optimization rules in app.css
+ * actually apply to the admin panel (they were only ever set by the
+ * storefront app — without this, blurred glows + backdrop-filters run at
+ * full cost on iPhone and the main thread janks, which makes iOS drop
+ * touch events → "freeze / can't tap the top bar").
+ */
+function ApplySafariMode() {
+    useEffect(() => {
+        if (typeof document !== 'undefined') {
+            document.body.setAttribute('data-safari', isSafari().toString());
+        }
+    }, []);
+    return null;
+}
 
 const RealtimeAdminUpdater: React.FC = () => {
     useEffect(() => {
@@ -272,6 +289,7 @@ function AdminApp() {
     return (
         <HelmetProvider>
             <QueryClientProvider client={queryClient}>
+                <ApplySafariMode />
                 <RealtimeAdminUpdater />
                 <ChunkPreloader />
                 <Router future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>

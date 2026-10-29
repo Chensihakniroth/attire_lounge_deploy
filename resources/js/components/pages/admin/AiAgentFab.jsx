@@ -37,7 +37,7 @@ export default function AiAgentFab({ variant = 'fab' }) {
                 onClick={() => navigate('/admin/ai')}
                 aria-label="AI Assistant"
                 title="Ask Attire AI"
-                className="group relative flex items-center gap-2 px-4 py-2 bg-white/10 border border-white/20 rounded-xl hover:bg-white hover:text-attire-navy transition-all"
+                className="group relative flex items-center gap-2 px-2.5 sm:px-4 py-2 bg-white/10 border border-white/20 rounded-xl hover:bg-white hover:text-attire-navy transition-all"
             >
                 <span className="relative flex h-2 w-2">
                     <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75"></span>

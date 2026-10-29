@@ -1023,3 +1023,44 @@ html.dark select option {
         -webkit-backdrop-filter: none !important;
     }
 }
+
+/* ========================================
+   ADMIN PANEL — iOS SAFARI TOUCH & LAYOUT HARDENING
+   ======================================== */
+/* Dynamic viewport height: 100vh on iOS Safari includes the collapsed
+   browser toolbar, so the layout overflows the visible screen and taps
+   in the top bar can land off-target after the toolbar animates. 100dvh
+   tracks the visible area; the vh line is the fallback for older iOS. */
+#admin-root,
+#pos-root {
+    height: 100vh;
+    height: 100dvh;
+}
+
+/* Kill the double-tap-zoom delay + grey tap flash on every admin control
+   so taps register instantly. iOS Safari drops touch input while the
+   main thread is busy, so removing the 300ms tap delay matters a lot on
+   older iPhones. */
+@media (pointer: coarse) {
+    #admin-root button,
+    #admin-root a,
+    #admin-root [role="button"],
+    #admin-root [role="menuitem"],
+    #admin-root select,
+    #admin-root input[type="checkbox"],
+    #admin-root input[type="radio"],
+    #admin-root summary,
+    #pos-root button,
+    #pos-root a,
+    #pos-root [role="button"],
+    #pos-root select,
+    #pos-root input[type="checkbox"],
+    #pos-root input[type="radio"] {
+        touch-action: manipulation;
+    }
+
+    #admin-root *,
+    #pos-root * {
+        -webkit-tap-highlight-color: transparent;
+    }
+}

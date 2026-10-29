@@ -116,17 +116,17 @@ function KpiCard({
     return (
         <div
             style={{ animationDelay: `${index * 70}ms` }}
-            className="group relative animate-fade-in-up overflow-hidden rounded-2xl border border-border bg-card p-4 opacity-0 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-xl hover:shadow-primary/10"
+            className="animate-fade-in-up rounded-xl border border-border/70 bg-card p-4 opacity-0 transition-colors duration-200 hover:border-primary/40"
         >
             <div className="flex items-center justify-between">
                 <span className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
                     {label}
                 </span>
-                <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-primary/10 text-primary transition-all duration-300 group-hover:scale-110 group-hover:bg-primary/20 group-hover:shadow-[0_0_16px_hsl(var(--primary)/0.45)]">
+                <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-muted text-primary">
                     <Icon size={17} />
                 </span>
             </div>
-            <div className="mt-3 text-3xl font-bold tracking-tight text-foreground tabular-nums">
+            <div className="mt-4 text-2xl font-semibold tracking-tight text-foreground tabular-nums">
                 {display}
             </div>
         </div>
@@ -205,8 +205,19 @@ export function Dashboard() {
     const lastPoint = trendData.length > 0 ? trendData[trendData.length - 1] : null;
 
     return (
-        <div className="space-y-5">
-            {/* KPI grid — dense, animated */}
+        <div className="space-y-6">
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+                <div>
+                    <p className="text-[10px] font-semibold uppercase tracking-[0.24em] text-muted-foreground">Business overview</p>
+                    <h2 className="mt-1 text-xl font-semibold tracking-tight text-foreground">Today at a glance</h2>
+                </div>
+                <span className="inline-flex w-fit items-center gap-2 rounded-full border border-border bg-card px-3 py-1.5 text-[11px] font-medium text-muted-foreground">
+                    <span className="h-2 w-2 rounded-full bg-emerald-400 shadow-[0_0_8px_rgba(52,211,153,0.7)]" />
+                    {isAttire ? 'Appointments and client activity' : 'Sales and inventory activity'}
+                </span>
+            </div>
+
+            {/* KPI grid */}
             <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
                 {kpis.map((k, i) => (
                     <KpiCard
@@ -220,12 +231,12 @@ export function Dashboard() {
             </div>
 
             {/* Revenue chart + right column */}
-            <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
+            <div className="grid grid-cols-1 gap-5 lg:grid-cols-3">
                 <Card
-                    className="animate-fade-in-up p-5 opacity-0 lg:col-span-2 min-w-0 flex flex-col justify-between"
+                    className="animate-fade-in-up min-w-0 p-6 opacity-0 lg:col-span-2"
                     style={FADE(120)}
                 >
-                    <div className="mb-4 flex items-center justify-between">
+                    <div className="mb-5 flex items-center justify-between border-b border-border/70 pb-4">
                         <CardTitle className="flex items-center gap-2 text-base">
                             <TrendingUp size={15} className="text-attire-gold" /> {isRevenue ? 'Revenue Trend' : 'Appointments Trend'}
                         </CardTitle>
@@ -335,8 +346,8 @@ export function Dashboard() {
 
                 <div className="flex flex-col gap-4">
                     {/* Billing health — ring */}
-                    <Card className="animate-fade-in-up p-4 opacity-0" style={FADE(180)}>
-                        <CardTitle className="mb-3 flex items-center gap-2 text-base">
+                    <Card className="animate-fade-in-up rounded-2xl p-5 opacity-0" style={FADE(180)}>
+                        <CardTitle className="mb-4 flex items-center gap-2 border-b border-border/70 pb-3 text-base">
                             <FileText size={15} className="text-attire-gold" /> Billing Health
                         </CardTitle>
                         <div className="flex items-center gap-4">
@@ -372,13 +383,13 @@ export function Dashboard() {
                             </div>
                         </div>
                         <div className="mt-4 grid grid-cols-2 gap-3 text-sm">
-                            <div className="rounded-lg bg-muted p-3 transition-colors hover:bg-muted/70">
+                            <div className="rounded-xl border border-border/60 bg-muted/50 p-3 transition-colors hover:border-primary/30 hover:bg-muted">
                                 <p className="text-xs text-muted-foreground">Revenue (today)</p>
                                 <p className="font-semibold tabular-nums text-foreground">
                                     ${revenue.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                                 </p>
                             </div>
-                            <div className="rounded-lg bg-muted p-3 transition-colors hover:bg-muted/70">
+                            <div className="rounded-xl border border-border/60 bg-muted/50 p-3 transition-colors hover:border-primary/30 hover:bg-muted">
                                 <p className="text-xs text-muted-foreground">Invoices (today)</p>
                                 <p className="font-semibold tabular-nums text-foreground">
                                     {invoicesToday}
@@ -388,8 +399,8 @@ export function Dashboard() {
                     </Card>
 
                     {/* Channel sales */}
-                    <Card className="animate-fade-in-up p-4 opacity-0" style={FADE(240)}>
-                        <CardTitle className="mb-3 flex items-center gap-2 text-base">
+                    <Card className="animate-fade-in-up rounded-2xl p-5 opacity-0" style={FADE(240)}>
+                        <CardTitle className="mb-4 flex items-center gap-2 border-b border-border/70 pb-3 text-base">
                             <ShoppingBag size={15} className="text-attire-gold" /> Sales Channels
                         </CardTitle>
                         <div className="space-y-2">
@@ -408,7 +419,7 @@ export function Dashboard() {
                                             }
                                         }}
                                         className={cn(
-                                            'flex cursor-pointer items-center justify-between rounded-xl border px-3 py-2.5 transition-all duration-200 hover:translate-x-1',
+                                            'flex cursor-pointer items-center justify-between rounded-xl border px-3 py-3 transition-all duration-200 hover:translate-x-1',
                                             active
                                                 ? 'border-primary/40 bg-primary/5'
                                                 : 'border-border hover:border-primary/30'
@@ -445,12 +456,12 @@ export function Dashboard() {
             </div>
 
             {/* Invoices + Activity */}
-            <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
+            <div className="grid grid-cols-1 gap-5 lg:grid-cols-3">
                 <Card
-                    className="animate-fade-in-up p-4 opacity-0 lg:col-span-2"
+                    className="animate-fade-in-up rounded-2xl p-6 opacity-0 lg:col-span-2"
                     style={FADE(300)}
                 >
-                    <CardTitle className="mb-3 flex items-center gap-2 text-base">
+                    <CardTitle className="mb-4 flex items-center gap-2 border-b border-border/70 pb-3 text-base">
                         <FileText size={16} /> Recent Invoices
                     </CardTitle>
                     {invoices.length === 0 ? (
@@ -516,7 +527,7 @@ export function Dashboard() {
                     )}
                 </Card>
 
-                <Card className="animate-fade-in-up p-4 opacity-0" style={FADE(360)}>
+                <Card className="animate-fade-in-up rounded-2xl p-5 opacity-0" style={FADE(360)}>
                     <RecentActivityWidget />
                 </Card>
             </div>

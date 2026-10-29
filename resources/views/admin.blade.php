@@ -2,7 +2,7 @@
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
     <head>
         <meta charset="utf-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
         <title>Admin Panel | Attire Lounge Official</title>
         <meta name="robots" content="noindex, nofollow">
         <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -18,6 +18,7 @@
                 align-items: center;
                 justify-content: center;
                 height: 100vh;
+                height: 100dvh;
                 width: 100vw;
                 position: fixed;
                 top: 0;

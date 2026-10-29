@@ -88,7 +88,7 @@ const OutletSwitcher = () => {
         <div className="relative">
             <button
                 onClick={() => setIsOpen(!isOpen)}
-                className="flex items-center gap-2.5 px-4 py-2 bg-white/10 border border-white/20 rounded-xl hover:bg-white/15 transition-all group"
+                className="flex items-center gap-2 px-3 sm:px-4 py-2 bg-white/10 border border-white/20 rounded-xl hover:bg-white/15 transition-all group"
             >
                 <div
                     className="w-2 h-2 rounded-full flex-shrink-0 ring-2 ring-white/20"
@@ -112,6 +112,7 @@ const OutletSwitcher = () => {
                             initial={{ opacity: 0 }}
                             animate={{ opacity: 1 }}
                             exit={{ opacity: 0 }}
+                            style={{ pointerEvents: isOpen ? 'auto' : 'none' }}
                         />
                         <motion.div
                             initial={{ opacity: 0, y: 8, scale: 0.96 }}
@@ -273,6 +274,7 @@ const Sidebar = ({ isOpen, setOpen, isDesktop }) => {
                         animate={{ opacity: 1 }}
                         exit={{ opacity: 0 }}
                         onClick={() => setOpen(false)}
+                        style={{ pointerEvents: isOpen ? 'auto' : 'none' }}
                     ></motion.div>
                 </>
             )}
@@ -344,7 +346,7 @@ const AdminLayoutContent = ({
     return (
         <div
             id="admin-root"
-            className={`flex h-screen bg-[#fdfdfc] dark:bg-[#0d1117] font-sans text-gray-900 dark:text-[#c9d1d9] selection:bg-[#0d3542] selection:text-white transition-colors duration-300 relative ${performanceMode ? 'performance-mode' : ''}`}
+            className={`flex h-dvh bg-[#fdfdfc] dark:bg-[#0d1117] font-sans text-gray-900 dark:text-[#c9d1d9] selection:bg-[#0d3542] selection:text-white transition-colors duration-300 relative ${performanceMode ? 'performance-mode' : ''}`}
         >
             {/* Warning Modal */}
             <ModernModal
@@ -396,29 +398,30 @@ const AdminLayoutContent = ({
 
             <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
                 {!isEditing && (
-                    <header className="h-16 bg-attire-navy border-b border-white/10 flex items-center px-6 justify-between flex-shrink-0 z-20 transition-colors duration-300">
+                    <header className="h-16 bg-attire-navy border-b border-white/10 flex items-center justify-between flex-shrink-0 z-20 transition-colors duration-300 pl-[max(1.5rem,env(safe-area-inset-left))] pr-[max(1.5rem,env(safe-area-inset-right))] max-sm:pl-[max(0.75rem,env(safe-area-inset-left))] max-sm:pr-[max(0.75rem,env(safe-area-inset-right))]">
                         <div className="flex items-center gap-4">
                             <button
                                 onClick={() => setSidebarOpen(!isSidebarOpen)}
-                                className="p-2 hover:bg-white/10 rounded-xl text-white/60 hover:text-white transition-all active:scale-95"
+                                aria-label={isSidebarOpen ? 'Close menu' : 'Open menu'}
+                                className="p-2.5 sm:p-2 hover:bg-white/10 rounded-xl text-white/60 hover:text-white transition-all active:scale-95"
                             >
                                 {isSidebarOpen ? <X size={20} /> : <Menu size={20} />}
                             </button>
                             <div className="h-4 w-px bg-white/20 mx-2 hidden lg:block" />
                         </div>
 
-                        <div className="flex items-center gap-4">
+                        <div className="flex items-center gap-2 sm:gap-4">
                             {/* POS Switcher Button */}
                             <button
                                 onClick={handlePOSSwitch}
-                                className="flex items-center gap-2 px-4 py-2 bg-white/10 border border-white/20 rounded-xl hover:bg-white hover:text-attire-navy transition-all group"
+                                className="flex items-center gap-2 px-2.5 sm:px-4 py-2 bg-white/10 border border-white/20 rounded-xl hover:bg-white hover:text-attire-navy transition-all group"
                                 title="Open POS System"
                             >
                                 <ArrowLeftRight size={14} className="text-white group-hover:text-attire-navy" />
                                 <span className="text-xs font-bold uppercase tracking-widest text-white group-hover:text-attire-navy hidden sm:block">Open POS</span>
                             </button>
 
-                            <div className="h-4 w-px bg-white/20 mx-1" />
+                            <div className="h-4 w-px bg-white/20 mx-0.5 sm:mx-1" />
 
                             {/* Outlet Switcher */}
                             <OutletSwitcher />
@@ -426,7 +429,7 @@ const AdminLayoutContent = ({
                             {/* AI Assistant — inline button next to the outlet switcher */}
                             <AiAgentFab variant="header" />
 
-                            <div className="h-4 w-px bg-white/20 mx-2" />
+                            <div className="h-4 w-px bg-white/20 mx-0.5 sm:mx-2" />
 
                             <div className="text-right hidden md:block">
                                 <p className="text-xs font-bold text-white uppercase tracking-wider leading-none mb-1">
@@ -436,7 +439,7 @@ const AdminLayoutContent = ({
                                     {OUTLET_CONFIG[activeOutlet]?.label || 'Master Access'}
                                 </p>
                             </div>
-                            <div className="w-8 h-8 rounded-full bg-white/10 border border-white/20 flex items-center justify-center">
+                            <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-white/10 border border-white/20 flex items-center justify-center flex-shrink-0">
                                 <ShoppingBag
                                     size={14}
                                     className="text-white"
@@ -449,7 +452,7 @@ const AdminLayoutContent = ({
                     </header>
                 )}
 
-                <main className={`flex-1 relative ${isAiPage ? 'p-0 overflow-hidden h-[calc(100vh-4rem)] bg-background dark:bg-[#0d1117]' : isPromocodePage ? 'p-0 overflow-y-auto bg-[#0b0c10]' : 'p-6 overflow-y-auto bg-background dark:bg-[#0d1117]'}`}>
+                <main className={`flex-1 relative ${isAiPage ? 'p-0 overflow-hidden h-[calc(100dvh-4rem)] bg-background dark:bg-[#0d1117]' : isPromocodePage ? 'p-0 overflow-y-auto bg-[#0b0c10]' : 'p-6 overflow-y-auto bg-background dark:bg-[#0d1117]'}`}>
                     <div className={`relative z-10 w-full ${isAiPage ? 'h-full' : ''}`}>
                         <React.Suspense fallback={
                             <div className="w-full h-full min-h-[50vh] flex flex-col items-center justify-center gap-4">
